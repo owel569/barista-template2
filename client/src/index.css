@@ -13,16 +13,25 @@
   --card-foreground: hsl(20, 14.3%, 4.1%);
   --border: hsl(20, 5.9%, 90%);
   --input: hsl(20, 5.9%, 90%);
-  --primary: hsl(207, 90%, 54%);
-  --primary-foreground: hsl(211, 100%, 99%);
-  --secondary: hsl(60, 4.8%, 95.9%);
+  --primary: hsl(25, 57%, 41%);
+  --primary-foreground: hsl(60, 9.1%, 97.8%);
+  --secondary: hsl(39, 77%, 72%);
   --secondary-foreground: hsl(24, 9.8%, 10%);
-  --accent: hsl(60, 4.8%, 95.9%);
-  --accent-foreground: hsl(24, 9.8%, 10%);
+  --accent: hsl(33, 100%, 49%);
+  --accent-foreground: hsl(60, 9.1%, 97.8%);
   --destructive: hsl(0, 84.2%, 60.2%);
   --destructive-foreground: hsl(60, 9.1%, 97.8%);
   --ring: hsl(20, 14.3%, 4.1%);
   --radius: 0.5rem;
+  
+  /* Coffee theme colors */
+  --coffee-primary: hsl(25, 57%, 41%);
+  --coffee-secondary: hsl(39, 77%, 72%);
+  --coffee-cream: hsl(36, 44%, 90%);
+  --coffee-dark: hsl(30, 67%, 16%);
+  --coffee-accent: hsl(33, 100%, 49%);
+  --coffee-green: hsl(120, 61%, 27%);
+  --coffee-light: hsl(42, 33%, 96%);
 }
 
 .dark {
@@ -36,11 +45,11 @@
   --card-foreground: hsl(0, 0%, 98%);
   --border: hsl(240, 3.7%, 15.9%);
   --input: hsl(240, 3.7%, 15.9%);
-  --primary: hsl(207, 90%, 54%);
-  --primary-foreground: hsl(211, 100%, 99%);
+  --primary: hsl(25, 57%, 41%);
+  --primary-foreground: hsl(60, 9.1%, 97.8%);
   --secondary: hsl(240, 3.7%, 15.9%);
   --secondary-foreground: hsl(0, 0%, 98%);
-  --accent: hsl(240, 3.7%, 15.9%);
+  --accent: hsl(33, 100%, 49%);
   --accent-foreground: hsl(0, 0%, 98%);
   --destructive: hsl(0, 62.8%, 30.6%);
   --destructive-foreground: hsl(0, 0%, 98%);
@@ -54,6 +63,142 @@
   }
 
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply font-sans antialiased;
+    background-color: var(--coffee-light);
+    color: var(--coffee-dark);
   }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
+  }
+}
+
+@layer utilities {
+  .bg-coffee-primary {
+    background-color: var(--coffee-primary);
+  }
+  .bg-coffee-secondary {
+    background-color: var(--coffee-secondary);
+  }
+  .bg-coffee-cream {
+    background-color: var(--coffee-cream);
+  }
+  .bg-coffee-dark {
+    background-color: var(--coffee-dark);
+  }
+  .bg-coffee-accent {
+    background-color: var(--coffee-accent);
+  }
+  .bg-coffee-green {
+    background-color: var(--coffee-green);
+  }
+  .bg-coffee-light {
+    background-color: var(--coffee-light);
+  }
+  
+  .text-coffee-primary {
+    color: var(--coffee-primary);
+  }
+  .text-coffee-secondary {
+    color: var(--coffee-secondary);
+  }
+  .text-coffee-cream {
+    color: var(--coffee-cream);
+  }
+  .text-coffee-dark {
+    color: var(--coffee-dark);
+  }
+  .text-coffee-accent {
+    color: var(--coffee-accent);
+  }
+  .text-coffee-green {
+    color: var(--coffee-green);
+  }
+  .text-coffee-light {
+    color: var(--coffee-light);
+  }
+  
+  .border-coffee-primary {
+    border-color: var(--coffee-primary);
+  }
+  .border-coffee-secondary {
+    border-color: var(--coffee-secondary);
+  }
+  .border-coffee-cream {
+    border-color: var(--coffee-cream);
+  }
+  .border-coffee-dark {
+    border-color: var(--coffee-dark);
+  }
+  .border-coffee-accent {
+    border-color: var(--coffee-accent);
+  }
+  .border-coffee-green {
+    border-color: var(--coffee-green);
+  }
+  
+  .hover\:bg-coffee-primary:hover {
+    background-color: var(--coffee-primary);
+  }
+  .hover\:bg-coffee-secondary:hover {
+    background-color: var(--coffee-secondary);
+  }
+  .hover\:bg-coffee-accent:hover {
+    background-color: var(--coffee-accent);
+  }
+  .hover\:bg-coffee-dark:hover {
+    background-color: var(--coffee-dark);
+  }
+  
+  .hover\:text-coffee-accent:hover {
+    color: var(--coffee-accent);
+  }
+  .hover\:text-coffee-secondary:hover {
+    color: var(--coffee-secondary);
+  }
+  .hover\:text-coffee-dark:hover {
+    color: var(--coffee-dark);
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 1s ease-out;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--coffee-cream);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--coffee-secondary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--coffee-primary);
+}
+
+/* Focus styles */
+.focus\:border-coffee-accent:focus {
+  border-color: var(--coffee-accent);
+}
+
+.focus\:ring-coffee-accent:focus {
+  --tw-ring-color: var(--coffee-accent);
 }
