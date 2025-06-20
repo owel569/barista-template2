@@ -57,7 +57,7 @@ export default function Navigation() {
             >
               Contact
             </button>
-            <Link href="/admin">
+            <Link href="/login">
               <Button
                 variant="ghost"
                 className="hover:text-coffee-accent transition duration-300"
@@ -109,7 +109,7 @@ export default function Navigation() {
               >
                 Contact
               </button>
-              <Link href="/admin">
+              <Link href="/login">
                 <button className="text-left hover:text-coffee-accent transition duration-300">
                   <Shield className="h-4 w-4 mr-1 inline" />
                   Admin

@@ -127,12 +127,14 @@ export const insertReservationSchema = createInsertSchema(reservations).pick({
   guests: true,
   tableId: true,
   specialRequests: true,
+  status: true,
 }).extend({
   customerEmail: z.string().email("Email invalide"),
   customerPhone: z.string().min(10, "Numéro de téléphone invalide"),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Format de date invalide"),
   time: z.string().regex(/^\d{2}:\d{2}$/, "Format d'heure invalide"),
   guests: z.number().min(1).max(8, "Maximum 8 personnes"),
+  status: z.string().default("confirmed"),
 });
 
 export const insertContactMessageSchema = createInsertSchema(contactMessages).pick({

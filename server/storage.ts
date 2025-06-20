@@ -100,7 +100,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteMenuItem(id: number): Promise<boolean> {
     const result = await db.delete(menuItems).where(eq(menuItems.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Tables
@@ -177,7 +177,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteReservation(id: number): Promise<boolean> {
     const result = await db.delete(reservations).where(eq(reservations.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   async checkReservationConflict(date: string, time: string, tableId?: number): Promise<boolean> {

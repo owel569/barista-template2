@@ -148,7 +148,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const hasConflict = await storage.checkReservationConflict(
         reservationData.date,
         reservationData.time,
-        reservationData.tableId
+        reservationData.tableId || undefined
       );
 
       if (hasConflict) {
@@ -157,10 +157,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const reservation = await storage.createReservation({
-        ...reservationData,
-        status: "confirmed"
-      });
+      const reservation = await storage.createReservation(reservationData);
 
       res.status(201).json(reservation);
     } catch (error: any) {
