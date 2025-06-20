@@ -51,6 +51,21 @@ export default function AdminDashboard() {
     enabled: false // Disable for demo, would work with real API
   });
 
+  // Format date for display (DD/MM/YY)
+  const formatDateShort = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: '2-digit'
+    });
+  };
+
+  // Generate current dates for demo data
+  const currentDate = new Date();
+  const today = currentDate.toISOString().split('T')[0];
+  const tomorrow = new Date(currentDate.getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
   // Mock data for demonstration
   const mockReservations: Reservation[] = [
     {
@@ -58,7 +73,7 @@ export default function AdminDashboard() {
       customerName: "Marie Dubois",
       customerEmail: "marie.dubois@email.com",
       customerPhone: "06 12 34 56 78",
-      date: "2024-11-15",
+      date: today,
       time: "19:30",
       guests: 2,
       status: "confirmed",
@@ -69,7 +84,7 @@ export default function AdminDashboard() {
       customerName: "Jean Martin",
       customerEmail: "jean.martin@email.com",
       customerPhone: "06 87 65 43 21",
-      date: "2024-11-16",
+      date: tomorrow,
       time: "12:30",
       guests: 4,
       status: "pending",
@@ -80,7 +95,7 @@ export default function AdminDashboard() {
       customerName: "Sophie Laurent",
       customerEmail: "sophie.laurent@email.com",
       customerPhone: "06 55 44 33 22",
-      date: "2024-11-15",
+      date: today,
       time: "14:00",
       guests: 3,
       status: "confirmed",
@@ -242,7 +257,7 @@ export default function AdminDashboard() {
                           </td>
                           <td className="px-4 py-3">
                             <div className="text-coffee-dark font-semibold">
-                              {new Date(reservation.date).toLocaleDateString('fr-FR')}
+                              {formatDateShort(reservation.date)}
                             </div>
                             <div className="text-gray-600 text-sm">
                               {reservation.time}

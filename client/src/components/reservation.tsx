@@ -81,6 +81,16 @@ export default function Reservation() {
 
   // Set minimum date to today
   const today = new Date().toISOString().split('T')[0];
+  
+  // Format date for display (DD/MM/YY)
+  const formatDateShort = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: '2-digit'
+    });
+  };
 
   // Mock calendar data for display
   const mockCalendarDays = [
@@ -342,7 +352,7 @@ export default function Reservation() {
                     <div className="text-sm text-gray-600">2 personnes - 19:30</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm font-semibold text-coffee-green">Aujourd'hui</div>
+                    <div className="text-sm font-semibold text-coffee-green">{formatDateShort(today)}</div>
                     <div className="text-xs text-gray-500">Confirmée</div>
                   </div>
                 </div>
@@ -352,7 +362,9 @@ export default function Reservation() {
                     <div className="text-sm text-gray-600">4 personnes - 12:30</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm font-semibold text-coffee-accent">Demain</div>
+                    <div className="text-sm font-semibold text-coffee-accent">
+                      {formatDateShort(new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0])}
+                    </div>
                     <div className="text-xs text-gray-500">En attente</div>
                   </div>
                 </div>
