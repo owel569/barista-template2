@@ -51,14 +51,13 @@ export default function AdminDashboard() {
     enabled: false // Disable for demo, would work with real API
   });
 
-  // Format date for display (DD/MM/YY)
+  // Format date for display (DD/MM/YYYY)
   const formatDateShort = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: '2-digit'
-    });
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear().toString();
+    return `${day}/${month}/${year}`;
   };
 
   // Generate current dates for demo data
