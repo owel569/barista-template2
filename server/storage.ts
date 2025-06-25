@@ -161,10 +161,13 @@ export class DatabaseStorage implements IStorage {
     return reservation || undefined;
   }
 
-  async createReservation(reservation: InsertReservation): Promise<Reservation> {
-    const [newReservation] = await db.insert(reservations).values(reservation).returning();
-    return newReservation;
-  }
+async createReservation(reservation: InsertReservation): Promise<Reservation> {
+  // On retire createdAt s'il existe (juste au cas où), pour laisser la BDD le gérer (defaultNow)
+  const data = { ...reservation };
+  delete (data as any).createdAt;
+  const [newReservation] = await db.insert(reservations).values(data).returning();
+  return newReservation;
+}
 
   async updateReservationStatus(id: number, status: string): Promise<Reservation | undefined> {
     const [updatedReservation] = await db
@@ -205,10 +208,13 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(contactMessages).orderBy(desc(contactMessages.createdAt));
   }
 
-  async createContactMessage(message: InsertContactMessage): Promise<ContactMessage> {
-    const [newMessage] = await db.insert(contactMessages).values(message).returning();
-    return newMessage;
-  }
+async createContactMessage(message: InsertContactMessage): Promise<ContactMessage> {
+  // On retire createdAt s'il existe (juste au cas où), pour laisser la BDD le gérer (defaultNow)
+  const data = { ...message };
+  delete (data as any).createdAt;
+  const [newMessage] = await db.insert(contactMessages).values(data).returning();
+  return newMessage;
+}
 
   async updateContactMessageStatus(id: number, status: string): Promise<ContactMessage | undefined> {
     const [updatedMessage] = await db
