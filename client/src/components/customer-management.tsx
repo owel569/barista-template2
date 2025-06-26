@@ -46,16 +46,13 @@ export default function CustomerManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: customers = [], isLoading } = useQuery({
+  const { data: customers = [], isLoading } = useQuery<Customer[]>({
     queryKey: ["/api/customers"],
   });
 
   const createCustomerMutation = useMutation({
     mutationFn: (data: typeof newCustomer) => 
-      apiRequest("/api/customers", {
-        method: "POST",
-        body: JSON.stringify(data),
-      }),
+      apiRequest("POST", "/api/customers", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/customers"] });
       setIsDialogOpen(false);
@@ -76,10 +73,7 @@ export default function CustomerManagement() {
 
   const updateCustomerMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: Partial<Customer> }) =>
-      apiRequest(`/api/customers/${id}`, {
-        method: "PATCH",
-        body: JSON.stringify(data),
-      }),
+      apiRequest("PATCH", `/api/customers/${id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/customers"] });
       setEditingCustomer(null);
@@ -246,6 +240,8 @@ export default function CustomerManagement() {
                     id="dateOfBirth"
                     type="date"
                     value={newCustomer.dateOfBirth}
+                    min="1900-01-01"
+                    max="3000-12-31"
                     onChange={(e) => setNewCustomer({ ...newCustomer, dateOfBirth: e.target.value })}
                   />
                 </div>

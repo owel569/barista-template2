@@ -58,10 +58,7 @@ export default function EnhancedAdminDashboard() {
   // Update reservation status
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: number; status: string }) =>
-      apiRequest(`/api/reservations/${id}`, {
-        method: "PATCH",
-        body: JSON.stringify({ status }),
-      }),
+      apiRequest("PATCH", `/api/reservations/${id}`, { status }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/reservations"] });
       toast({
@@ -74,9 +71,7 @@ export default function EnhancedAdminDashboard() {
   // Delete reservation
   const deleteMutation = useMutation({
     mutationFn: (id: number) =>
-      apiRequest(`/api/reservations/${id}`, {
-        method: "DELETE",
-      }),
+      apiRequest("DELETE", `/api/reservations/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/reservations"] });
       toast({

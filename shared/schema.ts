@@ -305,7 +305,11 @@ export const insertCustomerSchema = createInsertSchema(customers).pick({
   firstName: z.string().min(2, "Prénom requis"),
   lastName: z.string().min(2, "Nom requis"),
   phone: z.string().min(10, "Numéro de téléphone invalide"),
-  dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Format de date invalide").optional(),
+  dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Format de date invalide").refine((date) => {
+    if (!date) return true;
+    const year = parseInt(date.split('-')[0]);
+    return year >= 1900 && year <= 3000;
+  }, "L'année doit être entre 1900 et 3000").optional(),
 });
 
 export const insertEmployeeSchema = createInsertSchema(employees).pick({

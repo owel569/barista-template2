@@ -58,19 +58,16 @@ export default function OrderManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: orders = [], isLoading } = useQuery({
+  const { data: orders = [], isLoading } = useQuery<Order[]>({
     queryKey: ["/api/orders"],
   });
 
   const createOrderMutation = useMutation({
     mutationFn: (data: typeof newOrder) => 
-      apiRequest("/api/orders", {
-        method: "POST",
-        body: JSON.stringify({
-          ...data,
-          totalAmount: parseFloat(data.totalAmount),
-          tableId: data.tableId ? parseInt(data.tableId) : undefined
-        }),
+      apiRequest("POST", "/api/orders", {
+        ...data,
+        totalAmount: parseFloat(data.totalAmount),
+        tableId: data.tableId ? parseInt(data.tableId) : undefined
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
@@ -100,10 +97,7 @@ export default function OrderManagement() {
 
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: number; status: string }) =>
-      apiRequest(`/api/orders/${id}/status`, {
-        method: "PATCH",
-        body: JSON.stringify({ status }),
-      }),
+      apiRequest("PATCH", `/api/orders/${id}/status`, { status }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
       toast({
