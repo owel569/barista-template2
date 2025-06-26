@@ -86,6 +86,14 @@ Database provisioning is handled automatically through environment variables, wi
 
 Changelog:
 - June 26, 2025. Initial setup
+- June 26, 2025. Enhanced admin dashboard with comprehensive management systems:
+  - Added order management system with real-time status updates
+  - Added customer management with detailed client profiles
+  - Added employee management with HR functionality
+  - Added interactive dashboard charts using Recharts
+  - Improved date validation for reservations (year limit 3000)
+  - Implemented tabbed admin interface for better organization
+  - Added revenue and reservation statistics tracking
 
 ## User Preferences
 

@@ -1,7 +1,7 @@
 import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
 import Navigation from "@/components/navigation";
-import AdminDashboard from "@/components/admin-dashboard";
+import EnhancedAdminDashboard from "@/components/enhanced-admin-dashboard";
 import { Coffee } from "lucide-react";
 
 export default function Admin() {
@@ -28,7 +28,7 @@ export default function Admin() {
   return (
     <div className="min-h-screen bg-coffee-light">
       <Navigation />
-      <AdminDashboard />
+      <EnhancedAdminDashboard />
     </div>
   );
 }
