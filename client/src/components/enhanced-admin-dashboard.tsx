@@ -27,7 +27,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import DashboardCharts from "./dashboard-charts";
-import OrderManagement from "./order-management";
+import EnhancedOrderManagement from "./enhanced-order-management";
 import CustomerManagement from "./customer-management";
 import EmployeeManagement from "./employee-management";
 import ReservationNotifications from "./reservation-notifications";
@@ -187,7 +187,7 @@ export default function EnhancedAdminDashboard() {
           </TabsContent>
 
           <TabsContent value="orders" className="space-y-6">
-            <OrderManagement />
+            <EnhancedOrderManagement />
           </TabsContent>
 
           <TabsContent value="customers" className="space-y-6">

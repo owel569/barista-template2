@@ -391,9 +391,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/orders", authenticateToken, async (req, res) => {
     try {
-      const orderData = insertOrderSchema.parse(req.body);
-      const order = await storage.createOrder(orderData);
-      res.status(201).json(order);
+      const { items, ...orderData } = req.body;
+      
+      // Valider les données de base de la commande
+      const validatedOrderData = insertOrderSchema.parse(orderData);
+      
+      // Créer la commande avec les articles
+      if (items && items.length > 0) {
+        const order = await storage.createOrderWithItems(validatedOrderData, items);
+        res.status(201).json(order);
+      } else {
+        const order = await storage.createOrder(validatedOrderData);
+        res.status(201).json(order);
+      }
     } catch (error: any) {
       if (error.errors) {
         return res.status(400).json({ 

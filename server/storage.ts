@@ -57,6 +57,7 @@ export interface IStorage {
   getOrdersByDate(date: string): Promise<Order[]>;
   getOrder(id: number): Promise<Order | undefined>;
   createOrder(order: InsertOrder): Promise<Order>;
+  createOrderWithItems(order: InsertOrder, items: any[]): Promise<Order>;
   updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
   deleteOrder(id: number): Promise<boolean>;
 
@@ -365,6 +366,26 @@ async createContactMessage(message: InsertContactMessage): Promise<ContactMessag
 
   async createOrder(order: InsertOrder): Promise<Order> {
     const [newOrder] = await db.insert(orders).values(order).returning();
+    return newOrder;
+  }
+
+  async createOrderWithItems(orderData: InsertOrder, items: any[]): Promise<Order> {
+    // Créer la commande
+    const [newOrder] = await db.insert(orders).values(orderData).returning();
+    
+    // Ajouter les articles de la commande
+    if (items && items.length > 0) {
+      const orderItemsData = items.map(item => ({
+        orderId: newOrder.id,
+        menuItemId: item.menuItemId,
+        quantity: item.quantity,
+        price: item.price,
+        notes: item.notes || null,
+      }));
+      
+      await db.insert(orderItems).values(orderItemsData);
+    }
+    
     return newOrder;
   }
 
