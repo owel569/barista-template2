@@ -1,5 +1,5 @@
 import { 
-  users, menuCategories, menuItems, tables, reservations, contactMessages,
+  users, menuCategories, menuItems, tables, reservations, reservationItems, contactMessages,
   orders, orderItems, customers, employees, workShifts,
   type User, type InsertUser, type MenuCategory, type InsertMenuCategory,
   type MenuItem, type InsertMenuItem, type Table, type InsertTable,
@@ -36,10 +36,14 @@ export interface IStorage {
 
   // Reservations
   getReservations(): Promise<Reservation[]>;
+  getReservationsWithItems(): Promise<any[]>;
+  getPendingNotificationReservations(): Promise<any[]>;
   getReservationsByDate(date: string): Promise<Reservation[]>;
   getReservation(id: number): Promise<Reservation | undefined>;
   createReservation(reservation: InsertReservation): Promise<Reservation>;
+  createReservationWithItems(reservation: any, cartItems: any[]): Promise<Reservation>;
   updateReservationStatus(id: number, status: string): Promise<Reservation | undefined>;
+  markNotificationSent(id: number): Promise<Reservation | undefined>;
   deleteReservation(id: number): Promise<boolean>;
   checkReservationConflict(date: string, time: string, tableId?: number): Promise<boolean>;
 
@@ -197,6 +201,68 @@ export class DatabaseStorage implements IStorage {
   // Reservations
   async getReservations(): Promise<Reservation[]> {
     return await db.select().from(reservations).orderBy(desc(reservations.createdAt));
+  }
+
+  async getReservationsWithItems(): Promise<any[]> {
+    const reservationsData = await db.select().from(reservations).orderBy(desc(reservations.createdAt));
+    
+    const reservationsWithItems = await Promise.all(
+      reservationsData.map(async (reservation) => {
+        const items = await db
+          .select({
+            id: reservationItems.id,
+            menuItemName: menuItems.name,
+            quantity: reservationItems.quantity,
+            unitPrice: reservationItems.unitPrice,
+            notes: reservationItems.notes,
+          })
+          .from(reservationItems)
+          .leftJoin(menuItems, eq(reservationItems.menuItemId, menuItems.id))
+          .where(eq(reservationItems.reservationId, reservation.id));
+
+        return {
+          ...reservation,
+          reservationItems: items,
+        };
+      })
+    );
+
+    return reservationsWithItems;
+  }
+
+  async getPendingNotificationReservations(): Promise<any[]> {
+    return await db
+      .select()
+      .from(reservations)
+      .where(eq(reservations.notificationSent, false))
+      .orderBy(desc(reservations.createdAt));
+  }
+
+  async createReservationWithItems(reservationData: any, cartItems: any[]): Promise<Reservation> {
+    const [reservation] = await db.insert(reservations).values(reservationData).returning();
+    
+    if (cartItems && cartItems.length > 0) {
+      const reservationItemsData = cartItems.map((item) => ({
+        reservationId: reservation.id,
+        menuItemId: item.menuItem.id,
+        quantity: item.quantity,
+        unitPrice: item.menuItem.price,
+        notes: item.notes || null,
+      }));
+      
+      await db.insert(reservationItems).values(reservationItemsData);
+    }
+    
+    return reservation;
+  }
+
+  async markNotificationSent(id: number): Promise<Reservation | undefined> {
+    const [reservation] = await db
+      .update(reservations)
+      .set({ notificationSent: true })
+      .where(eq(reservations.id, id))
+      .returning();
+    return reservation || undefined;
   }
 
   async getReservationsByDate(date: string): Promise<Reservation[]> {

@@ -30,6 +30,7 @@ import DashboardCharts from "./dashboard-charts";
 import OrderManagement from "./order-management";
 import CustomerManagement from "./customer-management";
 import EmployeeManagement from "./employee-management";
+import ReservationNotifications from "./reservation-notifications";
 
 interface Reservation {
   id: number;
@@ -198,12 +199,7 @@ export default function EnhancedAdminDashboard() {
           </TabsContent>
 
           <TabsContent value="reservations" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <div>
-                <h2 className="text-2xl font-bold text-coffee-dark">Gestion des Réservations</h2>
-                <p className="text-coffee-medium">Gérez les réservations de votre restaurant</p>
-              </div>
-            </div>
+            <ReservationNotifications />
 
             {/* Stats Cards */}
             <div className="grid gap-4 md:grid-cols-4">

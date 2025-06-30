@@ -52,6 +52,19 @@ export const reservations = pgTable("reservations", {
   tableId: integer("table_id"),
   specialRequests: text("special_requests"),
   status: text("status").notNull().default("pending"), // pending, confirmed, cancelled, completed
+  preorderTotal: decimal("preorder_total", { precision: 8, scale: 2 }).default("0.00"),
+  notificationSent: boolean("notification_sent").default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Reservation preorder items
+export const reservationItems = pgTable("reservation_items", {
+  id: serial("id").primaryKey(),
+  reservationId: integer("reservation_id").notNull(),
+  menuItemId: integer("menu_item_id").notNull(),
+  quantity: integer("quantity").notNull(),
+  unitPrice: decimal("unit_price", { precision: 8, scale: 2 }).notNull(),
+  notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -158,10 +171,22 @@ export const tablesRelations = relations(tables, ({ many }) => ({
   orders: many(orders),
 }));
 
-export const reservationsRelations = relations(reservations, ({ one }) => ({
+export const reservationsRelations = relations(reservations, ({ one, many }) => ({
   table: one(tables, {
     fields: [reservations.tableId],
     references: [tables.id],
+  }),
+  reservationItems: many(reservationItems),
+}));
+
+export const reservationItemsRelations = relations(reservationItems, ({ one }) => ({
+  reservation: one(reservations, {
+    fields: [reservationItems.reservationId],
+    references: [reservations.id],
+  }),
+  menuItem: one(menuItems, {
+    fields: [reservationItems.menuItemId],
+    references: [menuItems.id],
   }),
 }));
 

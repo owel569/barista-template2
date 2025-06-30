@@ -188,10 +188,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Reservation routes
   app.get("/api/reservations", authenticateToken, async (req, res) => {
     try {
-      const reservations = await storage.getReservations();
+      const reservations = await storage.getReservationsWithItems();
       res.json(reservations);
     } catch (error) {
       res.status(500).json({ message: "Erreur lors de la récupération des réservations" });
+    }
+  });
+
+  app.get("/api/reservations/pending-notifications", authenticateToken, async (req, res) => {
+    try {
+      const reservations = await storage.getPendingNotificationReservations();
+      res.json(reservations);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des notifications" });
     }
   });
 
@@ -207,13 +216,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/reservations", async (req, res) => {
     try {
-      const reservationData = insertReservationSchema.parse(req.body);
+      const { cartItems, ...reservationData } = req.body;
+      const parsedReservationData = insertReservationSchema.parse(reservationData);
       
       // Check for conflicts
       const hasConflict = await storage.checkReservationConflict(
-        reservationData.date,
-        reservationData.time,
-        reservationData.tableId || undefined
+        parsedReservationData.date,
+        parsedReservationData.time,
+        parsedReservationData.tableId || undefined
       );
 
       if (hasConflict) {
@@ -222,7 +232,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const reservation = await storage.createReservation(reservationData);
+      // Calculate preorder total
+      let preorderTotal = 0;
+      if (cartItems && cartItems.length > 0) {
+        preorderTotal = cartItems.reduce((total: number, item: any) => {
+          return total + (parseFloat(item.menuItem.price) * item.quantity);
+        }, 0);
+      }
+
+      const reservation = await storage.createReservationWithItems({
+        ...parsedReservationData,
+        preorderTotal: preorderTotal.toFixed(2)
+      }, cartItems || []);
 
       res.status(201).json(reservation);
     } catch (error: any) {
@@ -268,6 +289,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Réservation supprimée avec succès" });
     } catch (error) {
       res.status(500).json({ message: "Erreur lors de la suppression" });
+    }
+  });
+
+  app.patch("/api/reservations/:id/notification-sent", authenticateToken, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const reservation = await storage.markNotificationSent(id);
+      
+      if (!reservation) {
+        return res.status(404).json({ message: "Réservation non trouvée" });
+      }
+
+      res.json(reservation);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour de la notification" });
     }
   });
 

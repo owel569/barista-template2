@@ -45,12 +45,13 @@ export default function Navigation() {
             >
               Menu
             </button>
-            <button
-              onClick={() => scrollToSection("reservation")}
-              className="hover:text-coffee-secondary transition duration-300"
-            >
-              Réservation
-            </button>
+            <Link href="/reservation">
+              <button
+                className="hover:text-coffee-secondary transition duration-300"
+              >
+                Réservation
+              </button>
+            </Link>
             <button
               onClick={() => scrollToSection("map")}
               className="hover:text-coffee-secondary transition duration-300"

@@ -7,6 +7,7 @@ import { AuthProvider } from "./lib/auth";
 import Home from "@/pages/home";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
+import ReservationWithCart from "@/pages/reservation-with-cart";
 import Admin from "@/pages/admin";
 import NotFound from "@/pages/not-found";
 
@@ -16,6 +17,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
+      <Route path="/reservation" component={ReservationWithCart} />
       <Route path="/admin" component={Admin} />
       <Route component={NotFound} />
     </Switch>
