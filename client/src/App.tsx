@@ -1,4 +1,5 @@
 import { Switch, Route, useLocation } from "wouter";
+import { useState } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
@@ -14,12 +15,19 @@ import NotFound from "@/pages/not-found";
 
 function Router() {
   const [location] = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const showSidebar = !['/login', '/register'].includes(location);
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
 
   return (
     <div className="flex min-h-screen">
-      {showSidebar && <Sidebar />}
-      <div className={`flex-1 ${showSidebar ? 'ml-64' : ''}`}>
+      {showSidebar && (
+        <Sidebar isOpen={sidebarOpen} onToggle={toggleSidebar} />
+      )}
+      <div className={`flex-1 ${showSidebar && sidebarOpen ? 'lg:ml-64' : ''} transition-all duration-300`}>
         <Switch>
           <Route path="/" component={Home} />
           <Route path="/login" component={Login} />
