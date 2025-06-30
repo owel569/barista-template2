@@ -6,7 +6,12 @@ import {
   insertContactMessageSchema, 
   loginSchema,
   insertMenuItemSchema,
-  insertMenuCategorySchema
+  insertMenuCategorySchema,
+  insertOrderSchema,
+  insertOrderItemSchema,
+  insertCustomerSchema,
+  insertEmployeeSchema,
+  insertWorkShiftSchema
 } from "@shared/schema";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -275,6 +280,186 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ rate });
     } catch (error) {
       res.status(500).json({ message: "Erreur lors du calcul du taux d'occupation" });
+    }
+  });
+
+  // Orders routes
+  app.get("/api/orders", authenticateToken, async (req, res) => {
+    try {
+      const orders = await storage.getOrders();
+      res.json(orders);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des commandes" });
+    }
+  });
+
+  app.post("/api/orders", authenticateToken, async (req, res) => {
+    try {
+      const orderData = insertOrderSchema.parse(req.body);
+      const order = await storage.createOrder(orderData);
+      res.status(201).json(order);
+    } catch (error: any) {
+      if (error.errors) {
+        return res.status(400).json({ 
+          message: "Données de commande invalides",
+          errors: error.errors
+        });
+      }
+      res.status(500).json({ message: "Erreur lors de la création de la commande" });
+    }
+  });
+
+  app.patch("/api/orders/:id/status", authenticateToken, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { status } = req.body;
+      const order = await storage.updateOrderStatus(id, status);
+      
+      if (!order) {
+        return res.status(404).json({ message: "Commande non trouvée" });
+      }
+
+      res.json(order);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour du statut" });
+    }
+  });
+
+  app.delete("/api/orders/:id", authenticateToken, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deleteOrder(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Commande non trouvée" });
+      }
+
+      res.json({ message: "Commande supprimée avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la suppression" });
+    }
+  });
+
+  // Customers routes
+  app.get("/api/customers", authenticateToken, async (req, res) => {
+    try {
+      const customers = await storage.getCustomers();
+      res.json(customers);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des clients" });
+    }
+  });
+
+  app.post("/api/customers", authenticateToken, async (req, res) => {
+    try {
+      const customerData = insertCustomerSchema.parse(req.body);
+      const customer = await storage.createCustomer(customerData);
+      res.status(201).json(customer);
+    } catch (error: any) {
+      if (error.errors) {
+        return res.status(400).json({ 
+          message: "Données client invalides",
+          errors: error.errors
+        });
+      }
+      res.status(500).json({ message: "Erreur lors de la création du client" });
+    }
+  });
+
+  app.patch("/api/customers/:id", authenticateToken, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const customerData = req.body;
+      const customer = await storage.updateCustomer(id, customerData);
+      
+      if (!customer) {
+        return res.status(404).json({ message: "Client non trouvé" });
+      }
+
+      res.json(customer);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour du client" });
+    }
+  });
+
+  // Employees routes
+  app.get("/api/employees", authenticateToken, async (req, res) => {
+    try {
+      const employees = await storage.getEmployees();
+      res.json(employees);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des employés" });
+    }
+  });
+
+  app.post("/api/employees", authenticateToken, async (req, res) => {
+    try {
+      const employeeData = insertEmployeeSchema.parse(req.body);
+      const employee = await storage.createEmployee(employeeData);
+      res.status(201).json(employee);
+    } catch (error: any) {
+      if (error.errors) {
+        return res.status(400).json({ 
+          message: "Données employé invalides",
+          errors: error.errors
+        });
+      }
+      res.status(500).json({ message: "Erreur lors de la création de l'employé" });
+    }
+  });
+
+  app.patch("/api/employees/:id", authenticateToken, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const employeeData = req.body;
+      const employee = await storage.updateEmployee(id, employeeData);
+      
+      if (!employee) {
+        return res.status(404).json({ message: "Employé non trouvé" });
+      }
+
+      res.json(employee);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour de l'employé" });
+    }
+  });
+
+  // Statistics routes for dashboard
+  app.get("/api/stats/monthly-reservations", authenticateToken, async (req, res) => {
+    try {
+      const { year, month } = req.query as { year: string; month: string };
+      const currentYear = year ? parseInt(year) : new Date().getFullYear();
+      const currentMonth = month ? parseInt(month) : new Date().getMonth() + 1;
+      
+      const stats = await storage.getMonthlyReservationStats(currentYear, currentMonth);
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques mensuelles" });
+    }
+  });
+
+  app.get("/api/stats/revenue", authenticateToken, async (req, res) => {
+    try {
+      const { startDate, endDate } = req.query as { startDate: string; endDate: string };
+      const defaultEndDate = new Date().toISOString().split('T')[0];
+      const defaultStartDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      
+      const stats = await storage.getRevenueStats(
+        startDate || defaultStartDate,
+        endDate || defaultEndDate
+      );
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques de revenus" });
+    }
+  });
+
+  app.get("/api/stats/orders-by-status", authenticateToken, async (req, res) => {
+    try {
+      const stats = await storage.getOrdersByStatus();
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques de commandes" });
     }
   });
 

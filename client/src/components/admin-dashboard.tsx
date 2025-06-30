@@ -5,6 +5,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Calendar, 
   CheckCircle, 
@@ -17,9 +18,15 @@ import {
   Coffee,
   Utensils,
   BarChart3,
-  LogOut
+  LogOut,
+  Package,
+  UserCheck
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import DashboardCharts from "./dashboard-charts";
+import OrderManagement from "./order-management";
+import CustomerManagement from "./customer-management";
+import EmployeeManagement from "./employee-management";
 
 interface Reservation {
   id: number;
@@ -44,6 +51,7 @@ export default function AdminDashboard() {
   const { logout } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [activeTab, setActiveTab] = useState("dashboard");
 
   // Fetch reservations
   const { data: reservations = [], isLoading } = useQuery<Reservation[]>({

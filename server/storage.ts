@@ -1,11 +1,15 @@
 import { 
   users, menuCategories, menuItems, tables, reservations, contactMessages,
+  orders, orderItems, customers, employees, workShifts,
   type User, type InsertUser, type MenuCategory, type InsertMenuCategory,
   type MenuItem, type InsertMenuItem, type Table, type InsertTable,
-  type Reservation, type InsertReservation, type ContactMessage, type InsertContactMessage
+  type Reservation, type InsertReservation, type ContactMessage, type InsertContactMessage,
+  type Order, type InsertOrder, type OrderItem, type InsertOrderItem,
+  type Customer, type InsertCustomer, type Employee, type InsertEmployee,
+  type WorkShift, type InsertWorkShift
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc, asc } from "drizzle-orm";
+import { eq, and, desc, asc, sql, between, gte, lte } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -43,9 +47,51 @@ export interface IStorage {
   createContactMessage(message: InsertContactMessage): Promise<ContactMessage>;
   updateContactMessageStatus(id: number, status: string): Promise<ContactMessage | undefined>;
 
+  // Orders
+  getOrders(): Promise<Order[]>;
+  getOrdersByDate(date: string): Promise<Order[]>;
+  getOrder(id: number): Promise<Order | undefined>;
+  createOrder(order: InsertOrder): Promise<Order>;
+  updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
+  deleteOrder(id: number): Promise<boolean>;
+
+  // Order Items
+  getOrderItems(orderId: number): Promise<OrderItem[]>;
+  createOrderItem(orderItem: InsertOrderItem): Promise<OrderItem>;
+  updateOrderItem(id: number, orderItem: Partial<InsertOrderItem>): Promise<OrderItem | undefined>;
+  deleteOrderItem(id: number): Promise<boolean>;
+
+  // Customers
+  getCustomers(): Promise<Customer[]>;
+  getCustomer(id: number): Promise<Customer | undefined>;
+  getCustomerByEmail(email: string): Promise<Customer | undefined>;
+  createCustomer(customer: InsertCustomer): Promise<Customer>;
+  updateCustomer(id: number, customer: Partial<InsertCustomer>): Promise<Customer | undefined>;
+  deleteCustomer(id: number): Promise<boolean>;
+
+  // Employees
+  getEmployees(): Promise<Employee[]>;
+  getEmployee(id: number): Promise<Employee | undefined>;
+  getEmployeeByEmail(email: string): Promise<Employee | undefined>;
+  createEmployee(employee: InsertEmployee): Promise<Employee>;
+  updateEmployee(id: number, employee: Partial<InsertEmployee>): Promise<Employee | undefined>;
+  deleteEmployee(id: number): Promise<boolean>;
+
+  // Work Shifts
+  getWorkShifts(): Promise<WorkShift[]>;
+  getWorkShiftsByEmployee(employeeId: number): Promise<WorkShift[]>;
+  getWorkShiftsByDate(date: string): Promise<WorkShift[]>;
+  createWorkShift(workShift: InsertWorkShift): Promise<WorkShift>;
+  updateWorkShift(id: number, workShift: Partial<InsertWorkShift>): Promise<WorkShift | undefined>;
+  deleteWorkShift(id: number): Promise<boolean>;
+
   // Statistics
   getTodayReservationCount(): Promise<number>;
   getOccupancyRate(date: string): Promise<number>;
+  getMonthlyReservationStats(year: number, month: number): Promise<{ date: string; count: number }[]>;
+  getRevenueStats(startDate: string, endDate: string): Promise<{ date: string; revenue: number }[]>;
+  getOrdersByStatus(): Promise<{ status: string; count: number }[]>;
+  getTopCustomers(limit?: number): Promise<{ customer: Customer; totalSpent: number; totalOrders: number }[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -225,6 +271,170 @@ async createContactMessage(message: InsertContactMessage): Promise<ContactMessag
     return updatedMessage || undefined;
   }
 
+  // Orders
+  async getOrders(): Promise<Order[]> {
+    return await db.select().from(orders).orderBy(desc(orders.createdAt));
+  }
+
+  async getOrdersByDate(date: string): Promise<Order[]> {
+    const startOfDay = new Date(date + 'T00:00:00Z');
+    const endOfDay = new Date(date + 'T23:59:59Z');
+    return await db.select().from(orders).where(
+      and(
+        gte(orders.createdAt, startOfDay),
+        lte(orders.createdAt, endOfDay)
+      )
+    );
+  }
+
+  async getOrder(id: number): Promise<Order | undefined> {
+    const [order] = await db.select().from(orders).where(eq(orders.id, id));
+    return order || undefined;
+  }
+
+  async createOrder(order: InsertOrder): Promise<Order> {
+    const [newOrder] = await db.insert(orders).values(order).returning();
+    return newOrder;
+  }
+
+  async updateOrderStatus(id: number, status: string): Promise<Order | undefined> {
+    const [updatedOrder] = await db
+      .update(orders)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(orders.id, id))
+      .returning();
+    return updatedOrder || undefined;
+  }
+
+  async deleteOrder(id: number): Promise<boolean> {
+    const result = await db.delete(orders).where(eq(orders.id, id));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  // Order Items
+  async getOrderItems(orderId: number): Promise<OrderItem[]> {
+    return await db.select().from(orderItems).where(eq(orderItems.orderId, orderId));
+  }
+
+  async createOrderItem(orderItem: InsertOrderItem): Promise<OrderItem> {
+    const [newOrderItem] = await db.insert(orderItems).values(orderItem).returning();
+    return newOrderItem;
+  }
+
+  async updateOrderItem(id: number, orderItem: Partial<InsertOrderItem>): Promise<OrderItem | undefined> {
+    const [updatedOrderItem] = await db
+      .update(orderItems)
+      .set(orderItem)
+      .where(eq(orderItems.id, id))
+      .returning();
+    return updatedOrderItem || undefined;
+  }
+
+  async deleteOrderItem(id: number): Promise<boolean> {
+    const result = await db.delete(orderItems).where(eq(orderItems.id, id));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  // Customers
+  async getCustomers(): Promise<Customer[]> {
+    return await db.select().from(customers).orderBy(asc(customers.lastName), asc(customers.firstName));
+  }
+
+  async getCustomer(id: number): Promise<Customer | undefined> {
+    const [customer] = await db.select().from(customers).where(eq(customers.id, id));
+    return customer || undefined;
+  }
+
+  async getCustomerByEmail(email: string): Promise<Customer | undefined> {
+    const [customer] = await db.select().from(customers).where(eq(customers.email, email));
+    return customer || undefined;
+  }
+
+  async createCustomer(customer: InsertCustomer): Promise<Customer> {
+    const [newCustomer] = await db.insert(customers).values(customer).returning();
+    return newCustomer;
+  }
+
+  async updateCustomer(id: number, customer: Partial<InsertCustomer>): Promise<Customer | undefined> {
+    const [updatedCustomer] = await db
+      .update(customers)
+      .set({ ...customer, updatedAt: new Date() })
+      .where(eq(customers.id, id))
+      .returning();
+    return updatedCustomer || undefined;
+  }
+
+  async deleteCustomer(id: number): Promise<boolean> {
+    const result = await db.delete(customers).where(eq(customers.id, id));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  // Employees
+  async getEmployees(): Promise<Employee[]> {
+    return await db.select().from(employees).orderBy(asc(employees.lastName), asc(employees.firstName));
+  }
+
+  async getEmployee(id: number): Promise<Employee | undefined> {
+    const [employee] = await db.select().from(employees).where(eq(employees.id, id));
+    return employee || undefined;
+  }
+
+  async getEmployeeByEmail(email: string): Promise<Employee | undefined> {
+    const [employee] = await db.select().from(employees).where(eq(employees.email, email));
+    return employee || undefined;
+  }
+
+  async createEmployee(employee: InsertEmployee): Promise<Employee> {
+    const [newEmployee] = await db.insert(employees).values(employee).returning();
+    return newEmployee;
+  }
+
+  async updateEmployee(id: number, employee: Partial<InsertEmployee>): Promise<Employee | undefined> {
+    const [updatedEmployee] = await db
+      .update(employees)
+      .set({ ...employee, updatedAt: new Date() })
+      .where(eq(employees.id, id))
+      .returning();
+    return updatedEmployee || undefined;
+  }
+
+  async deleteEmployee(id: number): Promise<boolean> {
+    const result = await db.delete(employees).where(eq(employees.id, id));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  // Work Shifts
+  async getWorkShifts(): Promise<WorkShift[]> {
+    return await db.select().from(workShifts).orderBy(desc(workShifts.date), asc(workShifts.startTime));
+  }
+
+  async getWorkShiftsByEmployee(employeeId: number): Promise<WorkShift[]> {
+    return await db.select().from(workShifts).where(eq(workShifts.employeeId, employeeId));
+  }
+
+  async getWorkShiftsByDate(date: string): Promise<WorkShift[]> {
+    return await db.select().from(workShifts).where(eq(workShifts.date, date));
+  }
+
+  async createWorkShift(workShift: InsertWorkShift): Promise<WorkShift> {
+    const [newWorkShift] = await db.insert(workShifts).values(workShift).returning();
+    return newWorkShift;
+  }
+
+  async updateWorkShift(id: number, workShift: Partial<InsertWorkShift>): Promise<WorkShift | undefined> {
+    const [updatedWorkShift] = await db
+      .update(workShifts)
+      .set(workShift)
+      .where(eq(workShifts.id, id))
+      .returning();
+    return updatedWorkShift || undefined;
+  }
+
+  async deleteWorkShift(id: number): Promise<boolean> {
+    const result = await db.delete(workShifts).where(eq(workShifts.id, id));
+    return (result.rowCount ?? 0) > 0;
+  }
+
   // Statistics
   async getTodayReservationCount(): Promise<number> {
     const today = new Date().toISOString().split('T')[0];
@@ -249,6 +459,87 @@ async createContactMessage(message: InsertContactMessage): Promise<ContactMessag
 
     if (totalTables.length === 0) return 0;
     return Math.round((reservedTables.length / totalTables.length) * 100);
+  }
+
+  async getMonthlyReservationStats(year: number, month: number): Promise<{ date: string; count: number }[]> {
+    const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
+    const endDate = `${year}-${month.toString().padStart(2, '0')}-31`;
+    
+    const result = await db
+      .select({
+        date: reservations.date
+      })
+      .from(reservations)
+      .where(
+        and(
+          gte(reservations.date, startDate),
+          lte(reservations.date, endDate)
+        )
+      );
+
+    const stats: { [key: string]: number } = {};
+    result.forEach(row => {
+      stats[row.date] = (stats[row.date] || 0) + 1;
+    });
+
+    return Object.entries(stats).map(([date, count]) => ({ date, count }));
+  }
+
+  async getRevenueStats(startDate: string, endDate: string): Promise<{ date: string; revenue: number }[]> {
+    const start = new Date(startDate + 'T00:00:00Z');
+    const end = new Date(endDate + 'T23:59:59Z');
+    
+    const result = await db
+      .select({
+        date: orders.createdAt,
+        revenue: orders.totalAmount
+      })
+      .from(orders)
+      .where(
+        and(
+          gte(orders.createdAt, start),
+          lte(orders.createdAt, end),
+          eq(orders.status, "completed")
+        )
+      );
+
+    const stats: { [key: string]: number } = {};
+    result.forEach(row => {
+      const date = row.date.toISOString().split('T')[0];
+      stats[date] = (stats[date] || 0) + parseFloat(row.revenue);
+    });
+
+    return Object.entries(stats).map(([date, revenue]) => ({ date, revenue }));
+  }
+
+  async getOrdersByStatus(): Promise<{ status: string; count: number }[]> {
+    const result = await db
+      .select({
+        status: orders.status,
+        count: orders.id
+      })
+      .from(orders);
+
+    const stats: { [key: string]: number } = {};
+    result.forEach(row => {
+      stats[row.status] = (stats[row.status] || 0) + 1;
+    });
+
+    return Object.entries(stats).map(([status, count]) => ({ status, count }));
+  }
+
+  async getTopCustomers(limit: number = 10): Promise<{ customer: Customer; totalSpent: number; totalOrders: number }[]> {
+    const result = await db
+      .select()
+      .from(customers)
+      .orderBy(desc(customers.totalSpent))
+      .limit(limit);
+
+    return result.map(customer => ({
+      customer,
+      totalSpent: parseFloat(customer.totalSpent),
+      totalOrders: customer.totalOrders
+    }));
   }
 }
 
