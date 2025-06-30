@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -18,10 +18,11 @@ export default function Login() {
   const { toast } = useToast();
 
   // Redirect if already authenticated
-  if (isAuthenticated) {
-    navigate("/admin");
-    return null;
-  }
+  useEffect(() => {
+    if (isAuthenticated && !loading) {
+      navigate("/admin");
+    }
+  }, [isAuthenticated, loading, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
