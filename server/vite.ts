@@ -20,12 +20,6 @@ export function log(message: string, source = "express") {
 }
 
 export async function setupVite(app: Express, server: Server) {
-  const serverOptions = {
-    middlewareMode: true,
-    hmr: { server },
-    allowedHosts: true,
-  };
-
   const vite = await createViteServer({
     ...viteConfig,
     configFile: false,
@@ -36,7 +30,11 @@ export async function setupVite(app: Express, server: Server) {
         process.exit(1);
       },
     },
-    server: serverOptions,
+    server: {
+      middlewareMode: true,
+      hmr: { server },         // ✅ utilise bien le paramètre `server`
+      allowedHosts: true,      // ✅ à l'intérieur de `server`
+    },
     appType: "custom",
   });
 
@@ -52,7 +50,6 @@ export async function setupVite(app: Express, server: Server) {
         "index.html",
       );
 
-      // always reload the index.html file from disk incase it changes
       let template = await fs.promises.readFile(clientTemplate, "utf-8");
       template = template.replace(
         `src="/src/main.tsx"`,
@@ -66,6 +63,7 @@ export async function setupVite(app: Express, server: Server) {
     }
   });
 }
+
 
 export function serveStatic(app: Express) {
   const distPath = path.resolve(import.meta.dirname, "public");

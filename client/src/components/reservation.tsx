@@ -1,6 +1,5 @@
-import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertReservationSchema } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
@@ -21,23 +20,22 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Calendar,
-  CheckCircle,
-  Clock,
-  Phone,
-  Mail,
-  MapPin,
-  Info,
-} from "lucide-react";
+import { CheckCircle } from "lucide-react"; // Seulement ce que tu utilises
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 
-// Utilise le même type que ton schéma Zod, donc snake_case !
+import {
+  Calendar,
+  Clock,
+  Info,
+  Mail,
+  MapPin,
+  Phone,
+} from "lucide-react"; // Import des icônes nécessaires
+// Type Zod
 type ReservationFormData = z.infer<typeof insertReservationSchema>;
 
 export default function Reservation() {
-  const [selectedDate, setSelectedDate] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -45,9 +43,10 @@ export default function Reservation() {
     register,
     handleSubmit,
     formState: { errors },
-    setValue,
     watch,
     reset,
+    setValue,
+    control,
   } = useForm<ReservationFormData>({
     resolver: zodResolver(insertReservationSchema),
     defaultValues: {
@@ -80,19 +79,9 @@ export default function Reservation() {
     reservationMutation.mutate(data);
   };
 
-  // Set minimum date to today
   const today = new Date().toISOString().split("T")[0];
 
-  // Format date for display (DD/MM/YYYY)
-  const formatDateShort = (dateString: string) => {
-    const date = new Date(dateString);
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear().toString();
-    return `${day}/${month}/${year}`;
-  };
-
-  // Mock calendar data for display
+  // Mock calendar data
   const mockCalendarDays = [
     { day: 1, available: true },
     { day: 2, available: true },
@@ -116,7 +105,7 @@ export default function Reservation() {
         </div>
 
         <div className="grid lg:grid-cols-2 gap-12">
-          {/* Reservation Form */}
+          {/* Formulaire de réservation */}
           <div className="bg-coffee-cream rounded-xl p-8 shadow-lg">
             <h3 className="text-2xl font-semibold text-coffee-dark mb-6">
               <CheckCircle className="inline mr-2 text-coffee-accent" />
@@ -126,10 +115,7 @@ export default function Reservation() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <Label
-                    htmlFor="date"
-                    className="block text-coffee-dark font-semibold mb-2"
-                  >
+                  <Label htmlFor="date" className="block text-coffee-dark font-semibold mb-2">
                     Date de réservation *
                   </Label>
                   <Input
@@ -140,143 +126,126 @@ export default function Reservation() {
                     className="focus:border-coffee-accent"
                   />
                   {errors.date && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.date.message}
-                    </p>
+                    <p className="text-red-500 text-sm mt-1">{errors.date.message}</p>
                   )}
                 </div>
+
                 <div>
-                  <Label
-                    htmlFor="time"
-                    className="block text-coffee-dark font-semibold mb-2"
-                  >
+                  <Label htmlFor="time" className="block text-coffee-dark font-semibold mb-2">
                     Heure *
                   </Label>
-                  <Select onValueChange={(value) => setValue("time", value)}>
-                    <SelectTrigger className="focus:border-coffee-accent">
-                      <SelectValue placeholder="Choisir l'heure" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Array.from({ length: 26 }, (_, i) => {
-                        const hour = Math.floor(i / 2) + 8;
-                        const minutes = i % 2 === 0 ? "00" : "30";
-                        const time = `${hour.toString().padStart(2, "0")}:${minutes}`;
-                        if (hour > 21) return null;
-                        return (
-                          <SelectItem key={time} value={time}>
-                            {time}
-                          </SelectItem>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    name="time"
+                    control={control}
+                    render={({ field }) => (
+                      <Select value={field.value || ""} onValueChange={field.onChange}>
+                        <SelectTrigger className="focus:border-coffee-accent">
+                          <SelectValue placeholder="Choisir l'heure" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: 26 }, (_, i) => {
+                            const hour = Math.floor(i / 2) + 8;
+                            const minutes = i % 2 === 0 ? "00" : "30";
+                            const time = `${hour.toString().padStart(2, "0")}:${minutes}`;
+                            if (hour > 21) return null;
+                            return (
+                              <SelectItem key={time} value={time}>
+                                {time}
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                   {errors.time && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.time.message}
-                    </p>
+                    <p className="text-red-500 text-sm mt-1">{errors.time.message}</p>
                   )}
                 </div>
               </div>
 
               <div>
-                <Label
-                  htmlFor="guests"
-                  className="block text-coffee-dark font-semibold mb-2"
-                >
+                <Label htmlFor="guests" className="block text-coffee-dark font-semibold mb-2">
                   Nombre de personnes *
                 </Label>
-                <Select onValueChange={(value) => setValue("guests", parseInt(value))}>
-                  <SelectTrigger className="focus:border-coffee-accent">
-                    <SelectValue placeholder="Choisir le nombre de personnes" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from({ length: 8 }, (_, i) => (
-                      <SelectItem key={i + 1} value={(i + 1).toString()}>
-                        {i + 1} personne{i > 0 ? "s" : ""}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Controller
+                  name="guests"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value?.toString() || ""} onValueChange={(val) => field.onChange(parseInt(val))}>
+                      <SelectTrigger className="focus:border-coffee-accent">
+                        <SelectValue placeholder="Choisir le nombre de personnes" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 8 }, (_, i) => (
+                          <SelectItem key={i + 1} value={(i + 1).toString()}>
+                            {i + 1} personne{i > 0 ? "s" : ""}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
                 {errors.guests && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.guests.message}
-                  </p>
+                  <p className="text-red-500 text-sm mt-1">{errors.guests.message}</p>
                 )}
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <Label
-                    htmlFor="customer_name"
-                    className="block text-coffee-dark font-semibold mb-2"
-                  >
+                  <Label htmlFor="customer_name" className="block text-coffee-dark font-semibold mb-2">
                     Nom complet *
                   </Label>
                   <Input
                     id="customer_name"
-                    {...register("customer_name")}
+                    {...register("customerName")}
                     placeholder="Votre nom complet"
                     className="focus:border-coffee-accent"
                   />
-                  {errors.customer_name && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.customer_name.message}
-                    </p>
+                  {errors.customerName && (
+                    <p className="text-red-500 text-sm mt-1">{errors.customerName.message}</p>
                   )}
                 </div>
                 <div>
-                  <Label
-                    htmlFor="customer_email"
-                    className="block text-coffee-dark font-semibold mb-2"
-                  >
+                  <Label htmlFor="customer_email" className="block text-coffee-dark font-semibold mb-2">
                     Email *
                   </Label>
                   <Input
                     id="customer_email"
                     type="email"
-                    {...register("customer_email")}
+                    {...register("customerEmail")}
                     placeholder="votre@email.com"
                     className="focus:border-coffee-accent"
                   />
-                  {errors.customer_email && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.customer_email.message}
-                    </p>
+                  {errors.customerEmail && (
+                    <p className="text-red-500 text-sm mt-1">{errors.customerEmail.message}</p>
                   )}
                 </div>
               </div>
 
               <div>
-                <Label
-                  htmlFor="customer_phone"
-                  className="block text-coffee-dark font-semibold mb-2"
-                >
+                <Label htmlFor="customer_phone" className="block text-coffee-dark font-semibold mb-2">
                   Téléphone *
                 </Label>
                 <Input
                   id="customer_phone"
                   type="tel"
-                  {...register("customer_phone")}
+                  {...register("customerPhone")}
                   placeholder="06 12 34 56 78"
                   className="focus:border-coffee-accent"
                 />
-                {errors.customer_phone && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.customer_phone.message}
-                  </p>
+                {errors.customerPhone && (
+                  <p className="text-red-500 text-sm mt-1">{errors.customerPhone.message}</p>
                 )}
               </div>
 
               <div>
-                <Label
-                  htmlFor="special_requests"
-                  className="block text-coffee-dark font-semibold mb-2"
-                >
+                <Label htmlFor="specialRequests" className="block text-coffee-dark font-semibold mb-2">
                   Demandes spéciales
                 </Label>
                 <Textarea
-                  id="special_requests"
-                  {...register("special_requests")}
+                  id="specialRequests"
+                  {...register("specialRequests")}
                   rows={4}
                   placeholder="Allergies, préférences de table, célébrations..."
                   className="focus:border-coffee-accent"
@@ -289,16 +258,13 @@ export default function Reservation() {
                 className="w-full bg-coffee-accent hover:bg-coffee-primary text-white font-semibold py-4 px-6 rounded-lg transition duration-300 transform hover:scale-105 shadow-lg"
               >
                 <CheckCircle className="mr-2 h-5 w-5" />
-                {reservationMutation.isPending
-                  ? "Confirmation..."
-                  : "Confirmer la réservation"}
+                {reservationMutation.isPending ? "Confirmation..." : "Confirmer la réservation"}
               </Button>
             </form>
           </div>
 
-          {/* Reservation Info & Availability */}
+          {/* Calendrier et infos pratiques */}
           <div className="space-y-8">
-            {/* Availability Calendar */}
             <Card className="shadow-lg">
               <CardHeader>
                 <CardTitle className="text-xl text-coffee-dark">
@@ -309,14 +275,12 @@ export default function Reservation() {
               <CardContent>
                 <div className="grid grid-cols-7 gap-1 mb-4">
                   {["L", "M", "M", "J", "V", "S", "D"].map((day, index) => (
-                    <div
-                      key={index}
-                      className="text-center font-semibold text-coffee-dark p-2"
-                    >
+                    <div key={index} className="text-center font-semibold text-coffee-dark p-2">
                       {day}
                     </div>
                   ))}
 
+                  {/* jours du mois précédents en gris */}
                   <div className="text-center p-2 text-gray-400">28</div>
                   <div className="text-center p-2 text-gray-400">29</div>
                   <div className="text-center p-2 text-gray-400">30</div>
@@ -347,7 +311,6 @@ export default function Reservation() {
               </CardContent>
             </Card>
 
-            {/* Contact Info */}
             <Card className="bg-coffee-dark text-white shadow-lg">
               <CardHeader>
                 <CardTitle className="text-xl">

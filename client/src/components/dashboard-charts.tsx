@@ -2,32 +2,36 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts";
 import { Calendar, TrendingUp, Users, DollarSign } from "lucide-react";
-
+import type {
+  MonthlyReservation,
+  RevenueStat,
+  OrderStatus,
+  TodayReservations,
+  Occupancy,
+} from "../types/stats";
+import React from "react";
+// Define colors for the pie chart
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
 export default function DashboardCharts() {
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth() + 1;
-
-  const { data: monthlyReservations = [] } = useQuery({
-    queryKey: ["/api/stats/monthly-reservations", currentYear, currentMonth],
-  });
-
-  const { data: revenueStats = [] } = useQuery({
-    queryKey: ["/api/stats/revenue"],
-  });
-
-  const { data: ordersByStatus = [] } = useQuery({
-    queryKey: ["/api/stats/orders-by-status"],
-  });
-
-  const { data: todayReservations = { count: 0 } } = useQuery({
-    queryKey: ["/api/stats/today-reservations"],
-  });
-
-  const { data: occupancyData = { rate: 0 } } = useQuery({
-    queryKey: ["/api/stats/occupancy"],
-  });
+  
+const { data: monthlyReservations = [] } = useQuery<MonthlyReservation[]>({
+  queryKey: ["/api/stats/monthly-reservations", currentYear, currentMonth],
+});
+const { data: revenueStats = [] } = useQuery<RevenueStat[]>({
+  queryKey: ["/api/stats/revenue"],
+});
+const { data: ordersByStatus = [] } = useQuery<OrderStatus[]>({
+  queryKey: ["/api/stats/orders-by-status"],
+});
+const { data: todayReservations = { count: 0 } } = useQuery<TodayReservations>({
+  queryKey: ["/api/stats/today-reservations"],
+});
+const { data: occupancyData = { rate: 0 } } = useQuery<Occupancy>({
+  queryKey: ["/api/stats/occupancy"],
+});
 
   // Formatage des données pour les graphiques
   const formattedMonthlyData = monthlyReservations.map((item: any) => ({
