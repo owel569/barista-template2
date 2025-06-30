@@ -5,13 +5,15 @@ import {
   insertReservationSchema, 
   insertContactMessageSchema, 
   loginSchema,
+  registerSchema,
   insertMenuItemSchema,
   insertMenuCategorySchema,
   insertOrderSchema,
   insertOrderItemSchema,
   insertCustomerSchema,
   insertEmployeeSchema,
-  insertWorkShiftSchema
+  insertWorkShiftSchema,
+  type User
 } from "@shared/schema";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -72,8 +74,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/auth/register", async (req, res) => {
+    try {
+      const { username, password, role } = registerSchema.parse(req.body);
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByUsername(username);
+      if (existingUser) {
+        return res.status(409).json({ message: "Nom d'utilisateur déjà utilisé" });
+      }
+
+      // Hash the password
+      const hashedPassword = await bcrypt.hash(password, 10);
+      
+      // Create new user
+      const newUser = await storage.createUser({
+        username,
+        password: hashedPassword,
+        role: role || "admin"
+      });
+
+      // Generate token
+      const token = jwt.sign(
+        { id: newUser.id, username: newUser.username, role: newUser.role },
+        JWT_SECRET,
+        { expiresIn: '24h' }
+      );
+
+      res.status(201).json({
+        token,
+        user: {
+          id: newUser.id,
+          username: newUser.username,
+          role: newUser.role
+        }
+      });
+    } catch (error) {
+      console.error("Registration error:", error);
+      res.status(400).json({ message: "Erreur lors de l'enregistrement" });
+    }
+  });
+
   app.post("/api/auth/verify", authenticateToken, (req: any, res) => {
     res.json({ user: req.user });
+  });
+
+  // Get all users (admin only)
+  app.get("/api/users", authenticateToken, async (req: any, res) => {
+    try {
+      const users = await storage.getUsers();
+      // Remove password from response
+      const safeUsers = users.map((user: any) => ({
+        id: user.id,
+        username: user.username,
+        role: user.role,
+        createdAt: user.createdAt
+      }));
+      res.json(safeUsers);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des utilisateurs" });
+    }
   });
 
   // Menu routes

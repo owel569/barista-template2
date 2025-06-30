@@ -264,6 +264,18 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Mot de passe requis"),
 });
 
+export const registerSchema = z.object({
+  username: z.string().min(3, "Nom d'utilisateur doit contenir au moins 3 caractères"),
+  password: z.string().min(6, "Mot de passe doit contenir au moins 6 caractères"),
+  confirmPassword: z.string(),
+  role: z.string().default("admin"),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Les mots de passe ne correspondent pas",
+  path: ["confirmPassword"],
+});
+
+export type RegisterData = z.infer<typeof registerSchema>;
+
 // New schemas for the extended functionality
 export const insertOrderSchema = createInsertSchema(orders).pick({
   customerName: true,

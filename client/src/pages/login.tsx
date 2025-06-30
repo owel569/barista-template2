@@ -139,6 +139,12 @@ export default function Login() {
 
               <div className="mt-6 text-center">
                 <p className="text-sm text-gray-600">
+                  Pas encore de compte ?{" "}
+                  <Link href="/register" className="text-coffee-accent hover:text-coffee-primary font-semibold">
+                    Créer un compte
+                  </Link>
+                </p>
+                <p className="text-xs text-gray-500 mt-2">
                   Accès réservé au personnel autorisé
                 </p>
               </div>

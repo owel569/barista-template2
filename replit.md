@@ -94,6 +94,15 @@ Changelog:
   - Improved date validation for reservations (year limit 3000)
   - Implemented tabbed admin interface for better organization
   - Added revenue and reservation statistics tracking
+- June 30, 2025. Migration to Replit with user management enhancements:
+  - Successfully migrated from Replit Agent to standard Replit environment
+  - Set up PostgreSQL database with automated migrations
+  - Added user registration functionality with secure authentication
+  - Created dedicated registration page (/register) with validation
+  - Enhanced login system with links to registration
+  - Added user management API endpoints with proper security
+  - Populated database with sample data for testing
+  - Fixed all React rendering warnings and authentication flow
 
 ## User Preferences
 
