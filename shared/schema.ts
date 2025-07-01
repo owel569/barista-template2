@@ -367,11 +367,17 @@ export const insertEmployeeSchema = createInsertSchema(employees).pick({
   firstName: z.string().min(2, "Prénom requis"),
   lastName: z.string().min(2, "Nom requis"),
   phone: z.string().min(10, "Numéro de téléphone invalide"),
+  position: z.string().min(2, "Poste requis"),
+  department: z.string().min(2, "Département requis"),
   hireDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Format de date invalide").refine((date) => {
     const year = parseInt(date.split('-')[0]);
     return year >= 1970 && year <= 3000;
   }, "L'année doit être entre 1970 et 3000"),
   salary: z.string().regex(/^\d+\.?\d{0,2}$/, "Salaire invalide").optional(),
+  status: z.enum(["active", "inactive", "terminated"]),
+  emergencyContact: z.string().optional(),
+  emergencyPhone: z.string().optional(),
+  notes: z.string().optional(),
 });
 
 export const insertWorkShiftSchema = createInsertSchema(workShifts).pick({
