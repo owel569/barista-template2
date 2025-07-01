@@ -1,7 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Calendar, Utensils } from "lucide-react";
+import { useLocation } from "wouter";
 
 export default function Hero() {
+  const [, setLocation] = useLocation();
+  
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
@@ -29,7 +32,7 @@ export default function Hero() {
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button
-            onClick={() => scrollToSection("reservation")}
+            onClick={() => setLocation("/reservation")}
             className="bg-coffee-accent hover:bg-opacity-90 text-white px-8 py-3 rounded-full text-lg font-semibold transition duration-300 transform hover:scale-105"
           >
             <Calendar className="mr-2 h-5 w-5" />
