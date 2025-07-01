@@ -1,144 +1,124 @@
-
 # Barista Café - Site Web Complet
 
-Site web de café moderne avec système de réservation intégré, basé sur le template Barista Cafe.
+Un site web moderne pour café avec système de réservation, gestion de menu et interface d'administration.
 
-## 🚀 Fonctionnalités
+## 🚀 Démarrage Rapide
 
-- **Frontend React** avec design responsive
-- **Backend Express.js** avec API REST
-- **Base de données PostgreSQL** avec Drizzle ORM
-- **Système d'authentification** JWT sécurisé
-- **Gestion des réservations** en temps réel
-- **Interface d'administration** complète
-- **Menu dynamique** géré via base de données
-- **Formulaire de contact** fonctionnel
-
-## 🛠️ Technologies Utilisées
-
-### Frontend
-- React 18
-- TypeScript
-- Tailwind CSS
-- Wouter (routing)
-- TanStack Query
-- React Hook Form
-- Zod (validation)
-- Lucide React (icônes)
-
-### Backend
-- Node.js
-- Express.js
-- TypeScript
-- PostgreSQL
-- Drizzle ORM
-- JWT (authentification)
-- Bcrypt (hachage mots de passe)
-
-## 📦 Installation
-
-### Prérequis
-- Node.js 20+
-- PostgreSQL
-- npm ou yarn
-
-### Configuration
-1. Clonez le dépôt :
+### Option 1: Configuration Automatique (Recommandée)
 ```bash
-git clone https://github.com/votre-username/barista-cafe-website.git
-cd barista-cafe-website
+npm run setup
 ```
 
-2. Installez les dépendances :
+### Option 2: Configuration Manuelle
 ```bash
+# 1. Installer les dépendances
 npm install
-```
 
-3. Configurez la base de données :
-```bash
-# Créez une base PostgreSQL et configurez DATABASE_URL
-export DATABASE_URL="postgresql://username:password@localhost:5432/barista_cafe"
-```
-
-4. Initialisez la base de données :
-```bash
-npm run db:push
-```
-
-5. Démarrez le serveur de développement :
-```bash
+# 2. Configurer la base de données (voir section Database)
+# 3. Lancer l'application
 npm run dev
 ```
 
-Le site sera accessible sur `http://localhost:5000`
+## 📋 Prérequis
 
-## 🔐 Accès Administration
+- **Node.js 18+** 
+- **Base de données PostgreSQL**
 
-- **URL** : `/login`
-- **Username** : `admin`
-- **Password** : `admin123`
+## 🗄️ Configuration de la Base de Données
+
+### Sur Replit
+1. Allez dans les **Secrets** de votre projet
+2. Ajoutez une nouvelle variable:
+   - **Nom**: `DATABASE_URL`
+   - **Valeur**: `postgresql://username:password@host:port/database`
+
+### En Local
+1. Créez un fichier `.env` à la racine du projet:
+```env
+DATABASE_URL=postgresql://username:password@localhost:5432/barista_cafe
+NODE_ENV=development
+JWT_SECRET=votre_secret_jwt_super_securise
+```
+
+2. Remplacez les valeurs par vos vraies informations de base de données
+
+## 🛠️ Scripts Disponibles
+
+- `npm run dev` - Démarre le serveur de développement
+- `npm run setup` - Configuration automatique du projet
+- `npm run build` - Compile le projet pour la production
+- `npm run start` - Lance le serveur de production
+- `npm run db:push` - Applique les migrations de base de données
+
+## 👤 Compte Administrateur
+
+Après la première installation, un compte administrateur est créé automatiquement:
+
+- **Nom d'utilisateur**: `admin`
+- **Mot de passe**: `admin123`
+
+⚠️ **Important**: Changez ces identifiants en production !
 
 ## 📁 Structure du Projet
 
 ```
-barista-cafe-website/
-├── client/                 # Frontend React
-│   ├── src/
-│   │   ├── components/     # Composants réutilisables
-│   │   ├── pages/         # Pages principales
-│   │   ├── lib/           # Utilitaires et configuration
-│   │   └── hooks/         # Hooks personnalisés
-├── server/                # Backend Express
-│   ├── routes.ts          # Routes API
-│   ├── storage.ts         # Couche d'accès aux données
-│   ├── db.ts             # Configuration base de données
-│   └── init-db.ts        # Initialisation données
-├── shared/               # Code partagé
-│   └── schema.ts         # Schémas Drizzle et validation
-└── README.md
+├── client/          # Interface utilisateur (React + TypeScript)
+├── server/          # API Backend (Express + TypeScript)
+├── shared/          # Types et schémas partagés
+├── migrations/      # Migrations de base de données
+└── setup-project.js # Script de configuration automatique
 ```
 
-## 🎨 Design
+## 🌟 Fonctionnalités
 
-Le design s'inspire du template Barista Cafe avec :
-- Palette de couleurs café/orange chaleureuse
-- Typography moderne avec Playfair Display
-- Interface responsive mobile-first
-- Animations fluides et transitions
+### Pour les Clients
+- 🍽️ Menu interactif avec images
+- 📅 Système de réservation en ligne
+- 🛒 Panier pour commandes
+- 📱 Interface responsive (mobile/desktop)
 
-## 📊 Fonctionnalités Admin
+### Pour les Administrateurs
+- 📊 Tableau de bord avec statistiques
+- 📋 Gestion des réservations
+- 🍕 Gestion du menu et catégories
+- 👥 Gestion des clients et employés
+- 📈 Rapports et analyses
 
-- Gestion des réservations (CRUD)
-- Statistiques en temps réel
-- Gestion du menu et des catégories
-- Suivi des messages de contact
-- Export de données
+## 🔧 Technologies Utilisées
 
-## 🔧 Scripts Disponibles
+- **Frontend**: React, TypeScript, Tailwind CSS, Wouter
+- **Backend**: Express.js, TypeScript, Drizzle ORM
+- **Base de données**: PostgreSQL
+- **Authentification**: JWT + Bcrypt
+- **Build**: Vite + esbuild
 
+## 🚨 Dépannage
+
+### Erreur "DATABASE_URL must be set"
+- Vérifiez que la variable `DATABASE_URL` est configurée
+- Lancez `npm run setup` pour une configuration automatique
+
+### Erreur "relation does not exist"
+- Lancez `npm run db:push` pour créer les tables
+- Ou utilisez `npm run setup` pour tout configurer
+
+### Le serveur ne démarre pas
+1. Vérifiez que toutes les dépendances sont installées: `npm install`
+2. Vérifiez la configuration de la base de données
+3. Relancez la configuration: `npm run setup`
+
+## 📞 Support
+
+Si vous rencontrez des problèmes:
+1. Vérifiez la section **Dépannage** ci-dessus
+2. Assurez-vous que tous les prérequis sont installés
+3. Lancez `npm run setup` pour reconfigurer automatiquement
+
+## 🔄 Mise à Jour
+
+Pour mettre à jour le projet vers une nouvelle version:
 ```bash
-npm run dev          # Serveur de développement
-npm run build        # Build de production
-npm run db:push      # Mise à jour schéma DB
-npm run db:studio    # Interface graphique DB
+git pull origin main
+npm install
+npm run setup
 ```
-
-## 🚀 Déploiement
-
-Le projet est prêt pour le déploiement sur :
-- Vercel / Netlify (frontend)
-- Railway / Heroku (backend)
-- Supabase / Neon (PostgreSQL)
-
-## 📝 License
-
-MIT License - Voir le fichier LICENSE pour plus de détails.
-
-## 🤝 Contribution
-
-Les contributions sont les bienvenues ! N'hésitez pas à ouvrir une issue ou une pull request.
-
----
-
-Développé avec ❤️ pour la communauté des cafés indépendants
->>>>>>> d0b72e0c7ccfdf434725123a7fcdf5c6423c49dc
