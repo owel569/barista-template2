@@ -1,17 +1,15 @@
 import { useAuth } from "@/lib/auth";
-import { useLocation } from "wouter";
+import { Redirect } from "wouter";
 import Navigation from "@/components/navigation";
 import EnhancedAdminDashboard from "@/components/enhanced-admin-dashboard";
 import { Coffee } from "lucide-react";
 
 export default function Admin() {
   const { isAuthenticated, loading } = useAuth();
-  const [, navigate] = useLocation();
 
   // Redirect to login if not authenticated
   if (!loading && !isAuthenticated) {
-    navigate("/login");
-    return null;
+    return <Redirect to="/login" />;
   }
 
   if (loading) {

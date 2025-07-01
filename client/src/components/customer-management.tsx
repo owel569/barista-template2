@@ -62,10 +62,11 @@ export default function CustomerManagement() {
         description: "Client créé avec succès",
       });
     },
-    onError: () => {
+    onError: (error: any) => {
+      console.error("Erreur création client:", error);
       toast({
         title: "Erreur",
-        description: "Erreur lors de la création du client",
+        description: error?.response?.data?.message || "Erreur lors de la création du client",
         variant: "destructive",
       });
     },
@@ -109,6 +110,44 @@ export default function CustomerManagement() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validation côté client
+    if (!newCustomer.firstName.trim()) {
+      toast({
+        title: "Erreur",
+        description: "Le prénom est requis",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!newCustomer.lastName.trim()) {
+      toast({
+        title: "Erreur",
+        description: "Le nom est requis",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!newCustomer.email.trim()) {
+      toast({
+        title: "Erreur",
+        description: "L'email est requis",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!newCustomer.phone.trim()) {
+      toast({
+        title: "Erreur",
+        description: "Le téléphone est requis",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (editingCustomer) {
       updateCustomerMutation.mutate({ id: editingCustomer.id, data: newCustomer });
     } else {

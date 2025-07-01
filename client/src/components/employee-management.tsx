@@ -80,10 +80,11 @@ export default function EmployeeManagement() {
         description: "Employé créé avec succès",
       });
     },
-    onError: () => {
+    onError: (error: any) => {
+      console.error("Erreur création employé:", error);
       toast({
         title: "Erreur",
-        description: "Erreur lors de la création de l'employé",
+        description: error?.response?.data?.message || "Erreur lors de la création de l'employé",
         variant: "destructive",
       });
     },
@@ -131,6 +132,71 @@ export default function EmployeeManagement() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validation côté client
+    if (!newEmployee.firstName.trim()) {
+      toast({
+        title: "Erreur",
+        description: "Le prénom est requis",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!newEmployee.lastName.trim()) {
+      toast({
+        title: "Erreur",
+        description: "Le nom est requis",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!newEmployee.email.trim()) {
+      toast({
+        title: "Erreur",
+        description: "L'email est requis",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!newEmployee.phone.trim()) {
+      toast({
+        title: "Erreur",
+        description: "Le téléphone est requis",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!newEmployee.position.trim()) {
+      toast({
+        title: "Erreur",
+        description: "Le poste est requis",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!newEmployee.department.trim()) {
+      toast({
+        title: "Erreur",
+        description: "Le département est requis",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!newEmployee.hireDate.trim()) {
+      toast({
+        title: "Erreur",
+        description: "La date d'embauche est requise",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (editingEmployee) {
       updateEmployeeMutation.mutate({ id: editingEmployee.id, data: newEmployee });
     } else {
