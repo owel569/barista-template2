@@ -41,9 +41,12 @@ app.use((req, res, next) => {
 
 (async () => {
   // Initialize database with default data
-  // Skip automatic initialization due to Neon driver compatibility
-  // Database will be initialized via API endpoint if needed
-  console.log("Database initialization will be handled via API endpoint");
+  try {
+    const { initializeDatabase } = await import("./init-db");
+    await initializeDatabase();
+  } catch (error) {
+    console.log("Database initialization failed:", error instanceof Error ? error.message : 'Unknown error');
+  }
   
   const server = await registerRoutes(app);
 
