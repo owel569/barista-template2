@@ -15,91 +15,64 @@ const execAsync = promisify(exec);
 async function checkEnvironment() {
   console.log('🔍 Vérification de l\'environnement...');
   
-  // Vérifier si nous sommes sur Replit
-  const isReplit = process.env.REPL_ID || process.env.REPLIT_DB_URL;
-  
-  // Vérifier si nous sommes sur GitHub Codespaces
-  const isCodespaces = process.env.CODESPACES || process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN;
-  
-  // Vérifier si nous sommes sur Gitpod
-  const isGitpod = process.env.GITPOD_WORKSPACE_ID;
-  
-  if (isReplit) {
-    console.log('✅ Environnement Replit détecté');
-    return 'replit';
-  } else if (isCodespaces) {
-    console.log('✅ Environnement GitHub Codespaces détecté');
-    return 'codespaces';
-  } else if (isGitpod) {
-    console.log('✅ Environnement Gitpod détecté');
-    return 'gitpod';
+  // Détection simple : si DATABASE_URL existe, on continue
+  // Sinon on aide à configurer
+  if (process.env.DATABASE_URL) {
+    console.log('✅ Base de données déjà configurée');
+    return 'configured';
   } else {
-    console.log('🖥️  Environnement local détecté');
-    return 'local';
+    console.log('⚙️  Configuration nécessaire');
+    return 'needs-config';
   }
 }
 
 async function setupDatabase(environment) {
   console.log('🗄️  Configuration de la base de données...');
   
-  if (environment === 'replit') {
-    // Sur Replit, vérifier si DATABASE_URL existe
-    if (!process.env.DATABASE_URL) {
-      console.log('❌ DATABASE_URL non configuré sur Replit');
-      console.log('ℹ️  Créez une base de données PostgreSQL dans les secrets Replit');
-      console.log('   Variable: DATABASE_URL');
-      console.log('   Format: postgresql://user:password@host:port/database');
-      return false;
-    }
-  } else if (environment === 'codespaces' || environment === 'gitpod') {
-    // GitHub Codespaces ou Gitpod - configuration cloud
-    if (!process.env.DATABASE_URL) {
-      console.log('📝 Configuration pour environnement cloud...');
-      console.log('ℹ️  Configuration requise:');
-      console.log('   1. Créez une base de données gratuite sur:');
-      console.log('      - Neon Database: https://neon.tech');
-      console.log('      - Supabase: https://supabase.com');
-      console.log('   2. Ajoutez la variable DATABASE_URL aux secrets');
-      console.log('   3. Relancez le script');
-      return false;
-    }
-  } else {
-    // Environnement local
-    const envPath = path.join(process.cwd(), '.env');
-    
-    if (!fs.existsSync(envPath)) {
-      // Copier le fichier exemple
-      const examplePath = path.join(process.cwd(), '.env.example');
-      if (fs.existsSync(examplePath)) {
-        fs.copyFileSync(examplePath, envPath);
-        console.log('✅ Fichier .env créé depuis .env.example');
-      } else {
-        const envContent = `# Configuration Barista Café
+  if (environment === 'configured') {
+    console.log('✅ DATABASE_URL détecté, configuration déjà faite');
+    return true;
+  }
+  
+  // Environnement non configuré - créer .env si nécessaire
+  const envPath = path.join(process.cwd(), '.env');
+  
+  if (!fs.existsSync(envPath)) {
+    // Copier depuis .env.example ou créer
+    const examplePath = path.join(process.cwd(), '.env.example');
+    if (fs.existsSync(examplePath)) {
+      fs.copyFileSync(examplePath, envPath);
+      console.log('✅ Fichier .env créé depuis .env.example');
+    } else {
+      const envContent = `# Configuration Barista Café
 DATABASE_URL=postgresql://username:password@localhost:5432/barista_cafe
 NODE_ENV=development
-JWT_SECRET=votre_secret_jwt_super_securise
+JWT_SECRET=votre_secret_jwt_super_securise_changez_moi
 PORT=5000
 `;
-        fs.writeFileSync(envPath, envContent);
-        console.log('✅ Fichier .env créé');
-      }
-      
-      console.log('⚠️  ÉTAPES SUIVANTES:');
-      console.log('   1. Installez PostgreSQL localement');
-      console.log('   2. Créez une base de données "barista_cafe"');
-      console.log('   3. Modifiez DATABASE_URL dans .env');
-      console.log('   4. Relancez: node setup-project.cjs');
-      return false;
+      fs.writeFileSync(envPath, envContent);
+      console.log('✅ Fichier .env créé');
     }
-    
-    // Charger les variables d'environnement
-    require('dotenv').config();
-    
-    if (!process.env.DATABASE_URL) {
-      console.log('❌ DATABASE_URL non configuré dans .env');
-      console.log('ℹ️  Modifiez DATABASE_URL dans le fichier .env');
-      return false;
-    }
+  }
+  
+  // Charger .env et vérifier
+  require('dotenv').config();
+  
+  if (!process.env.DATABASE_URL || process.env.DATABASE_URL.includes('username:password')) {
+    console.log('\n📋 CONFIGURATION REQUISE:');
+    console.log('');
+    console.log('🗄️  Base de données PostgreSQL nécessaire');
+    console.log('');
+    console.log('Options (au choix):');
+    console.log('  • Local: Installez PostgreSQL + créez DB "barista_cafe"');
+    console.log('  • Cloud: Neon.tech, Supabase.com, Railway.app (gratuit)');
+    console.log('  • Docker: docker run postgres (si Docker installé)');
+    console.log('');
+    console.log('Puis modifiez DATABASE_URL dans .env avec votre URL');
+    console.log('Format: postgresql://user:password@host:port/database');
+    console.log('');
+    console.log('Relancez ensuite: node setup-project.cjs');
+    return false;
   }
   
   return true;

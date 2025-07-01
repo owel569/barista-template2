@@ -2,53 +2,40 @@
 
 Un site web moderne pour café avec système de réservation, gestion de menu et interface d'administration.
 
-## 🚀 Démarrage Rapide
+## ⚡ Installation Universelle
 
-### Option 1: Configuration Automatique (Recommandée)
+### Sur toute plateforme de développement :
 ```bash
-npm run setup
-```
+# 1. Installation automatique
+node setup-project.cjs
 
-### Option 2: Configuration Manuelle
-```bash
-# 1. Installer les dépendances
-npm install
-
-# 2. Configurer la base de données (voir section Database)
-# 3. Lancer l'application
+# 2. Démarrage
 npm run dev
 ```
+
+C'est tout ! Le script configure automatiquement votre environnement.
 
 ## 📋 Prérequis
 
 - **Node.js 18+** 
 - **Base de données PostgreSQL**
 
-## 🗄️ Configuration de la Base de Données
+## 🗄️ Base de Données
 
-### Sur Replit
-1. Allez dans les **Secrets** de votre projet
-2. Ajoutez une nouvelle variable:
-   - **Nom**: `DATABASE_URL`
-   - **Valeur**: `postgresql://username:password@host:port/database`
+Le script vous guide automatiquement. Options disponibles :
 
-### En Local
-1. Créez un fichier `.env` à la racine du projet:
-```env
-DATABASE_URL=postgresql://username:password@localhost:5432/barista_cafe
-NODE_ENV=development
-JWT_SECRET=votre_secret_jwt_super_securise
-```
+- **Cloud (Gratuit)**: Neon.tech, Supabase.com, Railway.app
+- **Local**: PostgreSQL installé sur votre machine  
+- **Docker**: Container PostgreSQL
 
-2. Remplacez les valeurs par vos vraies informations de base de données
+Le script détecte votre environnement et configure automatiquement.
 
 ## 🛠️ Scripts Disponibles
 
-- `npm run dev` - Démarre le serveur de développement
-- `npm run setup` - Configuration automatique du projet
-- `npm run build` - Compile le projet pour la production
-- `npm run start` - Lance le serveur de production
-- `npm run db:push` - Applique les migrations de base de données
+- `node setup-project.cjs` - Configuration automatique (première fois)
+- `npm run dev` - Serveur de développement
+- `npm run build` - Compilation production
+- `npm run start` - Serveur production
 
 ## 👤 Compte Administrateur
 
