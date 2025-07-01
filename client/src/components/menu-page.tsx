@@ -116,9 +116,12 @@ export default function MenuPage() {
               {/* Image HD */}
               <div className="aspect-video bg-coffee-light/20 overflow-hidden">
                 <img 
-                  src={getMenuItemImage(item.name)}
+                  src={item.imageUrl || getMenuItemImage(item.name)}
                   alt={item.name}
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = getMenuItemImage(item.name);
+                  }}
                 />
               </div>
               

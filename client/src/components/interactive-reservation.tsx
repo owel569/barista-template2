@@ -222,9 +222,12 @@ export default function InteractiveReservation() {
                         <CardContent className="p-4">
                           <div className="aspect-square mb-3 rounded-lg overflow-hidden bg-coffee-light/20">
                             <img 
-                              src={getMenuItemImage(item.name)}
+                              src={item.imageUrl || getMenuItemImage(item.name)}
                               alt={item.name}
-                              className="w-full h-full object-contain rounded-lg"
+                              className="w-full h-full object-cover rounded-lg"
+                              onError={(e) => {
+                                e.currentTarget.src = getMenuItemImage(item.name);
+                              }}
                             />
                           </div>
                           
