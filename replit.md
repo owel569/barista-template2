@@ -135,6 +135,13 @@ Changelog:
   - Frontend and backend fully integrated and communicating
   - Admin authentication system functional (admin/admin123)
   - Auto-setup system working perfectly for seamless startup experience
+- July 1, 2025. Menu enhancement with HD images and duplicate cleanup:
+  - Removed duplicate menu items from database (eliminated 9 duplicates)
+  - Created HD SVG images for all menu categories (cappuccino, espresso, latte, chocolat, thé, croissant, macaron, salade, sandwich)
+  - Updated interactive reservation interface to display new HD images
+  - Enhanced menu page and home preview with product images
+  - Implemented smart image mapping system based on product names
+  - Improved visual presentation of cafe offerings with custom artwork
 
 ## User Preferences
 

@@ -1,0 +1,58 @@
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="teaCup" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e8f5e8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d4edda;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="greenTea" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7fb069;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#588b4a;stop-opacity:1" />
+    </linearGradient>
+    <radialGradient id="teaLeaf" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" style="stop-color:#8fbc8f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2e7d32;stop-opacity:1" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Fond zen -->
+  <rect width="400" height="400" fill="#f1f8e9"/>
+  
+  <!-- Soucoupe délicate -->
+  <ellipse cx="200" cy="350" rx="100" ry="12" fill="#c8e6c9" opacity="0.8"/>
+  
+  <!-- Tasse à thé -->
+  <path d="M100 180 Q100 310 200 310 Q300 310 300 180 L270 180 Q270 280 200 280 Q130 280 130 180 Z" 
+        fill="url(#teaCup)" stroke="#a5d6a7" stroke-width="2"/>
+  
+  <!-- Anse fine -->
+  <path d="M300 200 Q330 200 330 230 Q330 260 300 260" 
+        fill="none" stroke="#a5d6a7" stroke-width="6" stroke-linecap="round"/>
+  <path d="M300 210 Q320 210 320 230 Q320 250 300 250" 
+        fill="none" stroke="url(#teaCup)" stroke-width="3" stroke-linecap="round"/>
+  
+  <!-- Thé vert -->
+  <ellipse cx="200" cy="190" rx="80" ry="12" fill="url(#greenTea)"/>
+  
+  <!-- Feuilles de thé flottantes -->
+  <ellipse cx="180" cy="185" rx="8" ry="3" fill="url(#teaLeaf)" transform="rotate(30 180 185)"/>
+  <ellipse cx="210" cy="188" rx="6" ry="2" fill="url(#teaLeaf)" transform="rotate(-20 210 188)"/>
+  <ellipse cx="190" cy="192" rx="5" ry="2" fill="url(#teaLeaf)" transform="rotate(45 190 192)"/>
+  
+  <!-- Vapeur zen -->
+  <path d="M170 160 Q175 140 170 120 Q165 100 170 80" 
+        stroke="#81c784" stroke-width="2" fill="none" opacity="0.4" stroke-linecap="round"/>
+  <path d="M200 155 Q205 135 200 115 Q195 95 200 75" 
+        stroke="#81c784" stroke-width="2" fill="none" opacity="0.5" stroke-linecap="round"/>
+  <path d="M230 160 Q235 140 230 120 Q225 100 230 80" 
+        stroke="#81c784" stroke-width="2" fill="none" opacity="0.4" stroke-linecap="round"/>
+  
+  <!-- Motif traditionnel sur la tasse -->
+  <circle cx="165" cy="220" r="3" fill="#66bb6a" opacity="0.6"/>
+  <circle cx="180" cy="235" r="2" fill="#66bb6a" opacity="0.7"/>
+  <circle cx="220" cy="225" r="3" fill="#66bb6a" opacity="0.5"/>
+  <circle cx="235" cy="240" r="2" fill="#66bb6a" opacity="0.8"/>
+  
+  <!-- Reflet délicat -->
+  <path d="M130 190 Q150 180 170 190" 
+        stroke="#ffffff" stroke-width="2" fill="none" opacity="0.6" stroke-linecap="round"/>
+</svg>

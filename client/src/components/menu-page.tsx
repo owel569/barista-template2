@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChefHat, Coffee, Pizza, Utensils, Beef, Clock } from "lucide-react";
+import { getMenuItemImage } from "@/utils/menu-images";
 
 interface MenuItem {
   id: number;
@@ -112,6 +113,15 @@ export default function MenuPage() {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredItems.map((item) => (
             <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+              {/* Image HD */}
+              <div className="aspect-video bg-coffee-light/20 overflow-hidden">
+                <img 
+                  src={getMenuItemImage(item.name)}
+                  alt={item.name}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              
               <CardHeader className="pb-2">
                 <div className="flex justify-between items-start">
                   <CardTitle className="text-lg">{item.name}</CardTitle>
@@ -123,7 +133,7 @@ export default function MenuPage() {
               </CardHeader>
               <CardContent>
                 <div className="flex justify-between items-center">
-                  <span className="text-2xl font-bold text-amber-600">{item.price} MAD</span>
+                  <span className="text-2xl font-bold text-amber-600">{item.price}€</span>
                   <Badge variant="outline" className="text-xs">
                     {item.category}
                   </Badge>

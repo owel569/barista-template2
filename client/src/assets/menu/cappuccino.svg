@@ -1,0 +1,53 @@
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="cupGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f8f9fa;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e9ecef;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="coffeeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8b4513;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#5d2e0a;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="foamGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.9" />
+      <stop offset="100%" style="stop-color:#f8f9fa;stop-opacity:0.7" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Fond -->
+  <rect width="400" height="400" fill="#2c1810"/>
+  
+  <!-- Soucoupe -->
+  <ellipse cx="200" cy="350" rx="120" ry="15" fill="#e9ecef" opacity="0.8"/>
+  
+  <!-- Tasse -->
+  <path d="M80 180 Q80 320 200 320 Q320 320 320 180 L280 180 Q280 280 200 280 Q120 280 120 180 Z" 
+        fill="url(#cupGradient)" stroke="#dee2e6" stroke-width="2"/>
+  
+  <!-- Anse -->
+  <path d="M320 200 Q360 200 360 240 Q360 280 320 280" 
+        fill="none" stroke="#dee2e6" stroke-width="8" stroke-linecap="round"/>
+  <path d="M320 210 Q350 210 350 240 Q350 270 320 270" 
+        fill="none" stroke="url(#cupGradient)" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Café -->
+  <ellipse cx="200" cy="185" rx="95" ry="15" fill="url(#coffeeGradient)"/>
+  
+  <!-- Mousse -->
+  <ellipse cx="200" cy="175" rx="90" ry="20" fill="url(#foamGradient)"/>
+  <circle cx="170" cy="168" r="8" fill="#ffffff" opacity="0.6"/>
+  <circle cx="210" cy="172" r="6" fill="#ffffff" opacity="0.4"/>
+  <circle cx="190" cy="165" r="4" fill="#ffffff" opacity="0.7"/>
+  
+  <!-- Latte art - Cœur -->
+  <path d="M190 175 Q185 165 175 165 Q165 165 165 175 Q165 185 190 195 Q215 185 215 175 Q215 165 205 165 Q195 165 190 175" 
+        fill="#8b4513" opacity="0.6"/>
+  
+  <!-- Vapeur -->
+  <path d="M150 140 Q155 120 150 100 Q145 80 150 60" 
+        stroke="#ffffff" stroke-width="2" fill="none" opacity="0.3" stroke-linecap="round"/>
+  <path d="M200 135 Q205 115 200 95 Q195 75 200 55" 
+        stroke="#ffffff" stroke-width="2" fill="none" opacity="0.4" stroke-linecap="round"/>
+  <path d="M250 140 Q255 120 250 100 Q245 80 250 60" 
+        stroke="#ffffff" stroke-width="2" fill="none" opacity="0.3" stroke-linecap="round"/>
+</svg>

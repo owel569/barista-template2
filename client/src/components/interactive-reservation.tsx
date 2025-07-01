@@ -13,6 +13,7 @@ import { Calendar, Clock, Users, ShoppingCart, Plus, Minus, Coffee, Utensils, Ca
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { z } from "zod";
+import { getMenuItemImage } from "@/utils/menu-images";
 
 const reservationSchema = insertReservationSchema.extend({
   customerName: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
@@ -221,12 +222,9 @@ export default function InteractiveReservation() {
                         <CardContent className="p-4">
                           <div className="aspect-square mb-3 rounded-lg overflow-hidden bg-coffee-light/20">
                             <img 
-                              src={item.imageUrl || 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=400&h=200&q=80'}
+                              src={getMenuItemImage(item.name)}
                               alt={item.name}
-                              className="w-full h-full object-cover rounded-lg"
-                              onError={(e) => {
-                                e.currentTarget.src = 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=400&h=200&q=80';
-                              }}
+                              className="w-full h-full object-contain rounded-lg"
                             />
                           </div>
                           

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Coffee } from "lucide-react";
 import { useLocation } from "wouter";
+import { getMenuItemImage } from "@/utils/menu-images";
 
 export default function HomeMenuPreview() {
   const [, setLocation] = useLocation();
@@ -32,12 +33,9 @@ export default function HomeMenuPreview() {
               <CardContent className="p-0">
                 <div className="aspect-square overflow-hidden rounded-t-lg">
                   <img 
-                    src={item.imageUrl || 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=400&h=300&q=80'}
+                    src={getMenuItemImage(item.name)}
                     alt={item.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                    onError={(e) => {
-                      e.currentTarget.src = 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=400&h=300&q=80';
-                    }}
+                    className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300"
                   />
                 </div>
                 <div className="p-6">
