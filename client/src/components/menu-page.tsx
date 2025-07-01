@@ -48,8 +48,7 @@ export default function MenuPage() {
   const filteredItems = selectedCategory === "all" 
     ? menuItems 
     : menuItems.filter(item => {
-        const category = categories.find(cat => cat.id.toString() === selectedCategory);
-        return category && item.category === category.name;
+        return item.categoryId?.toString() === selectedCategory;
       });
 
   const getCategoryIcon = (categoryName: string) => {
