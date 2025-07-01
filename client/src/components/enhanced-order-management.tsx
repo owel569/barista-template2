@@ -157,7 +157,7 @@ export default function EnhancedOrderManagement() {
         })),
       };
 
-      return apiRequest('/api/orders', 'POST', orderPayload);
+      return apiRequest('POST', '/api/orders', orderPayload);
     },
     onSuccess: () => {
       toast({
