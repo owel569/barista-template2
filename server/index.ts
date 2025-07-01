@@ -40,6 +40,20 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Configuration automatique au démarrage
+  try {
+    const { autoSetup } = await import("./auto-setup");
+    const setupSuccess = await autoSetup();
+    
+    if (!setupSuccess) {
+      console.error('❌ Impossible de démarrer le serveur - configuration échouée');
+      process.exit(1);
+    }
+  } catch (error) {
+    console.error("Erreur de configuration automatique:", error instanceof Error ? error.message : 'Erreur inconnue');
+    process.exit(1);
+  }
+
   // Initialize database with default data
   try {
     const { initializeDatabase } = await import("./init-db");
