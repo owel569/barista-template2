@@ -59,7 +59,7 @@ app.use((req, res, next) => {
     const { initializeDatabase } = await import("./init-db");
     await initializeDatabase();
   } catch (error) {
-    console.log("Database initialization failed:", error instanceof Error ? error.message : 'Unknown error');
+    console.log("Échec de l'initialisation de la base de données:", error instanceof Error ? error.message : 'Erreur inconnue');
   }
   
   const server = await registerRoutes(app);

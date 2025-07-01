@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 
 export async function initializeDatabase() {
   try {
-    console.log("Initializing database...");
+    console.log("Initialisation de la base de données...");
 
     // Create default admin user
     const hashedPassword = await bcrypt.hash("admin123", 10);
@@ -137,10 +137,10 @@ export async function initializeDatabase() {
       }
     }
 
-    console.log("Database initialized successfully!");
-    console.log("Admin credentials: username=admin, password=admin123");
+    console.log("Base de données initialisée avec succès !");
+    console.log("Identifiants administrateur: nom d'utilisateur=admin, mot de passe=admin123");
     
   } catch (error) {
-    console.error("Error initializing database:", error);
+    console.error("Erreur lors de l'initialisation de la base de données:", error);
   }
 }

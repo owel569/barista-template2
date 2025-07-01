@@ -122,4 +122,4 @@ Changelog:
 
 ## User Preferences
 
-Preferred communication style: Simple, everyday language.
+Preferred communication style: Simple, everyday language in French (français).
