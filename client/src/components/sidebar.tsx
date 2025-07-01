@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Coffee, Calendar, Settings, Home, Menu, X } from "lucide-react";
+import { Coffee, Calendar, Settings, Home, Menu, X, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -8,6 +8,11 @@ const sidebarItems = [
     title: "Accueil",
     href: "/",
     icon: Home,
+  },
+  {
+    title: "Style Green Black",
+    href: "/green-black",
+    icon: Sparkles,
   },
   {
     title: "Réservation",

@@ -12,11 +12,12 @@ import Register from "@/pages/register";
 import InteractiveReservation from "@/components/interactive-reservation";
 import Admin from "@/pages/admin";
 import NotFound from "@/pages/not-found";
+import GreenBlackHome from "@/components/green-black-home";
 
 function Router() {
   const [location] = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const showSidebar = !['/login', '/register'].includes(location);
+  const showSidebar = !['/login', '/register', '/green-black'].includes(location);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -30,6 +31,7 @@ function Router() {
       <div className={`flex-1 ${showSidebar && sidebarOpen ? 'lg:ml-64' : ''} transition-all duration-300`}>
         <Switch>
           <Route path="/" component={Home} />
+          <Route path="/green-black" component={GreenBlackHome} />
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
           <Route path="/reservation" component={InteractiveReservation} />
