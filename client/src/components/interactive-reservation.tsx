@@ -56,7 +56,7 @@ export default function InteractiveReservation() {
 
   const reservationMutation = useMutation({
     mutationFn: async (data: any) => {
-      return apiRequest('/api/reservations', 'POST', data);
+      return apiRequest('POST', '/api/reservations', data);
     },
     onSuccess: () => {
       toast({

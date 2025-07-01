@@ -112,7 +112,7 @@ export default function SimpleOrderManagement() {
 
   const createOrderMutation = useMutation({
     mutationFn: async (orderData: OrderData) => {
-      return apiRequest('/api/orders', 'POST', orderData);
+      return apiRequest('POST', '/api/orders', orderData);
     },
     onSuccess: () => {
       toast({
@@ -136,7 +136,7 @@ export default function SimpleOrderManagement() {
 
   const createMenuItemMutation = useMutation({
     mutationFn: async (data: MenuItemData) => {
-      return apiRequest('/api/menu/items', 'POST', data);
+      return apiRequest('POST', '/api/menu/items', data);
     },
     onSuccess: () => {
       toast({
@@ -160,7 +160,7 @@ export default function SimpleOrderManagement() {
 
   const updateOrderStatusMutation = useMutation({
     mutationFn: async ({ id, status }: { id: number; status: string }) => {
-      return apiRequest(`/api/orders/${id}/status`, 'PATCH', { status });
+      return apiRequest('PATCH', `/api/orders/${id}/status`, { status });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/orders'] });

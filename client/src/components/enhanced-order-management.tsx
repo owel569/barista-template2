@@ -180,7 +180,7 @@ export default function EnhancedOrderManagement() {
 
   const createMenuItemMutation = useMutation({
     mutationFn: async (data: NewMenuItemData & { imageUrl?: string }) => {
-      return apiRequest('/api/menu/items', 'POST', data);
+      return apiRequest('POST', '/api/menu/items', data);
     },
     onSuccess: () => {
       toast({
@@ -203,7 +203,7 @@ export default function EnhancedOrderManagement() {
 
   const updateOrderStatusMutation = useMutation({
     mutationFn: async ({ id, status }: { id: number; status: string }) => {
-      return apiRequest(`/api/orders/${id}/status`, 'PATCH', { status });
+      return apiRequest('PATCH', `/api/orders/${id}/status`, { status });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/orders'] });
