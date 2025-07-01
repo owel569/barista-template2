@@ -342,11 +342,15 @@ export const insertCustomerSchema = createInsertSchema(customers).pick({
   firstName: z.string().min(2, "Prénom requis"),
   lastName: z.string().min(2, "Nom requis"),
   phone: z.string().min(10, "Numéro de téléphone invalide"),
-  dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Format de date invalide").refine((date) => {
-    if (!date) return true;
+  address: z.string().optional(),
+  dateOfBirth: z.string().optional().refine((date) => {
+    if (!date || date === "") return true;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
     const year = parseInt(date.split('-')[0]);
     return year >= 1900 && year <= 3000;
-  }, "L'année doit être entre 1900 et 3000").optional(),
+  }, "L'année doit être entre 1900 et 3000"),
+  preferredContactMethod: z.enum(["email", "phone", "sms"]).default("email"),
+  notes: z.string().optional(),
 });
 
 export const insertEmployeeSchema = createInsertSchema(employees).pick({
@@ -369,12 +373,16 @@ export const insertEmployeeSchema = createInsertSchema(employees).pick({
   phone: z.string().min(10, "Numéro de téléphone invalide"),
   position: z.string().min(2, "Poste requis"),
   department: z.string().min(2, "Département requis"),
-  hireDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Format de date invalide").refine((date) => {
+  hireDate: z.string().refine((date) => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
     const year = parseInt(date.split('-')[0]);
     return year >= 1970 && year <= 3000;
-  }, "L'année doit être entre 1970 et 3000"),
-  salary: z.string().regex(/^\d+\.?\d{0,2}$/, "Salaire invalide").optional(),
-  status: z.enum(["active", "inactive", "terminated"]),
+  }, "Format de date invalide ou année doit être entre 1970 et 3000"),
+  salary: z.string().optional().refine((salary) => {
+    if (!salary || salary === "") return true;
+    return /^\d+\.?\d{0,2}$/.test(salary);
+  }, "Salaire invalide"),
+  status: z.enum(["active", "inactive", "terminated"]).default("active"),
   emergencyContact: z.string().optional(),
   emergencyPhone: z.string().optional(),
   notes: z.string().optional(),

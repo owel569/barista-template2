@@ -31,6 +31,7 @@ import SimpleOrderManagement from "./simple-order-management";
 import CustomerManagement from "./customer-management";
 import EmployeeManagement from "./employee-management";
 import ReservationNotifications from "./reservation-notifications";
+import MenuManagement from "./menu-management";
 
 interface Reservation {
   id: number;
@@ -196,6 +197,10 @@ export default function EnhancedAdminDashboard() {
 
           <TabsContent value="employees" className="space-y-6">
             <EmployeeManagement />
+          </TabsContent>
+
+          <TabsContent value="menu" className="space-y-6">
+            <MenuManagement />
           </TabsContent>
 
           <TabsContent value="reservations" className="space-y-6">
