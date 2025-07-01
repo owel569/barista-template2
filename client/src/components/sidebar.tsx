@@ -47,7 +47,27 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
+  
+  const handleAboutClick = () => {
+    if (location === "/") {
+      // Si on est sur la page d'accueil, faire défiler vers la section À propos
+      const aboutSection = document.getElementById("about");
+      if (aboutSection) {
+        aboutSection.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      // Sinon, aller à la page d'accueil et défiler vers À propos
+      setLocation("/");
+      setTimeout(() => {
+        const aboutSection = document.getElementById("about");
+        if (aboutSection) {
+          aboutSection.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
+    }
+    onToggle();
+  };
 
   return (
     <>
@@ -98,6 +118,22 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
               const Icon = item.icon;
               const isActive = location === item.href || 
                 (item.href !== "/" && location.startsWith(item.href));
+              
+              if (item.href === "/about") {
+                return (
+                  <div
+                    key={item.href}
+                    className={cn(
+                      "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors cursor-pointer",
+                      "text-coffee-light hover:bg-coffee-medium hover:text-white"
+                    )}
+                    onClick={handleAboutClick}
+                  >
+                    <Icon className="h-5 w-5" />
+                    <span className="font-medium">{item.title}</span>
+                  </div>
+                );
+              }
               
               return (
                 <Link key={item.href} href={item.href}>

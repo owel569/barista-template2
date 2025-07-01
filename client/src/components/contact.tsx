@@ -226,14 +226,21 @@ export default function Contact() {
               </div>
             </div>
 
-            {/* Map placeholder */}
+            {/* Google Maps */}
             <div className="bg-coffee-cream rounded-lg p-4">
-              <div className="bg-gray-300 h-48 rounded flex items-center justify-center text-coffee-dark">
-                <div className="text-center">
-                  <MapPin className="h-12 w-12 mx-auto mb-2" />
-                  <p className="font-semibold">Carte Google Maps</p>
-                  <p className="text-sm text-gray-600">123 Rue du Café, Paris</p>
-                </div>
+              <h4 className="font-semibold text-coffee-secondary mb-4">Notre Localisation</h4>
+              <div className="rounded-lg overflow-hidden">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2624.8916666666665!2d2.3522219156743005!3d48.85661007928746!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e671d877937b0f%3A0xb975fcfa192f84d4!2sPlace%20Vend%C3%B4me%2C%2075001%20Paris%2C%20France!5e0!3m2!1sfr!2sfr!4v1649766543210!5m2!1sfr!2sfr"
+                  width="100%"
+                  height="300"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Localisation Barista Café"
+                  className="rounded-lg"
+                />
               </div>
             </div>
           </div>
