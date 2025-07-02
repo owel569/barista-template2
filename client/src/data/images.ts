@@ -1,8 +1,8 @@
 // Images authentiques Pexels pour tous les éléments du menu
 export const menuImages = {
   // Cafés
-  'Cappuccino Traditionnel': 'https://images.pexels.com/photos/162947/pexels-photo-162947.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
-  'Cappuccino Premium': 'https://images.pexels.com/photos/162947/pexels-photo-162947.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
+  'Cappuccino Traditionnel': 'https://images.pexels.com/photos/17797619/pexels-photo-17797619.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
+  'Cappuccino Premium': 'https://images.pexels.com/photos/17797619/pexels-photo-17797619.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
   'Espresso Turc': 'https://images.pexels.com/photos/28538132/pexels-photo-28538132.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
   'Espresso Classique': 'https://images.pexels.com/photos/28538132/pexels-photo-28538132.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
   'Latte Art Cœur': 'https://images.pexels.com/photos/433145/pexels-photo-433145.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',

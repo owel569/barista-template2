@@ -142,15 +142,20 @@ export default function InteractiveReservation() {
   };
 
   const filteredItems = activeCategory 
-    ? menuItems.filter((item: any) => item.categoryId === activeCategory)
+    ? menuItems.filter((item: any) => item.categoryId === activeCategory || item.category_id === activeCategory)
     : menuItems;
 
   const onSubmit = (data: ReservationFormData) => {
+    console.log("Données du formulaire:", data);
+    console.log("Erreurs du formulaire:", form.formState.errors);
+    
     const reservationData = {
       ...data,
+      status: "pending", // Assurer que le statut est correct
       cartItems: cart.length > 0 ? cart : undefined,
     };
     
+    console.log("Données envoyées à l'API:", reservationData);
     reservationMutation.mutate(reservationData);
   };
 
