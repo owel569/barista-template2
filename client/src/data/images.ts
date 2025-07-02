@@ -1,31 +1,9 @@
-// Images authentiques Pexels pour tous les éléments du menu
+// ATTENTION: Ce fichier est obsolète. 
+// Utiliser maintenant client/src/lib/image-mapping.ts pour toutes les images
+// Conservé temporairement pour éviter les erreurs d'import
+
 export const menuImages = {
-  // Cafés
-  'Cappuccino Traditionnel': 'https://images.pexels.com/photos/17797619/pexels-photo-17797619.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
-  'Cappuccino Premium': 'https://images.pexels.com/photos/17797619/pexels-photo-17797619.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
-  'Espresso Turc': 'https://images.pexels.com/photos/28538132/pexels-photo-28538132.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
-  'Espresso Classique': 'https://images.pexels.com/photos/28538132/pexels-photo-28538132.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
-  'Latte Art Cœur': 'https://images.pexels.com/photos/433145/pexels-photo-433145.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
-  'Latte Art': 'https://images.pexels.com/photos/433145/pexels-photo-433145.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
-  'Café Glacé': 'https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
-  
-  // Boissons
-  'Chocolat Chaud': 'https://images.pexels.com/photos/15529714/pexels-photo-15529714.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
-  'Thé Vert Premium': 'https://images.pexels.com/photos/7565503/pexels-photo-7565503.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
-  'Smoothie du Jour': 'https://images.pexels.com/photos/11160116/pexels-photo-11160116.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
-  
-  // Pâtisseries
-  'Croissant Beurré': 'https://images.pexels.com/photos/10560686/pexels-photo-10560686.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
-  'Croissants Artisanaux': 'https://images.pexels.com/photos/10560686/pexels-photo-10560686.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
-  'Macarons Colorés': 'https://images.pexels.com/photos/11345217/pexels-photo-11345217.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
-  'Macarons Français': 'https://images.pexels.com/photos/11345217/pexels-photo-11345217.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
-  'Gâteau au Chocolat': 'https://images.pexels.com/photos/291528/pexels-photo-291528.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
-  'Gâteaux au Chocolat': 'https://images.pexels.com/photos/291528/pexels-photo-291528.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
-  'Cookies Chocolat': 'https://images.pexels.com/photos/230325/pexels-photo-230325.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
-  
-  // Plats
-  'Salade César': 'https://images.pexels.com/photos/1059905/pexels-photo-1059905.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
-  'Sandwich Club': 'https://images.pexels.com/photos/28681955/pexels-photo-28681955.jpeg?auto=compress&cs=tinysrgb&w=800&h=600'
+  // Conservé pour compatibilité - utiliser client/src/lib/image-mapping.ts à la place
 };
 
 // Images pour les catégories
@@ -38,9 +16,12 @@ export const categoryImages = {
   'Desserts': 'https://images.pexels.com/photos/11345217/pexels-photo-11345217.jpeg?auto=compress&cs=tinysrgb&w=800&h=600'
 };
 
-// Fonction pour obtenir l'image d'un élément du menu
+// OBSOLÈTE: Utiliser getItemImageUrl de client/src/lib/image-mapping.ts à la place
+import { getItemImageUrl } from "@/lib/image-mapping";
+
 export function getMenuItemImage(itemName: string): string {
-  return menuImages[itemName as keyof typeof menuImages] || 'https://images.pexels.com/photos/162947/pexels-photo-162947.jpeg?auto=compress&cs=tinysrgb&w=800&h=600';
+  console.warn("getMenuItemImage est obsolète. Utiliser getItemImageUrl de @/lib/image-mapping à la place.");
+  return getItemImageUrl(itemName);
 }
 
 // Fonction pour obtenir l'image d'une catégorie

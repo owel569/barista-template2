@@ -23,7 +23,7 @@ export const menuCategories = pgTable("menu_categories", {
 // Menu items
 export const menuItems = pgTable("menu_items", {
   id: serial("id").primaryKey(),
-  name: text("name").notNull(),
+  name: text("name").notNull().unique(),
   description: text("description").notNull(),
   price: decimal("price", { precision: 8, scale: 2 }).notNull(),
   categoryId: integer("category_id").notNull(),

@@ -5,13 +5,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChefHat, Coffee, Pizza, Utensils, Beef, Clock } from "lucide-react";
-import { getMenuItemImage } from "@/data/images";
+import { getItemImageUrl } from "@/lib/image-mapping";
 
 interface MenuItem {
   id: number;
   name: string;
   description: string;
   price: string;
+  categoryId: number;
   category: string;
   available: boolean;
   imageUrl?: string;
@@ -48,7 +49,7 @@ export default function MenuPage() {
   const filteredItems = selectedCategory === "all" 
     ? menuItems 
     : menuItems.filter(item => {
-        return item.category_id?.toString() === selectedCategory;
+        return item.categoryId?.toString() === selectedCategory;
       });
 
   const getCategoryIcon = (categoryName: string) => {
@@ -115,11 +116,11 @@ export default function MenuPage() {
               {/* Image HD */}
               <div className="aspect-video bg-coffee-light/20 overflow-hidden">
                 <img 
-                  src={item.imageUrl || getMenuItemImage(item.name)}
+                  src={getItemImageUrl(item.name, item.category?.toLowerCase(), item.imageUrl)}
                   alt={item.name}
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    e.currentTarget.src = getMenuItemImage(item.name);
+                    e.currentTarget.src = getItemImageUrl(item.name, item.category?.toLowerCase());
                   }}
                 />
               </div>

@@ -38,7 +38,7 @@ interface CartItem {
   notes?: string;
 }
 
-// Plus d'images SVG statiques - nous utilisons les vraies photos de la base de données
+import { getItemImageUrl } from "@/lib/image-mapping";
 
 export default function InteractiveReservation() {
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -227,11 +227,11 @@ export default function InteractiveReservation() {
                         <CardContent className="p-4">
                           <div className="aspect-square mb-3 rounded-lg overflow-hidden bg-coffee-light/20">
                             <img 
-                              src={item.imageUrl || getMenuItemImage(item.name)}
+                              src={getItemImageUrl(item.name, undefined, item.imageUrl)}
                               alt={item.name}
                               className="w-full h-full object-cover rounded-lg"
                               onError={(e) => {
-                                e.currentTarget.src = getMenuItemImage(item.name);
+                                e.currentTarget.src = getItemImageUrl(item.name);
                               }}
                             />
                           </div>
