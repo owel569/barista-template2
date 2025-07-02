@@ -178,6 +178,9 @@ Changelog:
   - Final clean database: 14 unique menu items with authentic Pexels images
   - Stabilized image display system to prevent arrangement changes between deployments
   - Deprecated old image system in client/src/data/images.ts with backward compatibility
+  - Updated all product images to match exact descriptions with HD quality (800x600)
+  - Fixed Macarons Français, Chocolat Chaud, Mille-feuille and Sandwich Club images
+  - All images now use authentic Pexels photography with high-definition quality
 
 ## User Preferences
 
