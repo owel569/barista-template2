@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Coffee, GlassWater, Cookie, Utensils, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { getMenuItemImage } from "@/data/images";
 
 interface MenuItem {
   id: number;
@@ -123,13 +124,11 @@ export default function Menu() {
   const { toast } = useToast();
 
   const { data: categories = [] } = useQuery<MenuCategory[]>({
-    queryKey: ["/api/menu/categories"],
-    enabled: false // Disable API call for now, use default categories
+    queryKey: ["/api/menu/categories"]
   });
 
   const { data: menuItems = [] } = useQuery<MenuItem[]>({
-    queryKey: ["/api/menu/items"],
-    enabled: false // Disable API call for now, use default items
+    queryKey: ["/api/menu/items"]
   });
 
   // Use default categories if API data is not available
@@ -141,7 +140,18 @@ export default function Menu() {
   ];
 
   const displayCategories = categories.length > 0 ? categories : defaultCategories;
-  const displayItems = menuItems.length > 0 ? menuItems : defaultMenuItems[activeTab as keyof typeof defaultMenuItems] || [];
+  
+  // Filtrer les éléments par catégorie
+  const getItemsByCategory = (categorySlug: string) => {
+    if (menuItems.length === 0) return defaultMenuItems[categorySlug as keyof typeof defaultMenuItems] || [];
+    
+    const categoryId = displayCategories.find(cat => cat.slug === categorySlug)?.id;
+    if (!categoryId) return [];
+    
+    return menuItems.filter((item: any) => item.categoryId === categoryId || item.category_id === categoryId);
+  };
+  
+  const displayItems = getItemsByCategory(activeTab);
 
   const handleAddToCart = (item: any) => {
     toast({
@@ -187,13 +197,16 @@ export default function Menu() {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {displayItems.map((item: any) => (
             <Card key={item.id} className="bg-white shadow-lg overflow-hidden hover:transform hover:scale-105 transition duration-300">
-              {item.imageUrl && (
+              <div className="w-full h-48 bg-coffee-light/20 overflow-hidden">
                 <img 
-                  src={item.imageUrl} 
+                  src={item.imageUrl || item.image_url || getMenuItemImage(item.name)} 
                   alt={item.name} 
-                  className="w-full h-48 object-cover"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = getMenuItemImage(item.name);
+                  }}
                 />
-              )}
+              </div>
               <CardContent className="p-6">
                 <h3 className="text-xl font-semibold text-coffee-dark mb-2">
                   {item.name}
