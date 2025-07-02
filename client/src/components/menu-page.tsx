@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChefHat, Coffee, Pizza, Utensils, Beef, Clock } from "lucide-react";
-import { getMenuItemImage } from "@/utils/menu-images";
+import { getMenuItemImage } from "@/data/images";
 
 interface MenuItem {
   id: number;
@@ -48,7 +48,7 @@ export default function MenuPage() {
   const filteredItems = selectedCategory === "all" 
     ? menuItems 
     : menuItems.filter(item => {
-        return item.categoryId?.toString() === selectedCategory;
+        return item.category_id?.toString() === selectedCategory;
       });
 
   const getCategoryIcon = (categoryName: string) => {

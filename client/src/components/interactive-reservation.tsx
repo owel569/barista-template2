@@ -13,7 +13,7 @@ import { Calendar, Clock, Users, ShoppingCart, Plus, Minus, Coffee, Utensils, Ca
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { z } from "zod";
-import { getMenuItemImage } from "@/utils/menu-images";
+import { getMenuItemImage } from "@/data/images";
 
 const reservationSchema = insertReservationSchema.extend({
   customerName: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),

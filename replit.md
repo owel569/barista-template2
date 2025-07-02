@@ -149,6 +149,16 @@ Changelog:
   - Fixed menu category filtering system for proper display
   - Final menu: 17 unique items across 6 categories with authentic images
   - Project optimized and ready for GitHub publication
+- July 2, 2025. Migration to Replit completed with image system overhaul:
+  - Successfully completed full project migration from Replit Agent to standard Replit
+  - Eliminated all remaining duplicate menu items definitively (18+ additional duplicates removed)
+  - Created new centralized image system using authentic Pexels URLs
+  - Integrated real HD images for all 10 menu items with specific Pexels photo URLs
+  - Fixed all import errors and component references to use new image system
+  - Final clean menu: 10 unique items (3 cafés, 3 boissons, 2 pâtisseries, 2 plats)
+  - All images now use authentic Pexels photography instead of placeholder content
+  - Database fully optimized with PostgreSQL configured and auto-setup working
+  - Project running smoothly on Replit with clean codebase
 
 ## User Preferences
 
