@@ -83,7 +83,7 @@ const defaultMenuItems = {
     },
     {
       id: 8,
-      name: "Macarons Français",
+      name: "cookies au chocolat",
       description: "Assortiment de macarons aux saveurs variées",
       price: "6.50",
       imageUrl: "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=200"

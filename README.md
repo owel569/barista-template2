@@ -1,111 +1,133 @@
-# Barista Café - Site Web Complet
+# Barista Café - Système de Gestion de Café
 
-Un site web moderne pour café avec système de réservation, gestion de menu et interface d'administration.
+Un système complet de gestion de café avec interface de réservation, menu interactif et tableau de bord administrateur.
 
-## ⚡ Installation Universelle
+## ✨ Fonctionnalités
 
-### Sur toute plateforme de développement :
+- **Site Web Public** : Présentation élégante du café avec menu interactif
+- **Système de Réservation** : Réservation de tables avec sélection d'articles
+- **Menu Dynamique** : Affichage du menu par catégories avec vraies images HD
+- **Tableau de Bord Admin** : Gestion des réservations, clients et employés
+- **Authentification Sécurisée** : Système de connexion administrateur
+- **Base de Données PostgreSQL** : Stockage persistant des données
+
+## 🛠️ Technologies
+
+### Frontend
+- **React 18** avec TypeScript
+- **Tailwind CSS** pour le design responsive
+- **Wouter** pour la navigation
+- **TanStack Query** pour la gestion d'état
+- **React Hook Form** + Zod pour les formulaires
+- **Radix UI** pour les composants accessibles
+
+### Backend  
+- **Express.js** avec TypeScript
+- **PostgreSQL** avec Drizzle ORM
+- **JWT** pour l'authentification
+- **Bcrypt** pour le hashage des mots de passe
+
+## 🚀 Installation et Démarrage
+
+### Prérequis
+- Node.js 20+
+- PostgreSQL
+- npm ou yarn
+
+### Configuration rapide
+
+1. **Cloner le projet**
 ```bash
-# 1. Installation automatique
-node setup-project.cjs
+git clone <votre-repo>
+cd barista-cafe
+```
 
-# 2. Démarrage
+2. **Installer les dépendances**
+```bash
+npm install
+```
+
+3. **Configuration de la base de données**
+```bash
+# Créer un fichier .env avec vos paramètres PostgreSQL
+DATABASE_URL="postgresql://username:password@localhost:5432/barista_cafe"
+```
+
+4. **Démarrer l'application**
+```bash
 npm run dev
 ```
 
-C'est tout ! Le script configure automatiquement votre environnement.
+L'application sera disponible sur `http://localhost:5000`
 
-## 📋 Prérequis
+## 📱 Utilisation
 
-- **Node.js 18+** 
-- **Base de données PostgreSQL**
+### Accès Public
+- **Accueil** : Présentation du café avec aperçu du menu
+- **Menu** : Menu complet avec filtrage par catégories  
+- **Réservations** : Interface de réservation avec sélection d'articles
+- **Contact** : Formulaire de contact
 
-## 🗄️ Base de Données
+### Accès Administrateur
+- **URL** : `/admin`
+- **Identifiants par défaut** : admin / admin123
+- **Fonctionnalités** :
+  - Gestion des réservations
+  - Gestion des clients et employés
+  - Statistiques et graphiques
+  - Gestion du menu
 
-Le script vous guide automatiquement. Options disponibles :
+## 🎨 Design
 
-- **Cloud (Gratuit)**: Neon.tech, Supabase.com, Railway.app
-- **Local**: PostgreSQL installé sur votre machine  
-- **Docker**: Container PostgreSQL
+Le design utilise une palette de couleurs café avec :
+- **Couleurs principales** : Ambre, orange, marron
+- **Interface responsive** : Optimisée mobile et desktop
+- **Images HD** : Vraies photos Pexels pour tous les produits
+- **Animations fluides** : Transitions CSS et Framer Motion
 
-Le script détecte votre environnement et configure automatiquement.
+## 📊 Structure de la Base de Données
 
-## 🛠️ Scripts Disponibles
+- **users** : Comptes administrateurs
+- **menu_categories** : Catégories du menu (Cafés, Boissons, etc.)
+- **menu_items** : Articles du menu avec images et prix
+- **tables** : Tables du restaurant
+- **reservations** : Réservations clients
+- **customers** : Base de données clients
+- **employees** : Gestion du personnel
 
-- `node setup-project.cjs` - Configuration automatique (première fois)
-- `npm run dev` - Serveur de développement
-- `npm run build` - Compilation production
-- `npm run start` - Serveur production
+## 🔧 Scripts Disponibles
 
-## 👤 Compte Administrateur
-
-Après la première installation, un compte administrateur est créé automatiquement:
-
-- **Nom d'utilisateur**: `admin`
-- **Mot de passe**: `admin123`
-
-⚠️ **Important**: Changez ces identifiants en production !
-
-## 📁 Structure du Projet
-
+```bash
+npm run dev          # Démarrage en mode développement
+npm run build        # Build pour production
+npm run db:push      # Synchronisation de la base de données
+npm run setup        # Configuration automatique initiale
 ```
-├── client/          # Interface utilisateur (React + TypeScript)
-├── server/          # API Backend (Express + TypeScript)
-├── shared/          # Types et schémas partagés
-├── migrations/      # Migrations de base de données
-└── setup-project.js # Script de configuration automatique
-```
 
-## 🌟 Fonctionnalités
+## 📈 Fonctionnalités Avancées
 
-### Pour les Clients
-- 🍽️ Menu interactif avec images
-- 📅 Système de réservation en ligne
-- 🛒 Panier pour commandes
-- 📱 Interface responsive (mobile/desktop)
+- **Auto-setup** : Configuration automatique au démarrage
+- **Gestion d'images** : Système intelligent de fallback pour les images
+- **Validation** : Validation complète des formulaires avec Zod
+- **Responsive** : Interface adaptative sur tous les appareils
+- **Performance** : Optimisations avec mise en cache
 
-### Pour les Administrateurs
-- 📊 Tableau de bord avec statistiques
-- 📋 Gestion des réservations
-- 🍕 Gestion du menu et catégories
-- 👥 Gestion des clients et employés
-- 📈 Rapports et analyses
+## 🤝 Contribution
 
-## 🔧 Technologies Utilisées
+1. Fork le projet
+2. Créer une branche feature (`git checkout -b feature/AmazingFeature`)
+3. Commit les changements (`git commit -m 'Add AmazingFeature'`)
+4. Push vers la branche (`git push origin feature/AmazingFeature`)
+5. Ouvrir une Pull Request
 
-- **Frontend**: React, TypeScript, Tailwind CSS, Wouter
-- **Backend**: Express.js, TypeScript, Drizzle ORM
-- **Base de données**: PostgreSQL
-- **Authentification**: JWT + Bcrypt
-- **Build**: Vite + esbuild
+## 📄 Licence
 
-## 🚨 Dépannage
-
-### Erreur "DATABASE_URL must be set"
-- Vérifiez que la variable `DATABASE_URL` est configurée
-- Lancez `npm run setup` pour une configuration automatique
-
-### Erreur "relation does not exist"
-- Lancez `npm run db:push` pour créer les tables
-- Ou utilisez `npm run setup` pour tout configurer
-
-### Le serveur ne démarre pas
-1. Vérifiez que toutes les dépendances sont installées: `npm install`
-2. Vérifiez la configuration de la base de données
-3. Relancez la configuration: `npm run setup`
+Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
 
 ## 📞 Support
 
-Si vous rencontrez des problèmes:
-1. Vérifiez la section **Dépannage** ci-dessus
-2. Assurez-vous que tous les prérequis sont installés
-3. Lancez `npm run setup` pour reconfigurer automatiquement
+Pour toute question ou support, contactez-nous à travers le système de contact du site web.
 
-## 🔄 Mise à Jour
+---
 
-Pour mettre à jour le projet vers une nouvelle version:
-```bash
-git pull origin main
-npm install
-npm run setup
-```
+**Développé avec ❤️ pour les amateurs de café**
