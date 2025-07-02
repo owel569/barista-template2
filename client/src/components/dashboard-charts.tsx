@@ -2,41 +2,48 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts";
 import { Calendar, TrendingUp, Users, DollarSign } from "lucide-react";
-import type {
-  MonthlyReservation,
-  RevenueStat,
-  OrderStatus,
-  TodayReservations,
-  Occupancy,
-} from "../types/stats";
 import React from "react";
+
 // Define colors for the pie chart
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
 export default function DashboardCharts() {
-  const currentYear = new Date().getFullYear();
-  const currentMonth = new Date().getMonth() + 1;
-  
-const { data: monthlyReservations = [] } = useQuery<MonthlyReservation[]>({
-  queryKey: ["/api/stats/monthly-reservations", currentYear, currentMonth],
-});
-const { data: revenueStats = [] } = useQuery<RevenueStat[]>({
-  queryKey: ["/api/stats/revenue"],
-});
-const { data: ordersByStatus = [] } = useQuery<OrderStatus[]>({
-  queryKey: ["/api/stats/orders-by-status"],
-});
-const { data: todayReservations = { count: 0 } } = useQuery<TodayReservations>({
-  queryKey: ["/api/stats/today-reservations"],
-});
-const { data: occupancyData = { rate: 0 } } = useQuery<Occupancy>({
-  queryKey: ["/api/stats/occupancy"],
-});
+  const { data: dailyReservations = [] } = useQuery<any[]>({
+    queryKey: ["/api/stats/daily-reservations"],
+  });
+
+  const { data: reservationsByStatus = [] } = useQuery<any[]>({
+    queryKey: ["/api/stats/reservations-by-status"],
+  });
+
+  const { data: revenueStats = [] } = useQuery<any[]>({
+    queryKey: ["/api/stats/revenue"],
+  });
+
+  const { data: ordersByStatus = [] } = useQuery<any[]>({
+    queryKey: ["/api/stats/orders-by-status"],
+  });
+
+  const { data: todayReservations = { count: 0 } } = useQuery<any>({
+    queryKey: ["/api/stats/today-reservations"],
+  });
+
+  const { data: occupancyData = { rate: 0 } } = useQuery<any>({
+    queryKey: ["/api/stats/occupancy"],
+  });
 
   // Formatage des données pour les graphiques
-  const formattedMonthlyData = monthlyReservations.map((item: any) => ({
-    date: new Date(item.date).getDate().toString(),
-    reservations: item.count
+  const formattedDailyData = dailyReservations.map((item: any, index: number) => ({
+    name: `${item.customerName}`,
+    heure: item.time,
+    invites: item.guests,
+    status: getStatusLabel(item.status)
+  }));
+
+  const formattedReservationsStatusData = reservationsByStatus.map((item: any, index: number) => ({
+    name: getStatusLabel(item.status),
+    value: item.count,
+    fill: COLORS[index % COLORS.length]
   }));
 
   const formattedRevenueData = revenueStats.map((item: any) => ({
@@ -47,16 +54,17 @@ const { data: occupancyData = { rate: 0 } } = useQuery<Occupancy>({
   const formattedOrdersData = ordersByStatus.map((item: any, index: number) => ({
     name: getStatusLabel(item.status),
     value: item.count,
-    color: COLORS[index % COLORS.length]
+    fill: COLORS[index % COLORS.length]
   }));
 
   function getStatusLabel(status: string) {
     const labels: Record<string, string> = {
       pending: "En attente",
-      preparing: "En préparation", 
-      ready: "Prêt",
+      confirmed: "Confirmé",
+      cancelled: "Annulé",
       completed: "Terminé",
-      cancelled: "Annulé"
+      preparing: "En préparation", 
+      ready: "Prêt"
     };
     return labels[status] || status;
   }
@@ -70,9 +78,9 @@ const { data: occupancyData = { rate: 0 } } = useQuery<Occupancy>({
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{todayReservations.count}</div>
+            <div className="text-2xl font-bold">{dailyReservations.length}</div>
             <p className="text-xs text-muted-foreground">
-              {occupancyData.rate}% de taux d'occupation
+              Réservations en cours
             </p>
           </CardContent>
         </Card>
@@ -87,7 +95,7 @@ const { data: occupancyData = { rate: 0 } } = useQuery<Occupancy>({
               {revenueStats.reduce((sum: number, item: any) => sum + item.revenue, 0).toFixed(0)}€
             </div>
             <p className="text-xs text-muted-foreground">
-              +12% par rapport au mois dernier
+              Chiffre d'affaires mensuel
             </p>
           </CardContent>
         </Card>
@@ -127,27 +135,62 @@ const { data: occupancyData = { rate: 0 } } = useQuery<Occupancy>({
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Réservations ce Mois</CardTitle>
+            <CardTitle>Réservations du Jour</CardTitle>
             <CardDescription>
-              Évolution des réservations jour par jour
+              Liste des réservations d'aujourd'hui
             </CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={formattedMonthlyData}>
+              <BarChart data={formattedDailyData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
+                <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip 
-                  labelFormatter={(label) => `Jour ${label}`}
-                  formatter={(value: any) => [value, 'Réservations']}
+                  labelFormatter={(label) => `Client: ${label}`}
+                  formatter={(value: any, name: any) => {
+                    if (name === 'invites') return [value, 'Invités'];
+                    return [value, name];
+                  }}
                 />
-                <Bar dataKey="reservations" fill="#8884d8" />
+                <Bar dataKey="invites" fill="#8884d8" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
+        <Card>
+          <CardHeader>
+            <CardTitle>Statut des Réservations</CardTitle>
+            <CardDescription>
+              Répartition par statut
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={formattedReservationsStatusData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {formattedReservationsStatusData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.fill} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Revenus des 30 Derniers Jours</CardTitle>
@@ -167,22 +210,19 @@ const { data: occupancyData = { rate: 0 } } = useQuery<Occupancy>({
                 <Line 
                   type="monotone" 
                   dataKey="revenue" 
-                  stroke="#82ca9d" 
+                  stroke="#8884d8" 
                   strokeWidth={2}
-                  dot={{ fill: '#82ca9d' }}
                 />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
-      </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Répartition des Commandes</CardTitle>
+            <CardTitle>Statut des Commandes</CardTitle>
             <CardDescription>
-              Par statut de traitement
+              Répartition des commandes par statut
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -198,70 +238,13 @@ const { data: occupancyData = { rate: 0 } } = useQuery<Occupancy>({
                   fill="#8884d8"
                   dataKey="value"
                 >
-                  {formattedOrdersData.map((entry: any, index: number) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  {formattedOrdersData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.fill} />
                   ))}
                 </Pie>
                 <Tooltip />
               </PieChart>
             </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Statistiques Rapides</CardTitle>
-            <CardDescription>
-              Aperçu des performances
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Réservations ce mois</span>
-              <span className="text-sm text-muted-foreground">
-                {formattedMonthlyData.reduce((sum: number, item: any) => sum + item.reservations, 0)}
-              </span>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Moyenne par jour</span>
-              <span className="text-sm text-muted-foreground">
-                {formattedMonthlyData.length > 0 
-                  ? (formattedMonthlyData.reduce((sum: number, item: any) => sum + item.reservations, 0) / formattedMonthlyData.length).toFixed(1)
-                  : 0
-                }
-              </span>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Commandes totales</span>
-              <span className="text-sm text-muted-foreground">
-                {ordersByStatus.reduce((sum: number, item: any) => sum + item.count, 0)}
-              </span>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Taux de completion</span>
-              <span className="text-sm text-muted-foreground">
-                {ordersByStatus.length > 0 
-                  ? (
-                      (ordersByStatus.find((item: any) => item.status === 'completed')?.count || 0) / 
-                      ordersByStatus.reduce((sum: number, item: any) => sum + item.count, 0) * 100
-                    ).toFixed(1)
-                  : 0
-                }%
-              </span>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Revenus moyens/jour</span>
-              <span className="text-sm text-muted-foreground">
-                {revenueStats.length > 0 
-                  ? (revenueStats.reduce((sum: number, item: any) => sum + item.revenue, 0) / revenueStats.length).toFixed(0)
-                  : 0
-                }€
-              </span>
-            </div>
           </CardContent>
         </Card>
       </div>

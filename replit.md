@@ -151,14 +151,23 @@ Changelog:
   - Project optimized and ready for GitHub publication
 - July 2, 2025. Migration to Replit completed with image system overhaul:
   - Successfully completed full project migration from Replit Agent to standard Replit
-  - Eliminated all remaining duplicate menu items definitively (18+ additional duplicates removed)
+  - Eliminated all remaining duplicate menu items definitively (40+ duplicates removed in multiple cleanup sessions)
   - Created new centralized image system using authentic Pexels URLs
-  - Integrated real HD images for all 10 menu items with specific Pexels photo URLs
+  - Integrated real HD images for all menu items with specific Pexels photo URLs
   - Fixed all import errors and component references to use new image system
-  - Final clean menu: 10 unique items (3 cafés, 3 boissons, 2 pâtisseries, 2 plats)
+  - Final clean menu: 12 unique items (4 cafés, 3 boissons, 4 pâtisseries, 3 plats)
   - All images now use authentic Pexels photography instead of placeholder content
   - Database fully optimized with PostgreSQL configured and auto-setup working
   - Project running smoothly on Replit with clean codebase
+- July 2, 2025. Admin dashboard enhancement with real-time analytics:
+  - Replaced monthly reservation charts with daily reservation tracking
+  - Added new API endpoints for daily reservations and reservation status statistics
+  - Implemented pie chart (diagramme circulaire) for reservation status distribution
+  - Enhanced dashboard with 4 key metrics: today's reservations, monthly revenue, active orders, occupancy rate
+  - Fixed client and employee management form validation errors
+  - Added real-time data refresh for all statistics components
+  - Reservation system fully functional with cart integration and admin notifications
+  - All duplicate database entries permanently eliminated with prevention mechanisms
 
 ## User Preferences
 

@@ -569,6 +569,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/stats/daily-reservations", authenticateToken, async (req, res) => {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const reservations = await storage.getReservationsByDate(today);
+      res.json(reservations);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des réservations du jour" });
+    }
+  });
+
+  app.get("/api/stats/reservations-by-status", authenticateToken, async (req, res) => {
+    try {
+      const reservations = await storage.getReservations();
+      const stats = reservations.reduce((acc: any, reservation: any) => {
+        const status = reservation.status;
+        acc[status] = (acc[status] || 0) + 1;
+        return acc;
+      }, {});
+      
+      const result = Object.entries(stats).map(([status, count]) => ({
+        status,
+        count
+      }));
+      
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques de réservations" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
