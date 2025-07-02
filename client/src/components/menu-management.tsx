@@ -37,7 +37,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2, Coffee, Cake, Cookie, UtensilsCrossed } from "lucide-react";
+import { Plus, Edit, Trash2, Coffee, Cake, Cookie, UtensilsCrossed, Upload, Image } from "lucide-react";
 
 interface MenuCategory {
   id: number;
@@ -75,6 +75,7 @@ export default function MenuManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [imagePreview, setImagePreview] = useState<string>("");
   const [newItem, setNewItem] = useState<NewMenuItem>({
     name: "",
     description: "",
@@ -237,6 +238,20 @@ export default function MenuManagement() {
       available: true
     });
     setEditingItem(null);
+    setImagePreview("");
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setImagePreview(result);
+        setNewItem({ ...newItem, imageUrl: result });
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -380,16 +395,51 @@ export default function MenuManagement() {
                 />
               </div>
               <div>
-                <Label htmlFor="imageUrl">URL de l'image (optionnel)</Label>
-                <Input
-                  id="imageUrl"
-                  value={newItem.imageUrl}
-                  onChange={(e) => setNewItem({ ...newItem, imageUrl: e.target.value })}
-                  placeholder="https://exemple.com/image.jpg"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Laissez vide pour utiliser l'image par défaut de la catégorie
-                </p>
+                <Label htmlFor="image">Image de l'article (optionnel)</Label>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-4">
+                    <Input
+                      id="image"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="cursor-pointer"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setImagePreview("");
+                        setNewItem({ ...newItem, imageUrl: "" });
+                      }}
+                    >
+                      <Upload className="h-4 w-4 mr-1" />
+                      Effacer
+                    </Button>
+                  </div>
+                  
+                  {/* Prévisualisation de l'image */}
+                  {imagePreview && (
+                    <div className="border rounded-lg p-3 bg-gray-50">
+                      <div className="flex items-center gap-3">
+                        <Image className="h-4 w-4 text-gray-600" />
+                        <span className="text-sm font-medium">Aperçu de l'image :</span>
+                      </div>
+                      <div className="mt-2 w-24 h-24 border rounded-lg overflow-hidden">
+                        <img 
+                          src={imagePreview} 
+                          alt="Aperçu" 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  
+                  <p className="text-xs text-muted-foreground">
+                    Choisissez une image depuis votre ordinateur ou laissez vide pour utiliser l'image par défaut
+                  </p>
+                </div>
               </div>
               <div>
                 <Label htmlFor="allergens">Allergènes</Label>
