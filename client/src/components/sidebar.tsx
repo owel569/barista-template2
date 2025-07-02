@@ -69,6 +69,26 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
     onToggle();
   };
 
+  const handleContactClick = () => {
+    if (location === "/") {
+      // Si on est sur la page d'accueil, faire défiler vers la section Contact
+      const contactSection = document.getElementById("contact");
+      if (contactSection) {
+        contactSection.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      // Sinon, aller à la page d'accueil et défiler vers Contact
+      setLocation("/");
+      setTimeout(() => {
+        const contactSection = document.getElementById("contact");
+        if (contactSection) {
+          contactSection.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
+    }
+    onToggle();
+  };
+
   return (
     <>
       {/* Bouton hamburger pour ouvrir la barre latérale */}
@@ -128,6 +148,22 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                       "text-coffee-light hover:bg-coffee-medium hover:text-white"
                     )}
                     onClick={handleAboutClick}
+                  >
+                    <Icon className="h-5 w-5" />
+                    <span className="font-medium">{item.title}</span>
+                  </div>
+                );
+              }
+
+              if (item.href === "/contact") {
+                return (
+                  <div
+                    key={item.href}
+                    className={cn(
+                      "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors cursor-pointer",
+                      "text-coffee-light hover:bg-coffee-medium hover:text-white"
+                    )}
+                    onClick={handleContactClick}
                   >
                     <Icon className="h-5 w-5" />
                     <span className="font-medium">{item.title}</span>

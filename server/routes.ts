@@ -349,12 +349,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/contact", authenticateToken, async (req, res) => {
+  app.get("/api/contact/messages", authenticateToken, async (req, res) => {
     try {
       const messages = await storage.getContactMessages();
       res.json(messages);
     } catch (error) {
       res.status(500).json({ message: "Erreur lors de la récupération des messages" });
+    }
+  });
+
+  app.patch("/api/contact/messages/:id/status", authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      
+      if (!status) {
+        return res.status(400).json({ message: "Le statut est requis" });
+      }
+
+      const message = await storage.updateContactMessageStatus(parseInt(id), status);
+      
+      if (!message) {
+        return res.status(404).json({ message: "Message non trouvé" });
+      }
+
+      res.json(message);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour du statut" });
     }
   });
 

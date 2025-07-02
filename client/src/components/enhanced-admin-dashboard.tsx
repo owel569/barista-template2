@@ -23,7 +23,8 @@ import {
   Package,
   UserCheck,
   Clock,
-  XCircle
+  XCircle,
+  Mail
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import DashboardCharts from "./dashboard-charts";
@@ -32,6 +33,7 @@ import CustomerManagement from "./customer-management";
 import EmployeeManagement from "./employee-management";
 import ReservationNotifications from "./reservation-notifications";
 import MenuManagement from "./menu-management";
+import ContactManagement from "./contact-management";
 
 interface Reservation {
   id: number;
@@ -156,7 +158,7 @@ export default function EnhancedAdminDashboard() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 bg-white/50 backdrop-blur-sm">
+          <TabsList className="grid w-full grid-cols-7 bg-white/50 backdrop-blur-sm">
             <TabsTrigger value="dashboard" className="flex items-center gap-2 data-[state=active]:bg-coffee-accent data-[state=active]:text-white">
               <BarChart3 className="h-4 w-4" />
               <span className="hidden sm:inline">Tableau de Bord</span>
@@ -180,6 +182,10 @@ export default function EnhancedAdminDashboard() {
             <TabsTrigger value="menu" className="flex items-center gap-2 data-[state=active]:bg-coffee-accent data-[state=active]:text-white">
               <Utensils className="h-4 w-4" />
               <span className="hidden sm:inline">Menu</span>
+            </TabsTrigger>
+            <TabsTrigger value="contacts" className="flex items-center gap-2 data-[state=active]:bg-coffee-accent data-[state=active]:text-white">
+              <Mail className="h-4 w-4" />
+              <span className="hidden sm:inline">Contacts</span>
             </TabsTrigger>
           </TabsList>
 
@@ -343,16 +349,11 @@ export default function EnhancedAdminDashboard() {
           </TabsContent>
 
           <TabsContent value="menu" className="space-y-6">
-            <Card className="bg-white/70 backdrop-blur-sm border-coffee-light/30">
-              <CardHeader>
-                <CardTitle className="text-coffee-dark">Gestion du Menu</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-coffee-medium">
-                  Section de gestion du menu - à implémenter selon vos besoins spécifiques.
-                </p>
-              </CardContent>
-            </Card>
+            <MenuManagement />
+          </TabsContent>
+
+          <TabsContent value="contacts" className="space-y-6">
+            <ContactManagement />
           </TabsContent>
         </Tabs>
       </div>
