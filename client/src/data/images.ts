@@ -1,9 +1,13 @@
 // Images authentiques Pexels pour tous les éléments du menu
 export const menuImages = {
   // Cafés
+  'Cappuccino Traditionnel': 'https://images.pexels.com/photos/162947/pexels-photo-162947.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
   'Cappuccino Premium': 'https://images.pexels.com/photos/162947/pexels-photo-162947.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
+  'Espresso Turc': 'https://images.pexels.com/photos/28538132/pexels-photo-28538132.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
   'Espresso Classique': 'https://images.pexels.com/photos/28538132/pexels-photo-28538132.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
+  'Latte Art Cœur': 'https://images.pexels.com/photos/433145/pexels-photo-433145.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
   'Latte Art': 'https://images.pexels.com/photos/433145/pexels-photo-433145.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
+  'Café Glacé': 'https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
   
   // Boissons
   'Chocolat Chaud': 'https://images.pexels.com/photos/15529714/pexels-photo-15529714.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
@@ -11,9 +15,13 @@ export const menuImages = {
   'Smoothie du Jour': 'https://images.pexels.com/photos/11160116/pexels-photo-11160116.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
   
   // Pâtisseries
+  'Croissant Beurré': 'https://images.pexels.com/photos/10560686/pexels-photo-10560686.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
   'Croissants Artisanaux': 'https://images.pexels.com/photos/10560686/pexels-photo-10560686.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
+  'Macarons Colorés': 'https://images.pexels.com/photos/11345217/pexels-photo-11345217.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
   'Macarons Français': 'https://images.pexels.com/photos/11345217/pexels-photo-11345217.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
+  'Gâteau au Chocolat': 'https://images.pexels.com/photos/291528/pexels-photo-291528.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
   'Gâteaux au Chocolat': 'https://images.pexels.com/photos/291528/pexels-photo-291528.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
+  'Cookies Chocolat': 'https://images.pexels.com/photos/230325/pexels-photo-230325.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
   
   // Plats
   'Salade César': 'https://images.pexels.com/photos/1059905/pexels-photo-1059905.jpeg?auto=compress&cs=tinysrgb&w=800&h=600',
