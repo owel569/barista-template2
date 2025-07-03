@@ -29,6 +29,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
+import ReservationsManagement from "./admin/reservations-management";
+import OrdersManagement from "./admin/orders-management";
 
 interface NavItem {
   id: string;
@@ -369,7 +371,7 @@ export default function AdminDashboardLayout({ userRole, user }: AdminDashboardL
   );
 }
 
-// Composants temporaires pour les différentes sections
+// Composants temporaires pour les sections non encore implémentées
 function DashboardMain({ userRole }: { userRole: string }) {
   return (
     <div className="space-y-6">
@@ -394,24 +396,6 @@ function DashboardMain({ userRole }: { userRole: string }) {
           <p className="text-3xl font-bold text-purple-600">2,450€</p>
         </div>
       </div>
-    </div>
-  );
-}
-
-function ReservationsManagement({ userRole }: { userRole: string }) {
-  return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6">Réservations</h1>
-      <p>Module de gestion des réservations (en développement)</p>
-    </div>
-  );
-}
-
-function OrdersManagement({ userRole }: { userRole: string }) {
-  return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6">Commandes</h1>
-      <p>Module de gestion des commandes (en développement)</p>
     </div>
   );
 }
