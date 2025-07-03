@@ -165,8 +165,11 @@ export default function MenuManagement() {
   });
 
   const createItemMutation = useMutation({
-    mutationFn: (data: NewMenuItem) => 
-      apiRequest("POST", "/api/menu/items", data),
+    mutationFn: (data: NewMenuItem) => {
+      console.log("Token auth:", localStorage.getItem("auth_token"));
+      console.log("Données article envoyées:", data);
+      return apiRequest("POST", "/api/menu/items", data);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/menu/items"] });
       setIsDialogOpen(false);
