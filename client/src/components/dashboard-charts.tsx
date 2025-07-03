@@ -7,51 +7,77 @@ import React from "react";
 // Define colors for the pie chart
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
+// Define types for better TypeScript support
+interface ReservationData {
+  customerName: string;
+  time: string;
+  guests: number;
+  status: string;
+}
+
+interface StatusData {
+  status: string;
+  count: number;
+}
+
+interface RevenueData {
+  date: string;
+  revenue: number;
+}
+
+interface TodayStats {
+  count: number;
+}
+
+interface OccupancyData {
+  rate: number;
+}
+
 export default function DashboardCharts() {
-  const { data: dailyReservations = [] } = useQuery<any[]>({
+  const { data: dailyReservations = [] } = useQuery<ReservationData[]>({
     queryKey: ["/api/stats/daily-reservations"],
   });
 
-  const { data: reservationsByStatus = [] } = useQuery<any[]>({
+  const { data: reservationsByStatus = [] } = useQuery<StatusData[]>({
     queryKey: ["/api/stats/reservations-by-status"],
   });
 
-  const { data: revenueStats = [] } = useQuery<any[]>({
+  const { data: revenueStats = [] } = useQuery<RevenueData[]>({
     queryKey: ["/api/stats/revenue"],
   });
 
-  const { data: ordersByStatus = [] } = useQuery<any[]>({
+  const { data: ordersByStatus = [] } = useQuery<StatusData[]>({
     queryKey: ["/api/stats/orders-by-status"],
   });
 
-  const { data: todayReservations = { count: 0 } } = useQuery<any>({
+  const { data: todayReservations = { count: 0 } } = useQuery<TodayStats>({
     queryKey: ["/api/stats/today-reservations"],
   });
 
-  const { data: occupancyData = { rate: 0 } } = useQuery<any>({
+  const { data: occupancyData = { rate: 0 } } = useQuery<OccupancyData>({
     queryKey: ["/api/stats/occupancy"],
   });
 
   // Formatage des données pour les graphiques
-  const formattedDailyData = dailyReservations.map((item: any, index: number) => ({
+  const formattedDailyData = dailyReservations.map((item: ReservationData, index: number) => ({
     name: `${item.customerName}`,
     heure: item.time,
     invites: item.guests,
     status: getStatusLabel(item.status)
   }));
 
-  const formattedReservationsStatusData = reservationsByStatus.map((item: any, index: number) => ({
+  const formattedReservationsStatusData = reservationsByStatus.map((item: StatusData, index: number) => ({
     name: getStatusLabel(item.status),
     value: item.count,
     fill: COLORS[index % COLORS.length]
   }));
 
-  const formattedRevenueData = revenueStats.map((item: any) => ({
+  const formattedRevenueData = revenueStats.map((item: RevenueData) => ({
     date: new Date(item.date).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' }),
     revenue: item.revenue
   }));
 
-  const formattedOrdersData = ordersByStatus.map((item: any, index: number) => ({
+  const formattedOrdersData = ordersByStatus.map((item: StatusData, index: number) => ({
     name: getStatusLabel(item.status),
     value: item.count,
     fill: COLORS[index % COLORS.length]

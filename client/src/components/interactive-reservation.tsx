@@ -13,7 +13,7 @@ import { Calendar, Clock, Users, ShoppingCart, Plus, Minus, Coffee, Utensils, Ca
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { z } from "zod";
-import { getMenuItemImage } from "@/data/images";
+import { getItemImageUrl } from "@/lib/image-mapping";
 
 const reservationSchema = insertReservationSchema.extend({
   customerName: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
@@ -37,8 +37,6 @@ interface CartItem {
   quantity: number;
   notes?: string;
 }
-
-import { getItemImageUrl } from "@/lib/image-mapping";
 
 export default function InteractiveReservation() {
   const [cart, setCart] = useState<CartItem[]>([]);
