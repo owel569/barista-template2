@@ -1,0 +1,98 @@
+export default {
+  // Navigation
+  'nav.home': 'Accueil',
+  'nav.menu': 'Menu',
+  'nav.reservations': 'Réservations',
+  'nav.contact': 'Contact',
+  'nav.about': 'À Propos',
+  'nav.admin': 'Administration',
+  'nav.language': 'Langue',
+
+  // Homepage
+  'home.title': 'Bienvenue chez Barista Café',
+  'home.subtitle': 'L\'art du café depuis 1995',
+  'home.description': 'Découvrez l\'excellence dans chaque tasse. Notre café artisanal, nos pâtisseries fraîches et notre ambiance chaleureuse vous attendent.',
+  'home.cta.menu': 'Voir le Menu',
+  'home.cta.reserve': 'Réserver une Table',
+  'home.features.quality': 'Qualité Premium',
+  'home.features.quality.desc': 'Grains sélectionnés et torréfiés avec passion',
+  'home.features.fresh': 'Fraîcheur Garantie',
+  'home.features.fresh.desc': 'Pâtisseries préparées quotidiennement',
+  'home.features.ambiance': 'Ambiance Unique',
+  'home.features.ambiance.desc': 'Un cadre chaleureux pour tous vos moments',
+
+  // Menu
+  'menu.title': 'Notre Menu',
+  'menu.categories.cafes': 'Cafés',
+  'menu.categories.boissons': 'Boissons',
+  'menu.categories.patisseries': 'Pâtisseries',
+  'menu.categories.plats': 'Plats',
+  'menu.price': '€',
+  'menu.available': 'Disponible',
+  'menu.unavailable': 'Indisponible',
+
+  // Reservations
+  'reservation.title': 'Réserver une Table',
+  'reservation.form.name': 'Nom complet',
+  'reservation.form.email': 'Email',
+  'reservation.form.phone': 'Téléphone',
+  'reservation.form.date': 'Date',
+  'reservation.form.time': 'Heure',
+  'reservation.form.guests': 'Nombre de personnes',
+  'reservation.form.requests': 'Demandes spéciales',
+  'reservation.form.submit': 'Confirmer la Réservation',
+  'reservation.cart.title': 'Votre Panier',
+  'reservation.cart.empty': 'Votre panier est vide',
+  'reservation.cart.total': 'Total',
+  'reservation.cart.add': 'Ajouter',
+  'reservation.cart.remove': 'Retirer',
+  'reservation.success': 'Réservation confirmée avec succès !',
+
+  // Contact
+  'contact.title': 'Contactez-nous',
+  'contact.form.firstname': 'Prénom',
+  'contact.form.lastname': 'Nom',
+  'contact.form.email': 'Email',
+  'contact.form.subject': 'Sujet',
+  'contact.form.message': 'Message',
+  'contact.form.submit': 'Envoyer',
+  'contact.info.address': '123 Rue du Café, 75001 Paris',
+  'contact.info.phone': '+33 1 23 45 67 89',
+  'contact.info.email': 'contact@barista-cafe.fr',
+  'contact.info.hours': 'Lun-Ven: 7h-19h, Sam-Dim: 8h-20h',
+
+  // About
+  'about.title': 'À Propos de Nous',
+  'about.story.title': 'Notre Histoire',
+  'about.story.content': 'Depuis 1995, Barista Café est votre destination de choix pour découvrir l\'art du café. Notre passion pour l\'excellence nous guide dans la sélection des meilleurs grains et la création d\'expériences gustatives uniques.',
+  'about.mission.title': 'Notre Mission',
+  'about.mission.content': 'Offrir à nos clients une expérience café exceptionnelle dans un environnement chaleureux et accueillant, tout en soutenant les producteurs de café du monde entier.',
+
+  // Admin
+  'admin.login': 'Connexion Administrateur',
+  'admin.username': 'Nom d\'utilisateur',
+  'admin.password': 'Mot de passe',
+  'admin.login.button': 'Se connecter',
+  'admin.dashboard': 'Tableau de Bord',
+  'admin.reservations': 'Réservations',
+  'admin.messages': 'Messages',
+  'admin.logout': 'Déconnexion',
+
+  // Languages
+  'lang.fr': 'Français',
+  'lang.en': 'English',
+  'lang.zh': '中文',
+  'lang.hi': 'हिन्दी',
+  'lang.es': 'Español',
+
+  // Common
+  'common.loading': 'Chargement...',
+  'common.error': 'Une erreur est survenue',
+  'common.success': 'Succès !',
+  'common.cancel': 'Annuler',
+  'common.confirm': 'Confirmer',
+  'common.save': 'Sauvegarder',
+  'common.edit': 'Modifier',
+  'common.delete': 'Supprimer',
+  'common.close': 'Fermer',
+};

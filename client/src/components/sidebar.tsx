@@ -2,25 +2,27 @@ import { Link, useLocation } from "wouter";
 import { Coffee, Calendar, Settings, Home, Menu, X, Sparkles, Book, Info, MessageCircle, Image, Users, Utensils, ChefHat } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
+import LanguageSelector from "@/components/language-selector";
 
-const sidebarItems = [
+const getSidebarItems = (t: (key: string) => string) => [
   {
-    title: "Accueil",
+    title: t('nav.home'),
     href: "/",
     icon: Home,
   },
   {
-    title: "Notre Menu",
+    title: t('nav.menu'),
     href: "/menu",
     icon: Book,
   },
   {
-    title: "À Propos",
+    title: t('nav.about'),
     href: "/about",
     icon: Info,
   },
   {
-    title: "Contact",
+    title: t('nav.contact'),
     href: "/contact",
     icon: MessageCircle,
   },
@@ -30,12 +32,12 @@ const sidebarItems = [
     icon: Image,
   },
   {
-    title: "Réservation",
+    title: t('nav.reservations'),
     href: "/reservation",
     icon: Calendar,
   },
   {
-    title: "Administration",
+    title: t('nav.admin'),
     href: "/admin",
     icon: Settings,
   },
@@ -48,6 +50,8 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
   const [location, setLocation] = useLocation();
+  const { t } = useLanguage();
+  const sidebarItems = getSidebarItems(t);
   
   const handleAboutClick = () => {
     if (location === "/") {
@@ -189,6 +193,11 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
               );
             })}
           </nav>
+
+          {/* Sélecteur de langue */}
+          <div className="mt-8 pt-4 border-t border-coffee-medium">
+            <LanguageSelector />
+          </div>
         </div>
       </div>
     </>

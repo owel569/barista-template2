@@ -157,7 +157,17 @@ export async function initializeDatabase() {
         }
       ];
 
-      await db.insert(menuItems).values(items);
+      // Insérer les éléments un par un pour éviter les doublons
+      for (const item of items) {
+        try {
+          await db.insert(menuItems).values(item);
+        } catch (error: any) {
+          // Ignorer les erreurs de contrainte unique (doublons)
+          if (!error.message?.includes('unique constraint')) {
+            console.error('Erreur lors de l\'insertion d\'un élément de menu:', error);
+          }
+        }
+      }
       console.log("✅ Éléments de menu créés");
     }
 
