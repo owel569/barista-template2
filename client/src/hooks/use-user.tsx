@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { User } from "@shared/schema";
+import type { User } from "@shared/schema";
 
 interface UserContextType {
   user: User | null;
@@ -18,13 +18,29 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     // Check if user is logged in on app start
     const checkAuth = async () => {
       try {
-        const response = await fetch("/api/auth/me");
+        // Vérifier d'abord le token dans localStorage
+        const token = localStorage.getItem("auth_token");
+        if (!token) {
+          setIsLoading(false);
+          return;
+        }
+
+        const response = await fetch("/api/auth/me", {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
         if (response.ok) {
           const userData = await response.json();
           setUser(userData);
+        } else {
+          // Token invalide, le supprimer
+          localStorage.removeItem("auth_token");
         }
       } catch (error) {
         console.log("No active session");
+        localStorage.removeItem("auth_token");
       } finally {
         setIsLoading(false);
       }
@@ -39,7 +55,16 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
+      const token = localStorage.getItem("auth_token");
+      if (token) {
+        await fetch("/api/auth/logout", { 
+          method: "POST",
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+      }
+      localStorage.removeItem("auth_token");
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
