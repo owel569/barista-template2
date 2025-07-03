@@ -1,22 +1,19 @@
 import React, { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useUser } from "@/hooks/use-user";
-import DashboardLayout from "./dashboard/layout";
-import DashboardMain from "./dashboard/dashboard-main";
+import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
 
 export default function AdminDashboardNew() {
-  const { user, isLoading } = useUser();
+  const { user, isAuthenticated, loading } = useAuth();
   const [location, navigate] = useLocation();
 
   // Redirect to login if not authenticated
   React.useEffect(() => {
-    if (!isLoading && !user) {
+    if (!loading && !isAuthenticated) {
       navigate("/login");
     }
-  }, [user, isLoading, navigate]);
+  }, [isAuthenticated, loading, navigate]);
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
@@ -27,7 +24,7 @@ export default function AdminDashboardNew() {
     );
   }
 
-  if (!user) {
+  if (!isAuthenticated || !user) {
     return null;
   }
 
@@ -46,7 +43,7 @@ export default function AdminDashboardNew() {
           <p className="text-gray-600">
             Nom d'utilisateur: {user.username}<br />
             Rôle: {user.role}<br />
-            Nom: {user.firstName} {user.lastName}
+            ID: {user.id}
           </p>
         </div>
         
@@ -78,7 +75,7 @@ export default function AdminDashboardNew() {
             </p>
           </div>
           
-          {user.role === "directeur" && (
+          {(user.role === "directeur" || user.role === "admin") && (
             <>
               <div className="bg-white p-6 rounded-lg shadow">
                 <h2 className="text-xl font-semibold text-gray-800 mb-4">
@@ -124,7 +121,11 @@ export default function AdminDashboardNew() {
         
         <div className="mt-6">
           <button 
-            onClick={() => navigate("/login")}
+            onClick={() => {
+              // Utiliser l'ancien système de logout pour l'instant
+              localStorage.removeItem("auth_token");
+              navigate("/login");
+            }}
             className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
           >
             Déconnexion

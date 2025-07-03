@@ -29,13 +29,6 @@ function Router() {
     setSidebarOpen(!sidebarOpen);
   };
 
-  // Check if current route is admin-related
-  const isAdminRoute = location === '/admin' || location.startsWith('/admin/') || location === '/employe';
-
-  if (isAdminRoute) {
-    return <AdminDashboardNew />;
-  }
-
   return (
     <div className="flex min-h-screen">
       {showSidebar && (
@@ -51,6 +44,7 @@ function Router() {
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
           <Route path="/reservation" component={InteractiveReservation} />
+          <Route path="/admin" component={AdminDashboardNew} />
           <Route component={NotFound} />
         </Switch>
       </div>
@@ -63,12 +57,10 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <AuthProvider>
-          <UserProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Router />
-            </TooltipProvider>
-          </UserProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Router />
+          </TooltipProvider>
         </AuthProvider>
       </LanguageProvider>
     </QueryClientProvider>
