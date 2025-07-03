@@ -11,12 +11,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Mail, MapPin, Phone, Clock, Send, Facebook, Instagram, Twitter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { z } from "zod";
 
 type ContactFormData = z.infer<typeof insertContactMessageSchema>;
 
 export default function Contact() {
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const {
     register,

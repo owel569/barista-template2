@@ -33,9 +33,10 @@ export default function ReservationManagement() {
 
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: number; status: string }) =>
-      apiRequest(`/api/reservations/${id}/status`, {
+      fetch(`/api/reservations/${id}/status`, {
         method: "PATCH",
-        body: { status }
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status })
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/reservations"] });
@@ -52,7 +53,7 @@ export default function ReservationManagement() {
 
   const deleteReservationMutation = useMutation({
     mutationFn: (id: number) =>
-      apiRequest(`/api/reservations/${id}`, { method: "DELETE" }),
+      fetch(`/api/reservations/${id}`, { method: "DELETE" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/reservations"] });
       toast({ title: "Réservation supprimée avec succès" });
@@ -81,7 +82,7 @@ export default function ReservationManagement() {
 
   const filteredReservations = reservations?.filter((reservation: any) => {
     const matchesDate = !filter.date || reservation.date.includes(filter.date);
-    const matchesStatus = !filter.status || reservation.status === filter.status;
+    const matchesStatus = !filter.status || filter.status === 'all' || reservation.status === filter.status;
     const matchesClient = !filter.client || 
       reservation.customerName.toLowerCase().includes(filter.client.toLowerCase()) ||
       reservation.customerEmail.toLowerCase().includes(filter.client.toLowerCase());
@@ -128,7 +129,7 @@ export default function ReservationManagement() {
                   <SelectValue placeholder="Tous les statuts" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Tous les statuts</SelectItem>
+                  <SelectItem value="all">Tous les statuts</SelectItem>
                   <SelectItem value="pending">En Attente</SelectItem>
                   <SelectItem value="confirmed">Confirmée</SelectItem>
                   <SelectItem value="cancelled">Annulée</SelectItem>

@@ -1,19 +1,21 @@
+import { useLanguage } from "@/contexts/LanguageContext";
+
 export default function About() {
+  const { t } = useLanguage();
+  
   return (
     <section id="about" className="py-20 bg-white">
       <div className="container mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
             <h2 className="text-4xl font-bold text-coffee-dark mb-6">
-              Notre Histoire
+              {t('about.title')}
             </h2>
             <p className="text-lg text-gray-700 mb-6 leading-relaxed">
-              Depuis 2010, le Barista Café vous accueille dans un cadre chaleureux où se mélangent 
-              l'arôme du café fraîchement torréfié et l'art de la gastronomie française.
+              {t('about.story.content')}
             </p>
             <p className="text-lg text-gray-700 mb-8 leading-relaxed">
-              Nos baristas passionnés sélectionnent les meilleurs grains du monde pour vous offrir 
-              une expérience unique à chaque visite.
+              {t('about.mission.content')}
             </p>
             <div className="grid grid-cols-2 gap-6">
               <div className="text-center">

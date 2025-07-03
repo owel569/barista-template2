@@ -91,7 +91,7 @@ export default function OrderManagement() {
   };
 
   const filteredOrders = orders?.filter((order: any) => {
-    const matchesStatus = !filter.status || order.status === filter.status;
+    const matchesStatus = !filter.status || filter.status === 'all' || order.status === filter.status;
     const matchesDate = !filter.date || order.createdAt?.includes(filter.date);
     return matchesStatus && matchesDate;
   });
@@ -147,7 +147,7 @@ export default function OrderManagement() {
                   <SelectValue placeholder="Tous les statuts" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Tous les statuts</SelectItem>
+                  <SelectItem value="all">Tous les statuts</SelectItem>
                   <SelectItem value="pending">En Attente</SelectItem>
                   <SelectItem value="confirmed">Confirmée</SelectItem>
                   <SelectItem value="preparing">Préparation</SelectItem>
