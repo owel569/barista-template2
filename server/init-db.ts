@@ -23,9 +23,26 @@ export async function initializeDatabase() {
       await db.insert(users).values({
         username: "admin",
         password: hashedPassword,
-        role: "admin"
+        role: "directeur",
+        firstName: "Directeur",
+        lastName: "Principal",
+        email: "admin@barista-cafe.com",
+        isActive: true
       });
-      console.log("✅ Utilisateur admin créé");
+      console.log("✅ Utilisateur directeur créé");
+
+      // Créer aussi un employé de test
+      const employeePassword = await bcrypt.hash("employe123", 10);
+      await db.insert(users).values({
+        username: "employe1",
+        password: employeePassword,
+        role: "employe",
+        firstName: "Jean",
+        lastName: "Dupont",
+        email: "jean.dupont@barista-cafe.com",
+        isActive: true
+      });
+      console.log("✅ Utilisateur employé créé");
     }
 
     // Create menu categories seulement s'il n'en existe pas

@@ -1,0 +1,143 @@
+1. Structure générale & Navigation
+Sidebar collapsable (comme Phoenix) avec icônes + labels pour chaque module.
+
+Topbar avec:
+
+Mode Sombre / Clair (Phoenix, Aurora)
+
+Bouton profil (déconnexion, settings)
+
+Notifications (nouvelle réservation, commande, message)
+
+Breadcrumbs pour faciliter la navigation.
+
+📊 2. Tableau de bord amélioré
+Widgets & infos rapides :
+Cartes “Stats” :
+
+📅 Réservations aujourd’hui
+
+🛒 Commandes en cours
+
+👥 Clients actifs
+
+Caféine du jour (top‑ventes)
+
+Graphiques visuels :
+
+Courbes fréquentation (heures/jours)
+
+Diagrammes circulaires (répartition click&collect vs livraison)
+
+Carte des zones (si local) ou régions (pour livraison) inspirée de Phoenix 
+dribbble.com
++2
+themewagon.com
++2
+aurora.themewagon.com
++2
+themewagon.com
+prium.github.io
+
+💼 3. Réservations
+Tableaux filtrables : date, statut, client.
+
+Timeline / calendrier visuel (inspiré du kanban Aurora).
+
+Modales :
+
+Détail réservation + bouton action (confirmer, annuler, modifier).
+
+Ajout manuel dans une modale ou via formulaire dédié.
+
+🥡 4. Commandes
+Tableau des commandes avec statut coloré (préparation, livraison, terminé).
+
+Filtres type, statut, date.
+
+Détails étendus (produits, total, client).
+
+Actions :
+
+Mettre à jour statut
+
+Remboursement rapide
+
+Notifications en temps réel pour nouvelles commandes.
+
+👤 5. Clients / CRM
+Liste avec recherche et filtres.
+
+Page profil client :
+
+Infos de contact
+
+Historique commandes + réservations
+
+Statut fidélité, points
+
+Segmentation (Aurora CRM) :
+
+Création de segments de clients (VIP, fréquent, etc…)
+
+🍽️ 6. Menu (CRUD plats)
+Tableaux groupés par catégorie
+
+Modales ou pages pour ajouter/modifier :
+
+Nom, image, prix, description, dispo.
+
+Indicateur visuel “mode offline” si stock épuisé.
+
+Historique de modifications (prix, description…) façon versioning.
+
+👷‍♂️ 7. Employés (Utilisateurs)
+Visible uniquement par le Super‑utilisateur
+
+Tableau des comptes avec rôle, statut actif.
+
+Modales pour :
+
+Ajouter un employé
+
+Modifier rôle, activer/désactiver
+
+Permissions fines : choisir l’accès par module/action
+
+✉️ 8. Contacts / Messages
+Tableau classé avec filtre lu / non lu
+
+Aperçu & réponse directe dans la modale.
+
+Notifications en topbar (mail).
+
+⚙️ 9. Réglages généraux
+Page accessible au Super‑utilisateur :
+
+Configuration horaire
+
+Logo, images
+
+Infos de contact (email, téléphone, adresse)
+
+Apperçu live des changements (Aurora layout playground)
+
+🧩 10. Fonctionnalités avancées
+Mode clair / sombre, RTL, navigation horizontale/vert/stack (d’après Aurora) 
+aurora.themewagon.com
++2
+prium.github.io
++2
+aurora.themewagon.com
++2
+
+Drag‑and‑drop pour réordonner le menu ou les modules (Aurora via DnD Kit)
+
+Charts personnalisés : ECharts, Chart.js, Leaflet (pour géolocalisation) accessibles au Super‑utilisateur
+
+🔧 11. Roadmap technique
+Priorité	Fonctionnalité
+V1	Dashboard, réservations, commandes, clients, menu, messages, employés, réglages
+V2	Mode sombre, permissions fines, historique menu
+V3	Notifications temps réel, segmentation CRM, drag‑drop
+

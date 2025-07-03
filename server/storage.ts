@@ -1,12 +1,13 @@
 import { 
   users, menuCategories, menuItems, tables, reservations, reservationItems, contactMessages,
-  orders, orderItems, customers, employees, workShifts,
+  orders, orderItems, customers, employees, workShifts, activityLogs, permissions,
   type User, type InsertUser, type MenuCategory, type InsertMenuCategory,
   type MenuItem, type InsertMenuItem, type Table, type InsertTable,
   type Reservation, type InsertReservation, type ContactMessage, type InsertContactMessage,
   type Order, type InsertOrder, type OrderItem, type InsertOrderItem,
   type Customer, type InsertCustomer, type Employee, type InsertEmployee,
-  type WorkShift, type InsertWorkShift
+  type WorkShift, type InsertWorkShift, type ActivityLog, type InsertActivityLog,
+  type Permission, type InsertPermission
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, asc, sql, between, gte, lte } from "drizzle-orm";
@@ -17,6 +18,19 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  updateUser(id: number, user: Partial<InsertUser>): Promise<User | undefined>;
+  updateUserLastLogin(id: number): Promise<User | undefined>;
+
+  // Activity Logs
+  getActivityLogs(limit?: number): Promise<ActivityLog[]>;
+  getActivityLogsByUser(userId: number): Promise<ActivityLog[]>;
+  createActivityLog(log: InsertActivityLog): Promise<ActivityLog>;
+
+  // Permissions
+  getUserPermissions(userId: number): Promise<Permission[]>;
+  createPermission(permission: InsertPermission): Promise<Permission>;
+  updatePermission(id: number, permission: Partial<InsertPermission>): Promise<Permission | undefined>;
+  deletePermission(id: number): Promise<boolean>;
 
   // Menu Categories
   getMenuCategories(): Promise<MenuCategory[]>;
@@ -119,6 +133,64 @@ export class DatabaseStorage implements IStorage {
 
   async getUsers(): Promise<User[]> {
     return await db.select().from(users).orderBy(asc(users.createdAt));
+  }
+
+  async updateUser(id: number, user: Partial<InsertUser>): Promise<User | undefined> {
+    const [updatedUser] = await db.update(users)
+      .set({ ...user, updatedAt: new Date() })
+      .where(eq(users.id, id))
+      .returning();
+    return updatedUser || undefined;
+  }
+
+  async updateUserLastLogin(id: number): Promise<User | undefined> {
+    const [updatedUser] = await db.update(users)
+      .set({ lastLogin: new Date() })
+      .where(eq(users.id, id))
+      .returning();
+    return updatedUser || undefined;
+  }
+
+  // Activity Logs
+  async getActivityLogs(limit: number = 50): Promise<ActivityLog[]> {
+    return await db.select().from(activityLogs)
+      .orderBy(desc(activityLogs.timestamp))
+      .limit(limit);
+  }
+
+  async getActivityLogsByUser(userId: number): Promise<ActivityLog[]> {
+    return await db.select().from(activityLogs)
+      .where(eq(activityLogs.userId, userId))
+      .orderBy(desc(activityLogs.timestamp));
+  }
+
+  async createActivityLog(log: InsertActivityLog): Promise<ActivityLog> {
+    const [newLog] = await db.insert(activityLogs).values(log).returning();
+    return newLog;
+  }
+
+  // Permissions
+  async getUserPermissions(userId: number): Promise<Permission[]> {
+    return await db.select().from(permissions)
+      .where(eq(permissions.userId, userId));
+  }
+
+  async createPermission(permission: InsertPermission): Promise<Permission> {
+    const [newPermission] = await db.insert(permissions).values(permission).returning();
+    return newPermission;
+  }
+
+  async updatePermission(id: number, permission: Partial<InsertPermission>): Promise<Permission | undefined> {
+    const [updatedPermission] = await db.update(permissions)
+      .set(permission)
+      .where(eq(permissions.id, id))
+      .returning();
+    return updatedPermission || undefined;
+  }
+
+  async deletePermission(id: number): Promise<boolean> {
+    const result = await db.delete(permissions).where(eq(permissions.id, id));
+    return result.rowCount !== null && result.rowCount > 0;
   }
 
   // Menu Categories

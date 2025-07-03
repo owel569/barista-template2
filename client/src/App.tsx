@@ -5,6 +5,7 @@ import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "./lib/auth";
+import { UserProvider } from "@/hooks/use-user";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import Sidebar from "@/components/sidebar";
 import Home from "@/pages/home";
@@ -12,6 +13,7 @@ import Login from "@/pages/login";
 import Register from "@/pages/register";
 import InteractiveReservation from "@/components/interactive-reservation";
 import Admin from "@/pages/admin";
+import AdminDashboardNew from "@/components/admin-dashboard-new";
 import NotFound from "@/pages/not-found";
 import MenuPage from "@/components/menu-page";
 import About from "@/components/about";
@@ -21,11 +23,18 @@ import Gallery from "@/components/gallery";
 function Router() {
   const [location] = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const showSidebar = !['/login', '/register'].includes(location);
+  const showSidebar = !['/login', '/register', '/admin', '/employe'].includes(location) && !location.startsWith('/admin/');
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
+
+  // Check if current route is admin-related
+  const isAdminRoute = location === '/admin' || location.startsWith('/admin/') || location === '/employe';
+
+  if (isAdminRoute) {
+    return <AdminDashboardNew />;
+  }
 
   return (
     <div className="flex min-h-screen">
@@ -42,7 +51,6 @@ function Router() {
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
           <Route path="/reservation" component={InteractiveReservation} />
-          <Route path="/admin" component={Admin} />
           <Route component={NotFound} />
         </Switch>
       </div>
@@ -55,10 +63,12 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <AuthProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Router />
-          </TooltipProvider>
+          <UserProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Router />
+            </TooltipProvider>
+          </UserProvider>
         </AuthProvider>
       </LanguageProvider>
     </QueryClientProvider>

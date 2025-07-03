@@ -3,13 +3,42 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
 
-// Users table for admin authentication
+// Users table for admin authentication with enhanced roles
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
-  role: text("role").notNull().default("admin"),
+  role: text("role").notNull().default("employe"), // directeur, employe
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  email: text("email"),
+  phone: text("phone"),
+  isActive: boolean("is_active").notNull().default(true),
+  lastLogin: timestamp("last_login"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Activity logs table for audit trail
+export const activityLogs = pgTable("activity_logs", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  action: text("action").notNull(), // created, updated, deleted, viewed
+  entity: text("entity").notNull(), // reservation, order, menu_item, etc.
+  entityId: integer("entity_id"),
+  details: text("details"), // JSON string with additional info
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+// Permissions table for fine-grained access control
+export const permissions = pgTable("permissions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  module: text("module").notNull(), // reservations, orders, menu, clients, etc.
+  canView: boolean("can_view").notNull().default(true),
+  canCreate: boolean("can_create").notNull().default(false),
+  canUpdate: boolean("can_update").notNull().default(false),
+  canDelete: boolean("can_delete").notNull().default(false),
 });
 
 // Menu categories
@@ -220,11 +249,57 @@ export const workShiftsRelations = relations(workShifts, ({ one }) => ({
   }),
 }));
 
+// New relations for enhanced user system
+export const usersRelations = relations(users, ({ many }) => ({
+  activityLogs: many(activityLogs),
+  permissions: many(permissions),
+}));
+
+export const activityLogsRelations = relations(activityLogs, ({ one }) => ({
+  user: one(users, {
+    fields: [activityLogs.userId],
+    references: [users.id],
+  }),
+}));
+
+export const permissionsRelations = relations(permissions, ({ one }) => ({
+  user: one(users, {
+    fields: [permissions.userId],
+    references: [users.id],
+  }),
+}));
+
 // Zod schemas for validation
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
   role: true,
+  firstName: true,
+  lastName: true,
+  email: true,
+  phone: true,
+  isActive: true,
+}).extend({
+  email: z.string().email("Email invalide").optional(),
+  phone: z.string().min(10, "Numéro de téléphone invalide").optional(),
+  role: z.enum(["directeur", "employe"]).default("employe"),
+});
+
+export const insertActivityLogSchema = createInsertSchema(activityLogs).pick({
+  userId: true,
+  action: true,
+  entity: true,
+  entityId: true,
+  details: true,
+});
+
+export const insertPermissionSchema = createInsertSchema(permissions).pick({
+  userId: true,
+  module: true,
+  canView: true,
+  canCreate: true,
+  canUpdate: true,
+  canDelete: true,
 });
 
 export const insertMenuCategorySchema = createInsertSchema(menuCategories).pick({
@@ -432,3 +507,9 @@ export type Employee = typeof employees.$inferSelect;
 export type InsertEmployee = z.infer<typeof insertEmployeeSchema>;
 export type WorkShift = typeof workShifts.$inferSelect;
 export type InsertWorkShift = z.infer<typeof insertWorkShiftSchema>;
+
+// New enhanced types for role-based system
+export type ActivityLog = typeof activityLogs.$inferSelect;
+export type InsertActivityLog = z.infer<typeof insertActivityLogSchema>;
+export type Permission = typeof permissions.$inferSelect;
+export type InsertPermission = z.infer<typeof insertPermissionSchema>;
