@@ -70,7 +70,7 @@ export default function EmployeeManagement() {
 
   const createEmployeeMutation = useMutation({
     mutationFn: (data: typeof newEmployee) => 
-      apiRequest("/api/employees", "POST", data),
+      apiRequest("POST", "/api/employees", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/employees"] });
       setIsDialogOpen(false);
@@ -92,7 +92,7 @@ export default function EmployeeManagement() {
 
   const updateEmployeeMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: Partial<Employee> }) =>
-      apiRequest(`/api/employees/${id}`, "PATCH", data),
+      apiRequest("PATCH", `/api/employees/${id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/employees"] });
       setEditingEmployee(null);
