@@ -27,6 +27,7 @@ import {
   Mail
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 import DashboardCharts from "./dashboard-charts";
 import SimpleOrderManagement from "./simple-order-management";
 import CustomerManagement from "./customer-management";
