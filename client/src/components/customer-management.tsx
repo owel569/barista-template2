@@ -51,8 +51,10 @@ export default function CustomerManagement() {
   });
 
   const createCustomerMutation = useMutation({
-    mutationFn: (data: typeof newCustomer) => 
-      apiRequest("POST", "/api/customers", data),
+    mutationFn: (data: typeof newCustomer) => {
+      console.log("Données client envoyées:", data);
+      return apiRequest("POST", "/api/customers", data);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/customers"] });
       setIsDialogOpen(false);

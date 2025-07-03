@@ -69,8 +69,10 @@ export default function EmployeeManagement() {
   });
 
   const createEmployeeMutation = useMutation({
-    mutationFn: (data: typeof newEmployee) => 
-      apiRequest("POST", "/api/employees", data),
+    mutationFn: (data: typeof newEmployee) => {
+      console.log("Données employé envoyées:", data);
+      return apiRequest("POST", "/api/employees", data);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/employees"] });
       setIsDialogOpen(false);
