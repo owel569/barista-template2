@@ -23,21 +23,27 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
+interface Order {
+  id: number;
+  customerName?: string;
+  status: string;
+  total: number;
+  createdAt: string;
+  items?: any[];
+}
+
 export default function OrderManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState({ status: "", date: "" });
 
-  const { data: orders, isLoading } = useQuery({
+  const { data: orders = [], isLoading } = useQuery<Order[]>({
     queryKey: ['/api/orders'],
   });
 
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: number; status: string }) =>
-      apiRequest(`/api/orders/${id}/status`, {
-        method: "PATCH",
-        body: { status }
-      }),
+      apiRequest(`/api/orders/${id}/status`, "PATCH", { status }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
       toast({ title: "Statut de commande mis à jour" });
@@ -90,7 +96,7 @@ export default function OrderManagement() {
     }
   };
 
-  const filteredOrders = orders?.filter((order: any) => {
+  const filteredOrders = orders.filter((order: Order) => {
     const matchesStatus = !filter.status || filter.status === 'all' || order.status === filter.status;
     const matchesDate = !filter.date || order.createdAt?.includes(filter.date);
     return matchesStatus && matchesDate;
@@ -118,7 +124,7 @@ export default function OrderManagement() {
           { label: "Prêtes", status: "ready", color: "purple" },
           { label: "Livrées", status: "delivered", color: "green" }
         ].map((stat) => {
-          const count = orders?.filter((o: any) => o.status === stat.status)?.length || 0;
+          const count = orders.filter((o: Order) => o.status === stat.status).length;
           return (
             <Card key={stat.status}>
               <CardContent className="pt-6">

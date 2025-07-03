@@ -22,22 +22,31 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
+interface Reservation {
+  id: number;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  date: string;
+  time: string;
+  guests: number;
+  status: string;
+  specialRequests?: string;
+  createdAt: string;
+}
+
 export default function ReservationManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState({ date: "", status: "", client: "" });
 
-  const { data: reservations, isLoading } = useQuery({
+  const { data: reservations = [], isLoading } = useQuery<Reservation[]>({
     queryKey: ['/api/reservations'],
   });
 
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: number; status: string }) =>
-      fetch(`/api/reservations/${id}/status`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status })
-      }),
+      apiRequest(`/api/reservations/${id}/status`, "PATCH", { status }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/reservations"] });
       toast({ title: "Statut mis à jour avec succès" });
@@ -80,7 +89,7 @@ export default function ReservationManagement() {
     }
   };
 
-  const filteredReservations = reservations?.filter((reservation: any) => {
+  const filteredReservations = reservations.filter((reservation: Reservation) => {
     const matchesDate = !filter.date || reservation.date.includes(filter.date);
     const matchesStatus = !filter.status || filter.status === 'all' || reservation.status === filter.status;
     const matchesClient = !filter.client || 
