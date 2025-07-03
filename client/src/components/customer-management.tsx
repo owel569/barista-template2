@@ -52,7 +52,7 @@ export default function CustomerManagement() {
 
   const createCustomerMutation = useMutation({
     mutationFn: (data: typeof newCustomer) => 
-      apiRequest("POST", "/api/customers", data),
+      apiRequest("/api/customers", "POST", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/customers"] });
       setIsDialogOpen(false);
@@ -74,7 +74,7 @@ export default function CustomerManagement() {
 
   const updateCustomerMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: Partial<Customer> }) =>
-      apiRequest("PATCH", `/api/customers/${id}`, data),
+      apiRequest(`/api/customers/${id}`, "PATCH", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/customers"] });
       setEditingCustomer(null);

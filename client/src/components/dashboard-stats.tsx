@@ -15,51 +15,51 @@ import DashboardCharts from "./dashboard-charts";
 export default function DashboardStats() {
   const { t } = useLanguage();
 
-  const { data: todayReservations } = useQuery({
+  const { data: todayReservations = { count: 0 } } = useQuery({
     queryKey: ['/api/stats/today-reservations'],
   });
 
-  const { data: occupancyRate } = useQuery({
+  const { data: occupancyRate = { rate: 0 } } = useQuery({
     queryKey: ['/api/stats/occupancy'],
   });
 
-  const { data: ordersByStatus } = useQuery({
+  const { data: ordersByStatus = [] } = useQuery({
     queryKey: ['/api/stats/orders-by-status'],
   });
 
-  const { data: customers } = useQuery({
+  const { data: customers = [] } = useQuery({
     queryKey: ['/api/customers'],
   });
 
-  const { data: menuItems } = useQuery({
+  const { data: menuItems = [] } = useQuery({
     queryKey: ['/api/menu/items'],
   });
 
   const stats = [
     {
       title: "Réservations Aujourd'hui",
-      value: todayReservations?.count || 0,
+      value: todayReservations.count || 0,
       icon: Calendar,
       color: "text-blue-600",
       bgColor: "bg-blue-50"
     },
     {
       title: "Commandes en Cours",
-      value: (ordersByStatus as any[])?.find((o: any) => o.status === 'pending')?.count || 0,
+      value: ordersByStatus.find((o: any) => o.status === 'pending')?.count || 0,
       icon: Clock,
       color: "text-orange-600",
       bgColor: "bg-orange-50"
     },
     {
       title: "Clients Actifs",
-      value: customers?.length || 0,
+      value: customers.length || 0,
       icon: Users,
       color: "text-green-600",
       bgColor: "bg-green-50"
     },
     {
       title: "Taux d'Occupation",
-      value: `${Math.round(occupancyRate?.rate || 0)}%`,
+      value: `${Math.round(occupancyRate.rate || 0)}%`,
       icon: TrendingUp,
       color: "text-purple-600",
       bgColor: "bg-purple-50"

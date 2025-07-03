@@ -51,7 +51,7 @@ const getAdminMenuItems = (t: (key: string) => string) => [
   {
     id: "menu",
     title: t('admin.menu'),
-    icon: MenuIcon,
+    icon: Coffee,
   },
   {
     id: "contacts",
