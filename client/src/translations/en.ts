@@ -75,6 +75,11 @@ export default {
   'admin.login.button': 'Login',
   'admin.dashboard': 'Dashboard',
   'admin.reservations': 'Reservations',
+  'admin.orders': 'Orders',
+  'admin.customers': 'Customers',
+  'admin.employees': 'Employees',
+  'admin.menu': 'Menu',
+  'admin.contacts': 'Contacts',
   'admin.messages': 'Messages',
   'admin.logout': 'Logout',
 

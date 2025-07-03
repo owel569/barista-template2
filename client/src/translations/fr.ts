@@ -75,6 +75,11 @@ export default {
   'admin.login.button': 'Se connecter',
   'admin.dashboard': 'Tableau de Bord',
   'admin.reservations': 'Réservations',
+  'admin.orders': 'Commandes',
+  'admin.customers': 'Clients',
+  'admin.employees': 'Employés',
+  'admin.menu': 'Menu',
+  'admin.contacts': 'Contacts',
   'admin.messages': 'Messages',
   'admin.logout': 'Déconnexion',
 

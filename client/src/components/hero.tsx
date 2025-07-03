@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Calendar, Utensils } from "lucide-react";
 import { useLocation } from "wouter";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Hero() {
   const [, setLocation] = useLocation();
+  const { t } = useLanguage();
   
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -25,10 +27,10 @@ export default function Hero() {
       
       <div className="relative z-10 text-center text-white px-6">
         <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-fade-in">
-          Bienvenue au <span className="text-coffee-accent">Barista Café</span>
+          {t('home.title')} <span className="text-coffee-accent">Barista Café</span>
         </h1>
         <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto">
-          Découvrez l'art du café dans une ambiance chaleureuse et authentique
+          {t('home.description')}
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button
@@ -36,7 +38,7 @@ export default function Hero() {
             className="bg-coffee-accent hover:bg-opacity-90 text-white px-8 py-3 rounded-full text-lg font-semibold transition duration-300 transform hover:scale-105"
           >
             <Calendar className="mr-2 h-5 w-5" />
-            Réserver une table
+            {t('home.cta.reserve')}
           </Button>
           <Button
             onClick={() => scrollToSection("menu")}
@@ -44,7 +46,7 @@ export default function Hero() {
             className="bg-transparent border-2 border-white hover:bg-white hover:text-coffee-dark text-white px-8 py-3 rounded-full text-lg font-semibold transition duration-300"
           >
             <Utensils className="mr-2 h-5 w-5" />
-            Voir le menu
+            {t('home.cta.menu')}
           </Button>
         </div>
       </div>
