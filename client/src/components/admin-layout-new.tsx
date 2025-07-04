@@ -6,11 +6,11 @@ import { UserRole } from "@/lib/permissions";
 
 // Import des composants de contenu
 import DashboardMain from "./dashboard-main";
-import ReservationManagement from "./reservation-management";
-import OrderManagement from "./order-management-new";
-import CustomerManagement from "./customer-management";
-import EmployeeManagement from "./employee-management";
-import MenuManagement from "./menu-management";
+import ReservationManagementComplete from "./reservation-management-complete";
+import OrderManagementComplete from "./order-management-complete";
+import CustomerManagementComplete from "./customer-management-complete";
+import EmployeeManagementComplete from "./employee-management-complete";
+import MenuManagementComplete from "./menu-management-complete";
 import ContactManagement from "./contact-management";
 import SettingsManagement from "./settings-management";
 import ReportsManagement from "./reports-management";
@@ -61,15 +61,15 @@ export default function AdminLayoutNew({ userRole, user }: AdminLayoutNewProps) 
       case "dashboard":
         return <DashboardMain userRole={userRole} />;
       case "reservations":
-        return <ReservationManagement userRole={userRole} />;
+        return <ReservationManagementComplete userRole={userRole} />;
       case "orders":
-        return <OrderManagement userRole={userRole} />;
+        return <OrderManagementComplete userRole={userRole} />;
       case "customers":
-        return <CustomerManagement userRole={userRole} />;
+        return <CustomerManagementComplete userRole={userRole} />;
       case "employees":
-        return <EmployeeManagement userRole={userRole} />;
+        return <EmployeeManagementComplete userRole={userRole} />;
       case "menu":
-        return <MenuManagement userRole={userRole} />;
+        return <MenuManagementComplete userRole={userRole} />;
       case "messages":
         return <ContactManagement userRole={userRole} />;
       case "settings":

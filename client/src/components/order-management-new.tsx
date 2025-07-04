@@ -32,10 +32,15 @@ interface Order {
   items?: any[];
 }
 
-export default function OrderManagement() {
+interface OrderManagementProps {
+  userRole: string;
+}
+
+export default function OrderManagement({ userRole }: OrderManagementProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState({ status: "", date: "" });
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const { data: orders = [], isLoading } = useQuery<Order[]>({
     queryKey: ['/api/orders'],
@@ -43,7 +48,7 @@ export default function OrderManagement() {
 
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: number; status: string }) =>
-      apiRequest(`/api/orders/${id}/status`, "PATCH", { status }),
+      apiRequest('PATCH', `/api/orders/${id}/status`, { status }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
       toast({ title: "Statut de commande mis à jour" });
