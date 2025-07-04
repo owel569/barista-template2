@@ -62,3 +62,6 @@ export function getItemImageUrl(
   // Image par défaut générique
   return "https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop";
 }
+
+// Alias pour compatibilité
+export const getImageUrlByName = getItemImageUrl;

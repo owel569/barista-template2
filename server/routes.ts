@@ -932,6 +932,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Contact messages routes
+  app.get("/api/contact-messages", authenticateToken, async (req, res) => {
+    try {
+      const messages = await storage.getContactMessages();
+      res.json(messages);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des messages" });
+    }
+  });
+
+  app.put("/api/contact-messages/:id/status", authenticateToken, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { status } = req.body;
+      const message = await storage.updateContactMessageStatus(id, status);
+      
+      if (!message) {
+        return res.status(404).json({ message: "Message non trouvé" });
+      }
+      
+      res.json(message);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour du statut du message" });
+    }
+  });
+
+  // Work shifts routes
+  app.get("/api/work-shifts", authenticateToken, async (req, res) => {
+    try {
+      const shifts = await storage.getWorkShifts();
+      res.json(shifts);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des horaires" });
+    }
+  });
+
+  // Menu items management routes with permissions
+  app.put("/api/menu/items/:id", authenticateToken, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const itemData = req.body;
+      const item = await storage.updateMenuItem(id, itemData);
+      
+      if (!item) {
+        return res.status(404).json({ message: "Article non trouvé" });
+      }
+      
+      res.json(item);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour de l'article" });
+    }
+  });
+
+  app.delete("/api/menu/items/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deleteMenuItem(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Article non trouvé" });
+      }
+      
+      res.json({ message: "Article supprimé avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la suppression de l'article" });
+    }
+  });
+
   // Admin Routes - Add missing ones
   app.get("/api/admin/reservations", authenticateToken, async (req, res) => {
     try {

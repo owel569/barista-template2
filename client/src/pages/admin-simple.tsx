@@ -29,6 +29,10 @@ import Dashboard from '@/components/admin/dashboard';
 import Reservations from '@/components/admin/reservations';
 import Orders from '@/components/admin/orders';
 import Customers from '@/components/admin/customers';
+import Employees from '@/components/admin/employees';
+import MenuManagement from '@/components/admin/menu-management';
+import Messages from '@/components/admin/messages';
+import AdminSettings from '@/components/admin/settings';
 
 interface User {
   id: number;
@@ -143,31 +147,32 @@ export default function AdminSimple() {
 
   const renderContent = () => {
     const path = location.replace('/admin', '') || '';
+    const userRole = user?.role || 'employe';
     
     switch (path) {
       case '':
       case '/':
-        return <Dashboard userRole={user?.role || 'employe'} />;
+        return <Dashboard userRole={userRole} />;
       case '/reservations':
-        return <Reservations userRole={user?.role || 'employe'} />;
+        return <Reservations userRole={userRole} />;
       case '/orders':
-        return <Orders userRole={user?.role || 'employe'} />;
+        return <Orders userRole={userRole} />;
       case '/customers':
-        return <Customers userRole={user?.role || 'employe'} />;
+        return <Customers userRole={userRole} />;
       case '/menu':
-        return <div className="p-6"><h2 className="text-2xl font-bold">Gestion du Menu</h2><p>Module en cours de développement...</p></div>;
+        return <MenuManagement canDelete={userRole === 'directeur'} />;
       case '/messages':
-        return <div className="p-6"><h2 className="text-2xl font-bold">Gestion des Messages</h2><p>Module en cours de développement...</p></div>;
+        return <Messages />;
       case '/employees':
-        return <div className="p-6"><h2 className="text-2xl font-bold">Gestion des Employés</h2><p>Module en cours de développement...</p></div>;
+        return userRole === 'directeur' ? <Employees /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2></div>;
       case '/settings':
-        return <div className="p-6"><h2 className="text-2xl font-bold">Paramètres Généraux</h2><p>Module en cours de développement...</p></div>;
+        return userRole === 'directeur' ? <AdminSettings /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2></div>;
       case '/statistics':
-        return <div className="p-6"><h2 className="text-2xl font-bold">Statistiques Avancées</h2><p>Module en cours de développement...</p></div>;
+        return userRole === 'directeur' ? <div className="p-6"><h2 className="text-2xl font-bold">Statistiques Avancées</h2><p>Module en cours de développement...</p></div> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2></div>;
       case '/logs':
-        return <div className="p-6"><h2 className="text-2xl font-bold">Historique des Actions</h2><p>Module en cours de développement...</p></div>;
+        return userRole === 'directeur' ? <div className="p-6"><h2 className="text-2xl font-bold">Historique des Actions</h2><p>Module en cours de développement...</p></div> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2></div>;
       default:
-        return <Dashboard userRole={user?.role || 'employe'} />;
+        return <Dashboard userRole={userRole} />;
     }
   };
 

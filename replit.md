@@ -217,6 +217,18 @@ Changelog:
   - Installation en une seule commande : npm install && node setup-universal.cjs
   - Configuration PostgreSQL automatique avec données de test intégrées
   - Compatibilité universelle garantie pour tous les environnements de développement
+- July 4, 2025. Système d'administration complet avec deux niveaux d'utilisateurs:
+  - Créé interface directeur avec accès complet à tous les modules (employés, paramètres, statistiques)
+  - Créé interface employé avec permissions limitées (pas d'accès employés/paramètres)
+  - Développé modules complets : Employees, MenuManagement, Messages, Settings
+  - Implémenté système de permissions basé sur les rôles utilisateur
+  - Ajouté routes API sécurisées avec middleware de vérification des rôles
+  - Sidebar collapsible avec mode sombre/clair et navigation intuitive
+  - Gestion des employés : création, modification, suppression (directeur uniquement)
+  - Gestion du menu : ajout/modification pour tous, suppression pour directeur uniquement
+  - Système de messages de contact avec gestion des statuts
+  - Paramètres généraux du restaurant avec horaires et configuration système
+  - Architecture moderne avec TypeScript et composants réutilisables
 
 ## User Preferences
 
