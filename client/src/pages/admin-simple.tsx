@@ -48,6 +48,7 @@ export default function AdminSimple() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentSection, setCurrentSection] = useState('dashboard');
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -95,50 +96,48 @@ export default function AdminSimple() {
 
   const getMenuItems = () => {
     const common = [
-      { icon: LayoutDashboard, label: 'Tableau de bord', href: '/admin', exact: true },
-      { icon: Calendar, label: 'Réservations', href: '/admin/reservations' },
-      { icon: ShoppingCart, label: 'Commandes', href: '/admin/orders' },
-      { icon: Users, label: 'Clients', href: '/admin/customers', readonly: user?.role === 'employe' },
-      { icon: MenuIcon, label: 'Menu', href: '/admin/menu' },
-      { icon: MessageSquare, label: 'Messages', href: '/admin/messages' },
+      { icon: LayoutDashboard, label: 'Tableau de bord', section: 'dashboard' },
+      { icon: Calendar, label: 'Réservations', section: 'reservations' },
+      { icon: ShoppingCart, label: 'Commandes', section: 'orders' },
+      { icon: Users, label: 'Clients', section: 'customers', readonly: user?.role === 'employe' },
+      { icon: MenuIcon, label: 'Menu', section: 'menu' },
+      { icon: MessageSquare, label: 'Messages', section: 'messages' },
     ];
 
     if (user?.role === 'directeur') {
       return [
         ...common,
-        { icon: UserCheck, label: 'Employés', href: '/admin/employees' },
-        { icon: Settings, label: 'Paramètres', href: '/admin/settings' },
-        { icon: BarChart3, label: 'Statistiques', href: '/admin/statistics' },
-        { icon: History, label: 'Historique', href: '/admin/logs' },
+        { icon: UserCheck, label: 'Employés', section: 'employees' },
+        { icon: Settings, label: 'Paramètres', section: 'settings' },
+        { icon: BarChart3, label: 'Statistiques', section: 'statistics' },
+        { icon: History, label: 'Historique', section: 'logs' },
       ];
     }
 
     return common;
   };
 
-  const getCurrentSection = () => {
-    const path = location.replace('/admin', '') || '';
-    switch (path) {
-      case '':
-      case '/':
+  const getSectionTitle = () => {
+    switch (currentSection) {
+      case 'dashboard':
         return 'Tableau de bord';
-      case '/reservations':
+      case 'reservations':
         return 'Gestion des Réservations';
-      case '/orders':
+      case 'orders':
         return 'Gestion des Commandes';
-      case '/customers':
+      case 'customers':
         return 'Gestion des Clients';
-      case '/menu':
+      case 'menu':
         return 'Gestion du Menu';
-      case '/messages':
+      case 'messages':
         return 'Gestion des Messages';
-      case '/employees':
+      case 'employees':
         return 'Gestion des Employés';
-      case '/settings':
+      case 'settings':
         return 'Paramètres Généraux';
-      case '/statistics':
+      case 'statistics':
         return 'Statistiques Avancées';
-      case '/logs':
+      case 'logs':
         return 'Historique des Actions';
       default:
         return 'Administration';
@@ -146,43 +145,31 @@ export default function AdminSimple() {
   };
 
   const renderContent = () => {
-    const path = location.replace('/admin', '') || '';
     const userRole = user?.role || 'employe';
     
-    console.log('Current location:', location);
-    console.log('Parsed path:', path);
-    console.log('User role:', userRole);
-    
-    switch (path) {
-      case '':
-      case '/':
+    switch (currentSection) {
+      case 'dashboard':
         return <Dashboard userRole={userRole} />;
-      case '/reservations':
+      case 'reservations':
         return <Reservations userRole={userRole} />;
-      case '/orders':
+      case 'orders':
         return <Orders userRole={userRole} />;
-      case '/customers':
+      case 'customers':
         return <Customers userRole={userRole} />;
-      case '/menu':
+      case 'menu':
         return <MenuManagement canDelete={userRole === 'directeur'} />;
-      case '/messages':
+      case 'messages':
         return <Messages />;
-      case '/employees':
+      case 'employees':
         return userRole === 'directeur' ? <Employees /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
-      case '/settings':
+      case 'settings':
         return userRole === 'directeur' ? <AdminSettings /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
-      case '/statistics':
+      case 'statistics':
         return userRole === 'directeur' ? <div className="p-6"><h2 className="text-2xl font-bold">Statistiques Avancées</h2><p>Module en cours de développement...</p></div> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
-      case '/logs':
+      case 'logs':
         return userRole === 'directeur' ? <div className="p-6"><h2 className="text-2xl font-bold">Historique des Actions</h2><p>Module en cours de développement...</p></div> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       default:
-        return (
-          <div className="p-6">
-            <h2 className="text-2xl font-bold">Page non trouvée</h2>
-            <p>Le chemin "{path}" n'existe pas dans l'administration.</p>
-            <p>Location complète: {location}</p>
-          </div>
-        );
+        return <Dashboard userRole={userRole} />;
     }
   };
 
@@ -255,30 +242,28 @@ export default function AdminSimple() {
         {/* Navigation */}
         <nav className="p-4 space-y-2">
           {getMenuItems().map((item) => {
-            const isActive = item.exact 
-              ? location === item.href 
-              : location.startsWith(item.href);
+            const isActive = currentSection === item.section;
             
             return (
-              <Link key={item.href} href={item.href}>
-                <Button
-                  variant={isActive ? "default" : "ghost"}
-                  className={cn(
-                    "w-full justify-start h-10",
-                    isCollapsed ? "px-2" : "px-3",
-                    item.readonly && "opacity-60"
-                  )}
-                  disabled={item.readonly}
-                >
-                  <item.icon className="h-4 w-4" />
-                  {!isCollapsed && (
-                    <span className="ml-3 truncate">
-                      {item.label}
-                      {item.readonly && <span className="ml-1 text-xs">(lecture)</span>}
-                    </span>
-                  )}
-                </Button>
-              </Link>
+              <Button
+                key={item.section}
+                variant={isActive ? "default" : "ghost"}
+                className={cn(
+                  "w-full justify-start h-10",
+                  isCollapsed ? "px-2" : "px-3",
+                  item.readonly && "opacity-60"
+                )}
+                onClick={() => setCurrentSection(item.section)}
+                disabled={item.readonly}
+              >
+                <item.icon className="h-4 w-4" />
+                {!isCollapsed && (
+                  <span className="ml-3 truncate">
+                    {item.label}
+                    {item.readonly && <span className="ml-1 text-xs">(lecture)</span>}
+                  </span>
+                )}
+              </Button>
             );
           })}
         </nav>

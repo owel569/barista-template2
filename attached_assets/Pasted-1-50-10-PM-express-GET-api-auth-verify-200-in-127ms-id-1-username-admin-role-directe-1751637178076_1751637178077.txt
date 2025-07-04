@@ -1,0 +1,43 @@
+1:50:10 PM [express] GET /api/auth/verify 200 in 127ms :: {"id":1,"username":"admin","role":"directe…
+1:50:10 PM [express] GET /api/admin/stats/daily-reservations 304 in 111ms :: [{"date":"sam. 28","cou…
+1:50:10 PM [express] GET /api/admin/stats/today-reservations 304 in 105ms :: {"count":0}
+1:50:10 PM [express] GET /api/admin/stats/reservation-status 304 in 128ms :: []
+1:50:10 PM [express] GET /api/admin/stats/monthly-revenue 304 in 120ms :: {"revenue":0}
+1:50:10 PM [express] GET /api/admin/stats/active-orders 304 in 125ms :: {"count":0}
+1:50:10 PM [express] GET /api/admin/stats/occupancy-rate 304 in 150ms :: {"rate":0}
+1:50:20 PM [express] GET /api/auth/verify 200 in 32ms :: {"id":1,"username":"admin","role":"directeu…
+1:50:20 PM [express] GET /api/admin/stats/occupancy-rate 304 in 30ms :: {"rate":0}
+1:50:20 PM [express] GET /api/admin/stats/reservation-status 304 in 112ms :: []
+1:50:20 PM [express] GET /api/admin/stats/today-reservations 304 in 117ms :: {"count":0}
+1:50:20 PM [express] GET /api/admin/stats/monthly-revenue 304 in 127ms :: {"revenue":0}
+1:50:20 PM [express] GET /api/admin/stats/active-orders 304 in 133ms :: {"count":0}
+1:50:20 PM [express] GET /api/admin/stats/daily-reservations 304 in 187ms :: [{"date":"sam. 28","cou…
+1:50:26 PM [express] GET /api/auth/verify 200 in 30ms :: {"id":1,"username":"admin","role":"directeu…
+1:50:26 PM [express] GET /api/admin/stats/reservation-status 304 in 14ms :: []
+1:50:26 PM [express] GET /api/admin/stats/today-reservations 304 in 16ms :: {"count":0}
+1:50:26 PM [express] GET /api/admin/stats/active-orders 304 in 15ms :: {"count":0}
+1:50:26 PM [express] GET /api/admin/stats/monthly-revenue 304 in 15ms :: {"revenue":0}
+1:50:26 PM [express] GET /api/admin/stats/occupancy-rate 304 in 28ms :: {"rate":0}
+1:50:26 PM [express] GET /api/admin/stats/daily-reservations 304 in 112ms :: [{"date":"sam. 28","cou…
+1:50:40 PM [express] GET /api/auth/verify 200 in 134ms :: {"id":1,"username":"admin","role":"directe…
+1:50:40 PM [express] GET /api/admin/stats/daily-reservations 304 in 111ms :: [{"date":"sam. 28","cou…
+1:50:40 PM [express] GET /api/admin/stats/reservation-status 304 in 124ms :: []
+1:50:40 PM [express] GET /api/admin/stats/active-orders 304 in 116ms :: {"count":0}
+1:50:40 PM [express] GET /api/admin/stats/today-reservations 304 in 119ms :: {"count":0}
+1:50:40 PM [express] GET /api/admin/stats/monthly-revenue 304 in 121ms :: {"revenue":0}
+1:50:40 PM [express] GET /api/admin/stats/occupancy-rate 304 in 126ms :: {"rate":0}
+1:51:27 PM [express] GET /api/auth/verify 200 in 124ms :: {"id":1,"username":"admin","role":"directe…
+1:51:27 PM [express] GET /api/admin/stats/active-orders 304 in 16ms :: {"count":0}
+1:51:27 PM [express] GET /api/admin/stats/reservation-status 304 in 103ms :: []
+1:51:27 PM [express] GET /api/admin/stats/today-reservations 304 in 119ms :: {"count":0}
+1:51:27 PM [express] GET /api/admin/stats/monthly-revenue 304 in 119ms :: {"revenue":0}
+1:51:27 PM [express] GET /api/admin/stats/occupancy-rate 304 in 171ms :: {"rate":0}
+1:51:27 PM [express] GET /api/admin/stats/daily-reservations 304 in 204ms :: [{"date":"sam. 28","cou…
+1:51:33 PM [express] GET /api/auth/verify 200 in 33ms :: {"id":1,"username":"admin","role":"directeu…
+1:51:34 PM [express] GET /api/admin/stats/active-orders 304 in 16ms :: {"count":0}
+1:51:34 PM [express] GET /api/admin/stats/occupancy-rate 304 in 31ms :: {"rate":0}
+1:51:34 PM [express] GET /api/admin/stats/today-reservations 304 in 15ms :: {"count":0}
+1:51:34 PM [express] GET /api/admin/stats/monthly-revenue 304 in 16ms :: {"revenue":0}
+1:51:34 PM [express] GET /api/admin/stats/reservation-status 304 in 17ms :: []
+1:51:34 PM [express] GET /api/admin/stats/daily-reservations 304 in 95ms :: [{"date":"sam. 28","coun…
+1:52:23 PM [vite] hmr update /src/pages/admin-simple.tsx, /src/index.css?v=d9gBAmxR0pQQ7Db2_ykOc
