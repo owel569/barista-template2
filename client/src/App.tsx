@@ -44,7 +44,9 @@ function Router() {
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
           <Route path="/reservation" component={InteractiveReservation} />
-          <Route path="/admin" component={AdminDashboardNew} />
+          <Route path="/admin*" component={Admin} />
+          <Route path="/employe*" component={Admin} />
+          <Route path="/admin-dashboard" component={AdminDashboardNew} />
           <Route component={NotFound} />
         </Switch>
       </div>

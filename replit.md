@@ -181,6 +181,15 @@ Changelog:
   - Updated all product images to match exact descriptions with HD quality (800x600)
   - Fixed Macarons Français, Chocolat Chaud, Mille-feuille and Sandwich Club images
   - All images now use authentic Pexels photography with high-definition quality
+- July 4, 2025. Système d'administration avancé avec gestion des rôles:
+  - Créé un système complet d'administration avec deux niveaux d'utilisateurs
+  - Interface directeur: accès complet à tous les modules (dashboard, réservations, commandes, clients, menu, messages, employés, paramètres, statistiques, logs)
+  - Interface employé: accès limité avec permissions spécifiques par module (clients en lecture seule, menu sans suppression, pas d'accès employés/paramètres)
+  - Sidebar collapsible avec mode sombre/clair et notifications en temps réel
+  - Tableau de bord avec statistiques avancées et graphiques (Recharts)
+  - Système d'authentification JWT avec middleware de vérification des rôles
+  - Routes API protégées avec contrôle d'accès basé sur les rôles
+  - Architecture moderne avec TypeScript, composants réutilisables et gestion d'état
 - July 3, 2025. Final migration to Replit with definitive duplicate prevention:
   - Completed final migration from Replit Agent to standard Replit environment
   - Created robust duplicate cleanup system with automatic detection and removal

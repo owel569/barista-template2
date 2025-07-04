@@ -38,6 +38,19 @@ const authenticateToken = (req: any, res: any, next: any) => {
   });
 };
 
+// Middleware to check user role
+const requireRole = (role: string) => {
+  return (req: any, res: any, next: any) => {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Non authentifié' });
+    }
+    if (req.user.role !== role && req.user.role !== 'directeur') {
+      return res.status(403).json({ message: 'Accès refusé' });
+    }
+    next();
+  };
+};
+
 export async function registerRoutes(app: Express): Promise<Server> {
   
   // Authentication routes
@@ -91,7 +104,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const newUser = await storage.createUser({
         username,
         password: hashedPassword,
-        role: role || "admin"
+        role: "employe"
       });
 
       // Generate token
@@ -115,8 +128,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/auth/verify", authenticateToken, (req: any, res) => {
-    res.json({ user: req.user });
+  app.get("/api/auth/verify", authenticateToken, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.id);
+      if (!user) {
+        return res.status(404).json({ message: "Utilisateur non trouvé" });
+      }
+      
+      // Update last login
+      await storage.updateUserLastLogin(user.id);
+      
+      // Remove password from response
+      const safeUser = { ...user, password: undefined };
+      res.json(safeUser);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la vérification" });
+    }
   });
 
   // Get all users (admin only)
@@ -617,6 +644,194 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(result);
     } catch (error) {
       res.status(500).json({ message: "Erreur lors de la récupération des statistiques de réservations" });
+    }
+  });
+
+  // Admin dashboard routes
+  app.get("/api/admin/stats", authenticateToken, async (req, res) => {
+    try {
+      const todayReservations = await storage.getTodayReservationCount();
+      const activeOrders = await storage.getOrdersByStatus().then(orders => 
+        orders.filter(order => order.status === 'pending' || order.status === 'preparing').length
+      );
+      const monthlyRevenue = await storage.getRevenueStats(
+        new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
+        new Date().toISOString().split('T')[0]
+      ).then(stats => stats.reduce((sum, stat) => sum + parseFloat(stat.revenue.toString()), 0));
+      const occupancyRate = await storage.getOccupancyRate(new Date().toISOString().split('T')[0]);
+
+      res.json({
+        todayReservations,
+        activeOrders,
+        monthlyRevenue,
+        occupancyRate
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques" });
+    }
+  });
+
+  app.get("/api/admin/reservations/today", authenticateToken, async (req, res) => {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const reservations = await storage.getReservationsByDate(today);
+      res.json(reservations);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des réservations du jour" });
+    }
+  });
+
+  app.get("/api/admin/orders/recent", authenticateToken, async (req, res) => {
+    try {
+      const orders = await storage.getOrders();
+      const recentOrders = orders.slice(-10).reverse(); // Get 10 most recent orders
+      res.json(recentOrders);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des commandes récentes" });
+    }
+  });
+
+  app.get("/api/admin/reservations/stats", authenticateToken, async (req, res) => {
+    try {
+      const reservations = await storage.getReservations();
+      const stats = reservations.reduce((acc: any, reservation: any) => {
+        const status = reservation.status;
+        acc[status] = (acc[status] || 0) + 1;
+        return acc;
+      }, {});
+      
+      const result = Object.entries(stats).map(([status, count]) => ({
+        status,
+        count
+      }));
+      
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques de réservations" });
+    }
+  });
+
+  app.get("/api/admin/reservations/daily", authenticateToken, async (req, res) => {
+    try {
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - 6); // Last 7 days
+      
+      const dailyStats = [];
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + i);
+        const dateStr = date.toISOString().split('T')[0];
+        const reservations = await storage.getReservationsByDate(dateStr);
+        dailyStats.push({
+          date: dateStr,
+          count: reservations.length
+        });
+      }
+      
+      res.json(dailyStats);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques quotidiennes" });
+    }
+  });
+
+  // Employee management routes (directeur only)
+  app.get("/api/admin/employees", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const employees = await storage.getEmployees();
+      res.json(employees);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des employés" });
+    }
+  });
+
+  app.post("/api/admin/employees", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const employeeData = insertEmployeeSchema.parse(req.body);
+      const employee = await storage.createEmployee(employeeData);
+      res.status(201).json(employee);
+    } catch (error) {
+      res.status(400).json({ message: "Erreur lors de la création de l'employé" });
+    }
+  });
+
+  app.put("/api/admin/employees/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const employeeData = insertEmployeeSchema.partial().parse(req.body);
+      const employee = await storage.updateEmployee(id, employeeData);
+      
+      if (!employee) {
+        return res.status(404).json({ message: "Employé non trouvé" });
+      }
+      
+      res.json(employee);
+    } catch (error) {
+      res.status(400).json({ message: "Erreur lors de la mise à jour de l'employé" });
+    }
+  });
+
+  app.delete("/api/admin/employees/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deleteEmployee(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Employé non trouvé" });
+      }
+      
+      res.json({ message: "Employé supprimé avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la suppression de l'employé" });
+    }
+  });
+
+  // User management routes (directeur only)
+  app.get("/api/admin/users", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const users = await storage.getUsers();
+      // Remove password from response
+      const safeUsers = users.map(user => ({
+        ...user,
+        password: undefined
+      }));
+      res.json(safeUsers);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des utilisateurs" });
+    }
+  });
+
+  app.put("/api/admin/users/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const userData = req.body;
+      
+      // Hash password if provided
+      if (userData.password) {
+        userData.password = await bcrypt.hash(userData.password, 10);
+      }
+      
+      const user = await storage.updateUser(id, userData);
+      
+      if (!user) {
+        return res.status(404).json({ message: "Utilisateur non trouvé" });
+      }
+      
+      // Remove password from response
+      const safeUser = { ...user, password: undefined };
+      res.json(safeUser);
+    } catch (error) {
+      res.status(400).json({ message: "Erreur lors de la mise à jour de l'utilisateur" });
+    }
+  });
+
+  // Activity logs routes (directeur only)
+  app.get("/api/admin/logs", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const logs = await storage.getActivityLogs();
+      res.json(logs);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des logs" });
     }
   });
 
