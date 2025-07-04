@@ -9,11 +9,11 @@ import { UserProvider } from "@/hooks/use-user";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import Sidebar from "@/components/sidebar";
 import Home from "@/pages/home";
-import Login from "@/pages/login";
+import LoginSimple from "@/pages/login-simple";
 import Register from "@/pages/register";
 import InteractiveReservation from "@/components/interactive-reservation";
 import AdminSimple from "@/pages/admin-simple";
-import AdminDashboardNew from "@/components/admin-dashboard-new";
+
 import NotFound from "@/pages/not-found";
 import MenuPage from "@/components/menu-page";
 import About from "@/components/about";
@@ -41,12 +41,12 @@ function Router() {
           <Route path="/about" component={About} />
           <Route path="/contact" component={Contact} />
           <Route path="/gallery" component={Gallery} />
-          <Route path="/login" component={Login} />
+          <Route path="/login" component={LoginSimple} />
           <Route path="/register" component={Register} />
           <Route path="/reservation" component={InteractiveReservation} />
           <Route path="/admin*" component={AdminSimple} />
           <Route path="/employe*" component={AdminSimple} />
-          <Route path="/admin-dashboard" component={AdminDashboardNew} />
+
           <Route component={NotFound} />
         </Switch>
       </div>

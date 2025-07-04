@@ -43,6 +43,7 @@ export default function AdminSimple() {
     const checkAuth = async () => {
       const token = localStorage.getItem('admin-token');
       if (!token) {
+        setIsLoading(false);
         navigate('/login');
         return;
       }
@@ -57,10 +58,12 @@ export default function AdminSimple() {
           setUser(userData);
         } else {
           localStorage.removeItem('admin-token');
+          setIsLoading(false);
           navigate('/login');
         }
       } catch (error) {
         localStorage.removeItem('admin-token');
+        setIsLoading(false);
         navigate('/login');
       } finally {
         setIsLoading(false);
@@ -68,7 +71,7 @@ export default function AdminSimple() {
     };
 
     checkAuth();
-  }, []);
+  }, []); // Dependency array empty to run only once
 
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
