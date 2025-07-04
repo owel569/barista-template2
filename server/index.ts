@@ -40,6 +40,22 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Configuration PostgreSQL automatique
+  try {
+    const { setupPostgres, ensurePostgresRunning } = await import("./postgres-setup");
+    
+    if (!await ensurePostgresRunning()) {
+      console.log("🔧 Configuration PostgreSQL nécessaire...");
+      const databaseUrl = await setupPostgres();
+      process.env.DATABASE_URL = databaseUrl;
+    } else {
+      console.log("✅ PostgreSQL déjà en cours d'exécution");
+    }
+  } catch (error) {
+    console.error("Erreur PostgreSQL:", error instanceof Error ? error.message : 'Erreur inconnue');
+    console.log("⚠️  Tentative de démarrage avec la configuration existante...");
+  }
+
   // Configuration automatique au démarrage
   try {
     const { autoSetup } = await import("./auto-setup");
