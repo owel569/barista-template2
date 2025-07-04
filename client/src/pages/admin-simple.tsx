@@ -50,6 +50,22 @@ export default function AdminSimple() {
   const [isLoading, setIsLoading] = useState(true);
   const [currentSection, setCurrentSection] = useState('dashboard');
 
+  // Gestion du routage par URL
+  useEffect(() => {
+    const path = location;
+    if (path.startsWith('/admin/')) {
+      const section = path.split('/admin/')[1];
+      if (section) {
+        setCurrentSection(section);
+      }
+    } else if (path.startsWith('/employe/')) {
+      const section = path.split('/employe/')[1];
+      if (section) {
+        setCurrentSection(section);
+      }
+    }
+  }, [location]);
+
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem('admin-token');
@@ -253,7 +269,11 @@ export default function AdminSimple() {
                   isCollapsed ? "px-2" : "px-3",
                   item.readonly && "opacity-60"
                 )}
-                onClick={() => setCurrentSection(item.section)}
+                onClick={() => {
+                  setCurrentSection(item.section);
+                  const basePath = user?.role === 'directeur' ? '/admin' : '/employe';
+                  navigate(`${basePath}/${item.section}`);
+                }}
                 disabled={item.readonly}
               >
                 <item.icon className="h-4 w-4" />

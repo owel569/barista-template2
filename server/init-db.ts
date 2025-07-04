@@ -34,7 +34,7 @@ export async function initializeDatabase() {
       // Créer aussi un employé de test
       const employeePassword = await bcrypt.hash("employe123", 10);
       await db.insert(users).values({
-        username: "employe1",
+        username: "employe",
         password: employeePassword,
         role: "employe",
         firstName: "Jean",
