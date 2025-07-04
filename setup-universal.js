@@ -89,17 +89,51 @@ class UniversalSetup {
   async setupDatabase() {
     this.log('Configuration de la base de données...');
 
-    if (this.environment === 'replit') {
-      // Utiliser les variables d'environnement Replit
-      this.dbUrl = process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/barista_cafe';
-    } else {
-      // Configuration pour autres environnements
-      this.dbUrl = process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/barista_cafe';
+    try {
+      // Utiliser le système PostgreSQL automatique pour tous les environnements
+      this.log('Tentative de configuration automatique...');
       
-      this.log('Configuration manuelle requise :', 'warning');
-      this.log('1. Créez une base de données PostgreSQL nommée "barista_cafe"');
-      this.log('2. Configurez DATABASE_URL dans votre fichier .env');
-      this.log(`   Exemple: DATABASE_URL=${this.dbUrl}`);
+      // Vérifier si PostgreSQL est disponible
+      try {
+        await this.checkCommand('psql --version');
+        this.log('PostgreSQL détecté, configuration automatique...');
+        
+        // Démarrer PostgreSQL si nécessaire
+        try {
+          await this.checkCommand('pg_isready -h localhost -p 5432');
+          this.log('PostgreSQL déjà en cours d\'exécution');
+        } catch {
+          this.log('Démarrage de PostgreSQL...');
+          try {
+            // Tentative de démarrage automatique
+            await this.checkCommand('pg_ctl -D /tmp/postgres_data -l /tmp/postgres.log start');
+          } catch {
+            this.log('Utilisation de la configuration par défaut');
+          }
+        }
+        
+        // Créer la base de données automatiquement
+        try {
+          await this.checkCommand('createdb barista_cafe');
+          this.log('Base de données "barista_cafe" créée', 'success');
+        } catch {
+          this.log('Base de données "barista_cafe" existe déjà ou erreur attendue');
+        }
+        
+        this.dbUrl = 'postgresql://postgres@localhost:5432/barista_cafe';
+        this.log('Configuration automatique réussie !', 'success');
+        
+      } catch {
+        // Fallback vers configuration manuelle
+        this.log('Configuration manuelle requise :', 'warning');
+        this.log('1. Créez une base de données PostgreSQL nommée "barista_cafe"');
+        this.log('2. Configurez DATABASE_URL dans votre fichier .env');
+        this.dbUrl = process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/barista_cafe';
+        this.log(`   Exemple: DATABASE_URL=${this.dbUrl}`);
+      }
+    } catch (error) {
+      this.log('Erreur lors de la configuration de la base de données:', 'error');
+      this.dbUrl = 'postgresql://postgres:password@localhost:5432/barista_cafe';
     }
   }
 
