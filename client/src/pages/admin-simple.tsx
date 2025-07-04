@@ -24,6 +24,12 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
+// Import admin modules
+import Dashboard from '@/components/admin/dashboard';
+import Reservations from '@/components/admin/reservations';
+import Orders from '@/components/admin/orders';
+import Customers from '@/components/admin/customers';
+
 interface User {
   id: number;
   username: string;
@@ -132,6 +138,36 @@ export default function AdminSimple() {
         return 'Historique des Actions';
       default:
         return 'Administration';
+    }
+  };
+
+  const renderContent = () => {
+    const path = location.replace('/admin', '') || '';
+    
+    switch (path) {
+      case '':
+      case '/':
+        return <Dashboard userRole={user?.role || 'employe'} />;
+      case '/reservations':
+        return <Reservations userRole={user?.role || 'employe'} />;
+      case '/orders':
+        return <Orders userRole={user?.role || 'employe'} />;
+      case '/customers':
+        return <Customers userRole={user?.role || 'employe'} />;
+      case '/menu':
+        return <div className="p-6"><h2 className="text-2xl font-bold">Gestion du Menu</h2><p>Module en cours de développement...</p></div>;
+      case '/messages':
+        return <div className="p-6"><h2 className="text-2xl font-bold">Gestion des Messages</h2><p>Module en cours de développement...</p></div>;
+      case '/employees':
+        return <div className="p-6"><h2 className="text-2xl font-bold">Gestion des Employés</h2><p>Module en cours de développement...</p></div>;
+      case '/settings':
+        return <div className="p-6"><h2 className="text-2xl font-bold">Paramètres Généraux</h2><p>Module en cours de développement...</p></div>;
+      case '/statistics':
+        return <div className="p-6"><h2 className="text-2xl font-bold">Statistiques Avancées</h2><p>Module en cours de développement...</p></div>;
+      case '/logs':
+        return <div className="p-6"><h2 className="text-2xl font-bold">Historique des Actions</h2><p>Module en cours de développement...</p></div>;
+      default:
+        return <Dashboard userRole={user?.role || 'employe'} />;
     }
   };
 
@@ -266,57 +302,8 @@ export default function AdminSimple() {
 
       {/* Main Content */}
       <main className={cn("transition-all duration-300", isCollapsed ? "ml-16" : "ml-64")}>
-        <div className="p-6">
-          <div className="max-w-7xl mx-auto">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                {getCurrentSection()}
-              </h1>
-              <Badge variant="outline" className="bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400">
-                {user.role === 'directeur' ? 'Directeur' : 'Employé'}
-              </Badge>
-            </div>
-
-            {/* Content */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Interface d'Administration</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12">
-                  <div className="w-16 h-16 bg-amber-100 dark:bg-amber-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <LayoutDashboard className="h-8 w-8 text-amber-600 dark:text-amber-400" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                    Système d'Administration Opérationnel
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    Bienvenue dans votre espace d'administration. Utilisez la navigation latérale pour accéder aux différents modules.
-                  </p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-3xl mx-auto">
-                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                      <Calendar className="h-6 w-6 text-blue-600 dark:text-blue-400 mb-2" />
-                      <h4 className="font-medium text-gray-900 dark:text-white">Réservations</h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Gérer les réservations clients</p>
-                    </div>
-                    <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                      <ShoppingCart className="h-6 w-6 text-green-600 dark:text-green-400 mb-2" />
-                      <h4 className="font-medium text-gray-900 dark:text-white">Commandes</h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Suivi des commandes</p>
-                    </div>
-                    <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                      <Users className="h-6 w-6 text-purple-600 dark:text-purple-400 mb-2" />
-                      <h4 className="font-medium text-gray-900 dark:text-white">Clients</h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Base de données clients {user.role === 'employe' && '(lecture seule)'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+          {renderContent()}
         </div>
       </main>
     </div>

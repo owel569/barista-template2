@@ -835,6 +835,188 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin Statistics Routes
+  app.get("/api/admin/stats/today-reservations", authenticateToken, async (req, res) => {
+    try {
+      const count = await storage.getTodayReservationCount();
+      res.json({ count });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques" });
+    }
+  });
+
+  app.get("/api/admin/stats/monthly-revenue", authenticateToken, async (req, res) => {
+    try {
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+      
+      const stats = await storage.getRevenueStats(startOfMonth, endOfMonth);
+      const revenue = stats.reduce((total, day) => total + day.revenue, 0);
+      res.json({ revenue });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des revenus" });
+    }
+  });
+
+  app.get("/api/admin/stats/active-orders", authenticateToken, async (req, res) => {
+    try {
+      const statusStats = await storage.getOrdersByStatus();
+      const activeCount = statusStats
+        .filter(stat => ['en_attente', 'en_preparation', 'pret'].includes(stat.status))
+        .reduce((total, stat) => total + stat.count, 0);
+      res.json({ count: activeCount });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des commandes actives" });
+    }
+  });
+
+  app.get("/api/admin/stats/occupancy-rate", authenticateToken, async (req, res) => {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const rate = await storage.getOccupancyRate(today);
+      res.json({ rate });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération du taux d'occupation" });
+    }
+  });
+
+  app.get("/api/admin/stats/reservation-status", authenticateToken, async (req, res) => {
+    try {
+      // Get reservations for today
+      const today = new Date().toISOString().split('T')[0];
+      const reservations = await storage.getReservationsByDate(today);
+      
+      // Count by status
+      const statusCounts = reservations.reduce((acc: any, res: any) => {
+        acc[res.status] = (acc[res.status] || 0) + 1;
+        return acc;
+      }, {});
+      
+      // Convert to array format for charts
+      const statusArray = Object.entries(statusCounts).map(([status, count]) => ({
+        status: status === 'confirmée' ? 'Confirmée' : 
+                status === 'en_attente' ? 'En attente' : 
+                status === 'annulée' ? 'Annulée' : status,
+        count
+      }));
+      
+      res.json(statusArray);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statuts" });
+    }
+  });
+
+  app.get("/api/admin/stats/daily-reservations", authenticateToken, async (req, res) => {
+    try {
+      const now = new Date();
+      const dailyStats = [];
+      
+      // Get last 7 days
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        
+        const reservations = await storage.getReservationsByDate(dateStr);
+        
+        dailyStats.push({
+          date: date.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' }),
+          count: reservations.length
+        });
+      }
+      
+      res.json(dailyStats);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques quotidiennes" });
+    }
+  });
+
+  // Admin Routes - Add missing ones
+  app.get("/api/admin/reservations", authenticateToken, async (req, res) => {
+    try {
+      const reservations = await storage.getReservations();
+      res.json(reservations);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des réservations" });
+    }
+  });
+
+  app.put("/api/admin/reservations/:id/status", authenticateToken, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { status } = req.body;
+      const reservation = await storage.updateReservationStatus(id, status);
+      
+      if (!reservation) {
+        return res.status(404).json({ message: "Réservation non trouvée" });
+      }
+      
+      res.json(reservation);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour du statut" });
+    }
+  });
+
+  app.get("/api/admin/orders", authenticateToken, async (req, res) => {
+    try {
+      const orders = await storage.getOrders();
+      res.json(orders);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des commandes" });
+    }
+  });
+
+  app.put("/api/admin/orders/:id/status", authenticateToken, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { status } = req.body;
+      const order = await storage.updateOrderStatus(id, status);
+      
+      if (!order) {
+        return res.status(404).json({ message: "Commande non trouvée" });
+      }
+      
+      res.json(order);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour du statut" });
+    }
+  });
+
+  app.get("/api/admin/customers", authenticateToken, async (req, res) => {
+    try {
+      const customers = await storage.getCustomers();
+      res.json(customers);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des clients" });
+    }
+  });
+
+  app.post("/api/admin/customers", authenticateToken, async (req, res) => {
+    try {
+      const customerData = insertCustomerSchema.parse(req.body);
+      const customer = await storage.createCustomer(customerData);
+      res.status(201).json(customer);
+    } catch (error) {
+      res.status(400).json({ message: "Erreur lors de la création du client" });
+    }
+  });
+
+  app.delete("/api/admin/customers/:id", authenticateToken, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deleteCustomer(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Client non trouvé" });
+      }
+      
+      res.json({ message: "Client supprimé avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la suppression du client" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
