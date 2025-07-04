@@ -7,10 +7,13 @@ export async function autoSetup(): Promise<boolean> {
   console.log('🔧 Vérification automatique de la configuration...');
 
   try {
-    // Vérifier si la base de données est configurée
+    // Configurer PostgreSQL automatiquement si nécessaire
     if (!process.env.DATABASE_URL) {
-      console.error('❌ DATABASE_URL n\'est pas configuré. Veuillez configurer la base de données PostgreSQL.');
-      return false;
+      console.log('🔧 Configuration PostgreSQL automatique...');
+      const { ensurePostgresRunning } = await import('./postgres-auto');
+      const databaseUrl = await ensurePostgresRunning();
+      process.env.DATABASE_URL = databaseUrl;
+      console.log('✅ PostgreSQL configuré automatiquement');
     }
 
     // Tester la connexion à la base de données et appliquer les migrations si nécessaire
