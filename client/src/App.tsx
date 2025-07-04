@@ -44,8 +44,10 @@ function Router() {
           <Route path="/login" component={LoginSimple} />
           <Route path="/register" component={Register} />
           <Route path="/reservation" component={InteractiveReservation} />
-          <Route path="/admin*" component={AdminSimple} />
-          <Route path="/employe*" component={AdminSimple} />
+          <Route path="/admin" component={AdminSimple} />
+          <Route path="/admin/:section" component={AdminSimple} />
+          <Route path="/employe" component={AdminSimple} />
+          <Route path="/employe/:section" component={AdminSimple} />
 
           <Route component={NotFound} />
         </Switch>

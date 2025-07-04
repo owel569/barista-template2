@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, Link } from 'wouter';
+import { useLocation, useParams, Link } from 'wouter';
 import { 
   LayoutDashboard, 
   Calendar, 
@@ -44,25 +44,28 @@ interface User {
 
 export default function AdminSimple() {
   const [location, navigate] = useLocation();
+  const params = useParams();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentSection, setCurrentSection] = useState('dashboard');
 
-  // Gestion du routage par URL
+  // Gestion du routage par URL avec paramètres
   useEffect(() => {
-    const path = location;
-    if (path.startsWith('/admin/')) {
-      const section = path.split('/admin/')[1] || 'dashboard';
-      setCurrentSection(section);
-    } else if (path.startsWith('/employe/')) {
-      const section = path.split('/employe/')[1] || 'dashboard';
-      setCurrentSection(section);
-    } else if (path === '/admin' || path === '/employe') {
-      setCurrentSection('dashboard');
+    const section = params.section || 'dashboard';
+    setCurrentSection(section);
+  }, [params.section]);
+
+  // Fonction pour naviguer vers une section
+  const navigateToSection = (section: string) => {
+    const basePath = user?.role === 'directeur' ? '/admin' : '/employe';
+    if (section === 'dashboard') {
+      navigate(basePath);
+    } else {
+      navigate(`${basePath}/${section}`);
     }
-  }, [location]);
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -268,9 +271,7 @@ export default function AdminSimple() {
                   item.readonly && "opacity-60"
                 )}
                 onClick={() => {
-                  setCurrentSection(item.section);
-                  const basePath = user?.role === 'directeur' ? '/admin' : '/employe';
-                  navigate(`${basePath}/${item.section}`);
+                  navigateToSection(item.section);
                 }}
                 disabled={item.readonly}
               >
