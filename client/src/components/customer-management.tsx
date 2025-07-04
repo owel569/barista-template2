@@ -29,7 +29,11 @@ interface Customer {
   updatedAt: string;
 }
 
-export default function CustomerManagement() {
+interface CustomerManagementProps {
+  userRole: string;
+}
+
+export default function CustomerManagement({ userRole }: CustomerManagementProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [newCustomer, setNewCustomer] = useState({

@@ -35,7 +35,11 @@ interface Reservation {
   createdAt: string;
 }
 
-export default function ReservationManagement() {
+interface ReservationManagementProps {
+  userRole: string;
+}
+
+export default function ReservationManagement({ userRole }: ReservationManagementProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState({ date: "", status: "", client: "" });

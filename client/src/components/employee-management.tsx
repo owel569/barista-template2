@@ -43,7 +43,11 @@ const statusLabels = {
   terminated: "Licencié"
 };
 
-export default function EmployeeManagement() {
+interface EmployeeManagementProps {
+  userRole: string;
+}
+
+export default function EmployeeManagement({ userRole }: EmployeeManagementProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [newEmployee, setNewEmployee] = useState({

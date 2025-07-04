@@ -23,7 +23,11 @@ interface ContactMessage {
   createdAt: string;
 }
 
-export default function ContactManagement() {
+interface ContactManagementProps {
+  userRole: string;
+}
+
+export default function ContactManagement({ userRole }: ContactManagementProps) {
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [filter, setFilter] = useState<string>("all");

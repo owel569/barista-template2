@@ -71,7 +71,11 @@ interface NewMenuItem {
   available: boolean;
 }
 
-export default function MenuManagement() {
+interface MenuManagementProps {
+  userRole: string;
+}
+
+export default function MenuManagement({ userRole }: MenuManagementProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");

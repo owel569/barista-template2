@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
-import AdminDashboardLayout from "./admin-dashboard-layout";
+import AdminLayoutNew from "./admin-layout-new";
 
 export default function AdminDashboardNew() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -30,5 +30,5 @@ export default function AdminDashboardNew() {
   }
 
   // Interface complète avec sidebar et navigation
-  return <AdminDashboardLayout userRole={user.role} user={user} />;
+  return <AdminLayoutNew userRole={user.role} user={user} />;
 }
