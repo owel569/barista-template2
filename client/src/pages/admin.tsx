@@ -55,18 +55,14 @@ export default function AdminPage() {
         }
       } catch (error) {
         localStorage.removeItem('admin-token');
-        toast({
-          title: "Session expirée",
-          description: "Veuillez vous reconnecter",
-          variant: "destructive",
-        });
+        console.log('Token verification failed');
       } finally {
         setIsLoading(false);
       }
     };
 
     verifyToken();
-  }, [toast]);
+  }, []); // Removed toast dependency to prevent infinite loop
 
   const handleLogout = () => {
     localStorage.removeItem('admin-token');

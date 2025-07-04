@@ -22,7 +22,7 @@ export default function Login() {
     if (isAuthenticated && !loading) {
       navigate("/admin");
     }
-  }, [isAuthenticated, loading, navigate]);
+  }, [isAuthenticated, loading]); // Removed navigate dependency
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
