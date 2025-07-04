@@ -1085,6 +1085,95 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Notification APIs for admin dashboard
+  app.get("/api/admin/notifications/pending-reservations", authenticateToken, async (req, res) => {
+    try {
+      const reservations = await storage.getPendingNotificationReservations();
+      res.json(reservations);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des réservations en attente" });
+    }
+  });
+
+  app.get("/api/admin/notifications/new-messages", authenticateToken, async (req, res) => {
+    try {
+      const messages = await storage.getContactMessages();
+      // Filter only unread messages from the last 24 hours
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      
+      const newMessages = messages.filter((message: any) => 
+        message.status === 'unread' && new Date(message.createdAt) > yesterday
+      );
+      res.json(newMessages);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des nouveaux messages" });
+    }
+  });
+
+  app.get("/api/admin/notifications/pending-orders", authenticateToken, async (req, res) => {
+    try {
+      const orders = await storage.getOrders();
+      // Filter only pending orders
+      const pendingOrders = orders.filter((order: any) => 
+        order.status === 'pending' || order.status === 'preparing'
+      );
+      res.json(pendingOrders);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des commandes en attente" });
+    }
+  });
+
+  // Settings API for restaurant configuration
+  app.get("/api/settings", authenticateToken, async (req, res) => {
+    try {
+      // Default restaurant settings
+      const settings = {
+        restaurantName: "Barista Café",
+        address: "123 Rue de la Paix, 75001 Paris",
+        phone: "+33 1 23 45 67 89",
+        email: "contact@barista-cafe.fr",
+        openingHours: {
+          monday: { open: "07:00", close: "19:00", closed: false },
+          tuesday: { open: "07:00", close: "19:00", closed: false },
+          wednesday: { open: "07:00", close: "19:00", closed: false },
+          thursday: { open: "07:00", close: "19:00", closed: false },
+          friday: { open: "07:00", close: "20:00", closed: false },
+          saturday: { open: "08:00", close: "20:00", closed: false },
+          sunday: { open: "09:00", close: "18:00", closed: false }
+        },
+        capacity: 45,
+        averageServiceTime: 30,
+        reservationAdvanceTime: 60,
+        enableOnlineOrdering: true,
+        enableReservations: true,
+        taxRate: 0.20,
+        currency: "EUR",
+        timezone: "Europe/Paris",
+        notifications: {
+          emailEnabled: true,
+          smsEnabled: false,
+          newReservationAlert: true,
+          newOrderAlert: true,
+          newMessageAlert: true
+        }
+      };
+      res.json(settings);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des paramètres" });
+    }
+  });
+
+  app.put("/api/settings", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      // In a real application, you would save these settings to the database
+      const settings = req.body;
+      res.json(settings);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour des paramètres" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

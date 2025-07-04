@@ -33,6 +33,9 @@ import Employees from '@/components/admin/employees';
 import MenuManagement from '@/components/admin/menu-management';
 import Messages from '@/components/admin/messages';
 import AdminSettings from '@/components/admin/settings';
+import NotificationsSystem from '@/components/admin/notifications-system';
+import Statistics from '@/components/admin/statistics';
+import ActivityLogs from '@/components/admin/activity-logs';
 
 interface User {
   id: number;
@@ -50,6 +53,7 @@ export default function AdminSimple() {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentSection, setCurrentSection] = useState('dashboard');
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
   // Gestion du routage par URL avec paramètres
   useEffect(() => {
@@ -182,9 +186,9 @@ export default function AdminSimple() {
       case 'settings':
         return userRole === 'directeur' ? <AdminSettings /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case 'statistics':
-        return userRole === 'directeur' ? <div className="p-6"><h2 className="text-2xl font-bold">Statistiques Avancées</h2><p>Module en cours de développement...</p></div> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+        return userRole === 'directeur' ? <Statistics /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case 'logs':
-        return userRole === 'directeur' ? <div className="p-6"><h2 className="text-2xl font-bold">Historique des Actions</h2><p>Module en cours de développement...</p></div> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+        return userRole === 'directeur' ? <ActivityLogs /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       default:
         return <Dashboard userRole={userRole} />;
     }
@@ -247,10 +251,10 @@ export default function AdminSimple() {
                 <Button variant="ghost" size="sm" onClick={toggleTheme} className="h-8 w-8 p-0">
                   {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                 </Button>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 relative">
-                  <Bell className="h-4 w-4" />
-                  <Badge variant="destructive" className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs">3</Badge>
-                </Button>
+                <NotificationsSystem 
+                  isOpen={isNotificationsOpen} 
+                  onToggle={() => setIsNotificationsOpen(!isNotificationsOpen)} 
+                />
               </div>
             )}
           </div>

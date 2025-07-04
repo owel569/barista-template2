@@ -196,7 +196,7 @@ export default function MenuManagement({ canDelete = true }: MenuManagementProps
   const totalItems = menuItems.length;
   const availableItems = menuItems.filter((item: any) => item.available).length;
   const averagePrice = menuItems.length > 0 
-    ? menuItems.reduce((sum: number, item: any) => sum + item.price, 0) / menuItems.length 
+    ? menuItems.reduce((sum: number, item: any) => sum + (typeof item.price === 'number' ? item.price : parseFloat(item.price || 0)), 0) / menuItems.length 
     : 0;
 
   if (isLoading) {
@@ -410,7 +410,7 @@ export default function MenuManagement({ canDelete = true }: MenuManagementProps
                     </TableCell>
                     <TableCell className="font-medium">{item.name}</TableCell>
                     <TableCell className="max-w-xs truncate">{item.description}</TableCell>
-                    <TableCell className="font-semibold">{item.price.toFixed(2)}€</TableCell>
+                    <TableCell className="font-semibold">{typeof item.price === 'number' ? item.price.toFixed(2) : parseFloat(item.price || 0).toFixed(2)}€</TableCell>
                     <TableCell>
                       <Badge variant="outline">
                         {category?.name || 'Sans catégorie'}
