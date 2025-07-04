@@ -149,6 +149,10 @@ export default function AdminSimple() {
     const path = location.replace('/admin', '') || '';
     const userRole = user?.role || 'employe';
     
+    console.log('Current location:', location);
+    console.log('Parsed path:', path);
+    console.log('User role:', userRole);
+    
     switch (path) {
       case '':
       case '/':
@@ -164,15 +168,21 @@ export default function AdminSimple() {
       case '/messages':
         return <Messages />;
       case '/employees':
-        return userRole === 'directeur' ? <Employees /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2></div>;
+        return userRole === 'directeur' ? <Employees /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case '/settings':
-        return userRole === 'directeur' ? <AdminSettings /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2></div>;
+        return userRole === 'directeur' ? <AdminSettings /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case '/statistics':
-        return userRole === 'directeur' ? <div className="p-6"><h2 className="text-2xl font-bold">Statistiques Avancées</h2><p>Module en cours de développement...</p></div> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2></div>;
+        return userRole === 'directeur' ? <div className="p-6"><h2 className="text-2xl font-bold">Statistiques Avancées</h2><p>Module en cours de développement...</p></div> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case '/logs':
-        return userRole === 'directeur' ? <div className="p-6"><h2 className="text-2xl font-bold">Historique des Actions</h2><p>Module en cours de développement...</p></div> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2></div>;
+        return userRole === 'directeur' ? <div className="p-6"><h2 className="text-2xl font-bold">Historique des Actions</h2><p>Module en cours de développement...</p></div> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       default:
-        return <Dashboard userRole={userRole} />;
+        return (
+          <div className="p-6">
+            <h2 className="text-2xl font-bold">Page non trouvée</h2>
+            <p>Le chemin "{path}" n'existe pas dans l'administration.</p>
+            <p>Location complète: {location}</p>
+          </div>
+        );
     }
   };
 
