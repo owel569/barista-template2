@@ -42,6 +42,13 @@ export default function Reservations({ userRole }: ReservationsProps) {
 
   useEffect(() => {
     fetchReservations();
+    
+    // Actualisation automatique toutes les 15 secondes
+    const interval = setInterval(() => {
+      fetchReservations();
+    }, 15000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {

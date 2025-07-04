@@ -48,6 +48,13 @@ export default function Customers({ userRole }: CustomersProps) {
 
   useEffect(() => {
     fetchCustomers();
+    
+    // Actualisation automatique toutes les 20 secondes
+    const interval = setInterval(() => {
+      fetchCustomers();
+    }, 20000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {

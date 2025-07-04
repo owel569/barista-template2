@@ -51,6 +51,13 @@ export default function Orders({ userRole }: OrdersProps) {
 
   useEffect(() => {
     fetchOrders();
+    
+    // Actualisation automatique toutes les 15 secondes
+    const interval = setInterval(() => {
+      fetchOrders();
+    }, 15000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {

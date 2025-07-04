@@ -54,15 +54,13 @@ export default function AdminSimple() {
   useEffect(() => {
     const path = location;
     if (path.startsWith('/admin/')) {
-      const section = path.split('/admin/')[1];
-      if (section) {
-        setCurrentSection(section);
-      }
+      const section = path.split('/admin/')[1] || 'dashboard';
+      setCurrentSection(section);
     } else if (path.startsWith('/employe/')) {
-      const section = path.split('/employe/')[1];
-      if (section) {
-        setCurrentSection(section);
-      }
+      const section = path.split('/employe/')[1] || 'dashboard';
+      setCurrentSection(section);
+    } else if (path === '/admin' || path === '/employe') {
+      setCurrentSection('dashboard');
     }
   }, [location]);
 

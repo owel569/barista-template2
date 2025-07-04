@@ -41,6 +41,13 @@ export default function Dashboard({ userRole }: DashboardProps) {
 
   useEffect(() => {
     fetchDashboardStats();
+    
+    // Actualisation automatique toutes les 10 secondes
+    const interval = setInterval(() => {
+      fetchDashboardStats();
+    }, 10000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   const fetchDashboardStats = async () => {
