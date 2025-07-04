@@ -208,6 +208,15 @@ Changelog:
   - Système d'authentification JWT fonctionnel avec deux niveaux d'utilisateurs
   - Interface directeur/employé opérationnelle avec sidebar collapsible
   - Connexion admin testée et fonctionnelle (admin/admin123)
+- July 4, 2025. Système d'installation automatique universel:
+  - Créé script d'installation automatique setup-universal.cjs compatible avec tous les environnements
+  - Développé version ES modules (setup-universal.js) et CommonJS (setup-universal.cjs)
+  - Ajouté script de démarrage automatique start.sh avec vérifications intégrées
+  - Créé documentation complète : README.md, INSTALLATION.md, GITHUB_SETUP.md
+  - Système fonctionne sur Replit, VS Code, GitHub Codespaces, GitPod, macOS/Linux
+  - Installation en une seule commande : npm install && node setup-universal.cjs
+  - Configuration PostgreSQL automatique avec données de test intégrées
+  - Compatibilité universelle garantie pour tous les environnements de développement
 
 ## User Preferences
 
