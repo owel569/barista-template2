@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
+import { UserRole } from "@/lib/permissions";
 import AdminLayoutNew from "./admin-layout-new";
 
 export default function AdminDashboardNew() {
@@ -8,7 +9,7 @@ export default function AdminDashboardNew() {
   const [location, navigate] = useLocation();
 
   // Redirect to login if not authenticated
-  React.useEffect(() => {
+  useEffect(() => {
     if (!loading && !isAuthenticated) {
       navigate("/login");
     }
@@ -30,5 +31,5 @@ export default function AdminDashboardNew() {
   }
 
   // Interface complète avec sidebar et navigation
-  return <AdminLayoutNew userRole={user.role} user={user} />;
+  return <AdminLayoutNew userRole={user.role as UserRole} user={user} />;
 }

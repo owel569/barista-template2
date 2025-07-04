@@ -1,20 +1,17 @@
-import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   Calendar, 
-  Users, 
   ShoppingCart, 
+  DollarSign, 
+  Activity,
   TrendingUp,
-  Coffee,
-  Clock,
   CheckCircle,
   AlertCircle,
-  DollarSign,
-  Activity
+  Clock
 } from "lucide-react";
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, BarChart, Bar } from "recharts";
 import { UserRole } from "@/lib/permissions";
-import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar } from "recharts";
 
 interface DashboardMainProps {
   userRole: UserRole;
