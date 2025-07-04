@@ -1,14 +1,22 @@
 #!/bin/bash
+# Script de démarrage universel pour Barista Café
 
-# Script de démarrage automatique pour Barista Café
-echo "🚀 Démarrage automatique de Barista Café..."
+echo "🚀 Démarrage de Barista Café..."
 
-# Vérification et démarrage PostgreSQL si nécessaire
-if ! pgrep -f "postgres.*postgres_run" > /dev/null; then
-    echo "📊 PostgreSQL non détecté, configuration automatique..."
-    node setup-universal.js
+# Vérifier si PostgreSQL est disponible
+if ! command -v psql &> /dev/null; then
+    echo "⚠️  PostgreSQL n'est pas installé"
+    echo "Consultez le README.md pour les instructions d'installation"
+    exit 1
 fi
 
-# Démarrage de l'application
-echo "🌐 Lancement du serveur..."
+# Exécuter les migrations si nécessaire
+if [ ! -f ".migrations-done" ]; then
+    echo "🗄️  Exécution des migrations..."
+    npm run db:push
+    touch .migrations-done
+fi
+
+# Démarrer l'application
+echo "🎉 Démarrage de l'application..."
 npm run dev

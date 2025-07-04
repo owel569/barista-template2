@@ -1,106 +1,116 @@
-# Installation Automatique - Barista Café
+# Installation Barista Café
 
-## 🚀 Installation Rapide (Universel)
+## Installation Automatique (Recommandée)
 
-### Nouvelle Installation
+### Étape 1 : Cloner le projet
 ```bash
-git clone [votre-repo]
+git clone <votre-repo>
 cd barista-cafe
+```
+
+### Étape 2 : Installation universelle
+```bash
 npm install
-node setup-universal.js  # Configuration automatique
+node setup-universal.cjs
+```
+
+### Étape 3 : Démarrage
+```bash
 npm run dev
 ```
 
-### Démarrage Automatique
+## Installation par Environnement
+
+### 🟢 Replit
+- **Configuration automatique** ✅
+- **PostgreSQL géré automatiquement** ✅
+- **Prêt à l'emploi** ✅
+
+### 🔵 VS Code / GitHub Codespaces
+1. **Installation PostgreSQL :**
+   ```bash
+   sudo apt update
+   sudo apt install -y postgresql postgresql-contrib
+   sudo service postgresql start
+   ```
+
+2. **Création de la base de données :**
+   ```bash
+   sudo -u postgres createdb barista_cafe
+   sudo -u postgres createuser --superuser $USER
+   ```
+
+3. **Configuration :**
+   ```bash
+   echo "DATABASE_URL=postgresql://postgres:password@localhost:5432/barista_cafe" > .env
+   ```
+
+### 🟡 GitPod
+1. **Installation PostgreSQL :**
+   ```bash
+   sudo apt update
+   sudo apt install -y postgresql postgresql-contrib
+   sudo service postgresql start
+   ```
+
+2. **Configuration similaire à Codespaces**
+
+### 🟠 Local (macOS)
+1. **Installation PostgreSQL :**
+   ```bash
+   brew install postgresql
+   brew services start postgresql
+   ```
+
+2. **Création de la base de données :**
+   ```bash
+   createdb barista_cafe
+   ```
+
+### 🔴 Local (Linux)
+1. **Installation PostgreSQL :**
+   ```bash
+   sudo apt install postgresql postgresql-contrib
+   sudo systemctl start postgresql
+   ```
+
+2. **Configuration :**
+   ```bash
+   sudo -u postgres createdb barista_cafe
+   sudo -u postgres createuser --superuser $USER
+   ```
+
+## Commandes Utiles
+
 ```bash
-./start.sh
-# Ou simplement
-npm run dev
+npm run dev          # Démarrer en développement
+npm run setup        # Réexécuter la configuration
+npm run db:push      # Appliquer les migrations
+npm run db:studio    # Interface base de données
+bash start.sh        # Démarrage avec vérifications
 ```
 
-## 🔧 Configuration Automatique
+## Identifiants par Défaut
 
-Le projet se configure automatiquement sur tous les environnements :
+- **Directeur** : `admin` / `admin123`
+- **Employé** : `employee` / `employee123`
 
-- **✅ Replit** - Configuration instantanée
-- **✅ VS Code** - Setup automatique
-- **✅ GitHub Codespaces** - Installation automatique
-- **✅ GitPod** - Configuration automatique  
-- **✅ Local** (macOS/Linux) - Installation PostgreSQL automatique
-- **⚠️ Windows** - Nécessite installation manuelle de PostgreSQL
+## Résolution des Problèmes
 
-## 📊 Base de Données
+### Erreur de connexion PostgreSQL
+1. Vérifiez que PostgreSQL est démarré
+2. Vérifiez la variable DATABASE_URL dans .env
+3. Créez la base de données si nécessaire
 
-PostgreSQL se configure automatiquement avec :
-- 14 éléments de menu pré-configurés
-- Comptes utilisateurs (admin/employe)
-- Tables et relations complètes
-- Images HD des produits
+### Erreur de permissions
+1. Assurez-vous que l'utilisateur PostgreSQL existe
+2. Vérifiez les permissions sur la base de données
 
-## 🔑 Identifiants par Défaut
+### Port déjà utilisé
+1. Changez le port dans .env (PORT=5001)
+2. Ou arrêtez le processus utilisant le port 5000
 
-**Administrateur (Directeur)**
-- Nom d'utilisateur: `admin`
-- Mot de passe: `admin123`
-- Accès: Administration complète
+## Support
 
-**Employé**
-- Nom d'utilisateur: `employe`
-- Mot de passe: `employe123`
-- Accès: Limité selon les permissions
-
-## 🌐 Accès
-
-Une fois démarré, accédez à :
-- **Site public**: http://localhost:5000
-- **Administration**: http://localhost:5000/admin
-- **Interface employé**: http://localhost:5000/employe
-
-## 🔄 Résolution des Problèmes
-
-Si des problèmes surviennent, reconfigurez automatiquement :
-
-```bash
-node setup-universal.js
-```
-
-## 📁 Structure du Projet
-
-```
-barista-cafe/
-├── client/          # Interface utilisateur React
-├── server/          # API Express.js
-├── shared/          # Schémas partagés
-├── setup-universal.js  # Installation automatique
-├── start.sh         # Démarrage automatique
-└── .env             # Configuration générée automatiquement
-```
-
-## 🛠️ Développement
-
-Pour développer sur le projet :
-
-1. **Première fois** : `node setup-universal.js`
-2. **Démarrage** : `npm run dev` ou `./start.sh`
-3. **Base de données** : Automatiquement gérée
-
-## 📱 Fonctionnalités
-
-- **Site vitrine** avec menu interactif
-- **Système de réservation** avec panier
-- **Administration complète** pour directeurs
-- **Interface employé** avec permissions limitées
-- **Gestion des commandes** en temps réel
-- **Statistiques** et tableaux de bord
-- **Images HD** des produits café
-
-## 🔒 Sécurité
-
-- Authentification JWT
-- Mots de passe hashés (bcrypt)
-- Séparation des rôles utilisateur
-- Protection des routes administratives
-
----
-
-**Note**: Ce système d'installation automatique garantit que votre projet fonctionne immédiatement, quel que soit l'environnement de développement utilisé.
+Ce projet fonctionne sur tous les environnements de développement modernes.
+Pour plus d'aide, consultez la documentation ou créez une issue.

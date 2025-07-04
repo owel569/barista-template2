@@ -5,40 +5,45 @@
  * Fonctionne sur tous les environnements : Replit, VS Code, GitHub Codespaces, local
  */
 
-import { execSync, spawn } from 'child_process';
+import { spawn, exec } from 'child_process';
+import { promisify } from 'util';
 import fs from 'fs';
 import path from 'path';
-import os from 'os';
 import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const execAsync = promisify(exec);
 
 class UniversalSetup {
   constructor() {
-    this.isReplit = !!process.env.REPLIT_DB_URL;
-    this.isGitpod = !!process.env.GITPOD_WORKSPACE_URL;
-    this.isCodespaces = !!process.env.CODESPACES;
-    this.isLocal = !this.isReplit && !this.isGitpod && !this.isCodespaces;
-    
-    this.postgresDir = path.join(os.tmpdir(), 'postgres_data');
-    this.postgresSocket = path.join(os.tmpdir(), 'postgres_run');
-    this.databaseUrl = `postgresql://postgres@/barista_cafe?host=${this.postgresSocket}`;
+    this.environment = this.detectEnvironment();
+    this.dbUrl = '';
   }
 
   log(message, type = 'info') {
-    const prefix = {
-      info: '🔧',
-      success: '✅',
-      error: '❌',
-      warning: '⚠️'
+    const colors = {
+      info: '\x1b[36m',
+      success: '\x1b[32m',
+      error: '\x1b[31m',
+      warning: '\x1b[33m',
+      reset: '\x1b[0m'
     };
-    console.log(`${prefix[type]} ${message}`);
+    
+    const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : '🔧';
+    console.log(`${colors[type]}${icon} ${message}${colors.reset}`);
+  }
+
+  detectEnvironment() {
+    if (process.env.REPLIT_DOMAIN) return 'replit';
+    if (process.env.CODESPACES) return 'codespaces';
+    if (process.env.GITPOD_WORKSPACE_URL) return 'gitpod';
+    if (process.env.VSCODE_IPC_HOOK) return 'vscode';
+    return 'local';
   }
 
   async checkCommand(command) {
     try {
-      execSync(`which ${command}`, { stdio: 'ignore' });
+      await execAsync(`which ${command}`);
       return true;
     } catch {
       return false;
@@ -46,236 +51,240 @@ class UniversalSetup {
   }
 
   async installPostgreSQL() {
-    this.log('Vérification et installation de PostgreSQL...');
+    this.log('Installation de PostgreSQL...');
     
-    if (await this.checkCommand('psql')) {
-      this.log('PostgreSQL déjà installé', 'success');
-      return true;
+    if (this.environment === 'replit') {
+      // Replit gère PostgreSQL automatiquement
+      this.log('PostgreSQL géré par Replit', 'success');
+      return;
     }
 
-    try {
-      if (this.isReplit) {
-        // PostgreSQL déjà installé sur Replit
-        return true;
-      } else if (os.platform() === 'darwin') {
-        // macOS
-        this.log('Installation PostgreSQL sur macOS...');
-        execSync('brew install postgresql', { stdio: 'inherit' });
-      } else if (os.platform() === 'linux') {
-        // Linux
-        this.log('Installation PostgreSQL sur Linux...');
-        execSync('sudo apt-get update && sudo apt-get install -y postgresql postgresql-contrib', { stdio: 'inherit' });
-      } else {
-        // Windows
-        this.log('Veuillez installer PostgreSQL manuellement sur Windows', 'warning');
-        return false;
-      }
-      
-      this.log('PostgreSQL installé avec succès', 'success');
-      return true;
-    } catch (error) {
-      this.log(`Erreur d'installation PostgreSQL: ${error.message}`, 'error');
-      return false;
+    const hasPostgres = await this.checkCommand('psql');
+    if (hasPostgres) {
+      this.log('PostgreSQL déjà installé', 'success');
+      return;
+    }
+
+    this.log('PostgreSQL non trouvé. Instructions d\'installation :', 'warning');
+    
+    switch (this.environment) {
+      case 'codespaces':
+      case 'gitpod':
+        this.log('Exécutez: sudo apt update && sudo apt install -y postgresql postgresql-contrib');
+        break;
+      case 'local':
+        if (process.platform === 'darwin') {
+          this.log('Exécutez: brew install postgresql');
+        } else if (process.platform === 'linux') {
+          this.log('Exécutez: sudo apt install postgresql postgresql-contrib');
+        } else {
+          this.log('Téléchargez PostgreSQL depuis https://www.postgresql.org/download/');
+        }
+        break;
+      default:
+        this.log('Consultez https://www.postgresql.org/download/ pour votre système');
     }
   }
 
   async setupDatabase() {
     this.log('Configuration de la base de données...');
 
-    try {
-      // Arrêt des processus existants
-      try {
-        execSync('pkill -f postgres', { stdio: 'ignore' });
-      } catch (e) {
-        // Ignore si aucun processus à arrêter
-      }
-
-      // Nettoyage des anciens fichiers
-      if (fs.existsSync(this.postgresDir)) {
-        fs.rmSync(this.postgresDir, { recursive: true, force: true });
-      }
-      if (fs.existsSync(this.postgresSocket)) {
-        fs.rmSync(this.postgresSocket, { recursive: true, force: true });
-      }
-
-      // Création des répertoires
-      fs.mkdirSync(this.postgresDir, { recursive: true });
-      fs.mkdirSync(this.postgresSocket, { recursive: true });
-
-      // Initialisation de PostgreSQL
-      this.log('Initialisation de PostgreSQL...');
-      execSync(`initdb -D "${this.postgresDir}" --auth-local=trust --auth-host=trust -U postgres -A trust`, { 
-        stdio: 'inherit' 
-      });
-
-      // Démarrage de PostgreSQL
-      this.log('Démarrage de PostgreSQL...');
-      execSync(`pg_ctl -D "${this.postgresDir}" -l "${this.postgresDir}/postgres.log" -o "-k ${this.postgresSocket}" start -w`, {
-        stdio: 'inherit'
-      });
-
-      // Attente du démarrage
-      await new Promise(resolve => setTimeout(resolve, 3000));
-
-      // Création de la base de données
-      this.log('Création de la base de données...');
-      try {
-        execSync(`createdb -h "${this.postgresSocket}" -U postgres barista_cafe`, { stdio: 'inherit' });
-        this.log('Base de données créée avec succès', 'success');
-      } catch (e) {
-        this.log('Base de données déjà existante', 'warning');
-      }
-
-      return true;
-    } catch (error) {
-      this.log(`Erreur de configuration: ${error.message}`, 'error');
-      return false;
+    if (this.environment === 'replit') {
+      // Utiliser les variables d'environnement Replit
+      this.dbUrl = process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/barista_cafe';
+    } else {
+      // Configuration pour autres environnements
+      this.dbUrl = process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/barista_cafe';
+      
+      this.log('Configuration manuelle requise :', 'warning');
+      this.log('1. Créez une base de données PostgreSQL nommée "barista_cafe"');
+      this.log('2. Configurez DATABASE_URL dans votre fichier .env');
+      this.log(`   Exemple: DATABASE_URL=${this.dbUrl}`);
     }
   }
 
   createEnvFile() {
-    this.log('Création du fichier .env...');
-    
-    const envContent = `# Configuration automatique générée
-DATABASE_URL=${this.databaseUrl}
+    const envPath = path.join(__dirname, '.env');
+    const envContent = `# Configuration Barista Café
+DATABASE_URL=${this.dbUrl}
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
 NODE_ENV=development
-JWT_SECRET=barista-cafe-secret-key-${Date.now()}
+PORT=5000
 `;
 
-    fs.writeFileSync('.env', envContent);
-    this.log('Fichier .env créé', 'success');
+    if (!fs.existsSync(envPath)) {
+      fs.writeFileSync(envPath, envContent);
+      this.log('Fichier .env créé', 'success');
+    } else {
+      this.log('Fichier .env existe déjà');
+    }
   }
 
   createStartupScript() {
-    this.log('Création du script de démarrage automatique...');
-    
-    const startupScript = `#!/bin/bash
+    const startScript = `#!/bin/bash
+# Script de démarrage universel pour Barista Café
 
-# Script de démarrage automatique pour Barista Café
-echo "🚀 Démarrage automatique de Barista Café..."
+echo "🚀 Démarrage de Barista Café..."
 
-# Vérification et démarrage PostgreSQL si nécessaire
-if ! pgrep -f "postgres.*${this.postgresSocket}" > /dev/null; then
-    echo "📊 PostgreSQL non détecté, démarrage..."
-    node setup-universal.js
+# Vérifier si PostgreSQL est disponible
+if ! command -v psql &> /dev/null; then
+    echo "⚠️  PostgreSQL n'est pas installé"
+    echo "Consultez le README.md pour les instructions d'installation"
+    exit 1
 fi
 
-# Démarrage de l'application
+# Exécuter les migrations si nécessaire
+if [ ! -f ".migrations-done" ]; then
+    echo "🗄️  Exécution des migrations..."
+    npm run db:push
+    touch .migrations-done
+fi
+
+# Démarrer l'application
+echo "🎉 Démarrage de l'application..."
 npm run dev
 `;
 
-    fs.writeFileSync('start.sh', startupScript);
-    fs.chmodSync('start.sh', '755');
-    this.log('Script de démarrage créé', 'success');
+    fs.writeFileSync(path.join(__dirname, 'start.sh'), startScript);
+    
+    // Rendre le script exécutable
+    try {
+      fs.chmodSync(path.join(__dirname, 'start.sh'), 0o755);
+      this.log('Script de démarrage créé (start.sh)', 'success');
+    } catch (error) {
+      this.log('Script de démarrage créé (utilisez: bash start.sh)', 'success');
+    }
   }
 
   updatePackageJson() {
-    this.log('Mise à jour de package.json...');
+    const packagePath = path.join(__dirname, 'package.json');
     
-    const packageJsonPath = 'package.json';
-    if (fs.existsSync(packageJsonPath)) {
-      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+    if (fs.existsSync(packagePath)) {
+      const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
       
-      // Ajout du script de setup automatique
-      packageJson.scripts = packageJson.scripts || {};
-      packageJson.scripts['setup'] = 'node setup-universal.js';
-      packageJson.scripts['start:auto'] = './start.sh';
-      packageJson.scripts['postinstall'] = 'node setup-universal.js';
+      // Ajouter des scripts utiles
+      packageJson.scripts = {
+        ...packageJson.scripts,
+        'setup': 'node setup-universal.js',
+        'db:push': 'drizzle-kit push',
+        'db:migrate': 'drizzle-kit migrate',
+        'db:studio': 'drizzle-kit studio',
+        'start:universal': 'bash start.sh'
+      };
       
-      fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
-      this.log('package.json mis à jour', 'success');
+      fs.writeFileSync(packagePath, JSON.stringify(packageJson, null, 2));
+      this.log('Scripts package.json mis à jour', 'success');
     }
   }
 
   createDocumentation() {
-    this.log('Création de la documentation...');
-    
-    const readmeContent = `# Barista Café - Installation Automatique
+    const readmeContent = `# Barista Café - Installation Universelle
 
 ## Installation Rapide
 
-### Nouvelle Installation
-\`\`\`bash
-git clone [votre-repo]
-cd barista-cafe
-npm install
-# La configuration se fait automatiquement via postinstall
-\`\`\`
+1. **Clonez le projet**
+   \`\`\`bash
+   git clone <votre-repo>
+   cd barista-cafe
+   \`\`\`
 
-### Démarrage
-\`\`\`bash
-npm run dev
-# Ou pour un démarrage avec vérification automatique
-npm run start:auto
-\`\`\`
+2. **Installation automatique**
+   \`\`\`bash
+   npm install
+   node setup-universal.js
+   \`\`\`
 
-### Configuration Manuelle (si nécessaire)
-\`\`\`bash
-npm run setup
-\`\`\`
+3. **Démarrage**
+   \`\`\`bash
+   npm run dev
+   # ou
+   bash start.sh
+   \`\`\`
 
-## Compatibilité
+## Configuration par Environnement
 
-✅ **Replit** - Configuration automatique
-✅ **VS Code** - Installation automatique des dépendances
-✅ **GitHub Codespaces** - Setup automatique
-✅ **GitPod** - Configuration automatique  
-✅ **Local** (macOS/Linux) - Installation PostgreSQL automatique
-⚠️ **Windows** - Nécessite installation manuelle de PostgreSQL
+### Replit
+- Configuration automatique ✅
+- PostgreSQL géré automatiquement
+- Prêt à l'emploi
 
-## Identifiants par Défaut
+### VS Code / Codespaces
+1. Installez PostgreSQL :
+   \`\`\`bash
+   sudo apt update && sudo apt install -y postgresql postgresql-contrib
+   \`\`\`
+2. Créez la base de données :
+   \`\`\`bash
+   sudo -u postgres createdb barista_cafe
+   \`\`\`
+3. Configurez DATABASE_URL dans .env
 
-- **Administrateur**: admin / admin123
-- **Employé**: employe / employe123
+### Local (macOS)
+1. Installez PostgreSQL :
+   \`\`\`bash
+   brew install postgresql
+   brew services start postgresql
+   \`\`\`
+2. Créez la base de données :
+   \`\`\`bash
+   createdb barista_cafe
+   \`\`\`
 
-## Base de Données
+### Local (Linux)
+1. Installez PostgreSQL :
+   \`\`\`bash
+   sudo apt install postgresql postgresql-contrib
+   \`\`\`
+2. Configurez et créez la base de données :
+   \`\`\`bash
+   sudo -u postgres createdb barista_cafe
+   \`\`\`
 
-La base de données PostgreSQL est configurée automatiquement avec :
-- 14 éléments de menu prêts à l'emploi
-- Comptes utilisateurs configurés
-- Tables et relations complètes
+## Identifiants par défaut
+- **Directeur** : admin / admin123
+- **Employé** : employee / employee123
+
+## Fonctionnalités
+- Site web du café avec menu interactif
+- Système de réservation avec panier
+- Interface d'administration complète
+- Gestion des commandes et clients
+- Statistiques et rapports
+- Mode sombre/clair
 
 ## Support
-
-En cas de problème, exécutez \`npm run setup\` pour reconfigurer automatiquement.
+Ce projet fonctionne sur tous les environnements de développement modernes.
 `;
 
-    fs.writeFileSync('README.md', readmeContent);
-    this.log('Documentation créée', 'success');
+    fs.writeFileSync(path.join(__dirname, 'README.md'), readmeContent);
+    this.log('Documentation créée (README.md)', 'success');
   }
 
   async run() {
-    this.log('🔧 Installation universelle de Barista Café');
-    this.log(`Environnement détecté: ${this.isReplit ? 'Replit' : this.isGitpod ? 'GitPod' : this.isCodespaces ? 'Codespaces' : 'Local'}`);
-
-    // Installation des dépendances
-    const success = await this.installPostgreSQL();
-    if (!success && !this.isReplit) {
-      this.log('Installation PostgreSQL échouée', 'error');
-      return false;
+    this.log(`Installation sur ${this.environment}...`);
+    
+    try {
+      await this.installPostgreSQL();
+      await this.setupDatabase();
+      this.createEnvFile();
+      this.createStartupScript();
+      this.updatePackageJson();
+      this.createDocumentation();
+      
+      this.log('Installation terminée avec succès !', 'success');
+      this.log('Commandes disponibles :');
+      this.log('  npm run dev          - Démarrer en développement');
+      this.log('  bash start.sh        - Démarrer avec script universel');
+      this.log('  npm run db:push      - Appliquer les migrations');
+      this.log('  npm run db:studio    - Interface base de données');
+      
+    } catch (error) {
+      this.log(`Erreur : ${error.message}`, 'error');
+      process.exit(1);
     }
-
-    // Configuration de la base de données
-    await this.setupDatabase();
-
-    // Création des fichiers de configuration
-    this.createEnvFile();
-    this.createStartupScript();
-    this.updatePackageJson();
-    this.createDocumentation();
-
-    this.log('🎉 Installation terminée avec succès!', 'success');
-    this.log('Démarrez avec: npm run dev', 'info');
-    this.log('Administration: http://localhost:5000/admin (admin/admin123)', 'info');
-
-    return true;
   }
 }
 
-// Exécution si appelé directement
-if (import.meta.url === `file://${process.argv[1]}`) {
-  const setup = new UniversalSetup();
-  setup.run().catch(console.error);
-}
-
-export default UniversalSetup;
+// Exécuter l'installation
+const setup = new UniversalSetup();
+setup.run();
