@@ -10,11 +10,21 @@ let db: ReturnType<typeof drizzle>;
 
 async function initializeDatabase() {
   try {
-    // Assurer que PostgreSQL fonctionne automatiquement
-    const databaseUrl = await ensurePostgresRunning();
+    let connectionString: string;
     
-    // Utiliser l'URL de base de données (soit celle configurée, soit celle générée automatiquement)
-    const connectionString = process.env.DATABASE_URL || databaseUrl;
+    // Priorité à la base de données Replit si disponible
+    if (process.env.DATABASE_URL && process.env.DATABASE_URL.includes('replit')) {
+      connectionString = process.env.DATABASE_URL;
+      console.log('✅ Utilisation de la base de données Replit');
+    } else if (process.env.DATABASE_URL) {
+      connectionString = process.env.DATABASE_URL;
+      console.log('✅ Utilisation de la base de données configurée');
+    } else {
+      // Fallback vers le système PostgreSQL automatique
+      const databaseUrl = await ensurePostgresRunning();
+      connectionString = databaseUrl;
+      console.log('✅ Utilisation du système PostgreSQL automatique');
+    }
     
     pool = new Pool({
       connectionString,
