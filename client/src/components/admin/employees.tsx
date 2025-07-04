@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
+import { Employee, WorkShift } from '@/types/admin';
 import {
   Card,
   CardContent,
@@ -61,7 +62,7 @@ type EmployeeFormData = z.infer<typeof employeeSchema>;
 
 export default function Employees() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingEmployee, setEditingEmployee] = useState<any>(null);
+  const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -79,11 +80,11 @@ export default function Employees() {
     },
   });
 
-  const { data: employees = [], isLoading } = useQuery<any[]>({
+  const { data: employees = [], isLoading } = useQuery<Employee[]>({
     queryKey: ['/api/employees'],
   });
 
-  const { data: workShifts = [] } = useQuery<any[]>({
+  const { data: workShifts = [] } = useQuery<WorkShift[]>({
     queryKey: ['/api/work-shifts'],
   });
 

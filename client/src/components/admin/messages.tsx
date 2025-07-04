@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
+import { ContactMessage } from '@/types/admin';
 import {
   Card,
   CardContent,
@@ -44,13 +45,13 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 export default function Messages() {
-  const [selectedMessage, setSelectedMessage] = useState<any>(null);
+  const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState('all');
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: messages = [], isLoading } = useQuery<any[]>({
+  const { data: messages = [], isLoading } = useQuery<ContactMessage[]>({
     queryKey: ['/api/contact-messages'],
   });
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
+import { MenuItem, MenuCategory } from '@/types/admin';
 import {
   Card,
   CardContent,
@@ -64,7 +65,7 @@ interface MenuManagementProps {
 
 export default function MenuManagement({ canDelete = true }: MenuManagementProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<any>(null);
+  const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -80,11 +81,11 @@ export default function MenuManagement({ canDelete = true }: MenuManagementProps
     },
   });
 
-  const { data: menuItems = [], isLoading } = useQuery<any[]>({
+  const { data: menuItems = [], isLoading } = useQuery<MenuItem[]>({
     queryKey: ['/api/menu/items'],
   });
 
-  const { data: categories = [] } = useQuery<any[]>({
+  const { data: categories = [] } = useQuery<MenuCategory[]>({
     queryKey: ['/api/menu/categories'],
   });
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Bell, X, Check, Clock, AlertTriangle, Users, ShoppingCart, MessageSquare } from 'lucide-react';
+import { Notification, Reservation, ContactMessage, Order } from '@/types/admin';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,17 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 
-interface Notification {
-  id: string;
-  type: 'reservation' | 'order' | 'message' | 'system';
-  title: string;
-  message: string;
-  timestamp: string;
-  read: boolean;
-  priority: 'low' | 'medium' | 'high';
-  actionUrl?: string;
-  data?: any;
-}
+// Interface moved to types/admin.ts
 
 interface NotificationsSystemProps {
   isOpen: boolean;
@@ -32,19 +23,19 @@ export default function NotificationsSystem({ isOpen, onToggle }: NotificationsS
   const queryClient = useQueryClient();
 
   // Récupérer les nouvelles réservations
-  const { data: pendingReservations = [] } = useQuery<any[]>({
+  const { data: pendingReservations = [] } = useQuery<Reservation[]>({
     queryKey: ['/api/admin/notifications/pending-reservations'],
     refetchInterval: 30000, // Actualiser toutes les 30 secondes
   });
 
   // Récupérer les nouveaux messages
-  const { data: newMessages = [] } = useQuery<any[]>({
+  const { data: newMessages = [] } = useQuery<ContactMessage[]>({
     queryKey: ['/api/admin/notifications/new-messages'],
     refetchInterval: 30000,
   });
 
   // Récupérer les commandes en attente
-  const { data: pendingOrders = [] } = useQuery<any[]>({
+  const { data: pendingOrders = [] } = useQuery<Order[]>({
     queryKey: ['/api/admin/notifications/pending-orders'],
     refetchInterval: 30000,
   });
@@ -54,7 +45,7 @@ export default function NotificationsSystem({ isOpen, onToggle }: NotificationsS
     const newNotifications: Notification[] = [];
 
     // Notifications pour les réservations
-    (pendingReservations as any[]).forEach((reservation: any) => {
+    pendingReservations.forEach((reservation: Reservation) => {
       newNotifications.push({
         id: `reservation-${reservation.id}`,
         type: 'reservation',
@@ -69,7 +60,7 @@ export default function NotificationsSystem({ isOpen, onToggle }: NotificationsS
     });
 
     // Notifications pour les messages
-    (newMessages as any[]).forEach((message: any) => {
+    newMessages.forEach((message: ContactMessage) => {
       newNotifications.push({
         id: `message-${message.id}`,
         type: 'message',
@@ -84,7 +75,7 @@ export default function NotificationsSystem({ isOpen, onToggle }: NotificationsS
     });
 
     // Notifications pour les commandes
-    (pendingOrders as any[]).forEach((order: any) => {
+    pendingOrders.forEach((order: Order) => {
       newNotifications.push({
         id: `order-${order.id}`,
         type: 'order',
