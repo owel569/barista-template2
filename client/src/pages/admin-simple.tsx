@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'wouter';
+import { useLocation, Link } from 'wouter';
 import { 
   LayoutDashboard, 
   Calendar, 
@@ -260,25 +260,25 @@ export default function AdminSimple() {
               : location.startsWith(item.href);
             
             return (
-              <Button
-                key={item.href}
-                variant={isActive ? "default" : "ghost"}
-                className={cn(
-                  "w-full justify-start h-10",
-                  isCollapsed ? "px-2" : "px-3",
-                  item.readonly && "opacity-60"
-                )}
-                onClick={() => navigate(item.href)}
-                disabled={item.readonly}
-              >
-                <item.icon className="h-4 w-4" />
-                {!isCollapsed && (
-                  <span className="ml-3 truncate">
-                    {item.label}
-                    {item.readonly && <span className="ml-1 text-xs">(lecture)</span>}
-                  </span>
-                )}
-              </Button>
+              <Link key={item.href} href={item.href}>
+                <Button
+                  variant={isActive ? "default" : "ghost"}
+                  className={cn(
+                    "w-full justify-start h-10",
+                    isCollapsed ? "px-2" : "px-3",
+                    item.readonly && "opacity-60"
+                  )}
+                  disabled={item.readonly}
+                >
+                  <item.icon className="h-4 w-4" />
+                  {!isCollapsed && (
+                    <span className="ml-3 truncate">
+                      {item.label}
+                      {item.readonly && <span className="ml-1 text-xs">(lecture)</span>}
+                    </span>
+                  )}
+                </Button>
+              </Link>
             );
           })}
         </nav>
