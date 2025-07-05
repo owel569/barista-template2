@@ -362,16 +362,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Contact routes
   app.post("/api/contact", async (req, res) => {
     try {
-      const messageData = insertContactMessageSchema.parse(req.body);
+      const inputData = req.body;
+      
+      // Validation basique
+      if (!inputData.email || !inputData.subject || !inputData.message) {
+        return res.status(400).json({ 
+          message: "Email, sujet et message sont requis" 
+        });
+      }
+      
+      // Transformer les données si nécessaire (name -> firstName/lastName)
+      let messageData;
+      if (inputData.name && !inputData.firstName && !inputData.lastName) {
+        const nameParts = inputData.name.split(' ');
+        messageData = {
+          firstName: nameParts[0] || '',
+          lastName: nameParts.slice(1).join(' ') || '',
+          email: inputData.email,
+          subject: inputData.subject,
+          message: inputData.message,
+          phone: inputData.phone || null,
+        };
+      } else {
+        messageData = {
+          firstName: inputData.firstName || '',
+          lastName: inputData.lastName || '',
+          email: inputData.email,
+          subject: inputData.subject,
+          message: inputData.message,
+          phone: inputData.phone || null,
+        };
+      }
+      
       const message = await storage.createContactMessage(messageData);
       res.status(201).json(message);
     } catch (error: any) {
-      if (error.errors) {
-        return res.status(400).json({ 
-          message: "Données de contact invalides",
-          errors: error.errors
-        });
-      }
+      console.error('Erreur création message contact:', error);
       res.status(500).json({ message: "Erreur lors de l'envoi du message" });
     }
   });

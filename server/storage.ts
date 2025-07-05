@@ -398,10 +398,18 @@ async createReservation(reservation: InsertReservation): Promise<Reservation> {
     return await db.select().from(contactMessages).orderBy(desc(contactMessages.createdAt));
   }
 
-async createContactMessage(message: InsertContactMessage): Promise<ContactMessage> {
-  // On retire createdAt s'il existe (juste au cas où), pour laisser la BDD le gérer (defaultNow)
-  const data = { ...message };
-  delete (data as any).createdAt;
+async createContactMessage(message: any): Promise<ContactMessage> {
+  // Préparer les données pour l'insertion
+  const data = {
+    firstName: message.firstName || '',
+    lastName: message.lastName || '',
+    email: message.email,
+    subject: message.subject,
+    message: message.message,
+    phone: message.phone || null,
+    status: 'nouveau'
+  };
+  
   const [newMessage] = await db.insert(contactMessages).values(data).returning();
   return newMessage;
 }

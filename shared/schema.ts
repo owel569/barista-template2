@@ -346,17 +346,14 @@ export const insertReservationSchema = createInsertSchema(reservations).pick({
   status: z.string().default("confirmed"),
 });
 
-export const insertContactMessageSchema = createInsertSchema(contactMessages).pick({
-  firstName: true,
-  lastName: true,
-  email: true,
-  subject: true,
-  message: true,
-}).extend({
+export const insertContactMessageSchema = z.object({
+  name: z.string().min(2, "Nom requis").optional(),
+  firstName: z.string().min(1, "Prénom requis").optional(),
+  lastName: z.string().min(1, "Nom requis").optional(),
   email: z.string().email("Email invalide"),
-  firstName: z.string().min(2, "Prénom requis"),
-  lastName: z.string().min(2, "Nom requis"),
+  subject: z.string().min(2, "Sujet requis"),
   message: z.string().min(10, "Message trop court"),
+  phone: z.string().optional(),
 });
 
 export const loginSchema = z.object({
