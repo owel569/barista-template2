@@ -45,54 +45,66 @@ export default function NotificationsSystem({ isOpen, onToggle }: NotificationsS
     const newNotifications: Notification[] = [];
 
     // Notifications pour les réservations
-    pendingReservations.forEach((reservation: Reservation) => {
-      newNotifications.push({
-        id: `reservation-${reservation.id}`,
-        type: 'reservation',
-        title: 'Nouvelle réservation',
-        message: `${reservation.customerName} - ${reservation.date} à ${reservation.time}`,
-        timestamp: reservation.createdAt || new Date().toISOString(),
-        read: false,
-        priority: 'high',
-        actionUrl: '/admin/reservations',
-        data: reservation
+    if (pendingReservations.length > 0) {
+      pendingReservations.forEach((reservation: Reservation) => {
+        newNotifications.push({
+          id: `reservation-${reservation.id}`,
+          type: 'reservation',
+          title: 'Nouvelle réservation',
+          message: `${reservation.customerName} - ${reservation.date} à ${reservation.time}`,
+          timestamp: reservation.createdAt || new Date().toISOString(),
+          read: false,
+          priority: 'high',
+          actionUrl: '/admin/reservations',
+          data: reservation
+        });
       });
-    });
+    }
 
     // Notifications pour les messages
-    newMessages.forEach((message: ContactMessage) => {
-      newNotifications.push({
-        id: `message-${message.id}`,
-        type: 'message',
-        title: 'Nouveau message de contact',
-        message: `${message.name}: ${message.subject}`,
-        timestamp: message.createdAt || new Date().toISOString(),
-        read: false,
-        priority: 'medium',
-        actionUrl: '/admin/messages',
-        data: message
+    if (newMessages.length > 0) {
+      newMessages.forEach((message: ContactMessage) => {
+        newNotifications.push({
+          id: `message-${message.id}`,
+          type: 'message',
+          title: 'Nouveau message de contact',
+          message: `${message.name}: ${message.subject}`,
+          timestamp: message.createdAt || new Date().toISOString(),
+          read: false,
+          priority: 'medium',
+          actionUrl: '/admin/messages',
+          data: message
+        });
       });
-    });
+    }
 
     // Notifications pour les commandes
-    pendingOrders.forEach((order: Order) => {
-      newNotifications.push({
-        id: `order-${order.id}`,
-        type: 'order',
-        title: 'Commande en attente',
-        message: `Commande #${order.id} - ${order.total}€`,
-        timestamp: order.createdAt || new Date().toISOString(),
-        read: false,
-        priority: 'high',
-        actionUrl: '/admin/orders',
-        data: order
+    if (pendingOrders.length > 0) {
+      pendingOrders.forEach((order: Order) => {
+        newNotifications.push({
+          id: `order-${order.id}`,
+          type: 'order',
+          title: 'Commande en attente',
+          message: `Commande #${order.id} - ${order.total}€`,
+          timestamp: order.createdAt || new Date().toISOString(),
+          read: false,
+          priority: 'high',
+          actionUrl: '/admin/orders',
+          data: order
+        });
       });
-    });
+    }
 
     // Trier par timestamp (plus récent en premier)
     newNotifications.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
-    setNotifications(newNotifications);
+    // Éviter la boucle infinie en comparant les notifications actuelles
+    const currentNotificationIds = notifications.map(n => n.id).sort();
+    const newNotificationIds = newNotifications.map(n => n.id).sort();
+    
+    if (JSON.stringify(currentNotificationIds) !== JSON.stringify(newNotificationIds)) {
+      setNotifications(newNotifications);
+    }
   }, [pendingReservations, newMessages, pendingOrders]);
 
   const getIcon = (type: string) => {

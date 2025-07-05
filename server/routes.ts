@@ -546,7 +546,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/employees", authenticateToken, async (req, res) => {
+  app.post("/api/employees", authenticateToken, requireRole('directeur'), async (req, res) => {
     try {
       const employeeData = insertEmployeeSchema.parse(req.body);
       const employee = await storage.createEmployee(employeeData);
@@ -562,7 +562,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/employees/:id", authenticateToken, async (req, res) => {
+  app.patch("/api/employees/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const employeeData = req.body;
@@ -575,6 +575,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(employee);
     } catch (error) {
       res.status(500).json({ message: "Erreur lors de la mise à jour de l'employé" });
+    }
+  });
+
+  app.delete("/api/employees/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deleteEmployee(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Employé non trouvé" });
+      }
+      
+      res.json({ message: "Employé supprimé avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la suppression de l'employé" });
     }
   });
 
@@ -965,6 +980,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(shifts);
     } catch (error) {
       res.status(500).json({ message: "Erreur lors de la récupération des horaires" });
+    }
+  });
+
+  app.post("/api/work-shifts", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const shiftData = insertWorkShiftSchema.parse(req.body);
+      const shift = await storage.createWorkShift(shiftData);
+      res.status(201).json(shift);
+    } catch (error: any) {
+      if (error.errors) {
+        return res.status(400).json({ 
+          message: "Données horaire invalides",
+          errors: error.errors
+        });
+      }
+      res.status(500).json({ message: "Erreur lors de la création de l'horaire" });
+    }
+  });
+
+  app.patch("/api/work-shifts/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const shiftData = req.body;
+      const shift = await storage.updateWorkShift(id, shiftData);
+      
+      if (!shift) {
+        return res.status(404).json({ message: "Horaire non trouvé" });
+      }
+
+      res.json(shift);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour de l'horaire" });
+    }
+  });
+
+  app.delete("/api/work-shifts/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deleteWorkShift(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Horaire non trouvé" });
+      }
+      
+      res.json({ message: "Horaire supprimé avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la suppression de l'horaire" });
     }
   });
 
