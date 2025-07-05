@@ -12,13 +12,10 @@ async function initializeDatabase() {
   try {
     let connectionString: string;
     
-    // Priorité à la base de données Replit si disponible
-    if (process.env.DATABASE_URL && process.env.DATABASE_URL.includes('replit')) {
+    // Priorité à la base de données Replit PostgreSQL native
+    if (process.env.DATABASE_URL) {
       connectionString = process.env.DATABASE_URL;
-      console.log('✅ Utilisation de la base de données Replit');
-    } else if (process.env.DATABASE_URL) {
-      connectionString = process.env.DATABASE_URL;
-      console.log('✅ Utilisation de la base de données configurée');
+      console.log('✅ Utilisation de la base de données PostgreSQL Replit');
     } else {
       // Fallback vers le système PostgreSQL automatique
       const databaseUrl = await ensurePostgresRunning();

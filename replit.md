@@ -226,6 +226,8 @@ Changelog:
   - Toutes les fonctionnalités admin opérationnelles : dashboard, réservations, commandes, clients, menu, messages, employés, paramètres, statistiques, logs
   - Base de données PostgreSQL configurée automatiquement
   - Migration terminée avec tous les points de contrôle validés
+  - Configuration optimisée pour utiliser la base de données PostgreSQL native de Replit
+  - Migrations appliquées avec succès sur la nouvelle base de données
 - July 4, 2025. Nettoyage et organisation finale des dossiers de gestion:
   - Suppression de tous les fichiers de gestion dispersés (14 fichiers obsolètes)
   - Centralisation complète dans le dossier client/src/components/admin
