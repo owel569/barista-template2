@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Bell, X, Check, Clock, AlertTriangle, Users, ShoppingCart, MessageSquare } from 'lucide-react';
+import { Bell, X, Check, Clock, AlertTriangle, Users, ShoppingCart, MessageSquare, Move } from 'lucide-react';
 import { Notification, Reservation, ContactMessage, Order } from '@/types/admin';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -19,6 +19,10 @@ interface NotificationsSystemProps {
 export default function NotificationsSystem({ isOpen, onToggle }: NotificationsSystemProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [filter, setFilter] = useState<'all' | 'unread' | 'high'>('all');
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const panelRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -145,6 +149,56 @@ export default function NotificationsSystem({ isOpen, onToggle }: NotificationsS
     setNotifications(prev => prev.filter(notif => notif.id !== notificationId));
   };
 
+  // Fonctions de drag and drop
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setDragStart({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y
+    });
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!isDragging) return;
+    
+    const newX = e.clientX - dragStart.x;
+    const newY = e.clientY - dragStart.y;
+    
+    // Limiter la position dans la fenêtre
+    const maxX = window.innerWidth - 400; // largeur du panel
+    const maxY = window.innerHeight - 500; // hauteur du panel
+    
+    setPosition({
+      x: Math.max(0, Math.min(newX, maxX)),
+      y: Math.max(0, Math.min(newY, maxY))
+    });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  // Event listeners pour le drag
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, dragStart]);
+
+  // Centrer la fenêtre au premier affichage
+  useEffect(() => {
+    if (isOpen && position.x === 0 && position.y === 0) {
+      const centerX = Math.max(0, (window.innerWidth - 400) / 2);
+      const centerY = Math.max(0, (window.innerHeight - 500) / 2);
+      setPosition({ x: centerX, y: centerY });
+    }
+  }, [isOpen]);
+
   const filteredNotifications = notifications.filter(notif => {
     switch (filter) {
       case 'unread': return !notif.read;
@@ -168,32 +222,56 @@ export default function NotificationsSystem({ isOpen, onToggle }: NotificationsS
   };
 
   return (
-    <div className="relative">
-      {/* Bouton de notification */}
-      <Button
-        variant="ghost"
-        size="sm"
-        className="relative"
-        onClick={onToggle}
-      >
-        <Bell className="h-5 w-5" />
-        {unreadCount > 0 && (
-          <Badge 
-            variant={highPriorityCount > 0 ? "destructive" : "default"}
-            className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs"
-          >
-            {unreadCount > 99 ? '99+' : unreadCount}
-          </Badge>
-        )}
-      </Button>
+    <>
+      <div className="relative">
+        {/* Bouton de notification */}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="relative"
+          onClick={onToggle}
+        >
+          <Bell className="h-5 w-5" />
+          {unreadCount > 0 && (
+            <Badge 
+              variant={highPriorityCount > 0 ? "destructive" : "default"}
+              className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs"
+            >
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </Badge>
+          )}
+        </Button>
+      </div>
 
       {/* Panel de notifications */}
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-96 z-50">
-          <Card className="shadow-lg border">
-            <CardHeader className="pb-3">
+        <>
+          {/* Overlay semi-transparent */}
+          <div 
+            className="fixed inset-0 bg-black/20 z-40"
+            onClick={onToggle}
+          />
+          
+          {/* Fenêtre de notifications déplaçable */}
+          <div 
+            ref={panelRef}
+            className="fixed w-96 z-50"
+            style={{
+              left: `${position.x}px`,
+              top: `${position.y}px`,
+              transform: isDragging ? 'none' : 'translate(0, 0)'
+            }}
+          >
+          <Card className="shadow-2xl border-2">
+            <CardHeader 
+              className="pb-3 cursor-move select-none"
+              onMouseDown={handleMouseDown}
+            >
               <div className="flex justify-between items-center">
-                <CardTitle className="text-lg">Notifications</CardTitle>
+                <div className="flex items-center gap-2">
+                  <Move className="h-4 w-4 text-gray-400" />
+                  <CardTitle className="text-lg">Notifications</CardTitle>
+                </div>
                 <div className="flex gap-2">
                   {unreadCount > 0 && (
                     <Button
@@ -328,7 +406,8 @@ export default function NotificationsSystem({ isOpen, onToggle }: NotificationsS
               </ScrollArea>
             </CardContent>
           </Card>
-        </div>
+          </div>
+        </>
       )}
     </div>
   );
