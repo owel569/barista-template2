@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { insertContactMessageSchema } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,9 +10,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Mail, MapPin, Phone, Clock, Send, Facebook, Instagram, Twitter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { z } from "zod";
 
-type ContactFormData = z.infer<typeof insertContactMessageSchema>;
+type ContactFormData = {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  phone?: string;
+};
 
 export default function Contact() {
   const { toast } = useToast();
@@ -27,12 +30,21 @@ export default function Contact() {
     setValue,
     reset
   } = useForm<ContactFormData>({
-    resolver: zodResolver(insertContactMessageSchema)
+    defaultValues: {
+      name: '',
+      email: '',
+      subject: '',
+      message: '',
+      phone: ''
+    }
   });
 
   const contactMutation = useMutation({
     mutationFn: (data: ContactFormData) => 
-      apiRequest("POST", "/api/contact", data),
+      apiRequest("/api/contact", {
+        method: "POST",
+        body: JSON.stringify(data)
+      }),
     onSuccess: () => {
       toast({
         title: "Message envoyé !",
@@ -74,33 +86,18 @@ export default function Contact() {
             </h3>
             
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="firstName" className="block text-coffee-secondary font-semibold mb-2">
-                    Prénom *
-                  </Label>
-                  <Input
-                    id="firstName"
-                    {...register("firstName")}
-                    className="bg-coffee-cream text-coffee-dark focus:border-coffee-accent"
-                  />
-                  {errors.firstName && (
-                    <p className="text-red-400 text-sm mt-1">{errors.firstName.message}</p>
-                  )}
-                </div>
-                <div>
-                  <Label htmlFor="lastName" className="block text-coffee-secondary font-semibold mb-2">
-                    Nom *
-                  </Label>
-                  <Input
-                    id="lastName"
-                    {...register("lastName")}
-                    className="bg-coffee-cream text-coffee-dark focus:border-coffee-accent"
-                  />
-                  {errors.lastName && (
-                    <p className="text-red-400 text-sm mt-1">{errors.lastName.message}</p>
-                  )}
-                </div>
+              <div>
+                <Label htmlFor="name" className="block text-coffee-secondary font-semibold mb-2">
+                  Nom complet *
+                </Label>
+                <Input
+                  id="name"
+                  {...register("name", { required: "Le nom est requis" })}
+                  className="bg-coffee-cream text-coffee-dark focus:border-coffee-accent"
+                />
+                {errors.name && (
+                  <p className="text-red-400 text-sm mt-1">{errors.name.message}</p>
+                )}
               </div>
 
               <div>
@@ -110,7 +107,7 @@ export default function Contact() {
                 <Input
                   id="email"
                   type="email"
-                  {...register("email")}
+                  {...register("email", { required: "L'email est requis" })}
                   className="bg-coffee-cream text-coffee-dark focus:border-coffee-accent"
                 />
                 {errors.email && (
@@ -119,10 +116,26 @@ export default function Contact() {
               </div>
 
               <div>
+                <Label htmlFor="phone" className="block text-coffee-secondary font-semibold mb-2">
+                  Téléphone
+                </Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  {...register("phone")}
+                  className="bg-coffee-cream text-coffee-dark focus:border-coffee-accent"
+                  placeholder="01 23 45 67 89"
+                />
+                {errors.phone && (
+                  <p className="text-red-400 text-sm mt-1">{errors.phone.message}</p>
+                )}
+              </div>
+
+              <div>
                 <Label htmlFor="subject" className="block text-coffee-secondary font-semibold mb-2">
                   Sujet *
                 </Label>
-                <Select onValueChange={(value) => setValue("subject", value)}>
+                <Select onValueChange={(value) => setValue("subject", value)} required>
                   <SelectTrigger className="bg-coffee-cream text-coffee-dark focus:border-coffee-accent">
                     <SelectValue placeholder="Choisir un sujet" />
                   </SelectTrigger>
@@ -145,7 +158,7 @@ export default function Contact() {
                 </Label>
                 <Textarea
                   id="message"
-                  {...register("message")}
+                  {...register("message", { required: "Le message est requis" })}
                   rows={6}
                   placeholder="Votre message..."
                   className="bg-coffee-cream text-coffee-dark focus:border-coffee-accent"

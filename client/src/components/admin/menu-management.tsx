@@ -45,7 +45,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Plus, Pencil, Trash2, Coffee, DollarSign, Package } from 'lucide-react';
+import { Plus, Pencil, Trash2, Coffee, DollarSign, Package, Image, Upload, Link } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getImageUrlByName } from '@/lib/image-mapping';
 
@@ -55,6 +55,7 @@ const menuItemSchema = z.object({
   price: z.number().min(0, 'Le prix doit être positif'),
   categoryId: z.number().min(1, 'Veuillez sélectionner une catégorie'),
   available: z.boolean(),
+  imageUrl: z.string().optional(),
 });
 
 type MenuItemFormData = z.infer<typeof menuItemSchema>;
@@ -67,6 +68,8 @@ export default function MenuManagement({ canDelete = true }: MenuManagementProps
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -78,6 +81,7 @@ export default function MenuManagement({ canDelete = true }: MenuManagementProps
       price: 0,
       categoryId: 0,
       available: true,
+      imageUrl: '',
     },
   });
 
@@ -157,6 +161,34 @@ export default function MenuManagement({ canDelete = true }: MenuManagementProps
     },
   });
 
+  const handleFileUpload = async (file: File | undefined) => {
+    if (!file) return;
+    
+    setUploading(true);
+    try {
+      // Créer une URL temporaire pour l'aperçu
+      const fileUrl = URL.createObjectURL(file);
+      setPreviewUrl(fileUrl);
+      
+      // Ici, vous pourriez ajouter l'upload vers un service cloud
+      // Pour l'instant, on utilise juste l'URL temporaire
+      form.setValue('imageUrl', fileUrl);
+      
+      toast({
+        title: 'Image téléchargée',
+        description: 'L\'image a été ajoutée avec succès',
+      });
+    } catch (error) {
+      toast({
+        title: 'Erreur',
+        description: 'Erreur lors du téléchargement de l\'image',
+        variant: 'destructive',
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const onSubmit = (data: MenuItemFormData) => {
     if (editingItem) {
       updateMutation.mutate({ id: editingItem.id, data });
@@ -167,12 +199,15 @@ export default function MenuManagement({ canDelete = true }: MenuManagementProps
 
   const handleEdit = (item: any) => {
     setEditingItem(item);
+    const imageUrl = (item as any).imageUrl || getImageUrlByName(item.name);
+    setPreviewUrl(imageUrl);
     form.reset({
       name: item.name,
       description: item.description,
       price: item.price,
       categoryId: item.categoryId,
       available: item.available,
+      imageUrl: imageUrl,
     });
     setIsDialogOpen(true);
   };
@@ -185,6 +220,7 @@ export default function MenuManagement({ canDelete = true }: MenuManagementProps
 
   const openNewDialog = () => {
     setEditingItem(null);
+    setPreviewUrl('');
     form.reset();
     setIsDialogOpen(true);
   };
@@ -300,6 +336,51 @@ export default function MenuManagement({ canDelete = true }: MenuManagementProps
                     )}
                   />
                 </div>
+                
+                <FormField
+                  control={form.control}
+                  name="imageUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Image du produit</FormLabel>
+                      <FormControl>
+                        <div className="space-y-3">
+                          <div className="flex items-center space-x-2">
+                            <Link className="h-4 w-4 text-gray-500" />
+                            <Input
+                              placeholder="URL de l'image (https://...)"
+                              {...field}
+                              onChange={(e) => {
+                                field.onChange(e.target.value);
+                                setPreviewUrl(e.target.value);
+                              }}
+                            />
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Upload className="h-4 w-4 text-gray-500" />
+                            <Input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleFileUpload(e.target.files?.[0])}
+                              className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                            />
+                          </div>
+                          {previewUrl && (
+                            <div className="mt-2">
+                              <img 
+                                src={previewUrl} 
+                                alt="Aperçu" 
+                                className="w-20 h-20 object-cover rounded-lg border"
+                                onError={() => setPreviewUrl('')}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 
                 <div className="flex justify-end space-x-2 pt-4">
                   <Button
