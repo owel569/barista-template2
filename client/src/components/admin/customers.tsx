@@ -8,28 +8,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Users, Mail, Phone, Calendar, Euro, Eye, Edit, Trash2, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useWebSocket } from '@/hooks/useWebSocket';
+import { usePermissions } from '@/hooks/usePermissions';
+import { Customer, User } from '@/types/admin';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
-interface Customer {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone?: string;
-  totalOrders: number;
-  totalSpent: number | string;
-  lastVisit?: string;
-  createdAt: string;
-  updatedAt?: string;
-  notes?: string;
-}
-
 interface CustomersProps {
   userRole: 'directeur' | 'employe';
+  user: User | null;
 }
 
-export default function Customers({ userRole }: CustomersProps) {
+export default function Customers({ userRole, user }: CustomersProps) {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,6 +26,8 @@ export default function Customers({ userRole }: CustomersProps) {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  
+  const { canModify, canDelete } = usePermissions(user);
   const [newCustomer, setNewCustomer] = useState({
     firstName: '',
     lastName: '',
@@ -52,7 +43,7 @@ export default function Customers({ userRole }: CustomersProps) {
   // Initialiser WebSocket pour les notifications temps réel
   useWebSocket();
 
-  const isReadOnly = userRole === 'employe';
+  const isReadOnly = !canModify('customers');
 
   useEffect(() => {
     fetchCustomers();

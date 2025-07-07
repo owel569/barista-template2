@@ -1,98 +1,50 @@
-// Types for admin interfaces
-
-export interface Employee {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  position: string;
-  phone?: string;
-  hireDate: string;
-  salary: number;
-  status: 'active' | 'inactive' | 'suspended';
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface WorkShift {
-  id: number;
-  employeeId: number;
-  date: string;
-  startTime: string;
-  endTime: string;
-  position: string;
-  notes?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface ContactMessage {
-  id: number;
-  name: string;
-  email: string;
-  subject: string;
+// Types pour le système d'administration
+export interface Notification {
+  id: string;
+  type: 'reservation' | 'order' | 'message' | 'system';
+  title: string;
   message: string;
-  status: 'unread' | 'read' | 'responded';
-  createdAt: string;
-  updatedAt?: string;
+  timestamp: string;
+  read: boolean;
+  priority: 'low' | 'medium' | 'high';
+  data?: any;
 }
 
-export interface MenuItem {
+export interface User {
   id: number;
-  name: string;
-  description: string;
-  price: number | string;
-  categoryId: number;
-  imageUrl?: string;
-  available: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface MenuCategory {
-  id: number;
-  name: string;
-  description?: string;
-  displayOrder: number;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface Customer {
-  id: number;
+  username: string;
+  role: 'directeur' | 'employe';
   firstName: string;
   lastName: string;
-  email: string;
+  email?: string;
   phone?: string;
-  totalSpent?: number;
-  totalOrders?: number;
-  lastOrderDate?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface Order {
-  id: number;
-  customerId?: number;
-  total: number;
-  status: 'pending' | 'preparing' | 'ready' | 'completed' | 'cancelled';
-  items?: OrderItem[];
-  customerName?: string;
-  customerEmail?: string;
-  customerPhone?: string;
-  notes?: string;
+  isActive: boolean;
+  lastLogin?: string;
   createdAt: string;
   updatedAt?: string;
 }
 
-export interface OrderItem {
+export interface Permission {
   id: number;
-  orderId: number;
-  menuItemId: number;
-  quantity: number;
-  price: number;
-  menuItemName?: string;
-  createdAt?: string;
+  userId: number;
+  module: string;
+  canView: boolean;
+  canCreate: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
+}
+
+export interface ActivityLog {
+  id: number;
+  userId: number;
+  username: string;
+  action: string;
+  entity: string;
+  entityId?: number;
+  details: string;
+  timestamp: string;
+  ipAddress?: string;
+  userAgent?: string;
 }
 
 export interface Reservation {
@@ -102,116 +54,133 @@ export interface Reservation {
   customerPhone?: string;
   date: string;
   time: string;
-  partySize: number;
+  guests: number;
   tableId?: number;
-  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
-  notes?: string;
+  specialRequests?: string;
+  status: string;
   notificationSent?: boolean;
   createdAt: string;
   updatedAt?: string;
 }
 
-export interface Table {
+export interface Order {
   id: number;
-  number: number;
-  capacity: number;
-  location?: string;
-  status: 'available' | 'occupied' | 'reserved' | 'maintenance';
-  createdAt?: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone?: string;
+  tableId?: number;
+  status: string;
+  totalAmount: number;
+  orderType: string;
+  specialRequests?: string;
+  createdAt: string;
   updatedAt?: string;
 }
 
-export interface User {
+export interface ContactMessage {
   id: number;
-  username: string;
-  role: 'directeur' | 'employe';
+  name?: string;
   firstName?: string;
   lastName?: string;
-  email?: string;
-  lastLogin?: string;
-  createdAt?: string;
+  email: string;
+  subject: string;
+  message: string;
+  phone?: string;
+  status: string;
+  createdAt: string;
   updatedAt?: string;
 }
 
-export interface ActivityLog {
+export interface Customer {
   id: number;
-  userId: number;
-  username: string;
-  action: string;
-  target: string;
-  details: string;
-  timestamp: string;
-  ipAddress: string;
-  userAgent: string;
-  severity: 'info' | 'warning' | 'error' | 'success';
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  dateOfBirth?: string;
+  preferredContactMethod?: string;
+  notes?: string;
+  totalOrders: number;
+  totalSpent: number | string;
+  lastVisit?: string;
+  createdAt: string;
+  updatedAt?: string;
 }
 
-export interface Notification {
-  id: string;
-  type: 'reservation' | 'order' | 'message' | 'system';
-  title: string;
-  message: string;
-  timestamp: string;
-  read: boolean;
-  priority: 'low' | 'medium' | 'high';
-  actionUrl?: string;
-  data?: any;
+export interface Employee {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  position: string;
+  department: string;
+  salary?: number;
+  hireDate: string;
+  status: string;
+  emergencyContact?: string;
+  emergencyPhone?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface MenuItem {
+  id: number;
+  name: string;
+  description?: string;
+  price: string;
+  categoryId: number;
+  available: boolean;
+  image?: string;
+  allergens?: string;
+  nutritionalInfo?: string;
+  preparationTime?: number;
+  createdAt: string;
+  updatedAt?: string;
 }
 
 export interface Settings {
   restaurantName: string;
+  description: string;
   address: string;
   phone: string;
   email: string;
+  website?: string;
   openingHours: {
-    [key: string]: {
-      open: string;
-      close: string;
-      closed: boolean;
-    };
+    [key: string]: { open: string; close: string; closed: boolean };
   };
-  capacity: number;
-  averageServiceTime: number;
-  reservationAdvanceTime: number;
-  enableOnlineOrdering: boolean;
-  enableReservations: boolean;
-  taxRate: number;
-  currency: string;
-  timezone: string;
   notifications: {
-    emailEnabled: boolean;
-    smsEnabled: boolean;
-    newReservationAlert: boolean;
-    newOrderAlert: boolean;
-    newMessageAlert: boolean;
+    email: boolean;
+    sms: boolean;
+    push: boolean;
+  };
+  theme: {
+    primaryColor: string;
+    secondaryColor: string;
+    darkMode: boolean;
   };
 }
 
-export interface Statistics {
-  totalRevenue: number;
-  totalOrders: number;
-  totalCustomers: number;
-  avgOrderValue: number;
-  revenueData: Array<{
-    month: string;
-    revenue: number;
-    orders: number;
-    customers: number;
-  }>;
-  productData: Array<{
-    name: string;
-    sales: number;
-    revenue: number;
-    growth: number;
-  }>;
-  timeData: Array<{
-    hour: string;
-    commandes: number;
-    revenus: number;
-  }>;
-  categoryData: Array<{
-    name: string;
-    value: number;
-    color: string;
-  }>;
+export interface DashboardStats {
+  todayReservations: number;
+  monthlyRevenue: number;
+  activeOrders: number;
+  occupancyRate: number;
+  reservationStatus: Array<{ status: string; count: number; }>;
+  dailyReservations: Array<{ date: string; count: number; }>;
+}
+
+export interface ModulePermissions {
+  [module: string]: {
+    canView: boolean;
+    canCreate: boolean;
+    canUpdate: boolean;
+    canDelete: boolean;
+  };
+}
+
+export interface UserWithPermissions extends User {
+  permissions: ModulePermissions;
 }

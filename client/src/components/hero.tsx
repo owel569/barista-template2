@@ -33,7 +33,7 @@ export default function Hero() {
         <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-fade-in drop-shadow-lg">
           {t('home.title')} <span className="text-coffee-accent">Barista Café</span>
         </h1>
-        <p className="text-2xl md:text-3xl mb-8 max-w-3xl mx-auto font-semibold drop-shadow-md bg-black bg-opacity-40 rounded-lg p-4">
+        <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto">
           {t('home.description')}
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">

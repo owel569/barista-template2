@@ -49,12 +49,16 @@ export function useWebSocket() {
 
       wsRef.current.onerror = (error) => {
         console.error('Erreur WebSocket:', error);
+        // Éviter les reconnexions trop fréquentes
+        if (reconnectTimeoutRef.current) {
+          clearTimeout(reconnectTimeoutRef.current);
+        }
+        reconnectTimeoutRef.current = setTimeout(() => {
+          if (wsRef.current?.readyState === WebSocket.CLOSED) {
+            connect();
+          }
+        }, 5000);
       };
-      
-      // Gérer les erreurs de promesse non gérées
-      wsRef.current.addEventListener('error', (error) => {
-        console.error('WebSocket error event:', error);
-      });
     } catch (error) {
       console.error('Erreur lors de la connexion WebSocket:', error);
     }
@@ -158,9 +162,15 @@ export function useWebSocket() {
       return;
     }
     
-    connect();
-    return () => disconnect();
-  }, [connect, disconnect]);
+    const connectTimeout = setTimeout(() => {
+      connect();
+    }, 100);
+    
+    return () => {
+      clearTimeout(connectTimeout);
+      disconnect();
+    };
+  }, []);
 
   return {
     isConnected: wsRef.current?.readyState === WebSocket.OPEN,

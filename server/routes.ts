@@ -1318,6 +1318,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Advanced Statistics Routes (directeur only)
+  app.get("/api/admin/stats/revenue-detailed", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const { period = 'month' } = req.query;
+      const now = new Date();
+      let startDate: string, endDate: string;
+      
+      switch (period) {
+        case 'week':
+          startDate = new Date(now.setDate(now.getDate() - 7)).toISOString().split('T')[0];
+          endDate = new Date().toISOString().split('T')[0];
+          break;
+        case 'year':
+          startDate = new Date(now.getFullYear(), 0, 1).toISOString().split('T')[0];
+          endDate = new Date(now.getFullYear(), 11, 31).toISOString().split('T')[0];
+          break;
+        default: // month
+          startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+          endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+      }
+      
+      const stats = await storage.getRevenueStats(startDate, endDate);
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques détaillées" });
+    }
+  });
+
+  app.get("/api/admin/stats/customer-analytics", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const topCustomers = await storage.getTopCustomers(10);
+      const customerStats = topCustomers.map(({ customer, totalSpent, totalOrders }) => ({
+        name: `${customer.firstName} ${customer.lastName}`,
+        totalSpent: parseFloat(totalSpent.toString()),
+        totalOrders,
+        tier: totalSpent >= 500 ? 'VIP' : totalSpent >= 200 ? 'Fidèle' : totalSpent >= 50 ? 'Régulier' : 'Nouveau'
+      }));
+      res.json(customerStats);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des analyses clients" });
+    }
+  });
+
+  app.get("/api/admin/stats/product-analytics", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const db = await getDb();
+      const result = await db.query(`
+        SELECT 
+          mi.name as product_name,
+          COUNT(oi.id) as times_ordered,
+          SUM(oi.quantity) as total_quantity,
+          SUM(oi.price::numeric * oi.quantity) as total_revenue
+        FROM menu_items mi
+        LEFT JOIN order_items oi ON mi.id = oi.menu_item_id
+        GROUP BY mi.id, mi.name
+        ORDER BY total_revenue DESC NULLS LAST
+        LIMIT 20
+      `);
+      
+      const productStats = result.rows.map(row => ({
+        productName: row.product_name,
+        timesOrdered: parseInt(row.times_ordered) || 0,
+        totalQuantity: parseInt(row.total_quantity) || 0,
+        totalRevenue: parseFloat(row.total_revenue) || 0
+      }));
+      
+      res.json(productStats);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des analyses produits" });
+    }
+  });
+
   const httpServer = createServer(app);
   
   // Initialiser le WebSocket

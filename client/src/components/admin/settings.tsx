@@ -48,6 +48,16 @@ const generalSettingsSchema = z.object({
   address: z.string().min(5, 'L\'adresse doit contenir au moins 5 caractères'),
   phone: z.string().min(10, 'Le numéro de téléphone doit contenir au moins 10 caractères'),
   email: z.string().email('Email invalide'),
+  website: z.string().url('URL invalide').optional(),
+  openingHours: z.object({
+    monday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
+    tuesday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
+    wednesday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
+    thursday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
+    friday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
+    saturday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
+    sunday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
+  }),
   website: z.string().url('URL invalide').optional().or(z.literal('')),
 });
 
