@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import { wsManager } from "./websocket";
 import { storage } from "./storage";
 import { 
   insertReservationSchema, 
@@ -1263,5 +1264,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   const httpServer = createServer(app);
+  
+  // Initialiser le WebSocket
+  wsManager.initialize(httpServer);
+  
   return httpServer;
 }

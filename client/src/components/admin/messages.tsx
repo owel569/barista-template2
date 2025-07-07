@@ -24,6 +24,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import {
   Select,
@@ -292,6 +293,9 @@ export default function Messages() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Message de {selectedMessage?.name}</DialogTitle>
+            <DialogDescription>
+              Lisez le message complet et répondez directement par email
+            </DialogDescription>
           </DialogHeader>
           {selectedMessage && (
             <div className="space-y-4">

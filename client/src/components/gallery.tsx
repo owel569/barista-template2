@@ -130,7 +130,7 @@ export default function Gallery() {
                   </CardContent>
                 </Card>
               </DialogTrigger>
-              <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+              <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden" aria-describedby="image-description">
                 <div className="relative">
                   <img
                     src={image.imageUrl}
@@ -139,7 +139,7 @@ export default function Gallery() {
                   />
                   <div className="mt-4">
                     <h3 className="text-2xl font-bold text-amber-800">{image.title}</h3>
-                    <p className="text-amber-600 mt-2">{image.description}</p>
+                    <p id="image-description" className="text-amber-600 mt-2">{image.description}</p>
                     <Badge className="mt-3" variant="outline">
                       {image.category}
                     </Badge>

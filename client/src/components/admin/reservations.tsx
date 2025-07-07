@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Calendar, Clock, Users, Phone, Mail, Check, X, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
@@ -367,6 +367,9 @@ export default function Reservations({ userRole }: ReservationsProps) {
                       <DialogContent>
                         <DialogHeader>
                           <DialogTitle>Détails de la réservation</DialogTitle>
+                          <DialogDescription>
+                            Consultez et gérez les détails de cette réservation
+                          </DialogDescription>
                         </DialogHeader>
                         {selectedReservation && (
                           <div className="space-y-4">

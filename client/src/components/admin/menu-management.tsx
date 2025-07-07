@@ -26,6 +26,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import {
   Form,
@@ -260,6 +261,9 @@ export default function MenuManagement({ canDelete = true }: MenuManagementProps
               <DialogTitle>
                 {editingItem ? 'Modifier l\'article' : 'Nouvel article'}
               </DialogTitle>
+              <DialogDescription>
+                {editingItem ? 'Modifiez les informations de cet article de menu' : 'Créez un nouvel article pour votre menu'}
+              </DialogDescription>
             </DialogHeader>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

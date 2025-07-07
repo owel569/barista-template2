@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Users, Mail, Phone, Calendar, Euro, Eye, Edit, Trash2, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
@@ -223,6 +223,9 @@ export default function Customers({ userRole }: CustomersProps) {
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Ajouter un nouveau client</DialogTitle>
+                  <DialogDescription>
+                    Créez un nouveau profil client avec les informations de base
+                  </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={addCustomer} className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">

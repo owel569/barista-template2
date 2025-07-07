@@ -25,6 +25,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import {
   Form,
@@ -223,6 +224,9 @@ export default function Employees() {
               <DialogTitle>
                 {editingEmployee ? 'Modifier l\'employé' : 'Nouvel employé'}
               </DialogTitle>
+              <DialogDescription>
+                {editingEmployee ? 'Modifiez les informations de cet employé' : 'Ajoutez un nouvel employé à votre équipe'}
+              </DialogDescription>
             </DialogHeader>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
