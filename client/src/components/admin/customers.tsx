@@ -42,6 +42,9 @@ export default function Customers({ userRole }: CustomersProps) {
     lastName: '',
     email: '',
     phone: '',
+    address: '',
+    dateOfBirth: '',
+    preferredContactMethod: 'email',
     notes: ''
   });
   const { toast } = useToast();
@@ -134,6 +137,9 @@ export default function Customers({ userRole }: CustomersProps) {
           lastName: '',
           email: '',
           phone: '',
+          address: '',
+          dateOfBirth: '',
+          preferredContactMethod: 'email',
           notes: ''
         });
         setIsAddDialogOpen(false);
@@ -269,11 +275,31 @@ export default function Customers({ userRole }: CustomersProps) {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="phone">Téléphone</Label>
+                    <Label htmlFor="phone">Téléphone * (min. 10 chiffres)</Label>
                     <Input
                       id="phone"
                       value={newCustomer.phone}
                       onChange={(e) => setNewCustomer(prev => ({ ...prev, phone: e.target.value }))}
+                      placeholder="0123456789"
+                      required
+                      minLength={10}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="address">Adresse (optionnelle)</Label>
+                    <Input
+                      id="address"
+                      value={newCustomer.address}
+                      onChange={(e) => setNewCustomer(prev => ({ ...prev, address: e.target.value }))}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="dateOfBirth">Date de naissance (optionnelle)</Label>
+                    <Input
+                      id="dateOfBirth"
+                      type="date"
+                      value={newCustomer.dateOfBirth}
+                      onChange={(e) => setNewCustomer(prev => ({ ...prev, dateOfBirth: e.target.value }))}
                     />
                   </div>
                   <div className="space-y-2">
