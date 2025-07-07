@@ -101,7 +101,11 @@ export default function Customers({ userRole }: CustomersProps) {
     }
 
     // Sort by total spent (highest first)
-    filtered.sort((a, b) => b.totalSpent - a.totalSpent);
+    filtered.sort((a, b) => {
+      const aSpent = typeof a.totalSpent === 'string' ? parseFloat(a.totalSpent) : a.totalSpent;
+      const bSpent = typeof b.totalSpent === 'string' ? parseFloat(b.totalSpent) : b.totalSpent;
+      return bSpent - aSpent;
+    });
 
     setFilteredCustomers(filtered);
   };
@@ -178,10 +182,11 @@ export default function Customers({ userRole }: CustomersProps) {
     }
   };
 
-  const getCustomerTier = (totalSpent: number) => {
-    if (totalSpent >= 500) return { name: 'VIP', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400' };
-    if (totalSpent >= 200) return { name: 'Fidèle', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400' };
-    if (totalSpent >= 50) return { name: 'Régulier', color: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' };
+  const getCustomerTier = (totalSpent: string | number) => {
+    const spent = typeof totalSpent === 'string' ? parseFloat(totalSpent) : totalSpent;
+    if (spent >= 500) return { name: 'VIP', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400' };
+    if (spent >= 200) return { name: 'Fidèle', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400' };
+    if (spent >= 50) return { name: 'Régulier', color: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' };
     return { name: 'Nouveau', color: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400' };
   };
 
@@ -356,7 +361,7 @@ export default function Customers({ userRole }: CustomersProps) {
                         )}
                         <div className="flex items-center gap-2">
                           <Euro className="h-4 w-4" />
-                          <span className="font-semibold">{customer.totalSpent.toFixed(2)}€ dépensés</span>
+                          <span className="font-semibold">{typeof customer.totalSpent === 'string' ? parseFloat(customer.totalSpent).toFixed(2) : customer.totalSpent.toFixed(2)}€ dépensés</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4" />
