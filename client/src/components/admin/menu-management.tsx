@@ -104,7 +104,10 @@ export default function MenuManagement({ canDelete = true }: MenuManagementProps
       body: JSON.stringify(data),
     }),
     onSuccess: () => {
+      // Forcer le rechargement immédiat des données
       queryClient.invalidateQueries({ queryKey: ['/api/menu/items'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/menu/categories'] });
+      queryClient.refetchQueries({ queryKey: ['/api/menu/items'] });
       setIsDialogOpen(false);
       form.reset();
       toast({
@@ -129,6 +132,7 @@ export default function MenuManagement({ canDelete = true }: MenuManagementProps
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/menu/items'] });
+      queryClient.refetchQueries({ queryKey: ['/api/menu/items'] });
       setIsDialogOpen(false);
       setEditingItem(null);
       form.reset();
@@ -152,6 +156,7 @@ export default function MenuManagement({ canDelete = true }: MenuManagementProps
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/menu/items'] });
+      queryClient.refetchQueries({ queryKey: ['/api/menu/items'] });
       toast({
         title: 'Succès',
         description: 'Article supprimé avec succès',

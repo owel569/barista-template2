@@ -5,8 +5,8 @@ export const IMAGE_MAPPING: Record<string, string> = {
   "Latte Art": "https://images.pexels.com/photos/851555/pexels-photo-851555.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "Cappuccino Premium": "https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "Americano": "https://images.pexels.com/photos/4264049/pexels-photo-4264049.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  "Café Mocha": "https://images.pexels.com/photos/4109743/pexels-photo-4109743.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  "Café Frappé": "https://images.pexels.com/photos/6205509/pexels-photo-6205509.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
+  "Café Mocha": "https://images.pexels.com/photos/6895939/pexels-photo-6895939.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
+  "Café Frappé": "https://images.pexels.com/photos/11512983/pexels-photo-11512983.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   
   // Boissons
   "Thé Vert Premium": "https://images.pexels.com/photos/7565503/pexels-photo-7565503.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
