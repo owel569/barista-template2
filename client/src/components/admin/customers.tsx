@@ -18,9 +18,10 @@ interface Customer {
   email: string;
   phone?: string;
   totalOrders: number;
-  totalSpent: number;
-  lastVisit: string;
+  totalSpent: number | string;
+  lastVisit?: string;
   createdAt: string;
+  updatedAt?: string;
   notes?: string;
 }
 
@@ -370,11 +371,17 @@ export default function Customers({ userRole }: CustomersProps) {
                       </div>
                       
                       <div className="text-sm text-gray-600 dark:text-gray-400">
-                        <span>Dernière visite: </span>
-                        <span className="font-medium">
-                          {format(new Date(customer.lastVisit), 'dd/MM/yyyy', { locale: fr })}
-                        </span>
-                        <span className="ml-4">Client depuis: </span>
+                        {customer.lastVisit ? (
+                          <>
+                            <span>Dernière visite: </span>
+                            <span className="font-medium">
+                              {format(new Date(customer.lastVisit), 'dd/MM/yyyy', { locale: fr })}
+                            </span>
+                            <span className="ml-4">Client depuis: </span>
+                          </>
+                        ) : (
+                          <span>Client depuis: </span>
+                        )}
                         <span className="font-medium">
                           {format(new Date(customer.createdAt), 'dd/MM/yyyy', { locale: fr })}
                         </span>

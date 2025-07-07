@@ -266,7 +266,10 @@ Changelog:
   - Tous les warnings React et erreurs de validation corrigés
   - Architecture WebSocket robuste avec reconnexion automatique
   - APIs CRUD complètement fonctionnelles : clients, employés, articles de menu
-  - Tests validés : création de clients (Jean Dupont, Marie Martin), employé (Pierre Durand), article de menu (Café Mocha)
+  - Tests validés : création de clients (Jean Dupont, Marie Martin, Lucas Durand), employés (Pierre Durand, Sophie Martin), articles de menu (Café Mocha, Café Frappé)
+  - Correction bugs frontend : gestion types string/number pour totalSpent, dates lastVisit optionnelles
+  - Schémas de validation Zod corrigés pour correspondre aux APIs backend
+  - Interface clients entièrement fonctionnelle sans erreurs
   - Toutes les routes admin opérationnelles avec authentification JWT
   - Notifications WebSocket intégrées dans toutes les opérations CRUD
   - Système prêt pour utilisation complète en production

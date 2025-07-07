@@ -54,10 +54,11 @@ const employeeSchema = z.object({
   lastName: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
   email: z.string().email('Email invalide'),
   position: z.string().min(2, 'Le poste doit contenir au moins 2 caractères'),
+  department: z.string().min(2, 'Le département doit contenir au moins 2 caractères'),
   phone: z.string().optional(),
   hireDate: z.string(),
-  salary: z.number().min(0, 'Le salaire doit être positif'),
-  status: z.enum(['active', 'inactive']),
+  salary: z.string().min(1, 'Le salaire est requis'),
+  status: z.enum(['active', 'inactive']).optional(),
 });
 
 type EmployeeFormData = z.infer<typeof employeeSchema>;
@@ -78,9 +79,10 @@ export default function Employees() {
       lastName: '',
       email: '',
       position: '',
+      department: '',
       phone: '',
       hireDate: new Date().toISOString().split('T')[0],
-      salary: 0,
+      salary: '',
       status: 'active',
     },
   });
@@ -178,7 +180,7 @@ export default function Employees() {
       position: employee.position,
       phone: employee.phone || '',
       hireDate: employee.hireDate ? new Date(employee.hireDate).toISOString().split('T')[0] : '',
-      salary: employee.salary || 0,
+      salary: employee.salary || '',
       status: employee.status || 'active',
     });
     setIsDialogOpen(true);
