@@ -294,6 +294,14 @@ Changelog:
   - Documentation complète de la solution dans DATABASE_SETUP.md
   - Système entièrement automatique : plus besoin de configuration manuelle
   - Fonctionnement garanti sur Replit, VS Code, local et tous autres environnements
+- July 7, 2025. Intégration logo Barista Café et optimisation interface:
+  - Intégré logo authentique Barista Café dans navigation (h-12 w-12)
+  - Ajouté logo dans hero section (h-32 w-32) pour impact visuel maximum
+  - Intégré logo dans sidebar (h-10 w-10) pour cohérence d'interface
+  - Ajouté gestionnaire d'erreurs globales pour promesses non gérées
+  - Optimisé hook WebSocket pour éviter reconnexions multiples
+  - Corrigé erreurs unhandledrejection dans les logs console
+  - Interface utilisateur maintenant cohérente avec identité visuelle Barista Café
 
 ## User Preferences
 

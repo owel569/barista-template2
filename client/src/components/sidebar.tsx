@@ -125,7 +125,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
         <div className="p-6">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
-              <img src={logoBaristaCafe} alt="Barista Café Logo" className="h-8 w-8" />
+              <img src={logoBaristaCafe} alt="Barista Café Logo" className="h-10 w-10" />
               <h1 className="text-xl font-bold">Barista Café</h1>
             </div>
             <Button

@@ -28,7 +28,7 @@ export default function Hero() {
       
       <div className="relative z-10 text-center text-white px-6">
         <div className="flex justify-center mb-6">
-          <img src={logoBaristaCafe} alt="Barista Café Logo" className="h-24 w-24 mb-4" />
+          <img src={logoBaristaCafe} alt="Barista Café Logo" className="h-32 w-32 mb-6" />
         </div>
         <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-fade-in">
           {t('home.title')} <span className="text-coffee-accent">Barista Café</span>

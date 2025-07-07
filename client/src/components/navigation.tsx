@@ -27,7 +27,7 @@ export default function Navigation() {
         <div className="flex justify-between items-center">
           <Link href="/">
             <div className="flex items-center text-2xl font-bold text-coffee-secondary cursor-pointer">
-              <img src={logoBaristaCafe} alt="Barista Café Logo" className="h-10 w-10 mr-2" />
+              <img src={logoBaristaCafe} alt="Barista Café Logo" className="h-12 w-12 mr-3" />
               Barista Café
             </div>
           </Link>
