@@ -207,6 +207,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const itemData = insertMenuItemSchema.parse(req.body);
       const item = await storage.createMenuItem(itemData);
+      
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('menu', item);
+      
       res.status(201).json(item);
     } catch (error) {
       res.status(400).json({ message: "Données d'article invalides" });
@@ -624,6 +628,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!employee) {
         return res.status(404).json({ message: "Employé non trouvé" });
       }
+      
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('employees', employee);
 
       res.json(employee);
     } catch (error) {
@@ -639,6 +646,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!success) {
         return res.status(404).json({ message: "Employé non trouvé" });
       }
+      
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('employees');
       
       res.json({ message: "Employé supprimé avec succès" });
     } catch (error) {
@@ -1094,6 +1104,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Article non trouvé" });
       }
       
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('menu', item);
+      
       res.json(item);
     } catch (error) {
       res.status(500).json({ message: "Erreur lors de la mise à jour de l'article" });
@@ -1109,13 +1122,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Article non trouvé" });
       }
       
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('menu');
+      
       res.json({ message: "Article supprimé avec succès" });
     } catch (error) {
       res.status(500).json({ message: "Erreur lors de la suppression de l'article" });
     }
   });
 
-  // Admin Routes - Add missing ones
+  // Admin Routes - Complete the missing ones
   app.get("/api/admin/reservations", authenticateToken, async (req, res) => {
     try {
       const reservations = await storage.getReservations();
@@ -1134,6 +1150,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!reservation) {
         return res.status(404).json({ message: "Réservation non trouvée" });
       }
+      
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('reservations', reservation);
       
       res.json(reservation);
     } catch (error) {
@@ -1160,6 +1179,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Commande non trouvée" });
       }
       
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('orders', order);
+      
       res.json(order);
     } catch (error) {
       res.status(500).json({ message: "Erreur lors de la mise à jour du statut" });
@@ -1179,6 +1201,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const customerData = insertCustomerSchema.parse(req.body);
       const customer = await storage.createCustomer(customerData);
+      
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('customers', customer);
+      
       res.status(201).json(customer);
     } catch (error) {
       res.status(400).json({ message: "Erreur lors de la création du client" });
@@ -1193,6 +1219,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!success) {
         return res.status(404).json({ message: "Client non trouvé" });
       }
+      
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('customers');
       
       res.json({ message: "Client supprimé avec succès" });
     } catch (error) {

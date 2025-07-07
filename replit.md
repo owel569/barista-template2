@@ -265,6 +265,11 @@ Changelog:
   - Interface admin/employé entièrement fonctionnelle avec permissions
   - Tous les warnings React et erreurs de validation corrigés
   - Architecture WebSocket robuste avec reconnexion automatique
+  - APIs CRUD complètement fonctionnelles : clients, employés, articles de menu
+  - Tests validés : création de clients (Jean Dupont, Marie Martin), employé (Pierre Durand), article de menu (Café Mocha)
+  - Toutes les routes admin opérationnelles avec authentification JWT
+  - Notifications WebSocket intégrées dans toutes les opérations CRUD
+  - Système prêt pour utilisation complète en production
 - July 4, 2025. Système d'administration complet avec deux niveaux d'utilisateurs:
   - Créé interface directeur avec accès complet à tous les modules (employés, paramètres, statistiques)
   - Créé interface employé avec permissions limitées (pas d'accès employés/paramètres)
