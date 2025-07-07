@@ -196,7 +196,9 @@ export default function DashboardMain({ userRole }: DashboardMainProps) {
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={statusData}
+                  data={statusData.length > 0 ? statusData : [
+                    { name: "Aucune donnée", value: 1, color: "#9CA3AF" }
+                  ]}
                   cx="50%"
                   cy="50%"
                   innerRadius={60}
@@ -204,7 +206,7 @@ export default function DashboardMain({ userRole }: DashboardMainProps) {
                   paddingAngle={5}
                   dataKey="value"
                 >
-                  {statusData.map((entry, index) => (
+                  {(statusData.length > 0 ? statusData : [{ name: "Aucune donnée", value: 1, color: "#9CA3AF" }]).map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
@@ -212,7 +214,7 @@ export default function DashboardMain({ userRole }: DashboardMainProps) {
               </PieChart>
             </ResponsiveContainer>
             <div className="mt-4 flex flex-wrap gap-4">
-              {statusData.map((item, index) => (
+              {statusData.length > 0 ? statusData.map((item, index) => (
                 <div key={index} className="flex items-center gap-2">
                   <div 
                     className="w-3 h-3 rounded-full" 
@@ -222,7 +224,9 @@ export default function DashboardMain({ userRole }: DashboardMainProps) {
                     {item.name}: {item.value}
                   </span>
                 </div>
-              ))}
+              )) : (
+                <div className="text-sm text-gray-500">Aucune donnée disponible</div>
+              )}
             </div>
           </CardContent>
         </Card>
