@@ -397,7 +397,7 @@ export const insertOrderItemSchema = createInsertSchema(orderItems).pick({
   notes: true,
 }).extend({
   quantity: z.number().min(1, "Quantité minimum 1"),
-  price: z.string().regex(/^\d+\.?\d{0,2}$/, "Prix invalide"),
+  price: z.string().regex(/^\d+(\.\d{1,2})?$/, "Prix invalide (format: 4.50)").refine((val) => parseFloat(val) > 0, "Le prix doit être positif"),
 });
 
 export const insertCustomerSchema = createInsertSchema(customers).pick({
@@ -413,7 +413,7 @@ export const insertCustomerSchema = createInsertSchema(customers).pick({
   email: z.string().email("Email invalide"),
   firstName: z.string().min(2, "Prénom requis"),
   lastName: z.string().min(2, "Nom requis"),
-  phone: z.string().min(10, "Numéro de téléphone invalide"),
+  phone: z.string().regex(/^(\+\d{1,3}[-.\s]?)?\d{10,14}$/, "Format invalide. Ex: +212 6 12 34 56 78"),
   address: z.string().optional(),
   dateOfBirth: z.string().optional().refine((date) => {
     if (!date || date === "") return true;
@@ -442,7 +442,7 @@ export const insertEmployeeSchema = createInsertSchema(employees).pick({
   email: z.string().email("Email invalide"),
   firstName: z.string().min(2, "Prénom requis"),
   lastName: z.string().min(2, "Nom requis"),
-  phone: z.string().min(10, "Numéro de téléphone invalide"),
+  phone: z.string().regex(/^(\+\d{1,3}[-.\s]?)?\d{10,14}$/, "Format invalide. Ex: +212 6 12 34 56 78"),
   position: z.string().min(2, "Poste requis"),
   department: z.string().min(2, "Département requis"),
   hireDate: z.string().refine((date) => {
@@ -450,10 +450,7 @@ export const insertEmployeeSchema = createInsertSchema(employees).pick({
     const year = parseInt(date.split('-')[0]);
     return year >= 1970 && year <= 3000;
   }, "Format de date invalide ou année doit être entre 1970 et 3000"),
-  salary: z.string().optional().refine((salary) => {
-    if (!salary || salary === "") return true;
-    return /^\d+\.?\d{0,2}$/.test(salary);
-  }, "Salaire invalide"),
+  salary: z.string().regex(/^\d+(\.\d{1,2})?$/, "Salaire invalide (format: 2500 ou 2500.50)").refine((val) => parseFloat(val) > 0, "Le salaire doit être positif"),
   status: z.enum(["active", "inactive", "terminated"]).default("active"),
   emergencyContact: z.string().optional(),
   emergencyPhone: z.string().optional(),

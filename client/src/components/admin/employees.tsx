@@ -295,12 +295,29 @@ export default function Employees() {
                 
                 <FormField
                   control={form.control}
+                  name="department"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Département</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
                   name="phone"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Téléphone</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <div>
+                          <Input {...field} placeholder="+212 6 12 34 56 78" />
+                          <p className="text-xs text-gray-500 mt-1">📞 Exemple : +212 6 12 34 56 78</p>
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -328,11 +345,10 @@ export default function Employees() {
                       <FormItem>
                         <FormLabel>Salaire (€)</FormLabel>
                         <FormControl>
-                          <Input
-                            type="number"
-                            {...field}
-                            onChange={(e) => field.onChange(Number(e.target.value))}
-                          />
+                          <div>
+                            <Input {...field} placeholder="2500.50" />
+                            <p className="text-xs text-gray-500 mt-1">💰 Format : 2500 ou 2500.50 (pas de virgule)</p>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>

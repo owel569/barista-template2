@@ -275,15 +275,15 @@ export default function Customers({ userRole }: CustomersProps) {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="phone">Téléphone * (min. 10 chiffres)</Label>
+                    <Label htmlFor="phone">Téléphone *</Label>
                     <Input
                       id="phone"
                       value={newCustomer.phone}
                       onChange={(e) => setNewCustomer(prev => ({ ...prev, phone: e.target.value }))}
-                      placeholder="0123456789"
+                      placeholder="+212 6 12 34 56 78"
                       required
-                      minLength={10}
                     />
+                    <p className="text-xs text-gray-500">📞 Exemple : +212 6 12 34 56 78</p>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="address">Adresse (optionnelle)</Label>
