@@ -176,7 +176,7 @@ export default function AdminSimple() {
       case 'orders':
         return <Orders userRole={userRole} />;
       case 'customers':
-        return <Customers userRole={userRole} />;
+        return <Customers userRole={userRole} user={user} />;
       case 'menu':
         return <MenuManagement canDelete={userRole === 'directeur'} />;
       case 'messages':

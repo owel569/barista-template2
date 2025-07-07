@@ -450,7 +450,7 @@ export const insertEmployeeSchema = createInsertSchema(employees).pick({
     const year = parseInt(date.split('-')[0]);
     return year >= 1970 && year <= 3000;
   }, "Format de date invalide ou année doit être entre 1970 et 3000"),
-  salary: z.string().regex(/^\d+(\.\d{1,2})?$/, "Salaire invalide (format: 2500 ou 2500.50)").refine((val) => parseFloat(val) > 0, "Le salaire doit être positif"),
+  salary: z.coerce.string().optional(),
   status: z.enum(["active", "inactive", "terminated"]).default("active"),
   emergencyContact: z.string().optional(),
   emergencyPhone: z.string().optional(),

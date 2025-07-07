@@ -55,9 +55,9 @@ const employeeSchema = z.object({
   email: z.string().email('Email invalide'),
   position: z.string().min(2, 'Le poste doit contenir au moins 2 caractères'),
   department: z.string().min(2, 'Le département doit contenir au moins 2 caractères'),
-  phone: z.string().optional(),
+  phone: z.string().min(1, 'Le téléphone est requis'),
   hireDate: z.string(),
-  salary: z.string().min(1, 'Le salaire est requis'),
+  salary: z.coerce.number().min(1, 'Le salaire est requis'),
   status: z.enum(['active', 'inactive']).optional(),
 });
 

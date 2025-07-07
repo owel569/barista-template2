@@ -54,8 +54,8 @@ import { getImageUrlByName } from '@/lib/image-mapping';
 const menuItemSchema = z.object({
   name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
   description: z.string().min(10, 'La description doit contenir au moins 10 caractères'),
-  price: z.string().min(1, 'Le prix est requis'),
-  categoryId: z.number().min(1, 'Veuillez sélectionner une catégorie'),
+  price: z.coerce.string().min(1, 'Le prix est requis'),
+  categoryId: z.coerce.number().min(1, 'Veuillez sélectionner une catégorie'),
   available: z.boolean(),
   imageUrl: z.string().optional(),
 });
