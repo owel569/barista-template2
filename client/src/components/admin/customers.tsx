@@ -118,15 +118,38 @@ export default function Customers({ userRole }: CustomersProps) {
     e.preventDefault();
     if (isReadOnly) return;
 
+    // Validation côté client
+    if (!newCustomer.firstName.trim() || !newCustomer.lastName.trim() || !newCustomer.email.trim()) {
+      toast({
+        title: "Erreur",
+        description: "Prénom, nom et email sont obligatoires",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const token = localStorage.getItem('admin-token');
+      const customerData = {
+        ...newCustomer,
+        firstName: newCustomer.firstName.trim(),
+        lastName: newCustomer.lastName.trim(),
+        email: newCustomer.email.trim(),
+        phone: newCustomer.phone.trim() || undefined,
+        address: newCustomer.address.trim() || undefined,
+        dateOfBirth: newCustomer.dateOfBirth || undefined,
+        notes: newCustomer.notes.trim() || undefined
+      };
+      
+      console.log('Données envoyées:', customerData);
+      
       const response = await fetch('/api/admin/customers', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(newCustomer)
+        body: JSON.stringify(customerData)
       });
 
       if (response.ok) {
@@ -146,6 +169,14 @@ export default function Customers({ userRole }: CustomersProps) {
         toast({
           title: "Succès",
           description: "Client ajouté avec succès",
+        });
+      } else {
+        const errorData = await response.json();
+        console.error('Erreur détaillée:', errorData);
+        toast({
+          title: "Erreur",
+          description: errorData.message || "Erreur lors de l'ajout du client",
+          variant: "destructive",
         });
       }
     } catch (error) {
@@ -275,13 +306,12 @@ export default function Customers({ userRole }: CustomersProps) {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="phone">Téléphone *</Label>
+                    <Label htmlFor="phone">Téléphone (optionnel)</Label>
                     <Input
                       id="phone"
                       value={newCustomer.phone}
                       onChange={(e) => setNewCustomer(prev => ({ ...prev, phone: e.target.value }))}
                       placeholder="+212 6 12 34 56 78"
-                      required
                     />
                     <p className="text-xs text-gray-500">📞 Exemple : +212 6 12 34 56 78</p>
                   </div>

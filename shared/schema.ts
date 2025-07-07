@@ -413,7 +413,7 @@ export const insertCustomerSchema = createInsertSchema(customers).pick({
   email: z.string().email("Email invalide"),
   firstName: z.string().min(2, "Prénom requis"),
   lastName: z.string().min(2, "Nom requis"),
-  phone: z.string().regex(/^(\+\d{1,3}[-.\s]?)?\d{10,14}$/, "Format invalide. Ex: +212 6 12 34 56 78"),
+  phone: z.string().min(10, "Téléphone requis (minimum 10 chiffres)").optional(),
   address: z.string().optional(),
   dateOfBirth: z.string().optional().refine((date) => {
     if (!date || date === "") return true;

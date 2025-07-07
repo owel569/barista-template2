@@ -27,13 +27,13 @@ export default function Hero() {
       <div className="absolute inset-0 bg-coffee-dark bg-opacity-60" />
       
       <div className="relative z-10 text-center text-white px-6">
-        <div className="flex justify-center mb-6">
-          <img src={logoBaristaCafe} alt="Barista Café Logo" className="h-32 w-32 mb-6" />
+        <div className="flex justify-center mb-8">
+          <img src={logoBaristaCafe} alt="Barista Café Logo" className="h-48 w-48 drop-shadow-2xl" />
         </div>
-        <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-fade-in">
+        <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-fade-in drop-shadow-lg">
           {t('home.title')} <span className="text-coffee-accent">Barista Café</span>
         </h1>
-        <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto">
+        <p className="text-2xl md:text-3xl mb-8 max-w-3xl mx-auto font-semibold drop-shadow-md bg-black bg-opacity-40 rounded-lg p-4">
           {t('home.description')}
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
