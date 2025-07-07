@@ -50,6 +50,11 @@ export function useWebSocket() {
       wsRef.current.onerror = (error) => {
         console.error('Erreur WebSocket:', error);
       };
+      
+      // Gérer les erreurs de promesse non gérées
+      wsRef.current.addEventListener('error', (error) => {
+        console.error('WebSocket error event:', error);
+      });
     } catch (error) {
       console.error('Erreur lors de la connexion WebSocket:', error);
     }
@@ -148,6 +153,11 @@ export function useWebSocket() {
   }, []);
 
   useEffect(() => {
+    // Éviter les reconnexions multiples
+    if (wsRef.current?.readyState === WebSocket.CONNECTING || wsRef.current?.readyState === WebSocket.OPEN) {
+      return;
+    }
+    
     connect();
     return () => disconnect();
   }, [connect, disconnect]);

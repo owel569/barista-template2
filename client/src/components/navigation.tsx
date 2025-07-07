@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Coffee, Menu, X, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import logoBaristaCafe from "@/assets/logo-barista-cafe.png";
 
 export default function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -25,8 +26,8 @@ export default function Navigation() {
       <div className="container mx-auto px-6 py-4">
         <div className="flex justify-between items-center">
           <Link href="/">
-            <div className="text-2xl font-bold text-coffee-secondary cursor-pointer">
-              <Coffee className="inline-block mr-2 h-6 w-6" />
+            <div className="flex items-center text-2xl font-bold text-coffee-secondary cursor-pointer">
+              <img src={logoBaristaCafe} alt="Barista Café Logo" className="h-10 w-10 mr-2" />
               Barista Café
             </div>
           </Link>

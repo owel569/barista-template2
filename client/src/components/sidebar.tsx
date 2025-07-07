@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSelector from "@/components/language-selector";
+import logoBaristaCafe from "@/assets/logo-barista-cafe.png";
 
 const getSidebarItems = (t: (key: string) => string) => [
   {
@@ -124,7 +125,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
         <div className="p-6">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
-              <Coffee className="h-8 w-8 text-coffee-accent" />
+              <img src={logoBaristaCafe} alt="Barista Café Logo" className="h-8 w-8" />
               <h1 className="text-xl font-bold">Barista Café</h1>
             </div>
             <Button

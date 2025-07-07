@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Utensils } from "lucide-react";
 import { useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
+import logoBaristaCafe from "@/assets/logo-barista-cafe.png";
 
 export default function Hero() {
   const [, setLocation] = useLocation();
@@ -26,6 +27,9 @@ export default function Hero() {
       <div className="absolute inset-0 bg-coffee-dark bg-opacity-60" />
       
       <div className="relative z-10 text-center text-white px-6">
+        <div className="flex justify-center mb-6">
+          <img src={logoBaristaCafe} alt="Barista Café Logo" className="h-24 w-24 mb-4" />
+        </div>
         <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-fade-in">
           {t('home.title')} <span className="text-coffee-accent">Barista Café</span>
         </h1>
