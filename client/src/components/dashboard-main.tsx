@@ -20,46 +20,41 @@ interface DashboardMainProps {
 export default function DashboardMain({ userRole }: DashboardMainProps) {
   // Requêtes pour les statistiques
   const { data: todayReservations } = useQuery({
-    queryKey: ["/api/stats/today-reservations"],
+    queryKey: ["/api/admin/stats/today-reservations"],
   });
 
   const { data: monthlyRevenue } = useQuery({
-    queryKey: ["/api/stats/monthly-revenue"],
+    queryKey: ["/api/admin/stats/monthly-revenue"],
   });
 
   const { data: activeOrders } = useQuery({
-    queryKey: ["/api/stats/active-orders"],
+    queryKey: ["/api/admin/stats/active-orders"],
   });
 
   const { data: occupancyRate } = useQuery({
-    queryKey: ["/api/stats/occupancy-rate"],
+    queryKey: ["/api/admin/stats/occupancy-rate"],
   });
 
   const { data: dailyReservations } = useQuery({
-    queryKey: ["/api/stats/daily-reservations"],
+    queryKey: ["/api/admin/stats/daily-reservations"],
   });
 
   const { data: reservationStatus } = useQuery({
-    queryKey: ["/api/stats/reservation-status"],
+    queryKey: ["/api/admin/stats/reservation-status"],
   });
 
-  // Données mock pour les graphiques (à remplacer par de vraies données)
+  // Données pour les graphiques avec fallback
   const dailyData = dailyReservations || [
-    { date: "Lun", reservations: 12 },
-    { date: "Mar", reservations: 19 },
-    { date: "Mer", reservations: 15 },
-    { date: "Jeu", reservations: 25 },
-    { date: "Ven", reservations: 30 },
-    { date: "Sam", reservations: 35 },
-    { date: "Dim", reservations: 28 }
+    { date: "Lun", count: 0 },
+    { date: "Mar", count: 0 },
+    { date: "Mer", count: 0 },
+    { date: "Jeu", count: 0 },
+    { date: "Ven", count: 0 },
+    { date: "Sam", count: 0 },
+    { date: "Dim", count: 0 }
   ];
 
-  const statusData = reservationStatus || [
-    { name: "Confirmées", value: 45, color: "#10B981" },
-    { name: "En attente", value: 25, color: "#F59E0B" },
-    { name: "Annulées", value: 15, color: "#EF4444" },
-    { name: "Terminées", value: 15, color: "#6B7280" }
-  ];
+  const statusData = reservationStatus || [];
 
   const hourlyData = [
     { hour: "8h", commandes: 5 },
@@ -137,7 +132,7 @@ export default function DashboardMain({ userRole }: DashboardMainProps) {
             <DollarSign className="h-4 w-4 text-green-200" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{monthlyRevenue?.amount || "12,450"}€</div>
+            <div className="text-2xl font-bold">{monthlyRevenue?.revenue || "0"}€</div>
             <p className="text-xs text-green-200">
               +15% ce mois
             </p>
@@ -179,7 +174,7 @@ export default function DashboardMain({ userRole }: DashboardMainProps) {
                 <Tooltip />
                 <Line 
                   type="monotone" 
-                  dataKey="reservations" 
+                  dataKey="count" 
                   stroke="#F59E0B" 
                   strokeWidth={3}
                   dot={{ fill: "#F59E0B", strokeWidth: 2, r: 4 }}

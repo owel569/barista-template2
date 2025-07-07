@@ -50,25 +50,23 @@ export default function ReservationNotifications() {
 
   // Récupération des réservations
   const { data: reservations = [], isLoading } = useQuery({
-    queryKey: ["/api/reservations"],
-    queryFn: () => apiRequest("GET", "/api/reservations").then(res => res.json()),
+    queryKey: ["/api/admin/reservations"],
     refetchInterval: 30000, // Actualisation toutes les 30 secondes
   });
 
   // Récupération des réservations avec notifications non envoyées
   const { data: newReservations = [] } = useQuery({
-    queryKey: ["/api/reservations/pending-notifications"],
-    queryFn: () => apiRequest("GET", "/api/reservations/pending-notifications").then(res => res.json()),
+    queryKey: ["/api/admin/notifications/pending-reservations"],
     refetchInterval: 10000, // Vérification toutes les 10 secondes
   });
 
   // Mutation pour marquer les notifications comme envoyées
   const markNotificationSentMutation = useMutation({
     mutationFn: (reservationId: number) => 
-      apiRequest("PATCH", `/api/reservations/${reservationId}/notification-sent`, {}),
+      apiRequest("PATCH", `/api/admin/reservations/${reservationId}/notification-sent`, {}),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/reservations"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/reservations/pending-notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/reservations"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/notifications/pending-reservations"] });
     },
   });
 
