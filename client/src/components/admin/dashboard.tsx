@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useWebSocket } from '@/hooks/useWebSocket';
 import { 
   Calendar, 
   ShoppingCart, 
@@ -29,6 +30,9 @@ interface DashboardProps {
 const COLORS = ['#f59e0b', '#3b82f6', '#10b981', '#ef4444', '#8b5cf6'];
 
 export default function Dashboard({ userRole }: DashboardProps) {
+  // Initialiser WebSocket pour les notifications temps réel
+  useWebSocket();
+  
   const [stats, setStats] = useState<DashboardStats>({
     todayReservations: 0,
     monthlyRevenue: 0,

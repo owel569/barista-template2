@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Users, Mail, Phone, Calendar, Euro, Eye, Edit, Trash2, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useWebSocket } from '@/hooks/useWebSocket';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -43,6 +44,9 @@ export default function Customers({ userRole }: CustomersProps) {
     notes: ''
   });
   const { toast } = useToast();
+  
+  // Initialiser WebSocket pour les notifications temps réel
+  useWebSocket();
 
   const isReadOnly = userRole === 'employe';
 

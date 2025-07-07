@@ -48,6 +48,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Plus, Pencil, Trash2, Coffee, DollarSign, Package, Image, Upload, Link } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useWebSocket } from '@/hooks/useWebSocket';
 import { getImageUrlByName } from '@/lib/image-mapping';
 
 const menuItemSchema = z.object({
@@ -73,6 +74,9 @@ export default function MenuManagement({ canDelete = true }: MenuManagementProps
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Initialiser WebSocket pour les notifications temps réel
+  useWebSocket();
 
   const form = useForm<MenuItemFormData>({
     resolver: zodResolver(menuItemSchema),

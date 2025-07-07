@@ -522,7 +522,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Customers routes
-  app.get("/api/customers", authenticateToken, async (req, res) => {
+  app.get("/api/admin/customers", authenticateToken, async (req, res) => {
     try {
       const customers = await storage.getCustomers();
       res.json(customers);
@@ -531,10 +531,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/customers", authenticateToken, async (req, res) => {
+  app.post("/api/admin/customers", authenticateToken, async (req, res) => {
     try {
       const customerData = insertCustomerSchema.parse(req.body);
       const customer = await storage.createCustomer(customerData);
+      
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('customers', customer);
+      
       res.status(201).json(customer);
     } catch (error: any) {
       if (error.errors) {
@@ -547,7 +551,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/customers/:id", authenticateToken, async (req, res) => {
+  app.patch("/api/admin/customers/:id", authenticateToken, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const customerData = req.body;
@@ -560,6 +564,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(customer);
     } catch (error) {
       res.status(500).json({ message: "Erreur lors de la mise à jour du client" });
+    }
+  });
+
+  app.delete("/api/admin/customers/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deleteCustomer(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Client non trouvé" });
+      }
+
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('customers');
+
+      res.json({ message: "Client supprimé avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la suppression du client" });
     }
   });
 
@@ -577,6 +599,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const employeeData = insertEmployeeSchema.parse(req.body);
       const employee = await storage.createEmployee(employeeData);
+      
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('employees', employee);
+      
       res.status(201).json(employee);
     } catch (error: any) {
       if (error.errors) {
