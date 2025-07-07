@@ -409,6 +409,6 @@ export default function NotificationsSystem({ isOpen, onToggle }: NotificationsS
           </div>
         </>
       )}
-    </div>
+    </>
   );
 }
