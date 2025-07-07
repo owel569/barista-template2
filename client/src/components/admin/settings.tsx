@@ -58,7 +58,6 @@ const generalSettingsSchema = z.object({
     saturday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
     sunday: z.object({ open: z.string(), close: z.string(), closed: z.boolean() }),
   }),
-  website: z.string().url('URL invalide').optional().or(z.literal('')),
 });
 
 const hoursSettingsSchema = z.object({

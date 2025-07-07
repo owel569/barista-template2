@@ -409,7 +409,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                         )}
                         <div className="flex items-center gap-2">
                           <Euro className="h-4 w-4" />
-                          <span className="font-semibold">{typeof customer.totalSpent === 'string' ? parseFloat(customer.totalSpent).toFixed(2) : customer.totalSpent.toFixed(2)}€ dépensés</span>
+                          <span className="font-semibold">{typeof customer.totalSpent === 'string' ? parseFloat(customer.totalSpent).toFixed(2) : (customer.totalSpent || 0).toFixed(2)}€ dépensés</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4" />
