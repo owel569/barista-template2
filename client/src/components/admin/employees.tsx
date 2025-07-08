@@ -58,7 +58,7 @@ const employeeSchema = z.object({
   department: z.string().min(2, 'Le département doit contenir au moins 2 caractères'),
   phone: z.string().min(1, 'Le téléphone est requis'),
   hireDate: z.string(),
-  salary: z.coerce.number().min(1, 'Le salaire est requis'),
+  salary: z.string().min(1, 'Le salaire est requis'),
   status: z.enum(['active', 'inactive']).optional(),
 });
 

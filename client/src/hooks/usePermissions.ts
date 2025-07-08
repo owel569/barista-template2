@@ -1,70 +1,60 @@
 import { useMemo } from 'react';
-import { User, ModulePermissions } from '@/types/admin';
+import { User } from '@/types/admin';
 
-// Définir les permissions par défaut pour chaque rôle
-const DEFAULT_PERMISSIONS: Record<'directeur' | 'employe', ModulePermissions> = {
-  directeur: {
-    dashboard: { canView: true, canCreate: true, canUpdate: true, canDelete: true },
-    reservations: { canView: true, canCreate: true, canUpdate: true, canDelete: true },
-    orders: { canView: true, canCreate: true, canUpdate: true, canDelete: true },
-    customers: { canView: true, canCreate: true, canUpdate: true, canDelete: true },
-    menu: { canView: true, canCreate: true, canUpdate: true, canDelete: true },
-    messages: { canView: true, canCreate: true, canUpdate: true, canDelete: true },
-    employees: { canView: true, canCreate: true, canUpdate: true, canDelete: true },
-    settings: { canView: true, canCreate: true, canUpdate: true, canDelete: true },
-    statistics: { canView: true, canCreate: true, canUpdate: true, canDelete: true },
-    logs: { canView: true, canCreate: true, canUpdate: true, canDelete: true },
-  },
-  employe: {
-    dashboard: { canView: true, canCreate: false, canUpdate: false, canDelete: false },
-    reservations: { canView: true, canCreate: true, canUpdate: true, canDelete: false },
-    orders: { canView: true, canCreate: false, canUpdate: true, canDelete: false },
-    customers: { canView: true, canCreate: false, canUpdate: false, canDelete: false },
-    menu: { canView: true, canCreate: true, canUpdate: true, canDelete: false },
-    messages: { canView: true, canCreate: false, canUpdate: true, canDelete: false },
-    employees: { canView: false, canCreate: false, canUpdate: false, canDelete: false },
-    settings: { canView: false, canCreate: false, canUpdate: false, canDelete: false },
-    statistics: { canView: false, canCreate: false, canUpdate: false, canDelete: false },
-    logs: { canView: false, canCreate: false, canUpdate: false, canDelete: false },
-  },
-};
+export interface PermissionConfig {
+  canView: (module: string) => boolean;
+  canCreate: (module: string) => boolean;
+  canModify: (module: string) => boolean;
+  canDelete: (module: string) => boolean;
+}
 
-export function usePermissions(user: User | null) {
-  const permissions = useMemo(() => {
-    if (!user) return {};
-    return DEFAULT_PERMISSIONS[user.role] || {};
+export function usePermissions(user: User | null): PermissionConfig {
+  return useMemo(() => {
+    if (!user) {
+      return {
+        canView: () => false,
+        canCreate: () => false,
+        canModify: () => false,
+        canDelete: () => false,
+      };
+    }
+
+    const isDirecteur = user.role === 'directeur';
+
+    return {
+      canView: (module: string) => {
+        // Tous les modules sont visibles sauf pour les employés sur certains modules
+        if (isDirecteur) return true;
+        
+        // Modules interdits aux employés
+        const forbiddenModules = ['employees', 'settings', 'users', 'statistics', 'activity-logs'];
+        return !forbiddenModules.includes(module);
+      },
+
+      canCreate: (module: string) => {
+        if (isDirecteur) return true;
+        
+        // Employés peuvent créer dans certains modules
+        const allowedModules = ['reservations', 'orders', 'menu'];
+        return allowedModules.includes(module);
+      },
+
+      canModify: (module: string) => {
+        if (isDirecteur) return true;
+        
+        // Employés peuvent modifier dans certains modules
+        const allowedModules = ['reservations', 'orders', 'menu', 'messages'];
+        
+        // Clients en lecture seule pour les employés
+        if (module === 'customers') return false;
+        
+        return allowedModules.includes(module);
+      },
+
+      canDelete: (module: string) => {
+        // Seuls les directeurs peuvent supprimer
+        return isDirecteur;
+      },
+    };
   }, [user]);
-
-  const hasPermission = (module: string, action: 'view' | 'create' | 'update' | 'delete'): boolean => {
-    const modulePerms = permissions[module];
-    if (!modulePerms) return false;
-
-    const actionKey = `can${action.charAt(0).toUpperCase() + action.slice(1)}` as keyof typeof modulePerms;
-    return Boolean(modulePerms[actionKey]);
-  };
-
-  const canAccess = (module: string): boolean => {
-    return hasPermission(module, 'view');
-  };
-
-  const canModify = (module: string): boolean => {
-    return hasPermission(module, 'create') || hasPermission(module, 'update');
-  };
-
-  const canDelete = (module: string): boolean => {
-    return hasPermission(module, 'delete');
-  };
-
-  const isDirecteur = user?.role === 'directeur';
-  const isEmploye = user?.role === 'employe';
-
-  return {
-    permissions,
-    hasPermission,
-    canAccess,
-    canModify,
-    canDelete,
-    isDirecteur,
-    isEmploye,
-  };
 }

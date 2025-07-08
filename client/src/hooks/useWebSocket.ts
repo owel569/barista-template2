@@ -8,29 +8,46 @@ export interface WebSocketMessage {
   timestamp: string;
 }
 
+let globalWebSocket: WebSocket | null = null;
+let connectionAttempted = false;
+
 export function useWebSocket() {
   const wsRef = useRef<WebSocket | null>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isConnectingRef = useRef(false);
 
   const connect = useCallback(() => {
+    // Éviter les connexions multiples
+    if (isConnectingRef.current || (wsRef.current && wsRef.current.readyState === WebSocket.CONNECTING)) {
+      return;
+    }
+
+    if (globalWebSocket && globalWebSocket.readyState === WebSocket.OPEN) {
+      wsRef.current = globalWebSocket;
+      return;
+    }
+
     try {
+      isConnectingRef.current = true;
       const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
       const wsUrl = `${protocol}//${window.location.host}/ws`;
       
-      wsRef.current = new WebSocket(wsUrl);
+      const ws = new WebSocket(wsUrl);
+      wsRef.current = ws;
+      globalWebSocket = ws;
 
-      wsRef.current.onopen = () => {
+      ws.onopen = () => {
         console.log('🔗 Connexion WebSocket établie');
-        // Réinitialiser le timeout de reconnexion
+        isConnectingRef.current = false;
         if (reconnectTimeoutRef.current) {
           clearTimeout(reconnectTimeoutRef.current);
           reconnectTimeoutRef.current = null;
         }
       };
 
-      wsRef.current.onmessage = (event) => {
+      ws.onmessage = (event) => {
         try {
           const message: WebSocketMessage = JSON.parse(event.data);
           handleMessage(message);
@@ -39,28 +56,31 @@ export function useWebSocket() {
         }
       };
 
-      wsRef.current.onclose = () => {
-        console.log('🔗 Connexion WebSocket fermée, tentative de reconnexion...');
-        // Tentative de reconnexion après 3 secondes
-        reconnectTimeoutRef.current = setTimeout(() => {
-          connect();
-        }, 3000);
+      ws.onclose = () => {
+        isConnectingRef.current = false;
+        if (ws === globalWebSocket) {
+          globalWebSocket = null;
+        }
+        
+        // Tentative de reconnexion après 5 secondes
+        if (!reconnectTimeoutRef.current) {
+          reconnectTimeoutRef.current = setTimeout(() => {
+            reconnectTimeoutRef.current = null;
+            connect();
+          }, 5000);
+        }
       };
 
-      wsRef.current.onerror = (error) => {
+      ws.onerror = (error) => {
         console.error('Erreur WebSocket:', error);
-        // Éviter les reconnexions trop fréquentes
-        if (reconnectTimeoutRef.current) {
-          clearTimeout(reconnectTimeoutRef.current);
+        isConnectingRef.current = false;
+        if (ws === globalWebSocket) {
+          globalWebSocket = null;
         }
-        reconnectTimeoutRef.current = setTimeout(() => {
-          if (wsRef.current?.readyState === WebSocket.CLOSED) {
-            connect();
-          }
-        }, 5000);
       };
     } catch (error) {
       console.error('Erreur lors de la connexion WebSocket:', error);
+      isConnectingRef.current = false;
     }
   }, []);
 
@@ -157,18 +177,23 @@ export function useWebSocket() {
   }, []);
 
   useEffect(() => {
-    // Éviter les reconnexions multiples
-    if (wsRef.current?.readyState === WebSocket.CONNECTING || wsRef.current?.readyState === WebSocket.OPEN) {
-      return;
+    if (!connectionAttempted) {
+      connectionAttempted = true;
+      const connectTimeout = setTimeout(() => {
+        connect();
+      }, 1000);
+      
+      return () => {
+        clearTimeout(connectTimeout);
+      };
     }
-    
-    const connectTimeout = setTimeout(() => {
-      connect();
-    }, 100);
-    
+  }, []);
+
+  useEffect(() => {
     return () => {
-      clearTimeout(connectTimeout);
-      disconnect();
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
     };
   }, []);
 

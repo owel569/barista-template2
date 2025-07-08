@@ -813,7 +813,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Employee management routes (directeur only)
+  // Employee management routes - both /api/employees and /api/admin/employees for compatibility
+  app.get("/api/employees", authenticateToken, async (req, res) => {
+    try {
+      const employees = await storage.getEmployees();
+      res.json(employees);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des employés" });
+    }
+  });
+
   app.get("/api/admin/employees", authenticateToken, requireRole('directeur'), async (req, res) => {
     try {
       const employees = await storage.getEmployees();
@@ -823,13 +832,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/employees", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const employeeData = insertEmployeeSchema.parse(req.body);
+      const employee = await storage.createEmployee(employeeData);
+      
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('employees', employee);
+      
+      res.status(201).json(employee);
+    } catch (error: any) {
+      if (error.errors) {
+        return res.status(400).json({ 
+          message: "Données employé invalides",
+          errors: error.errors
+        });
+      }
+      res.status(400).json({ message: "Erreur lors de la création de l'employé" });
+    }
+  });
+
   app.post("/api/admin/employees", authenticateToken, requireRole('directeur'), async (req, res) => {
     try {
       const employeeData = insertEmployeeSchema.parse(req.body);
       const employee = await storage.createEmployee(employeeData);
+      
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('employees', employee);
+      
       res.status(201).json(employee);
-    } catch (error) {
+    } catch (error: any) {
+      if (error.errors) {
+        return res.status(400).json({ 
+          message: "Données employé invalides",
+          errors: error.errors
+        });
+      }
       res.status(400).json({ message: "Erreur lors de la création de l'employé" });
+    }
+  });
+
+  app.put("/api/employees/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const employeeData = insertEmployeeSchema.partial().parse(req.body);
+      const employee = await storage.updateEmployee(id, employeeData);
+      
+      if (!employee) {
+        return res.status(404).json({ message: "Employé non trouvé" });
+      }
+      
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('employees', employee);
+      
+      res.json(employee);
+    } catch (error) {
+      res.status(400).json({ message: "Erreur lors de la mise à jour de l'employé" });
     }
   });
 
@@ -843,9 +901,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Employé non trouvé" });
       }
       
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('employees', employee);
+      
       res.json(employee);
     } catch (error) {
       res.status(400).json({ message: "Erreur lors de la mise à jour de l'employé" });
+    }
+  });
+
+  app.delete("/api/employees/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deleteEmployee(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Employé non trouvé" });
+      }
+      
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('employees');
+      
+      res.json({ message: "Employé supprimé avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la suppression de l'employé" });
     }
   });
 
@@ -857,6 +936,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!success) {
         return res.status(404).json({ message: "Employé non trouvé" });
       }
+      
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('employees');
       
       res.json({ message: "Employé supprimé avec succès" });
     } catch (error) {
@@ -1050,6 +1132,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const shiftData = insertWorkShiftSchema.parse(req.body);
       const shift = await storage.createWorkShift(shiftData);
+      
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('work-shifts', shift);
+      
       res.status(201).json(shift);
     } catch (error: any) {
       if (error.errors) {
@@ -1062,15 +1148,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/work-shifts/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+  app.put("/api/work-shifts/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const shiftData = req.body;
+      const shiftData = insertWorkShiftSchema.partial().parse(req.body);
       const shift = await storage.updateWorkShift(id, shiftData);
       
       if (!shift) {
         return res.status(404).json({ message: "Horaire non trouvé" });
       }
+
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('work-shifts', shift);
 
       res.json(shift);
     } catch (error) {
@@ -1086,6 +1175,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!success) {
         return res.status(404).json({ message: "Horaire non trouvé" });
       }
+      
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('work-shifts');
       
       res.json({ message: "Horaire supprimé avec succès" });
     } catch (error) {

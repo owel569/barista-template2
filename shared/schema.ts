@@ -445,12 +445,12 @@ export const insertEmployeeSchema = createInsertSchema(employees).pick({
   phone: z.string().regex(/^(\+\d{1,3}[-.\s]?)?\d{10,14}$/, "Format invalide. Ex: +212 6 12 34 56 78"),
   position: z.string().min(2, "Poste requis"),
   department: z.string().min(2, "Département requis"),
+  salary: z.string().min(1, "Salaire requis"),
   hireDate: z.string().refine((date) => {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
     const year = parseInt(date.split('-')[0]);
     return year >= 1970 && year <= 3000;
   }, "Format de date invalide ou année doit être entre 1970 et 3000"),
-  salary: z.coerce.string().optional(),
   status: z.enum(["active", "inactive", "terminated"]).default("active"),
   emergencyContact: z.string().optional(),
   emergencyPhone: z.string().optional(),
