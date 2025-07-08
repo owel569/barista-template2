@@ -273,7 +273,7 @@ export default function AdminSimple() {
             {!isCollapsed && (
               <div className="flex items-center space-x-2">
                 <Button variant="ghost" size="sm" onClick={toggleTheme} className="h-8 w-8 p-0">
-                  {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                  {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                 </Button>
                 <NotificationsSystem 
                   isOpen={isNotificationsOpen} 
