@@ -6,8 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
-import { Calendar, Clock, Users, Phone, Mail, Check, X, Edit } from 'lucide-react';
+import { Calendar, Clock, Users, Phone, Mail, Check, X, Edit, Plus } from 'lucide-react';
+import ReservationDialog from './reservation-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { PhoneInput } from '@/components/ui/phone-input';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -38,6 +40,8 @@ export default function Reservations({ userRole }: ReservationsProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -145,6 +149,64 @@ export default function Reservations({ userRole }: ReservationsProps) {
     }
   };
 
+  const handleAddReservation = async (reservationData: any) => {
+    try {
+      const response = await fetch('/api/admin/reservations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(reservationData)
+      });
+
+      if (response.ok) {
+        await fetchReservations();
+        toast({
+          title: "Succès",
+          description: "Réservation créée avec succès",
+        });
+      } else {
+        throw new Error('Erreur lors de la création');
+      }
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de créer la réservation",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEditReservation = async (reservationData: any) => {
+    try {
+      const response = await fetch(`/api/admin/reservations/${selectedReservation?.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(reservationData)
+      });
+
+      if (response.ok) {
+        await fetchReservations();
+        toast({
+          title: "Succès",
+          description: "Réservation modifiée avec succès",
+        });
+      } else {
+        throw new Error('Erreur lors de la modification');
+      }
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de modifier la réservation",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'confirmée':
@@ -197,9 +259,15 @@ export default function Reservations({ userRole }: ReservationsProps) {
             {filteredReservations.length} réservation(s) trouvée(s)
           </p>
         </div>
-        <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400">
-          {userRole === 'directeur' ? 'Directeur' : 'Employé'}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400">
+            {userRole === 'directeur' ? 'Directeur' : 'Employé'}
+          </Badge>
+          <Button onClick={() => setIsAddDialogOpen(true)} className="bg-green-600 hover:bg-green-700">
+            <Plus className="h-4 w-4 mr-2" />
+            Nouvelle réservation
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -432,6 +500,26 @@ export default function Reservations({ userRole }: ReservationsProps) {
           ))
         )}
       </div>
+
+      {/* Dialogue d'ajout de réservation */}
+      <ReservationDialog
+        isOpen={isAddDialogOpen}
+        onClose={() => setIsAddDialogOpen(false)}
+        onSave={handleAddReservation}
+        isEdit={false}
+      />
+
+      {/* Dialogue de modification de réservation */}
+      <ReservationDialog
+        isOpen={isEditDialogOpen}
+        onClose={() => {
+          setIsEditDialogOpen(false);
+          setSelectedReservation(null);
+        }}
+        onSave={handleEditReservation}
+        reservation={selectedReservation}
+        isEdit={true}
+      />
     </div>
   );
 }
