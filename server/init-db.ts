@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { users, menuCategories, menuItems, tables, reservations } from "@shared/schema";
+import { users, menuCategories, menuItems, tables, reservations, customers, employees, orders, contactMessages } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import { cleanupDuplicateMenuItems } from "./cleanup-duplicates";
@@ -217,8 +217,188 @@ export async function initializeDatabase() {
       console.log("✅ Tables créées");
     }
 
+    // Créer des données de test pour les clients
+    const existingCustomers = await db.select().from(customers);
+    if (existingCustomers.length === 0) {
+      const testCustomers = [
+        {
+          firstName: "Marie",
+          lastName: "Dupont",
+          email: "marie.dupont@example.com",
+          phone: "+33612345678",
+          address: "15 rue de la Paix, Paris",
+          dateOfBirth: "1985-03-15",
+          preferredContactMethod: "email",
+          notes: "Cliente fidèle, préfère les tables côté fenêtre"
+        },
+        {
+          firstName: "Jean",
+          lastName: "Martin",
+          email: "jean.martin@example.com",
+          phone: "+33623456789",
+          address: "8 avenue des Champs, Lyon",
+          dateOfBirth: "1990-07-22",
+          preferredContactMethod: "phone",
+          notes: "Amateur de café noir, vient souvent le matin"
+        },
+        {
+          firstName: "Sophie",
+          lastName: "Bernard",
+          email: "sophie.bernard@example.com",
+          phone: "+33634567890",
+          address: "32 boulevard Saint-Germain, Paris",
+          dateOfBirth: "1978-12-03",
+          preferredContactMethod: "email",
+          notes: "Allergique aux noix, préfère les boissons décaféinées"
+        }
+      ];
+
+      await db.insert(customers).values(testCustomers);
+      console.log("✅ Clients de test créés");
+    }
+
+    // Créer des données de test pour les employés
+    const existingEmployees = await db.select().from(employees);
+    if (existingEmployees.length === 0) {
+      const testEmployees = [
+        {
+          firstName: "Lucas",
+          lastName: "Durand",
+          email: "lucas.durand@barista-cafe.com",
+          phone: "+33656789012",
+          position: "Barista Senior",
+          department: "Service",
+          hireDate: "2023-01-15",
+          salary: "2200",
+          status: "active",
+          emergencyContact: "Marie Durand - +33667890123",
+          address: "25 rue Mozart, Paris",
+          notes: "Spécialiste latte art, formation en cours sur nouvelles machines"
+        },
+        {
+          firstName: "Emma",
+          lastName: "Leroy",
+          email: "emma.leroy@barista-cafe.com",
+          phone: "+33667890123",
+          position: "Serveuse",
+          department: "Service",
+          hireDate: "2023-03-01",
+          salary: "1800",
+          status: "active",
+          emergencyContact: "Paul Leroy - +33678901234",
+          address: "12 avenue Victor Hugo, Paris",
+          notes: "Excellente relation client, parle anglais et espagnol"
+        },
+        {
+          firstName: "Thomas",
+          lastName: "Moreau",
+          email: "thomas.moreau@barista-cafe.com",
+          phone: "+33678901234",
+          position: "Cuisinier",
+          department: "Cuisine",
+          hireDate: "2022-11-20",
+          salary: "2400",
+          status: "active",
+          emergencyContact: "Anne Moreau - +33689012345",
+          address: "5 boulevard Raspail, Paris",
+          notes: "Spécialiste pâtisserie, disponible pour heures supplémentaires"
+        }
+      ];
+
+      await db.insert(employees).values(testEmployees);
+      console.log("✅ Employés de test créés");
+    }
+
+    // Créer des réservations de test
+    const existingReservations = await db.select().from(reservations);
+    if (existingReservations.length === 0) {
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      
+      const testReservations = [
+        {
+          customerName: "Marie Dupont",
+          customerEmail: "marie.dupont@example.com",
+          customerPhone: "+33612345678",
+          date: today.toISOString().split('T')[0],
+          time: "12:30",
+          guests: 2,
+          tableId: 1,
+          status: "confirmed",
+          specialRequests: "Table côté fenêtre si possible",
+          notificationSent: false
+        },
+        {
+          customerName: "Jean Martin",
+          customerEmail: "jean.martin@example.com",
+          customerPhone: "+33623456789",
+          date: today.toISOString().split('T')[0],
+          time: "14:00",
+          guests: 4,
+          tableId: 2,
+          status: "pending",
+          specialRequests: "Anniversaire, besoin d'une bougie",
+          notificationSent: false
+        },
+        {
+          customerName: "Sophie Bernard",
+          customerEmail: "sophie.bernard@example.com",
+          customerPhone: "+33634567890",
+          date: tomorrow.toISOString().split('T')[0],
+          time: "19:30",
+          guests: 6,
+          tableId: 3,
+          status: "confirmed",
+          specialRequests: "Allergies aux noix, menu spécial",
+          notificationSent: false
+        }
+      ];
+
+      await db.insert(reservations).values(testReservations);
+      console.log("✅ Réservations de test créées");
+    }
+
+    // Créer des messages de contact de test
+    const existingMessages = await db.select().from(contactMessages);
+    if (existingMessages.length === 0) {
+      const testMessages = [
+        {
+          firstName: "Antoine",
+          lastName: "Dubois",
+          email: "antoine.dubois@example.com",
+          phone: "+33601234567",
+          subject: "Demande de privatisation",
+          message: "Bonjour, je souhaiterais privatiser votre établissement pour un événement d'entreprise le mois prochain. Pouvez-vous me donner plus d'informations sur vos tarifs et disponibilités ?",
+          status: "new"
+        },
+        {
+          firstName: "Isabelle",
+          lastName: "Fournier",
+          email: "isabelle.fournier@example.com",
+          phone: "+33612345678",
+          subject: "Compliments sur le service",
+          message: "Je tenais à vous féliciter pour l'excellent service lors de ma visite hier. L'équipe était très professionnelle et le café était délicieux !",
+          status: "read"
+        },
+        {
+          firstName: "Nicolas",
+          lastName: "Blanc",
+          email: "nicolas.blanc@example.com",
+          phone: "+33634567890",
+          subject: "Suggestion de menu",
+          message: "Serait-il possible d'ajouter des options végétaliennes à votre menu ? J'aimerais venir plus souvent mais les options sont limitées pour les personnes suivant un régime végétalien.",
+          status: "new"
+        }
+      ];
+
+      await db.insert(contactMessages).values(testMessages);
+      console.log("✅ Messages de contact de test créés");
+    }
+
     console.log("Base de données initialisée avec succès !");
     console.log("Identifiants administrateur: nom d'utilisateur=admin, mot de passe=admin123");
+    console.log("Identifiants employé: nom d'utilisateur=employe, mot de passe=employe123");
     
   } catch (error) {
     console.error("Erreur lors de l'initialisation de la base de données:", error);

@@ -283,12 +283,10 @@ export default function Settings() {
                             <span>Téléphone</span>
                           </FormLabel>
                           <FormControl>
-                            <PhoneInput
-                              value={field.value}
-                              onChange={(fullNumber, formatted, isValid) => {
-                                field.onChange(fullNumber);
-                              }}
-                              placeholder="6 12 34 56 78"
+                            <Input
+                              {...field}
+                              type="tel"
+                              placeholder="+33 1 23 45 67 89"
                             />
                           </FormControl>
                           <FormMessage />

@@ -83,14 +83,13 @@ export default function ReservationDialog({
             </div>
             
             <div>
-              <PhoneInput
-                label="Téléphone"
+              <Label htmlFor="phone">Téléphone</Label>
+              <Input
                 id="phone"
+                type="tel"
                 value={formData.phone}
-                onChange={(fullNumber, formatted, isValid) => {
-                  handleChange('phone', fullNumber);
-                }}
-                placeholder="6 12 34 56 78"
+                onChange={(e) => handleChange('phone', e.target.value)}
+                placeholder="+33612345678"
               />
             </div>
             
