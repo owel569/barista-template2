@@ -9,7 +9,7 @@ import { Users, Mail, Phone, Calendar, Euro, Eye, Edit, Trash2, UserPlus } from 
 import { useToast } from '@/hooks/use-toast';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { usePermissions } from '@/hooks/usePermissions';
-import { PhoneInput } from '@/components/ui/phone-input';
+// import { PhoneInput } from '@/components/ui/phone-input'; // Remplacé par Input standard
 import { Customer, User } from '@/types/admin';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -298,16 +298,15 @@ export default function Customers({ userRole, user }: CustomersProps) {
                     />
                   </div>
                   <div className="space-y-2">
-                    <PhoneInput
-                      label="Téléphone (optionnel)"
+                    <Label htmlFor="phone">Téléphone (optionnel)</Label>
+                    <Input
                       id="phone"
+                      type="tel"
                       value={newCustomer.phone}
-                      onChange={(fullNumber, formatted, isValid) => {
-                        setNewCustomer(prev => ({ ...prev, phone: fullNumber }));
-                      }}
-                      placeholder="6 12 34 56 78"
+                      onChange={(e) => setNewCustomer(prev => ({ ...prev, phone: e.target.value }))}
+                      placeholder="Ex: +33612345678"
                     />
-                    <p className="text-xs text-gray-500">📞 Exemple : +212 6 12 34 56 78</p>
+                    <p className="text-xs text-gray-500">📞 Exemple : +33612345678</p>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="address">Adresse (optionnelle)</Label>

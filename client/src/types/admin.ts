@@ -7,6 +7,7 @@ export interface Notification {
   timestamp: string;
   read: boolean;
   priority: 'low' | 'medium' | 'high';
+  actionUrl?: string;
   data?: any;
 }
 

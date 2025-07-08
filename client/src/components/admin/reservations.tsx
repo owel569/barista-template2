@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Calendar, Clock, Users, Phone, Mail, Check, X, Edit, Plus } from 'lucide-react';
 import ReservationDialog from './reservation-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { PhoneInput } from '@/components/ui/phone-input';
+// import { PhoneInput } from '@/components/ui/phone-input'; // Remplacé par Input standard
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 

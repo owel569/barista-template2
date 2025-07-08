@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar, Clock, Users, ShoppingCart, Plus, Minus, Coffee, Utensils, Cake, Sandwich } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { PhoneInput } from "@/components/ui/phone-input";
+// import { PhoneInput } from "@/components/ui/phone-input"; // Commenté si non disponible
 import { apiRequest } from "@/lib/queryClient";
 import { z } from "zod";
 import { getItemImageUrl } from "@/lib/image-mapping";
@@ -373,13 +373,11 @@ export default function InteractiveReservation() {
                     </div>
 
                     <div>
-                      <PhoneInput
-                        label="Téléphone"
-                        id="customerPhone"
-                        placeholder="6 12 34 56 78"
-                        onChange={(fullNumber, formatted, isValid) => {
-                          form.setValue("customerPhone", fullNumber);
-                        }}
+                      <Label htmlFor="customerPhone">Téléphone</Label>
+                      <Input
+                        {...form.register("customerPhone")}
+                        placeholder="Ex: +33612345678"
+                        className="mt-1"
                       />
                       {form.formState.errors.customerPhone && (
                         <p className="text-sm text-red-600 mt-1">

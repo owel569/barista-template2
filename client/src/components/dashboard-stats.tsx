@@ -16,19 +16,19 @@ export default function DashboardStats() {
   const { t } = useLanguage();
 
   const { data: todayReservations = { count: 0 } } = useQuery({
-    queryKey: ['/api/stats/today-reservations'],
+    queryKey: ['/api/admin/stats/today-reservations'],
   });
 
   const { data: occupancyRate = { rate: 0 } } = useQuery({
-    queryKey: ['/api/stats/occupancy'],
+    queryKey: ['/api/admin/stats/occupancy-rate'],
   });
 
   const { data: ordersByStatus = [] } = useQuery({
-    queryKey: ['/api/stats/orders-by-status'],
+    queryKey: ['/api/admin/stats/orders-by-status'],
   });
 
   const { data: customers = [] } = useQuery({
-    queryKey: ['/api/customers'],
+    queryKey: ['/api/admin/customers'],
   });
 
   const { data: menuItems = [] } = useQuery({

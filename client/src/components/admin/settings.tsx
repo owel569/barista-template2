@@ -41,7 +41,7 @@ import {
   Palette
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { PhoneInput } from '@/components/ui/phone-input';
+// import { PhoneInput } from '@/components/ui/phone-input'; // Remplacé par Input standard
 
 const generalSettingsSchema = z.object({
   restaurantName: z.string().min(2, 'Le nom du restaurant doit contenir au moins 2 caractères'),

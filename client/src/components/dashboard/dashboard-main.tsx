@@ -93,8 +93,23 @@ function StatsCard({ title, value, icon: Icon, trend, color }: StatsCardProps) {
 export default function DashboardMain() {
   const { user } = useUser();
   
-  const { data: todayStats } = useQuery({
-    queryKey: ["/api/dashboard/today-stats"],
+  const { data: todayReservations } = useQuery({
+    queryKey: ["/api/admin/stats/today-reservations"],
+    enabled: !!user
+  });
+
+  const { data: monthlyRevenue } = useQuery({
+    queryKey: ["/api/admin/stats/monthly-revenue"],
+    enabled: !!user
+  });
+
+  const { data: activeOrders } = useQuery({
+    queryKey: ["/api/admin/stats/active-orders"],
+    enabled: !!user
+  });
+
+  const { data: occupancyRate } = useQuery({
+    queryKey: ["/api/admin/stats/occupancy-rate"],
     enabled: !!user
   });
 
@@ -123,30 +138,30 @@ export default function DashboardMain() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatsCard
           title="Réservations aujourd'hui"
-          value={todayStats?.reservations || 12}
+          value={todayReservations?.count || 0}
           icon={Calendar}
           trend="+12% vs hier"
           color="bg-blue-500"
         />
         <StatsCard
           title="Commandes en cours"
-          value={todayStats?.activeOrders || 8}
+          value={activeOrders?.count || 0}
           icon={ShoppingCart}
           trend="+5% vs hier"
           color="bg-amber-500"
         />
         <StatsCard
-          title="Clients actifs"
-          value={todayStats?.activeCustomers || 45}
-          icon={Users}
+          title="Revenus mensuels"
+          value={`${monthlyRevenue?.revenue || 0}€`}
+          icon={DollarSign}
           trend="+8% ce mois"
           color="bg-green-500"
         />
         <StatsCard
-          title={isDirecteur ? "Revenus du jour" : "Taux d'occupation"}
-          value={isDirecteur ? "2,450€" : "75%"}
-          icon={isDirecteur ? DollarSign : TrendingUp}
-          trend={isDirecteur ? "+15% vs hier" : "+3% vs hier"}
+          title="Taux d'occupation"
+          value={`${Math.round(occupancyRate?.rate || 0)}%`}
+          icon={TrendingUp}
+          trend="+3% vs hier"
           color="bg-purple-500"
         />
       </div>

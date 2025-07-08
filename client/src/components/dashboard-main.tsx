@@ -11,7 +11,7 @@ import {
   Clock
 } from "lucide-react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, BarChart, Bar } from "recharts";
-import { UserRole } from "@/lib/permissions";
+type UserRole = 'directeur' | 'employe' | 'admin';
 
 interface DashboardMainProps {
   userRole: UserRole;

@@ -231,7 +231,7 @@ export default function Reservation() {
                   id="customer_phone"
                   type="tel"
                   {...register("customerPhone")}
-                  placeholder="06 12 34 56 78"
+                  placeholder="Ex: +33612345678"
                   className="focus:border-coffee-accent"
                 />
                 {errors.customerPhone && (

@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Mail, MapPin, Phone, Clock, Send, Facebook, Instagram, Twitter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { PhoneInput } from "@/components/ui/phone-input";
+// import { PhoneInput } from "@/components/ui/phone-input"; // Remplacé par Input standard
 
 type ContactFormData = {
   name: string;
@@ -117,15 +117,16 @@ export default function Contact() {
               </div>
 
               <div>
-                <PhoneInput
-                  label="Téléphone"
-                  id="phone"
-                  placeholder="6 12 34 56 78"
-                  onChange={(fullNumber, formatted, isValid) => {
-                    setValue("phone", fullNumber);
-                  }}
-                  className="[&_select]:bg-coffee-cream [&_input]:bg-coffee-cream [&_input]:text-coffee-dark [&_input]:focus:border-coffee-accent"
-                />
+                <div>
+                  <Label htmlFor="phone">Téléphone</Label>
+                  <Input
+                    id="phone"
+                    {...register("phone")}
+                    placeholder="Ex: +33612345678"
+                    type="tel"
+                    className="bg-coffee-cream text-coffee-dark focus:border-coffee-accent"
+                  />
+                </div>
                 {errors.phone && (
                   <p className="text-red-400 text-sm mt-1">{errors.phone.message}</p>
                 )}

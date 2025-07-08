@@ -1360,6 +1360,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // APIs statistiques manquantes
+  app.get("/api/admin/stats/orders-by-status", authenticateToken, async (req, res) => {
+    try {
+      const ordersByStatus = await storage.getOrdersByStatus();
+      res.json(ordersByStatus);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques de commandes" });
+    }
+  });
+
+  app.get("/api/admin/stats/daily-reservations", authenticateToken, async (req, res) => {
+    try {
+      // Récupérer les réservations des 7 derniers jours
+      const dailyStats = [];
+      const days = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+      
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        
+        const reservations = await storage.getReservationsByDate(dateStr);
+        dailyStats.push({
+          date: days[date.getDay() === 0 ? 6 : date.getDay() - 1], // Ajuster pour commencer par lundi
+          count: reservations.length
+        });
+      }
+      
+      res.json(dailyStats);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des réservations quotidiennes" });
+    }
+  });
+
+  app.get("/api/admin/stats/reservation-status", authenticateToken, async (req, res) => {
+    try {
+      const reservations = await storage.getReservations();
+      const statusCounts = reservations.reduce((acc: any, reservation: any) => {
+        acc[reservation.status] = (acc[reservation.status] || 0) + 1;
+        return acc;
+      }, {});
+      
+      const statusData = Object.entries(statusCounts).map(([status, count]) => ({
+        name: status,
+        value: count,
+        color: getStatusColor(status)
+      }));
+      
+      res.json(statusData);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statuts de réservation" });
+    }
+  });
+
+  // Helper function for status colors
+  function getStatusColor(status: string): string {
+    const colors: { [key: string]: string } = {
+      'confirmée': '#10b981',
+      'pending': '#f59e0b',
+      'cancelled': '#ef4444',
+      'completed': '#3b82f6'
+    };
+    return colors[status] || '#6b7280';
+  }
+
   // Settings API for restaurant configuration
   app.get("/api/settings", authenticateToken, async (req, res) => {
     try {
