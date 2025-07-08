@@ -15,12 +15,10 @@ import {
   Bell,
   Sun,
   Moon,
-  ChevronLeft,
-  ChevronRight,
+  ChevronDown,
   User,
   Package2,
-  Star,
-  ChevronDown
+  Star
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -47,91 +45,125 @@ import LoyaltySystem from '@/components/admin/loyalty-system';
 interface User {
   id: number;
   username: string;
-  role: 'directeur' | 'employe';
+  role: string;
   firstName?: string;
   lastName?: string;
+  email?: string;
 }
 
-export default function AdminSimple() {
+export default function AdminHorizontal() {
   const [location, navigate] = useLocation();
   const params = useParams();
   const { theme, toggleTheme } = useTheme();
-  const [isCollapsed, setIsCollapsed] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentSection, setCurrentSection] = useState('dashboard');
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
-  // Gestion du routage par URL avec paramètres
-  useEffect(() => {
-    const section = params.section || 'dashboard';
-    setCurrentSection(section);
-  }, [params.section]);
+  const [pendingReservations, setPendingReservations] = useState([]);
+  const [newMessages, setNewMessages] = useState([]);
+  const [pendingOrders, setPendingOrders] = useState([]);
 
-  // Fonction pour naviguer vers une section
-  const navigateToSection = (section: string) => {
-    const basePath = user?.role === 'directeur' ? '/admin' : '/employe';
-    if (section === 'dashboard') {
-      navigate(basePath);
-    } else {
-      navigate(`${basePath}/${section}`);
-    }
-  };
+  const totalNotifications = pendingReservations.length + newMessages.length + pendingOrders.length;
 
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem('admin-token');
-      if (!token) {
-        setIsLoading(false);
-        navigate('/login');
-        return;
-      }
-
       try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          navigate('/admin/login');
+          return;
+        }
+
         const response = await fetch('/api/auth/verify', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         });
-        
+
         if (response.ok) {
           const userData = await response.json();
           setUser(userData);
         } else {
-          localStorage.removeItem('admin-token');
-          setIsLoading(false);
-          navigate('/login');
+          localStorage.removeItem('token');
+          navigate('/admin/login');
         }
       } catch (error) {
-        localStorage.removeItem('admin-token');
-        setIsLoading(false);
-        navigate('/login');
+        console.error('Auth check failed:', error);
+        navigate('/admin/login');
       } finally {
         setIsLoading(false);
       }
     };
 
     checkAuth();
-  }, []); // Dependency array empty to run only once
+  }, [navigate]);
 
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      if (!user) return;
 
+      try {
+        const token = localStorage.getItem('token');
+        const headers = {
+          'Authorization': `Bearer ${token}`
+        };
+
+        const [reservationsRes, messagesRes, ordersRes] = await Promise.all([
+          fetch('/api/admin/notifications/pending-reservations', { headers }),
+          fetch('/api/admin/notifications/new-messages', { headers }),
+          fetch('/api/admin/notifications/pending-orders', { headers })
+        ]);
+
+        if (reservationsRes.ok) {
+          const reservations = await reservationsRes.json();
+          setPendingReservations(reservations);
+        }
+
+        if (messagesRes.ok) {
+          const messages = await messagesRes.json();
+          setNewMessages(messages);
+        }
+
+        if (ordersRes.ok) {
+          const orders = await ordersRes.json();
+          setPendingOrders(orders);
+        }
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
+      }
+    };
+
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, [user]);
+
+  const currentSection = params.section || 'dashboard';
+
+  const navigateToSection = (section: string) => {
+    navigate(`/admin/${section}`);
+  };
 
   const handleLogout = () => {
-    localStorage.removeItem('admin-token');
-    navigate('/login');
+    localStorage.removeItem('token');
+    navigate('/admin/login');
   };
 
   const getMenuItems = () => {
+    const userRole = user?.role;
+    
     const common = [
       { icon: LayoutDashboard, label: 'Tableau de bord', section: 'dashboard' },
       { icon: Calendar, label: 'Réservations', section: 'reservations' },
       { icon: ShoppingCart, label: 'Commandes', section: 'orders' },
-      { icon: Users, label: 'Clients', section: 'customers', readonly: user?.role === 'employe' },
+      { icon: Users, label: 'Clients', section: 'customers', readonly: userRole === 'employe' },
       { icon: MenuIcon, label: 'Menu', section: 'menu' },
       { icon: MessageSquare, label: 'Messages', section: 'messages' },
     ];
 
-    if (user?.role === 'directeur') {
+    if (userRole === 'directeur') {
       return [
         ...common,
         { icon: UserCheck, label: 'Employés', section: 'employees' },
@@ -147,51 +179,24 @@ export default function AdminSimple() {
     return common;
   };
 
-  const getSectionTitle = () => {
-    switch (currentSection) {
-      case 'dashboard':
-        return 'Tableau de bord';
-      case 'reservations':
-        return 'Gestion des Réservations';
-      case 'orders':
-        return 'Gestion des Commandes';
-      case 'customers':
-        return 'Gestion des Clients';
-      case 'menu':
-        return 'Gestion du Menu';
-      case 'messages':
-        return 'Gestion des Messages';
-      case 'employees':
-        return 'Gestion des Employés';
-      case 'settings':
-        return 'Paramètres Généraux';
-      case 'statistics':
-        return 'Statistiques Avancées';
-      case 'logs':
-        return 'Historique des Actions';
-      default:
-        return 'Administration';
-    }
-  };
-
   const renderContent = () => {
-    const userRole = user?.role || 'employe';
+    const userRole = user?.role;
     
     switch (currentSection) {
       case 'dashboard':
         return <Dashboard userRole={userRole} />;
       case 'reservations':
-        return <Reservations userRole={userRole} />;
+        return <Reservations />;
       case 'orders':
-        return <Orders userRole={userRole} />;
+        return <Orders />;
       case 'customers':
-        return <Customers userRole={userRole} user={user} />;
-      case 'menu':
-        return <MenuManagement canDelete={userRole === 'directeur'} />;
-      case 'messages':
-        return <Messages />;
+        return <Customers readonly={userRole === 'employe'} />;
       case 'employees':
         return userRole === 'directeur' ? <Employees /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+      case 'menu':
+        return <MenuManagement userRole={userRole} />;
+      case 'messages':
+        return <Messages />;
       case 'settings':
         return userRole === 'directeur' ? <AdminSettings /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case 'statistics':
@@ -221,7 +226,7 @@ export default function AdminSimple() {
   }
 
   if (!user) {
-    return null; // Will redirect via useEffect
+    return null;
   }
 
   return (
@@ -333,144 +338,21 @@ export default function AdminSimple() {
           </div>
         </div>
       </div>
-        {/* Header */}
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            {!isCollapsed && (
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-amber-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">BC</span>
-                </div>
-                <div>
-                  <h1 className="font-semibold text-gray-900 dark:text-white">Barista Café</h1>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {user.role === 'directeur' ? 'Directeur' : 'Employé'}
-                  </p>
-                </div>
-              </div>
-            )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsCollapsed(!isCollapsed)}
-              className="h-8 w-8 p-0"
-            >
-              {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-            </Button>
-          </div>
-        </div>
-
-        {/* Controls */}
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            {!isCollapsed && (
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={toggleTheme}
-                  className="h-8 w-8 p-0"
-                >
-                  {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                </Button>
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  {theme === 'dark' ? 'Mode clair' : 'Mode sombre'}
-                </span>
-              </div>
-            )}
-            {isCollapsed && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleTheme}
-                className="h-8 w-8 p-0"
-              >
-                {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-              </Button>
-            )}
-            {!isCollapsed && (
-              <div className="flex items-center space-x-2">
-                <Button variant="ghost" size="sm" onClick={toggleTheme} className="h-8 w-8 p-0">
-                  {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                </Button>
-                <NotificationsSystem 
-                  isOpen={isNotificationsOpen} 
-                  onToggle={() => setIsNotificationsOpen(!isNotificationsOpen)} 
-                />
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Navigation */}
-        <nav className="p-4 space-y-2">
-          {getMenuItems().map((item) => {
-            const isActive = currentSection === item.section;
-            
-            return (
-              <Button
-                key={item.section}
-                variant={isActive ? "default" : "ghost"}
-                className={cn(
-                  "w-full justify-start h-12",
-                  isCollapsed ? "px-3" : "px-4",
-                  item.readonly && "opacity-60"
-                )}
-                onClick={() => {
-                  navigateToSection(item.section);
-                }}
-                disabled={item.readonly}
-              >
-                <item.icon className="h-5 w-5" />
-                {!isCollapsed && (
-                  <span className="ml-4 truncate text-sm font-medium">
-                    {item.label}
-                    {item.readonly && <span className="ml-1 text-xs">(lecture)</span>}
-                  </span>
-                )}
-              </Button>
-            );
-          })}
-        </nav>
-
-        {/* User Profile */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700">
-          {!isCollapsed && (
-            <div className="flex items-center space-x-3 mb-3">
-              <div className="w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center">
-                <User className="h-4 w-4 text-gray-600 dark:text-gray-300" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                  {user.username}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {user.role === 'directeur' ? 'Directeur' : 'Employé'}
-                </p>
-              </div>
-            </div>
-          )}
-          
-          <Button
-            variant="ghost"
-            onClick={handleLogout}
-            className={cn(
-              "w-full justify-start h-10 text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20",
-              isCollapsed ? "px-2" : "px-3"
-            )}
-          >
-            <LogOut className="h-4 w-4" />
-            {!isCollapsed && <span className="ml-3">Déconnexion</span>}
-          </Button>
-        </div>
-      </div>
 
       {/* Main Content */}
-      <main className={cn("transition-all duration-300", isCollapsed ? "ml-20" : "ml-72")}>
+      <main className="pt-16">
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
           {renderContent()}
         </div>
       </main>
+      
+      {/* Click outside to close dropdown */}
+      {isDropdownOpen && (
+        <div 
+          className="fixed inset-0 z-30" 
+          onClick={() => setIsDropdownOpen(false)}
+        />
+      )}
     </div>
   );
 }

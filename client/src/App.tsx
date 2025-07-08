@@ -13,7 +13,7 @@ import Home from "@/pages/home";
 import LoginSimple from "@/pages/login-simple";
 import Register from "@/pages/register";
 import InteractiveReservation from "@/components/interactive-reservation";
-import AdminSimple from "@/pages/admin-simple";
+import AdminHorizontal from "@/pages/admin-horizontal";
 
 import NotFound from "@/pages/not-found";
 import MenuPage from "@/components/menu-page";
@@ -45,10 +45,10 @@ function Router() {
           <Route path="/login" component={LoginSimple} />
           <Route path="/register" component={Register} />
           <Route path="/reservation" component={InteractiveReservation} />
-          <Route path="/admin" component={AdminSimple} />
-          <Route path="/admin/:section" component={AdminSimple} />
-          <Route path="/employe" component={AdminSimple} />
-          <Route path="/employe/:section" component={AdminSimple} />
+          <Route path="/admin" component={AdminHorizontal} />
+          <Route path="/admin/:section" component={AdminHorizontal} />
+          <Route path="/employe" component={AdminHorizontal} />
+          <Route path="/employe/:section" component={AdminHorizontal} />
 
           <Route component={NotFound} />
         </Switch>
