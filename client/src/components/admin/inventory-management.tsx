@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
-  Package, 
+  Package2 as Package, 
   AlertTriangle, 
   TrendingUp, 
   TrendingDown,
