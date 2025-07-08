@@ -48,6 +48,7 @@ import { z } from 'zod';
 import { Plus, Pencil, Trash2, Eye, Users, UserCheck, Clock, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useWebSocket } from '@/hooks/useWebSocket';
+import { PhoneInput } from '@/components/ui/phone-input';
 
 const employeeSchema = z.object({
   firstName: z.string().min(2, 'Le prénom doit contenir au moins 2 caractères'),
@@ -314,10 +315,13 @@ export default function Employees() {
                     <FormItem>
                       <FormLabel>Téléphone</FormLabel>
                       <FormControl>
-                        <div>
-                          <Input {...field} placeholder="+212 6 12 34 56 78" />
-                          <p className="text-xs text-gray-500 mt-1">📞 Exemple : +212 6 12 34 56 78</p>
-                        </div>
+                        <PhoneInput
+                          value={field.value}
+                          onChange={(fullNumber, formatted, isValid) => {
+                            field.onChange(fullNumber);
+                          }}
+                          placeholder="6 12 34 56 78"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

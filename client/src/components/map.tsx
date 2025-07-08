@@ -53,8 +53,8 @@ export default function Map() {
               <div>
                 <h3 className="font-semibold text-coffee-dark mb-2">Téléphone</h3>
                 <p className="text-gray-600">
-                  <a href="tel:+33123456789" className="hover:text-coffee-accent transition-colors">
-                    +33 1 23 45 67 89
+                  <a href="tel:+212522123456" className="hover:text-coffee-accent transition-colors">
+                    🇲🇦 +212 5 22 12 34 56
                   </a>
                 </p>
               </div>

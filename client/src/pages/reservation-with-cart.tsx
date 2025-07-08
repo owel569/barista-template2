@@ -27,6 +27,7 @@ import {
   CheckCircle
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { z } from "zod";
 import Navigation from "@/components/navigation";
 import Footer from "@/components/footer";
@@ -370,11 +371,14 @@ export default function ReservationWithCart() {
                     </div>
 
                     <div>
-                      <Label htmlFor="customerPhone">Téléphone</Label>
-                      <Input
+                      <PhoneInput
+                        label="Téléphone"
                         id="customerPhone"
-                        {...register("customerPhone")}
-                        className="border-coffee-secondary focus:border-coffee-accent"
+                        placeholder="6 12 34 56 78"
+                        onChange={(fullNumber, formatted, isValid) => {
+                          setValue("customerPhone", fullNumber);
+                        }}
+                        className="[&_select]:border-coffee-secondary [&_select]:focus:border-coffee-accent [&_input]:border-coffee-secondary [&_input]:focus:border-coffee-accent"
                       />
                       {errors.customerPhone && (
                         <p className="text-red-500 text-sm mt-1">

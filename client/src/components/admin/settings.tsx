@@ -41,6 +41,7 @@ import {
   Palette
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { PhoneInput } from '@/components/ui/phone-input';
 
 const generalSettingsSchema = z.object({
   restaurantName: z.string().min(2, 'Le nom du restaurant doit contenir au moins 2 caractères'),
@@ -282,7 +283,13 @@ export default function Settings() {
                             <span>Téléphone</span>
                           </FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <PhoneInput
+                              value={field.value}
+                              onChange={(fullNumber, formatted, isValid) => {
+                                field.onChange(fullNumber);
+                              }}
+                              placeholder="6 12 34 56 78"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
