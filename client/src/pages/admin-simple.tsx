@@ -37,6 +37,9 @@ import AdminSettings from '@/components/admin/settings';
 import NotificationsSystem from '@/components/admin/notifications-system';
 import Statistics from '@/components/admin/statistics';
 import ActivityLogs from '@/components/admin/activity-logs';
+import PermissionsManagement from '@/components/admin/permissions-management';
+import InventoryManagement from '@/components/admin/inventory-management';
+import LoyaltySystem from '@/components/admin/loyalty-system';
 
 interface User {
   id: number;
@@ -131,6 +134,9 @@ export default function AdminSimple() {
         { icon: Settings, label: 'Paramètres', section: 'settings' },
         { icon: BarChart3, label: 'Statistiques', section: 'statistics' },
         { icon: History, label: 'Historique', section: 'logs' },
+        { icon: Settings, label: 'Permissions', section: 'permissions' },
+        { icon: Package, label: 'Stocks', section: 'inventory' },
+        { icon: Star, label: 'Fidélité', section: 'loyalty' },
       ];
     }
 
@@ -188,6 +194,12 @@ export default function AdminSimple() {
         return userRole === 'directeur' ? <Statistics /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case 'logs':
         return userRole === 'directeur' ? <ActivityLogs /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+      case 'permissions':
+        return userRole === 'directeur' ? <PermissionsManagement /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+      case 'inventory':
+        return userRole === 'directeur' ? <InventoryManagement /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+      case 'loyalty':
+        return userRole === 'directeur' ? <LoyaltySystem /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       default:
         return <Dashboard userRole={userRole} />;
     }

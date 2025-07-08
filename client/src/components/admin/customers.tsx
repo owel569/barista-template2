@@ -496,7 +496,12 @@ export default function Customers({ userRole, user }: CustomersProps) {
                                 </div>
                                 <div>
                                   <Label>Dernière visite</Label>
-                                  <p className="text-sm">{format(new Date(selectedCustomer.lastVisit), 'dd/MM/yyyy à HH:mm', { locale: fr })}</p>
+                                  <p className="text-sm">
+                                    {selectedCustomer.lastVisit ? 
+                                      format(new Date(selectedCustomer.lastVisit), 'dd/MM/yyyy à HH:mm', { locale: fr }) : 
+                                      'Jamais'
+                                    }
+                                  </p>
                                 </div>
                                 <div>
                                   <Label>Client depuis</Label>

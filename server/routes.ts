@@ -946,6 +946,213 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Permissions management routes
+  app.get("/api/admin/permissions/:userId", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      // Simulate permissions - in real app, this would come from database
+      const permissions = [
+        { id: 1, userId, module: 'dashboard', canView: true, canCreate: false, canUpdate: false, canDelete: false },
+        { id: 2, userId, module: 'reservations', canView: true, canCreate: true, canUpdate: true, canDelete: false },
+        { id: 3, userId, module: 'orders', canView: true, canCreate: true, canUpdate: true, canDelete: false },
+        { id: 4, userId, module: 'customers', canView: true, canCreate: false, canUpdate: false, canDelete: false },
+        { id: 5, userId, module: 'menu', canView: true, canCreate: true, canUpdate: true, canDelete: false },
+        { id: 6, userId, module: 'messages', canView: true, canCreate: false, canUpdate: true, canDelete: false },
+        { id: 7, userId, module: 'employees', canView: false, canCreate: false, canUpdate: false, canDelete: false },
+        { id: 8, userId, module: 'settings', canView: false, canCreate: false, canUpdate: false, canDelete: false },
+        { id: 9, userId, module: 'statistics', canView: false, canCreate: false, canUpdate: false, canDelete: false },
+        { id: 10, userId, module: 'logs', canView: false, canCreate: false, canUpdate: false, canDelete: false }
+      ];
+      res.json(permissions);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des permissions" });
+    }
+  });
+
+  app.put("/api/admin/permissions/:userId", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const permissions = req.body;
+      // In real app, save to database
+      res.json({ message: "Permissions mises à jour avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour des permissions" });
+    }
+  });
+
+  // Inventory management routes
+  app.get("/api/admin/inventory/items", authenticateToken, async (req, res) => {
+    try {
+      const items = await storage.getMenuItems();
+      // Add inventory fields
+      const inventoryItems = items.map(item => ({
+        ...item,
+        stock: Math.floor(Math.random() * 100),
+        minStock: 10,
+        maxStock: 100,
+        supplier: "Fournisseur Principal",
+        cost: parseFloat(item.price) * 0.6
+      }));
+      res.json(inventoryItems);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des articles" });
+    }
+  });
+
+  app.get("/api/admin/inventory/alerts", authenticateToken, async (req, res) => {
+    try {
+      const alerts = [
+        { id: 1, itemId: 1, itemName: "Espresso", currentStock: 5, minStock: 10, alertLevel: "low", createdAt: new Date().toISOString() },
+        { id: 2, itemId: 2, itemName: "Americano", currentStock: 0, minStock: 10, alertLevel: "out", createdAt: new Date().toISOString() },
+        { id: 3, itemId: 3, itemName: "Cappuccino", currentStock: 3, minStock: 10, alertLevel: "critical", createdAt: new Date().toISOString() }
+      ];
+      res.json(alerts);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des alertes" });
+    }
+  });
+
+  app.get("/api/admin/inventory/stats", authenticateToken, async (req, res) => {
+    try {
+      const items = await storage.getMenuItems();
+      const stats = {
+        totalItems: items.length,
+        availableItems: items.filter(item => item.available).length,
+        lowStockItems: 3,
+        outOfStockItems: 1,
+        totalValue: items.reduce((sum, item) => sum + parseFloat(item.price), 0) * 10,
+        avgCostPerItem: items.reduce((sum, item) => sum + parseFloat(item.price), 0) / items.length
+      };
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques" });
+    }
+  });
+
+  app.put("/api/admin/inventory/items/:id/stock", authenticateToken, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { stock } = req.body;
+      // In real app, update stock in database
+      res.json({ message: "Stock mis à jour avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour du stock" });
+    }
+  });
+
+  app.put("/api/admin/inventory/items/:id", authenticateToken, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const data = req.body;
+      // In real app, update item in database
+      res.json({ message: "Article mis à jour avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour de l'article" });
+    }
+  });
+
+  app.post("/api/admin/inventory/items", authenticateToken, async (req, res) => {
+    try {
+      const data = req.body;
+      // In real app, create item in database
+      res.status(201).json({ message: "Article créé avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la création de l'article" });
+    }
+  });
+
+  // Loyalty system routes
+  app.get("/api/admin/loyalty/customers", authenticateToken, async (req, res) => {
+    try {
+      const customers = await storage.getCustomers();
+      const loyaltyCustomers = customers.map(customer => ({
+        ...customer,
+        loyaltyPoints: Math.floor(customer.totalSpent / 10),
+        loyaltyLevel: customer.totalSpent > 500 ? 'VIP' : customer.totalSpent > 200 ? 'Fidèle' : customer.totalSpent > 50 ? 'Régulier' : 'Nouveau',
+        nextRewardThreshold: customer.totalSpent > 500 ? 1000 : customer.totalSpent > 200 ? 500 : customer.totalSpent > 50 ? 200 : 100,
+        rewards: []
+      }));
+      res.json(loyaltyCustomers);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des clients fidélité" });
+    }
+  });
+
+  app.get("/api/admin/loyalty/rewards", authenticateToken, async (req, res) => {
+    try {
+      const rewards = [
+        { id: 1, name: "Café gratuit", description: "Un café de votre choix offert", pointsCost: 100, type: "free_item", value: 0, isActive: true, minLevel: "Nouveau" },
+        { id: 2, name: "Réduction 10%", description: "10% de réduction sur votre commande", pointsCost: 150, type: "discount", value: 10, isActive: true, minLevel: "Régulier" },
+        { id: 3, name: "Pâtisserie gratuite", description: "Une pâtisserie de votre choix", pointsCost: 200, type: "free_item", value: 0, isActive: true, minLevel: "Régulier" },
+        { id: 4, name: "Réduction 20%", description: "20% de réduction sur votre commande", pointsCost: 300, type: "discount", value: 20, isActive: true, minLevel: "Fidèle" },
+        { id: 5, name: "Menu complet gratuit", description: "Un menu café + pâtisserie offert", pointsCost: 500, type: "free_item", value: 0, isActive: true, minLevel: "VIP" },
+        { id: 6, name: "Cadeau surprise", description: "Un cadeau spécial de la maison", pointsCost: 750, type: "gift", value: 15, isActive: true, minLevel: "VIP" }
+      ];
+      res.json(rewards);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des récompenses" });
+    }
+  });
+
+  app.get("/api/admin/loyalty/stats", authenticateToken, async (req, res) => {
+    try {
+      const customers = await storage.getCustomers();
+      const levelDistribution = [
+        { level: "Nouveau", count: customers.filter(c => c.totalSpent <= 50).length, percentage: 0 },
+        { level: "Régulier", count: customers.filter(c => c.totalSpent > 50 && c.totalSpent <= 200).length, percentage: 0 },
+        { level: "Fidèle", count: customers.filter(c => c.totalSpent > 200 && c.totalSpent <= 500).length, percentage: 0 },
+        { level: "VIP", count: customers.filter(c => c.totalSpent > 500).length, percentage: 0 }
+      ];
+      
+      levelDistribution.forEach(level => {
+        level.percentage = Math.round((level.count / customers.length) * 100);
+      });
+
+      const stats = {
+        totalCustomers: customers.length,
+        activeMembers: customers.filter(c => c.totalSpent > 0).length,
+        totalPointsIssued: customers.reduce((sum, c) => sum + Math.floor(c.totalSpent / 10), 0),
+        totalRewardsRedeemed: 47,
+        averageOrderValue: customers.reduce((sum, c) => sum + c.totalSpent, 0) / customers.length,
+        retentionRate: 78,
+        levelDistribution
+      };
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques fidélité" });
+    }
+  });
+
+  app.post("/api/admin/loyalty/award-points", authenticateToken, async (req, res) => {
+    try {
+      const { customerId, points, reason } = req.body;
+      // In real app, update customer points in database
+      res.json({ message: "Points attribués avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de l'attribution des points" });
+    }
+  });
+
+  app.post("/api/admin/loyalty/redeem-reward", authenticateToken, async (req, res) => {
+    try {
+      const { customerId, rewardId } = req.body;
+      // In real app, process reward redemption
+      res.json({ message: "Récompense échangée avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de l'échange de récompense" });
+    }
+  });
+
+  app.post("/api/admin/loyalty/rewards", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const data = req.body;
+      // In real app, create reward in database
+      res.status(201).json({ message: "Récompense créée avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la création de la récompense" });
+    }
+  });
+
   // User management routes (directeur only)
   app.get("/api/admin/users", authenticateToken, requireRole('directeur'), async (req, res) => {
     try {

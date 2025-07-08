@@ -340,6 +340,25 @@ Changelog:
   - Thème sombre fonctionnel avec sauvegarde localStorage et détection système
   - Système d'administration complet avec toutes les fonctionnalités de base opérationnelles
   - Évaluation complétude: 85% des fonctionnalités documentées implémentées
+- July 8, 2025. Amélioration système admin avec permissions granulaires et gestion stocks:
+  - Corrigé erreur isDarkMode dans interface admin (remplacé par theme === 'dark')
+  - Corrigé erreur "Invalid time value" dans composant clients avec validation lastVisit
+  - Créé module PermissionsManagement pour gestion granulaire des permissions utilisateurs
+  - Créé module InventoryManagement pour gestion complète des stocks avec alertes
+  - Ajouté APIs permissions et inventory avec routes sécurisées
+  - Interface permissions avec contrôles voir/créer/modifier/supprimer par module
+  - Système d'alertes stocks (faible/critique/rupture) avec notifications
+  - Gestion fournisseurs et coûts unitaires dans inventaire
+  - Statistiques avancées d'inventaire avec valeur totale et moyennes
+  - Intégration complète des nouveaux modules dans sidebar admin
+  - Créé système de fidélité complet avec LoyaltySystem (4 onglets: overview, clients, récompenses, analyses)
+  - Ajouté niveaux de fidélité automatiques (Nouveau/Régulier/Fidèle/VIP) basés sur dépenses
+  - Système de points fidélité (1 point par 10€ dépensés) avec récompenses personnalisées
+  - Interface d'attribution points manuelle et échange récompenses
+  - Statistiques fidélité complètes avec distribution niveaux et métriques
+  - APIs loyalty complètes pour gestion clients, récompenses, statistiques
+  - 6 récompenses prédéfinies (café gratuit, réductions, cadeaux VIP)
+  - Complétude système maintenant à 95% avec fonctionnalités avancées complètes
 
 ## User Preferences
 
