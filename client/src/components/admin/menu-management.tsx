@@ -214,7 +214,7 @@ export default function MenuManagement({ canDelete = true }: MenuManagementProps
     form.reset({
       name: item.name,
       description: item.description,
-      price: item.price,
+      price: typeof item.price === 'number' ? item.price.toString() : item.price.toString(),
       categoryId: item.categoryId,
       available: item.available,
       imageUrl: imageUrl,

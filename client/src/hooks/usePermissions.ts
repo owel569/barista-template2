@@ -1,60 +1,69 @@
-import { useMemo } from 'react';
 import { User } from '@/types/admin';
 
-export interface PermissionConfig {
-  canView: (module: string) => boolean;
-  canCreate: (module: string) => boolean;
-  canModify: (module: string) => boolean;
-  canDelete: (module: string) => boolean;
-}
-
-export function usePermissions(user: User | null): PermissionConfig {
-  return useMemo(() => {
-    if (!user) {
-      return {
-        canView: () => false,
-        canCreate: () => false,
-        canModify: () => false,
-        canDelete: () => false,
-      };
+export function usePermissions(user: User | null) {
+  const userRole = user?.role || 'employe';
+  
+  const canModify = (module: string): boolean => {
+    if (userRole === 'directeur') return true;
+    
+    switch (module) {
+      case 'customers':
+        return false; // Employés en lecture seule
+      case 'menu':
+        return true; // Employés peuvent modifier le menu
+      case 'reservations':
+        return true; // Employés peuvent modifier les réservations
+      case 'orders':
+        return true; // Employés peuvent modifier les commandes
+      case 'messages':
+        return true; // Employés peuvent gérer les messages
+      case 'employees':
+        return false; // Réservé aux directeurs
+      case 'settings':
+        return false; // Réservé aux directeurs
+      default:
+        return false;
     }
+  };
 
-    const isDirecteur = user.role === 'directeur';
+  const canDelete = (module: string): boolean => {
+    if (userRole === 'directeur') return true;
+    
+    switch (module) {
+      case 'menu':
+        return false; // Employés ne peuvent pas supprimer du menu
+      case 'customers':
+        return false; // Employés ne peuvent pas supprimer des clients
+      case 'reservations':
+        return false; // Employés ne peuvent pas supprimer des réservations
+      case 'orders':
+        return false; // Employés ne peuvent pas supprimer des commandes
+      default:
+        return false;
+    }
+  };
 
-    return {
-      canView: (module: string) => {
-        // Tous les modules sont visibles sauf pour les employés sur certains modules
-        if (isDirecteur) return true;
-        
-        // Modules interdits aux employés
-        const forbiddenModules = ['employees', 'settings', 'users', 'statistics', 'activity-logs'];
-        return !forbiddenModules.includes(module);
-      },
+  const canView = (module: string): boolean => {
+    if (userRole === 'directeur') return true;
+    
+    switch (module) {
+      case 'employees':
+        return false; // Réservé aux directeurs
+      case 'settings':
+        return false; // Réservé aux directeurs
+      case 'statistics':
+        return false; // Réservé aux directeurs
+      case 'logs':
+        return false; // Réservé aux directeurs
+      default:
+        return true; // Employés peuvent voir les autres modules
+    }
+  };
 
-      canCreate: (module: string) => {
-        if (isDirecteur) return true;
-        
-        // Employés peuvent créer dans certains modules
-        const allowedModules = ['reservations', 'orders', 'menu'];
-        return allowedModules.includes(module);
-      },
-
-      canModify: (module: string) => {
-        if (isDirecteur) return true;
-        
-        // Employés peuvent modifier dans certains modules
-        const allowedModules = ['reservations', 'orders', 'menu', 'messages'];
-        
-        // Clients en lecture seule pour les employés
-        if (module === 'customers') return false;
-        
-        return allowedModules.includes(module);
-      },
-
-      canDelete: (module: string) => {
-        // Seuls les directeurs peuvent supprimer
-        return isDirecteur;
-      },
-    };
-  }, [user]);
+  return {
+    canModify,
+    canDelete,
+    canView,
+    userRole
+  };
 }
