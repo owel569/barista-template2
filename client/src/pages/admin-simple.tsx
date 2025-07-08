@@ -17,7 +17,9 @@ import {
   Moon,
   ChevronLeft,
   ChevronRight,
-  User
+  User,
+  Package2,
+  Star
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -135,7 +137,7 @@ export default function AdminSimple() {
         { icon: BarChart3, label: 'Statistiques', section: 'statistics' },
         { icon: History, label: 'Historique', section: 'logs' },
         { icon: Settings, label: 'Permissions', section: 'permissions' },
-        { icon: Package, label: 'Stocks', section: 'inventory' },
+        { icon: Package2, label: 'Stocks', section: 'inventory' },
         { icon: Star, label: 'Fidélité', section: 'loyalty' },
       ];
     }
