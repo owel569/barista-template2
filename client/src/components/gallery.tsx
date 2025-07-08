@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog";
 import { Image, Camera, MapPin, Clock, Users } from "lucide-react";
 
 interface GalleryImage {
@@ -20,43 +20,37 @@ const galleryImages: GalleryImage[] = [
     title: "Ambiance chaleureuse",
     description: "Notre salle principale avec vue panoramique",
     category: "intérieur",
-    imageUrl: "data:image/svg+xml,%3Csvg viewBox='0 0 400 300' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='400' height='300' fill='%23f59e0b'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='24'%3EIntérieur Chaleureux%3C/text%3E%3C/svg%3E"
+    imageUrl: "https://images.pexels.com/photos/3021250/pexels-photo-3021250.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop"
   },
   {
     id: 2,
     title: "Terrasse vue mer",
     description: "Notre magnifique terrasse avec vue sur l'océan",
     category: "extérieur",
-    imageUrl: "data:image/svg+xml,%3Csvg viewBox='0 0 400 300' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='400' height='300' fill='%2306b6d4'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='24'%3ETerrasse Vue Mer%3C/text%3E%3C/svg%3E"
+    imageUrl: "https://images.pexels.com/photos/30957991/pexels-photo-30957991.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop"
   },
   {
     id: 3,
-    title: "Pizza artisanale",
-    description: "Nos pizzas cuites au feu de bois",
-    category: "plats",
-    imageUrl: "data:image/svg+xml,%3Csvg viewBox='0 0 400 300' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='400' height='300' fill='%23dc2626'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='24'%3EPizza Artisanale%3C/text%3E%3C/svg%3E"
+    title: "Bar à jus",
+    description: "Notre bar coloré avec une sélection de jus frais et boissons",
+    category: "boissons",
+    imageUrl: "https://images.pexels.com/photos/32659127/pexels-photo-32659127.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop"
   },
   {
     id: 4,
     title: "Café signature",
     description: "Notre mélange exclusif de café arabica",
     category: "boissons",
-    imageUrl: "data:image/svg+xml,%3Csvg viewBox='0 0 400 300' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='400' height='300' fill='%2392400e'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='24'%3ECafé Signature%3C/text%3E%3C/svg%3E"
+    imageUrl: "https://images.pexels.com/photos/29799615/pexels-photo-29799615.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop"
   },
   {
     id: 5,
-    title: "Pâtes fraîches",
-    description: "Pâtes maison préparées quotidiennement",
+    title: "Plats divers",
+    description: "Sélection variée de nos spécialités culinaires artisanales",
     category: "plats",
-    imageUrl: "data:image/svg+xml,%3Csvg viewBox='0 0 400 300' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='400' height='300' fill='%2365a30d'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='24'%3EPâtes Fraîches%3C/text%3E%3C/svg%3E"
+    imageUrl: "https://images.pexels.com/photos/6605298/pexels-photo-6605298.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop"
   },
-  {
-    id: 6,
-    title: "Bar à jus",
-    description: "Jus frais et smoothies naturels",
-    category: "boissons",
-    imageUrl: "data:image/svg+xml,%3Csvg viewBox='0 0 400 300' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='400' height='300' fill='%23059669'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='24'%3EBar à Jus%3C/text%3E%3C/svg%3E"
-  }
+
 ];
 
 const categories = [
@@ -131,6 +125,7 @@ export default function Gallery() {
                 </Card>
               </DialogTrigger>
               <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden" aria-describedby="image-description">
+                <DialogTitle className="sr-only">Image de galerie</DialogTitle>
                 <div className="relative">
                   <img
                     src={image.imageUrl}
