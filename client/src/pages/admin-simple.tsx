@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // Import admin modules
 import Dashboard from '@/components/admin/dashboard';
@@ -48,8 +49,9 @@ interface User {
 export default function AdminSimple() {
   const [location, navigate] = useLocation();
   const params = useParams();
+  const { theme, toggleTheme } = useTheme();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentSection, setCurrentSection] = useState('dashboard');
@@ -105,10 +107,7 @@ export default function AdminSimple() {
     checkAuth();
   }, []); // Dependency array empty to run only once
 
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-    document.documentElement.classList.toggle('dark');
-  };
+
 
   const handleLogout = () => {
     localStorage.removeItem('admin-token');
@@ -246,6 +245,31 @@ export default function AdminSimple() {
         {/* Controls */}
         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
+            {!isCollapsed && (
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={toggleTheme}
+                  className="h-8 w-8 p-0"
+                >
+                  {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                </Button>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {theme === 'dark' ? 'Mode clair' : 'Mode sombre'}
+                </span>
+              </div>
+            )}
+            {isCollapsed && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleTheme}
+                className="h-8 w-8 p-0"
+              >
+                {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </Button>
+            )}
             {!isCollapsed && (
               <div className="flex items-center space-x-2">
                 <Button variant="ghost" size="sm" onClick={toggleTheme} className="h-8 w-8 p-0">

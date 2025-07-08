@@ -488,7 +488,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                                 )}
                                 <div>
                                   <Label>Total dépensé</Label>
-                                  <p className="text-sm font-semibold">{selectedCustomer.totalSpent.toFixed(2)}€</p>
+                                  <p className="text-sm font-semibold">{typeof selectedCustomer.totalSpent === 'number' ? selectedCustomer.totalSpent.toFixed(2) : parseFloat(selectedCustomer.totalSpent || '0').toFixed(2)}€</p>
                                 </div>
                                 <div>
                                   <Label>Nombre de commandes</Label>

@@ -1547,6 +1547,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin - Statistiques de fidélité clients
+  app.get('/api/admin/stats/loyalty-analytics', authenticateToken, async (req, res) => {
+    try {
+      const customers = await storage.getCustomers();
+      const loyaltyStats = customers.map(customer => ({
+        ...customer,
+        loyaltyLevel: customer.totalSpent > 500 ? 'VIP' : 
+                     customer.totalSpent > 200 ? 'Fidèle' : 
+                     customer.totalSpent > 50 ? 'Régulier' : 'Nouveau',
+        points: Math.floor(parseFloat(customer.totalSpent || '0') / 10) // 1 point par 10€
+      }));
+      
+      const levelCounts = loyaltyStats.reduce((acc, customer) => {
+        acc[customer.loyaltyLevel] = (acc[customer.loyaltyLevel] || 0) + 1;
+        return acc;
+      }, {});
+      
+      res.json({
+        customers: loyaltyStats,
+        levelDistribution: Object.entries(levelCounts).map(([level, count]) => ({
+          level,
+          count,
+          percentage: (count / loyaltyStats.length * 100).toFixed(1)
+        }))
+      });
+    } catch (error) {
+      console.error('Erreur lors de la récupération des statistiques de fidélité:', error);
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
   const httpServer = createServer(app);
   
   // Initialiser le WebSocket
