@@ -227,7 +227,7 @@ export default function AdminSimple() {
       {/* Sidebar */}
       <div className={cn(
         "fixed left-0 top-0 h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 z-30",
-        isCollapsed ? "w-16" : "w-64"
+        isCollapsed ? "w-20" : "w-72"
       )}>
         {/* Header */}
         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
@@ -308,8 +308,8 @@ export default function AdminSimple() {
                 key={item.section}
                 variant={isActive ? "default" : "ghost"}
                 className={cn(
-                  "w-full justify-start h-10",
-                  isCollapsed ? "px-2" : "px-3",
+                  "w-full justify-start h-12",
+                  isCollapsed ? "px-3" : "px-4",
                   item.readonly && "opacity-60"
                 )}
                 onClick={() => {
@@ -317,9 +317,9 @@ export default function AdminSimple() {
                 }}
                 disabled={item.readonly}
               >
-                <item.icon className="h-4 w-4" />
+                <item.icon className="h-5 w-5" />
                 {!isCollapsed && (
-                  <span className="ml-3 truncate">
+                  <span className="ml-4 truncate text-sm font-medium">
                     {item.label}
                     {item.readonly && <span className="ml-1 text-xs">(lecture)</span>}
                   </span>
@@ -362,7 +362,7 @@ export default function AdminSimple() {
       </div>
 
       {/* Main Content */}
-      <main className={cn("transition-all duration-300", isCollapsed ? "ml-16" : "ml-64")}>
+      <main className={cn("transition-all duration-300", isCollapsed ? "ml-20" : "ml-72")}>
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
           {renderContent()}
         </div>

@@ -3,6 +3,7 @@ import { users, menuCategories, menuItems, tables, reservations, customers, empl
 import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import { cleanupDuplicateMenuItems } from "./cleanup-duplicates";
+import { insertTestData } from "./test-data";
 
 export async function initializeDatabase() {
   try {
@@ -399,6 +400,9 @@ export async function initializeDatabase() {
     console.log("Base de données initialisée avec succès !");
     console.log("Identifiants administrateur: nom d'utilisateur=admin, mot de passe=admin123");
     console.log("Identifiants employé: nom d'utilisateur=employe, mot de passe=employe123");
+    
+    // Insérer des données de test supplémentaires
+    await insertTestData();
     
   } catch (error) {
     console.error("Erreur lors de l'initialisation de la base de données:", error);
