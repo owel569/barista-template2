@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { usePermissions } from '@/hooks/usePermissions';
 // import { PhoneInput } from '@/components/ui/phone-input'; // Remplacé par Input standard
-import { Customer, User } from '@/types/admin';
+import { Customer, User } from '../../../types/admin';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 

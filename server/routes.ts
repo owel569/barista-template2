@@ -1802,6 +1802,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin notification routes
+  app.get("/api/admin/notifications/pending-reservations", authenticateToken, async (req, res) => {
+    try {
+      const reservations = await storage.getPendingNotificationReservations();
+      res.json(reservations);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des réservations en attente" });
+    }
+  });
+
+  app.get("/api/admin/notifications/new-messages", authenticateToken, async (req, res) => {
+    try {
+      const messages = await storage.getContactMessages();
+      // Filtrer les messages non lus ou récents
+      const newMessages = messages.filter(msg => msg.status === 'nouveau' || msg.status === 'non_lu');
+      res.json(newMessages);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des nouveaux messages" });
+    }
+  });
+
+  app.get("/api/admin/notifications/pending-orders", authenticateToken, async (req, res) => {
+    try {
+      const orders = await storage.getOrders();
+      // Filtrer les commandes en attente
+      const pendingOrders = orders.filter(order => order.status === 'en_attente' || order.status === 'en_preparation');
+      res.json(pendingOrders);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des commandes en attente" });
+    }
+  });
+
   // Contact messages routes
   app.get("/api/contact-messages", authenticateToken, async (req, res) => {
     try {

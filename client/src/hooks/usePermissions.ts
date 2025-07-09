@@ -1,69 +1,129 @@
-import { User } from '@/types/admin';
+import { useMemo } from 'react';
+import { User } from '../../types/admin';
 
 export function usePermissions(user: User | null) {
-  const userRole = user?.role || 'employe';
-  
-  const canModify = (module: string): boolean => {
-    if (userRole === 'directeur') return true;
-    
-    switch (module) {
-      case 'customers':
-        return false; // Employés en lecture seule
-      case 'menu':
-        return true; // Employés peuvent modifier le menu
-      case 'reservations':
-        return true; // Employés peuvent modifier les réservations
-      case 'orders':
-        return true; // Employés peuvent modifier les commandes
-      case 'messages':
-        return true; // Employés peuvent gérer les messages
-      case 'employees':
-        return false; // Réservé aux directeurs
-      case 'settings':
-        return false; // Réservé aux directeurs
-      default:
-        return false;
-    }
-  };
+  return useMemo(() => {
+    const isDirecteur = user?.role === 'directeur';
+    const isEmploye = user?.role === 'employe';
 
-  const canDelete = (module: string): boolean => {
-    if (userRole === 'directeur') return true;
-    
-    switch (module) {
-      case 'menu':
-        return false; // Employés ne peuvent pas supprimer du menu
-      case 'customers':
-        return false; // Employés ne peuvent pas supprimer des clients
-      case 'reservations':
-        return false; // Employés ne peuvent pas supprimer des réservations
-      case 'orders':
-        return false; // Employés ne peuvent pas supprimer des commandes
-      default:
-        return false;
-    }
-  };
+    // Permissions par module selon le rôle
+    const permissions = {
+      dashboard: {
+        canView: true,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+      },
+      reservations: {
+        canView: true,
+        canCreate: true,
+        canEdit: true,
+        canDelete: isDirecteur,
+      },
+      orders: {
+        canView: true,
+        canCreate: true,
+        canEdit: true,
+        canDelete: isDirecteur,
+      },
+      customers: {
+        canView: true,
+        canCreate: isDirecteur,
+        canEdit: isDirecteur,
+        canDelete: isDirecteur,
+      },
+      employees: {
+        canView: isDirecteur,
+        canCreate: isDirecteur,
+        canEdit: isDirecteur,
+        canDelete: isDirecteur,
+      },
+      menu: {
+        canView: true,
+        canCreate: true,
+        canEdit: true,
+        canDelete: isDirecteur,
+      },
+      messages: {
+        canView: true,
+        canCreate: false,
+        canEdit: true,
+        canDelete: isDirecteur,
+      },
+      settings: {
+        canView: isDirecteur,
+        canCreate: isDirecteur,
+        canEdit: isDirecteur,
+        canDelete: isDirecteur,
+      },
+      statistics: {
+        canView: true,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+      },
+      logs: {
+        canView: isDirecteur,
+        canCreate: false,
+        canEdit: false,
+        canDelete: isDirecteur,
+      },
+      permissions: {
+        canView: isDirecteur,
+        canCreate: isDirecteur,
+        canEdit: isDirecteur,
+        canDelete: isDirecteur,
+      },
+      inventory: {
+        canView: true,
+        canCreate: isDirecteur,
+        canEdit: isDirecteur,
+        canDelete: isDirecteur,
+      },
+      loyalty: {
+        canView: true,
+        canCreate: isDirecteur,
+        canEdit: isDirecteur,
+        canDelete: isDirecteur,
+      },
+      'work-schedule': {
+        canView: true,
+        canCreate: isDirecteur,
+        canEdit: isDirecteur,
+        canDelete: isDirecteur,
+      },
+    };
 
-  const canView = (module: string): boolean => {
-    if (userRole === 'directeur') return true;
-    
-    switch (module) {
-      case 'employees':
-        return false; // Réservé aux directeurs
-      case 'settings':
-        return false; // Réservé aux directeurs
-      case 'statistics':
-        return false; // Réservé aux directeurs
-      case 'logs':
-        return false; // Réservé aux directeurs
-      default:
-        return true; // Employés peuvent voir les autres modules
-    }
-  };
+    // Fonctions helper
+    const hasAccess = (module: string) => {
+      return permissions[module as keyof typeof permissions]?.canView ?? false;
+    };
 
-  return {
-    canModify,
-    canDelete,
-    canView,
-    userRole
-  };
+    const canView = (module: string) => {
+      return permissions[module as keyof typeof permissions]?.canView ?? false;
+    };
+
+    const canCreate = (module: string) => {
+      return permissions[module as keyof typeof permissions]?.canCreate ?? false;
+    };
+
+    const canModify = (module: string) => {
+      return permissions[module as keyof typeof permissions]?.canEdit ?? false;
+    };
+
+    const canDelete = (module: string) => {
+      return permissions[module as keyof typeof permissions]?.canDelete ?? false;
+    };
+
+    return {
+      isDirecteur,
+      isEmploye,
+      permissions,
+      hasAccess,
+      canView,
+      canCreate,
+      canModify,
+      canDelete,
+    };
+  }, [user]);
 }

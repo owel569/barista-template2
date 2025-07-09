@@ -215,7 +215,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
     form.reset({
       name: item.name,
       description: item.description,
-      price: typeof item.price === 'number' ? item.price.toString() : item.price.toString(),
+      price: item.price ? item.price.toString() : '0',
       categoryId: item.categoryId,
       available: item.available,
       imageUrl: imageUrl,
@@ -244,7 +244,10 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
   const totalItems = menuItems.length;
   const availableItems = menuItems.filter((item: any) => item.available).length;
   const averagePrice = menuItems.length > 0 
-    ? menuItems.reduce((sum: number, item: any) => sum + (typeof item.price === 'number' ? item.price : parseFloat(item.price || 0)), 0) / menuItems.length 
+    ? menuItems.reduce((sum: number, item: any) => {
+        const price = item.price ? (typeof item.price === 'number' ? item.price : parseFloat(item.price)) : 0;
+        return sum + (isNaN(price) ? 0 : price);
+      }, 0) / menuItems.length 
     : 0;
 
   if (isLoading) {
