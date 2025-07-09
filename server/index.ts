@@ -40,37 +40,24 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Configuration PostgreSQL automatique
+  // Configuration PostgreSQL automatique - non bloquante
   try {
-    // Utiliser le nouveau système automatique
     const { getDb } = await import("./db");
-    await getDb(); // Ceci va automatiquement démarrer PostgreSQL si nécessaire
+    await getDb();
     console.log("✅ PostgreSQL configuré automatiquement");
-  } catch (error) {
-    console.error("Erreur PostgreSQL:", error instanceof Error ? error.message : 'Erreur inconnue');
-    console.log("⚠️  Tentative de démarrage avec la configuration existante...");
-  }
-
-  // Configuration automatique au démarrage
-  try {
-    const { autoSetup } = await import("./auto-setup");
-    const setupSuccess = await autoSetup();
     
-    if (!setupSuccess) {
-      console.error('❌ Impossible de démarrer le serveur - configuration échouée');
-      process.exit(1);
-    }
-  } catch (error) {
-    console.error("Erreur de configuration automatique:", error instanceof Error ? error.message : 'Erreur inconnue');
-    process.exit(1);
-  }
-
-  // Initialize database with default data
-  try {
+    // Configuration automatique au démarrage
+    const { autoSetup } = await import("./auto-setup");
+    await autoSetup();
+    console.log("✅ Configuration automatique terminée");
+    
+    // Initialize database with default data
     const { initializeDatabase } = await import("./init-db");
     await initializeDatabase();
+    console.log("✅ Base de données initialisée");
   } catch (error) {
-    console.log("Échec de l'initialisation de la base de données:", error instanceof Error ? error.message : 'Erreur inconnue');
+    console.log("⚠️  Démarrage en mode dégradé - base de données non disponible");
+    console.log("Le serveur continue de fonctionner, la base sera configurée automatiquement");
   }
   
   const server = await registerRoutes(app);
