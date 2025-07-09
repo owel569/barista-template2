@@ -60,24 +60,24 @@ export default function WorkSchedule({ userRole = 'directeur' }: WorkSchedulePro
   const queryClient = useQueryClient();
 
   const { data: employees = [], isLoading: employeesLoading } = useQuery<Employee[]>({
-    queryKey: ['/api/employees'],
+    queryKey: ['/api/admin/employees'],
     retry: 1,
   });
 
   const { data: workShifts = [], isLoading: shiftsLoading } = useQuery<WorkShift[]>({
-    queryKey: ['/api/work-shifts'],
+    queryKey: ['/api/admin/work-shifts'],
     retry: 1,
   });
 
   const createShiftMutation = useMutation({
     mutationFn: async (data: any) => {
-      return await apiRequest('/api/work-shifts', {
+      return await apiRequest('/api/admin/work-shifts', {
         method: 'POST',
         body: JSON.stringify(data)
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/work-shifts'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/work-shifts'] });
       setIsDialogOpen(false);
       setNewShift({
         employeeId: '',
@@ -104,13 +104,13 @@ export default function WorkSchedule({ userRole = 'directeur' }: WorkSchedulePro
 
   const updateShiftMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: any }) => {
-      return await apiRequest(`/api/work-shifts/${id}`, {
+      return await apiRequest(`/api/admin/work-shifts/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data)
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/work-shifts'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/work-shifts'] });
       setIsDialogOpen(false);
       setEditingShift(null);
       toast({
@@ -129,12 +129,12 @@ export default function WorkSchedule({ userRole = 'directeur' }: WorkSchedulePro
 
   const deleteShiftMutation = useMutation({
     mutationFn: async (id: number) => {
-      return await apiRequest(`/api/work-shifts/${id}`, {
+      return await apiRequest(`/api/admin/work-shifts/${id}`, {
         method: 'DELETE'
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/work-shifts'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/work-shifts'] });
       toast({
         title: 'Succès',
         description: 'Horaire supprimé avec succès',

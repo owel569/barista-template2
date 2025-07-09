@@ -521,8 +521,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
-  // Employees routes
-  app.get("/api/employees", authenticateToken, async (req, res) => {
+  // Admin employees routes (accessible to directeur only)
+  app.get("/api/admin/employees", authenticateToken, requireRole('directeur'), async (req, res) => {
     try {
       const employees = await storage.getEmployees();
       res.json(employees);
@@ -531,7 +531,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/employees", authenticateToken, requireRole('directeur'), async (req, res) => {
+  app.post("/api/admin/employees", authenticateToken, requireRole('directeur'), async (req, res) => {
     try {
       const employeeData = insertEmployeeSchema.parse(req.body);
       const employee = await storage.createEmployee(employeeData);
@@ -542,7 +542,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/employees/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+  app.put("/api/admin/employees/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const employeeData = req.body;
@@ -559,7 +559,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/employees/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+  app.delete("/api/admin/employees/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const success = await storage.deleteEmployee(id);
@@ -575,8 +575,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Work shifts routes
-  app.get("/api/work-shifts", authenticateToken, async (req, res) => {
+  // Admin work shifts routes (accessible to directeur only)
+  app.get("/api/admin/work-shifts", authenticateToken, requireRole('directeur'), async (req, res) => {
     try {
       const workShifts = await storage.getWorkShifts();
       res.json(workShifts);
@@ -585,7 +585,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/work-shifts", authenticateToken, requireRole('directeur'), async (req, res) => {
+  app.post("/api/admin/work-shifts", authenticateToken, requireRole('directeur'), async (req, res) => {
     try {
       const shiftData = insertWorkShiftSchema.parse(req.body);
       const workShift = await storage.createWorkShift(shiftData);
@@ -596,7 +596,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/work-shifts/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+  app.put("/api/admin/work-shifts/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const shiftData = req.body;
@@ -613,7 +613,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/work-shifts/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+  app.delete("/api/admin/work-shifts/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const success = await storage.deleteWorkShift(id);

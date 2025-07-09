@@ -93,24 +93,24 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
   });
 
   const { data: employees = [], isLoading } = useQuery<Employee[]>({
-    queryKey: ['/api/employees'],
+    queryKey: ['/api/admin/employees'],
     retry: 3,
     retryDelay: 1000,
   });
 
   const { data: workShifts = [] } = useQuery<WorkShift[]>({
-    queryKey: ['/api/work-shifts'],
+    queryKey: ['/api/admin/work-shifts'],
     retry: 3,
     retryDelay: 1000,
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: EmployeeFormData) => apiRequest('/api/employees', {
+    mutationFn: (data: EmployeeFormData) => apiRequest('/api/admin/employees', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/employees'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/employees'] });
       setIsDialogOpen(false);
       form.reset();
       toast({
@@ -129,12 +129,12 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: EmployeeFormData }) =>
-      apiRequest(`/api/employees/${id}`, {
+      apiRequest(`/api/admin/employees/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data),
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/employees'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/employees'] });
       setIsDialogOpen(false);
       setEditingEmployee(null);
       form.reset();
@@ -153,11 +153,11 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => apiRequest(`/api/employees/${id}`, {
+    mutationFn: (id: number) => apiRequest(`/api/admin/employees/${id}`, {
       method: 'DELETE',
     }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/employees'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/employees'] });
       toast({
         title: 'Succès',
         description: 'Employé supprimé avec succès',
@@ -190,7 +190,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
       department: employee.department || '',
       phone: employee.phone || '',
       hireDate: employee.hireDate ? new Date(employee.hireDate).toISOString().split('T')[0] : '',
-      salary: employee.salary ? parseFloat(employee.salary) : 0,
+      salary: employee.salary ? employee.salary.toString() : '0',
       status: employee.status || 'active',
     });
     setIsDialogOpen(true);
