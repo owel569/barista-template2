@@ -23,13 +23,14 @@ interface OrderItem {
 interface Order {
   id: number;
   customerName: string;
+  customerEmail?: string;
   customerPhone?: string;
-  orderType: 'sur_place' | 'emporter' | 'livraison';
+  orderType: 'dine-in' | 'takeout' | 'delivery';
   status: string;
-  total: number;
-  items: OrderItem[];
+  totalAmount: string;
+  items?: OrderItem[];
   notes?: string;
-  tableNumber?: number;
+  tableId?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -358,7 +359,7 @@ export default function Orders({ userRole, user }: OrdersProps) {
                       </div>
                       <div className="flex items-center gap-2">
                         <Euro className="h-4 w-4" />
-                        <span className="font-semibold">{order.total.toFixed(2)}€</span>
+                        <span className="font-semibold">{parseFloat(order.totalAmount).toFixed(2)}€</span>
                       </div>
                     </div>
                     
@@ -371,10 +372,10 @@ export default function Orders({ userRole, user }: OrdersProps) {
                     )}
                     
                     <div className="text-sm text-gray-600 dark:text-gray-400">
-                      <span className="font-medium">{order.items.length} article(s):</span>
+                      <span className="font-medium">{order.items?.length || 0} article(s):</span>
                       <span className="ml-2">
-                        {order.items.slice(0, 3).map(item => `${item.quantity}x ${item.menuItemName}`).join(', ')}
-                        {order.items.length > 3 && '...'}
+                        {order.items?.slice(0, 3).map(item => `${item.quantity}x ${item.menuItemName}`).join(', ')}
+                        {order.items && order.items.length > 3 && '...'}
                       </span>
                     </div>
                     
