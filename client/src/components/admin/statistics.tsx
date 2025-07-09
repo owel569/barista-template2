@@ -35,7 +35,11 @@ import {
   ResponsiveContainer
 } from 'recharts';
 
-export default function Statistics() {
+interface StatisticsProps {
+  userRole?: 'directeur' | 'employe';
+}
+
+export default function Statistics({ userRole = 'directeur' }: StatisticsProps) {
   const [period, setPeriod] = useState('month');
   const [category, setCategory] = useState('all');
 

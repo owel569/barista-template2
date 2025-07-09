@@ -68,7 +68,11 @@ interface LoyaltyStats {
   }[];
 }
 
-export default function LoyaltySystem() {
+interface LoyaltySystemProps {
+  userRole?: 'directeur' | 'employe';
+}
+
+export default function LoyaltySystem({ userRole = 'directeur' }: LoyaltySystemProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [levelFilter, setLevelFilter] = useState<string>('all');
   const [selectedCustomer, setSelectedCustomer] = useState<LoyaltyCustomer | null>(null);

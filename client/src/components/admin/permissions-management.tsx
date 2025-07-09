@@ -56,7 +56,11 @@ const modules = [
   { id: 'logs', name: 'Logs', icon: '📋' }
 ];
 
-export default function PermissionsManagement() {
+interface PermissionsManagementProps {
+  userRole?: 'directeur' | 'employe';
+}
+
+export default function PermissionsManagement({ userRole = 'directeur' }: PermissionsManagementProps) {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [isEditing, setIsEditing] = useState(false);

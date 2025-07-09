@@ -92,7 +92,11 @@ type GeneralSettingsData = z.infer<typeof generalSettingsSchema>;
 type HoursSettingsData = z.infer<typeof hoursSettingsSchema>;
 type SystemSettingsData = z.infer<typeof systemSettingsSchema>;
 
-export default function Settings() {
+interface SettingsProps {
+  userRole?: 'directeur' | 'employe';
+}
+
+export default function Settings({ userRole = 'directeur' }: SettingsProps) {
   const [activeTab, setActiveTab] = useState('general');
   const { toast } = useToast();
   const queryClient = useQueryClient();

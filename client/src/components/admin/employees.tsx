@@ -64,7 +64,11 @@ const employeeSchema = z.object({
 
 type EmployeeFormData = z.infer<typeof employeeSchema>;
 
-export default function Employees() {
+interface EmployeesProps {
+  userRole?: 'directeur' | 'employe';
+}
+
+export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const { toast } = useToast();
@@ -179,9 +183,10 @@ export default function Employees() {
       lastName: employee.lastName,
       email: employee.email,
       position: employee.position,
+      department: employee.department || '',
       phone: employee.phone || '',
       hireDate: employee.hireDate ? new Date(employee.hireDate).toISOString().split('T')[0] : '',
-      salary: employee.salary || '',
+      salary: employee.salary ? employee.salary.toString() : '',
       status: employee.status || 'active',
     });
     setIsDialogOpen(true);

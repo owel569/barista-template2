@@ -45,7 +45,11 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-export default function Messages() {
+interface MessagesProps {
+  userRole?: 'directeur' | 'employe';
+}
+
+export default function Messages({ userRole = 'directeur' }: MessagesProps) {
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState('all');

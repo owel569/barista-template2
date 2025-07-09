@@ -63,10 +63,11 @@ const menuItemSchema = z.object({
 type MenuItemFormData = z.infer<typeof menuItemSchema>;
 
 interface MenuManagementProps {
-  canDelete?: boolean;
+  userRole?: 'directeur' | 'employe';
 }
 
-export default function MenuManagement({ canDelete = true }: MenuManagementProps) {
+export default function MenuManagement({ userRole = 'directeur' }: MenuManagementProps) {
+  const canDelete = userRole === 'directeur';
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');

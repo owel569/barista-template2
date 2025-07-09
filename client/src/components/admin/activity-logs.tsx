@@ -36,7 +36,11 @@ interface ActivityLog {
   severity: 'info' | 'warning' | 'error' | 'success';
 }
 
-export default function ActivityLogs() {
+interface ActivityLogsProps {
+  userRole?: 'directeur' | 'employe';
+}
+
+export default function ActivityLogs({ userRole = 'directeur' }: ActivityLogsProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterUser, setFilterUser] = useState('all');
   const [filterAction, setFilterAction] = useState('all');

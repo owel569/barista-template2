@@ -60,7 +60,11 @@ interface InventoryStats {
   avgCostPerItem: number;
 }
 
-export default function InventoryManagement() {
+interface InventoryManagementProps {
+  userRole?: 'directeur' | 'employe';
+}
+
+export default function InventoryManagement({ userRole = 'directeur' }: InventoryManagementProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [filterStock, setFilterStock] = useState<string>('all');
