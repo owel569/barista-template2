@@ -315,6 +315,8 @@ export const insertMenuItemSchema = createInsertSchema(menuItems).pick({
   categoryId: true,
   imageUrl: true,
   available: true,
+}).extend({
+  price: z.coerce.number().min(0.01, "Le prix doit être supérieur à 0").max(999.99, "Prix maximum : 999.99€"),
 });
 
 export const insertTableSchema = createInsertSchema(tables).pick({
@@ -386,7 +388,7 @@ export const insertOrderSchema = createInsertSchema(orders).pick({
 }).extend({
   customerEmail: z.string().email("Email invalide"),
   customerPhone: z.string().min(10, "Numéro de téléphone invalide"),
-  totalAmount: z.string().regex(/^\d+\.?\d{0,2}$/, "Montant invalide"),
+  totalAmount: z.coerce.number().min(0.01, "Le montant doit être supérieur à 0").max(9999.99, "Montant maximum : 9 999,99€"),
 });
 
 export const insertOrderItemSchema = createInsertSchema(orderItems).pick({
@@ -397,7 +399,7 @@ export const insertOrderItemSchema = createInsertSchema(orderItems).pick({
   notes: true,
 }).extend({
   quantity: z.number().min(1, "Quantité minimum 1"),
-  price: z.string().regex(/^\d+(\.\d{1,2})?$/, "Prix invalide (format: 4.50)").refine((val) => parseFloat(val) > 0, "Le prix doit être positif"),
+  price: z.coerce.number().min(0.01, "Le prix doit être supérieur à 0").max(999.99, "Prix maximum : 999,99€"),
 });
 
 export const insertCustomerSchema = createInsertSchema(customers).pick({
@@ -445,7 +447,7 @@ export const insertEmployeeSchema = createInsertSchema(employees).pick({
   phone: z.string().min(8, "Téléphone requis (minimum 8 chiffres)"),
   position: z.string().min(2, "Poste requis"),
   department: z.string().min(2, "Département requis"),
-  salary: z.string().min(1, "Salaire requis"),
+  salary: z.coerce.number().min(0.01, "Le salaire doit être supérieur à 0").max(99999.99, "Salaire maximum : 99 999,99€"),
   hireDate: z.string().refine((date) => {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
     const year = parseInt(date.split('-')[0]);

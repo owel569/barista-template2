@@ -58,7 +58,7 @@ const employeeSchema = z.object({
   department: z.string().min(2, 'Le département doit contenir au moins 2 caractères'),
   phone: z.string().min(1, 'Le téléphone est requis'),
   hireDate: z.string(),
-  salary: z.string().min(1, 'Le salaire est requis'),
+  salary: z.coerce.number().min(0.01, 'Le salaire doit être supérieur à 0').max(99999.99, 'Salaire maximum : 99 999,99€'),
   status: z.enum(['active', 'inactive']).optional(),
 });
 
@@ -87,7 +87,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
       department: '',
       phone: '',
       hireDate: new Date().toISOString().split('T')[0],
-      salary: '',
+      salary: 0,
       status: 'active',
     },
   });
@@ -190,7 +190,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
       department: employee.department || '',
       phone: employee.phone || '',
       hireDate: employee.hireDate ? new Date(employee.hireDate).toISOString().split('T')[0] : '',
-      salary: employee.salary ? employee.salary.toString() : '',
+      salary: employee.salary ? parseFloat(employee.salary) : 0,
       status: employee.status || 'active',
     });
     setIsDialogOpen(true);
@@ -357,7 +357,15 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                         <FormLabel>Salaire (€)</FormLabel>
                         <FormControl>
                           <div>
-                            <Input {...field} placeholder="2500.50" />
+                            <Input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              max="99999.99"
+                              {...field}
+                              placeholder="2500.50"
+                              onChange={(e) => field.onChange(Number(e.target.value))}
+                            />
                             <p className="text-xs text-gray-500 mt-1">💰 Format : 2500 ou 2500.50 (pas de virgule)</p>
                           </div>
                         </FormControl>

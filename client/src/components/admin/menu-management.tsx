@@ -55,7 +55,7 @@ import { getImageUrlByName } from '@/lib/image-mapping';
 const menuItemSchema = z.object({
   name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
   description: z.string().min(10, 'La description doit contenir au moins 10 caractères'),
-  price: z.string().min(1, 'Le prix est requis'),
+  price: z.coerce.number().min(0.01, 'Le prix doit être supérieur à 0').max(999.99, 'Prix maximum : 999,99€'),
   categoryId: z.coerce.number().min(1, 'Veuillez sélectionner une catégorie'),
   available: z.boolean(),
   imageUrl: z.string().optional(),
@@ -86,7 +86,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
     defaultValues: {
       name: '',
       description: '',
-      price: '',
+      price: 0,
       categoryId: 0,
       available: true,
       imageUrl: '',
@@ -217,7 +217,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
     form.reset({
       name: item.name,
       description: item.description,
-      price: item.price ? item.price.toString() : '0',
+      price: item.price ? parseFloat(item.price) : 0,
       categoryId: item.categoryId,
       available: item.available,
       imageUrl: imageUrl,
