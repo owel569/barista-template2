@@ -18,7 +18,10 @@ import {
   ChevronDown,
   User,
   Package2,
-  Star
+  Star,
+  DollarSign,
+  Truck,
+  FileText
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -44,6 +47,9 @@ import InventoryManagement from '@/components/admin/inventory-management';
 import LoyaltySystem from '@/components/admin/loyalty-system';
 import WorkSchedule from '@/components/admin/work-schedule';
 import TestAllFeatures from '@/components/admin/test-all-features';
+import Accounting from '@/components/admin/accounting';
+import Suppliers from '@/components/admin/suppliers';
+import Reports from '@/components/admin/reports';
 
 interface User {
   id: number;
@@ -134,6 +140,9 @@ export default function AdminHorizontal() {
         { icon: Package2, label: 'Stocks', section: 'inventory' },
         { icon: Star, label: 'Fidélité', section: 'loyalty' },
         { icon: Calendar, label: 'Planning', section: 'schedule' },
+        { icon: DollarSign, label: 'Comptabilité', section: 'accounting' },
+        { icon: Truck, label: 'Fournisseurs', section: 'suppliers' },
+        { icon: FileText, label: 'Rapports', section: 'reports' },
         { icon: BarChart3, label: 'Test Complet', section: 'test' },
       ];
     }
@@ -173,6 +182,12 @@ export default function AdminHorizontal() {
         return userRole === 'directeur' ? <LoyaltySystem userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case 'schedule':
         return userRole === 'directeur' ? <WorkSchedule userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+      case 'accounting':
+        return userRole === 'directeur' ? <Accounting userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+      case 'suppliers':
+        return userRole === 'directeur' ? <Suppliers userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+      case 'reports':
+        return userRole === 'directeur' ? <Reports userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case 'test':
         return userRole === 'directeur' ? <TestAllFeatures userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       default:
