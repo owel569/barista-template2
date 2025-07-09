@@ -32,7 +32,7 @@ interface LoyaltyCustomer {
   firstName: string;
   lastName: string;
   email: string;
-  totalSpent: number;
+  totalSpent: string | number;
   totalOrders: number;
   loyaltyPoints: number;
   loyaltyLevel: 'Nouveau' | 'Régulier' | 'Fidèle' | 'VIP';
@@ -398,7 +398,7 @@ export default function LoyaltySystem({ userRole = 'directeur' }: LoyaltySystemP
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>{customer.totalSpent.toFixed(2)}€</TableCell>
+                      <TableCell>{parseFloat(customer.totalSpent).toFixed(2)}€</TableCell>
                       <TableCell>{customer.totalOrders}</TableCell>
                       <TableCell>{new Date(customer.lastVisit).toLocaleDateString()}</TableCell>
                       <TableCell>

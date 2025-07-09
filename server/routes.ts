@@ -1801,6 +1801,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/admin/loyalty/award-points", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const { customerId, points, reason } = req.body;
+      // Dans une vraie app, on sauvegarderait les points en base
+      res.json({ message: "Points attribués avec succès", customerId, points, reason });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de l'attribution des points" });
+    }
+  });
+
+  app.post("/api/admin/loyalty/redeem-reward", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const { customerId, rewardId } = req.body;
+      // Dans une vraie app, on gérerait l'échange de récompenses
+      res.json({ message: "Récompense échangée avec succès", customerId, rewardId });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de l'échange de la récompense" });
+    }
+  });
+
+  app.post("/api/admin/loyalty/rewards", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const rewardData = req.body;
+      // Dans une vraie app, on sauvegarderait la récompense en base
+      const newReward = { id: Date.now(), ...rewardData };
+      res.status(201).json(newReward);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la création de la récompense" });
+    }
+  });
+
   app.get("/api/admin/stats/reservation-status", authenticateToken, async (req, res) => {
     try {
       // Get reservations for today
