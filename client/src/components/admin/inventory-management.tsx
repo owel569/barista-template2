@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
-  Package2 as Package, 
+  Package2, 
   AlertTriangle, 
   TrendingUp, 
   TrendingDown,
@@ -203,7 +203,7 @@ export default function InventoryManagement({ userRole = 'directeur' }: Inventor
     } else if (stock <= minStock) {
       return { status: 'Stock faible', color: 'bg-orange-100 text-orange-800', icon: <AlertTriangle className="h-3 w-3" /> };
     } else {
-      return { status: 'En stock', color: 'bg-green-100 text-green-800', icon: <Package className="h-3 w-3" /> };
+      return { status: 'En stock', color: 'bg-green-100 text-green-800', icon: <Package2 className="h-3 w-3" /> };
     }
   };
 
@@ -248,7 +248,7 @@ export default function InventoryManagement({ userRole = 'directeur' }: Inventor
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Package className="h-6 w-6 text-blue-600" />
+          <Package2 className="h-6 w-6 text-blue-600" />
           <h1 className="text-2xl font-bold">Gestion des Stocks</h1>
         </div>
         <Button onClick={() => setIsAddDialogOpen(true)}>
@@ -266,7 +266,7 @@ export default function InventoryManagement({ userRole = 'directeur' }: Inventor
                 <p className="text-sm text-gray-600">Total articles</p>
                 <p className="text-2xl font-bold">{inventoryStats?.totalItems || 0}</p>
               </div>
-              <Package className="h-8 w-8 text-blue-600" />
+              <Package2 className="h-8 w-8 text-blue-600" />
             </div>
           </CardContent>
         </Card>

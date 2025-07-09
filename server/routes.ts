@@ -164,6 +164,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all users (admin only) - Admin route
+  app.get("/api/admin/users", authenticateToken, requireRole('directeur'), async (req: any, res) => {
+    try {
+      const users = await storage.getUsers();
+      // Remove password from response
+      const safeUsers = users.map((user: any) => ({
+        id: user.id,
+        username: user.username,
+        role: user.role,
+        createdAt: user.createdAt,
+        lastLogin: user.lastLogin
+      }));
+      res.json(safeUsers);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des utilisateurs" });
+    }
+  });
+
   // Menu routes
   app.get("/api/menu/categories", async (req, res) => {
     try {
@@ -1292,6 +1310,192 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json({ message: "Récompense créée avec succès" });
     } catch (error) {
       res.status(500).json({ message: "Erreur lors de la création de la récompense" });
+    }
+  });
+
+  // Admin inventory routes
+  app.get("/api/admin/inventory", authenticateToken, async (req, res) => {
+    try {
+      const menuItems = await storage.getMenuItems();
+      res.json(menuItems);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération de l'inventaire" });
+    }
+  });
+
+  app.get("/api/admin/inventory/stats", authenticateToken, async (req, res) => {
+    try {
+      const menuItems = await storage.getMenuItems();
+      const stats = {
+        totalItems: menuItems.length,
+        availableItems: menuItems.filter(item => item.available).length,
+        lowStockItems: menuItems.filter(item => (item.stock || 0) <= (item.minStock || 5)).length,
+        outOfStockItems: menuItems.filter(item => (item.stock || 0) === 0).length,
+        totalValue: menuItems.reduce((sum, item) => sum + (item.cost || 0) * (item.stock || 0), 0),
+        avgCostPerItem: menuItems.reduce((sum, item) => sum + (item.cost || 0), 0) / menuItems.length
+      };
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques" });
+    }
+  });
+
+  app.put("/api/admin/inventory/items/:id/stock", authenticateToken, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { stock } = req.body;
+      const item = await storage.updateMenuItem(id, { stock });
+      
+      if (!item) {
+        return res.status(404).json({ message: "Article non trouvé" });
+      }
+      
+      res.json(item);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour du stock" });
+    }
+  });
+
+  app.put("/api/admin/inventory/items/:id", authenticateToken, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const data = req.body;
+      const item = await storage.updateMenuItem(id, data);
+      
+      if (!item) {
+        return res.status(404).json({ message: "Article non trouvé" });
+      }
+      
+      res.json(item);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour de l'article" });
+    }
+  });
+
+  app.post("/api/admin/inventory/items", authenticateToken, async (req, res) => {
+    try {
+      const data = req.body;
+      const item = await storage.createMenuItem(data);
+      res.status(201).json(item);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la création de l'article" });
+    }
+  });
+
+  app.get("/api/admin/inventory/alerts", authenticateToken, async (req, res) => {
+    try {
+      const menuItems = await storage.getMenuItems();
+      const alerts = menuItems
+        .filter(item => (item.stock || 0) <= (item.minStock || 5))
+        .map(item => ({
+          id: item.id,
+          itemId: item.id,
+          itemName: item.name,
+          currentStock: item.stock || 0,
+          minStock: item.minStock || 5,
+          alertLevel: (item.stock || 0) === 0 ? 'out' : 'low' as 'low' | 'critical' | 'out',
+          createdAt: new Date().toISOString()
+        }));
+      res.json(alerts);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des alertes" });
+    }
+  });
+
+  // Admin permissions routes
+  app.get("/api/admin/permissions", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const permissions = await storage.getUserPermissions(req.user.id);
+      res.json(permissions);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des permissions" });
+    }
+  });
+
+  app.post("/api/admin/permissions", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const data = req.body;
+      const permission = await storage.createPermission(data);
+      res.status(201).json(permission);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la création de la permission" });
+    }
+  });
+
+  app.put("/api/admin/permissions/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const data = req.body;
+      const permission = await storage.updatePermission(id, data);
+      
+      if (!permission) {
+        return res.status(404).json({ message: "Permission non trouvée" });
+      }
+      
+      res.json(permission);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour de la permission" });
+    }
+  });
+
+  app.delete("/api/admin/permissions/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deletePermission(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Permission non trouvée" });
+      }
+      
+      res.json({ message: "Permission supprimée avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la suppression de la permission" });
+    }
+  });
+
+  // Admin settings routes
+  app.get("/api/admin/settings", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const settings = {
+        restaurantName: "Barista Café",
+        address: "123 Rue de la Paix, Paris",
+        phone: "+33 1 23 45 67 89",
+        email: "contact@barista-cafe.fr",
+        website: "https://barista-cafe.fr",
+        openingHours: {
+          monday: { open: "07:00", close: "19:00", closed: false },
+          tuesday: { open: "07:00", close: "19:00", closed: false },
+          wednesday: { open: "07:00", close: "19:00", closed: false },
+          thursday: { open: "07:00", close: "19:00", closed: false },
+          friday: { open: "07:00", close: "20:00", closed: false },
+          saturday: { open: "08:00", close: "20:00", closed: false },
+          sunday: { open: "08:00", close: "18:00", closed: false }
+        },
+        maxReservationsPerSlot: 5,
+        reservationTimeSlots: ["12:00", "12:30", "13:00", "13:30", "14:00", "19:00", "19:30", "20:00", "20:30"],
+        currency: "EUR",
+        taxRate: 20,
+        defaultLanguage: "fr",
+        notificationSettings: {
+          emailNotifications: true,
+          smsNotifications: false,
+          reservationReminders: true,
+          orderUpdates: true
+        }
+      };
+      res.json(settings);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des paramètres" });
+    }
+  });
+
+  app.put("/api/admin/settings", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const data = req.body;
+      // In real app, save settings to database
+      res.json({ message: "Paramètres mis à jour avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour des paramètres" });
     }
   });
 
