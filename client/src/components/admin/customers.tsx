@@ -98,8 +98,10 @@ export default function Customers({ userRole, user }: CustomersProps) {
 
     // Sort by total spent (highest first)
     filtered.sort((a, b) => {
-      const aSpent = typeof a.totalSpent === 'string' ? parseFloat(a.totalSpent) || 0 : a.totalSpent || 0;
-      const bSpent = typeof b.totalSpent === 'string' ? parseFloat(b.totalSpent) || 0 : b.totalSpent || 0;
+      const aSpent = typeof a.totalSpent === 'string' ? parseFloat(a.totalSpent) || 0 : 
+                     typeof a.totalSpent === 'number' ? a.totalSpent : 0;
+      const bSpent = typeof b.totalSpent === 'string' ? parseFloat(b.totalSpent) || 0 : 
+                     typeof b.totalSpent === 'number' ? b.totalSpent : 0;
       return bSpent - aSpent;
     });
 

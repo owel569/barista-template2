@@ -10,9 +10,11 @@ import {
   Clock,
   Euro,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  RefreshCw
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { Button } from '@/components/ui/button';
 
 interface DashboardStats {
   todayReservations: number;

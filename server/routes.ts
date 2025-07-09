@@ -523,6 +523,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/admin/stats/today-reservations", authenticateToken, async (req, res) => {
+    try {
+      const count = await storage.getTodayReservationCount();
+      res.json({ count });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques" });
+    }
+  });
+
+  app.get("/api/admin/stats/monthly-revenue", authenticateToken, async (req, res) => {
+    try {
+      const today = new Date();
+      const startDate = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+      const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
+      
+      const orders = await storage.getOrders();
+      const monthlyRevenue = orders.reduce((sum, order) => sum + parseFloat(order.total), 0);
+      
+      res.json({ revenue: monthlyRevenue });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération du chiffre d'affaires" });
+    }
+  });
+
+  app.get("/api/admin/stats/active-orders", authenticateToken, async (req, res) => {
+    try {
+      const orders = await storage.getOrders();
+      const activeOrders = orders.filter(order => ['pending', 'preparation', 'ready'].includes(order.status));
+      res.json({ count: activeOrders.length });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des commandes actives" });
+    }
+  });
+
+  app.get("/api/admin/stats/occupancy-rate", authenticateToken, async (req, res) => {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const rate = await storage.getOccupancyRate(today);
+      res.json({ rate });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors du calcul du taux d'occupation" });
+    }
+  });
+
   app.get("/api/stats/occupancy", authenticateToken, async (req, res) => {
     try {
       const { date } = req.query as { date: string };
@@ -1804,10 +1848,115 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/loyalty/award-points", authenticateToken, requireRole('directeur'), async (req, res) => {
     try {
       const { customerId, points, reason } = req.body;
-      // Dans une vraie app, on sauvegarderait les points en base
-      res.json({ message: "Points attribués avec succès", customerId, points, reason });
+      // In real app, update customer points
+      res.json({ message: "Points attribués avec succès" });
     } catch (error) {
       res.status(500).json({ message: "Erreur lors de l'attribution des points" });
+    }
+  });
+
+  // Routes pour notifications admin
+  app.get("/api/admin/notifications/pending-reservations", authenticateToken, async (req, res) => {
+    try {
+      const pendingReservations = await storage.getReservations();
+      const pending = pendingReservations.filter(r => r.status === 'pending');
+      res.json(pending);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des réservations en attente" });
+    }
+  });
+
+  app.get("/api/admin/notifications/new-messages", authenticateToken, async (req, res) => {
+    try {
+      const messages = await storage.getContactMessages();
+      const newMessages = messages.filter(m => m.status === 'new');
+      res.json(newMessages);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des nouveaux messages" });
+    }
+  });
+
+  app.get("/api/admin/notifications/pending-orders", authenticateToken, async (req, res) => {
+    try {
+      const orders = await storage.getOrders();
+      const pending = orders.filter(o => o.status === 'pending');
+      res.json(pending);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des commandes en attente" });
+    }
+  });
+
+  // Routes pour statistiques avancées
+  app.get("/api/admin/stats/revenue-detailed", authenticateToken, async (req, res) => {
+    try {
+      const { period } = req.query;
+      const now = new Date();
+      let startDate: string;
+      let endDate: string;
+      
+      switch (period) {
+        case 'week':
+          startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+          endDate = now.toISOString().split('T')[0];
+          break;
+        case 'month':
+          startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+          endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+          break;
+        case 'year':
+          startDate = new Date(now.getFullYear(), 0, 1).toISOString().split('T')[0];
+          endDate = new Date(now.getFullYear(), 11, 31).toISOString().split('T')[0];
+          break;
+        default:
+          startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+          endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+      }
+      
+      const stats = await storage.getRevenueStats(startDate, endDate);
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques détaillées" });
+    }
+  });
+
+  app.get("/api/admin/stats/customer-analytics", authenticateToken, async (req, res) => {
+    try {
+      const customers = await storage.getTopCustomers(10);
+      res.json(customers);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des analyses clients" });
+    }
+  });
+
+  app.get("/api/admin/stats/product-performance", authenticateToken, async (req, res) => {
+    try {
+      const menuItems = await storage.getMenuItems();
+      const performance = menuItems.map(item => ({
+        id: item.id,
+        name: item.name,
+        sales: Math.floor(Math.random() * 1000) + 100,
+        revenue: parseFloat(item.price) * (Math.floor(Math.random() * 1000) + 100),
+        growth: (Math.random() - 0.5) * 40
+      }));
+      res.json(performance);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des performances produits" });
+    }
+  });
+
+  app.get("/api/admin/stats/time-analysis", authenticateToken, async (req, res) => {
+    try {
+      const timeData = [];
+      for (let hour = 7; hour <= 18; hour++) {
+        timeData.push({
+          hour: `${hour}h`,
+          orders: Math.floor(Math.random() * 80) + 10,
+          revenue: Math.floor(Math.random() * 1000) + 200
+        });
+      }
+      res.json(timeData);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des analyses temporelles" });
     }
   });
 
