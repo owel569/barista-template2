@@ -247,7 +247,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
   const availableItems = menuItems.filter((item: any) => item.available).length;
   const averagePrice = menuItems.length > 0 
     ? menuItems.reduce((sum: number, item: any) => {
-        const price = item.price ? (typeof item.price === 'number' ? item.price : parseFloat(item.price)) : 0;
+        const price = typeof item.price === 'string' ? parseFloat(item.price) : (item.price || 0);
         return sum + (isNaN(price) ? 0 : price);
       }, 0) / menuItems.length 
     : 0;

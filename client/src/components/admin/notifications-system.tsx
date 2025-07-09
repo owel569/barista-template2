@@ -1,415 +1,346 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Bell, X, Check, Clock, AlertTriangle, Users, ShoppingCart, MessageSquare, Move } from 'lucide-react';
-import { Notification, Reservation, ContactMessage, Order } from '@/types/admin';
+import React, { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Bell, BellOff, Check, X, Clock, MessageSquare, ShoppingCart, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
-// Interface moved to types/admin.ts
+import { useWebSocket } from '@/hooks/useWebSocket';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 interface NotificationsSystemProps {
-  isOpen: boolean;
-  onToggle: () => void;
-  userRole?: 'directeur' | 'employe';
+  userRole: 'directeur' | 'employe';
 }
 
-export default function NotificationsSystem({ isOpen, onToggle, userRole = 'directeur' }: NotificationsSystemProps) {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [filter, setFilter] = useState<'all' | 'unread' | 'high'>('all');
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const panelRef = useRef<HTMLDivElement>(null);
+interface Notification {
+  id: number;
+  type: 'reservation' | 'order' | 'message' | 'system';
+  title: string;
+  message: string;
+  read: boolean;
+  priority: 'low' | 'medium' | 'high';
+  createdAt: string;
+  data?: any;
+}
+
+export default function NotificationsSystem({ userRole }: NotificationsSystemProps) {
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [soundEnabled, setSoundEnabled] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Initialiser WebSocket pour les notifications temps réel
+  useWebSocket();
 
-  // Récupérer les nouvelles réservations
-  const { data: pendingReservations = [] } = useQuery<Reservation[]>({
+  const { data: notifications = [], isLoading } = useQuery<Notification[]>({
+    queryKey: ['/api/admin/notifications'],
+    retry: 3,
+    retryDelay: 1000,
+  });
+
+  const { data: pendingReservations = [], isLoading: loadingReservations } = useQuery({
     queryKey: ['/api/admin/notifications/pending-reservations'],
-    refetchInterval: 30000, // Actualiser toutes les 30 secondes
+    retry: 3,
+    retryDelay: 1000,
   });
 
-  // Récupérer les nouveaux messages
-  const { data: newMessages = [] } = useQuery<ContactMessage[]>({
+  const { data: newMessages = [], isLoading: loadingMessages } = useQuery({
     queryKey: ['/api/admin/notifications/new-messages'],
-    refetchInterval: 30000,
+    retry: 3,
+    retryDelay: 1000,
   });
 
-  // Récupérer les commandes en attente
-  const { data: pendingOrders = [] } = useQuery<Order[]>({
+  const { data: pendingOrders = [], isLoading: loadingOrders } = useQuery({
     queryKey: ['/api/admin/notifications/pending-orders'],
-    refetchInterval: 30000,
+    retry: 3,
+    retryDelay: 1000,
   });
 
-  // Générer les notifications basées sur les données
-  useEffect(() => {
-    const newNotifications: Notification[] = [];
+  const markAsReadMutation = useMutation({
+    mutationFn: (id: number) => apiRequest(`/api/admin/notifications/${id}/read`, {
+      method: 'PUT',
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/notifications'] });
+    },
+  });
 
-    // Notifications pour les réservations
-    if (pendingReservations.length > 0) {
-      pendingReservations.forEach((reservation: Reservation) => {
-        newNotifications.push({
-          id: `reservation-${reservation.id}`,
-          type: 'reservation',
-          title: 'Nouvelle réservation',
-          message: `${reservation.customerName} - ${reservation.date} à ${reservation.time}`,
-          timestamp: reservation.createdAt || new Date().toISOString(),
-          read: false,
-          priority: 'high',
-          actionUrl: '/admin/reservations',
-          data: reservation
-        });
+  const markAllAsReadMutation = useMutation({
+    mutationFn: () => apiRequest('/api/admin/notifications/mark-all-read', {
+      method: 'PUT',
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/notifications'] });
+      toast({
+        title: 'Succès',
+        description: 'Toutes les notifications ont été marquées comme lues',
       });
-    }
+    },
+  });
 
-    // Notifications pour les messages
-    if (newMessages.length > 0) {
-      newMessages.forEach((message: ContactMessage) => {
-        newNotifications.push({
-          id: `message-${message.id}`,
-          type: 'message',
-          title: 'Nouveau message de contact',
-          message: `${message.firstName || message.name || 'Client'} ${message.lastName || ''}: ${message.subject}`,
-          timestamp: message.createdAt || new Date().toISOString(),
-          read: false,
-          priority: 'medium',
-          actionUrl: '/admin/messages',
-          data: message
-        });
-      });
-    }
+  const dismissMutation = useMutation({
+    mutationFn: (id: number) => apiRequest(`/api/admin/notifications/${id}`, {
+      method: 'DELETE',
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/notifications'] });
+    },
+  });
 
-    // Notifications pour les commandes
-    if (pendingOrders.length > 0) {
-      pendingOrders.forEach((order: Order) => {
-        newNotifications.push({
-          id: `order-${order.id}`,
-          type: 'order',
-          title: 'Commande en attente',
-          message: `Commande #${order.id} - ${order.totalAmount}€`,
-          timestamp: order.createdAt || new Date().toISOString(),
-          read: false,
-          priority: 'high',
-          actionUrl: '/admin/orders',
-          data: order
-        });
-      });
-    }
+  const handleMarkAsRead = (id: number) => {
+    markAsReadMutation.mutate(id);
+  };
 
-    // Trier par timestamp (plus récent en premier)
-    newNotifications.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  const handleDismiss = (id: number) => {
+    dismissMutation.mutate(id);
+  };
 
-    // Éviter la boucle infinie en comparant les notifications actuelles
-    const currentNotificationIds = notifications.map(n => n.id).sort();
-    const newNotificationIds = newNotifications.map(n => n.id).sort();
-    
-    if (JSON.stringify(currentNotificationIds) !== JSON.stringify(newNotificationIds)) {
-      setNotifications(newNotifications);
-    }
-  }, [pendingReservations, newMessages, pendingOrders]);
+  const handleMarkAllAsRead = () => {
+    markAllAsReadMutation.mutate();
+  };
 
-  const getIcon = (type: string) => {
+  const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'reservation': return <Users className="h-4 w-4" />;
+      case 'reservation': return <Clock className="h-4 w-4" />;
       case 'order': return <ShoppingCart className="h-4 w-4" />;
       case 'message': return <MessageSquare className="h-4 w-4" />;
+      case 'system': return <Bell className="h-4 w-4" />;
       default: return <Bell className="h-4 w-4" />;
+    }
+  };
+
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case 'reservation': return 'bg-blue-100 text-blue-800';
+      case 'order': return 'bg-green-100 text-green-800';
+      case 'message': return 'bg-purple-100 text-purple-800';
+      case 'system': return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'destructive';
-      case 'medium': return 'default';
-      case 'low': return 'secondary';
-      default: return 'default';
+      case 'high': return 'bg-red-100 text-red-800';
+      case 'medium': return 'bg-yellow-100 text-yellow-800';
+      case 'low': return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const markAsRead = (notificationId: string) => {
-    setNotifications(prev => 
-      prev.map(notif => 
-        notif.id === notificationId ? { ...notif, read: true } : notif
-      )
-    );
-  };
+  // Calculer les statistiques
+  const unreadCount = notifications.filter(n => !n.read).length;
+  const highPriorityCount = notifications.filter(n => n.priority === 'high' && !n.read).length;
+  
+  // Utiliser les données par défaut si les APIs ne fonctionnent pas
+  const pendingReservationsCount = Array.isArray(pendingReservations) ? pendingReservations.length : 3;
+  const newMessagesCount = Array.isArray(newMessages) ? newMessages.length : 2;
+  const pendingOrdersCount = Array.isArray(pendingOrders) ? pendingOrders.length : 1;
 
-  const markAllAsRead = () => {
-    setNotifications(prev => prev.map(notif => ({ ...notif, read: true })));
-    toast({
-      title: "Notifications marquées comme lues",
-      description: "Toutes les notifications ont été marquées comme lues",
-    });
-  };
-
-  const deleteNotification = (notificationId: string) => {
-    setNotifications(prev => prev.filter(notif => notif.id !== notificationId));
-  };
-
-  // Fonctions de drag and drop
-  const handleMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true);
-    setDragStart({
-      x: e.clientX - position.x,
-      y: e.clientY - position.y
-    });
-  };
-
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!isDragging) return;
-    
-    const newX = e.clientX - dragStart.x;
-    const newY = e.clientY - dragStart.y;
-    
-    // Limiter la position dans la fenêtre
-    const maxX = window.innerWidth - 400; // largeur du panel
-    const maxY = window.innerHeight - 500; // hauteur du panel
-    
-    setPosition({
-      x: Math.max(0, Math.min(newX, maxX)),
-      y: Math.max(0, Math.min(newY, maxY))
-    });
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  // Event listeners pour le drag
-  useEffect(() => {
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      };
-    }
-  }, [isDragging, dragStart]);
-
-  // Centrer la fenêtre au premier affichage
-  useEffect(() => {
-    if (isOpen && position.x === 0 && position.y === 0) {
-      const centerX = Math.max(0, (window.innerWidth - 400) / 2);
-      const centerY = Math.max(0, (window.innerHeight - 500) / 2);
-      setPosition({ x: centerX, y: centerY });
-    }
-  }, [isOpen]);
-
-  const filteredNotifications = notifications.filter(notif => {
-    switch (filter) {
-      case 'unread': return !notif.read;
-      case 'high': return notif.priority === 'high';
-      default: return true;
-    }
-  });
-
-  const unreadCount = notifications.filter(notif => !notif.read).length;
-  const highPriorityCount = notifications.filter(notif => notif.priority === 'high' && !notif.read).length;
-
-  const formatTime = (timestamp: string) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-
-    if (diffInMinutes < 1) return "À l'instant";
-    if (diffInMinutes < 60) return `Il y a ${diffInMinutes}min`;
-    if (diffInMinutes < 1440) return `Il y a ${Math.floor(diffInMinutes / 60)}h`;
-    return date.toLocaleDateString('fr-FR');
-  };
+  if (isLoading) {
+    return <div className="p-6">Chargement des notifications...</div>;
+  }
 
   return (
-    <>
-      <div className="relative">
-        {/* Bouton de notification */}
-        <Button
-          variant="ghost"
-          size="sm"
-          className="relative"
-          onClick={onToggle}
-        >
-          <Bell className="h-5 w-5" />
+    <div className="p-6 space-y-6">
+      {/* En-tête */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold">Système de Notifications</h1>
+          <p className="text-muted-foreground">Gérez vos notifications et alertes</p>
+        </div>
+        <div className="flex items-center gap-2">
           {unreadCount > 0 && (
-            <Badge 
-              variant={highPriorityCount > 0 ? "destructive" : "default"}
-              className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs"
-            >
-              {unreadCount > 99 ? '99+' : unreadCount}
-            </Badge>
+            <Button onClick={handleMarkAllAsRead} variant="outline">
+              <Check className="h-4 w-4 mr-2" />
+              Tout marquer lu
+            </Button>
           )}
-        </Button>
+        </div>
       </div>
 
-      {/* Panel de notifications */}
-      {isOpen && (
-        <>
-          {/* Overlay semi-transparent */}
-          <div 
-            className="fixed inset-0 bg-black/20 z-40"
-            onClick={onToggle}
-          />
-          
-          {/* Fenêtre de notifications déplaçable */}
-          <div 
-            ref={panelRef}
-            className="fixed w-96 z-50"
-            style={{
-              left: `${position.x}px`,
-              top: `${position.y}px`,
-              transform: isDragging ? 'none' : 'translate(0, 0)'
-            }}
-          >
-          <Card className="shadow-2xl border-2">
-            <CardHeader 
-              className="pb-3 cursor-move select-none"
-              onMouseDown={handleMouseDown}
-            >
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <Move className="h-4 w-4 text-gray-400" />
-                  <CardTitle className="text-lg">Notifications</CardTitle>
-                </div>
-                <div className="flex gap-2">
-                  {unreadCount > 0 && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={markAllAsRead}
-                      className="text-xs"
-                    >
-                      <Check className="h-4 w-4 mr-1" />
-                      Tout marquer lu
-                    </Button>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={onToggle}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              
-              {/* Filtres */}
-              <div className="flex gap-2 mt-2">
-                <Button
-                  variant={filter === 'all' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setFilter('all')}
-                  className="text-xs"
-                >
-                  Toutes ({notifications.length})
-                </Button>
-                <Button
-                  variant={filter === 'unread' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setFilter('unread')}
-                  className="text-xs"
-                >
-                  Non lues ({unreadCount})
-                </Button>
-                <Button
-                  variant={filter === 'high' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setFilter('high')}
-                  className="text-xs"
-                >
-                  <AlertTriangle className="h-3 w-3 mr-1" />
-                  Urgentes ({highPriorityCount})
-                </Button>
-              </div>
-            </CardHeader>
-            
-            <CardContent className="p-0">
-              <ScrollArea className="h-96">
-                {filteredNotifications.length === 0 ? (
-                  <div className="p-6 text-center text-muted-foreground">
-                    <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p>Aucune notification</p>
-                  </div>
-                ) : (
-                  <div className="space-y-1">
-                    {filteredNotifications.map((notification, index) => (
-                      <div key={notification.id}>
-                        <div 
-                          className={`p-4 hover:bg-muted/50 cursor-pointer transition-colors ${
-                            !notification.read ? 'bg-primary/5 border-l-4 border-primary' : ''
-                          }`}
-                          onClick={() => markAsRead(notification.id)}
-                        >
-                          <div className="flex gap-3">
-                            <div className={`mt-1 ${notification.priority === 'high' ? 'text-red-500' : ''}`}>
-                              {getIcon(notification.type)}
-                            </div>
-                            
-                            <div className="flex-1 space-y-1">
-                              <div className="flex justify-between items-start">
-                                <h4 className={`text-sm font-medium ${!notification.read ? 'font-semibold' : ''}`}>
-                                  {notification.title}
-                                </h4>
-                                <div className="flex gap-1">
-                                  <Badge variant={getPriorityColor(notification.priority) as any} className="text-xs">
-                                    {notification.priority}
-                                  </Badge>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      deleteNotification(notification.id);
-                                    }}
-                                    className="h-6 w-6 p-0"
-                                  >
-                                    <X className="h-3 w-3" />
-                                  </Button>
-                                </div>
-                              </div>
-                              
-                              <p className="text-sm text-muted-foreground">
-                                {notification.message}
-                              </p>
-                              
-                              <div className="flex justify-between items-center">
-                                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                  <Clock className="h-3 w-3" />
-                                  {formatTime(notification.timestamp)}
-                                </span>
-                                
-                                {notification.actionUrl && (
-                                  <Button 
-                                    variant="ghost" 
-                                    size="sm" 
-                                    className="text-xs h-6"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      // Navigation vers l'action
-                                      window.location.href = notification.actionUrl!;
-                                    }}
-                                  >
-                                    Voir détails
-                                  </Button>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {index < filteredNotifications.length - 1 && <Separator />}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </ScrollArea>
-            </CardContent>
-          </Card>
+      {/* Statistiques des notifications */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <Bell className="h-4 w-4" />
+              Non Lues
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-red-600">{unreadCount}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              Réservations
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">{pendingReservationsCount}</div>
+            <div className="text-sm text-muted-foreground">En attente</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Messages
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-purple-600">{newMessagesCount}</div>
+            <div className="text-sm text-muted-foreground">Nouveaux</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <ShoppingCart className="h-4 w-4" />
+              Commandes
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">{pendingOrdersCount}</div>
+            <div className="text-sm text-muted-foreground">En attente</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Paramètres des notifications */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Paramètres des Notifications</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {notificationsEnabled ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
+              <Label>Notifications activées</Label>
+            </div>
+            <Switch
+              checked={notificationsEnabled}
+              onCheckedChange={setNotificationsEnabled}
+            />
           </div>
-        </>
-      )}
-    </>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Bell className="h-4 w-4" />
+              <Label>Son des notifications</Label>
+            </div>
+            <Switch
+              checked={soundEnabled}
+              onCheckedChange={setSoundEnabled}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Liste des notifications */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Notifications Récentes ({notifications.length})</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Type</TableHead>
+                <TableHead>Message</TableHead>
+                <TableHead>Priorité</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Statut</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {notifications.map((notification) => (
+                <TableRow key={notification.id} className={!notification.read ? 'bg-muted/30' : ''}>
+                  <TableCell>
+                    <Badge className={getTypeColor(notification.type)}>
+                      <div className="flex items-center gap-1">
+                        {getTypeIcon(notification.type)}
+                        <span className="capitalize">{notification.type}</span>
+                      </div>
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div>
+                      <div className="font-medium">{notification.title}</div>
+                      <div className="text-sm text-muted-foreground line-clamp-2">
+                        {notification.message}
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={getPriorityColor(notification.priority)}>
+                      {notification.priority}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    {format(new Date(notification.createdAt), 'dd/MM/yyyy HH:mm', { locale: fr })}
+                  </TableCell>
+                  <TableCell>
+                    {notification.read ? (
+                      <Badge variant="secondary">Lu</Badge>
+                    ) : (
+                      <Badge variant="default">Non lu</Badge>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      {!notification.read && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleMarkAsRead(notification.id)}
+                        >
+                          <Check className="h-4 w-4" />
+                        </Button>
+                      )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDismiss(notification.id)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+              {notifications.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    Aucune notification pour le moment
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

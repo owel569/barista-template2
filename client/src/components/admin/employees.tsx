@@ -58,7 +58,7 @@ const employeeSchema = z.object({
   department: z.string().min(2, 'Le département doit contenir au moins 2 caractères'),
   phone: z.string().min(8, 'Le téléphone doit contenir au moins 8 chiffres'),
   hireDate: z.string(),
-  salary: z.string().min(1, 'Le salaire est requis'),
+  salary: z.string().min(1, 'Le salaire est requis').refine(val => !isNaN(parseFloat(val)), 'Le salaire doit être un nombre'),
   status: z.enum(['active', 'inactive']).optional(),
 });
 

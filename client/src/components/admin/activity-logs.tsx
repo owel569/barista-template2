@@ -1,213 +1,168 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { 
-  History, 
-  User, 
-  Calendar, 
-  Clock, 
-  Filter, 
-  Search,
-  Download,
-  RefreshCw,
-  Eye,
-  AlertTriangle,
-  CheckCircle,
-  XCircle,
-  Info
-} from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ActivityLog } from '../../../types/admin';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ScrollArea } from '@/components/ui/scroll-area';
-
-interface ActivityLog {
-  id: number;
-  userId: number;
-  username: string;
-  action: string;
-  target: string;
-  details: string;
-  timestamp: string;
-  ipAddress: string;
-  userAgent: string;
-  severity: 'info' | 'warning' | 'error' | 'success';
-}
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Activity, User, Clock, Download, Filter, Search } from 'lucide-react';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 interface ActivityLogsProps {
-  userRole?: 'directeur' | 'employe';
+  userRole: 'directeur' | 'employe';
 }
 
-export default function ActivityLogs({ userRole = 'directeur' }: ActivityLogsProps) {
+export default function ActivityLogs({ userRole }: ActivityLogsProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterUser, setFilterUser] = useState('all');
-  const [filterAction, setFilterAction] = useState('all');
-  const [filterSeverity, setFilterSeverity] = useState('all');
-  const [selectedLog, setSelectedLog] = useState<ActivityLog | null>(null);
+  const [actionFilter, setActionFilter] = useState<string>('all');
+  const [userFilter, setUserFilter] = useState<string>('all');
 
-  // Fetch activity logs
-  const { data: activityLogs = [], refetch, isLoading } = useQuery<ActivityLog[]>({
-    queryKey: ['/api/admin/logs'],
+  const { data: logs = [], isLoading } = useQuery<ActivityLog[]>({
+    queryKey: ['/api/admin/activity-logs'],
+    retry: 3,
+    retryDelay: 1000,
   });
 
-  // Mock data for demonstration
-  const mockLogs: ActivityLog[] = [
-    {
-      id: 1,
-      userId: 1,
-      username: 'admin',
-      action: 'LOGIN',
-      target: 'Système',
-      details: 'Connexion réussie depuis l\'interface admin',
-      timestamp: new Date().toISOString(),
-      ipAddress: '192.168.1.100',
-      userAgent: 'Mozilla/5.0...',
-      severity: 'success'
-    },
-    {
-      id: 2,
-      userId: 1,
-      username: 'admin',
-      action: 'CREATE_MENU_ITEM',
-      target: 'Menu',
-      details: 'Création d\'un nouvel article: Latte Macchiato',
-      timestamp: new Date(Date.now() - 3600000).toISOString(),
-      ipAddress: '192.168.1.100',
-      userAgent: 'Mozilla/5.0...',
-      severity: 'info'
-    },
-    {
-      id: 3,
-      userId: 2,
-      username: 'employe',
-      action: 'UPDATE_RESERVATION',
-      target: 'Réservations',
-      details: 'Mise à jour du statut de la réservation #123',
-      timestamp: new Date(Date.now() - 7200000).toISOString(),
-      ipAddress: '192.168.1.101',
-      userAgent: 'Mozilla/5.0...',
-      severity: 'info'
-    },
-    {
-      id: 4,
-      userId: 1,
-      username: 'admin',
-      action: 'DELETE_CUSTOMER',
-      target: 'Clients',
-      details: 'Suppression du client: Jean Dupont',
-      timestamp: new Date(Date.now() - 10800000).toISOString(),
-      ipAddress: '192.168.1.100',
-      userAgent: 'Mozilla/5.0...',
-      severity: 'warning'
-    },
-    {
-      id: 5,
-      userId: 1,
-      username: 'admin',
-      action: 'FAILED_LOGIN',
-      target: 'Système',
-      details: 'Tentative de connexion échouée - mot de passe incorrect',
-      timestamp: new Date(Date.now() - 14400000).toISOString(),
-      ipAddress: '192.168.1.105',
-      userAgent: 'Mozilla/5.0...',
-      severity: 'error'
-    },
-    {
-      id: 6,
-      userId: 2,
-      username: 'employe',
-      action: 'CREATE_ORDER',
-      target: 'Commandes',
-      details: 'Création d\'une nouvelle commande #456',
-      timestamp: new Date(Date.now() - 18000000).toISOString(),
-      ipAddress: '192.168.1.101',
-      userAgent: 'Mozilla/5.0...',
-      severity: 'success'
-    }
-  ];
-
-  const logsToDisplay = activityLogs.length > 0 ? activityLogs : mockLogs;
-
-  // Filter logs
-  const filteredLogs = logsToDisplay.filter(log => {
-    const matchesSearch = searchTerm === '' || 
-      log.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  const filteredLogs = logs.filter(log => {
+    const matchesSearch = !searchTerm || 
       log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.target.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.details.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesUser = filterUser === 'all' || log.username === filterUser;
-    const matchesAction = filterAction === 'all' || log.action === filterAction;
-    const matchesSeverity = filterSeverity === 'all' || log.severity === filterSeverity;
-
-    return matchesSearch && matchesUser && matchesAction && matchesSeverity;
+      log.details?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.userId.toString().includes(searchTerm);
+    
+    const matchesAction = actionFilter === 'all' || log.action === actionFilter;
+    const matchesUser = userFilter === 'all' || log.userId.toString() === userFilter;
+    
+    return matchesSearch && matchesAction && matchesUser;
   });
-
-  const getSeverityIcon = (severity: string) => {
-    switch (severity) {
-      case 'success': return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'warning': return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
-      case 'error': return <XCircle className="h-4 w-4 text-red-500" />;
-      default: return <Info className="h-4 w-4 text-blue-500" />;
-    }
-  };
-
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case 'success': return 'bg-green-100 text-green-800';
-      case 'warning': return 'bg-yellow-100 text-yellow-800';
-      case 'error': return 'bg-red-100 text-red-800';
-      default: return 'bg-blue-100 text-blue-800';
-    }
-  };
-
-  const formatTimestamp = (timestamp: string) => {
-    const date = new Date(timestamp);
-    return {
-      date: date.toLocaleDateString('fr-FR'),
-      time: date.toLocaleTimeString('fr-FR')
-    };
-  };
 
   const exportLogs = () => {
-    const dataStr = JSON.stringify(filteredLogs, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `activity-logs-${new Date().toISOString().split('T')[0]}.json`;
-    link.click();
+    const csvContent = [
+      ['Date', 'Utilisateur', 'Action', 'Détails', 'IP'].join(','),
+      ...filteredLogs.map(log => [
+        format(new Date(log.createdAt), 'dd/MM/yyyy HH:mm:ss'),
+        log.userId,
+        log.action,
+        log.details || '',
+        log.ipAddress || ''
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `activity-logs-${format(new Date(), 'yyyy-MM-dd')}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   };
 
-  const uniqueUsers = Array.from(new Set(logsToDisplay.map(log => log.username)));
-  const uniqueActions = Array.from(new Set(logsToDisplay.map(log => log.action)));
+  const getActionColor = (action: string) => {
+    switch (action) {
+      case 'LOGIN': return 'bg-green-100 text-green-800';
+      case 'LOGOUT': return 'bg-gray-100 text-gray-800';
+      case 'CREATE': return 'bg-blue-100 text-blue-800';
+      case 'UPDATE': return 'bg-yellow-100 text-yellow-800';
+      case 'DELETE': return 'bg-red-100 text-red-800';
+      case 'VIEW': return 'bg-purple-100 text-purple-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getActionIcon = (action: string) => {
+    switch (action) {
+      case 'LOGIN': 
+      case 'LOGOUT': return <User className="h-4 w-4" />;
+      default: return <Activity className="h-4 w-4" />;
+    }
+  };
+
+  // Statistiques
+  const totalLogs = logs.length;
+  const todayLogs = logs.filter(log => {
+    const today = new Date().toDateString();
+    return new Date(log.createdAt).toDateString() === today;
+  }).length;
+  const uniqueUsers = new Set(logs.map(log => log.userId)).size;
+
+  if (isLoading) {
+    return <div className="p-6">Chargement des logs d'activité...</div>;
+  }
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
+      {/* En-tête */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <History className="h-8 w-8" />
-            Historique des Actions
-          </h1>
-          <p className="text-muted-foreground">Suivi des activités et actions système</p>
+          <h1 className="text-2xl font-bold">Journaux d'Activité</h1>
+          <p className="text-muted-foreground">Historique des actions effectuées</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => refetch()}>
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Actualiser
-          </Button>
-          <Button variant="outline" onClick={exportLogs}>
-            <Download className="h-4 w-4 mr-2" />
-            Exporter
-          </Button>
-        </div>
+        <Button onClick={exportLogs} variant="outline">
+          <Download className="h-4 w-4 mr-2" />
+          Exporter CSV
+        </Button>
       </div>
 
-      {/* Filters */}
+      {/* Statistiques */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <Activity className="h-4 w-4" />
+              Total Activités
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalLogs}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              Aujourd'hui
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">{todayLogs}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <User className="h-4 w-4" />
+              Utilisateurs Actifs
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">{uniqueUsers}</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filtres */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -216,258 +171,99 @@ export default function ActivityLogs({ userRole = 'directeur' }: ActivityLogsPro
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <div className="flex gap-4 flex-wrap">
+            <div className="flex items-center gap-2">
+              <Search className="h-4 w-4" />
               <Input
-                placeholder="Rechercher..."
+                placeholder="Rechercher par action ou détails..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="w-80"
               />
             </div>
-            
-            <Select value={filterUser} onValueChange={setFilterUser}>
-              <SelectTrigger>
-                <SelectValue placeholder="Utilisateur" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous les utilisateurs</SelectItem>
-                {uniqueUsers.map(user => (
-                  <SelectItem key={user} value={user}>{user}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={filterAction} onValueChange={setFilterAction}>
-              <SelectTrigger>
-                <SelectValue placeholder="Action" />
+            <Select value={actionFilter} onValueChange={setActionFilter}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Filtrer par action" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Toutes les actions</SelectItem>
-                {uniqueActions.map(action => (
-                  <SelectItem key={action} value={action}>{action}</SelectItem>
-                ))}
+                <SelectItem value="LOGIN">Connexion</SelectItem>
+                <SelectItem value="LOGOUT">Déconnexion</SelectItem>
+                <SelectItem value="CREATE">Création</SelectItem>
+                <SelectItem value="UPDATE">Modification</SelectItem>
+                <SelectItem value="DELETE">Suppression</SelectItem>
+                <SelectItem value="VIEW">Consultation</SelectItem>
               </SelectContent>
             </Select>
-
-            <Select value={filterSeverity} onValueChange={setFilterSeverity}>
-              <SelectTrigger>
-                <SelectValue placeholder="Gravité" />
+            <Select value={userFilter} onValueChange={setUserFilter}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Filtrer par utilisateur" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Toutes</SelectItem>
-                <SelectItem value="success">Succès</SelectItem>
-                <SelectItem value="info">Information</SelectItem>
-                <SelectItem value="warning">Avertissement</SelectItem>
-                <SelectItem value="error">Erreur</SelectItem>
+                <SelectItem value="all">Tous les utilisateurs</SelectItem>
+                <SelectItem value="1">Utilisateur 1</SelectItem>
+                <SelectItem value="2">Utilisateur 2</SelectItem>
               </SelectContent>
             </Select>
-
-            <Button 
-              variant="outline" 
-              onClick={() => {
-                setSearchTerm('');
-                setFilterUser('all');
-                setFilterAction('all');
-                setFilterSeverity('all');
-              }}
-            >
-              Réinitialiser
-            </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium">Total Actions</p>
-                <p className="text-2xl font-bold">{filteredLogs.length}</p>
-              </div>
-              <History className="h-8 w-8 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium">Succès</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {filteredLogs.filter(log => log.severity === 'success').length}
-                </p>
-              </div>
-              <CheckCircle className="h-8 w-8 text-green-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium">Avertissements</p>
-                <p className="text-2xl font-bold text-yellow-600">
-                  {filteredLogs.filter(log => log.severity === 'warning').length}
-                </p>
-              </div>
-              <AlertTriangle className="h-8 w-8 text-yellow-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium">Erreurs</p>
-                <p className="text-2xl font-bold text-red-600">
-                  {filteredLogs.filter(log => log.severity === 'error').length}
-                </p>
-              </div>
-              <XCircle className="h-8 w-8 text-red-500" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Logs Table */}
+      {/* Liste des logs */}
       <Card>
         <CardHeader>
-          <CardTitle>Journal d'Activité</CardTitle>
+          <CardTitle>Historique d'Activité ({filteredLogs.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          <ScrollArea className="h-96">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Gravité</TableHead>
-                  <TableHead>Utilisateur</TableHead>
-                  <TableHead>Action</TableHead>
-                  <TableHead>Cible</TableHead>
-                  <TableHead>Détails</TableHead>
-                  <TableHead>Date & Heure</TableHead>
-                  <TableHead>Actions</TableHead>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Date & Heure</TableHead>
+                <TableHead>Utilisateur</TableHead>
+                <TableHead>Action</TableHead>
+                <TableHead>Détails</TableHead>
+                <TableHead>Adresse IP</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredLogs.map((log) => (
+                <TableRow key={log.id}>
+                  <TableCell>
+                    {format(new Date(log.createdAt), 'dd/MM/yyyy HH:mm:ss', { locale: fr })}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      <span>Utilisateur {log.userId}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={getActionColor(log.action)}>
+                      <div className="flex items-center gap-1">
+                        {getActionIcon(log.action)}
+                        <span>{log.action}</span>
+                      </div>
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="max-w-xs truncate">
+                    {log.details || '-'}
+                  </TableCell>
+                  <TableCell className="font-mono text-sm">
+                    {log.ipAddress || '-'}
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredLogs.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                      Aucun journal d'activité trouvé
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredLogs.map((log) => {
-                    const { date, time } = formatTimestamp(log.timestamp);
-                    return (
-                      <TableRow key={log.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            {getSeverityIcon(log.severity)}
-                            <Badge className={getSeverityColor(log.severity)}>
-                              {log.severity}
-                            </Badge>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <User className="h-4 w-4" />
-                            {log.username}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <code className="text-xs bg-muted px-2 py-1 rounded">
-                            {log.action}
-                          </code>
-                        </TableCell>
-                        <TableCell>{log.target}</TableCell>
-                        <TableCell className="max-w-xs">
-                          <div className="truncate" title={log.details}>
-                            {log.details}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2 text-sm">
-                            <Calendar className="h-3 w-3" />
-                            {date}
-                            <Clock className="h-3 w-3" />
-                            {time}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setSelectedLog(log)}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
-          </ScrollArea>
+              ))}
+              {filteredLogs.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                    Aucun log d'activité trouvé
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
-
-      {/* Log Detail Modal */}
-      {selectedLog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <Card className="w-full max-w-lg max-h-96 overflow-auto">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                Détails de l'Action
-                <Button variant="ghost" size="sm" onClick={() => setSelectedLog(null)}>
-                  ×
-                </Button>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="font-medium">ID:</label>
-                <p>{selectedLog.id}</p>
-              </div>
-              <div>
-                <label className="font-medium">Utilisateur:</label>
-                <p>{selectedLog.username} (ID: {selectedLog.userId})</p>
-              </div>
-              <div>
-                <label className="font-medium">Action:</label>
-                <p>{selectedLog.action}</p>
-              </div>
-              <div>
-                <label className="font-medium">Cible:</label>
-                <p>{selectedLog.target}</p>
-              </div>
-              <div>
-                <label className="font-medium">Détails:</label>
-                <p>{selectedLog.details}</p>
-              </div>
-              <div>
-                <label className="font-medium">Adresse IP:</label>
-                <p>{selectedLog.ipAddress}</p>
-              </div>
-              <div>
-                <label className="font-medium">Navigateur:</label>
-                <p className="text-xs break-all">{selectedLog.userAgent}</p>
-              </div>
-              <div>
-                <label className="font-medium">Horodatage:</label>
-                <p>{new Date(selectedLog.timestamp).toLocaleString('fr-FR')}</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
     </div>
   );
 }

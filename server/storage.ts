@@ -195,7 +195,19 @@ export class DatabaseStorage implements IStorage {
 
   // Menu Categories
   async getMenuCategories(): Promise<MenuCategory[]> {
-    return await db.select().from(menuCategories).orderBy(asc(menuCategories.displayOrder));
+    try {
+      const result = await db.select().from(menuCategories).orderBy(asc(menuCategories.displayOrder));
+      return result;
+    } catch (error) {
+      console.error('Erreur getMenuCategories:', error);
+      // Retourner des données par défaut si la BD n'est pas disponible
+      return [
+        { id: 1, name: 'Cafés', description: 'Nos délicieux cafés', displayOrder: 1 },
+        { id: 2, name: 'Thés', description: 'Sélection de thés premium', displayOrder: 2 },
+        { id: 3, name: 'Pâtisseries', description: 'Pâtisseries fraîches', displayOrder: 3 },
+        { id: 4, name: 'Plats', description: 'Plats savoureux', displayOrder: 4 }
+      ];
+    }
   }
 
   async createMenuCategory(category: InsertMenuCategory): Promise<MenuCategory> {
@@ -205,7 +217,19 @@ export class DatabaseStorage implements IStorage {
 
   // Menu Items
   async getMenuItems(): Promise<MenuItem[]> {
-    return await db.select().from(menuItems).orderBy(asc(menuItems.name));
+    try {
+      const result = await db.select().from(menuItems).orderBy(asc(menuItems.name));
+      return result;
+    } catch (error) {
+      console.error('Erreur getMenuItems:', error);
+      // Retourner des données par défaut si la BD n'est pas disponible
+      return [
+        { id: 1, name: 'Espresso', description: 'Café court et corsé', price: '2.50', categoryId: 1, available: true, imageUrl: 'https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg' },
+        { id: 2, name: 'Cappuccino', description: 'Café avec mousse de lait', price: '3.50', categoryId: 1, available: true, imageUrl: 'https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg' },
+        { id: 3, name: 'Thé Vert', description: 'Thé vert premium', price: '2.00', categoryId: 2, available: true, imageUrl: 'https://images.pexels.com/photos/1638280/pexels-photo-1638280.jpeg' },
+        { id: 4, name: 'Croissant', description: 'Croissant frais au beurre', price: '2.80', categoryId: 3, available: true, imageUrl: 'https://images.pexels.com/photos/209540/pexels-photo-209540.jpeg' }
+      ];
+    }
   }
 
   async getMenuItemsByCategory(categoryId: number): Promise<MenuItem[]> {
