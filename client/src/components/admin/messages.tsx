@@ -57,13 +57,13 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
   const queryClient = useQueryClient();
 
   const { data: messages = [], isLoading } = useQuery<ContactMessage[]>({
-    queryKey: ['/api/contact-messages'],
+    queryKey: ['/api/contact/messages'],
   });
 
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: number; status: string }) =>
-      fetch(`/api/contact-messages/${id}/status`, {
-        method: 'PUT',
+      fetch(`/api/contact/messages/${id}/status`, {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -71,7 +71,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
         body: JSON.stringify({ status }),
       }).then(res => res.json()),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/contact-messages'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/contact/messages'] });
       toast({
         title: 'Succès',
         description: 'Statut du message mis à jour',
