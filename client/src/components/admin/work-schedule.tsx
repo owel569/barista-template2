@@ -52,7 +52,8 @@ export default function WorkSchedule({ userRole = 'directeur' }: WorkSchedulePro
     date: format(new Date(), 'yyyy-MM-dd'),
     startTime: '09:00',
     endTime: '17:00',
-    shiftType: 'morning' as 'morning' | 'afternoon' | 'evening' | 'night',
+    position: 'Barista',
+    status: 'scheduled' as 'scheduled' | 'completed' | 'cancelled',
     notes: ''
   });
   const { toast } = useToast();
@@ -83,7 +84,8 @@ export default function WorkSchedule({ userRole = 'directeur' }: WorkSchedulePro
         date: format(new Date(), 'yyyy-MM-dd'),
         startTime: '09:00',
         endTime: '17:00',
-        shiftType: 'morning',
+        position: 'Barista',
+        status: 'scheduled',
         notes: ''
       });
       toast({
@@ -172,7 +174,8 @@ export default function WorkSchedule({ userRole = 'directeur' }: WorkSchedulePro
       date: shift.date,
       startTime: shift.startTime,
       endTime: shift.endTime,
-      shiftType: shift.shiftType,
+      position: shift.position,
+      status: shift.status,
       notes: shift.notes || ''
     });
     setIsDialogOpen(true);
@@ -184,22 +187,12 @@ export default function WorkSchedule({ userRole = 'directeur' }: WorkSchedulePro
     }
   };
 
-  const getShiftTypeLabel = (type: string) => {
-    switch (type) {
-      case 'morning': return 'Matin';
-      case 'afternoon': return 'Après-midi';
-      case 'evening': return 'Soir';
-      case 'night': return 'Nuit';
-      default: return type;
-    }
-  };
-
-  const getShiftTypeColor = (type: string) => {
-    switch (type) {
-      case 'morning': return 'bg-yellow-100 text-yellow-800';
-      case 'afternoon': return 'bg-blue-100 text-blue-800';
-      case 'evening': return 'bg-purple-100 text-purple-800';
-      case 'night': return 'bg-gray-100 text-gray-800';
+  const getPositionColor = (position: string) => {
+    switch (position) {
+      case 'Barista': return 'bg-yellow-100 text-yellow-800';
+      case 'Serveur': return 'bg-blue-100 text-blue-800';
+      case 'Cuisinier': return 'bg-purple-100 text-purple-800';
+      case 'Manager': return 'bg-green-100 text-green-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -307,16 +300,16 @@ export default function WorkSchedule({ userRole = 'directeur' }: WorkSchedulePro
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">Type de service</label>
-                      <Select value={newShift.shiftType} onValueChange={(value: any) => setNewShift(prev => ({ ...prev, shiftType: value }))}>
+                      <label className="text-sm font-medium">Poste</label>
+                      <Select value={newShift.position} onValueChange={(value) => setNewShift(prev => ({ ...prev, position: value }))}>
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="morning">Matin</SelectItem>
-                          <SelectItem value="afternoon">Après-midi</SelectItem>
-                          <SelectItem value="evening">Soir</SelectItem>
-                          <SelectItem value="night">Nuit</SelectItem>
+                          <SelectItem value="Barista">Barista</SelectItem>
+                          <SelectItem value="Serveur">Serveur</SelectItem>
+                          <SelectItem value="Cuisinier">Cuisinier</SelectItem>
+                          <SelectItem value="Manager">Manager</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -338,6 +331,19 @@ export default function WorkSchedule({ userRole = 'directeur' }: WorkSchedulePro
                         onChange={(e) => setNewShift(prev => ({ ...prev, endTime: e.target.value }))}
                       />
                     </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Statut</label>
+                    <Select value={newShift.status} onValueChange={(value) => setNewShift(prev => ({ ...prev, status: value as 'scheduled' | 'completed' | 'cancelled' }))}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="scheduled">Planifié</SelectItem>
+                        <SelectItem value="completed">Terminé</SelectItem>
+                        <SelectItem value="cancelled">Annulé</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Notes</label>
@@ -413,7 +419,7 @@ export default function WorkSchedule({ userRole = 'directeur' }: WorkSchedulePro
                   <TableHead>Employé</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Horaires</TableHead>
-                  <TableHead>Type</TableHead>
+                  <TableHead>Poste</TableHead>
                   <TableHead>Statut</TableHead>
                   <TableHead>Notes</TableHead>
                   {!isReadOnly && <TableHead className="w-20">Actions</TableHead>}
@@ -439,8 +445,8 @@ export default function WorkSchedule({ userRole = 'directeur' }: WorkSchedulePro
                         {shift.startTime} - {shift.endTime}
                       </TableCell>
                       <TableCell>
-                        <Badge className={getShiftTypeColor(shift.shiftType)}>
-                          {getShiftTypeLabel(shift.shiftType)}
+                        <Badge className={getPositionColor(shift.position)}>
+                          {shift.position}
                         </Badge>
                       </TableCell>
                       <TableCell>

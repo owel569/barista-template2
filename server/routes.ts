@@ -1651,13 +1651,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/work-shifts", authenticateToken, requireRole('directeur'), async (req, res) => {
     try {
-      const shiftData = req.body;
-      const shift = await storage.createWorkShift(shiftData);
+      const shiftData = insertWorkShiftSchema.parse(req.body);
+      const workShift = await storage.createWorkShift(shiftData);
       
       // Notifier via WebSocket
-      wsManager.notifyDataUpdate('work-shifts', shift);
+      wsManager.notifyDataUpdate('work-shifts', workShift);
       
-      res.status(201).json(shift);
+      res.status(201).json(workShift);
     } catch (error) {
       res.status(400).json({ message: "Erreur lors de la création de l'horaire" });
     }
@@ -1667,16 +1667,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const shiftData = req.body;
-      const shift = await storage.updateWorkShift(id, shiftData);
+      const workShift = await storage.updateWorkShift(id, shiftData);
       
-      if (!shift) {
+      if (!workShift) {
         return res.status(404).json({ message: "Horaire non trouvé" });
       }
       
       // Notifier via WebSocket
-      wsManager.notifyDataUpdate('work-shifts', shift);
+      wsManager.notifyDataUpdate('work-shifts', workShift);
       
-      res.json(shift);
+      res.json(workShift);
     } catch (error) {
       res.status(400).json({ message: "Erreur lors de la mise à jour de l'horaire" });
     }
@@ -1699,6 +1699,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Erreur lors de la suppression de l'horaire" });
     }
   });
+
+
 
   // User management routes (directeur only)
   app.get("/api/admin/users", authenticateToken, requireRole('directeur'), async (req, res) => {
