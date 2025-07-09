@@ -101,22 +101,24 @@ export default function PermissionsManagement({ userRole = 'directeur' }: Permis
   });
 
   useEffect(() => {
-    if (userPermissions.length > 0) {
-      setPermissions(userPermissions);
-    } else if (selectedUser && permissions.length === 0) {
-      // Créer des permissions par défaut pour tous les modules
-      const defaultPermissions = modules.map(module => ({
-        id: 0,
-        userId: selectedUser.id,
-        module: module.id,
-        canView: selectedUser.role === 'directeur' || ['dashboard', 'reservations', 'orders', 'customers'].includes(module.id),
-        canCreate: selectedUser.role === 'directeur' || ['reservations', 'orders'].includes(module.id),
-        canUpdate: selectedUser.role === 'directeur' || ['reservations', 'orders'].includes(module.id),
-        canDelete: selectedUser.role === 'directeur'
-      }));
-      setPermissions(defaultPermissions);
+    if (selectedUser) {
+      if (userPermissions.length > 0) {
+        setPermissions(userPermissions);
+      } else {
+        // Créer des permissions par défaut pour tous les modules
+        const defaultPermissions = modules.map(module => ({
+          id: 0,
+          userId: selectedUser.id,
+          module: module.id,
+          canView: selectedUser.role === 'directeur' || ['dashboard', 'reservations', 'orders', 'customers'].includes(module.id),
+          canCreate: selectedUser.role === 'directeur' || ['reservations', 'orders'].includes(module.id),
+          canUpdate: selectedUser.role === 'directeur' || ['reservations', 'orders'].includes(module.id),
+          canDelete: selectedUser.role === 'directeur'
+        }));
+        setPermissions(defaultPermissions);
+      }
     }
-  }, [userPermissions, selectedUser, permissions.length]);
+  }, [userPermissions, selectedUser]);
 
   const updatePermission = (moduleId: string, field: keyof Permission, value: boolean) => {
     setPermissions(prev => 

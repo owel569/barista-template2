@@ -398,7 +398,7 @@ export default function LoyaltySystem({ userRole = 'directeur' }: LoyaltySystemP
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>{parseFloat(customer.totalSpent).toFixed(2)}€</TableCell>
+                      <TableCell>{typeof customer.totalSpent === 'number' ? customer.totalSpent.toFixed(2) : parseFloat(customer.totalSpent || '0').toFixed(2)}€</TableCell>
                       <TableCell>{customer.totalOrders}</TableCell>
                       <TableCell>{new Date(customer.lastVisit).toLocaleDateString()}</TableCell>
                       <TableCell>

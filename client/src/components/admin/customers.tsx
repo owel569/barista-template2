@@ -28,7 +28,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   
-  const { canModify, canDelete } = usePermissions(user);
+  const { hasPermission } = usePermissions(userRole);
   const [newCustomer, setNewCustomer] = useState({
     firstName: '',
     lastName: '',
@@ -44,7 +44,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
   // Initialiser WebSocket pour les notifications temps réel
   useWebSocket();
 
-  const isReadOnly = !canModify('customers');
+  const isReadOnly = !hasPermission('customers', 'create');
 
   useEffect(() => {
     fetchCustomers();

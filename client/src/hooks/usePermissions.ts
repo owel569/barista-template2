@@ -1,129 +1,80 @@
-import { useMemo } from 'react';
-import { User } from '../../types/admin';
+import { useState, useEffect } from 'react';
 
-export function usePermissions(user: User | null) {
-  return useMemo(() => {
-    const isDirecteur = user?.role === 'directeur';
-    const isEmploye = user?.role === 'employe';
+export interface UserPermissions {
+  [module: string]: {
+    canView: boolean;
+    canCreate: boolean;
+    canUpdate: boolean;
+    canDelete: boolean;
+  };
+}
 
-    // Permissions par module selon le rôle
-    const permissions = {
-      dashboard: {
-        canView: true,
-        canCreate: false,
-        canEdit: false,
-        canDelete: false,
-      },
-      reservations: {
-        canView: true,
-        canCreate: true,
-        canEdit: true,
-        canDelete: isDirecteur,
-      },
-      orders: {
-        canView: true,
-        canCreate: true,
-        canEdit: true,
-        canDelete: isDirecteur,
-      },
-      customers: {
-        canView: true,
-        canCreate: isDirecteur,
-        canEdit: isDirecteur,
-        canDelete: isDirecteur,
-      },
-      employees: {
-        canView: isDirecteur,
-        canCreate: isDirecteur,
-        canEdit: isDirecteur,
-        canDelete: isDirecteur,
-      },
-      menu: {
-        canView: true,
-        canCreate: true,
-        canEdit: true,
-        canDelete: isDirecteur,
-      },
-      messages: {
-        canView: true,
-        canCreate: false,
-        canEdit: true,
-        canDelete: isDirecteur,
-      },
-      settings: {
-        canView: isDirecteur,
-        canCreate: isDirecteur,
-        canEdit: isDirecteur,
-        canDelete: isDirecteur,
-      },
-      statistics: {
-        canView: true,
-        canCreate: false,
-        canEdit: false,
-        canDelete: false,
-      },
-      logs: {
-        canView: isDirecteur,
-        canCreate: false,
-        canEdit: false,
-        canDelete: isDirecteur,
-      },
-      permissions: {
-        canView: isDirecteur,
-        canCreate: isDirecteur,
-        canEdit: isDirecteur,
-        canDelete: isDirecteur,
-      },
-      inventory: {
-        canView: true,
-        canCreate: isDirecteur,
-        canEdit: isDirecteur,
-        canDelete: isDirecteur,
-      },
-      loyalty: {
-        canView: true,
-        canCreate: isDirecteur,
-        canEdit: isDirecteur,
-        canDelete: isDirecteur,
-      },
-      'work-schedule': {
-        canView: true,
-        canCreate: isDirecteur,
-        canEdit: isDirecteur,
-        canDelete: isDirecteur,
-      },
-    };
+export function usePermissions(userRole?: 'directeur' | 'employe') {
+  const [permissions, setPermissions] = useState<UserPermissions>({});
 
-    // Fonctions helper
-    const hasAccess = (module: string) => {
-      return permissions[module as keyof typeof permissions]?.canView ?? false;
-    };
+  useEffect(() => {
+    // Définir les permissions par défaut selon le rôle
+    const defaultPermissions: UserPermissions = {};
+    
+    if (userRole === 'directeur') {
+      // Directeur a tous les droits sur tous les modules
+      const modules = ['dashboard', 'reservations', 'orders', 'customers', 'menu', 'messages', 'employees', 'settings', 'statistics', 'logs', 'permissions', 'inventory', 'loyalty', 'work-schedule'];
+      modules.forEach(module => {
+        defaultPermissions[module] = {
+          canView: true,
+          canCreate: true,
+          canUpdate: true,
+          canDelete: true
+        };
+      });
+    } else if (userRole === 'employe') {
+      // Employé a des permissions limitées
+      defaultPermissions['dashboard'] = { canView: true, canCreate: false, canUpdate: false, canDelete: false };
+      defaultPermissions['reservations'] = { canView: true, canCreate: true, canUpdate: true, canDelete: false };
+      defaultPermissions['orders'] = { canView: true, canCreate: true, canUpdate: true, canDelete: false };
+      defaultPermissions['customers'] = { canView: true, canCreate: false, canUpdate: false, canDelete: false };
+      defaultPermissions['menu'] = { canView: true, canCreate: true, canUpdate: true, canDelete: false };
+      defaultPermissions['messages'] = { canView: true, canCreate: true, canUpdate: true, canDelete: false };
+      defaultPermissions['statistics'] = { canView: true, canCreate: false, canUpdate: false, canDelete: false };
+      defaultPermissions['logs'] = { canView: true, canCreate: false, canUpdate: false, canDelete: false };
+      defaultPermissions['inventory'] = { canView: true, canCreate: false, canUpdate: false, canDelete: false };
+      defaultPermissions['loyalty'] = { canView: true, canCreate: false, canUpdate: false, canDelete: false };
+      defaultPermissions['work-schedule'] = { canView: true, canCreate: false, canUpdate: false, canDelete: false };
+      
+      // Modules interdits pour les employés
+      defaultPermissions['employees'] = { canView: false, canCreate: false, canUpdate: false, canDelete: false };
+      defaultPermissions['settings'] = { canView: false, canCreate: false, canUpdate: false, canDelete: false };
+      defaultPermissions['permissions'] = { canView: false, canCreate: false, canUpdate: false, canDelete: false };
+    }
 
-    const canView = (module: string) => {
-      return permissions[module as keyof typeof permissions]?.canView ?? false;
-    };
+    setPermissions(defaultPermissions);
+  }, [userRole]);
 
-    const canCreate = (module: string) => {
-      return permissions[module as keyof typeof permissions]?.canCreate ?? false;
-    };
+  const hasPermission = (module: string, action: 'view' | 'create' | 'update' | 'delete'): boolean => {
+    const modulePermissions = permissions[module];
+    if (!modulePermissions) return false;
 
-    const canModify = (module: string) => {
-      return permissions[module as keyof typeof permissions]?.canEdit ?? false;
-    };
+    switch (action) {
+      case 'view':
+        return modulePermissions.canView;
+      case 'create':
+        return modulePermissions.canCreate;
+      case 'update':
+        return modulePermissions.canUpdate;
+      case 'delete':
+        return modulePermissions.canDelete;
+      default:
+        return false;
+    }
+  };
 
-    const canDelete = (module: string) => {
-      return permissions[module as keyof typeof permissions]?.canDelete ?? false;
-    };
+  const canAccessModule = (module: string): boolean => {
+    return hasPermission(module, 'view');
+  };
 
-    return {
-      isDirecteur,
-      isEmploye,
-      permissions,
-      hasAccess,
-      canView,
-      canCreate,
-      canModify,
-      canDelete,
-    };
-  }, [user]);
+  return {
+    permissions,
+    hasPermission,
+    canAccessModule
+  };
 }

@@ -49,6 +49,7 @@ import { z } from 'zod';
 import { Plus, Pencil, Trash2, Coffee, DollarSign, Package2, Image, Upload, Link } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useWebSocket } from '@/hooks/useWebSocket';
+import { usePermissions } from '@/hooks/usePermissions';
 import { getImageUrlByName } from '@/lib/image-mapping';
 
 const menuItemSchema = z.object({
@@ -67,7 +68,8 @@ interface MenuManagementProps {
 }
 
 export default function MenuManagement({ userRole = 'directeur' }: MenuManagementProps) {
-  const canDelete = userRole === 'directeur';
+  const { hasPermission } = usePermissions(userRole);
+  const canDelete = hasPermission('menu', 'delete');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
