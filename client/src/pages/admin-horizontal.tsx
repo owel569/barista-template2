@@ -186,29 +186,29 @@ export default function AdminHorizontal() {
       case 'dashboard':
         return <Dashboard userRole={userRole} />;
       case 'reservations':
-        return <Reservations />;
+        return <Reservations userRole={userRole} />;
       case 'orders':
-        return <Orders />;
+        return <Orders userRole={userRole} />;
       case 'customers':
         return <Customers readonly={userRole === 'employe'} />;
       case 'employees':
-        return userRole === 'directeur' ? <Employees /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+        return userRole === 'directeur' ? <Employees userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case 'menu':
         return <MenuManagement userRole={userRole} />;
       case 'messages':
-        return <Messages />;
+        return <Messages userRole={userRole} />;
       case 'settings':
-        return userRole === 'directeur' ? <AdminSettings /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+        return userRole === 'directeur' ? <AdminSettings userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case 'statistics':
-        return userRole === 'directeur' ? <Statistics /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+        return userRole === 'directeur' ? <Statistics userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case 'logs':
-        return userRole === 'directeur' ? <ActivityLogs /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+        return userRole === 'directeur' ? <ActivityLogs userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case 'permissions':
-        return userRole === 'directeur' ? <PermissionsManagement /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+        return userRole === 'directeur' ? <PermissionsManagement userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case 'inventory':
-        return userRole === 'directeur' ? <InventoryManagement /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+        return userRole === 'directeur' ? <InventoryManagement userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case 'loyalty':
-        return userRole === 'directeur' ? <LoyaltySystem /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+        return userRole === 'directeur' ? <LoyaltySystem userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       default:
         return <Dashboard userRole={userRole} />;
     }
