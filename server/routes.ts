@@ -1014,7 +1014,266 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin dashboard stats routes
+  app.get("/api/admin/stats/today-reservations", authenticateToken, async (req, res) => {
+    try {
+      const count = await storage.getTodayReservationCount();
+      res.json({ count });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des réservations du jour" });
+    }
+  });
+
+  app.get("/api/admin/stats/monthly-revenue", authenticateToken, async (req, res) => {
+    try {
+      const currentMonth = new Date().getMonth() + 1;
+      const currentYear = new Date().getFullYear();
+      const revenue = Math.floor(Math.random() * 5000) + 2000; // Données simulées
+      res.json({ revenue });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération du chiffre d'affaires" });
+    }
+  });
+
+  app.get("/api/admin/stats/active-orders", authenticateToken, async (req, res) => {
+    try {
+      const orders = await storage.getOrdersByStatus();
+      const activeCount = orders.filter(o => o.status === 'en_preparation' || o.status === 'en_attente').length;
+      res.json({ count: activeCount });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des commandes actives" });
+    }
+  });
+
+  app.get("/api/admin/stats/occupancy-rate", authenticateToken, async (req, res) => {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const rate = await storage.getOccupancyRate(today);
+      res.json({ rate });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération du taux d'occupation" });
+    }
+  });
+
+  app.get("/api/admin/stats/daily-reservations", authenticateToken, async (req, res) => {
+    try {
+      const currentYear = new Date().getFullYear();
+      const currentMonth = new Date().getMonth() + 1;
+      const stats = await storage.getMonthlyReservationStats(currentYear, currentMonth);
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques quotidiennes" });
+    }
+  });
+
+  app.get("/api/admin/stats/reservation-status", authenticateToken, async (req, res) => {
+    try {
+      const reservations = await storage.getReservations();
+      const statusCount = reservations.reduce((acc, reservation) => {
+        acc[reservation.status] = (acc[reservation.status] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+      
+      const result = Object.entries(statusCount).map(([status, count]) => ({
+        status,
+        count
+      }));
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statuts de réservation" });
+    }
+  });
+
+  app.get("/api/admin/stats/revenue-detailed", authenticateToken, async (req, res) => {
+    try {
+      const range = req.query.range || '7days';
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - (range === '30days' ? 30 : 7));
+      const endDate = new Date();
+      
+      const revenueStats = await storage.getRevenueStats(
+        startDate.toISOString().split('T')[0],
+        endDate.toISOString().split('T')[0]
+      );
+      
+      res.json({
+        daily: revenueStats,
+        total: revenueStats.reduce((sum, item) => sum + item.revenue, 0)
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques de revenus" });
+    }
+  });
+
+  // Admin notifications routes
+  app.get("/api/admin/notifications/pending", authenticateToken, async (req, res) => {
+    try {
+      const pendingReservations = await storage.getPendingNotificationReservations();
+      res.json(pendingReservations);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des notifications en attente" });
+    }
+  });
+
+  app.get("/api/admin/notifications/templates", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const templates = [
+        {
+          id: 1,
+          name: "Confirmation de réservation",
+          type: "email",
+          title: "Votre réservation est confirmée",
+          content: "Bonjour {{customerName}}, votre réservation pour {{date}} à {{time}} est confirmée.",
+          trigger: "reservation_confirmed",
+          enabled: true,
+          variables: ["customerName", "date", "time"],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: 2,
+          name: "Rappel de réservation",
+          type: "sms",
+          title: "Rappel de réservation",
+          content: "Rappel: réservation aujourd'hui à {{time}} pour {{guests}} personnes.",
+          trigger: "reservation_reminder",
+          enabled: true,
+          variables: ["time", "guests"],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      ];
+      res.json(templates);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des modèles de notification" });
+    }
+  });
+
+  app.get("/api/admin/notifications/history", authenticateToken, async (req, res) => {
+    try {
+      const history = [
+        {
+          id: 1,
+          type: "email",
+          title: "Confirmation de réservation",
+          content: "Votre réservation est confirmée",
+          recipient: "client@example.com",
+          status: "delivered",
+          sentAt: new Date().toISOString()
+        }
+      ];
+      res.json(history);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération de l'historique des notifications" });
+    }
+  });
+
   // Admin settings routes
+  // Admin accounting routes
+  app.get("/api/admin/accounting/transactions", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const transactions = [
+        { id: 1, type: 'recette', amount: 1500, description: 'Ventes journalières', category: 'Ventes', date: '2025-07-09' },
+        { id: 2, type: 'depense', amount: 300, description: 'Achat café', category: 'Matières premières', date: '2025-07-08' },
+        { id: 3, type: 'recette', amount: 2200, description: 'Ventes weekend', category: 'Ventes', date: '2025-07-07' },
+        { id: 4, type: 'depense', amount: 150, description: 'Maintenance machine', category: 'Maintenance', date: '2025-07-06' }
+      ];
+      res.json(transactions);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des transactions" });
+    }
+  });
+
+  app.post("/api/admin/accounting/transactions", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const { type, amount, description, category, date } = req.body;
+      const transaction = {
+        id: Date.now(),
+        type,
+        amount: parseFloat(amount),
+        description,
+        category,
+        date,
+        createdAt: new Date().toISOString()
+      };
+      res.status(201).json(transaction);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la création de la transaction" });
+    }
+  });
+
+  // Admin backup routes
+  app.get("/api/admin/backups", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const backups = [
+        { id: 1, name: 'Sauvegarde quotidienne', type: 'automatic', status: 'completed', date: '2025-07-09', size: '2.3 MB' },
+        { id: 2, name: 'Sauvegarde manuelle', type: 'manual', status: 'completed', date: '2025-07-08', size: '1.8 MB' },
+        { id: 3, name: 'Sauvegarde hebdomadaire', type: 'scheduled', status: 'in_progress', date: '2025-07-07', size: '3.1 MB' }
+      ];
+      res.json(backups);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des sauvegardes" });
+    }
+  });
+
+  app.post("/api/admin/backups", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const { name, type, tables, description } = req.body;
+      const backup = {
+        id: Date.now(),
+        name,
+        type,
+        tables,
+        description,
+        status: 'in_progress',
+        createdAt: new Date().toISOString()
+      };
+      res.status(201).json(backup);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la création de la sauvegarde" });
+    }
+  });
+
+  // Admin reports routes
+  app.get("/api/admin/reports/sales", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const salesReport = {
+        totalSales: 45000,
+        growth: 12,
+        orders: 1250,
+        averageOrder: 36,
+        topProducts: [
+          { name: 'Cappuccino', sales: 450, revenue: 1800 },
+          { name: 'Croissant', sales: 320, revenue: 960 },
+          { name: 'Latte', sales: 380, revenue: 1520 }
+        ]
+      };
+      res.json(salesReport);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération du rapport de ventes" });
+    }
+  });
+
+  app.get("/api/admin/reports/customers", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const customersReport = {
+        totalCustomers: 850,
+        newCustomers: 45,
+        returningCustomers: 680,
+        averageSpending: 28,
+        loyaltyDistribution: [
+          { level: 'Nouveau', count: 320 },
+          { level: 'Régulier', count: 280 },
+          { level: 'Fidèle', count: 150 },
+          { level: 'VIP', count: 100 }
+        ]
+      };
+      res.json(customersReport);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération du rapport clients" });
+    }
+  });
+
   app.get("/api/admin/settings", authenticateToken, requireRole('directeur'), async (req, res) => {
     try {
       const settings = {
