@@ -65,8 +65,8 @@ export function useWebSocket() {
           globalWebSocket = null;
         }
         
-        // Tentative de reconnexion uniquement si le composant est monté
-        if (mountedRef.current && !reconnectTimeoutRef.current) {
+        // Tentative de reconnexion uniquement si le composant est monté et pas en mode développement
+        if (mountedRef.current && !reconnectTimeoutRef.current && process.env.NODE_ENV !== 'development') {
           reconnectTimeoutRef.current = setTimeout(() => {
             if (mountedRef.current) {
               reconnectTimeoutRef.current = null;
@@ -204,6 +204,7 @@ export function useWebSocket() {
   useEffect(() => {
     if (!connectionAttempted) {
       connectionAttempted = true;
+      // Délai initial pour éviter les connexions multiples
       const connectTimeout = setTimeout(() => {
         if (mountedRef.current) {
           connect();
