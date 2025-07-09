@@ -768,6 +768,92 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Dashboard specific routes
+  app.get("/api/admin/stats/today-reservations", authenticateToken, async (req, res) => {
+    try {
+      const count = await storage.getTodayReservationCount();
+      res.json({ count });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des réservations du jour" });
+    }
+  });
+
+  app.get("/api/admin/stats/monthly-revenue", authenticateToken, async (req, res) => {
+    try {
+      const monthlyRevenue = await storage.getRevenueStats(
+        new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
+        new Date().toISOString().split('T')[0]
+      ).then(stats => stats.reduce((sum, stat) => sum + parseFloat(stat.revenue.toString()), 0));
+      res.json({ revenue: monthlyRevenue });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des revenus mensuels" });
+    }
+  });
+
+  app.get("/api/admin/stats/active-orders", authenticateToken, async (req, res) => {
+    try {
+      const activeOrders = await storage.getOrdersByStatus().then(orders => 
+        orders.filter(order => order.status === 'pending' || order.status === 'preparing').length
+      );
+      res.json({ count: activeOrders });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des commandes actives" });
+    }
+  });
+
+  app.get("/api/admin/stats/occupancy-rate", authenticateToken, async (req, res) => {
+    try {
+      const rate = await storage.getOccupancyRate(new Date().toISOString().split('T')[0]);
+      res.json({ rate });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération du taux d'occupation" });
+    }
+  });
+
+  app.get("/api/admin/stats/reservation-status", authenticateToken, async (req, res) => {
+    try {
+      const reservations = await storage.getReservations();
+      const stats = reservations.reduce((acc: any, reservation: any) => {
+        const status = reservation.status;
+        acc[status] = (acc[status] || 0) + 1;
+        return acc;
+      }, {});
+      
+      const result = Object.entries(stats).map(([status, count]) => ({
+        status,
+        count
+      }));
+      
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques de réservations" });
+    }
+  });
+
+  app.get("/api/admin/stats/daily-reservations", authenticateToken, async (req, res) => {
+    try {
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - 6); // Last 7 days
+      
+      const dailyStats = [];
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + i);
+        const dateStr = date.toISOString().split('T')[0];
+        const reservations = await storage.getReservationsByDate(dateStr);
+        dailyStats.push({
+          date: dateStr,
+          count: reservations.length
+        });
+      }
+      
+      res.json(dailyStats);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques quotidiennes" });
+    }
+  });
+
   app.get("/api/admin/reservations/today", authenticateToken, async (req, res) => {
     try {
       const today = new Date().toISOString().split('T')[0];

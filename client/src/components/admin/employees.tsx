@@ -94,10 +94,14 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
 
   const { data: employees = [], isLoading } = useQuery<Employee[]>({
     queryKey: ['/api/employees'],
+    retry: 3,
+    retryDelay: 1000,
   });
 
   const { data: workShifts = [] } = useQuery<WorkShift[]>({
     queryKey: ['/api/work-shifts'],
+    retry: 3,
+    retryDelay: 1000,
   });
 
   const createMutation = useMutation({

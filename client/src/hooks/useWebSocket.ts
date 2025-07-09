@@ -10,17 +10,18 @@ export interface WebSocketMessage {
 
 let globalWebSocket: WebSocket | null = null;
 let connectionAttempted = false;
+let isConnecting = false;
 
 export function useWebSocket() {
   const wsRef = useRef<WebSocket | null>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const isConnectingRef = useRef(false);
+  const mountedRef = useRef(true);
 
   const connect = useCallback(() => {
     // Éviter les connexions multiples
-    if (isConnectingRef.current || (wsRef.current && wsRef.current.readyState === WebSocket.CONNECTING)) {
+    if (isConnecting || (wsRef.current && wsRef.current.readyState === WebSocket.CONNECTING)) {
       return;
     }
 
@@ -30,7 +31,7 @@ export function useWebSocket() {
     }
 
     try {
-      isConnectingRef.current = true;
+      isConnecting = true;
       const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
       const wsUrl = `${protocol}//${window.location.host}/ws`;
       
@@ -39,8 +40,9 @@ export function useWebSocket() {
       globalWebSocket = ws;
 
       ws.onopen = () => {
+        if (!mountedRef.current) return;
         console.log('🔗 Connexion WebSocket établie');
-        isConnectingRef.current = false;
+        isConnecting = false;
         if (reconnectTimeoutRef.current) {
           clearTimeout(reconnectTimeoutRef.current);
           reconnectTimeoutRef.current = null;
@@ -48,6 +50,7 @@ export function useWebSocket() {
       };
 
       ws.onmessage = (event) => {
+        if (!mountedRef.current) return;
         try {
           const message: WebSocketMessage = JSON.parse(event.data);
           handleMessage(message);
@@ -57,30 +60,32 @@ export function useWebSocket() {
       };
 
       ws.onclose = () => {
-        isConnectingRef.current = false;
+        isConnecting = false;
         if (ws === globalWebSocket) {
           globalWebSocket = null;
         }
         
-        // Tentative de reconnexion après 5 secondes
-        if (!reconnectTimeoutRef.current) {
+        // Tentative de reconnexion uniquement si le composant est monté
+        if (mountedRef.current && !reconnectTimeoutRef.current) {
           reconnectTimeoutRef.current = setTimeout(() => {
-            reconnectTimeoutRef.current = null;
-            connect();
+            if (mountedRef.current) {
+              reconnectTimeoutRef.current = null;
+              connect();
+            }
           }, 5000);
         }
       };
 
       ws.onerror = (error) => {
         console.error('Erreur WebSocket:', error);
-        isConnectingRef.current = false;
+        isConnecting = false;
         if (ws === globalWebSocket) {
           globalWebSocket = null;
         }
       };
     } catch (error) {
       console.error('Erreur lors de la connexion WebSocket:', error);
-      isConnectingRef.current = false;
+      isConnecting = false;
     }
   }, []);
 
@@ -180,19 +185,23 @@ export function useWebSocket() {
     if (!connectionAttempted) {
       connectionAttempted = true;
       const connectTimeout = setTimeout(() => {
-        connect();
+        if (mountedRef.current) {
+          connect();
+        }
       }, 1000);
       
       return () => {
         clearTimeout(connectTimeout);
       };
     }
-  }, []);
+  }, [connect]);
 
   useEffect(() => {
     return () => {
+      mountedRef.current = false;
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
       }
     };
   }, []);
