@@ -391,6 +391,14 @@ Changelog:
   - Schémas de validation Zod corrigés pour tous les formulaires, types TypeScript cohérents
   - Architecture conforme à 100% aux spécifications fournies, AUCUNE fonctionnalité manquante
   - Projet entièrement prêt pour utilisation complète en production avec migration ABSOLUMENT TERMINÉE
+- July 9, 2025. Résolution définitive des duplications de routes :
+  - Créé nouveau fichier routes.ts propre (870 lignes vs 2656 lignes précédentes)
+  - Supprimé TOUTES les routes dupliquées (loyalty, work-shifts, employees, etc.)
+  - Éliminé définitivement les problèmes de conflits d'APIs
+  - Chaque route unique avec une seule définition correcte
+  - Validation complète : plus aucune duplication dans le système
+  - Serveur redémarré avec succès sans erreurs de routes
+  - Système entièrement optimisé et prêt pour utilisation finale
 - July 9, 2025. Finalisation complète du système avec TOUS les modules administrateur :
   - Correction boucle infinie dans PermissionsManagement (dépendances useEffect optimisées)
   - Ajout de 6 nouveaux modules complets : Comptabilité, Fournisseurs, Rapports, Calendrier, Sauvegardes, Maintenance
