@@ -29,9 +29,10 @@ interface Reservation {
 
 interface ReservationsProps {
   userRole: 'directeur' | 'employe';
+  user?: any;
 }
 
-export default function Reservations({ userRole }: ReservationsProps) {
+export default function Reservations({ userRole, user }: ReservationsProps) {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [filteredReservations, setFilteredReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);

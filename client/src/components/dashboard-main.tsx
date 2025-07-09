@@ -14,10 +14,10 @@ import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tool
 type UserRole = 'directeur' | 'employe' | 'admin';
 
 interface DashboardMainProps {
-  userRole: UserRole;
+  userRole?: UserRole;
 }
 
-export default function DashboardMain({ userRole }: DashboardMainProps) {
+export default function DashboardMain({ userRole = 'directeur' }: DashboardMainProps) {
   // Requêtes pour les statistiques
   const { data: todayReservations } = useQuery({
     queryKey: ["/api/admin/stats/today-reservations"],

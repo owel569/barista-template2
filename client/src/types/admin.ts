@@ -95,6 +95,8 @@ export interface Reservation {
 export interface ContactMessage {
   id: number;
   name: string;
+  firstName?: string;
+  lastName?: string;
   email: string;
   phone?: string;
   subject: string;
@@ -106,11 +108,13 @@ export interface ContactMessage {
 
 export interface Order {
   id: number;
+  customerId?: number;
   customerName: string;
   customerEmail: string;
   customerPhone?: string;
-  items: OrderItem[];
-  total: number | string;
+  items?: OrderItem[];
+  total?: number | string;
+  totalAmount?: number | string;
   status: 'pending' | 'preparing' | 'ready' | 'completed' | 'cancelled';
   orderType: 'dine-in' | 'takeout' | 'delivery';
   notes?: string;
@@ -156,7 +160,10 @@ export interface Notification {
   title: string;
   message: string;
   priority: 'low' | 'medium' | 'high';
-  isRead: boolean;
+  isRead?: boolean;
+  read?: boolean;
+  timestamp?: string;
+  actionUrl?: string;
   data?: any;
   createdAt: string;
 }

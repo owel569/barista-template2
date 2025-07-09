@@ -14,9 +14,10 @@ import { useToast } from '@/hooks/use-toast';
 interface NotificationsSystemProps {
   isOpen: boolean;
   onToggle: () => void;
+  userRole?: 'directeur' | 'employe';
 }
 
-export default function NotificationsSystem({ isOpen, onToggle }: NotificationsSystemProps) {
+export default function NotificationsSystem({ isOpen, onToggle, userRole = 'directeur' }: NotificationsSystemProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [filter, setFilter] = useState<'all' | 'unread' | 'high'>('all');
   const [position, setPosition] = useState({ x: 0, y: 0 });

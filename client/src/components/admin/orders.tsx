@@ -36,9 +36,10 @@ interface Order {
 
 interface OrdersProps {
   userRole: 'directeur' | 'employe';
+  user?: any;
 }
 
-export default function Orders({ userRole }: OrdersProps) {
+export default function Orders({ userRole, user }: OrdersProps) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);

@@ -180,15 +180,15 @@ export default function AdminHorizontal() {
   };
 
   const renderContent = () => {
-    const userRole = user?.role;
+    const userRole = user?.role as 'directeur' | 'employe';
     
     switch (currentSection) {
       case 'dashboard':
         return <Dashboard userRole={userRole} />;
       case 'reservations':
-        return <Reservations userRole={userRole} />;
+        return <Reservations userRole={userRole} user={user} />;
       case 'orders':
-        return <Orders userRole={userRole} />;
+        return <Orders userRole={userRole} user={user} />;
       case 'customers':
         return <Customers userRole={userRole} user={user} />;
       case 'employees':
