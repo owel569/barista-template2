@@ -217,6 +217,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch("/api/menu/items/:id", authenticateToken, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const itemData = req.body;
+      const item = await storage.updateMenuItem(id, itemData);
+      
+      if (!item) {
+        return res.status(404).json({ message: "Article non trouvé" });
+      }
+
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('menu', item);
+
+      res.json(item);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour de l'article" });
+    }
+  });
+
+  app.delete("/api/menu/items/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deleteMenuItem(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Article non trouvé" });
+      }
+
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('menu');
+
+      res.json({ message: "Article supprimé avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la suppression de l'article" });
+    }
+  });
+
   // Reservation routes
   app.get("/api/reservations", authenticateToken, async (req, res) => {
     try {
