@@ -21,7 +21,9 @@ import {
   Star,
   DollarSign,
   Truck,
-  FileText
+  FileText,
+  Database,
+  Wrench
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -50,6 +52,9 @@ import TestAllFeatures from '@/components/admin/test-all-features';
 import Accounting from '@/components/admin/accounting';
 import Suppliers from '@/components/admin/suppliers';
 import Reports from '@/components/admin/reports';
+import CalendarManagement from '@/components/admin/calendar-management';
+import BackupSystem from '@/components/admin/backup-system';
+import MaintenanceSystem from '@/components/admin/maintenance-system';
 
 interface User {
   id: number;
@@ -143,6 +148,9 @@ export default function AdminHorizontal() {
         { icon: DollarSign, label: 'Comptabilité', section: 'accounting' },
         { icon: Truck, label: 'Fournisseurs', section: 'suppliers' },
         { icon: FileText, label: 'Rapports', section: 'reports' },
+        { icon: CalendarIcon, label: 'Calendrier', section: 'calendar' },
+        { icon: Database, label: 'Sauvegardes', section: 'backup' },
+        { icon: Wrench, label: 'Maintenance', section: 'maintenance' },
         { icon: BarChart3, label: 'Test Complet', section: 'test' },
       ];
     }
@@ -188,6 +196,12 @@ export default function AdminHorizontal() {
         return userRole === 'directeur' ? <Suppliers userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case 'reports':
         return userRole === 'directeur' ? <Reports userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+      case 'calendar':
+        return userRole === 'directeur' ? <CalendarManagement userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+      case 'backup':
+        return userRole === 'directeur' ? <BackupSystem userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+      case 'maintenance':
+        return userRole === 'directeur' ? <MaintenanceSystem userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case 'test':
         return userRole === 'directeur' ? <TestAllFeatures userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       default:

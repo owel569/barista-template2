@@ -103,7 +103,7 @@ export default function PermissionsManagement({ userRole = 'directeur' }: Permis
   useEffect(() => {
     if (userPermissions.length > 0) {
       setPermissions(userPermissions);
-    } else if (selectedUser) {
+    } else if (selectedUser && permissions.length === 0) {
       // Créer des permissions par défaut pour tous les modules
       const defaultPermissions = modules.map(module => ({
         id: 0,
@@ -116,7 +116,7 @@ export default function PermissionsManagement({ userRole = 'directeur' }: Permis
       }));
       setPermissions(defaultPermissions);
     }
-  }, [userPermissions, selectedUser]);
+  }, [userPermissions, selectedUser, permissions.length]);
 
   const updatePermission = (moduleId: string, field: keyof Permission, value: boolean) => {
     setPermissions(prev => 
