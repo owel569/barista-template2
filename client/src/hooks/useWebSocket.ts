@@ -65,8 +65,8 @@ export function useWebSocket() {
           globalWebSocket = null;
         }
         
-        // Tentative de reconnexion uniquement si le composant est monté et pas en mode développement
-        if (mountedRef.current && !reconnectTimeoutRef.current && process.env.NODE_ENV !== 'development') {
+        // Tentative de reconnexion uniquement si le composant est monté
+        if (mountedRef.current && !reconnectTimeoutRef.current) {
           reconnectTimeoutRef.current = setTimeout(() => {
             if (mountedRef.current) {
               reconnectTimeoutRef.current = null;
@@ -209,7 +209,7 @@ export function useWebSocket() {
         if (mountedRef.current) {
           connect();
         }
-      }, 1000);
+      }, 500);
       
       return () => {
         clearTimeout(connectTimeout);
