@@ -40,27 +40,29 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Configuration PostgreSQL automatique - non bloquante
-  try {
-    const { getDb } = await import("./db");
-    await getDb();
-    console.log("✅ PostgreSQL configuré automatiquement");
-    
-    // Configuration automatique au démarrage
-    const { autoSetup } = await import("./auto-setup");
-    await autoSetup();
-    console.log("✅ Configuration automatique terminée");
-    
-    // Initialize database with default data
-    const { initializeDatabase } = await import("./init-db");
-    await initializeDatabase();
-    console.log("✅ Base de données initialisée");
-  } catch (error) {
-    console.log("⚠️  Démarrage en mode dégradé - base de données non disponible");
-    console.log("Le serveur continue de fonctionner, la base sera configurée automatiquement");
-  }
-  
+  // Démarrer le serveur rapidement
   const server = await registerRoutes(app);
+  
+  // Configuration PostgreSQL automatique - en arrière-plan
+  setTimeout(async () => {
+    try {
+      const { getDb } = await import("./db");
+      await getDb();
+      console.log("✅ PostgreSQL configuré automatiquement");
+      
+      // Configuration automatique au démarrage
+      const { autoSetup } = await import("./auto-setup");
+      await autoSetup();
+      console.log("✅ Configuration automatique terminée");
+      
+      // Initialize database with default data
+      const { initializeDatabase } = await import("./init-db");
+      await initializeDatabase();
+      console.log("✅ Base de données initialisée");
+    } catch (error) {
+      console.log("⚠️  Base de données non disponible - le serveur continue de fonctionner");
+    }
+  }, 1000); // Délai de 1 seconde après le démarrage
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

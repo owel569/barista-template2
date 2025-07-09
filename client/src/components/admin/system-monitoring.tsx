@@ -4,7 +4,6 @@ import {
   Server, 
   Database, 
   Cpu, 
-  Memory, 
   HardDrive,
   Network,
   AlertTriangle,
@@ -254,7 +253,7 @@ export default function SystemMonitoring({ userRole }: SystemMonitoringProps) {
                 <p className="text-2xl font-bold">{systemStats.memory.percentage}%</p>
                 <p className="text-sm text-gray-500">{systemStats.memory.used}GB / {systemStats.memory.total}GB</p>
               </div>
-              <Memory className="h-8 w-8 text-green-600" />
+              <Monitor className="h-8 w-8 text-green-600" />
             </div>
             <Progress value={systemStats.memory.percentage} className="mt-3" />
           </CardContent>
