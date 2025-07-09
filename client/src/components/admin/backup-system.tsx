@@ -1,23 +1,28 @@
 import React, { useState } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Database, 
   Download, 
   Upload, 
-  RefreshCw, 
+  Clock, 
   CheckCircle,
-  AlertTriangle,
-  Clock,
+  AlertCircle,
+  Plus,
+  Trash2,
+  RefreshCw,
   HardDrive,
-  Shield,
-  Archive,
-  Trash2
+  Calendar,
+  Settings
 } from 'lucide-react';
 
 interface BackupSystemProps {
@@ -25,284 +30,231 @@ interface BackupSystemProps {
 }
 
 export default function BackupSystem({ userRole = 'directeur' }: BackupSystemProps) {
-  const [isBackupInProgress, setIsBackupInProgress] = useState(false);
-  const [isRestoreInProgress, setIsRestoreInProgress] = useState(false);
-  const [backupProgress, setBackupProgress] = useState(0);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [backupForm, setBackupForm] = useState({
+    name: '',
+    type: 'manual',
+    tables: [] as string[],
+    description: ''
+  });
+  
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  // Données factices pour les sauvegardes
-  const backups = [
-    {
-      id: 1,
-      name: 'Sauvegarde automatique',
-      date: '2025-07-09T14:30:00',
-      size: '45.2 MB',
-      type: 'auto',
-      status: 'completed',
-      tables: ['users', 'reservations', 'orders', 'customers', 'menu_items'],
-      description: 'Sauvegarde quotidienne automatique'
-    },
-    {
-      id: 2,
-      name: 'Sauvegarde manuelle - Fin de mois',
-      date: '2025-06-30T23:59:00',
-      size: '42.8 MB',
-      type: 'manual',
-      status: 'completed',
-      tables: ['users', 'reservations', 'orders', 'customers', 'menu_items', 'employees'],
-      description: 'Sauvegarde de fin de mois avec toutes les données'
-    },
-    {
-      id: 3,
-      name: 'Sauvegarde avant migration',
-      date: '2025-06-15T10:15:00',
-      size: '38.9 MB',
-      type: 'manual',
-      status: 'completed',
-      tables: ['users', 'reservations', 'orders'],
-      description: 'Sauvegarde avant mise à jour système'
-    },
-    {
-      id: 4,
-      name: 'Sauvegarde partielle',
-      date: '2025-06-01T16:45:00',
-      size: '12.3 MB',
-      type: 'partial',
-      status: 'completed',
-      tables: ['menu_items', 'categories'],
-      description: 'Sauvegarde du menu uniquement'
-    }
-  ];
+  const { data: backups, isLoading } = useQuery({
+    queryKey: ['/api/admin/backups'],
+    enabled: userRole === 'directeur'
+  });
 
-  const systemStats = {
-    totalBackups: 15,
-    totalSize: '650 MB',
-    lastBackup: '2025-07-09T14:30:00',
-    nextScheduled: '2025-07-10T02:00:00',
-    retentionDays: 30,
-    storageUsed: 68
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed': return 'default';
-      case 'in_progress': return 'secondary';
-      case 'failed': return 'destructive';
-      default: return 'secondary';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'completed': return <CheckCircle className="h-4 w-4" />;
-      case 'in_progress': return <Clock className="h-4 w-4" />;
-      case 'failed': return <AlertTriangle className="h-4 w-4" />;
-      default: return <Database className="h-4 w-4" />;
-    }
-  };
-
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case 'auto': return 'default';
-      case 'manual': return 'secondary';
-      case 'partial': return 'outline';
-      default: return 'secondary';
-    }
-  };
-
-  const simulateBackup = () => {
-    setIsBackupInProgress(true);
-    setBackupProgress(0);
-
-    const interval = setInterval(() => {
-      setBackupProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsBackupInProgress(false);
-          toast({
-            title: "Sauvegarde terminée",
-            description: "La sauvegarde a été créée avec succès.",
-          });
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 500);
-  };
-
-  const simulateRestore = () => {
-    setIsRestoreInProgress(true);
-    
-    setTimeout(() => {
-      setIsRestoreInProgress(false);
+  const createBackupMutation = useMutation({
+    mutationFn: (data: any) => apiRequest('/api/admin/backups', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/backups'] });
+      setIsCreateDialogOpen(false);
+      setBackupForm({ name: '', type: 'manual', tables: [], description: '' });
       toast({
-        title: "Restauration terminée",
-        description: "Les données ont été restaurées avec succès.",
+        title: "Succès",
+        description: "Sauvegarde créée avec succès"
       });
-    }, 3000);
+    },
+    onError: () => {
+      toast({
+        title: "Erreur",
+        description: "Impossible de créer la sauvegarde",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const availableTables = ['users', 'reservations', 'orders', 'customers', 'menu_items', 'employees', 'work_shifts', 'contact_messages'];
+
+  const handleCreateBackup = () => {
+    if (!backupForm.name || backupForm.tables.length === 0) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez remplir tous les champs requis",
+        variant: "destructive"
+      });
+      return;
+    }
+    createBackupMutation.mutate(backupForm);
   };
+
+  const handleTableToggle = (table: string) => {
+    setBackupForm(prev => ({
+      ...prev,
+      tables: prev.tables.includes(table)
+        ? prev.tables.filter(t => t !== table)
+        : [...prev.tables, table]
+    }));
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return <Badge className="bg-green-100 text-green-800"><CheckCircle className="h-3 w-3 mr-1" />Terminé</Badge>;
+      case 'in_progress':
+        return <Badge className="bg-blue-100 text-blue-800"><RefreshCw className="h-3 w-3 mr-1" />En cours</Badge>;
+      case 'failed':
+        return <Badge className="bg-red-100 text-red-800"><AlertCircle className="h-3 w-3 mr-1" />Échec</Badge>;
+      default:
+        return <Badge className="bg-gray-100 text-gray-800"><Clock className="h-3 w-3 mr-1" />En attente</Badge>;
+    }
+  };
+
+  if (userRole !== 'directeur') {
+    return (
+      <div className="p-6">
+        <div className="text-center py-8">
+          <Database className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Accès restreint</h3>
+          <p className="text-gray-600">Seuls les directeurs peuvent accéder au système de sauvegarde.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Système de Sauvegarde</h2>
-        <div className="flex items-center gap-2">
-          <Shield className="h-5 w-5 text-green-600" />
-          <span className="text-sm text-muted-foreground">Sécurisé</span>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Système de Sauvegarde</h2>
+          <p className="text-gray-600">Gérez et surveillez les sauvegardes de la base de données</p>
         </div>
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Nouvelle sauvegarde
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Créer une nouvelle sauvegarde</DialogTitle>
+              <DialogDescription>
+                Configurez les paramètres de la sauvegarde de données
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="name">Nom de la sauvegarde</Label>
+                <Input
+                  id="name"
+                  value={backupForm.name}
+                  onChange={(e) => setBackupForm({ ...backupForm, name: e.target.value })}
+                  placeholder="Ex: Sauvegarde mensuelle"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="type">Type de sauvegarde</Label>
+                <Select value={backupForm.type} onValueChange={(value) => setBackupForm({ ...backupForm, type: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="manual">Manuelle</SelectItem>
+                    <SelectItem value="auto">Automatique</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Tables à sauvegarder</Label>
+                <div className="grid grid-cols-2 gap-3 mt-2">
+                  {availableTables.map((table) => (
+                    <div key={table} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={table}
+                        checked={backupForm.tables.includes(table)}
+                        onCheckedChange={() => handleTableToggle(table)}
+                      />
+                      <Label htmlFor={table} className="text-sm font-medium">
+                        {table.replace('_', ' ').toUpperCase()}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="description">Description</Label>
+                <Input
+                  id="description"
+                  value={backupForm.description}
+                  onChange={(e) => setBackupForm({ ...backupForm, description: e.target.value })}
+                  placeholder="Description de la sauvegarde"
+                />
+              </div>
+
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                  Annuler
+                </Button>
+                <Button onClick={handleCreateBackup} disabled={createBackupMutation.isPending}>
+                  {createBackupMutation.isPending ? 'Création...' : 'Créer la sauvegarde'}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
-      {/* Statistiques globales */}
+      {/* Statistiques */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Total sauvegardes</p>
-                <p className="text-2xl font-bold">{systemStats.totalBackups}</p>
+                <p className="text-sm text-gray-600">Sauvegardes totales</p>
+                <p className="text-2xl font-bold">{backups?.length || 0}</p>
               </div>
-              <Archive className="h-8 w-8 text-blue-600" />
+              <HardDrive className="h-8 w-8 text-blue-500" />
             </div>
           </CardContent>
         </Card>
-
+        
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Espace utilisé</p>
-                <p className="text-2xl font-bold">{systemStats.totalSize}</p>
-              </div>
-              <HardDrive className="h-8 w-8 text-purple-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Dernière sauvegarde</p>
-                <p className="text-lg font-bold">
-                  {new Date(systemStats.lastBackup).toLocaleDateString('fr-FR')}
+                <p className="text-sm text-gray-600">Taille totale</p>
+                <p className="text-2xl font-bold">
+                  {backups?.reduce((total: number, backup: any) => total + parseFloat(backup.size), 0).toFixed(1) || '0'} MB
                 </p>
               </div>
-              <Clock className="h-8 w-8 text-green-600" />
+              <Database className="h-8 w-8 text-green-500" />
             </div>
           </CardContent>
         </Card>
-
+        
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Stockage</p>
-                <p className="text-2xl font-bold">{systemStats.storageUsed}%</p>
-                <Progress value={systemStats.storageUsed} className="mt-2" />
+                <p className="text-sm text-gray-600">Dernière sauvegarde</p>
+                <p className="text-2xl font-bold">
+                  {backups?.[0]?.date ? new Date(backups[0].date).toLocaleDateString() : 'N/A'}
+                </p>
               </div>
-              <Database className="h-8 w-8 text-orange-600" />
+              <Calendar className="h-8 w-8 text-purple-500" />
             </div>
           </CardContent>
         </Card>
-      </div>
-
-      {/* Actions rapides */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <RefreshCw className="h-5 w-5" />
-            Actions de sauvegarde
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-4">
-            <Button 
-              onClick={simulateBackup}
-              disabled={isBackupInProgress}
-              className="flex items-center gap-2"
-            >
-              <Download className="h-4 w-4" />
-              {isBackupInProgress ? 'Sauvegarde en cours...' : 'Créer une sauvegarde'}
-            </Button>
-            
-            <Button 
-              variant="outline"
-              onClick={() => toast({ title: "Import de sauvegarde", description: "Fonctionnalité en développement" })}
-            >
-              <Upload className="h-4 w-4 mr-2" />
-              Importer une sauvegarde
-            </Button>
-            
-            <Button 
-              variant="outline"
-              onClick={() => toast({ title: "Configuration", description: "Ouverture des paramètres de sauvegarde" })}
-            >
-              <Shield className="h-4 w-4 mr-2" />
-              Configurer
-            </Button>
-          </div>
-
-          {isBackupInProgress && (
-            <div className="mt-4">
-              <div className="flex items-center gap-2 mb-2">
-                <RefreshCw className="h-4 w-4 animate-spin" />
-                <span className="text-sm">Sauvegarde en cours... {backupProgress}%</span>
-              </div>
-              <Progress value={backupProgress} />
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Informations système */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
         <Card>
-          <CardHeader>
-            <CardTitle>Configuration automatique</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Alert>
-              <CheckCircle className="h-4 w-4" />
-              <AlertDescription>
-                Les sauvegardes automatiques sont activées et s'exécutent tous les jours à 2h00.
-              </AlertDescription>
-            </Alert>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-sm">Prochaine sauvegarde :</span>
-                <span className="text-sm font-medium">
-                  {new Date(systemStats.nextScheduled).toLocaleString('fr-FR')}
-                </span>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Automatiques</p>
+                <p className="text-2xl font-bold">
+                  {backups?.filter((backup: any) => backup.type === 'auto').length || 0}
+                </p>
               </div>
-              <div className="flex justify-between">
-                <span className="text-sm">Rétention :</span>
-                <span className="text-sm font-medium">{systemStats.retentionDays} jours</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm">Compression :</span>
-                <span className="text-sm font-medium">Activée (gzip)</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm">Chiffrement :</span>
-                <span className="text-sm font-medium">AES-256</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Tables sauvegardées</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {['users', 'reservations', 'orders', 'customers', 'menu_items', 'employees', 'settings'].map((table, index) => (
-                <div key={index} className="flex items-center justify-between p-2 bg-muted rounded">
-                  <span className="text-sm font-medium">{table}</span>
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                </div>
-              ))}
+              <Settings className="h-8 w-8 text-orange-500" />
             </div>
           </CardContent>
         </Card>
@@ -311,60 +263,55 @@ export default function BackupSystem({ userRole = 'directeur' }: BackupSystemPro
       {/* Liste des sauvegardes */}
       <Card>
         <CardHeader>
-          <CardTitle>Historique des sauvegardes</CardTitle>
+          <CardTitle className="flex items-center">
+            <Database className="h-5 w-5 mr-2" />
+            Historique des sauvegardes
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {backups.map(backup => (
-              <div key={backup.id} className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h4 className="font-semibold">{backup.name}</h4>
-                    <Badge variant={getStatusColor(backup.status)} className="flex items-center gap-1">
-                      {getStatusIcon(backup.status)}
-                      {backup.status === 'completed' ? 'Terminée' : backup.status}
-                    </Badge>
-                    <Badge variant={getTypeColor(backup.type)}>
-                      {backup.type === 'auto' ? 'Auto' : backup.type === 'manual' ? 'Manuel' : 'Partiel'}
-                    </Badge>
+          {isLoading ? (
+            <div className="text-center py-8">
+              <RefreshCw className="h-8 w-8 animate-spin text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600">Chargement des sauvegardes...</p>
+            </div>
+          ) : backups?.length === 0 ? (
+            <div className="text-center py-8">
+              <Database className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Aucune sauvegarde</h3>
+              <p className="text-gray-600">Créez votre première sauvegarde pour sécuriser vos données.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {backups?.map((backup: any) => (
+                <div key={backup.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-gray-900">{backup.name}</h4>
+                    <p className="text-sm text-gray-600 mt-1">{backup.description}</p>
+                    <div className="flex items-center space-x-4 mt-2">
+                      <span className="text-sm text-gray-500">
+                        <Clock className="h-4 w-4 inline mr-1" />
+                        {new Date(backup.date).toLocaleString()}
+                      </span>
+                      <span className="text-sm text-gray-500">
+                        <HardDrive className="h-4 w-4 inline mr-1" />
+                        {backup.size}
+                      </span>
+                      <span className="text-sm text-gray-500">
+                        Type: {backup.type === 'auto' ? 'Automatique' : 'Manuelle'}
+                      </span>
+                    </div>
                   </div>
-                  <div className="text-sm text-muted-foreground space-y-1">
-                    <div className="flex items-center gap-4">
-                      <span>📅 {new Date(backup.date).toLocaleString('fr-FR')}</span>
-                      <span>💾 {backup.size}</span>
-                      <span>📋 {backup.tables.length} tables</span>
-                    </div>
-                    <p>{backup.description}</p>
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {backup.tables.map((table, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
-                          {table}
-                        </Badge>
-                      ))}
-                    </div>
+                  <div className="flex items-center space-x-3">
+                    {getStatusBadge(backup.status)}
+                    <Button variant="outline" size="sm">
+                      <Download className="h-4 w-4 mr-1" />
+                      Télécharger
+                    </Button>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={simulateRestore}
-                    disabled={isRestoreInProgress}
-                  >
-                    <Upload className="h-4 w-4 mr-1" />
-                    {isRestoreInProgress ? 'Restauration...' : 'Restaurer'}
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Download className="h-4 w-4 mr-1" />
-                    Télécharger
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

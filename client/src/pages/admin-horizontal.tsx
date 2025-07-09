@@ -49,9 +49,9 @@ import InventoryManagement from '@/components/admin/inventory-management';
 import LoyaltySystem from '@/components/admin/loyalty-system';
 import WorkSchedule from '@/components/admin/work-schedule';
 import TestAllFeatures from '@/components/admin/test-all-features';
-import Accounting from '@/components/admin/accounting';
-import Suppliers from '@/components/admin/suppliers';
-import Reports from '@/components/admin/reports';
+import AccountingSystem from '@/components/admin/accounting-system';
+import SuppliersManagement from '@/components/admin/suppliers-management';
+import ReportsSystem from '@/components/admin/reports-system';
 import CalendarManagement from '@/components/admin/calendar-management';
 import BackupSystem from '@/components/admin/backup-system';
 import MaintenanceSystem from '@/components/admin/maintenance-system';
@@ -191,11 +191,11 @@ export default function AdminHorizontal() {
       case 'schedule':
         return userRole === 'directeur' ? <WorkSchedule userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case 'accounting':
-        return userRole === 'directeur' ? <Accounting userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+        return userRole === 'directeur' ? <AccountingSystem userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case 'suppliers':
-        return userRole === 'directeur' ? <Suppliers userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+        return userRole === 'directeur' ? <SuppliersManagement userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case 'reports':
-        return userRole === 'directeur' ? <Reports userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+        return userRole === 'directeur' ? <ReportsSystem userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case 'calendar':
         return userRole === 'directeur' ? <CalendarManagement userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case 'backup':

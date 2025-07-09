@@ -1151,6 +1151,255 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin backup system routes
+  app.get("/api/admin/backups", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const backups = [
+        {
+          id: 1,
+          name: 'Sauvegarde automatique',
+          date: '2025-07-09T14:30:00',
+          size: '45.2 MB',
+          type: 'auto',
+          status: 'completed',
+          tables: ['users', 'reservations', 'orders', 'customers', 'menu_items'],
+          description: 'Sauvegarde quotidienne automatique'
+        },
+        {
+          id: 2,
+          name: 'Sauvegarde manuelle - Fin de mois',
+          date: '2025-06-30T23:59:00',
+          size: '42.8 MB',
+          type: 'manual',
+          status: 'completed',
+          tables: ['users', 'reservations', 'orders', 'customers', 'menu_items', 'employees'],
+          description: 'Sauvegarde de fin de mois avec toutes les données'
+        }
+      ];
+      res.json(backups);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des sauvegardes" });
+    }
+  });
+
+  app.post("/api/admin/backups", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const { name, type, tables, description } = req.body;
+      const backup = {
+        id: Date.now(),
+        name,
+        type,
+        tables,
+        description,
+        date: new Date().toISOString(),
+        size: Math.random() * 50 + 10 + ' MB',
+        status: 'completed'
+      };
+      res.json(backup);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la création de la sauvegarde" });
+    }
+  });
+
+  // Admin accounting routes
+  app.get("/api/admin/accounting/transactions", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const transactions = [
+        { id: 1, type: 'recette', amount: 1250, description: 'Ventes restaurant', date: '2025-07-09', category: 'Ventes' },
+        { id: 2, type: 'depense', amount: 450, description: 'Approvisionnement café', date: '2025-07-09', category: 'Matières premières' },
+        { id: 3, type: 'recette', amount: 890, description: 'Commandes en ligne', date: '2025-07-08', category: 'Ventes' },
+        { id: 4, type: 'depense', amount: 320, description: 'Électricité', date: '2025-07-08', category: 'Utilités' }
+      ];
+      res.json(transactions);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des transactions" });
+    }
+  });
+
+  app.post("/api/admin/accounting/transactions", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const { type, amount, description, category, date } = req.body;
+      const transaction = {
+        id: Date.now(),
+        type,
+        amount,
+        description,
+        category,
+        date: date || new Date().toISOString().split('T')[0]
+      };
+      res.json(transaction);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la création de la transaction" });
+    }
+  });
+
+  // Admin suppliers routes
+  app.get("/api/admin/suppliers", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const suppliers = [
+        {
+          id: 1,
+          name: 'Café Premium Import',
+          category: 'Café',
+          contact: {
+            name: 'Marie Dubois',
+            email: 'marie@cafeimport.fr',
+            phone: '+33 1 23 45 67 89',
+            address: '123 Rue du Commerce, 75001 Paris'
+          },
+          rating: 4.8,
+          status: 'active',
+          lastOrder: '2025-07-05',
+          totalOrders: 45,
+          averageDelivery: '2-3 jours',
+          products: ['Grains Arabica', 'Grains Robusta', 'Café moulu', 'Capsules'],
+          paymentTerms: '30 jours',
+          reliability: 95
+        },
+        {
+          id: 2,
+          name: 'Pâtisserie Moderne',
+          category: 'Pâtisserie',
+          contact: {
+            name: 'Jean Martin',
+            email: 'jean@patisserie-moderne.fr',
+            phone: '+33 1 98 76 54 32',
+            address: '456 Avenue des Délices, 75002 Paris'
+          },
+          rating: 4.6,
+          status: 'active',
+          lastOrder: '2025-07-08',
+          totalOrders: 32,
+          averageDelivery: '1-2 jours',
+          products: ['Croissants', 'Macarons', 'Mille-feuille', 'Tartes'],
+          paymentTerms: '15 jours',
+          reliability: 88
+        }
+      ];
+      res.json(suppliers);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des fournisseurs" });
+    }
+  });
+
+  app.post("/api/admin/suppliers", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const { name, category, contact, products, paymentTerms } = req.body;
+      const supplier = {
+        id: Date.now(),
+        name,
+        category,
+        contact,
+        products,
+        paymentTerms,
+        rating: 0,
+        status: 'active',
+        lastOrder: null,
+        totalOrders: 0,
+        averageDelivery: '3-5 jours',
+        reliability: 0
+      };
+      res.json(supplier);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la création du fournisseur" });
+    }
+  });
+
+  // Admin reports routes
+  app.get("/api/admin/reports/sales", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const salesData = {
+        totalSales: 45000,
+        growth: 12.5,
+        transactions: 1250,
+        avgTransaction: 36,
+        topProducts: [
+          { name: 'Cappuccino', sales: 8500, units: 425 },
+          { name: 'Croissant', sales: 6200, units: 310 },
+          { name: 'Americano', sales: 5800, units: 290 }
+        ],
+        dailyTrends: [
+          { date: '2025-07-01', sales: 1200, transactions: 45 },
+          { date: '2025-07-02', sales: 1450, transactions: 52 },
+          { date: '2025-07-03', sales: 1650, transactions: 58 }
+        ]
+      };
+      res.json(salesData);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération du rapport de ventes" });
+    }
+  });
+
+  app.get("/api/admin/reports/customers", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const customerData = {
+        totalCustomers: 890,
+        newCustomers: 125,
+        returningCustomers: 765,
+        avgSpending: 42.5,
+        topCustomers: [
+          { name: 'Marie Dubois', visits: 24, spending: 1250 },
+          { name: 'Jean Martin', visits: 18, spending: 980 },
+          { name: 'Sophie Laurent', visits: 22, spending: 1150 }
+        ]
+      };
+      res.json(customerData);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération du rapport clients" });
+    }
+  });
+
+  // Admin maintenance routes
+  app.get("/api/admin/maintenance/tasks", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const tasks = [
+        {
+          id: 1,
+          name: 'Nettoyage machine à café',
+          type: 'equipment',
+          priority: 'high',
+          status: 'pending',
+          dueDate: '2025-07-10',
+          assignedTo: 'Lucas Durand',
+          description: 'Nettoyage complet de la machine à café principale'
+        },
+        {
+          id: 2,
+          name: 'Vérification système POS',
+          type: 'system',
+          priority: 'medium',
+          status: 'in_progress',
+          dueDate: '2025-07-12',
+          assignedTo: 'Emma Leroy',
+          description: 'Test du système de caisse et mise à jour'
+        }
+      ];
+      res.json(tasks);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des tâches de maintenance" });
+    }
+  });
+
+  app.post("/api/admin/maintenance/tasks", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const { name, type, priority, dueDate, assignedTo, description } = req.body;
+      const task = {
+        id: Date.now(),
+        name,
+        type,
+        priority,
+        dueDate,
+        assignedTo,
+        description,
+        status: 'pending',
+        createdAt: new Date().toISOString()
+      };
+      res.json(task);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la création de la tâche" });
+    }
+  });
+
   function getStatusColor(status: string): string {
     switch (status) {
       case 'pending':

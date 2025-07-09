@@ -7,26 +7,29 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { 
+  Settings, 
   Wrench, 
   AlertTriangle, 
-  CheckCircle, 
+  CheckCircle,
   Clock,
+  Calendar,
+  Users,
+  Package,
+  Zap,
+  Coffee,
+  Thermometer,
+  Shield,
   Plus,
   Edit,
   Trash2,
   Play,
   Pause,
-  RotateCcw,
-  Calendar,
-  User,
-  FileText,
-  Zap,
-  Settings
+  RotateCcw
 } from 'lucide-react';
 
 interface MaintenanceSystemProps {
@@ -34,402 +37,200 @@ interface MaintenanceSystemProps {
 }
 
 export default function MaintenanceSystem({ userRole = 'directeur' }: MaintenanceSystemProps) {
-  const [activeTab, setActiveTab] = useState('tasks');
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<any>(null);
+  const [taskForm, setTaskForm] = useState({
+    title: '',
+    description: '',
+    equipment: '',
+    priority: 'medium',
+    type: 'preventive',
+    scheduledDate: '',
+    estimatedDuration: '',
+    assignedTo: '',
+    instructions: ''
+  });
+  
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Tâches de maintenance factices
+  // Données factices pour la maintenance
+  const equipments = [
+    {
+      id: 1,
+      name: 'Machine à café principale',
+      type: 'coffee_machine',
+      status: 'operational',
+      lastMaintenance: '2025-07-01',
+      nextMaintenance: '2025-07-15',
+      maintenanceFrequency: 14,
+      condition: 85,
+      location: 'Bar principal',
+      serialNumber: 'CM-2023-001',
+      issues: 1
+    },
+    {
+      id: 2,
+      name: 'Réfrigérateur lait',
+      type: 'refrigerator',
+      status: 'warning',
+      lastMaintenance: '2025-06-20',
+      nextMaintenance: '2025-07-10',
+      maintenanceFrequency: 30,
+      condition: 70,
+      location: 'Cuisine',
+      serialNumber: 'RF-2023-002',
+      issues: 2
+    },
+    {
+      id: 3,
+      name: 'Four à pâtisserie',
+      type: 'oven',
+      status: 'maintenance',
+      lastMaintenance: '2025-07-08',
+      nextMaintenance: '2025-08-08',
+      maintenanceFrequency: 30,
+      condition: 90,
+      location: 'Cuisine',
+      serialNumber: 'OV-2023-003',
+      issues: 0
+    },
+    {
+      id: 4,
+      name: 'Système de ventilation',
+      type: 'ventilation',
+      status: 'operational',
+      lastMaintenance: '2025-06-15',
+      nextMaintenance: '2025-07-15',
+      maintenanceFrequency: 30,
+      condition: 75,
+      location: 'Général',
+      serialNumber: 'VT-2023-004',
+      issues: 0
+    }
+  ];
+
   const maintenanceTasks = [
     {
       id: 1,
-      title: 'Nettoyage machine à café principale',
-      description: 'Nettoyage complet et détartrage de la machine à café Delonghi',
-      priority: 'haute',
-      status: 'planifie',
-      assignee: 'Alice Johnson',
-      scheduledDate: '2025-07-12',
-      estimatedDuration: 120,
-      category: 'equipement',
-      lastMaintenance: '2025-06-12',
-      nextMaintenance: '2025-08-12',
-      cost: 50.00,
-      notes: 'Prévoir descaling spécial et changement des filtres'
+      title: 'Détartrage machine café',
+      description: 'Nettoyage et détartrage complet de la machine principale',
+      equipment: 'Machine à café principale',
+      priority: 'high',
+      type: 'preventive',
+      status: 'scheduled',
+      scheduledDate: '2025-07-15',
+      estimatedDuration: '2 heures',
+      assignedTo: 'Technicien Martin',
+      progress: 0,
+      instructions: 'Utiliser le produit de détartrage homologué. Suivre la procédure standard.',
+      lastUpdated: '2025-07-09'
     },
     {
       id: 2,
-      title: 'Vérification système POS',
-      description: 'Mise à jour logiciel et vérification des connexions',
-      priority: 'moyenne',
-      status: 'en_cours',
-      assignee: 'Bob Smith',
+      title: 'Réparation réfrigérateur',
+      description: 'Vérification et réparation du système de refroidissement',
+      equipment: 'Réfrigérateur lait',
+      priority: 'high',
+      type: 'corrective',
+      status: 'in_progress',
       scheduledDate: '2025-07-10',
-      estimatedDuration: 60,
-      category: 'technologie',
-      lastMaintenance: '2025-06-01',
-      nextMaintenance: '2025-08-01',
-      cost: 0.00,
-      notes: 'Sauvegarde des données avant mise à jour',
-      progress: 65
+      estimatedDuration: '3 heures',
+      assignedTo: 'Technicien Dubois',
+      progress: 60,
+      instructions: 'Remplacer le compresseur si nécessaire. Vérifier l\'étanchéité.',
+      lastUpdated: '2025-07-09'
     },
     {
       id: 3,
-      title: 'Maintenance climatisation',
-      description: 'Changement des filtres et vérification du système',
-      priority: 'moyenne',
-      status: 'termine',
-      assignee: 'Claire Davis',
+      title: 'Entretien four',
+      description: 'Maintenance préventive du four à pâtisserie',
+      equipment: 'Four à pâtisserie',
+      priority: 'medium',
+      type: 'preventive',
+      status: 'completed',
       scheduledDate: '2025-07-08',
-      estimatedDuration: 90,
-      category: 'infrastructure',
-      lastMaintenance: '2025-07-08',
-      nextMaintenance: '2025-10-08',
-      cost: 120.00,
-      notes: 'Filtres changés, système vérifié - tout fonctionne'
+      estimatedDuration: '1.5 heures',
+      assignedTo: 'Technicien Laurent',
+      progress: 100,
+      instructions: 'Nettoyage des résistances et vérification des thermostats.',
+      lastUpdated: '2025-07-08'
     },
     {
       id: 4,
-      title: 'Réparation frigo vitrine',
-      description: 'Problème de température, vérification compresseur',
-      priority: 'urgente',
-      status: 'planifie',
-      assignee: 'David Wilson',
-      scheduledDate: '2025-07-11',
-      estimatedDuration: 180,
-      category: 'equipement',
-      lastMaintenance: '2025-05-15',
-      nextMaintenance: '2025-08-15',
-      cost: 200.00,
-      notes: 'Température instable depuis 2 jours'
+      title: 'Nettoyage ventilation',
+      description: 'Nettoyage des filtres et conduits de ventilation',
+      equipment: 'Système de ventilation',
+      priority: 'medium',
+      type: 'preventive',
+      status: 'scheduled',
+      scheduledDate: '2025-07-15',
+      estimatedDuration: '4 heures',
+      assignedTo: 'Équipe nettoyage',
+      progress: 0,
+      instructions: 'Arrêter le système avant intervention. Changer tous les filtres.',
+      lastUpdated: '2025-07-09'
     }
   ];
-
-  const equipmentList = [
-    {
-      id: 1,
-      name: 'Machine à café Delonghi',
-      status: 'operationnel',
-      lastMaintenance: '2025-06-12',
-      nextMaintenance: '2025-08-12',
-      maintenanceScore: 85,
-      location: 'Bar principal'
-    },
-    {
-      id: 2,
-      name: 'Système POS',
-      status: 'maintenance',
-      lastMaintenance: '2025-06-01',
-      nextMaintenance: '2025-08-01',
-      maintenanceScore: 90,
-      location: 'Caisse'
-    },
-    {
-      id: 3,
-      name: 'Climatisation',
-      status: 'operationnel',
-      lastMaintenance: '2025-07-08',
-      nextMaintenance: '2025-10-08',
-      maintenanceScore: 95,
-      location: 'Salle principale'
-    },
-    {
-      id: 4,
-      name: 'Frigo vitrine',
-      status: 'alerte',
-      lastMaintenance: '2025-05-15',
-      nextMaintenance: '2025-08-15',
-      maintenanceScore: 45,
-      location: 'Zone pâtisserie'
-    }
-  ];
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'urgente': return 'destructive';
-      case 'haute': return 'destructive';
-      case 'moyenne': return 'secondary';
-      case 'basse': return 'outline';
-      default: return 'secondary';
-    }
-  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'termine': return 'default';
-      case 'en_cours': return 'secondary';
-      case 'planifie': return 'outline';
-      case 'reporte': return 'destructive';
+      case 'operational': return 'default';
+      case 'warning': return 'secondary';
+      case 'maintenance': return 'destructive';
+      case 'offline': return 'outline';
       default: return 'secondary';
     }
   };
 
-  const getStatusIcon = (status: string) => {
+  const getTaskStatusColor = (status: string) => {
     switch (status) {
-      case 'termine': return <CheckCircle className="h-4 w-4" />;
-      case 'en_cours': return <Play className="h-4 w-4" />;
-      case 'planifie': return <Clock className="h-4 w-4" />;
-      case 'reporte': return <Pause className="h-4 w-4" />;
-      default: return <Clock className="h-4 w-4" />;
-    }
-  };
-
-  const getEquipmentStatusColor = (status: string) => {
-    switch (status) {
-      case 'operationnel': return 'default';
-      case 'maintenance': return 'secondary';
-      case 'alerte': return 'destructive';
-      case 'panne': return 'destructive';
+      case 'scheduled': return 'secondary';
+      case 'in_progress': return 'default';
+      case 'completed': return 'outline';
+      case 'cancelled': return 'destructive';
       default: return 'secondary';
     }
   };
 
-  const renderTasksList = () => (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Tâches de maintenance</h3>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Nouvelle tâche
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Créer une tâche de maintenance</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="title">Titre</Label>
-                <Input id="title" placeholder="Titre de la tâche" />
-              </div>
-              <div>
-                <Label htmlFor="description">Description</Label>
-                <Textarea id="description" placeholder="Description détaillée" />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="priority">Priorité</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="urgente">Urgente</SelectItem>
-                      <SelectItem value="haute">Haute</SelectItem>
-                      <SelectItem value="moyenne">Moyenne</SelectItem>
-                      <SelectItem value="basse">Basse</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="category">Catégorie</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="equipement">Équipement</SelectItem>
-                      <SelectItem value="technologie">Technologie</SelectItem>
-                      <SelectItem value="infrastructure">Infrastructure</SelectItem>
-                      <SelectItem value="autre">Autre</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="assignee">Assigné à</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="alice">Alice Johnson</SelectItem>
-                      <SelectItem value="bob">Bob Smith</SelectItem>
-                      <SelectItem value="claire">Claire Davis</SelectItem>
-                      <SelectItem value="david">David Wilson</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="scheduledDate">Date prévue</Label>
-                  <Input id="scheduledDate" type="date" />
-                </div>
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                  Annuler
-                </Button>
-                <Button onClick={() => {
-                  setIsCreateDialogOpen(false);
-                  toast({ title: 'Tâche créée avec succès' });
-                }}>
-                  Créer
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return 'destructive';
+      case 'medium': return 'secondary';
+      case 'low': return 'outline';
+      default: return 'secondary';
+    }
+  };
 
-      <div className="space-y-3">
-        {maintenanceTasks.map(task => (
-          <Card key={task.id} className="cursor-pointer hover:shadow-md transition-shadow">
-            <CardContent className="p-4">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h4 className="font-semibold">{task.title}</h4>
-                    <Badge variant={getPriorityColor(task.priority)}>
-                      {task.priority}
-                    </Badge>
-                    <Badge variant={getStatusColor(task.status)} className="flex items-center gap-1">
-                      {getStatusIcon(task.status)}
-                      {task.status === 'termine' ? 'Terminé' : 
-                       task.status === 'en_cours' ? 'En cours' : 
-                       task.status === 'planifie' ? 'Planifié' : 'Reporté'}
-                    </Badge>
-                  </div>
-                  
-                  <p className="text-sm text-muted-foreground mb-2">{task.description}</p>
-                  
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <User className="h-3 w-3" />
-                      {task.assignee}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      {new Date(task.scheduledDate).toLocaleDateString('fr-FR')}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
-                      {task.estimatedDuration}min
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span>💰</span>
-                      {task.cost.toFixed(2)}€
-                    </div>
-                  </div>
+  const getEquipmentIcon = (type: string) => {
+    switch (type) {
+      case 'coffee_machine': return <Coffee className="h-4 w-4" />;
+      case 'refrigerator': return <Thermometer className="h-4 w-4" />;
+      case 'oven': return <Zap className="h-4 w-4" />;
+      case 'ventilation': return <Shield className="h-4 w-4" />;
+      default: return <Settings className="h-4 w-4" />;
+    }
+  };
 
-                  {task.status === 'en_cours' && task.progress && (
-                    <div className="mt-3">
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>Progression</span>
-                        <span>{task.progress}%</span>
-                      </div>
-                      <Progress value={task.progress} />
-                    </div>
-                  )}
+  const getConditionColor = (condition: number) => {
+    if (condition >= 80) return 'text-green-600';
+    if (condition >= 60) return 'text-yellow-600';
+    return 'text-red-600';
+  };
 
-                  {task.notes && (
-                    <div className="mt-2 p-2 bg-muted rounded text-sm">
-                      <FileText className="h-3 w-3 inline mr-1" />
-                      {task.notes}
-                    </div>
-                  )}
-                </div>
-                
-                <div className="flex gap-2">
-                  <Button variant="ghost" size="sm">
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  {task.status === 'planifie' && (
-                    <Button variant="ghost" size="sm">
-                      <Play className="h-4 w-4" />
-                    </Button>
-                  )}
-                  {task.status === 'en_cours' && (
-                    <Button variant="ghost" size="sm">
-                      <Pause className="h-4 w-4" />
-                    </Button>
-                  )}
-                  <Button variant="ghost" size="sm">
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
-
-  const renderEquipmentList = () => (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">État des équipements</h3>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Ajouter équipement
-        </Button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {equipmentList.map(equipment => (
-          <Card key={equipment.id}>
-            <CardContent className="p-4">
-              <div className="flex justify-between items-start mb-3">
-                <div>
-                  <h4 className="font-semibold">{equipment.name}</h4>
-                  <p className="text-sm text-muted-foreground">{equipment.location}</p>
-                </div>
-                <Badge variant={getEquipmentStatusColor(equipment.status)}>
-                  {equipment.status === 'operationnel' ? 'Opérationnel' :
-                   equipment.status === 'maintenance' ? 'Maintenance' :
-                   equipment.status === 'alerte' ? 'Alerte' : 'Panne'}
-                </Badge>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Score de maintenance</span>
-                  <span className={equipment.maintenanceScore > 80 ? 'text-green-600' : 
-                                 equipment.maintenanceScore > 60 ? 'text-orange-600' : 'text-red-600'}>
-                    {equipment.maintenanceScore}%
-                  </span>
-                </div>
-                <Progress value={equipment.maintenanceScore} />
-
-                <div className="text-xs text-muted-foreground space-y-1">
-                  <div>Dernière maintenance: {new Date(equipment.lastMaintenance).toLocaleDateString('fr-FR')}</div>
-                  <div>Prochaine maintenance: {new Date(equipment.nextMaintenance).toLocaleDateString('fr-FR')}</div>
-                </div>
-
-                <div className="flex gap-2 pt-2">
-                  <Button variant="outline" size="sm" className="flex-1">
-                    <Wrench className="mr-1 h-3 w-3" />
-                    Maintenir
-                  </Button>
-                  <Button variant="outline" size="sm" className="flex-1">
-                    <Settings className="mr-1 h-3 w-3" />
-                    Configurer
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
-
-  const renderStatistics = () => (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Statistiques de maintenance</h3>
-      
+  const renderDashboard = () => (
+    <div className="space-y-6">
+      {/* Statistiques générales */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Tâches en cours</p>
-                <p className="text-2xl font-bold">3</p>
+                <p className="text-sm text-muted-foreground">Équipements</p>
+                <p className="text-2xl font-bold">{equipments.length}</p>
               </div>
-              <Play className="h-8 w-8 text-blue-600" />
+              <Settings className="h-8 w-8 text-blue-600" />
             </div>
           </CardContent>
         </Card>
@@ -438,10 +239,12 @@ export default function MaintenanceSystem({ userRole = 'directeur' }: Maintenanc
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Tâches planifiées</p>
-                <p className="text-2xl font-bold">8</p>
+                <p className="text-sm text-muted-foreground">Tâches actives</p>
+                <p className="text-2xl font-bold text-yellow-600">
+                  {maintenanceTasks.filter(t => t.status === 'scheduled' || t.status === 'in_progress').length}
+                </p>
               </div>
-              <Clock className="h-8 w-8 text-orange-600" />
+              <Clock className="h-8 w-8 text-yellow-600" />
             </div>
           </CardContent>
         </Card>
@@ -450,10 +253,12 @@ export default function MaintenanceSystem({ userRole = 'directeur' }: Maintenanc
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Coût mensuel</p>
-                <p className="text-2xl font-bold">1,250€</p>
+                <p className="text-sm text-muted-foreground">Alertes</p>
+                <p className="text-2xl font-bold text-red-600">
+                  {equipments.filter(e => e.status === 'warning' || e.status === 'maintenance').length}
+                </p>
               </div>
-              <span className="text-2xl">💰</span>
+              <AlertTriangle className="h-8 w-8 text-red-600" />
             </div>
           </CardContent>
         </Card>
@@ -462,97 +267,341 @@ export default function MaintenanceSystem({ userRole = 'directeur' }: Maintenanc
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Temps moyen</p>
-                <p className="text-2xl font-bold">2.5h</p>
+                <p className="text-sm text-muted-foreground">Complétées</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {maintenanceTasks.filter(t => t.status === 'completed').length}
+                </p>
               </div>
-              <RotateCcw className="h-8 w-8 text-green-600" />
+              <CheckCircle className="h-8 w-8 text-green-600" />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Alertes système</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Alert>
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>
-                Frigo vitrine: température instable depuis 2 jours
-              </AlertDescription>
-            </Alert>
-            <Alert>
-              <Zap className="h-4 w-4" />
-              <AlertDescription>
-                Machine à café: détartrage prévu dans 3 jours
-              </AlertDescription>
-            </Alert>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Prochaines maintenances</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {maintenanceTasks.filter(task => task.status === 'planifie').slice(0, 3).map(task => (
-              <div key={task.id} className="flex justify-between items-center p-2 border rounded">
-                <div>
-                  <p className="font-medium text-sm">{task.title}</p>
-                  <p className="text-xs text-muted-foreground">{task.assignee}</p>
+      {/* État des équipements */}
+      <Card>
+        <CardHeader>
+          <CardTitle>État des équipements</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {equipments.map(equipment => (
+              <div key={equipment.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="flex items-center gap-3">
+                  {getEquipmentIcon(equipment.type)}
+                  <div>
+                    <div className="font-medium">{equipment.name}</div>
+                    <div className="text-sm text-gray-600">
+                      {equipment.location} • {equipment.serialNumber}
+                    </div>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm">{new Date(task.scheduledDate).toLocaleDateString('fr-FR')}</p>
-                  <Badge variant={getPriorityColor(task.priority)} className="text-xs">
-                    {task.priority}
+                <div className="flex items-center gap-4">
+                  <div className="text-center">
+                    <div className={`font-bold ${getConditionColor(equipment.condition)}`}>
+                      {equipment.condition}%
+                    </div>
+                    <div className="text-xs text-gray-500">État</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="font-medium">{equipment.issues}</div>
+                    <div className="text-xs text-gray-500">Problèmes</div>
+                  </div>
+                  <Badge variant={getStatusColor(equipment.status)}>
+                    {equipment.status}
                   </Badge>
                 </div>
               </div>
             ))}
-          </CardContent>
-        </Card>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Tâches urgentes */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Tâches urgentes</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {maintenanceTasks
+              .filter(task => task.priority === 'high' && task.status !== 'completed')
+              .map(task => (
+                <div key={task.id} className="flex items-center justify-between p-4 border rounded-lg border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20">
+                  <div className="flex items-center gap-3">
+                    <AlertTriangle className="h-5 w-5 text-red-600" />
+                    <div>
+                      <div className="font-medium">{task.title}</div>
+                      <div className="text-sm text-gray-600">
+                        {task.equipment} • {task.assignedTo}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="text-center">
+                      <div className="font-medium">{task.scheduledDate}</div>
+                      <div className="text-xs text-gray-500">Échéance</div>
+                    </div>
+                    <Badge variant={getTaskStatusColor(task.status)}>
+                      {task.status}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+  const renderEquipments = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold">Équipements</h3>
+        <Button onClick={() => setIsTaskDialogOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Nouvelle tâche
+        </Button>
+      </div>
+
+      <div className="grid gap-4">
+        {equipments.map(equipment => (
+          <Card key={equipment.id}>
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between">
+                <div className="flex items-start gap-3">
+                  {getEquipmentIcon(equipment.type)}
+                  <div>
+                    <div className="font-medium text-lg">{equipment.name}</div>
+                    <div className="text-sm text-gray-600 mt-1">
+                      {equipment.location} • {equipment.serialNumber}
+                    </div>
+                    <div className="flex items-center gap-4 mt-2">
+                      <div className="text-sm">
+                        <span className="text-gray-500">Dernière maintenance:</span> {equipment.lastMaintenance}
+                      </div>
+                      <div className="text-sm">
+                        <span className="text-gray-500">Prochaine:</span> {equipment.nextMaintenance}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="text-center">
+                    <div className={`text-2xl font-bold ${getConditionColor(equipment.condition)}`}>
+                      {equipment.condition}%
+                    </div>
+                    <div className="text-xs text-gray-500">Condition</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-red-600">{equipment.issues}</div>
+                    <div className="text-xs text-gray-500">Problèmes</div>
+                  </div>
+                  <Badge variant={getStatusColor(equipment.status)}>
+                    {equipment.status}
+                  </Badge>
+                </div>
+              </div>
+              <div className="mt-4">
+                <div className="flex justify-between text-sm text-gray-500 mb-1">
+                  <span>Condition générale</span>
+                  <span>{equipment.condition}%</span>
+                </div>
+                <Progress value={equipment.condition} className="h-2" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderTasks = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold">Tâches de maintenance</h3>
+        <Button onClick={() => setIsTaskDialogOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Nouvelle tâche
+        </Button>
+      </div>
+
+      <div className="grid gap-4">
+        {maintenanceTasks.map(task => (
+          <Card key={task.id}>
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between">
+                <div className="flex items-start gap-3">
+                  <Wrench className="h-5 w-5 mt-0.5" />
+                  <div>
+                    <div className="font-medium text-lg">{task.title}</div>
+                    <div className="text-sm text-gray-600 mt-1">
+                      {task.description}
+                    </div>
+                    <div className="flex items-center gap-4 mt-2">
+                      <div className="text-sm">
+                        <span className="text-gray-500">Équipement:</span> {task.equipment}
+                      </div>
+                      <div className="text-sm">
+                        <span className="text-gray-500">Assigné à:</span> {task.assignedTo}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 mt-1">
+                      <div className="text-sm">
+                        <span className="text-gray-500">Programmé:</span> {task.scheduledDate}
+                      </div>
+                      <div className="text-sm">
+                        <span className="text-gray-500">Durée:</span> {task.estimatedDuration}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <Badge variant={getPriorityColor(task.priority)}>
+                    {task.priority}
+                  </Badge>
+                  <Badge variant={getTaskStatusColor(task.status)}>
+                    {task.status}
+                  </Badge>
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="sm">
+                      <Edit className="h-3 w-3" />
+                    </Button>
+                    <Button variant="ghost" size="sm">
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              {task.status === 'in_progress' && (
+                <div className="mt-4">
+                  <div className="flex justify-between text-sm text-gray-500 mb-1">
+                    <span>Progression</span>
+                    <span>{task.progress}%</span>
+                  </div>
+                  <Progress value={task.progress} className="h-2" />
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   );
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Système de Maintenance</h2>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Wrench className="h-5 w-5 text-muted-foreground" />
-          <span className="text-sm text-muted-foreground">
-            {maintenanceTasks.filter(t => t.status === 'en_cours').length} tâches actives
-          </span>
+          <Wrench className="h-6 w-6 text-orange-600" />
+          <h1 className="text-2xl font-bold">Système de Maintenance</h1>
         </div>
       </div>
 
-      <div className="flex gap-4 border-b">
-        <Button 
-          variant={activeTab === 'tasks' ? 'default' : 'ghost'}
-          onClick={() => setActiveTab('tasks')}
-        >
-          Tâches
-        </Button>
-        <Button 
-          variant={activeTab === 'equipment' ? 'default' : 'ghost'}
-          onClick={() => setActiveTab('equipment')}
-        >
-          Équipements
-        </Button>
-        <Button 
-          variant={activeTab === 'statistics' ? 'default' : 'ghost'}
-          onClick={() => setActiveTab('statistics')}
-        >
-          Statistiques
-        </Button>
-      </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="dashboard">Tableau de bord</TabsTrigger>
+          <TabsTrigger value="equipments">Équipements</TabsTrigger>
+          <TabsTrigger value="tasks">Tâches</TabsTrigger>
+        </TabsList>
 
-      {activeTab === 'tasks' && renderTasksList()}
-      {activeTab === 'equipment' && renderEquipmentList()}
-      {activeTab === 'statistics' && renderStatistics()}
+        <TabsContent value="dashboard" className="space-y-4">
+          {renderDashboard()}
+        </TabsContent>
+
+        <TabsContent value="equipments" className="space-y-4">
+          {renderEquipments()}
+        </TabsContent>
+
+        <TabsContent value="tasks" className="space-y-4">
+          {renderTasks()}
+        </TabsContent>
+      </Tabs>
+
+      {/* Dialog pour ajouter une tâche */}
+      <Dialog open={isTaskDialogOpen} onOpenChange={setIsTaskDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Nouvelle tâche de maintenance</DialogTitle>
+            <DialogDescription>
+              Créer une nouvelle tâche de maintenance pour un équipement
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="title">Titre *</Label>
+                <Input id="title" placeholder="Titre de la tâche" />
+              </div>
+              <div>
+                <Label htmlFor="equipment">Équipement *</Label>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner un équipement" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {equipments.map(eq => (
+                      <SelectItem key={eq.id} value={eq.name}>
+                        {eq.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="priority">Priorité</Label>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner la priorité" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="high">Haute</SelectItem>
+                    <SelectItem value="medium">Moyenne</SelectItem>
+                    <SelectItem value="low">Basse</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="type">Type</Label>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Type de maintenance" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="preventive">Préventive</SelectItem>
+                    <SelectItem value="corrective">Corrective</SelectItem>
+                    <SelectItem value="emergency">Urgence</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="scheduledDate">Date programmée</Label>
+                <Input id="scheduledDate" type="date" />
+              </div>
+              <div>
+                <Label htmlFor="estimatedDuration">Durée estimée</Label>
+                <Input id="estimatedDuration" placeholder="ex: 2 heures" />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="description">Description</Label>
+              <Textarea id="description" placeholder="Description de la tâche" />
+            </div>
+            <div>
+              <Label htmlFor="instructions">Instructions</Label>
+              <Textarea id="instructions" placeholder="Instructions spécifiques" />
+            </div>
+            <div className="flex items-center justify-between">
+              <Button variant="outline" onClick={() => setIsTaskDialogOpen(false)}>
+                Annuler
+              </Button>
+              <Button onClick={() => setIsTaskDialogOpen(false)}>
+                Créer la tâche
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
