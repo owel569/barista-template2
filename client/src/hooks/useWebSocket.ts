@@ -119,6 +119,9 @@ export function useWebSocket() {
         queryClient.invalidateQueries({ queryKey: ['/api/reservations'] });
         queryClient.invalidateQueries({ queryKey: ['/api/admin/notifications/pending-reservations'] });
         queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/today-reservations'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/occupancy-rate'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/daily-reservations'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/reservation-status'] });
         break;
       case 'new_order':
         queryClient.invalidateQueries({ queryKey: ['/api/orders'] });
@@ -126,7 +129,7 @@ export function useWebSocket() {
         queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/active-orders'] });
         break;
       case 'new_message':
-        queryClient.invalidateQueries({ queryKey: ['/api/contact-messages'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/contact/messages'] });
         queryClient.invalidateQueries({ queryKey: ['/api/admin/notifications/new-messages'] });
         break;
     }
@@ -139,18 +142,30 @@ export function useWebSocket() {
     switch (type) {
       case 'reservations':
         queryClient.invalidateQueries({ queryKey: ['/api/reservations'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/notifications/pending-reservations'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/today-reservations'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/occupancy-rate'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/daily-reservations'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/reservation-status'] });
         break;
       case 'orders':
         queryClient.invalidateQueries({ queryKey: ['/api/orders'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/notifications/pending-orders'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/active-orders'] });
         break;
       case 'customers':
-        queryClient.invalidateQueries({ queryKey: ['/api/customers'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/customers'] });
         break;
       case 'menu':
         queryClient.invalidateQueries({ queryKey: ['/api/menu/items'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/menu/categories'] });
         break;
       case 'employees':
         queryClient.invalidateQueries({ queryKey: ['/api/employees'] });
+        break;
+      case 'messages':
+        queryClient.invalidateQueries({ queryKey: ['/api/contact/messages'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/notifications/new-messages'] });
         break;
     }
   }, [queryClient]);
@@ -160,7 +175,12 @@ export function useWebSocket() {
     
     if (type === 'stats') {
       // Rafraîchir toutes les statistiques
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/today-reservations'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/occupancy-rate'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/monthly-revenue'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/active-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/daily-reservations'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/reservation-status'] });
     }
   }, [queryClient]);
 

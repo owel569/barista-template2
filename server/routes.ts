@@ -332,6 +332,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         preorderTotal: preorderTotal.toFixed(2)
       }, cartItems || []);
 
+      // Notifier la nouvelle réservation via WebSocket
+      wsManager.notifyNewReservation(reservation);
+      wsManager.notifyDataUpdate('reservations', reservation);
+      wsManager.notifyStatsRefresh();
+
       res.status(201).json(reservation);
     } catch (error: any) {
       if (error.errors) {
@@ -358,6 +363,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Réservation non trouvée" });
       }
 
+      // Notifier la mise à jour via WebSocket
+      wsManager.notifyDataUpdate('reservations', reservation);
+      wsManager.notifyStatsRefresh();
+
       res.json(reservation);
     } catch (error) {
       res.status(500).json({ message: "Erreur lors de la mise à jour de la réservation" });
@@ -372,6 +381,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!success) {
         return res.status(404).json({ message: "Réservation non trouvée" });
       }
+
+      // Notifier la suppression via WebSocket
+      wsManager.notifyDataUpdate('reservations');
+      wsManager.notifyStatsRefresh();
 
       res.json({ message: "Réservation supprimée avec succès" });
     } catch (error) {
@@ -455,6 +468,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const message = await storage.createContactMessage(messageData);
+      
+      // Notifier le nouveau message via WebSocket
+      wsManager.notifyNewMessage(message);
+      wsManager.notifyDataUpdate('messages', message);
+      
       res.status(201).json(message);
     } catch (error: any) {
       console.error('Erreur création message contact:', error);
@@ -485,6 +503,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!message) {
         return res.status(404).json({ message: "Message non trouvé" });
       }
+
+      // Notifier la mise à jour via WebSocket
+      wsManager.notifyDataUpdate('messages', message);
 
       res.json(message);
     } catch (error) {
@@ -531,13 +552,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedOrderData = insertOrderSchema.parse(orderData);
       
       // Créer la commande avec les articles
+      let order;
       if (items && items.length > 0) {
-        const order = await storage.createOrderWithItems(validatedOrderData, items);
-        res.status(201).json(order);
+        order = await storage.createOrderWithItems(validatedOrderData, items);
       } else {
-        const order = await storage.createOrder(validatedOrderData);
-        res.status(201).json(order);
+        order = await storage.createOrder(validatedOrderData);
       }
+      
+      // Notifier la nouvelle commande via WebSocket
+      wsManager.notifyNewOrder(order);
+      wsManager.notifyDataUpdate('orders', order);
+      wsManager.notifyStatsRefresh();
+      
+      res.status(201).json(order);
     } catch (error: any) {
       if (error.errors) {
         return res.status(400).json({ 
@@ -559,6 +586,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Commande non trouvée" });
       }
 
+      // Notifier la mise à jour via WebSocket
+      wsManager.notifyDataUpdate('orders', order);
+      wsManager.notifyStatsRefresh();
+
       res.json(order);
     } catch (error) {
       res.status(500).json({ message: "Erreur lors de la mise à jour du statut" });
@@ -573,6 +604,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!success) {
         return res.status(404).json({ message: "Commande non trouvée" });
       }
+
+      // Notifier la suppression via WebSocket
+      wsManager.notifyDataUpdate('orders');
+      wsManager.notifyStatsRefresh();
 
       res.json({ message: "Commande supprimée avec succès" });
     } catch (error) {
