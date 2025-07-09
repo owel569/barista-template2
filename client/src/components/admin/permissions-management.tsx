@@ -81,7 +81,10 @@ export default function PermissionsManagement({ userRole = 'directeur' }: Permis
   // Mutation pour sauvegarder les permissions
   const savePermissionsMutation = useMutation({
     mutationFn: async (newPermissions: Permission[]) => {
-      return await apiRequest(`/api/admin/permissions/${selectedUser?.id}`, 'PUT', newPermissions);
+      return await apiRequest(`/api/admin/permissions/${selectedUser?.id}`, {
+        method: 'PUT',
+        body: JSON.stringify(newPermissions),
+      });
     },
     onSuccess: () => {
       toast({

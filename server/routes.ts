@@ -953,6 +953,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin users routes
+  app.get("/api/admin/users", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const users = await storage.getUsers();
+      res.json(users);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des utilisateurs" });
+    }
+  });
+
   // Admin permissions routes
   app.get("/api/admin/permissions", authenticateToken, requireRole('directeur'), async (req, res) => {
     try {

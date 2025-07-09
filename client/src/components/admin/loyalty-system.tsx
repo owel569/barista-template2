@@ -109,7 +109,10 @@ export default function LoyaltySystem({ userRole = 'directeur' }: LoyaltySystemP
   // Mutations
   const awardPointsMutation = useMutation({
     mutationFn: async ({ customerId, points, reason }: { customerId: number; points: number; reason: string }) => {
-      return await apiRequest(`/api/admin/loyalty/award-points`, 'POST', { customerId, points, reason });
+      return await apiRequest(`/api/admin/loyalty/award-points`, {
+        method: 'POST',
+        body: JSON.stringify({ customerId, points, reason }),
+      });
     },
     onSuccess: () => {
       toast({
@@ -129,7 +132,10 @@ export default function LoyaltySystem({ userRole = 'directeur' }: LoyaltySystemP
 
   const redeemRewardMutation = useMutation({
     mutationFn: async ({ customerId, rewardId }: { customerId: number; rewardId: number }) => {
-      return await apiRequest(`/api/admin/loyalty/redeem-reward`, 'POST', { customerId, rewardId });
+      return await apiRequest(`/api/admin/loyalty/redeem-reward`, {
+        method: 'POST',
+        body: JSON.stringify({ customerId, rewardId }),
+      });
     },
     onSuccess: () => {
       toast({
@@ -149,7 +155,10 @@ export default function LoyaltySystem({ userRole = 'directeur' }: LoyaltySystemP
 
   const addRewardMutation = useMutation({
     mutationFn: async (data: any) => {
-      return await apiRequest('/api/admin/loyalty/rewards', 'POST', data);
+      return await apiRequest('/api/admin/loyalty/rewards', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
     },
     onSuccess: () => {
       toast({
