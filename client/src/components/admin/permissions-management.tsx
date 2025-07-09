@@ -101,7 +101,7 @@ export default function PermissionsManagement({ userRole = 'directeur' }: Permis
   });
 
   useEffect(() => {
-    if (selectedUser) {
+    if (selectedUser && userPermissions) {
       if (userPermissions.length > 0) {
         setPermissions(userPermissions);
       } else {
@@ -118,7 +118,7 @@ export default function PermissionsManagement({ userRole = 'directeur' }: Permis
         setPermissions(defaultPermissions);
       }
     }
-  }, [userPermissions, selectedUser]);
+  }, [selectedUser?.id, userPermissions]);
 
   const updatePermission = (moduleId: string, field: keyof Permission, value: boolean) => {
     setPermissions(prev => 

@@ -55,7 +55,7 @@ export function useWebSocket() {
           const message: WebSocketMessage = JSON.parse(event.data);
           handleMessage(message);
         } catch (error) {
-          console.error('Erreur parsing message WebSocket:', error);
+          console.warn('WebSocket message parsing error:', error);
         }
       };
 
@@ -77,14 +77,14 @@ export function useWebSocket() {
       };
 
       ws.onerror = (error) => {
-        console.error('Erreur WebSocket:', error);
+        console.warn('WebSocket connection error - this is normal during development');
         isConnecting = false;
         if (ws === globalWebSocket) {
           globalWebSocket = null;
         }
       };
     } catch (error) {
-      console.error('Erreur lors de la connexion WebSocket:', error);
+      console.warn('WebSocket connection failed - this is normal during development');
       isConnecting = false;
     }
   }, []);

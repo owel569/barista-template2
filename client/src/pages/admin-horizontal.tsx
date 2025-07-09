@@ -23,7 +23,9 @@ import {
   Truck,
   FileText,
   Database,
-  Wrench
+  Wrench,
+  Activity,
+  Monitor
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -55,6 +57,9 @@ import ReportsSystem from '@/components/admin/reports-system';
 import CalendarManagement from '@/components/admin/calendar-management';
 import BackupSystem from '@/components/admin/backup-system';
 import MaintenanceSystem from '@/components/admin/maintenance-system';
+import NotificationsManagement from '@/components/admin/notifications-management';
+import AnalyticsSystem from '@/components/admin/analytics-system';
+import SystemMonitoring from '@/components/admin/system-monitoring';
 
 interface User {
   id: number;
@@ -151,6 +156,9 @@ export default function AdminHorizontal() {
         { icon: Calendar, label: 'Calendrier', section: 'calendar' },
         { icon: Database, label: 'Sauvegardes', section: 'backup' },
         { icon: Wrench, label: 'Maintenance', section: 'maintenance' },
+        { icon: Bell, label: 'Notifications', section: 'notifications' },
+        { icon: BarChart3, label: 'Analyses', section: 'analytics' },
+        { icon: Monitor, label: 'Monitoring', section: 'monitoring' },
         { icon: BarChart3, label: 'Test Complet', section: 'test' },
       ];
     }
@@ -202,6 +210,12 @@ export default function AdminHorizontal() {
         return userRole === 'directeur' ? <BackupSystem userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case 'maintenance':
         return userRole === 'directeur' ? <MaintenanceSystem userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+      case 'notifications':
+        return userRole === 'directeur' ? <NotificationsManagement userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+      case 'analytics':
+        return userRole === 'directeur' ? <AnalyticsSystem userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+      case 'monitoring':
+        return userRole === 'directeur' ? <SystemMonitoring userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case 'test':
         return userRole === 'directeur' ? <TestAllFeatures userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       default:
