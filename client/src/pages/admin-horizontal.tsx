@@ -25,6 +25,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useWebSocket } from '@/hooks/useWebSocket';
 
 // Import admin modules
 import Dashboard from '@/components/admin/dashboard';
@@ -42,6 +43,7 @@ import PermissionsManagement from '@/components/admin/permissions-management';
 import InventoryManagement from '@/components/admin/inventory-management';
 import LoyaltySystem from '@/components/admin/loyalty-system';
 import WorkSchedule from '@/components/admin/work-schedule';
+import TestAllFeatures from '@/components/admin/test-all-features';
 
 interface User {
   id: number;
@@ -61,12 +63,6 @@ export default function AdminHorizontal() {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-
-  const [pendingReservations, setPendingReservations] = useState([]);
-  const [newMessages, setNewMessages] = useState([]);
-  const [pendingOrders, setPendingOrders] = useState([]);
-
-  const totalNotifications = pendingReservations.length + newMessages.length + pendingOrders.length;
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -101,45 +97,8 @@ export default function AdminHorizontal() {
     checkAuth();
   }, [navigate]);
 
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      if (!user) return;
-
-      try {
-        const token = localStorage.getItem('token');
-        const headers = {
-          'Authorization': `Bearer ${token}`
-        };
-
-        const [reservationsRes, messagesRes, ordersRes] = await Promise.all([
-          fetch('/api/admin/notifications/pending-reservations', { headers }),
-          fetch('/api/admin/notifications/new-messages', { headers }),
-          fetch('/api/admin/notifications/pending-orders', { headers })
-        ]);
-
-        if (reservationsRes.ok) {
-          const reservations = await reservationsRes.json();
-          setPendingReservations(reservations);
-        }
-
-        if (messagesRes.ok) {
-          const messages = await messagesRes.json();
-          setNewMessages(messages);
-        }
-
-        if (ordersRes.ok) {
-          const orders = await ordersRes.json();
-          setPendingOrders(orders);
-        }
-      } catch (error) {
-        console.error('Error fetching notifications:', error);
-      }
-    };
-
-    fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
-  }, [user]);
+  // Utiliser useWebSocket pour les notifications temps réel
+  const { isConnected } = useWebSocket();
 
   const currentSection = params.section || 'dashboard';
 
@@ -175,6 +134,7 @@ export default function AdminHorizontal() {
         { icon: Package2, label: 'Stocks', section: 'inventory' },
         { icon: Star, label: 'Fidélité', section: 'loyalty' },
         { icon: Calendar, label: 'Planning', section: 'schedule' },
+        { icon: BarChart3, label: 'Test Complet', section: 'test' },
       ];
     }
 
@@ -213,6 +173,8 @@ export default function AdminHorizontal() {
         return userRole === 'directeur' ? <LoyaltySystem userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case 'schedule':
         return userRole === 'directeur' ? <WorkSchedule userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+      case 'test':
+        return userRole === 'directeur' ? <TestAllFeatures userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       default:
         return <Dashboard userRole={userRole} />;
     }
@@ -302,20 +264,11 @@ export default function AdminHorizontal() {
               {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
             
-            <div className="relative">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0 relative"
-              >
-                <Bell className="h-4 w-4" />
-                {totalNotifications > 0 && (
-                  <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs bg-red-500 text-white">
-                    {totalNotifications}
-                  </Badge>
-                )}
-              </Button>
-            </div>
+            <NotificationsSystem 
+              isOpen={isNotificationsOpen} 
+              onToggle={() => setIsNotificationsOpen(!isNotificationsOpen)}
+              userRole={user?.role as 'directeur' | 'employe'}
+            />
             
             {/* User Profile */}
             <div className="flex items-center space-x-2">
