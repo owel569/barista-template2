@@ -41,6 +41,7 @@ import ActivityLogs from '@/components/admin/activity-logs';
 import PermissionsManagement from '@/components/admin/permissions-management';
 import InventoryManagement from '@/components/admin/inventory-management';
 import LoyaltySystem from '@/components/admin/loyalty-system';
+import WorkSchedule from '@/components/admin/work-schedule';
 
 interface User {
   id: number;
@@ -173,6 +174,7 @@ export default function AdminHorizontal() {
         { icon: Settings, label: 'Permissions', section: 'permissions' },
         { icon: Package2, label: 'Stocks', section: 'inventory' },
         { icon: Star, label: 'Fidélité', section: 'loyalty' },
+        { icon: Calendar, label: 'Planning', section: 'schedule' },
       ];
     }
 
@@ -209,6 +211,8 @@ export default function AdminHorizontal() {
         return userRole === 'directeur' ? <InventoryManagement userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case 'loyalty':
         return userRole === 'directeur' ? <LoyaltySystem userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+      case 'schedule':
+        return userRole === 'directeur' ? <WorkSchedule userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       default:
         return <Dashboard userRole={userRole} />;
     }
