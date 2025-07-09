@@ -339,6 +339,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin Orders routes
+  app.get("/api/admin/orders", authenticateToken, async (req, res) => {
+    try {
+      const orders = await storage.getOrders();
+      res.json(orders);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des commandes" });
+    }
+  });
+
+  app.post("/api/admin/orders", authenticateToken, async (req, res) => {
+    try {
+      const { items = [], ...orderData } = req.body;
+      const order = await storage.createOrder(orderData);
+      wsManager.notifyDataUpdate('orders', order);
+      res.status(201).json(order);
+    } catch (error) {
+      console.error('Erreur création commande:', error);
+      res.status(400).json({ message: "Erreur lors de la création de la commande" });
+    }
+  });
+
+  app.patch("/api/admin/orders/:id", authenticateToken, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { status } = req.body;
+      const order = await storage.updateOrderStatus(id, status);
+      
+      if (!order) {
+        return res.status(404).json({ message: "Commande non trouvée" });
+      }
+      
+      wsManager.notifyDataUpdate('orders', order);
+      res.json(order);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour du statut" });
+    }
+  });
+
   // Customers routes (public)
   app.get("/api/customers", authenticateToken, async (req, res) => {
     try {

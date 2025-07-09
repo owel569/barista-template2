@@ -49,6 +49,15 @@ export default function Orders({ userRole, user }: OrdersProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [newOrderData, setNewOrderData] = useState({
+    customerName: '',
+    customerEmail: '',
+    customerPhone: '',
+    orderType: 'sur_place',
+    notes: '',
+    items: [] as any[]
+  });
   const { toast } = useToast();
 
   useEffect(() => {
@@ -223,6 +232,57 @@ export default function Orders({ userRole, user }: OrdersProps) {
     return nextStatus ? getStatusText(nextStatus) : null;
   };
 
+  const addNewOrder = async () => {
+    if (!newOrderData.customerName || !newOrderData.customerPhone) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez remplir tous les champs obligatoires",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/admin/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          ...newOrderData,
+          status: 'en_attente',
+          totalAmount: '0.00'
+        })
+      });
+      
+      if (response.ok) {
+        toast({
+          title: "Succès",
+          description: "Commande créée avec succès",
+        });
+        setIsAddDialogOpen(false);
+        setNewOrderData({
+          customerName: '',
+          customerEmail: '',
+          customerPhone: '',
+          orderType: 'sur_place',
+          notes: '',
+          items: []
+        });
+        fetchOrders();
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible d'ajouter la commande",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="p-6 space-y-6">
@@ -249,9 +309,18 @@ export default function Orders({ userRole, user }: OrdersProps) {
             {filteredOrders.length} commande(s) trouvée(s)
           </p>
         </div>
-        <Badge variant="outline" className="bg-orange-50 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400">
-          {userRole === 'directeur' ? 'Directeur' : 'Employé'}
-        </Badge>
+        <div className="flex items-center gap-4">
+          <Button
+            onClick={() => setIsAddDialogOpen(true)}
+            className="flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            Nouvelle Commande
+          </Button>
+          <Badge variant="outline" className="bg-orange-50 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400">
+            {userRole === 'directeur' ? 'Directeur' : 'Employé'}
+          </Badge>
+        </div>
       </div>
 
       {/* Filters */}
@@ -449,12 +518,12 @@ export default function Orders({ userRole, user }: OrdersProps) {
                               </div>
                               <div>
                                 <Label>Total</Label>
-                                <p className="text-sm font-semibold">{selectedOrder.total.toFixed(2)}€</p>
+                                <p className="text-sm font-semibold">{selectedOrder.totalAmount}€</p>
                               </div>
-                              {selectedOrder.tableNumber && (
+                              {selectedOrder.tableId && (
                                 <div>
                                   <Label>Table</Label>
-                                  <p className="text-sm">Table {selectedOrder.tableNumber}</p>
+                                  <p className="text-sm">Table {selectedOrder.tableId}</p>
                                 </div>
                               )}
                               <div>
@@ -466,12 +535,12 @@ export default function Orders({ userRole, user }: OrdersProps) {
                             <div>
                               <Label>Articles commandés</Label>
                               <div className="mt-2 space-y-2">
-                                {selectedOrder.items.map((item) => (
+                                {selectedOrder.items?.map((item) => (
                                   <div key={item.id} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-800 rounded">
                                     <span>{item.quantity}x {item.menuItemName}</span>
-                                    <span className="font-medium">{item.total.toFixed(2)}€</span>
+                                    <span className="font-medium">{item.total}€</span>
                                   </div>
-                                ))}
+                                )) || <p className="text-gray-500">Aucun article</p>}
                               </div>
                             </div>
                             
@@ -492,6 +561,87 @@ export default function Orders({ userRole, user }: OrdersProps) {
           ))
         )}
       </div>
+
+      {/* Add Order Dialog */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Nouvelle Commande</DialogTitle>
+            <DialogDescription>
+              Créer une nouvelle commande pour un client
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="customerName">Nom du client *</Label>
+              <Input
+                id="customerName"
+                value={newOrderData.customerName}
+                onChange={(e) => setNewOrderData({...newOrderData, customerName: e.target.value})}
+                placeholder="Nom complet du client"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="customerEmail">Email</Label>
+              <Input
+                id="customerEmail"
+                type="email"
+                value={newOrderData.customerEmail}
+                onChange={(e) => setNewOrderData({...newOrderData, customerEmail: e.target.value})}
+                placeholder="email@example.com"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="customerPhone">Téléphone *</Label>
+              <Input
+                id="customerPhone"
+                value={newOrderData.customerPhone}
+                onChange={(e) => setNewOrderData({...newOrderData, customerPhone: e.target.value})}
+                placeholder="+33 1 23 45 67 89"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Type de commande</Label>
+              <Select value={newOrderData.orderType} onValueChange={(value) => setNewOrderData({...newOrderData, orderType: value})}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="sur_place">Sur place</SelectItem>
+                  <SelectItem value="emporter">À emporter</SelectItem>
+                  <SelectItem value="livraison">Livraison</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notes</Label>
+              <Input
+                id="notes"
+                value={newOrderData.notes}
+                onChange={(e) => setNewOrderData({...newOrderData, notes: e.target.value})}
+                placeholder="Instructions spéciales..."
+              />
+            </div>
+          </div>
+          
+          <div className="flex justify-end gap-2 mt-6">
+            <Button 
+              variant="outline" 
+              onClick={() => setIsAddDialogOpen(false)}
+            >
+              Annuler
+            </Button>
+            <Button onClick={addNewOrder}>
+              Créer la commande
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
