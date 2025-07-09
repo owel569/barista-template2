@@ -1153,6 +1153,128 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Employee management routes
+  app.get("/api/employees", authenticateToken, async (req, res) => {
+    try {
+      const employees = await storage.getEmployees();
+      res.json(employees);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des employés" });
+    }
+  });
+
+  app.post("/api/employees", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const employeeData = req.body;
+      const employee = await storage.createEmployee(employeeData);
+      
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('employees', employee);
+      
+      res.status(201).json(employee);
+    } catch (error) {
+      res.status(400).json({ message: "Erreur lors de la création de l'employé" });
+    }
+  });
+
+  app.put("/api/employees/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const employeeData = req.body;
+      const employee = await storage.updateEmployee(id, employeeData);
+      
+      if (!employee) {
+        return res.status(404).json({ message: "Employé non trouvé" });
+      }
+      
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('employees', employee);
+      
+      res.json(employee);
+    } catch (error) {
+      res.status(400).json({ message: "Erreur lors de la mise à jour de l'employé" });
+    }
+  });
+
+  app.delete("/api/employees/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deleteEmployee(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Employé non trouvé" });
+      }
+      
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('employees');
+      
+      res.json({ message: "Employé supprimé avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la suppression de l'employé" });
+    }
+  });
+
+  // Work shifts management routes
+  app.get("/api/work-shifts", authenticateToken, async (req, res) => {
+    try {
+      const workShifts = await storage.getWorkShifts();
+      res.json(workShifts);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des horaires" });
+    }
+  });
+
+  app.post("/api/work-shifts", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const shiftData = req.body;
+      const shift = await storage.createWorkShift(shiftData);
+      
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('work-shifts', shift);
+      
+      res.status(201).json(shift);
+    } catch (error) {
+      res.status(400).json({ message: "Erreur lors de la création de l'horaire" });
+    }
+  });
+
+  app.put("/api/work-shifts/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const shiftData = req.body;
+      const shift = await storage.updateWorkShift(id, shiftData);
+      
+      if (!shift) {
+        return res.status(404).json({ message: "Horaire non trouvé" });
+      }
+      
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('work-shifts', shift);
+      
+      res.json(shift);
+    } catch (error) {
+      res.status(400).json({ message: "Erreur lors de la mise à jour de l'horaire" });
+    }
+  });
+
+  app.delete("/api/work-shifts/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deleteWorkShift(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Horaire non trouvé" });
+      }
+      
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('work-shifts');
+      
+      res.json({ message: "Horaire supprimé avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la suppression de l'horaire" });
+    }
+  });
+
   // User management routes (directeur only)
   app.get("/api/admin/users", authenticateToken, requireRole('directeur'), async (req, res) => {
     try {
@@ -1631,6 +1753,101 @@ export async function registerRoutes(app: Express): Promise<Server> {
     };
     return colors[status] || '#6b7280';
   }
+
+  // Inventory management API
+  app.get("/api/admin/inventory/items", authenticateToken, async (req, res) => {
+    try {
+      const items = await storage.getMenuItems();
+      res.json(items);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des articles" });
+    }
+  });
+
+  app.get("/api/admin/inventory/alerts", authenticateToken, async (req, res) => {
+    try {
+      // Mock stock alerts
+      const alerts = [
+        { id: 1, itemId: 1, itemName: "Café Americano", currentStock: 2, minStock: 5, alertLevel: "low", createdAt: new Date().toISOString() },
+        { id: 2, itemId: 2, itemName: "Croissant", currentStock: 0, minStock: 10, alertLevel: "out", createdAt: new Date().toISOString() }
+      ];
+      res.json(alerts);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des alertes" });
+    }
+  });
+
+  app.get("/api/admin/inventory/stats", authenticateToken, async (req, res) => {
+    try {
+      const items = await storage.getMenuItems();
+      const stats = {
+        totalItems: items.length,
+        availableItems: items.filter((item: any) => item.available).length,
+        lowStockItems: 2,
+        outOfStockItems: 1,
+        totalValue: 2450.50,
+        avgCostPerItem: 12.75
+      };
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques" });
+    }
+  });
+
+  // Permissions management API
+  app.get("/api/admin/permissions", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const permissions = await storage.getUserPermissions(1);
+      res.json(permissions);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des permissions" });
+    }
+  });
+
+  app.put("/api/admin/permissions/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const permissionData = req.body;
+      const permission = await storage.updatePermission(id, permissionData);
+      
+      if (!permission) {
+        return res.status(404).json({ message: "Permission non trouvée" });
+      }
+      
+      res.json(permission);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour de la permission" });
+    }
+  });
+
+  // Contact messages API
+  app.get("/api/contact-messages", authenticateToken, async (req, res) => {
+    try {
+      const messages = await storage.getContactMessages();
+      res.json(messages);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des messages" });
+    }
+  });
+
+  app.put("/api/contact-messages/:id/status", authenticateToken, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { status } = req.body;
+      const message = await storage.updateContactMessageStatus(id, status);
+      
+      if (!message) {
+        return res.status(404).json({ message: "Message non trouvé" });
+      }
+      
+      // Notifier via WebSocket
+      wsManager.notifyDataUpdate('contact-messages', message);
+      
+      res.json(message);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour du statut" });
+    }
+  });
 
   // Settings API for restaurant configuration
   app.get("/api/settings", authenticateToken, async (req, res) => {
