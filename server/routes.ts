@@ -537,7 +537,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/admin/customers", authenticateToken, async (req, res) => {
     try {
-      const customerData = insertCustomerSchema.parse(req.body);
+      // Validation flexible pour le téléphone
+      const customerData = { ...req.body };
+      
+      // Validation basique
+      if (!customerData.firstName || !customerData.lastName || !customerData.email) {
+        return res.status(400).json({ 
+          message: "Prénom, nom et email sont requis" 
+        });
+      }
+      
+      // Validation email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(customerData.email)) {
+        return res.status(400).json({ 
+          message: "Email invalide" 
+        });
+      }
+      
+      // Validation téléphone si fourni
+      if (customerData.phone && customerData.phone.length < 8) {
+        return res.status(400).json({ 
+          message: "Téléphone requis (minimum 8 chiffres)" 
+        });
+      }
+      
       const customer = await storage.createCustomer(customerData);
       
       // Notifier via WebSocket
@@ -545,12 +569,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.status(201).json(customer);
     } catch (error: any) {
-      if (error.errors) {
-        return res.status(400).json({ 
-          message: "Données client invalides",
-          errors: error.errors
-        });
-      }
+      console.error('Erreur création client:', error);
       res.status(500).json({ message: "Erreur lors de la création du client" });
     }
   });
