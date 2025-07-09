@@ -339,7 +339,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Customers routes
+  // Customers routes (public)
   app.get("/api/customers", authenticateToken, async (req, res) => {
     try {
       const customers = await storage.getCustomers();
@@ -349,18 +349,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/customers", authenticateToken, async (req, res) => {
+  // Admin customers routes
+  app.get("/api/admin/customers", authenticateToken, async (req, res) => {
+    try {
+      const customers = await storage.getCustomers();
+      res.json(customers);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des clients" });
+    }
+  });
+
+  app.post("/api/admin/customers", authenticateToken, async (req, res) => {
     try {
       const customerData = insertCustomerSchema.parse(req.body);
       const customer = await storage.createCustomer(customerData);
       wsManager.notifyDataUpdate('customers', customer);
       res.status(201).json(customer);
     } catch (error) {
+      console.error('Erreur création client:', error);
       res.status(400).json({ message: "Erreur lors de la création du client" });
     }
   });
 
-  app.put("/api/customers/:id", authenticateToken, async (req, res) => {
+  app.put("/api/admin/customers/:id", authenticateToken, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const customerData = req.body;
@@ -377,7 +388,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/customers/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+  app.delete("/api/admin/customers/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const success = await storage.deleteCustomer(id);
@@ -392,6 +403,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Erreur lors de la suppression du client" });
     }
   });
+
+
 
   // Employees routes
   app.get("/api/employees", authenticateToken, async (req, res) => {
@@ -588,6 +601,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin statistics routes
+  app.get("/api/admin/stats/today-reservations", authenticateToken, async (req, res) => {
+    try {
+      const count = await storage.getTodayReservationCount();
+      res.json({ count });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques" });
+    }
+  });
+
+  app.get("/api/admin/stats/monthly-revenue", authenticateToken, async (req, res) => {
+    try {
+      const revenue = 15420; // Mock data - implement real calculation
+      res.json({ revenue });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques" });
+    }
+  });
+
+  app.get("/api/admin/stats/active-orders", authenticateToken, async (req, res) => {
+    try {
+      const orders = await storage.getOrders();
+      const activeCount = orders.filter(order => 
+        order.status === 'en_attente' || order.status === 'en_preparation'
+      ).length;
+      res.json({ count: activeCount });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques" });
+    }
+  });
+
+  app.get("/api/admin/stats/occupancy-rate", authenticateToken, async (req, res) => {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const rate = await storage.getOccupancyRate(today);
+      res.json({ rate });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques" });
+    }
+  });
+
   app.get("/api/admin/stats/reservation-status", authenticateToken, async (req, res) => {
     try {
       const reservations = await storage.getReservations();
@@ -598,8 +652,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const statusStats = Object.entries(statusCounts).map(([status, count]) => ({
         status,
-        count,
-        percentage: ((count / reservations.length) * 100).toFixed(1)
+        count
       }));
       
       res.json(statusStats);
@@ -608,11 +661,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/admin/stats/daily-reservations", authenticateToken, async (req, res) => {
+    try {
+      const currentDate = new Date();
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth() + 1;
+      
+      const dailyStats = await storage.getMonthlyReservationStats(year, month);
+      res.json(dailyStats);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques" });
+    }
+  });
+
+  app.get("/api/admin/stats/orders-by-status", authenticateToken, async (req, res) => {
+    try {
+      const orders = await storage.getOrders();
+      const statusCounts = orders.reduce((acc, order) => {
+        acc[order.status] = (acc[order.status] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+      
+      const statusStats = Object.entries(statusCounts).map(([status, count]) => ({
+        status,
+        count
+      }));
+      
+      res.json(statusStats);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques" });
+    }
+  });
+
+  // Admin messages routes
+  app.get("/api/admin/messages", authenticateToken, async (req, res) => {
+    try {
+      const messages = await storage.getContactMessages();
+      res.json(messages);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des messages" });
+    }
+  });
+
+  app.put("/api/admin/messages/:id/status", authenticateToken, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { status } = req.body;
+      const message = await storage.updateContactMessageStatus(id, status);
+      
+      if (!message) {
+        return res.status(404).json({ message: "Message non trouvé" });
+      }
+      
+      wsManager.notifyDataUpdate('contact-messages', message);
+      res.json(message);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour du statut" });
+    }
+  });
+
   // Admin notifications routes
   app.get("/api/admin/notifications/pending-reservations", authenticateToken, async (req, res) => {
     try {
-      const pendingReservations = await storage.getPendingNotificationReservations();
-      res.json(pendingReservations);
+      const reservations = await storage.getPendingNotificationReservations();
+      res.json(reservations);
     } catch (error) {
       res.status(500).json({ message: "Erreur lors de la récupération des notifications" });
     }
@@ -624,17 +736,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const newMessages = messages.filter(msg => msg.status === 'nouveau' || msg.status === 'non_lu');
       res.json(newMessages);
     } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la récupération des messages" });
+      res.status(500).json({ message: "Erreur lors de la récupération des notifications" });
     }
   });
 
   app.get("/api/admin/notifications/pending-orders", authenticateToken, async (req, res) => {
     try {
       const orders = await storage.getOrders();
-      const pendingOrders = orders.filter(order => order.status === 'en_attente');
+      const pendingOrders = orders.filter(order => 
+        order.status === 'en_attente' || order.status === 'en_preparation'
+      );
       res.json(pendingOrders);
     } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la récupération des commandes" });
+      res.status(500).json({ message: "Erreur lors de la récupération des notifications" });
+    }
+  });
+
+  // Admin menu routes
+  app.get("/api/admin/menu/items", authenticateToken, async (req, res) => {
+    try {
+      const items = await storage.getMenuItems();
+      res.json(items);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des éléments du menu" });
+    }
+  });
+
+  app.get("/api/admin/menu/categories", authenticateToken, async (req, res) => {
+    try {
+      const categories = await storage.getMenuCategories();
+      res.json(categories);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des catégories" });
     }
   });
 

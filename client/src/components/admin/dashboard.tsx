@@ -11,10 +11,14 @@ import {
   Euro,
   CheckCircle,
   AlertCircle,
-  RefreshCw
+  RefreshCw,
+  Bell,
+  Coffee,
+  Star
 } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line } from 'recharts';
 import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 
 interface DashboardStats {
   todayReservations: number;
@@ -33,7 +37,7 @@ const COLORS = ['#f59e0b', '#3b82f6', '#10b981', '#ef4444', '#8b5cf6'];
 
 export default function Dashboard({ userRole }: DashboardProps) {
   // Initialiser WebSocket pour les notifications temps réel
-  useWebSocket();
+  const { isConnected } = useWebSocket();
   
   const [stats, setStats] = useState<DashboardStats>({
     todayReservations: 0,
@@ -143,9 +147,14 @@ export default function Dashboard({ userRole }: DashboardProps) {
             Vue d'ensemble des activités du café
           </p>
         </div>
-        <Badge variant="outline" className="bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400">
-          {userRole === 'directeur' ? 'Directeur' : 'Employé'}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400">
+            {userRole === 'directeur' ? 'Directeur' : 'Employé'}
+          </Badge>
+          <Badge variant={isConnected ? 'secondary' : 'destructive'} className="text-xs">
+            {isConnected ? '🟢 En ligne' : '🔴 Hors ligne'}
+          </Badge>
+        </div>
       </div>
 
       {/* Stats Cards */}

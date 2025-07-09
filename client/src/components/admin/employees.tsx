@@ -56,9 +56,9 @@ const employeeSchema = z.object({
   email: z.string().email('Email invalide'),
   position: z.string().min(2, 'Le poste doit contenir au moins 2 caractères'),
   department: z.string().min(2, 'Le département doit contenir au moins 2 caractères'),
-  phone: z.string().min(1, 'Le téléphone est requis'),
+  phone: z.string().min(8, 'Le téléphone doit contenir au moins 8 chiffres'),
   hireDate: z.string(),
-  salary: z.coerce.number().min(0.01, 'Le salaire doit être supérieur à 0').max(99999.99, 'Salaire maximum : 99 999,99€'),
+  salary: z.string().min(1, 'Le salaire est requis'),
   status: z.enum(['active', 'inactive']).optional(),
 });
 
@@ -87,7 +87,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
       department: '',
       phone: '',
       hireDate: new Date().toISOString().split('T')[0],
-      salary: 0,
+      salary: '0',
       status: 'active',
     },
   });
