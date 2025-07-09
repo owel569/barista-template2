@@ -45,6 +45,7 @@ function Router() {
           <Route path="/login" component={LoginSimple} />
           <Route path="/register" component={Register} />
           <Route path="/reservation" component={InteractiveReservation} />
+          <Route path="/admin/login" component={LoginSimple} />
           <Route path="/admin" component={AdminHorizontal} />
           <Route path="/admin/:section" component={AdminHorizontal} />
           <Route path="/employe" component={AdminHorizontal} />

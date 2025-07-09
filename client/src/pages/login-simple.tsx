@@ -42,7 +42,7 @@ export default function LoginSimple() {
 
       if (response.ok) {
         const data = await response.json();
-        localStorage.setItem('admin-token', data.token);
+        localStorage.setItem('token', data.token);
         
         toast({
           title: "Connexion réussie",
