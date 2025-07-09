@@ -148,7 +148,7 @@ export default function AdminHorizontal() {
         { icon: DollarSign, label: 'Comptabilité', section: 'accounting' },
         { icon: Truck, label: 'Fournisseurs', section: 'suppliers' },
         { icon: FileText, label: 'Rapports', section: 'reports' },
-        { icon: CalendarIcon, label: 'Calendrier', section: 'calendar' },
+        { icon: Calendar, label: 'Calendrier', section: 'calendar' },
         { icon: Database, label: 'Sauvegardes', section: 'backup' },
         { icon: Wrench, label: 'Maintenance', section: 'maintenance' },
         { icon: BarChart3, label: 'Test Complet', section: 'test' },
