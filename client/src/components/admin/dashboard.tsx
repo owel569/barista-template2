@@ -56,7 +56,7 @@ export default function Dashboard({ userRole }: DashboardProps) {
 
   const fetchDashboardStats = async () => {
     try {
-      const token = localStorage.getItem('admin-token');
+      const token = localStorage.getItem('token');
       
       // Fetch all stats in parallel
       const [

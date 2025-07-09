@@ -66,7 +66,7 @@ export default function Orders({ userRole }: OrdersProps) {
 
   const fetchOrders = async () => {
     try {
-      const token = localStorage.getItem('admin-token');
+      const token = localStorage.getItem('token');
       const response = await fetch('/api/admin/orders', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -114,7 +114,7 @@ export default function Orders({ userRole }: OrdersProps) {
 
   const updateOrderStatus = async (id: number, newStatus: string) => {
     try {
-      const token = localStorage.getItem('admin-token');
+      const token = localStorage.getItem('token');
       const response = await fetch(`/api/admin/orders/${id}/status`, {
         method: 'PUT',
         headers: {

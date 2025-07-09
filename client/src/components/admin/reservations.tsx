@@ -61,7 +61,7 @@ export default function Reservations({ userRole }: ReservationsProps) {
 
   const fetchReservations = async () => {
     try {
-      const token = localStorage.getItem('admin-token');
+      const token = localStorage.getItem('token');
       const response = await fetch('/api/admin/reservations', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -120,7 +120,7 @@ export default function Reservations({ userRole }: ReservationsProps) {
 
   const updateReservationStatus = async (id: number, newStatus: string) => {
     try {
-      const token = localStorage.getItem('admin-token');
+      const token = localStorage.getItem('token');
       const response = await fetch(`/api/admin/reservations/${id}/status`, {
         method: 'PUT',
         headers: {

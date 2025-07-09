@@ -190,7 +190,7 @@ export default function AdminHorizontal() {
       case 'orders':
         return <Orders userRole={userRole} />;
       case 'customers':
-        return <Customers readonly={userRole === 'employe'} />;
+        return <Customers userRole={userRole} user={user} />;
       case 'employees':
         return userRole === 'directeur' ? <Employees userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case 'menu':

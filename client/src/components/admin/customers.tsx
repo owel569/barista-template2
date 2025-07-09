@@ -63,7 +63,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
 
   const fetchCustomers = async () => {
     try {
-      const token = localStorage.getItem('admin-token');
+      const token = localStorage.getItem('token');
       const response = await fetch('/api/admin/customers', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -121,7 +121,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
     }
 
     try {
-      const token = localStorage.getItem('admin-token');
+      const token = localStorage.getItem('token');
       const customerData = {
         ...newCustomer,
         firstName: newCustomer.firstName.trim(),
@@ -189,7 +189,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
     }
 
     try {
-      const token = localStorage.getItem('admin-token');
+      const token = localStorage.getItem('token');
       const response = await fetch(`/api/admin/customers/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
