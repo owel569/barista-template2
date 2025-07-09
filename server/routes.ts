@@ -1546,7 +1546,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/employees", authenticateToken, requireRole('directeur'), async (req, res) => {
     try {
-      const employeeData = req.body;
+      const employeeData = insertEmployeeSchema.parse(req.body);
       const employee = await storage.createEmployee(employeeData);
       
       // Notifier via WebSocket
@@ -1748,6 +1748,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ rate });
     } catch (error) {
       res.status(500).json({ message: "Erreur lors de la récupération du taux d'occupation" });
+    }
+  });
+
+  // Routes pour système de fidélité
+  app.get("/api/admin/loyalty/customers", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const customers = await storage.getCustomers();
+      const loyaltyData = customers.map(customer => ({
+        ...customer,
+        loyaltyLevel: parseFloat(customer.totalSpent) > 500 ? 'VIP' : 
+                     parseFloat(customer.totalSpent) > 200 ? 'Fidèle' : 
+                     parseFloat(customer.totalSpent) > 50 ? 'Régulier' : 'Nouveau',
+        points: Math.floor(parseFloat(customer.totalSpent) / 10)
+      }));
+      res.json(loyaltyData);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des données de fidélité" });
+    }
+  });
+
+  app.get("/api/admin/loyalty/rewards", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const rewards = [
+        { id: 1, name: "Café gratuit", pointsRequired: 50, available: true },
+        { id: 2, name: "Réduction 10%", pointsRequired: 100, available: true },
+        { id: 3, name: "Pâtisserie gratuite", pointsRequired: 75, available: true },
+        { id: 4, name: "Menu complet gratuit", pointsRequired: 200, available: true },
+        { id: 5, name: "Réduction 20%", pointsRequired: 150, available: true },
+        { id: 6, name: "Cadeau VIP", pointsRequired: 300, available: true }
+      ];
+      res.json(rewards);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des récompenses" });
+    }
+  });
+
+  app.get("/api/admin/loyalty/stats", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const customers = await storage.getCustomers();
+      const stats = {
+        totalCustomers: customers.length,
+        vipCount: customers.filter(c => parseFloat(c.totalSpent) > 500).length,
+        fideleCount: customers.filter(c => parseFloat(c.totalSpent) > 200 && parseFloat(c.totalSpent) <= 500).length,
+        regulierCount: customers.filter(c => parseFloat(c.totalSpent) > 50 && parseFloat(c.totalSpent) <= 200).length,
+        nouveauCount: customers.filter(c => parseFloat(c.totalSpent) <= 50).length,
+        averageSpent: customers.reduce((sum, c) => sum + parseFloat(c.totalSpent), 0) / customers.length
+      };
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques de fidélité" });
     }
   });
 

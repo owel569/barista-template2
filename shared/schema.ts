@@ -442,7 +442,7 @@ export const insertEmployeeSchema = createInsertSchema(employees).pick({
   email: z.string().email("Email invalide"),
   firstName: z.string().min(2, "Prénom requis"),
   lastName: z.string().min(2, "Nom requis"),
-  phone: z.string().regex(/^(\+\d{1,3}[-.\s]?)?\d{10,14}$/, "Format invalide. Ex: +212 6 12 34 56 78"),
+  phone: z.string().min(8, "Téléphone requis (minimum 8 chiffres)"),
   position: z.string().min(2, "Poste requis"),
   department: z.string().min(2, "Département requis"),
   salary: z.string().min(1, "Salaire requis"),
