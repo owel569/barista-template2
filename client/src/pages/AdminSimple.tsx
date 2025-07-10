@@ -54,7 +54,7 @@ import WorkSchedule from '@/components/admin/work-schedule';
 import AccountingSystem from '@/components/admin/accounting-system';
 import BackupSystem from '@/components/admin/backup-system';
 import ReportsSystem from '@/components/admin/reports-system';
-import CalendarSystem from '@/components/admin/calendar-system';
+import CalendarSystem from '@/components/admin/calendar-system-complete';
 import DragDropSystem from '@/components/admin/drag-drop-system';
 import NotificationsSystem from '@/components/admin/notifications-system';
 import SystemMonitoring from '@/components/admin/system-monitoring';
