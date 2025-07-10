@@ -286,7 +286,7 @@ export default function DashboardMain() {
           <CardContent>
             <div className="text-2xl font-bold">{stats?.vipCustomers || 0}</div>
             <p className="text-xs text-gray-500">
-              > 500€ dépensés
+              &gt; 500€ dépensés
             </p>
           </CardContent>
         </Card>
