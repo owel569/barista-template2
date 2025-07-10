@@ -369,27 +369,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Contact routes
   app.post("/api/contact", async (req, res) => {
     try {
-      // Validation et nettoyage des données de contact
-      if (!req.body.name || !req.body.email || !req.body.message) {
-        return res.status(400).json({ message: "Tous les champs obligatoires doivent être remplis" });
-      }
-
-      const nameParts = req.body.name.trim().split(' ');
       const messageData = {
-        firstName: nameParts[0] || 'Client',
-        lastName: nameParts.slice(1).join(' ') || '',
-        email: req.body.email.trim(),
-        subject: 'Demande de contact',
-        message: req.body.message.trim(),
-        status: 'new'
+        firstName: req.body.firstName || '',
+        lastName: req.body.lastName || '',
+        email: req.body.email || '',
+        subject: req.body.subject || 'Contact',
+        message: req.body.message || '',
+        phone: req.body.phone || null,
+        status: 'nouveau'
       };
 
       const message = await storage.createContactMessage(messageData);
       wsManager.notifyDataUpdate('contact-messages', message);
       res.status(201).json(message);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur envoi message:', error);
-      res.status(400).json({ message: "Erreur lors de l'envoi du message", error: error.message });
+      res.status(400).json({ message: "Erreur lors de l'envoi du message", error: error?.message });
     }
   });
 

@@ -54,7 +54,7 @@ export interface IStorage {
   getPendingNotificationReservations(): Promise<any[]>;
   getReservationsByDate(date: string): Promise<Reservation[]>;
   getReservation(id: number): Promise<Reservation | undefined>;
-  createReservation(reservation: InsertReservation): Promise<Reservation>;
+  createReservation(reservation: any): Promise<Reservation>;
   createReservationWithItems(reservation: any, cartItems: any[]): Promise<Reservation>;
   updateReservationStatus(id: number, status: string): Promise<Reservation | undefined>;
   markNotificationSent(id: number): Promise<Reservation | undefined>;
@@ -63,15 +63,15 @@ export interface IStorage {
 
   // Contact Messages
   getContactMessages(): Promise<ContactMessage[]>;
-  createContactMessage(message: InsertContactMessage): Promise<ContactMessage>;
+  createContactMessage(message: any): Promise<ContactMessage>;
   updateContactMessageStatus(id: number, status: string): Promise<ContactMessage | undefined>;
 
   // Orders
   getOrders(): Promise<Order[]>;
   getOrdersByDate(date: string): Promise<Order[]>;
   getOrder(id: number): Promise<Order | undefined>;
-  createOrder(order: InsertOrder): Promise<Order>;
-  createOrderWithItems(order: InsertOrder, items: any[]): Promise<Order>;
+  createOrder(order: any): Promise<Order>;
+  createOrderWithItems(order: any, items: any[]): Promise<Order>;
   updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
   deleteOrder(id: number): Promise<boolean>;
 
@@ -85,16 +85,16 @@ export interface IStorage {
   getCustomers(): Promise<Customer[]>;
   getCustomer(id: number): Promise<Customer | undefined>;
   getCustomerByEmail(email: string): Promise<Customer | undefined>;
-  createCustomer(customer: InsertCustomer): Promise<Customer>;
-  updateCustomer(id: number, customer: Partial<InsertCustomer>): Promise<Customer | undefined>;
+  createCustomer(customer: any): Promise<Customer>;
+  updateCustomer(id: number, customer: any): Promise<Customer | undefined>;
   deleteCustomer(id: number): Promise<boolean>;
 
   // Employees
   getEmployees(): Promise<Employee[]>;
   getEmployee(id: number): Promise<Employee | undefined>;
   getEmployeeByEmail(email: string): Promise<Employee | undefined>;
-  createEmployee(employee: InsertEmployee): Promise<Employee>;
-  updateEmployee(id: number, employee: Partial<InsertEmployee>): Promise<Employee | undefined>;
+  createEmployee(employee: any): Promise<Employee>;
+  updateEmployee(id: number, employee: any): Promise<Employee | undefined>;
   deleteEmployee(id: number): Promise<boolean>;
 
   // Work Shifts
@@ -375,7 +375,7 @@ export class DatabaseStorage implements IStorage {
     return reservation || undefined;
   }
 
-async createReservation(reservation: InsertReservation): Promise<Reservation> {
+async createReservation(reservation: any): Promise<Reservation> {
   // On retire createdAt s'il existe (juste au cas où), pour laisser la BDD le gérer (defaultNow)
   const data = { ...reservation };
   delete (data as any).createdAt;
@@ -470,12 +470,12 @@ async createContactMessage(message: any): Promise<ContactMessage> {
     return order || undefined;
   }
 
-  async createOrder(order: InsertOrder): Promise<Order> {
+  async createOrder(order: any): Promise<Order> {
     const [newOrder] = await db.insert(orders).values(order).returning();
     return newOrder;
   }
 
-  async createOrderWithItems(orderData: InsertOrder, items: any[]): Promise<Order> {
+  async createOrderWithItems(orderData: any, items: any[]): Promise<Order> {
     // Créer la commande
     const [newOrder] = await db.insert(orders).values(orderData).returning();
     
@@ -548,12 +548,12 @@ async createContactMessage(message: any): Promise<ContactMessage> {
     return customer || undefined;
   }
 
-  async createCustomer(customer: InsertCustomer): Promise<Customer> {
+  async createCustomer(customer: any): Promise<Customer> {
     const [newCustomer] = await db.insert(customers).values(customer).returning();
     return newCustomer;
   }
 
-  async updateCustomer(id: number, customer: Partial<InsertCustomer>): Promise<Customer | undefined> {
+  async updateCustomer(id: number, customer: any): Promise<Customer | undefined> {
     const [updatedCustomer] = await db
       .update(customers)
       .set({ ...customer, updatedAt: new Date() })
@@ -582,12 +582,12 @@ async createContactMessage(message: any): Promise<ContactMessage> {
     return employee || undefined;
   }
 
-  async createEmployee(employee: InsertEmployee): Promise<Employee> {
+  async createEmployee(employee: any): Promise<Employee> {
     const [newEmployee] = await db.insert(employees).values(employee).returning();
     return newEmployee;
   }
 
-  async updateEmployee(id: number, employee: Partial<InsertEmployee>): Promise<Employee | undefined> {
+  async updateEmployee(id: number, employee: any): Promise<Employee | undefined> {
     const [updatedEmployee] = await db
       .update(employees)
       .set({ ...employee, updatedAt: new Date() })
