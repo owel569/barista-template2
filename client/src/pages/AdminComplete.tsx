@@ -45,7 +45,7 @@ export default function AdminComplete() {
   const [user, setUser] = useState<any>(null);
 
   const { permissions, isLoading, hasPermission, isDirecteur } = usePermissions();
-  const { isConnected, notifications, refreshNotifications } = useWebSocket();
+  const { isConnected, notifications } = useWebSocket();
 
   useEffect(() => {
     // Vérifier l'authentification
@@ -63,10 +63,7 @@ export default function AdminComplete() {
       console.error('Token invalide:', error);
       navigate('/login');
     }
-
-    // Rafraîchir les notifications
-    refreshNotifications();
-  }, [navigate, refreshNotifications]);
+  }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');

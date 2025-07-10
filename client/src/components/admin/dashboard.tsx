@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useWebSocket } from '@/hooks/useWebSocket';
 import { 
   Calendar, 
   ShoppingCart, 
@@ -16,7 +15,7 @@ import {
   Coffee,
   Star
 } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 
@@ -26,38 +25,22 @@ interface DashboardStats {
   activeOrders: number;
   occupancyRate: number;
   reservationStatus: Array<{ status: string; count: number; }>;
-  dailyReservations: Array<{ date: string; count: number; }>;
-}
-
-interface DashboardProps {
-  userRole: 'directeur' | 'employe';
 }
 
 const COLORS = ['#f59e0b', '#3b82f6', '#10b981', '#ef4444', '#8b5cf6'];
 
-export default function Dashboard({ userRole }: DashboardProps) {
-  // Initialiser WebSocket pour les notifications temps réel
-  const { isConnected } = useWebSocket();
-  
+export default function Dashboard() {
   const [stats, setStats] = useState<DashboardStats>({
     todayReservations: 0,
     monthlyRevenue: 0,
     activeOrders: 0,
     occupancyRate: 0,
-    reservationStatus: [],
-    dailyReservations: []
+    reservationStatus: []
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchDashboardStats();
-    
-    // Actualisation automatique toutes les 10 secondes
-    const interval = setInterval(() => {
-      fetchDashboardStats();
-    }, 10000);
-    
-    return () => clearInterval(interval);
   }, []);
 
   const fetchDashboardStats = async () => {
@@ -70,8 +53,7 @@ export default function Dashboard({ userRole }: DashboardProps) {
         revenueRes,
         ordersRes,
         occupancyRes,
-        statusRes,
-        dailyRes
+        statusRes
       ] = await Promise.all([
         fetch('/api/admin/stats/today-reservations', {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -87,19 +69,15 @@ export default function Dashboard({ userRole }: DashboardProps) {
         }),
         fetch('/api/admin/stats/reservation-status', {
           headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('/api/admin/stats/daily-reservations', {
-          headers: { 'Authorization': `Bearer ${token}` }
         })
       ]);
 
-      const [todayData, revenueData, ordersData, occupancyData, statusData, dailyData] = await Promise.all([
+      const [todayData, revenueData, ordersData, occupancyData, statusData] = await Promise.all([
         todayRes.json(),
         revenueRes.json(),
         ordersRes.json(),
         occupancyRes.json(),
-        statusRes.json(),
-        dailyRes.json()
+        statusRes.json()
       ]);
 
       setStats({
@@ -107,8 +85,7 @@ export default function Dashboard({ userRole }: DashboardProps) {
         monthlyRevenue: revenueData.revenue || 0,
         activeOrders: ordersData.count || 0,
         occupancyRate: occupancyData.rate || 0,
-        reservationStatus: statusData || [],
-        dailyReservations: dailyData || []
+        reservationStatus: statusData || []
       });
     } catch (error) {
       console.error('Erreur lors du chargement des statistiques:', error);
@@ -123,11 +100,8 @@ export default function Dashboard({ userRole }: DashboardProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[1, 2, 3, 4].map((i) => (
             <Card key={i} className="animate-pulse">
-              <CardHeader className="pb-3">
-                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-              </CardHeader>
-              <CardContent>
-                <div className="h-8 bg-gray-200 rounded w-1/2"></div>
+              <CardContent className="p-6">
+                <div className="h-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
               </CardContent>
             </Card>
           ))}
@@ -138,187 +112,216 @@ export default function Dashboard({ userRole }: DashboardProps) {
 
   return (
     <div className="p-6 space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
             Tableau de bord
           </h2>
           <p className="text-gray-600 dark:text-gray-400">
-            Vue d'ensemble des activités du café
+            Vue d'ensemble de l'activité du café
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400">
-            {userRole === 'directeur' ? 'Directeur' : 'Employé'}
-          </Badge>
-          <Badge variant={isConnected ? 'secondary' : 'destructive'} className="text-xs">
-            {isConnected ? '🟢 En ligne' : '🔴 Hors ligne'}
-          </Badge>
-        </div>
+        <Button onClick={fetchDashboardStats} variant="outline" size="sm">
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Actualiser
+        </Button>
       </div>
 
-      {/* Stats Cards */}
+      {/* Statistiques principales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Réservations Aujourd'hui</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.todayReservations}</div>
-            <p className="text-xs text-muted-foreground">
-              Nouvelles réservations
-            </p>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  Réservations aujourd'hui
+                </p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                  {stats.todayReservations}
+                </p>
+              </div>
+              <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-full">
+                <Calendar className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              </div>
+            </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Chiffre d'Affaires</CardTitle>
-            <Euro className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.monthlyRevenue.toFixed(2)}€</div>
-            <p className="text-xs text-muted-foreground">
-              Ce mois-ci
-            </p>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  Chiffre d'affaires mensuel
+                </p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                  {stats.monthlyRevenue}€
+                </p>
+              </div>
+              <div className="p-3 bg-green-100 dark:bg-green-900/20 rounded-full">
+                <Euro className="h-6 w-6 text-green-600 dark:text-green-400" />
+              </div>
+            </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Commandes Actives</CardTitle>
-            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.activeOrders}</div>
-            <p className="text-xs text-muted-foreground">
-              En préparation
-            </p>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  Commandes actives
+                </p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                  {stats.activeOrders}
+                </p>
+              </div>
+              <div className="p-3 bg-amber-100 dark:bg-amber-900/20 rounded-full">
+                <ShoppingCart className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+              </div>
+            </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Taux d'Occupation</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.occupancyRate.toFixed(1)}%</div>
-            <p className="text-xs text-muted-foreground">
-              Aujourd'hui
-            </p>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  Taux d'occupation
+                </p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                  {stats.occupancyRate}%
+                </p>
+              </div>
+              <div className="p-3 bg-purple-100 dark:bg-purple-900/20 rounded-full">
+                <TrendingUp className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+              </div>
+            </div>
+            <div className="mt-3">
+              <Progress value={stats.occupancyRate} className="h-2" />
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Charts */}
+      {/* Graphiques */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Reservation Status Pie Chart */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5" />
-              Statut des Réservations
+              <CheckCircle className="h-5 w-5 text-green-600" />
+              Répartition des réservations
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={stats.reservationStatus}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="count"
-                >
-                  {stats.reservationStatus.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={stats.reservationStatus}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ status, count }) => `${status}: ${count}`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="count"
+                  >
+                    {stats.reservationStatus.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
 
-        {/* Daily Reservations Bar Chart */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <BarChart className="h-5 w-5" />
-              Réservations (7 derniers jours)
+              <Bell className="h-5 w-5 text-amber-600" />
+              Activité récente
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={stats.dailyReservations}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="count" fill="#f59e0b" name="Réservations" />
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <Calendar className="h-5 w-5 text-blue-600" />
+                <div>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">
+                    Nouvelle réservation
+                  </p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    Table 4 - 19h30
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <ShoppingCart className="h-5 w-5 text-green-600" />
+                <div>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">
+                    Commande terminée
+                  </p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    2 cappuccinos, 1 croissant
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+                <Users className="h-5 w-5 text-amber-600" />
+                <div>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">
+                    Nouveau client
+                  </p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    Inscription programme fidélité
+                  </p>
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Quick Actions */}
+      {/* Alertes et notifications */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Clock className="h-5 w-5" />
-            Actions Rapides
+            <AlertCircle className="h-5 w-5 text-red-600" />
+            Alertes importantes
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-              <div className="flex items-center gap-2 mb-2">
-                <Calendar className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                <h4 className="font-medium">Réservations</h4>
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Gérer les réservations du jour
-              </p>
-            </div>
-            
-            <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-              <div className="flex items-center gap-2 mb-2">
-                <ShoppingCart className="h-4 w-4 text-green-600 dark:text-green-400" />
-                <h4 className="font-medium">Commandes</h4>
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Suivre les commandes actives
-              </p>
-            </div>
-            
-            <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-              <div className="flex items-center gap-2 mb-2">
-                <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                <h4 className="font-medium">Clients</h4>
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Base de données clients
-              </p>
-            </div>
-            
-            {userRole === 'directeur' && (
-              <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <AlertCircle className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-                  <h4 className="font-medium">Paramètres</h4>
-                </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Configuration du système
+          <div className="space-y-3">
+            <div className="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+              <AlertCircle className="h-5 w-5 text-red-600" />
+              <div>
+                <p className="text-sm font-medium text-red-900 dark:text-red-100">
+                  Stock faible
+                </p>
+                <p className="text-xs text-red-600 dark:text-red-400">
+                  2 articles en rupture de stock
                 </p>
               </div>
-            )}
+            </div>
+            
+            <div className="flex items-center gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+              <Clock className="h-5 w-5 text-amber-600" />
+              <div>
+                <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
+                  Réservations en attente
+                </p>
+                <p className="text-xs text-amber-600 dark:text-amber-400">
+                  3 réservations nécessitent une confirmation
+                </p>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
