@@ -36,7 +36,9 @@ export default function LoginSimple() {
       if (response.ok) {
         localStorage.setItem('auth_token', data.token);
         localStorage.setItem('auth_user', JSON.stringify(data.user));
-        navigate('/admin');
+        
+        // Forcer le rechargement de la page pour s'assurer que le contexte est mis à jour
+        window.location.href = '/admin';
       } else {
         setError(data.message || 'Erreur de connexion');
       }

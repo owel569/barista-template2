@@ -344,12 +344,33 @@ const AdminPro: React.FC = () => {
 
   useEffect(() => {
     if (!user) {
-      setLocation('/login');
+      // Vérifier d'abord le localStorage avant de rediriger
+      const savedToken = localStorage.getItem('auth_token');
+      const savedUser = localStorage.getItem('auth_user');
+      
+      if (!savedToken || !savedUser) {
+        setLocation('/login');
+      }
     }
   }, [user, setLocation]);
 
+  // Afficher un loading pendant la vérification de l'authentification
   if (!user) {
-    return null;
+    const savedToken = localStorage.getItem('auth_token');
+    const savedUser = localStorage.getItem('auth_user');
+    
+    if (!savedToken || !savedUser) {
+      return null;
+    }
+    
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-amber-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Chargement de l'interface admin...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
