@@ -51,6 +51,9 @@ import WorkSchedule from '@/components/admin/work-schedule';
 import AccountingSystem from '@/components/admin/accounting-system';
 import BackupSystem from '@/components/admin/backup-system';
 import ReportsSystem from '@/components/admin/reports-system';
+import CalendarSystem from '@/components/admin/calendar-system';
+import DragDropSystem from '@/components/admin/drag-drop-system';
+import NotificationsSystem from '@/components/admin/notifications-system';
 
 interface User {
   id: number;
@@ -190,7 +193,10 @@ export default function AdminSimple() {
         { icon: Clock, label: 'Planning', section: 'schedule', module: 'schedule' },
         { icon: Database, label: 'Comptabilité', section: 'accounting', module: 'accounting' },
         { icon: Database, label: 'Sauvegardes', section: 'backups', module: 'backups' },
-        { icon: FileText, label: 'Rapports', section: 'reports', module: 'reports' }
+        { icon: FileText, label: 'Rapports', section: 'reports', module: 'reports' },
+        { icon: Calendar, label: 'Calendrier', section: 'calendar', module: 'calendar' },
+        { icon: Bell, label: 'Notifications', section: 'notifications', module: 'notifications' },
+        { icon: Settings, label: 'Glisser-Déposer', section: 'dragdrop', module: 'dragdrop' }
       );
     }
 
@@ -217,6 +223,9 @@ export default function AdminSimple() {
       case 'accounting': return hasPermission('employees', 'view') ? <AccountingSystem userRole={user.role} /> : <div>Accès non autorisé</div>;
       case 'backups': return hasPermission('employees', 'view') ? <BackupSystem userRole={user.role} /> : <div>Accès non autorisé</div>;
       case 'reports': return hasPermission('employees', 'view') ? <ReportsSystem userRole={user.role} /> : <div>Accès non autorisé</div>;
+      case 'calendar': return hasPermission('employees', 'view') ? <CalendarSystem userRole={user.role} /> : <div>Accès non autorisé</div>;
+      case 'notifications': return hasPermission('employees', 'view') ? <NotificationsSystem userRole={user.role} /> : <div>Accès non autorisé</div>;
+      case 'dragdrop': return hasPermission('employees', 'view') ? <DragDropSystem userRole={user.role} /> : <div>Accès non autorisé</div>;
       default: return <Dashboard />;
     }
   };

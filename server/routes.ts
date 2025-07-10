@@ -1406,5 +1406,235 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Calendar management routes
+  app.get("/api/admin/calendar/events", authenticateToken, async (req, res) => {
+    try {
+      const events = [
+        {
+          id: 1,
+          title: "Réunion équipe",
+          description: "Réunion hebdomadaire de l'équipe",
+          start_time: new Date().toISOString(),
+          end_time: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+          type: "meeting",
+          attendees: "Alice, Bob, Charlie",
+          location: "Salle de réunion",
+          priority: "medium",
+          created_by: 1,
+          created_at: new Date().toISOString()
+        },
+        {
+          id: 2,
+          title: "Formation service",
+          description: "Formation sur les nouveaux produits",
+          start_time: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+          end_time: new Date(Date.now() + 26 * 60 * 60 * 1000).toISOString(),
+          type: "event",
+          attendees: "Toute l'équipe",
+          location: "Café principal",
+          priority: "high",
+          created_by: 1,
+          created_at: new Date().toISOString()
+        }
+      ];
+      res.json(events);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des événements" });
+    }
+  });
+
+  app.post("/api/admin/calendar/events", authenticateToken, async (req, res) => {
+    try {
+      const eventData = req.body;
+      const newEvent = {
+        id: Date.now(),
+        ...eventData,
+        created_at: new Date().toISOString()
+      };
+      wsManager.notifyDataUpdate('calendar-events', newEvent);
+      res.json(newEvent);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la création de l'événement" });
+    }
+  });
+
+  app.put("/api/admin/calendar/events/:id", authenticateToken, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updateData = req.body;
+      const updatedEvent = { id, ...updateData };
+      wsManager.notifyDataUpdate('calendar-events', updatedEvent);
+      res.json(updatedEvent);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la modification de l'événement" });
+    }
+  });
+
+  app.delete("/api/admin/calendar/events/:id", authenticateToken, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      wsManager.notifyDataUpdate('calendar-events', { id, deleted: true });
+      res.json({ message: "Événement supprimé avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la suppression de l'événement" });
+    }
+  });
+
+  // Drag and drop routes
+  app.get("/api/admin/dashboard/widgets", authenticateToken, async (req, res) => {
+    try {
+      const widgets = [
+        {
+          id: "widget-1",
+          title: "Réservations aujourd'hui",
+          type: "reservations",
+          position: 0,
+          visible: true,
+          size: "medium",
+          config: {}
+        },
+        {
+          id: "widget-2",
+          title: "Revenus du mois",
+          type: "revenue",
+          position: 1,
+          visible: true,
+          size: "large",
+          config: {}
+        },
+        {
+          id: "widget-3",
+          title: "Commandes en cours",
+          type: "orders",
+          position: 2,
+          visible: true,
+          size: "small",
+          config: {}
+        },
+        {
+          id: "widget-4",
+          title: "Clients actifs",
+          type: "customers",
+          position: 3,
+          visible: true,
+          size: "medium",
+          config: {}
+        }
+      ];
+      res.json(widgets);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des widgets" });
+    }
+  });
+
+  app.post("/api/admin/dashboard/reorder", authenticateToken, async (req, res) => {
+    try {
+      const { widgets } = req.body;
+      wsManager.notifyDataUpdate('dashboard-widgets', widgets);
+      res.json({ message: "Ordre des widgets sauvegardé" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la sauvegarde" });
+    }
+  });
+
+  app.post("/api/admin/menu/reorder", authenticateToken, async (req, res) => {
+    try {
+      const { items } = req.body;
+      wsManager.notifyDataUpdate('menu-items', items);
+      res.json({ message: "Ordre du menu sauvegardé" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la sauvegarde" });
+    }
+  });
+
+  // Notifications management routes
+  app.get("/api/admin/notifications", authenticateToken, async (req, res) => {
+    try {
+      const notifications = [
+        {
+          id: 1,
+          type: "reservation",
+          title: "Nouvelle réservation",
+          message: "Réservation pour 4 personnes ce soir",
+          read: false,
+          priority: "high",
+          createdAt: new Date().toISOString(),
+          data: { reservationId: 123 }
+        },
+        {
+          id: 2,
+          type: "order",
+          title: "Commande en attente",
+          message: "Commande #456 en attente de préparation",
+          read: false,
+          priority: "medium",
+          createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+          data: { orderId: 456 }
+        }
+      ];
+      res.json(notifications);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des notifications" });
+    }
+  });
+
+  app.put("/api/admin/notifications/:id/read", authenticateToken, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      res.json({ message: "Notification marquée comme lue" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour" });
+    }
+  });
+
+  app.put("/api/admin/notifications/mark-all-read", authenticateToken, async (req, res) => {
+    try {
+      res.json({ message: "Toutes les notifications marquées comme lues" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour" });
+    }
+  });
+
+  app.delete("/api/admin/notifications/:id", authenticateToken, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      res.json({ message: "Notification supprimée" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la suppression" });
+    }
+  });
+
+  // Notifications templates routes
+  app.get("/api/admin/notifications/templates", authenticateToken, async (req, res) => {
+    try {
+      const templates = [
+        {
+          id: 1,
+          name: "Nouvelle réservation",
+          type: "reservation",
+          subject: "Nouvelle réservation reçue",
+          content: "Une nouvelle réservation a été effectuée pour {{date}} à {{time}}",
+          active: true,
+          channels: ["email", "push"]
+        },
+        {
+          id: 2,
+          name: "Commande prête",
+          type: "order",
+          subject: "Votre commande est prête",
+          content: "Votre commande {{orderNumber}} est prête à être récupérée",
+          active: true,
+          channels: ["sms", "push"]
+        }
+      ];
+      res.json(templates);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des modèles" });
+    }
+  });
+
+  // Setup WebSocket server
+  wsManager.initialize(server);
+
   return server;
 }
