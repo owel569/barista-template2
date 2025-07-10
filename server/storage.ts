@@ -379,6 +379,7 @@ async createReservation(reservation: InsertReservation): Promise<Reservation> {
   // On retire createdAt s'il existe (juste au cas où), pour laisser la BDD le gérer (defaultNow)
   const data = { ...reservation };
   delete (data as any).createdAt;
+  console.log('Données reçues pour insertion réservation:', data);
   const [newReservation] = await db.insert(reservations).values(data).returning();
   return newReservation;
 }
@@ -434,6 +435,7 @@ async createContactMessage(message: any): Promise<ContactMessage> {
     status: 'nouveau'
   };
   
+  console.log('Données reçues pour insertion message:', data);
   const [newMessage] = await db.insert(contactMessages).values(data).returning();
   return newMessage;
 }

@@ -268,11 +268,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Reservation routes
   app.post("/api/reservations", async (req, res) => {
     try {
-      const reservationData = insertReservationSchema.parse(req.body);
       const { cartItems, ...reservation } = req.body;
+      
+      // Validation et nettoyage des données de réservation
+      if (!reservation.firstName || !reservation.lastName || !reservation.email || !reservation.phone || !reservation.date || !reservation.time) {
+        return res.status(400).json({ message: "Tous les champs obligatoires doivent être remplis" });
+      }
+
+      const reservationData = {
+        customerName: `${reservation.firstName.trim()} ${reservation.lastName.trim()}`,
+        customerEmail: reservation.email.trim(),
+        customerPhone: reservation.phone.trim(),
+        date: reservation.date,
+        time: reservation.time,
+        guests: parseInt(reservation.guests) || 1,
+        status: 'pending',
+        specialRequests: reservation.specialRequests || null,
+        tableId: reservation.tableId || null
+      };
 
       if (cartItems && cartItems.length > 0) {
-        const result = await storage.createReservationWithItems(reservation, cartItems);
+        const result = await storage.createReservationWithItems(reservationData, cartItems);
         wsManager.notifyDataUpdate('reservations', result);
         res.status(201).json(result);
       } else {
@@ -281,7 +297,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.status(201).json(result);
       }
     } catch (error) {
-      res.status(400).json({ message: "Erreur lors de la création de la réservation" });
+      console.error('Erreur création réservation:', error);
+      res.status(400).json({ message: "Erreur lors de la création de la réservation", error: error.message });
     }
   });
 
@@ -343,12 +360,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Contact routes
   app.post("/api/contact", async (req, res) => {
     try {
-      const messageData = insertContactMessageSchema.parse(req.body);
+      // Validation et nettoyage des données de contact
+      if (!req.body.name || !req.body.email || !req.body.message) {
+        return res.status(400).json({ message: "Tous les champs obligatoires doivent être remplis" });
+      }
+
+      const nameParts = req.body.name.trim().split(' ');
+      const messageData = {
+        firstName: nameParts[0] || 'Client',
+        lastName: nameParts.slice(1).join(' ') || '',
+        email: req.body.email.trim(),
+        subject: 'Demande de contact',
+        message: req.body.message.trim(),
+        status: 'new'
+      };
+
       const message = await storage.createContactMessage(messageData);
       wsManager.notifyDataUpdate('contact-messages', message);
       res.status(201).json(message);
     } catch (error) {
-      res.status(400).json({ message: "Erreur lors de l'envoi du message" });
+      console.error('Erreur envoi message:', error);
+      res.status(400).json({ message: "Erreur lors de l'envoi du message", error: error.message });
     }
   });
 
