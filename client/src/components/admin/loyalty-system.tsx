@@ -71,12 +71,43 @@ export default function LoyaltySystem() {
           statsRes.json()
         ]);
         
-        setCustomers(customersData);
+        // Assurer que les données numériques sont correctement formatées
+        const processedCustomers = customersData.map((customer: any) => ({
+          ...customer,
+          points: Number(customer.points) || 0,
+          totalSpent: Number(customer.totalSpent) || 0
+        }));
+        
+        const processedStats = statsData ? {
+          ...statsData,
+          totalCustomers: Number(statsData.totalCustomers) || 0,
+          totalPointsIssued: Number(statsData.totalPointsIssued) || 0,
+          totalRewardsRedeemed: Number(statsData.totalRewardsRedeemed) || 0,
+          averagePointsPerCustomer: Number(statsData.averagePointsPerCustomer) || 0
+        } : {
+          totalCustomers: 0,
+          totalPointsIssued: 0,
+          totalRewardsRedeemed: 0,
+          averagePointsPerCustomer: 0,
+          levelDistribution: {}
+        };
+        
+        setCustomers(processedCustomers);
         setRewards(rewardsData);
-        setStats(statsData);
+        setStats(processedStats);
       }
     } catch (error) {
       console.error('Erreur lors du chargement du système de fidélité:', error);
+      // Définir des valeurs par défaut en cas d'erreur
+      setCustomers([]);
+      setRewards([]);
+      setStats({
+        totalCustomers: 0,
+        totalPointsIssued: 0,
+        totalRewardsRedeemed: 0,
+        averagePointsPerCustomer: 0,
+        levelDistribution: {}
+      });
     } finally {
       setLoading(false);
     }
