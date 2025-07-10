@@ -1,235 +1,122 @@
-import { useEffect, useRef, useCallback } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/hooks/use-toast';
+import { useEffect, useRef, useState } from 'react';
 
-export interface WebSocketMessage {
-  type: 'notification' | 'update' | 'refresh';
+interface WebSocketMessage {
+  type: string;
   data: any;
-  timestamp: string;
 }
 
-let globalWebSocket: WebSocket | null = null;
-let connectionAttempted = false;
-let isConnecting = false;
-
 export function useWebSocket() {
-  const wsRef = useRef<WebSocket | null>(null);
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const mountedRef = useRef(true);
+  const ws = useRef<WebSocket | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const [notifications, setNotifications] = useState({
+    pendingReservations: 0,
+    newMessages: 0,
+    pendingOrders: 0,
+    lowStockItems: 0
+  });
 
-  const connect = useCallback(() => {
-    // Éviter les connexions multiples
-    if (isConnecting || (wsRef.current && wsRef.current.readyState === WebSocket.CONNECTING)) {
-      return;
-    }
-
-    if (globalWebSocket && globalWebSocket.readyState === WebSocket.OPEN) {
-      wsRef.current = globalWebSocket;
-      return;
-    }
-
-    try {
-      isConnecting = true;
-      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-      const wsUrl = `${protocol}//${window.location.host}/ws`;
-      
-      const ws = new WebSocket(wsUrl);
-      wsRef.current = ws;
-      globalWebSocket = ws;
-
-      ws.onopen = () => {
-        if (!mountedRef.current) return;
-        console.log('🔗 Connexion WebSocket établie');
-        isConnecting = false;
-        if (reconnectTimeoutRef.current) {
-          clearTimeout(reconnectTimeoutRef.current);
-          reconnectTimeoutRef.current = null;
-        }
-      };
-
-      ws.onmessage = (event) => {
-        if (!mountedRef.current) return;
-        try {
-          const message: WebSocketMessage = JSON.parse(event.data);
-          handleMessage(message);
-        } catch (error) {
-          console.warn('WebSocket message parsing error:', error);
-        }
-      };
-
-      ws.onclose = () => {
-        isConnecting = false;
-        if (ws === globalWebSocket) {
-          globalWebSocket = null;
-        }
+  useEffect(() => {
+    const connectWebSocket = () => {
+      try {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/ws`;
         
-        // Tentative de reconnexion uniquement si le composant est monté
-        if (mountedRef.current && !reconnectTimeoutRef.current) {
-          reconnectTimeoutRef.current = setTimeout(() => {
-            if (mountedRef.current) {
-              reconnectTimeoutRef.current = null;
-              connect();
+        ws.current = new WebSocket(wsUrl);
+
+        ws.current.onopen = () => {
+          console.log('WebSocket connecté');
+          setIsConnected(true);
+        };
+
+        ws.current.onmessage = (event) => {
+          try {
+            const message: WebSocketMessage = JSON.parse(event.data);
+            
+            switch (message.type) {
+              case 'notification_update':
+                setNotifications(prev => ({
+                  ...prev,
+                  ...message.data
+                }));
+                break;
+              case 'new_reservation':
+                setNotifications(prev => ({
+                  ...prev,
+                  pendingReservations: prev.pendingReservations + 1
+                }));
+                break;
+              case 'new_message':
+                setNotifications(prev => ({
+                  ...prev,
+                  newMessages: prev.newMessages + 1
+                }));
+                break;
+              case 'new_order':
+                setNotifications(prev => ({
+                  ...prev,
+                  pendingOrders: prev.pendingOrders + 1
+                }));
+                break;
+              default:
+                console.log('Message WebSocket non géré:', message);
             }
-          }, 5000);
-        }
-      };
+          } catch (error) {
+            console.error('Erreur parsing WebSocket:', error);
+          }
+        };
 
-      ws.onerror = (error) => {
-        console.warn('WebSocket connection error - this is normal during development');
-        isConnecting = false;
-        if (ws === globalWebSocket) {
-          globalWebSocket = null;
-        }
-      };
-    } catch (error) {
-      console.warn('WebSocket connection failed - this is normal during development');
-      isConnecting = false;
-    }
-  }, []);
+        ws.current.onclose = () => {
+          console.log('WebSocket fermé, reconnexion dans 3s...');
+          setIsConnected(false);
+          setTimeout(connectWebSocket, 3000);
+        };
 
-  const handleMessage = useCallback((message: WebSocketMessage) => {
-    switch (message.type) {
-      case 'notification':
-        handleNotification(message.data);
-        break;
-      case 'update':
-        handleDataUpdate(message.data);
-        break;
-      case 'refresh':
-        handleRefresh(message.data);
-        break;
-    }
-  }, []);
+        ws.current.onerror = (error) => {
+          console.error('Erreur WebSocket:', error);
+          setIsConnected(false);
+        };
+      } catch (error) {
+        console.error('Erreur lors de la connexion WebSocket:', error);
+        setTimeout(connectWebSocket, 3000);
+      }
+    };
 
-  const handleNotification = useCallback((data: any) => {
-    const { type, title, message } = data;
-    
-    // Afficher une notification toast
-    toast({
-      title,
-      description: message,
-      duration: 5000,
-    });
+    connectWebSocket();
 
-    // Invalider les caches appropriés
-    switch (type) {
-      case 'new_reservation':
-        queryClient.invalidateQueries({ queryKey: ['/api/reservations'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/admin/notifications/pending-reservations'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/today-reservations'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/occupancy-rate'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/daily-reservations'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/reservation-status'] });
-        break;
-      case 'new_order':
-        queryClient.invalidateQueries({ queryKey: ['/api/orders'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/admin/notifications/pending-orders'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/active-orders'] });
-        break;
-      case 'new_message':
-        queryClient.invalidateQueries({ queryKey: ['/api/contact/messages'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/admin/notifications/new-messages'] });
-        break;
-    }
-  }, [toast, queryClient]);
-
-  const handleDataUpdate = useCallback((data: any) => {
-    const { type } = data;
-    
-    // Invalider les caches en fonction du type de mise à jour
-    switch (type) {
-      case 'reservations':
-        queryClient.invalidateQueries({ queryKey: ['/api/reservations'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/admin/notifications/pending-reservations'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/today-reservations'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/occupancy-rate'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/daily-reservations'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/reservation-status'] });
-        break;
-      case 'orders':
-        queryClient.invalidateQueries({ queryKey: ['/api/orders'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/admin/notifications/pending-orders'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/active-orders'] });
-        break;
-      case 'customers':
-        queryClient.invalidateQueries({ queryKey: ['/api/admin/customers'] });
-        break;
-      case 'menu':
-        queryClient.invalidateQueries({ queryKey: ['/api/menu/items'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/menu/categories'] });
-        break;
-      case 'employees':
-        queryClient.invalidateQueries({ queryKey: ['/api/employees'] });
-        break;
-      case 'messages':
-        queryClient.invalidateQueries({ queryKey: ['/api/contact/messages'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/admin/notifications/new-messages'] });
-        break;
-    }
-  }, [queryClient]);
-
-  const handleRefresh = useCallback((data: any) => {
-    const { type } = data;
-    
-    if (type === 'stats') {
-      // Rafraîchir toutes les statistiques
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/today-reservations'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/occupancy-rate'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/monthly-revenue'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/active-orders'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/daily-reservations'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/reservation-status'] });
-    }
-  }, [queryClient]);
-
-  const sendMessage = useCallback((message: any) => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify(message));
-    }
-  }, []);
-
-  const disconnect = useCallback(() => {
-    if (reconnectTimeoutRef.current) {
-      clearTimeout(reconnectTimeoutRef.current);
-      reconnectTimeoutRef.current = null;
-    }
-    if (wsRef.current) {
-      wsRef.current.close();
-      wsRef.current = null;
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!connectionAttempted) {
-      connectionAttempted = true;
-      // Délai initial pour éviter les connexions multiples
-      const connectTimeout = setTimeout(() => {
-        if (mountedRef.current) {
-          connect();
-        }
-      }, 500);
-      
-      return () => {
-        clearTimeout(connectTimeout);
-      };
-    }
-  }, [connect]);
-
-  useEffect(() => {
     return () => {
-      mountedRef.current = false;
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-        reconnectTimeoutRef.current = null;
+      if (ws.current) {
+        ws.current.close();
       }
     };
   }, []);
 
+  const sendMessage = (message: WebSocketMessage) => {
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      ws.current.send(JSON.stringify(message));
+    }
+  };
+
+  const refreshNotifications = async () => {
+    try {
+      const response = await fetch('/api/admin/notifications/count', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setNotifications(data);
+      }
+    } catch (error) {
+      console.error('Erreur lors du rafraîchissement des notifications:', error);
+    }
+  };
+
   return {
-    isConnected: wsRef.current?.readyState === WebSocket.OPEN,
+    isConnected,
+    notifications,
     sendMessage,
-    disconnect
+    refreshNotifications
   };
 }

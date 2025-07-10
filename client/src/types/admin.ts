@@ -1,26 +1,12 @@
+// Types centralisés pour l'administration
 export interface User {
   id: number;
   username: string;
+  email?: string;
   role: 'directeur' | 'employe';
-  createdAt: string;
-  lastLogin?: string;
-}
-
-export interface Customer {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone?: string;
-  address?: string;
-  dateOfBirth?: string;
-  preferredContactMethod: 'email' | 'phone' | 'sms';
-  totalSpent: number | string;
-  totalOrders: number;
-  lastVisit?: string;
-  notes?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
+  lastLogin: Date | null;
 }
 
 export interface Employee {
@@ -28,17 +14,85 @@ export interface Employee {
   firstName: string;
   lastName: string;
   email: string;
-  phone?: string;
+  phone: string;
   position: string;
-  department: string;
+  salary: number;
   hireDate: string;
-  salary: number | string;
-  status: 'active' | 'inactive' | 'vacation';
-  emergencyContact?: string;
-  address?: string;
+  status: 'active' | 'inactive';
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface Customer {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  loyaltyPoints?: number;
+  totalSpent?: number;
+  lastVisit?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface MenuItem {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  categoryId: number;
+  available: boolean;
+  imageUrl?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface MenuCategory {
+  id: number;
+  name: string;
+  description?: string;
+  sortOrder?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface Order {
+  id: number;
+  customerId?: number;
+  totalAmount: number;
+  status: 'pending' | 'confirmed' | 'preparing' | 'ready' | 'completed' | 'cancelled';
+  orderDate: string;
   notes?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface Reservation {
+  id: number;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  date: string;
+  time: string;
+  guests: number;
+  tableId?: number;
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  notes?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface ContactMessage {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string;
+  subject: string;
+  message: string;
+  status: 'new' | 'read' | 'replied';
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface WorkShift {
@@ -47,132 +101,135 @@ export interface WorkShift {
   date: string;
   startTime: string;
   endTime: string;
-  shiftType: 'morning' | 'afternoon' | 'evening' | 'night';
-  status: 'scheduled' | 'completed' | 'cancelled';
+  position: string;
   notes?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface MenuItem {
-  id: number;
-  name: string;
-  description: string;
-  price: number | string;
-  categoryId: number;
-  available: boolean;
-  imageUrl?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface MenuCategory {
-  id: number;
-  name: string;
-  description?: string;
-  sortOrder: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Reservation {
-  id: number;
-  customerName: string;
-  customerEmail: string;
-  customerPhone?: string;
-  date: string;
-  time: string;
-  partySize: number;
-  tableId?: number;
-  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
-  specialRequests?: string;
-  preorderTotal?: number | string;
-  notificationSent: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface ContactMessage {
-  id: number;
-  name: string;
-  firstName?: string;
-  lastName?: string;
-  email: string;
-  phone?: string;
-  subject: string;
-  message: string;
-  status: 'new' | 'read' | 'replied';
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Order {
-  id: number;
-  customerId?: number;
-  customerName: string;
-  customerEmail: string;
-  customerPhone?: string;
-  items?: OrderItem[];
-  total?: number | string;
-  totalAmount?: number | string;
-  status: 'pending' | 'preparing' | 'ready' | 'completed' | 'cancelled';
-  orderType: 'dine-in' | 'takeout' | 'delivery';
-  notes?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface OrderItem {
-  id: number;
-  orderId: number;
-  menuItemId: number;
-  menuItemName: string;
-  quantity: number;
-  price: number | string;
-  subtotal: number | string;
-}
-
-export interface Table {
-  id: number;
-  number: string;
-  capacity: number;
-  status: 'available' | 'occupied' | 'reserved' | 'maintenance';
-  location?: string;
-  notes?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface ActivityLog {
   id: number;
   userId: number;
-  username: string;
   action: string;
-  entity: string;
-  entityId?: number;
-  details?: string;
-  timestamp: string;
+  description: string;
+  timestamp: Date;
+  ipAddress?: string;
+  userAgent?: string;
 }
 
-export interface Notification {
-  id: string;
-  type: 'reservation' | 'order' | 'message' | 'system';
-  title: string;
-  message: string;
-  priority: 'low' | 'medium' | 'high';
-  isRead?: boolean;
-  read?: boolean;
-  timestamp?: string;
-  actionUrl?: string;
-  data?: any;
+export interface Permission {
+  id: number;
+  userId: number;
+  module: string;
+  canView: boolean;
+  canCreate: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface NotificationData {
+  pendingReservations: number;
+  newMessages: number;
+  pendingOrders: number;
+  lowStockItems: number;
+}
+
+// Interfaces pour systèmes avancés
+export interface InventoryItem {
+  id: number;
+  name: string;
+  currentStock: number;
+  minStock: number;
+  maxStock: number;
+  unitCost: number;
+  supplier: string;
+  lastRestocked?: string;
+  status: 'ok' | 'low' | 'critical' | 'out';
+}
+
+export interface LoyaltyCustomer {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  loyaltyPoints: number;
+  totalSpent: number;
+  level: 'Nouveau' | 'Régulier' | 'Fidèle' | 'VIP';
+  lastVisit?: string;
+}
+
+export interface LoyaltyReward {
+  id: number;
+  name: string;
+  description: string;
+  pointsCost: number;
+  type: 'discount' | 'free_item' | 'special_offer';
+  value: number;
+  active: boolean;
+}
+
+export interface Transaction {
+  id: number;
+  type: 'income' | 'expense';
+  amount: number;
+  description: string;
+  category: string;
+  date: string;
+  reference?: string;
+}
+
+export interface Backup {
+  id: number;
+  name: string;
+  type: 'auto' | 'manual';
+  size: string;
   createdAt: string;
+  status: 'completed' | 'failed' | 'in_progress';
 }
 
-export interface DashboardStats {
-  todayReservations: number;
-  monthlyRevenue: number;
-  activeOrders: number;
-  occupancyRate: number;
-  reservationStatus: Array<{ status: string; count: number }>;
-  dailyReservations: Array<{ date: string; count: number }>;
+export interface Report {
+  id: number;
+  name: string;
+  type: 'sales' | 'customers' | 'products' | 'financial';
+  period: string;
+  createdAt: string;
+  status: 'completed' | 'generating' | 'failed';
+}
+
+export interface CalendarEvent {
+  id: number;
+  title: string;
+  description?: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  type: 'event' | 'maintenance' | 'meeting' | 'other';
+  employeeId?: number;
+}
+
+export interface Supplier {
+  id: number;
+  name: string;
+  contact: string;
+  email: string;
+  phone: string;
+  address: string;
+  category: string;
+  rating: number;
+  active: boolean;
+}
+
+export interface MaintenanceTask {
+  id: number;
+  equipment: string;
+  description: string;
+  type: 'preventive' | 'corrective' | 'emergency';
+  status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
+  assignedTo?: number;
+  scheduledDate: string;
+  completedDate?: string;
+  notes?: string;
 }

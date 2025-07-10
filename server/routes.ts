@@ -1633,6 +1633,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // APIs pour les notifications en temps réel
+  app.get("/api/admin/notifications/count", authenticateToken, async (req, res) => {
+    try {
+      const [pendingReservations, newMessages, pendingOrders] = await Promise.all([
+        storage.getReservations().then(reservations => 
+          reservations.filter(r => r.status === 'pending').length
+        ),
+        storage.getContactMessages().then(messages => 
+          messages.filter(m => m.status === 'new').length
+        ),
+        storage.getOrders().then(orders => 
+          orders.filter(o => o.status === 'pending').length
+        )
+      ]);
+
+      res.json({
+        pendingReservations,
+        newMessages,
+        pendingOrders,
+        lowStockItems: 2 // Simulation pour l'inventaire
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des notifications" });
+    }
+  });
+
   // Setup WebSocket server
   wsManager.initialize(server);
 
