@@ -58,6 +58,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Authentication routes
   app.post("/api/auth/login", async (req, res) => {
     try {
+      console.log('Tentative de connexion:', req.body);
       const { username, password } = loginSchema.parse(req.body);
       
       // Utilisateurs par défaut si la base de données n'est pas disponible
@@ -72,31 +73,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (error) {
         // Si la base de données n'est pas disponible, utiliser les utilisateurs par défaut
         console.log('Base de données non disponible, utilisation des utilisateurs par défaut');
-        user = defaultUsers.find(u => u.username === username);
-        if (user && user.password === password) {
-          // Authentification réussie avec utilisateur par défaut
-          const token = jwt.sign(
-            { id: user.id, username: user.username, role: user.role },
-            JWT_SECRET,
-            { expiresIn: '24h' }
-          );
-
-          return res.json({
-            token,
-            user: {
-              id: user.id,
-              username: user.username,
-              role: user.role
-            }
-          });
-        }
-        return res.status(401).json({ message: "Identifiants invalides" });
+        console.log('Recherche utilisateur:', username, 'dans les défauts');
+        user = null;
       }
       
+      // Si pas d'utilisateur dans la DB ou erreur DB, vérifier les utilisateurs par défaut
       if (!user) {
-        // Vérifier les utilisateurs par défaut
-        const defaultUser = defaultUsers.find(u => u.username === username && u.password === password);
-        if (defaultUser) {
+        console.log('Vérification utilisateur par défaut:', username);
+        const defaultUser = defaultUsers.find(u => u.username === username);
+        console.log('Utilisateur trouvé:', defaultUser ? 'oui' : 'non');
+        console.log('Mot de passe correct:', defaultUser?.password === password ? 'oui' : 'non');
+        
+        if (defaultUser && defaultUser.password === password) {
           const token = jwt.sign(
             { id: defaultUser.id, username: defaultUser.username, role: defaultUser.role },
             JWT_SECRET,
@@ -115,7 +103,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Identifiants invalides" });
       }
 
-      const isValidPassword = await bcrypt.compare(password, user.password);
+      // Vérifier le mot de passe (soit haché soit en clair pour les tests)
+      let isValidPassword = false;
+      try {
+        isValidPassword = await bcrypt.compare(password, user.password);
+      } catch (error) {
+        // Si le hash fail, vérifier en clair (utilisateurs de test)
+        isValidPassword = (user.password === password);
+      }
+      
       if (!isValidPassword) {
         return res.status(401).json({ message: "Identifiants invalides" });
       }

@@ -1,6 +1,15 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+// Gestionnaire d'erreurs globales pour éviter les promesses non gérées
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Promesse non gérée:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('Exception non gérée:', error);
+});
+
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";

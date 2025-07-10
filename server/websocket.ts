@@ -54,11 +54,15 @@ class WebSocketManager {
       });
 
       // Envoyer un message de bienvenue
-      this.sendToClient(ws, {
-        type: 'notification',
-        data: { message: 'Connexion établie' },
-        timestamp: new Date().toISOString()
-      });
+      try {
+        this.sendToClient(ws, {
+          type: 'notification',
+          data: { message: 'Connexion établie' },
+          timestamp: new Date().toISOString()
+        });
+      } catch (error) {
+        console.error('Erreur envoi message de bienvenue:', error);
+      }
     });
 
     console.log('🚀 Serveur WebSocket initialisé sur /ws');

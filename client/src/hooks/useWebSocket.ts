@@ -27,7 +27,9 @@ export const useWebSocket = () => {
       ws.current.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          handleNotification(data);
+          if (data && data.type) {
+            handleNotification(data);
+          }
         } catch (error) {
           console.error('Erreur parsing message WebSocket:', error);
         }
@@ -55,24 +57,28 @@ export const useWebSocket = () => {
   };
 
   const handleNotification = (data: any) => {
-    const notification: NotificationData = {
-      id: Date.now(),
-      type: data.type || 'system',
-      title: data.title || 'Nouvelle notification',
-      message: data.message || '',
-      read: false,
-      timestamp: new Date(),
-      data: data.data
-    };
+    try {
+      const notification: NotificationData = {
+        id: Date.now(),
+        type: data.data?.type || data.type || 'system',
+        title: data.data?.title || data.title || 'Nouvelle notification',
+        message: data.data?.message || data.message || '',
+        read: false,
+        timestamp: new Date(),
+        data: data.data
+      };
 
-    setNotifications(prev => [notification, ...prev.slice(0, 49)]); // Garder max 50 notifications
+      setNotifications(prev => [notification, ...prev.slice(0, 49)]); // Garder max 50 notifications
 
-    // Afficher toast pour les nouvelles notifications importantes
-    if (['reservation', 'order', 'message'].includes(notification.type)) {
-      toast({
-        title: notification.title,
-        description: notification.message,
-      });
+      // Afficher toast pour les nouvelles notifications importantes
+      if (['new_reservation', 'new_order', 'new_message', 'reservation', 'order', 'message'].includes(notification.type)) {
+        toast({
+          title: notification.title,
+          description: notification.message,
+        });
+      }
+    } catch (error) {
+      console.error('Erreur traitement notification:', error);
     }
   };
 
