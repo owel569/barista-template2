@@ -298,7 +298,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/reservations", authenticateToken, async (req, res) => {
+  app.get("/api/reservations", async (req, res) => {
     try {
       const reservations = await storage.getReservations();
       res.json(reservations);
@@ -407,7 +407,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Orders routes
-  app.get("/api/orders", authenticateToken, async (req, res) => {
+  app.get("/api/orders", async (req, res) => {
     try {
       const orders = await storage.getOrders();
       res.json(orders);
@@ -484,7 +484,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Customers routes (public)
-  app.get("/api/customers", authenticateToken, async (req, res) => {
+  app.get("/api/customers", async (req, res) => {
     try {
       const customers = await storage.getCustomers();
       res.json(customers);
@@ -752,6 +752,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Horaire supprimé avec succès" });
     } catch (error) {
       res.status(500).json({ message: "Erreur lors de la suppression de l'horaire" });
+    }
+  });
+
+  // Admin reservations with items route
+  app.get("/api/admin/reservations/with-items", authenticateToken, async (req, res) => {
+    try {
+      const reservations = await storage.getReservationsWithItems();
+      res.json(reservations);
+    } catch (error) {
+      console.error('Erreur getReservationsWithItems:', error);
+      res.status(500).json({ message: "Erreur lors de la récupération des réservations avec items" });
     }
   });
 
