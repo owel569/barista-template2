@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { wsManager } from "./websocket";
 import { storage } from "./storage";
@@ -21,8 +21,30 @@ import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
+// Extension du type Request pour inclure la propriété user
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: number;
+        username: string;
+        role: string;
+      };
+    }
+  }
+}
+
+// Interfaces typées pour les requêtes authentifiées
+interface AuthenticatedRequest extends Request {
+  user: {
+    id: number;
+    username: string;
+    role: string;
+  };
+}
+
 // Middleware to verify JWT token
-const authenticateToken = (req: any, res: any, next: any) => {
+export function authenticateToken(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
@@ -30,18 +52,19 @@ const authenticateToken = (req: any, res: any, next: any) => {
     return res.status(401).json({ message: 'Token d\'accès requis' });
   }
 
-  jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
-    if (err) {
-      return res.status(403).json({ message: 'Token invalide' });
-    }
-    req.user = user;
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET) as { id: number; username: string; role: string };
+    req.user = decoded;
     next();
-  });
-};
+  } catch (err) {
+    console.log('Token verification failed:', err instanceof Error ? err.message : 'Unknown error');
+    return res.status(403).json({ message: 'Token invalide' });
+  }
+}
 
 // Middleware to check user role
-const requireRole = (role: string) => {
-  return (req: any, res: any, next: any) => {
+export function requireRole(role: string) {
+  return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
       return res.status(401).json({ message: 'Non authentifié' });
     }
@@ -50,7 +73,7 @@ const requireRole = (role: string) => {
     }
     next();
   };
-};
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const server = createServer(app);
