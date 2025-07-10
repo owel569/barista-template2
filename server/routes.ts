@@ -3215,5 +3215,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Setup WebSocket server
   wsManager.initialize(server);
 
+  // Import and use new routes
+  const { deliveryRouter } = await import('./routes/delivery');
+  const { onlineOrdersRouter } = await import('./routes/online-orders');
+  const { userProfileRouter } = await import('./routes/user-profile');
+  const { tablesRouter } = await import('./routes/tables');
+  
+  app.use('/api/deliveries', authenticateToken, deliveryRouter);
+  app.use('/api/orders/online', authenticateToken, onlineOrdersRouter);
+  app.use('/api/user', authenticateToken, userProfileRouter);
+  app.use('/api/tables', authenticateToken, tablesRouter);
+
   return server;
 }

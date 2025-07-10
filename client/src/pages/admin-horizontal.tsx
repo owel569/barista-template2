@@ -60,6 +60,11 @@ import MaintenanceSystem from '@/components/admin/maintenance-system';
 import NotificationsManagement from '@/components/admin/notifications-management';
 import AnalyticsSystem from '@/components/admin/analytics-system';
 import SystemMonitoring from '@/components/admin/system-monitoring';
+import DeliveryTracking from '@/components/delivery-tracking';
+import UserProfile from '@/components/user-profile';
+import AdvancedLoyalty from '@/components/advanced-loyalty';
+import OnlineOrdering from '@/components/online-ordering';
+import TableManagement from '@/components/table-management';
 
 interface User {
   id: number;
@@ -159,6 +164,11 @@ export default function AdminHorizontal() {
         { icon: Bell, label: 'Notifications', section: 'notifications' },
         { icon: BarChart3, label: 'Analyses', section: 'analytics' },
         { icon: Monitor, label: 'Monitoring', section: 'monitoring' },
+        { icon: Truck, label: 'Livraisons', section: 'delivery' },
+        { icon: ShoppingCart, label: 'Commandes Web', section: 'online-orders' },
+        { icon: Star, label: 'Fidélité Avancée', section: 'advanced-loyalty' },
+        { icon: User, label: 'Profil Utilisateur', section: 'user-profile' },
+        { icon: MapPin, label: 'Gestion Tables', section: 'tables' },
         { icon: BarChart3, label: 'Test Complet', section: 'test' },
       ];
     }
@@ -216,6 +226,16 @@ export default function AdminHorizontal() {
         return userRole === 'directeur' ? <AnalyticsSystem userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case 'monitoring':
         return userRole === 'directeur' ? <SystemMonitoring userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+      case 'delivery':
+        return userRole === 'directeur' ? <DeliveryTracking /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+      case 'online-orders':
+        return userRole === 'directeur' ? <OnlineOrdering /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+      case 'advanced-loyalty':
+        return userRole === 'directeur' ? <AdvancedLoyalty /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
+      case 'user-profile':
+        return <UserProfile />;
+      case 'tables':
+        return userRole === 'directeur' ? <TableManagement /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       case 'test':
         return userRole === 'directeur' ? <TestAllFeatures userRole={userRole} /> : <div className="p-6"><h2 className="text-2xl font-bold">Accès non autorisé</h2><p>Module réservé aux directeurs</p></div>;
       default:
