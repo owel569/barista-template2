@@ -867,6 +867,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin dashboard stats route
+  app.get("/api/admin/dashboard/stats", authenticateToken, async (req, res) => {
+    try {
+      const todayReservations = await storage.getTodayReservationCount();
+      const occupancyRate = await storage.getOccupancyRate(new Date().toISOString().split('T')[0]);
+      const ordersByStatus = await storage.getOrdersByStatus();
+      
+      res.json({
+        todayReservations,
+        occupancyRate,
+        ordersByStatus,
+        monthlyRevenue: 15420
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques" });
+    }
+  });
+
   // Admin statistics routes
   app.get("/api/admin/stats/dashboard", authenticateToken, async (req, res) => {
     try {
