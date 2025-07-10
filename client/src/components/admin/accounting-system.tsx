@@ -1,400 +1,497 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { 
-  Euro, 
+  Calculator, 
+  Plus, 
   TrendingUp, 
   TrendingDown, 
-  Plus,
-  Calendar,
-  Filter,
-  Download,
-  Receipt,
-  CreditCard,
-  Wallet,
+  DollarSign,
+  ArrowUpRight,
+  ArrowDownRight,
+  BarChart3,
   PieChart,
-  BarChart3
+  Download,
+  Calendar,
+  Filter
 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { usePermissions } from '@/hooks/usePermissions';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell, BarChart, Bar, Legend } from 'recharts';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
-interface AccountingSystemProps {
-  userRole?: 'directeur' | 'employe';
+interface Transaction {
+  id: number;
+  date: string;
+  type: 'revenue' | 'expense';
+  amount: number;
+  description: string;
+  category: string;
+  reference?: string;
 }
 
-export default function AccountingSystem({ userRole = 'directeur' }: AccountingSystemProps) {
-  const [activeTab, setActiveTab] = useState('transactions');
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [transactionForm, setTransactionForm] = useState({
-    type: 'recette',
-    amount: '',
-    description: '',
-    category: '',
-    date: new Date().toISOString().split('T')[0]
-  });
+interface AccountingSystemProps {
+  userRole: 'directeur' | 'employe';
+}
+
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+
+export default function AccountingSystem({ userRole }: AccountingSystemProps) {
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [transactionType, setTransactionType] = useState<'revenue' | 'expense'>('revenue');
+  const [dateFilter, setDateFilter] = useState('month');
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { canCreate, canView } = usePermissions();
 
-  const { data: transactions, isLoading } = useQuery({
+  // Récupérer les transactions
+  const { data: transactions = [], isLoading } = useQuery<Transaction[]>({
     queryKey: ['/api/admin/accounting/transactions'],
-    enabled: userRole === 'directeur'
+    enabled: canView,
+    retry: 3,
   });
 
-  const createTransactionMutation = useMutation({
-    mutationFn: (data: any) => apiRequest('/api/admin/accounting/transactions', {
-      method: 'POST',
-      body: JSON.stringify(data)
-    }),
+  // Récupérer les données de revenus détaillées
+  const { data: revenueData } = useQuery({
+    queryKey: ['/api/admin/stats/revenue-detailed'],
+    enabled: canView,
+    retry: 3,
+  });
+
+  // Mutation pour créer une transaction
+  const createTransaction = useMutation({
+    mutationFn: (data: Omit<Transaction, 'id'>) => 
+      apiRequest('/api/admin/accounting/transactions', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/accounting/transactions'] });
-      setIsCreateDialogOpen(false);
-      setTransactionForm({ type: 'recette', amount: '', description: '', category: '', date: new Date().toISOString().split('T')[0] });
-      toast({
-        title: "Succès",
-        description: "Transaction ajoutée avec succès"
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Erreur",
-        description: "Impossible d'ajouter la transaction",
-        variant: "destructive"
-      });
+      setIsAddDialogOpen(false);
+      toast({ title: "Transaction ajoutée", description: "La transaction a été enregistrée" });
     }
   });
 
-  const handleCreateTransaction = () => {
-    if (!transactionForm.amount || !transactionForm.description || !transactionForm.category) {
-      toast({
-        title: "Erreur",
-        description: "Veuillez remplir tous les champs requis",
-        variant: "destructive"
-      });
-      return;
-    }
-    createTransactionMutation.mutate({
-      ...transactionForm,
-      amount: parseFloat(transactionForm.amount)
-    });
-  };
-
-  const categories = ['Ventes', 'Matières premières', 'Salaires', 'Utilités', 'Marketing', 'Équipement', 'Maintenance', 'Autres'];
-
   // Calculs financiers
-  const totalRecettes = transactions?.filter((t: any) => t.type === 'recette').reduce((sum: number, t: any) => sum + t.amount, 0) || 0;
-  const totalDepenses = transactions?.filter((t: any) => t.type === 'depense').reduce((sum: number, t: any) => sum + t.amount, 0) || 0;
-  const beneficeNet = totalRecettes - totalDepenses;
+  const totalRevenue = transactions
+    .filter(t => t.type === 'revenue')
+    .reduce((sum, t) => sum + t.amount, 0);
 
-  const getTransactionIcon = (type: string) => {
-    return type === 'recette' ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />;
+  const totalExpenses = transactions
+    .filter(t => t.type === 'expense')
+    .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+
+  const netProfit = totalRevenue - totalExpenses;
+  const profitMargin = totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0;
+
+  // Données pour les graphiques
+  const dailyData = revenueData?.daily?.slice(-7) || [];
+  
+  const categoryData = transactions.reduce((acc, transaction) => {
+    const category = transaction.category;
+    if (!acc[category]) {
+      acc[category] = { revenue: 0, expenses: 0 };
+    }
+    if (transaction.type === 'revenue') {
+      acc[category].revenue += transaction.amount;
+    } else {
+      acc[category].expenses += Math.abs(transaction.amount);
+    }
+    return acc;
+  }, {} as Record<string, { revenue: number; expenses: number }>);
+
+  const chartData = Object.entries(categoryData).map(([category, data]) => ({
+    category,
+    revenus: data.revenue,
+    dépenses: data.expenses,
+    bénéfice: data.revenue - data.expenses
+  }));
+
+  const expensesByCategory = Object.entries(categoryData).map(([name, data], index) => ({
+    name,
+    value: data.expenses,
+    color: COLORS[index % COLORS.length]
+  })).filter(item => item.value > 0);
+
+  const handleSubmitTransaction = (formData: FormData) => {
+    const amount = parseFloat(formData.get('amount') as string);
+    const data = {
+      type: transactionType,
+      amount: transactionType === 'expense' ? -Math.abs(amount) : Math.abs(amount),
+      description: formData.get('description') as string,
+      category: formData.get('category') as string,
+      reference: formData.get('reference') as string || undefined,
+      date: new Date().toISOString().split('T')[0]
+    };
+
+    createTransaction.mutate(data);
   };
 
-  const getTransactionColor = (type: string) => {
-    return type === 'recette' ? 'text-green-600' : 'text-red-600';
+  const exportTransactions = () => {
+    const csvContent = [
+      ['Date', 'Type', 'Montant', 'Description', 'Catégorie', 'Référence'].join(','),
+      ...transactions.map(t => [
+        t.date,
+        t.type === 'revenue' ? 'Recette' : 'Dépense',
+        t.amount,
+        t.description,
+        t.category,
+        t.reference || ''
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `comptabilite-${format(new Date(), 'yyyy-MM-dd')}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   };
 
-  if (userRole !== 'directeur') {
+  if (!canView) {
     return (
       <div className="p-6">
-        <div className="text-center py-8">
-          <Euro className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Accès restreint</h3>
-          <p className="text-gray-600">Seuls les directeurs peuvent accéder au système comptable.</p>
-        </div>
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-center text-muted-foreground">
+              Accès non autorisé. Contactez votre administrateur.
+            </p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
+  if (isLoading) {
+    return <div className="p-6">Chargement des données comptables...</div>;
+  }
+
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+      {/* En-tête */}
+      <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Système Comptable</h2>
-          <p className="text-gray-600">Gérez les finances et la comptabilité du café</p>
+          <h1 className="text-2xl font-bold">Comptabilité</h1>
+          <p className="text-muted-foreground">Suivi financier et transactions</p>
         </div>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Nouvelle transaction
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Ajouter une transaction</DialogTitle>
-              <DialogDescription>
-                Enregistrez une nouvelle transaction financière
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="type">Type de transaction</Label>
-                <Select value={transactionForm.type} onValueChange={(value) => setTransactionForm({ ...transactionForm, type: value })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="recette">Recette</SelectItem>
-                    <SelectItem value="depense">Dépense</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="amount">Montant (€)</Label>
-                <Input
-                  id="amount"
-                  type="number"
-                  step="0.01"
-                  value={transactionForm.amount}
-                  onChange={(e) => setTransactionForm({ ...transactionForm, amount: e.target.value })}
-                  placeholder="0.00"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="description">Description</Label>
-                <Input
-                  id="description"
-                  value={transactionForm.description}
-                  onChange={(e) => setTransactionForm({ ...transactionForm, description: e.target.value })}
-                  placeholder="Ex: Vente de café"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="category">Catégorie</Label>
-                <Select value={transactionForm.category} onValueChange={(value) => setTransactionForm({ ...transactionForm, category: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionnez une catégorie" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map(category => (
-                      <SelectItem key={category} value={category}>{category}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="date">Date</Label>
-                <Input
-                  id="date"
-                  type="date"
-                  value={transactionForm.date}
-                  onChange={(e) => setTransactionForm({ ...transactionForm, date: e.target.value })}
-                />
-              </div>
-
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                  Annuler
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={exportTransactions}>
+            <Download className="h-4 w-4 mr-2" />
+            Exporter
+          </Button>
+          {canCreate && (
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nouvelle Transaction
                 </Button>
-                <Button onClick={handleCreateTransaction} disabled={createTransactionMutation.isPending}>
-                  {createTransactionMutation.isPending ? 'Ajout...' : 'Ajouter'}
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Ajouter une Transaction</DialogTitle>
+                  <DialogDescription>
+                    Enregistrer une nouvelle recette ou dépense
+                  </DialogDescription>
+                </DialogHeader>
+                <form action={handleSubmitTransaction} className="space-y-4">
+                  <div>
+                    <Label>Type de transaction</Label>
+                    <Select value={transactionType} onValueChange={(value: 'revenue' | 'expense') => setTransactionType(value)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="revenue">Recette</SelectItem>
+                        <SelectItem value="expense">Dépense</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="amount">Montant (€)</Label>
+                    <Input id="amount" name="amount" type="number" step="0.01" required />
+                  </div>
+                  <div>
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea id="description" name="description" required />
+                  </div>
+                  <div>
+                    <Label htmlFor="category">Catégorie</Label>
+                    <Select name="category" required>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionner une catégorie" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {transactionType === 'revenue' ? (
+                          <>
+                            <SelectItem value="Ventes">Ventes</SelectItem>
+                            <SelectItem value="Services">Services</SelectItem>
+                            <SelectItem value="Autres recettes">Autres recettes</SelectItem>
+                          </>
+                        ) : (
+                          <>
+                            <SelectItem value="Approvisionnement">Approvisionnement</SelectItem>
+                            <SelectItem value="Charges">Charges</SelectItem>
+                            <SelectItem value="Marketing">Marketing</SelectItem>
+                            <SelectItem value="Personnel">Personnel</SelectItem>
+                            <SelectItem value="Équipement">Équipement</SelectItem>
+                            <SelectItem value="Autres dépenses">Autres dépenses</SelectItem>
+                          </>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="reference">Référence (optionnel)</Label>
+                    <Input id="reference" name="reference" placeholder="N° facture, bon de commande..." />
+                  </div>
+                  <Button type="submit" className="w-full" disabled={createTransaction.isPending}>
+                    {createTransaction.isPending ? 'Enregistrement...' : 'Enregistrer'}
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+          )}
+        </div>
       </div>
 
-      {/* Statistiques financières */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Recettes</p>
-                <p className="text-2xl font-bold text-green-600">{totalRecettes.toFixed(2)} €</p>
-              </div>
-              <TrendingUp className="h-8 w-8 text-green-500" />
-            </div>
+      {/* Indicateurs clés */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium opacity-90 flex items-center gap-2">
+              <ArrowUpRight className="h-4 w-4" />
+              Recettes Totales
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalRevenue.toFixed(2)}€</div>
+            <p className="text-xs opacity-75">Ce mois-ci</p>
           </CardContent>
         </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Dépenses</p>
-                <p className="text-2xl font-bold text-red-600">{totalDepenses.toFixed(2)} €</p>
-              </div>
-              <TrendingDown className="h-8 w-8 text-red-500" />
-            </div>
+
+        <Card className="bg-gradient-to-r from-red-500 to-red-600 text-white">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium opacity-90 flex items-center gap-2">
+              <ArrowDownRight className="h-4 w-4" />
+              Dépenses Totales
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalExpenses.toFixed(2)}€</div>
+            <p className="text-xs opacity-75">Ce mois-ci</p>
           </CardContent>
         </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Bénéfice Net</p>
-                <p className={`text-2xl font-bold ${beneficeNet >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {beneficeNet.toFixed(2)} €
-                </p>
-              </div>
-              <Euro className="h-8 w-8 text-blue-500" />
-            </div>
+
+        <Card className={`${netProfit >= 0 ? 'bg-gradient-to-r from-blue-500 to-blue-600' : 'bg-gradient-to-r from-orange-500 to-orange-600'} text-white`}>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium opacity-90 flex items-center gap-2">
+              <Calculator className="h-4 w-4" />
+              Bénéfice Net
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{netProfit.toFixed(2)}€</div>
+            <p className="text-xs opacity-75">
+              {netProfit >= 0 ? 'Profit' : 'Perte'}
+            </p>
           </CardContent>
         </Card>
-        
+
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Transactions</p>
-                <p className="text-2xl font-bold">{transactions?.length || 0}</p>
-              </div>
-              <Receipt className="h-8 w-8 text-purple-500" />
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <BarChart3 className="h-4 w-4 text-purple-500" />
+              Marge Bénéficiaire
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{profitMargin.toFixed(1)}%</div>
+            <div className="flex items-center gap-1 text-xs">
+              {profitMargin >= 0 ? (
+                <TrendingUp className="h-3 w-3 text-green-500" />
+              ) : (
+                <TrendingDown className="h-3 w-3 text-red-500" />
+              )}
+              <span className={profitMargin >= 0 ? 'text-green-600' : 'text-red-600'}>
+                Ratio profit/recettes
+              </span>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+      <Tabs defaultValue="overview" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
           <TabsTrigger value="transactions">Transactions</TabsTrigger>
-          <TabsTrigger value="categories">Par catégorie</TabsTrigger>
-          <TabsTrigger value="reports">Rapports</TabsTrigger>
+          <TabsTrigger value="analytics">Analyses</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="overview" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Évolution des revenus */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Revenus des 7 Derniers Jours</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={dailyData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis />
+                    <Tooltip formatter={(value) => [`${value}€`, 'Revenus']} />
+                    <Line type="monotone" dataKey="revenue" stroke="#8884d8" strokeWidth={2} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Répartition des dépenses */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Répartition des Dépenses</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <RechartsPieChart>
+                    <Pie
+                      data={expensesByCategory}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {expensesByCategory.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value) => [`${value}€`, 'Dépenses']} />
+                  </RechartsPieChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
 
         <TabsContent value="transactions" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <Receipt className="h-5 w-5 mr-2" />
-                Historique des transactions
-              </CardTitle>
+              <CardTitle>Historique des Transactions ({transactions.length})</CardTitle>
             </CardHeader>
             <CardContent>
-              {isLoading ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-600">Chargement des transactions...</p>
-                </div>
-              ) : transactions?.length === 0 ? (
-                <div className="text-center py-8">
-                  <Receipt className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Aucune transaction</h3>
-                  <p className="text-gray-600">Ajoutez votre première transaction financière.</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {transactions?.map((transaction: any) => (
-                    <div key={transaction.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className={`p-2 rounded-full ${transaction.type === 'recette' ? 'bg-green-100' : 'bg-red-100'}`}>
-                          {getTransactionIcon(transaction.type)}
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-gray-900">{transaction.description}</h4>
-                          <p className="text-sm text-gray-600">{transaction.category}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className={`font-bold ${getTransactionColor(transaction.type)}`}>
-                          {transaction.type === 'recette' ? '+' : '-'}{transaction.amount.toFixed(2)} €
-                        </p>
-                        <p className="text-sm text-gray-500">{new Date(transaction.date).toLocaleDateString()}</p>
-                      </div>
-                    </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Catégorie</TableHead>
+                    <TableHead>Montant</TableHead>
+                    <TableHead>Référence</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {transactions.map((transaction) => (
+                    <TableRow key={transaction.id}>
+                      <TableCell>
+                        {format(new Date(transaction.date), 'dd/MM/yyyy', { locale: fr })}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={transaction.type === 'revenue' ? 'default' : 'secondary'}>
+                          {transaction.type === 'revenue' ? (
+                            <ArrowUpRight className="h-3 w-3 mr-1" />
+                          ) : (
+                            <ArrowDownRight className="h-3 w-3 mr-1" />
+                          )}
+                          {transaction.type === 'revenue' ? 'Recette' : 'Dépense'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{transaction.description}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{transaction.category}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <span className={`font-medium ${
+                          transaction.type === 'revenue' ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {transaction.type === 'revenue' ? '+' : ''}
+                          {transaction.amount.toFixed(2)}€
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-sm text-gray-500">
+                        {transaction.reference || '-'}
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </div>
-              )}
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="categories" className="space-y-4">
+        <TabsContent value="analytics" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <PieChart className="h-5 w-5 mr-2" />
-                Analyse par catégorie
-              </CardTitle>
+              <CardTitle>Analyse par Catégorie</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {categories.map(category => {
-                  const categoryTransactions = transactions?.filter((t: any) => t.category === category) || [];
-                  const totalAmount = categoryTransactions.reduce((sum: number, t: any) => sum + t.amount, 0);
-                  const recettes = categoryTransactions.filter((t: any) => t.type === 'recette').reduce((sum: number, t: any) => sum + t.amount, 0);
-                  const depenses = categoryTransactions.filter((t: any) => t.type === 'depense').reduce((sum: number, t: any) => sum + t.amount, 0);
-                  
-                  if (categoryTransactions.length === 0) return null;
-                  
-                  return (
-                    <div key={category} className="p-4 bg-gray-50 rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-medium text-gray-900">{category}</h4>
-                        <span className="text-sm text-gray-600">{categoryTransactions.length} transactions</span>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-sm text-gray-600">Recettes</p>
-                          <p className="font-bold text-green-600">+{recettes.toFixed(2)} €</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Dépenses</p>
-                          <p className="font-bold text-red-600">-{depenses.toFixed(2)} €</p>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="reports" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <BarChart3 className="h-5 w-5 mr-2" />
-                Rapports financiers
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="p-4 bg-blue-50 rounded-lg">
-                  <h4 className="font-medium text-blue-900 mb-2">Résumé mensuel</h4>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div>
-                      <p className="text-sm text-blue-700">Recettes</p>
-                      <p className="font-bold text-green-600">{totalRecettes.toFixed(2)} €</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-blue-700">Dépenses</p>
-                      <p className="font-bold text-red-600">{totalDepenses.toFixed(2)} €</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-blue-700">Bénéfice</p>
-                      <p className={`font-bold ${beneficeNet >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {beneficeNet.toFixed(2)} €
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="p-4 bg-purple-50 rounded-lg">
-                  <h4 className="font-medium text-purple-900 mb-2">Marge bénéficiaire</h4>
-                  <p className="text-2xl font-bold text-purple-700">
-                    {totalRecettes > 0 ? ((beneficeNet / totalRecettes) * 100).toFixed(1) : 0}%
-                  </p>
-                  <p className="text-sm text-purple-600 mt-1">
-                    {beneficeNet >= 0 ? 'Rentabilité positive' : 'Rentabilité négative'}
-                  </p>
-                </div>
-              </div>
+              <ResponsiveContainer width="100%" height={400}>
+                <BarChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="category" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="revenus" fill="#00C49F" name="Revenus" />
+                  <Bar dataKey="dépenses" fill="#FF8042" name="Dépenses" />
+                  <Bar dataKey="bénéfice" fill="#8884d8" name="Bénéfice" />
+                </BarChart>
+              </ResponsiveContainer>
             </CardContent>
           </Card>
         </TabsContent>

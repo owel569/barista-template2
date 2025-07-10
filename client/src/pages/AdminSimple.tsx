@@ -47,6 +47,7 @@ import PermissionsManagement from '@/components/admin/permissions-management';
 import InventoryManagement from '@/components/admin/inventory-management';
 import LoyaltySystem from '@/components/admin/loyalty-system';
 import WorkSchedule from '@/components/admin/work-schedule';
+import AccountingSystem from '@/components/admin/accounting-system';
 
 interface User {
   id: number;
@@ -183,7 +184,8 @@ export default function AdminSimple() {
         { icon: Shield, label: 'Permissions', section: 'permissions', module: 'permissions' },
         { icon: Package2, label: 'Stocks', section: 'inventory', module: 'inventory' },
         { icon: Star, label: 'Fidélité', section: 'loyalty', module: 'loyalty' },
-        { icon: Clock, label: 'Planning', section: 'schedule', module: 'schedule' }
+        { icon: Clock, label: 'Planning', section: 'schedule', module: 'schedule' },
+        { icon: Database, label: 'Comptabilité', section: 'accounting', module: 'accounting' }
       );
     }
 
@@ -204,9 +206,10 @@ export default function AdminSimple() {
       case 'statistics': return hasPermission('statistics', 'view') ? <Statistics /> : <div>Accès non autorisé</div>;
       case 'logs': return hasPermission('logs', 'view') ? <ActivityLogs /> : <div>Accès non autorisé</div>;
       case 'permissions': return hasPermission('employees', 'view') ? <PermissionsManagement /> : <div>Accès non autorisé</div>;
-      case 'inventory': return hasPermission('employees', 'view') ? <InventoryManagement /> : <div>Accès non autorisé</div>;
+      case 'inventory': return hasPermission('employees', 'view') ? <InventoryManagement userRole={user.role} /> : <div>Accès non autorisé</div>;
       case 'loyalty': return hasPermission('employees', 'view') ? <LoyaltySystem /> : <div>Accès non autorisé</div>;
       case 'schedule': return hasPermission('employees', 'view') ? <WorkSchedule /> : <div>Accès non autorisé</div>;
+      case 'accounting': return hasPermission('employees', 'view') ? <AccountingSystem userRole={user.role} /> : <div>Accès non autorisé</div>;
       default: return <Dashboard />;
     }
   };

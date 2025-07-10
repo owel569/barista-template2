@@ -53,6 +53,7 @@ const requireRole = (role: string) => {
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  const server = createServer(app);
   
   // Authentication routes
   app.post("/api/auth/login", async (req, res) => {
@@ -953,6 +954,224 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // APIs manquantes pour les statistiques avancées
+  app.get("/api/admin/stats/monthly-revenue", authenticateToken, async (req, res) => {
+    try {
+      // Calculer le chiffre d'affaires mensuel
+      const orders = await storage.getOrders();
+      const currentMonth = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
+      
+      const monthlyRevenue = orders
+        .filter(order => {
+          const orderDate = new Date(order.createdAt);
+          return orderDate.getMonth() === currentMonth && orderDate.getFullYear() === currentYear;
+        })
+        .reduce((total, order) => total + parseFloat(order.total || '0'), 0);
+        
+      res.json({ revenue: Math.round(monthlyRevenue) });
+    } catch (error) {
+      res.status(500).json({ revenue: 0 });
+    }
+  });
+
+  app.get("/api/admin/stats/active-orders", authenticateToken, async (req, res) => {
+    try {
+      const orders = await storage.getOrders();
+      const activeCount = orders.filter(order => 
+        order.status === 'en_attente' || order.status === 'en_preparation'
+      ).length;
+      res.json({ count: activeCount });
+    } catch (error) {
+      res.status(500).json({ count: 0 });
+    }
+  });
+
+  app.get("/api/admin/stats/daily-reservations", authenticateToken, async (req, res) => {
+    try {
+      const reservations = await storage.getReservations();
+      const last7Days = [];
+      
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        
+        const dayReservations = reservations.filter(res => 
+          res.date === dateStr
+        );
+        
+        last7Days.push({
+          date: dateStr,
+          count: dayReservations.length
+        });
+      }
+      
+      res.json(last7Days);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.get("/api/admin/stats/orders-by-status", authenticateToken, async (req, res) => {
+    try {
+      const orders = await storage.getOrders();
+      const statusCount = orders.reduce((acc, order) => {
+        acc[order.status] = (acc[order.status] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+      
+      const statusData = Object.entries(statusCount).map(([status, count]) => ({
+        status,
+        count
+      }));
+      res.json(statusData);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  // APIs pour l'inventaire (système avancé)
+  app.get("/api/admin/inventory/alerts", authenticateToken, async (req, res) => {
+    try {
+      // Simulation d'alertes de stock faible
+      const lowStockItems = [
+        { id: 1, name: 'Grains de café Arabica', currentStock: 5, minStock: 10, status: 'low' },
+        { id: 2, name: 'Lait bio', currentStock: 2, minStock: 8, status: 'critical' }
+      ];
+      res.json(lowStockItems);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.get("/api/admin/inventory", authenticateToken, async (req, res) => {
+    try {
+      const inventory = [
+        { id: 1, name: 'Grains de café Arabica', currentStock: 25, minStock: 10, maxStock: 50, unitCost: 12.5, supplier: 'Coffee Premium' },
+        { id: 2, name: 'Lait bio', currentStock: 15, minStock: 8, maxStock: 30, unitCost: 1.8, supplier: 'Ferme Locale' },
+        { id: 3, name: 'Sucre blanc', currentStock: 40, minStock: 15, maxStock: 60, unitCost: 0.9, supplier: 'Sucre & Co' },
+        { id: 4, name: 'Gobelets carton', currentStock: 200, minStock: 50, maxStock: 500, unitCost: 0.15, supplier: 'EcoPack' },
+        { id: 5, name: 'Poudre de cacao', currentStock: 8, minStock: 5, maxStock: 20, unitCost: 8.2, supplier: 'Chocolat Artisan' }
+      ];
+      res.json(inventory);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.post("/api/admin/inventory", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const newItem = { id: Date.now(), ...req.body };
+      // En production, vous sauvegarderez en base
+      res.status(201).json(newItem);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la création de l'article" });
+    }
+  });
+
+  app.put("/api/admin/inventory/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updatedItem = { id, ...req.body };
+      res.json(updatedItem);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour" });
+    }
+  });
+
+  // APIs pour système de fidélité avancé
+  app.get("/api/admin/loyalty/overview", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const customers = await storage.getCustomers();
+      const totalCustomers = customers.length;
+      const vipCustomers = customers.filter(c => parseFloat(c.totalSpent || '0') > 500).length;
+      const totalPointsDistributed = customers.reduce((sum, c) => sum + Math.floor(parseFloat(c.totalSpent || '0') / 10), 0);
+      
+      res.json({
+        totalCustomers,
+        vipCustomers,
+        totalPointsDistributed,
+        averageSpending: totalCustomers > 0 ? customers.reduce((sum, c) => sum + parseFloat(c.totalSpent || '0'), 0) / totalCustomers : 0
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des données" });
+    }
+  });
+
+  // APIs avancées pour comptabilité
+  app.get("/api/admin/accounting/transactions", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const transactions = [
+        { id: 1, date: '2025-01-07', type: 'revenue', amount: 245.50, description: 'Ventes café du matin', category: 'Ventes' },
+        { id: 2, date: '2025-01-07', type: 'expense', amount: -89.20, description: 'Achat grains de café', category: 'Approvisionnement' },
+        { id: 3, date: '2025-01-06', type: 'revenue', amount: 320.75, description: 'Ventes journée complète', category: 'Ventes' },
+        { id: 4, date: '2025-01-06', type: 'expense', amount: -45.00, description: 'Électricité', category: 'Charges' },
+        { id: 5, date: '2025-01-05', type: 'revenue', amount: 198.30, description: 'Ventes weekend', category: 'Ventes' }
+      ];
+      res.json(transactions);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.post("/api/admin/accounting/transactions", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const transaction = { id: Date.now(), ...req.body, date: new Date().toISOString().split('T')[0] };
+      res.status(201).json(transaction);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la création de la transaction" });
+    }
+  });
+
+  app.get("/api/admin/stats/revenue-detailed", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const orders = await storage.getOrders();
+      const dailyRevenue = orders.reduce((acc, order) => {
+        const date = order.createdAt.split('T')[0];
+        acc[date] = (acc[date] || 0) + parseFloat(order.total || '0');
+        return acc;
+      }, {} as Record<string, number>);
+      
+      const daily = Object.entries(dailyRevenue).map(([date, revenue]) => ({
+        date,
+        revenue: Math.round(revenue)
+      }));
+      
+      const total = daily.reduce((sum, day) => sum + day.revenue, 0);
+      
+      res.json({ daily, total });
+    } catch (error) {
+      res.status(500).json({ daily: [], total: 0 });
+    }
+  });
+
+  // APIs pour analyses avancées
+  app.get("/api/admin/stats/category-analytics", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const menuItems = await storage.getMenuItems();
+      const categories = await storage.getMenuCategories();
+      
+      const analytics = categories.map(cat => {
+        const categoryItems = menuItems.filter(item => item.categoryId === cat.id);
+        const avgPrice = categoryItems.length > 0 
+          ? categoryItems.reduce((sum, item) => sum + parseFloat(item.price), 0) / categoryItems.length
+          : 0;
+        
+        return {
+          categoryName: cat.name,
+          itemCount: categoryItems.length,
+          averagePrice: Math.round(avgPrice * 100) / 100,
+          totalValue: categoryItems.reduce((sum, item) => sum + parseFloat(item.price), 0)
+        };
+      });
+      
+      res.json(analytics);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
   // Admin users routes
   app.get("/api/admin/users", authenticateToken, requireRole('directeur'), async (req, res) => {
     try {
@@ -1053,669 +1272,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Erreur lors de la récupération des commandes en attente", count: 0 });
     }
   });
-
-  app.get("/api/admin/stats/monthly-revenue", authenticateToken, async (req, res) => {
-    try {
-      const currentMonth = new Date().getMonth() + 1;
-      const currentYear = new Date().getFullYear();
-      const revenue = Math.floor(Math.random() * 5000) + 2000; // Données simulées
-      res.json({ revenue });
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la récupération du chiffre d'affaires" });
-    }
-  });
-
-  app.get("/api/admin/stats/active-orders", authenticateToken, async (req, res) => {
-    try {
-      const orders = await storage.getOrdersByStatus();
-      const activeCount = orders.filter(o => o.status === 'en_preparation' || o.status === 'en_attente').length;
-      res.json({ count: activeCount });
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la récupération des commandes actives" });
-    }
-  });
-
-  app.get("/api/admin/stats/occupancy-rate", authenticateToken, async (req, res) => {
-    try {
-      const today = new Date().toISOString().split('T')[0];
-      const rate = await storage.getOccupancyRate(today);
-      res.json({ rate });
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la récupération du taux d'occupation" });
-    }
-  });
-
-  app.get("/api/admin/stats/daily-reservations", authenticateToken, async (req, res) => {
-    try {
-      const currentYear = new Date().getFullYear();
-      const currentMonth = new Date().getMonth() + 1;
-      const stats = await storage.getMonthlyReservationStats(currentYear, currentMonth);
-      res.json(stats);
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la récupération des statistiques quotidiennes" });
-    }
-  });
-
-  app.get("/api/admin/stats/reservation-status", authenticateToken, async (req, res) => {
-    try {
-      const reservations = await storage.getReservations();
-      const statusCount = reservations.reduce((acc, reservation) => {
-        acc[reservation.status] = (acc[reservation.status] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
-      
-      const result = Object.entries(statusCount).map(([status, count]) => ({
-        status,
-        count
-      }));
-      res.json(result);
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la récupération des statuts de réservation" });
-    }
-  });
-
-  app.get("/api/admin/stats/revenue-detailed", authenticateToken, async (req, res) => {
-    try {
-      const range = req.query.range || '7days';
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - (range === '30days' ? 30 : 7));
-      const endDate = new Date();
-      
-      const revenueStats = await storage.getRevenueStats(
-        startDate.toISOString().split('T')[0],
-        endDate.toISOString().split('T')[0]
-      );
-      
-      res.json({
-        daily: revenueStats,
-        total: revenueStats.reduce((sum, item) => sum + item.revenue, 0)
-      });
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la récupération des statistiques de revenus" });
-    }
-  });
-
-  // Admin notifications routes
-  app.get("/api/admin/notifications/pending", authenticateToken, async (req, res) => {
-    try {
-      const pendingReservations = await storage.getPendingNotificationReservations();
-      res.json(pendingReservations);
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la récupération des notifications en attente" });
-    }
-  });
-
-  app.get("/api/admin/notifications/templates", authenticateToken, requireRole('directeur'), async (req, res) => {
-    try {
-      const templates = [
-        {
-          id: 1,
-          name: "Confirmation de réservation",
-          type: "email",
-          title: "Votre réservation est confirmée",
-          content: "Bonjour {{customerName}}, votre réservation pour {{date}} à {{time}} est confirmée.",
-          trigger: "reservation_confirmed",
-          enabled: true,
-          variables: ["customerName", "date", "time"],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        },
-        {
-          id: 2,
-          name: "Rappel de réservation",
-          type: "sms",
-          title: "Rappel de réservation",
-          content: "Rappel: réservation aujourd'hui à {{time}} pour {{guests}} personnes.",
-          trigger: "reservation_reminder",
-          enabled: true,
-          variables: ["time", "guests"],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        }
-      ];
-      res.json(templates);
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la récupération des modèles de notification" });
-    }
-  });
-
-  app.get("/api/admin/notifications/history", authenticateToken, async (req, res) => {
-    try {
-      const history = [
-        {
-          id: 1,
-          type: "email",
-          title: "Confirmation de réservation",
-          content: "Votre réservation est confirmée",
-          recipient: "client@example.com",
-          status: "delivered",
-          sentAt: new Date().toISOString()
-        }
-      ];
-      res.json(history);
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la récupération de l'historique des notifications" });
-    }
-  });
-
-  // Admin settings routes
-  // Admin accounting routes
-  app.get("/api/admin/accounting/transactions", authenticateToken, requireRole('directeur'), async (req, res) => {
-    try {
-      const transactions = [
-        { id: 1, type: 'recette', amount: 1500, description: 'Ventes journalières', category: 'Ventes', date: '2025-07-09' },
-        { id: 2, type: 'depense', amount: 300, description: 'Achat café', category: 'Matières premières', date: '2025-07-08' },
-        { id: 3, type: 'recette', amount: 2200, description: 'Ventes weekend', category: 'Ventes', date: '2025-07-07' },
-        { id: 4, type: 'depense', amount: 150, description: 'Maintenance machine', category: 'Maintenance', date: '2025-07-06' }
-      ];
-      res.json(transactions);
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la récupération des transactions" });
-    }
-  });
-
-  app.post("/api/admin/accounting/transactions", authenticateToken, requireRole('directeur'), async (req, res) => {
-    try {
-      const { type, amount, description, category, date } = req.body;
-      const transaction = {
-        id: Date.now(),
-        type,
-        amount: parseFloat(amount),
-        description,
-        category,
-        date,
-        createdAt: new Date().toISOString()
-      };
-      res.status(201).json(transaction);
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la création de la transaction" });
-    }
-  });
-
-  // Admin backup routes
-  app.get("/api/admin/backups", authenticateToken, requireRole('directeur'), async (req, res) => {
-    try {
-      const backups = [
-        { id: 1, name: 'Sauvegarde quotidienne', type: 'automatic', status: 'completed', date: '2025-07-09', size: '2.3 MB' },
-        { id: 2, name: 'Sauvegarde manuelle', type: 'manual', status: 'completed', date: '2025-07-08', size: '1.8 MB' },
-        { id: 3, name: 'Sauvegarde hebdomadaire', type: 'scheduled', status: 'in_progress', date: '2025-07-07', size: '3.1 MB' }
-      ];
-      res.json(backups);
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la récupération des sauvegardes" });
-    }
-  });
-
-  app.post("/api/admin/backups", authenticateToken, requireRole('directeur'), async (req, res) => {
-    try {
-      const { name, type, tables, description } = req.body;
-      const backup = {
-        id: Date.now(),
-        name,
-        type,
-        tables,
-        description,
-        status: 'in_progress',
-        createdAt: new Date().toISOString()
-      };
-      res.status(201).json(backup);
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la création de la sauvegarde" });
-    }
-  });
-
-  // Admin reports routes
-  app.get("/api/admin/reports/sales", authenticateToken, requireRole('directeur'), async (req, res) => {
-    try {
-      const salesReport = {
-        totalSales: 45000,
-        growth: 12,
-        orders: 1250,
-        averageOrder: 36,
-        topProducts: [
-          { name: 'Cappuccino', sales: 450, revenue: 1800 },
-          { name: 'Croissant', sales: 320, revenue: 960 },
-          { name: 'Latte', sales: 380, revenue: 1520 }
-        ]
-      };
-      res.json(salesReport);
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la récupération du rapport de ventes" });
-    }
-  });
-
-  app.get("/api/admin/reports/customers", authenticateToken, requireRole('directeur'), async (req, res) => {
-    try {
-      const customersReport = {
-        totalCustomers: 850,
-        newCustomers: 45,
-        returningCustomers: 680,
-        averageSpending: 28,
-        loyaltyDistribution: [
-          { level: 'Nouveau', count: 320 },
-          { level: 'Régulier', count: 280 },
-          { level: 'Fidèle', count: 150 },
-          { level: 'VIP', count: 100 }
-        ]
-      };
-      res.json(customersReport);
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la récupération du rapport clients" });
-    }
-  });
-
-  app.get("/api/admin/settings", authenticateToken, requireRole('directeur'), async (req, res) => {
-    try {
-      const settings = {
-        restaurantName: "Barista Café",
-        address: "123 Rue de la Paix, Paris",
-        phone: "+33 1 23 45 67 89",
-        email: "contact@barista-cafe.fr",
-        website: "https://barista-cafe.fr",
-        openingHours: {
-          monday: { open: "07:00", close: "19:00", closed: false },
-          tuesday: { open: "07:00", close: "19:00", closed: false },
-          wednesday: { open: "07:00", close: "19:00", closed: false },
-          thursday: { open: "07:00", close: "19:00", closed: false },
-          friday: { open: "07:00", close: "20:00", closed: false },
-          saturday: { open: "08:00", close: "20:00", closed: false },
-          sunday: { open: "08:00", close: "18:00", closed: false }
-        },
-        maxReservationsPerSlot: 5,
-        reservationTimeSlots: ["12:00", "12:30", "13:00", "13:30", "14:00", "19:00", "19:30", "20:00", "20:30"],
-        currency: "EUR",
-        taxRate: 20,
-        defaultLanguage: "fr",
-        notificationSettings: {
-          emailNotifications: true,
-          smsNotifications: false,
-          reservationReminders: true,
-          orderUpdates: true
-        }
-      };
-      res.json(settings);
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la récupération des paramètres" });
-    }
-  });
-
-  app.put("/api/admin/settings", authenticateToken, requireRole('directeur'), async (req, res) => {
-    try {
-      const data = req.body;
-      // In real app, save settings to database
-      res.json({ message: "Paramètres mis à jour avec succès" });
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la mise à jour des paramètres" });
-    }
-  });
-
-  // Admin inventory routes
-  app.get("/api/admin/inventory/items", authenticateToken, async (req, res) => {
-    try {
-      const menuItems = await storage.getMenuItems();
-      const inventoryItems = menuItems.map(item => ({
-        id: item.id,
-        name: item.name,
-        description: item.description,
-        category: 'Menu',
-        currentStock: item.stock || 0,
-        minStock: item.minStock || 5,
-        maxStock: item.maxStock || 100,
-        unitCost: item.unitCost || 0,
-        supplier: item.supplier || 'Fournisseur principal',
-        lastRestocked: item.lastRestocked || new Date().toISOString(),
-        status: (item.stock || 0) <= (item.minStock || 5) ? 'low' : 'ok'
-      }));
-      res.json(inventoryItems);
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la récupération de l'inventaire" });
-    }
-  });
-
-  app.post("/api/admin/inventory/items", authenticateToken, async (req, res) => {
-    try {
-      const data = req.body;
-      const item = await storage.createMenuItem(data);
-      res.status(201).json(item);
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la création de l'article" });
-    }
-  });
-
-  app.get("/api/admin/inventory/alerts", authenticateToken, async (req, res) => {
-    try {
-      const menuItems = await storage.getMenuItems();
-      const alerts = menuItems
-        .filter(item => (item.stock || 0) <= (item.minStock || 5))
-        .map(item => ({
-          id: item.id,
-          itemId: item.id,
-          itemName: item.name,
-          currentStock: item.stock || 0,
-          minStock: item.minStock || 5,
-          alertLevel: (item.stock || 0) === 0 ? 'out' : 'low' as 'low' | 'critical' | 'out',
-          createdAt: new Date().toISOString()
-        }));
-      res.json(alerts);
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la récupération des alertes" });
-    }
-  });
-
-  // Activity logs routes
-  app.get("/api/admin/activity-logs", authenticateToken, async (req, res) => {
-    try {
-      const logs = await storage.getActivityLogs();
-      res.json(logs);
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la récupération des logs" });
-    }
-  });
-
-  // User management routes (directeur only)
-  app.get("/api/admin/users", authenticateToken, requireRole('directeur'), async (req, res) => {
-    try {
-      const users = await storage.getUsers();
-      const safeUsers = users.map(user => ({
-        ...user,
-        password: undefined
-      }));
-      res.json(safeUsers);
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la récupération des utilisateurs" });
-    }
-  });
-
-  app.put("/api/admin/users/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      const userData = req.body;
-      
-      if (userData.password) {
-        userData.password = await bcrypt.hash(userData.password, 10);
-      }
-      
-      const user = await storage.updateUser(id, userData);
-      
-      if (!user) {
-        return res.status(404).json({ message: "Utilisateur non trouvé" });
-      }
-      
-      res.json({
-        ...user,
-        password: undefined
-      });
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la mise à jour de l'utilisateur" });
-    }
-  });
-
-  // Admin backup system routes
-  app.get("/api/admin/backups", authenticateToken, requireRole('directeur'), async (req, res) => {
-    try {
-      const backups = [
-        {
-          id: 1,
-          name: 'Sauvegarde automatique',
-          date: '2025-07-09T14:30:00',
-          size: '45.2 MB',
-          type: 'auto',
-          status: 'completed',
-          tables: ['users', 'reservations', 'orders', 'customers', 'menu_items'],
-          description: 'Sauvegarde quotidienne automatique'
-        },
-        {
-          id: 2,
-          name: 'Sauvegarde manuelle - Fin de mois',
-          date: '2025-06-30T23:59:00',
-          size: '42.8 MB',
-          type: 'manual',
-          status: 'completed',
-          tables: ['users', 'reservations', 'orders', 'customers', 'menu_items', 'employees'],
-          description: 'Sauvegarde de fin de mois avec toutes les données'
-        }
-      ];
-      res.json(backups);
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la récupération des sauvegardes" });
-    }
-  });
-
-  app.post("/api/admin/backups", authenticateToken, requireRole('directeur'), async (req, res) => {
-    try {
-      const { name, type, tables, description } = req.body;
-      const backup = {
-        id: Date.now(),
-        name,
-        type,
-        tables,
-        description,
-        date: new Date().toISOString(),
-        size: Math.random() * 50 + 10 + ' MB',
-        status: 'completed'
-      };
-      res.json(backup);
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la création de la sauvegarde" });
-    }
-  });
-
-  // Admin accounting routes
-  app.get("/api/admin/accounting/transactions", authenticateToken, requireRole('directeur'), async (req, res) => {
-    try {
-      const transactions = [
-        { id: 1, type: 'recette', amount: 1250, description: 'Ventes restaurant', date: '2025-07-09', category: 'Ventes' },
-        { id: 2, type: 'depense', amount: 450, description: 'Approvisionnement café', date: '2025-07-09', category: 'Matières premières' },
-        { id: 3, type: 'recette', amount: 890, description: 'Commandes en ligne', date: '2025-07-08', category: 'Ventes' },
-        { id: 4, type: 'depense', amount: 320, description: 'Électricité', date: '2025-07-08', category: 'Utilités' }
-      ];
-      res.json(transactions);
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la récupération des transactions" });
-    }
-  });
-
-  app.post("/api/admin/accounting/transactions", authenticateToken, requireRole('directeur'), async (req, res) => {
-    try {
-      const { type, amount, description, category, date } = req.body;
-      const transaction = {
-        id: Date.now(),
-        type,
-        amount,
-        description,
-        category,
-        date: date || new Date().toISOString().split('T')[0]
-      };
-      res.json(transaction);
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la création de la transaction" });
-    }
-  });
-
-  // Admin suppliers routes
-  app.get("/api/admin/suppliers", authenticateToken, requireRole('directeur'), async (req, res) => {
-    try {
-      const suppliers = [
-        {
-          id: 1,
-          name: 'Café Premium Import',
-          category: 'Café',
-          contact: {
-            name: 'Marie Dubois',
-            email: 'marie@cafeimport.fr',
-            phone: '+33 1 23 45 67 89',
-            address: '123 Rue du Commerce, 75001 Paris'
-          },
-          rating: 4.8,
-          status: 'active',
-          lastOrder: '2025-07-05',
-          totalOrders: 45,
-          averageDelivery: '2-3 jours',
-          products: ['Grains Arabica', 'Grains Robusta', 'Café moulu', 'Capsules'],
-          paymentTerms: '30 jours',
-          reliability: 95
-        },
-        {
-          id: 2,
-          name: 'Pâtisserie Moderne',
-          category: 'Pâtisserie',
-          contact: {
-            name: 'Jean Martin',
-            email: 'jean@patisserie-moderne.fr',
-            phone: '+33 1 98 76 54 32',
-            address: '456 Avenue des Délices, 75002 Paris'
-          },
-          rating: 4.6,
-          status: 'active',
-          lastOrder: '2025-07-08',
-          totalOrders: 32,
-          averageDelivery: '1-2 jours',
-          products: ['Croissants', 'Macarons', 'Mille-feuille', 'Tartes'],
-          paymentTerms: '15 jours',
-          reliability: 88
-        }
-      ];
-      res.json(suppliers);
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la récupération des fournisseurs" });
-    }
-  });
-
-  app.post("/api/admin/suppliers", authenticateToken, requireRole('directeur'), async (req, res) => {
-    try {
-      const { name, category, contact, products, paymentTerms } = req.body;
-      const supplier = {
-        id: Date.now(),
-        name,
-        category,
-        contact,
-        products,
-        paymentTerms,
-        rating: 0,
-        status: 'active',
-        lastOrder: null,
-        totalOrders: 0,
-        averageDelivery: '3-5 jours',
-        reliability: 0
-      };
-      res.json(supplier);
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la création du fournisseur" });
-    }
-  });
-
-  // Admin reports routes
-  app.get("/api/admin/reports/sales", authenticateToken, requireRole('directeur'), async (req, res) => {
-    try {
-      const salesData = {
-        totalSales: 45000,
-        growth: 12.5,
-        transactions: 1250,
-        avgTransaction: 36,
-        topProducts: [
-          { name: 'Cappuccino', sales: 8500, units: 425 },
-          { name: 'Croissant', sales: 6200, units: 310 },
-          { name: 'Americano', sales: 5800, units: 290 }
-        ],
-        dailyTrends: [
-          { date: '2025-07-01', sales: 1200, transactions: 45 },
-          { date: '2025-07-02', sales: 1450, transactions: 52 },
-          { date: '2025-07-03', sales: 1650, transactions: 58 }
-        ]
-      };
-      res.json(salesData);
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la récupération du rapport de ventes" });
-    }
-  });
-
-  app.get("/api/admin/reports/customers", authenticateToken, requireRole('directeur'), async (req, res) => {
-    try {
-      const customerData = {
-        totalCustomers: 890,
-        newCustomers: 125,
-        returningCustomers: 765,
-        avgSpending: 42.5,
-        topCustomers: [
-          { name: 'Marie Dubois', visits: 24, spending: 1250 },
-          { name: 'Jean Martin', visits: 18, spending: 980 },
-          { name: 'Sophie Laurent', visits: 22, spending: 1150 }
-        ]
-      };
-      res.json(customerData);
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la récupération du rapport clients" });
-    }
-  });
-
-  // Admin maintenance routes
-  app.get("/api/admin/maintenance/tasks", authenticateToken, requireRole('directeur'), async (req, res) => {
-    try {
-      const tasks = [
-        {
-          id: 1,
-          name: 'Nettoyage machine à café',
-          type: 'equipment',
-          priority: 'high',
-          status: 'pending',
-          dueDate: '2025-07-10',
-          assignedTo: 'Lucas Durand',
-          description: 'Nettoyage complet de la machine à café principale'
-        },
-        {
-          id: 2,
-          name: 'Vérification système POS',
-          type: 'system',
-          priority: 'medium',
-          status: 'in_progress',
-          dueDate: '2025-07-12',
-          assignedTo: 'Emma Leroy',
-          description: 'Test du système de caisse et mise à jour'
-        }
-      ];
-      res.json(tasks);
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la récupération des tâches de maintenance" });
-    }
-  });
-
-  app.post("/api/admin/maintenance/tasks", authenticateToken, requireRole('directeur'), async (req, res) => {
-    try {
-      const { name, type, priority, dueDate, assignedTo, description } = req.body;
-      const task = {
-        id: Date.now(),
-        name,
-        type,
-        priority,
-        dueDate,
-        assignedTo,
-        description,
-        status: 'pending',
-        createdAt: new Date().toISOString()
-      };
-      res.json(task);
-    } catch (error) {
-      res.status(500).json({ message: "Erreur lors de la création de la tâche" });
-    }
-  });
-
-  function getStatusColor(status: string): string {
-    switch (status) {
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'confirmed':
-        return 'bg-green-100 text-green-800';
-      case 'cancelled':
-        return 'bg-red-100 text-red-800';
-      case 'completed':
-        return 'bg-blue-100 text-blue-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  }
-
-  const server = createServer(app);
-  wsManager.initialize(server);
 
   return server;
 }

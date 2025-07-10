@@ -1,437 +1,472 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  Package2, 
-  AlertTriangle, 
-  TrendingUp, 
-  TrendingDown,
-  Plus,
-  Edit,
-  Trash2,
-  Search,
-  Filter,
-  AlertCircle
-} from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { apiRequest } from '@/lib/queryClient';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
+import { Progress } from '@/components/ui/progress';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { 
+  Package, 
+  Plus, 
+  Pencil, 
+  Trash2, 
+  AlertTriangle, 
+  TrendingDown, 
+  Package2,
+  Truck,
+  DollarSign,
+  AlertCircle,
+  CheckCircle,
+  Filter,
+  Search
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/queryClient';
+import { usePermissions } from '@/hooks/usePermissions';
 
-interface MenuItem {
+interface InventoryItem {
   id: number;
   name: string;
-  description: string;
-  price: string;
-  categoryId: number;
-  categoryName?: string;
-  available: boolean;
-  stock?: number;
-  minStock?: number;
-  maxStock?: number;
-  supplier?: string;
-  cost?: number;
-  imageUrl?: string;
-}
-
-interface StockAlert {
-  id: number;
-  itemId: number;
-  itemName: string;
   currentStock: number;
   minStock: number;
-  alertLevel: 'low' | 'critical' | 'out';
-  createdAt: string;
-}
-
-interface InventoryStats {
-  totalItems: number;
-  availableItems: number;
-  lowStockItems: number;
-  outOfStockItems: number;
-  totalValue: number;
-  avgCostPerItem: number;
+  maxStock: number;
+  unitCost: number;
+  supplier: string;
+  category?: string;
+  lastRestocked?: string;
 }
 
 interface InventoryManagementProps {
-  userRole?: 'directeur' | 'employe';
+  userRole: 'directeur' | 'employe';
 }
 
-export default function InventoryManagement({ userRole = 'directeur' }: InventoryManagementProps) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterCategory, setFilterCategory] = useState<string>('all');
-  const [filterStock, setFilterStock] = useState<string>('all');
-  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+export default function InventoryManagement({ userRole }: InventoryManagementProps) {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { canCreate, canUpdate, canDelete } = usePermissions();
 
-  // États pour le formulaire d'ajout/modification
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    price: '',
-    categoryId: '',
-    stock: '',
-    minStock: '',
-    maxStock: '',
-    supplier: '',
-    cost: '',
-    available: true
+  // Récupérer l'inventaire
+  const { data: inventory = [], isLoading } = useQuery<InventoryItem[]>({
+    queryKey: ['/api/admin/inventory'],
+    retry: 3,
   });
 
-  // Récupérer les données
-  const { data: menuItems = [] } = useQuery<MenuItem[]>({
-    queryKey: ['/api/admin/inventory/items'],
-  });
-
-  const { data: categories = [] } = useQuery<any[]>({
-    queryKey: ['/api/menu/categories'],
-  });
-
-  const { data: stockAlerts = [] } = useQuery<StockAlert[]>({
+  // Récupérer les alertes
+  const { data: alerts = [] } = useQuery({
     queryKey: ['/api/admin/inventory/alerts'],
-  });
-
-  const { data: inventoryStats } = useQuery<InventoryStats>({
-    queryKey: ['/api/admin/inventory/stats'],
+    retry: 3,
   });
 
   // Mutations
-  const updateStockMutation = useMutation({
-    mutationFn: async ({ id, stock }: { id: number; stock: number }) => {
-      return await apiRequest(`/api/admin/inventory/items/${id}/stock`, 'PUT', { stock });
-    },
+  const createMutation = useMutation({
+    mutationFn: (data: Omit<InventoryItem, 'id'>) => 
+      apiRequest('/api/admin/inventory', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      }),
     onSuccess: () => {
-      toast({
-        title: "Stock mis à jour",
-        description: "Le stock a été mis à jour avec succès.",
-      });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/inventory'] });
-    },
-    onError: () => {
-      toast({
-        title: "Erreur",
-        description: "Impossible de mettre à jour le stock.",
-        variant: "destructive",
-      });
-    }
-  });
-
-  const updateItemMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: any }) => {
-      return await apiRequest(`/api/admin/inventory/items/${id}`, 'PUT', data);
-    },
-    onSuccess: () => {
-      toast({
-        title: "Article mis à jour",
-        description: "L'article a été mis à jour avec succès.",
-      });
-      setIsEditDialogOpen(false);
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/inventory'] });
-    },
-    onError: () => {
-      toast({
-        title: "Erreur",
-        description: "Impossible de mettre à jour l'article.",
-        variant: "destructive",
-      });
-    }
-  });
-
-  const addItemMutation = useMutation({
-    mutationFn: async (data: any) => {
-      return await apiRequest('/api/admin/inventory/items', 'POST', data);
-    },
-    onSuccess: () => {
-      toast({
-        title: "Article ajouté",
-        description: "L'article a été ajouté avec succès.",
-      });
       setIsAddDialogOpen(false);
-      setFormData({
-        name: '',
-        description: '',
-        price: '',
-        categoryId: '',
-        stock: '',
-        minStock: '',
-        maxStock: '',
-        supplier: '',
-        cost: '',
-        available: true
-      });
+      toast({ title: "Article ajouté", description: "L'article a été ajouté à l'inventaire" });
+    }
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, ...data }: InventoryItem) =>
+      apiRequest(`/api/admin/inventory/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data)
+      }),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/inventory'] });
-    },
-    onError: () => {
-      toast({
-        title: "Erreur",
-        description: "Impossible d'ajouter l'article.",
-        variant: "destructive",
-      });
+      setEditingItem(null);
+      toast({ title: "Article mis à jour", description: "L'article a été modifié" });
     }
   });
 
-  // Filtrage des articles
-  const filteredItems = menuItems.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = filterCategory === 'all' || item.categoryId.toString() === filterCategory;
-    const matchesStock = filterStock === 'all' || 
-                        (filterStock === 'low' && (item.stock || 0) <= (item.minStock || 5)) ||
-                        (filterStock === 'out' && (item.stock || 0) === 0) ||
-                        (filterStock === 'available' && item.available);
+  // Calculs et statistiques
+  const totalValue = inventory.reduce((sum, item) => sum + (item.currentStock * item.unitCost), 0);
+  const lowStockItems = inventory.filter(item => item.currentStock <= item.minStock);
+  const outOfStockItems = inventory.filter(item => item.currentStock === 0);
+  const criticalItems = inventory.filter(item => item.currentStock < item.minStock * 0.5);
+
+  // Filtrage
+  const filteredInventory = inventory.filter(item => {
+    const matchesSearch = !searchTerm || 
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.supplier.toLowerCase().includes(searchTerm.toLowerCase());
     
-    return matchesSearch && matchesCategory && matchesStock;
+    const matchesStatus = statusFilter === 'all' || 
+      (statusFilter === 'low' && item.currentStock <= item.minStock) ||
+      (statusFilter === 'critical' && item.currentStock < item.minStock * 0.5) ||
+      (statusFilter === 'out' && item.currentStock === 0) ||
+      (statusFilter === 'normal' && item.currentStock > item.minStock);
+    
+    return matchesSearch && matchesStatus;
   });
 
-  const getStockStatus = (item: MenuItem): { status: string; color: string; icon: React.ReactNode } => {
-    const stock = item.stock || 0;
-    const minStock = item.minStock || 5;
-    
-    if (stock === 0) {
-      return { status: 'Rupture', color: 'bg-red-100 text-red-800', icon: <AlertCircle className="h-3 w-3" /> };
-    } else if (stock <= minStock) {
-      return { status: 'Stock faible', color: 'bg-orange-100 text-orange-800', icon: <AlertTriangle className="h-3 w-3" /> };
-    } else {
-      return { status: 'En stock', color: 'bg-green-100 text-green-800', icon: <Package2 className="h-3 w-3" /> };
-    }
+  const getStockStatus = (item: InventoryItem) => {
+    if (item.currentStock === 0) return { label: 'Rupture', color: 'bg-red-500 text-white', icon: AlertCircle };
+    if (item.currentStock < item.minStock * 0.5) return { label: 'Critique', color: 'bg-red-100 text-red-800', icon: AlertTriangle };
+    if (item.currentStock <= item.minStock) return { label: 'Faible', color: 'bg-yellow-100 text-yellow-800', icon: TrendingDown };
+    return { label: 'Normal', color: 'bg-green-100 text-green-800', icon: CheckCircle };
   };
 
-  const handleEditItem = (item: MenuItem) => {
-    setSelectedItem(item);
-    setFormData({
-      name: item.name,
-      description: item.description,
-      price: item.price,
-      categoryId: item.categoryId.toString(),
-      stock: item.stock?.toString() || '',
-      minStock: item.minStock?.toString() || '',
-      maxStock: item.maxStock?.toString() || '',
-      supplier: item.supplier || '',
-      cost: item.cost?.toString() || '',
-      available: item.available
-    });
-    setIsEditDialogOpen(true);
+  const getStockPercentage = (item: InventoryItem) => {
+    return Math.min((item.currentStock / item.maxStock) * 100, 100);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const submitData = {
-      ...formData,
-      price: parseFloat(formData.price),
-      categoryId: parseInt(formData.categoryId),
-      stock: formData.stock ? parseInt(formData.stock) : undefined,
-      minStock: formData.minStock ? parseInt(formData.minStock) : undefined,
-      maxStock: formData.maxStock ? parseInt(formData.maxStock) : undefined,
-      cost: formData.cost ? parseFloat(formData.cost) : undefined
+  const handleSubmitForm = (formData: FormData) => {
+    const data = {
+      name: formData.get('name') as string,
+      currentStock: parseInt(formData.get('currentStock') as string),
+      minStock: parseInt(formData.get('minStock') as string),
+      maxStock: parseInt(formData.get('maxStock') as string),
+      unitCost: parseFloat(formData.get('unitCost') as string),
+      supplier: formData.get('supplier') as string,
+      category: formData.get('category') as string || 'Général',
     };
 
-    if (selectedItem) {
-      updateItemMutation.mutate({ id: selectedItem.id, data: submitData });
+    if (editingItem) {
+      updateMutation.mutate({ ...data, id: editingItem.id });
     } else {
-      addItemMutation.mutate(submitData);
+      createMutation.mutate(data);
     }
   };
 
+  if (isLoading) {
+    return <div className="p-6">Chargement de l'inventaire...</div>;
+  }
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Package2 className="h-6 w-6 text-blue-600" />
+    <div className="p-6 space-y-6">
+      {/* En-tête */}
+      <div className="flex justify-between items-center">
+        <div>
           <h1 className="text-2xl font-bold">Gestion des Stocks</h1>
+          <p className="text-muted-foreground">Suivi et gestion de l'inventaire</p>
         </div>
-        <Button onClick={() => setIsAddDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Ajouter un article
-        </Button>
+        {canCreate && (
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Nouvel Article
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>Ajouter un Article</DialogTitle>
+                <DialogDescription>
+                  Créer un nouvel article dans l'inventaire
+                </DialogDescription>
+              </DialogHeader>
+              <form action={handleSubmitForm} className="space-y-4">
+                <div>
+                  <Label htmlFor="name">Nom de l'article</Label>
+                  <Input id="name" name="name" required />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="currentStock">Stock actuel</Label>
+                    <Input id="currentStock" name="currentStock" type="number" required />
+                  </div>
+                  <div>
+                    <Label htmlFor="minStock">Stock minimum</Label>
+                    <Input id="minStock" name="minStock" type="number" required />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="maxStock">Stock maximum</Label>
+                    <Input id="maxStock" name="maxStock" type="number" required />
+                  </div>
+                  <div>
+                    <Label htmlFor="unitCost">Coût unitaire (€)</Label>
+                    <Input id="unitCost" name="unitCost" type="number" step="0.01" required />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="supplier">Fournisseur</Label>
+                  <Input id="supplier" name="supplier" required />
+                </div>
+                <div>
+                  <Label htmlFor="category">Catégorie</Label>
+                  <Input id="category" name="category" placeholder="Général" />
+                </div>
+                <Button type="submit" className="w-full" disabled={createMutation.isPending}>
+                  {createMutation.isPending ? 'Ajout...' : 'Ajouter l\'Article'}
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       {/* Statistiques */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total articles</p>
-                <p className="text-2xl font-bold">{inventoryStats?.totalItems || 0}</p>
-              </div>
-              <Package2 className="h-8 w-8 text-blue-600" />
-            </div>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <Package className="h-4 w-4 text-blue-500" />
+              Total Articles
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{inventory.length}</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <DollarSign className="h-4 w-4 text-green-500" />
+              Valeur Totale
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalValue.toFixed(2)}€</div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Disponibles</p>
-                <p className="text-2xl font-bold text-green-600">{inventoryStats?.availableItems || 0}</p>
-              </div>
-              <TrendingUp className="h-8 w-8 text-green-600" />
-            </div>
+        <Card className="border-yellow-200 bg-yellow-50 dark:bg-yellow-900/10">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-yellow-600" />
+              Stock Faible
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-yellow-600">{lowStockItems.length}</div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Stock faible</p>
-                <p className="text-2xl font-bold text-orange-600">{inventoryStats?.lowStockItems || 0}</p>
-              </div>
-              <AlertTriangle className="h-8 w-8 text-orange-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Rupture</p>
-                <p className="text-2xl font-bold text-red-600">{inventoryStats?.outOfStockItems || 0}</p>
-              </div>
-              <TrendingDown className="h-8 w-8 text-red-600" />
-            </div>
+        <Card className="border-red-200 bg-red-50 dark:bg-red-900/10">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <AlertCircle className="h-4 w-4 text-red-600" />
+              Ruptures
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-red-600">{outOfStockItems.length}</div>
           </CardContent>
         </Card>
       </div>
 
+      {/* Alertes */}
+      {alerts.length > 0 && (
+        <Card className="border-orange-200 bg-orange-50 dark:bg-orange-900/10">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-orange-800 dark:text-orange-200">
+              <AlertTriangle className="h-5 w-5" />
+              Alertes de Stock ({alerts.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {alerts.slice(0, 3).map((alert: any) => (
+                <div key={alert.id} className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded border">
+                  <div className="flex items-center gap-2">
+                    <Package2 className="h-4 w-4 text-orange-600" />
+                    <span className="font-medium">{alert.name}</span>
+                  </div>
+                  <Badge variant="secondary" className="text-orange-700">
+                    Stock: {alert.currentStock}/{alert.minStock}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Filtres */}
       <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Rechercher un article..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Filter className="h-5 w-5" />
+            Filtres
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-4 flex-wrap">
+            <div className="flex items-center gap-2">
+              <Search className="h-4 w-4" />
+              <Input
+                placeholder="Rechercher un article..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-64"
+              />
             </div>
-            <Select value={filterCategory} onValueChange={setFilterCategory}>
-              <SelectTrigger className="w-full md:w-48">
-                <SelectValue placeholder="Catégorie" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Toutes les catégories</SelectItem>
-                {categories.map(category => (
-                  <SelectItem key={category.id} value={category.id.toString()}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={filterStock} onValueChange={setFilterStock}>
-              <SelectTrigger className="w-full md:w-48">
-                <SelectValue placeholder="Stock" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous les stocks</SelectItem>
-                <SelectItem value="available">En stock</SelectItem>
-                <SelectItem value="low">Stock faible</SelectItem>
-                <SelectItem value="out">Rupture</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex gap-2">
+              {['all', 'normal', 'low', 'critical', 'out'].map(status => (
+                <Button
+                  key={status}
+                  variant={statusFilter === status ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setStatusFilter(status)}
+                >
+                  {status === 'all' ? 'Tous' :
+                   status === 'normal' ? 'Normal' :
+                   status === 'low' ? 'Faible' :
+                   status === 'critical' ? 'Critique' : 'Rupture'}
+                </Button>
+              ))}
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Tableau des articles */}
+      {/* Table d'inventaire */}
       <Card>
         <CardHeader>
-          <CardTitle>Articles du menu</CardTitle>
+          <CardTitle>Inventaire ({filteredInventory.length} articles)</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Article</TableHead>
-                <TableHead>Catégorie</TableHead>
-                <TableHead>Prix</TableHead>
                 <TableHead>Stock</TableHead>
-                <TableHead>Stock Min</TableHead>
                 <TableHead>Statut</TableHead>
-                <TableHead>Disponible</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>Fournisseur</TableHead>
+                <TableHead>Coût Unitaire</TableHead>
+                <TableHead>Valeur</TableHead>
+                {(canUpdate || canDelete) && <TableHead>Actions</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredItems.map(item => {
-                const stockStatus = getStockStatus(item);
-                const categoryName = categories.find(c => c.id === item.categoryId)?.name || 'Inconnu';
-                
+              {filteredInventory.map((item) => {
+                const status = getStockStatus(item);
+                const StatusIcon = status.icon;
                 return (
                   <TableRow key={item.id}>
                     <TableCell>
                       <div>
-                        <p className="font-medium">{item.name}</p>
-                        <p className="text-sm text-gray-500">{item.description}</p>
+                        <div className="font-medium">{item.name}</div>
+                        <div className="text-sm text-gray-500">{item.category || 'Général'}</div>
                       </div>
                     </TableCell>
-                    <TableCell>{categoryName}</TableCell>
-                    <TableCell>{item.price}€</TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2">
-                        <span>{item.stock || 0}</span>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            const newStock = prompt('Nouveau stock:', item.stock?.toString() || '0');
-                            if (newStock !== null) {
-                              updateStockMutation.mutate({
-                                id: item.id,
-                                stock: parseInt(newStock)
-                              });
-                            }
-                          }}
-                        >
-                          <Edit className="h-3 w-3" />
-                        </Button>
+                      <div className="space-y-1">
+                        <div className="text-sm font-medium">
+                          {item.currentStock} / {item.maxStock}
+                        </div>
+                        <Progress value={getStockPercentage(item)} className="h-2" />
+                        <div className="text-xs text-gray-500">
+                          Min: {item.minStock}
+                        </div>
                       </div>
                     </TableCell>
-                    <TableCell>{item.minStock || 5}</TableCell>
                     <TableCell>
-                      <Badge className={stockStatus.color}>
-                        {stockStatus.icon}
-                        <span className="ml-1">{stockStatus.status}</span>
+                      <Badge className={status.color}>
+                        <StatusIcon className="h-3 w-3 mr-1" />
+                        {status.label}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Switch
-                        checked={item.available}
-                        onCheckedChange={(checked) => {
-                          updateItemMutation.mutate({
-                            id: item.id,
-                            data: { ...item, available: checked }
-                          });
-                        }}
-                      />
+                      <div className="flex items-center gap-2">
+                        <Truck className="h-4 w-4 text-gray-400" />
+                        {item.supplier}
+                      </div>
                     </TableCell>
-                    <TableCell>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleEditItem(item)}
-                      >
-                        <Edit className="h-3 w-3" />
-                      </Button>
+                    <TableCell>{item.unitCost.toFixed(2)}€</TableCell>
+                    <TableCell className="font-medium">
+                      {(item.currentStock * item.unitCost).toFixed(2)}€
                     </TableCell>
+                    {(canUpdate || canDelete) && (
+                      <TableCell>
+                        <div className="flex gap-2">
+                          {canUpdate && (
+                            <Dialog open={editingItem?.id === item.id} onOpenChange={(open) => !open && setEditingItem(null)}>
+                              <DialogTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setEditingItem(item)}
+                                >
+                                  <Pencil className="h-3 w-3" />
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-md">
+                                <DialogHeader>
+                                  <DialogTitle>Modifier {item.name}</DialogTitle>
+                                  <DialogDescription>
+                                    Mettre à jour les informations de l'article
+                                  </DialogDescription>
+                                </DialogHeader>
+                                <form action={handleSubmitForm} className="space-y-4">
+                                  <div>
+                                    <Label htmlFor="edit-name">Nom de l'article</Label>
+                                    <Input id="edit-name" name="name" defaultValue={item.name} required />
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                      <Label htmlFor="edit-currentStock">Stock actuel</Label>
+                                      <Input id="edit-currentStock" name="currentStock" type="number" defaultValue={item.currentStock} required />
+                                    </div>
+                                    <div>
+                                      <Label htmlFor="edit-minStock">Stock minimum</Label>
+                                      <Input id="edit-minStock" name="minStock" type="number" defaultValue={item.minStock} required />
+                                    </div>
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                      <Label htmlFor="edit-maxStock">Stock maximum</Label>
+                                      <Input id="edit-maxStock" name="maxStock" type="number" defaultValue={item.maxStock} required />
+                                    </div>
+                                    <div>
+                                      <Label htmlFor="edit-unitCost">Coût unitaire (€)</Label>
+                                      <Input id="edit-unitCost" name="unitCost" type="number" step="0.01" defaultValue={item.unitCost} required />
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <Label htmlFor="edit-supplier">Fournisseur</Label>
+                                    <Input id="edit-supplier" name="supplier" defaultValue={item.supplier} required />
+                                  </div>
+                                  <div>
+                                    <Label htmlFor="edit-category">Catégorie</Label>
+                                    <Input id="edit-category" name="category" defaultValue={item.category || 'Général'} />
+                                  </div>
+                                  <Button type="submit" className="w-full" disabled={updateMutation.isPending}>
+                                    {updateMutation.isPending ? 'Mise à jour...' : 'Mettre à Jour'}
+                                  </Button>
+                                </form>
+                              </DialogContent>
+                            </Dialog>
+                          )}
+                        </div>
+                      </TableCell>
+                    )}
                   </TableRow>
                 );
               })}
@@ -439,139 +474,6 @@ export default function InventoryManagement({ userRole = 'directeur' }: Inventor
           </Table>
         </CardContent>
       </Card>
-
-      {/* Dialog d'ajout/modification */}
-      <Dialog open={isAddDialogOpen || isEditDialogOpen} onOpenChange={(open) => {
-        if (!open) {
-          setIsAddDialogOpen(false);
-          setIsEditDialogOpen(false);
-          setSelectedItem(null);
-        }
-      }}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>
-              {selectedItem ? 'Modifier l\'article' : 'Ajouter un article'}
-            </DialogTitle>
-            <DialogDescription>
-              {selectedItem ? 'Modifiez les informations de l\'article' : 'Ajoutez un nouvel article au menu'}
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Nom *</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="price">Prix *</Label>
-                <Input
-                  id="price"
-                  type="number"
-                  step="0.01"
-                  value={formData.price}
-                  onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
-                  required
-                />
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="description">Description *</Label>
-              <Input
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                required
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="categoryId">Catégorie *</Label>
-                <Select value={formData.categoryId} onValueChange={(value) => setFormData(prev => ({ ...prev, categoryId: value }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choisir une catégorie" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map(category => (
-                      <SelectItem key={category.id} value={category.id.toString()}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="supplier">Fournisseur</Label>
-                <Input
-                  id="supplier"
-                  value={formData.supplier}
-                  onChange={(e) => setFormData(prev => ({ ...prev, supplier: e.target.value }))}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="stock">Stock initial</Label>
-                <Input
-                  id="stock"
-                  type="number"
-                  value={formData.stock}
-                  onChange={(e) => setFormData(prev => ({ ...prev, stock: e.target.value }))}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="minStock">Stock minimum</Label>
-                <Input
-                  id="minStock"
-                  type="number"
-                  value={formData.minStock}
-                  onChange={(e) => setFormData(prev => ({ ...prev, minStock: e.target.value }))}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="cost">Coût unitaire</Label>
-                <Input
-                  id="cost"
-                  type="number"
-                  step="0.01"
-                  value={formData.cost}
-                  onChange={(e) => setFormData(prev => ({ ...prev, cost: e.target.value }))}
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="available"
-                checked={formData.available}
-                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, available: checked }))}
-              />
-              <Label htmlFor="available">Disponible à la vente</Label>
-            </div>
-
-            <div className="flex justify-end space-x-2">
-              <Button type="button" variant="outline" onClick={() => {
-                setIsAddDialogOpen(false);
-                setIsEditDialogOpen(false);
-                setSelectedItem(null);
-              }}>
-                Annuler
-              </Button>
-              <Button type="submit" disabled={addItemMutation.isPending || updateItemMutation.isPending}>
-                {selectedItem ? 'Modifier' : 'Ajouter'}
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

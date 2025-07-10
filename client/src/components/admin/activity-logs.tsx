@@ -102,8 +102,10 @@ export default function ActivityLogs({ userRole }: ActivityLogsProps) {
   // Statistiques
   const totalLogs = logs.length;
   const todayLogs = logs.filter(log => {
+    if (!log.createdAt) return false;
     const today = new Date().toDateString();
-    return new Date(log.createdAt).toDateString() === today;
+    const logDate = new Date(log.createdAt);
+    return !isNaN(logDate.getTime()) && logDate.toDateString() === today;
   }).length;
   const uniqueUsers = new Set(logs.map(log => log.userId)).size;
 
@@ -229,7 +231,10 @@ export default function ActivityLogs({ userRole }: ActivityLogsProps) {
               {filteredLogs.map((log) => (
                 <TableRow key={log.id}>
                   <TableCell>
-                    {format(new Date(log.createdAt), 'dd/MM/yyyy HH:mm:ss', { locale: fr })}
+                    {log.createdAt && !isNaN(new Date(log.createdAt).getTime()) 
+                      ? format(new Date(log.createdAt), 'dd/MM/yyyy HH:mm:ss', { locale: fr })
+                      : 'Date invalide'
+                    }
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
