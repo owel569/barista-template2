@@ -11,7 +11,7 @@ process.on('uncaughtException', (error) => {
 });
 
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes-clean";
+import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
@@ -95,10 +95,7 @@ app.use((req, res, next) => {
   // It is the only port that is not firewalled.
   const port = 5000;
   
-  // Vérifier si le serveur n'est pas déjà en cours d'écoute
-  if (!server.listening) {
-    server.listen(port, "0.0.0.0", () => {
+  server.listen(port, "0.0.0.0", () => {
       log(`serving on port ${port}`);
     });
-  }
 })();
