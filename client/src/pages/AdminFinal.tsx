@@ -23,6 +23,16 @@ import Messages from '@/components/admin/messages';
 import AdminSettings from '@/components/admin/settings';
 import Statistics from '@/components/admin/statistics';
 import ActivityLogs from '@/components/admin/activity-logs';
+import PermissionsManagement from '@/components/admin/permissions-management';
+import InventoryManagement from '@/components/admin/inventory-management';
+import LoyaltySystem from '@/components/admin/loyalty-system';
+import WorkSchedule from '@/components/admin/work-schedule';
+import AccountingSystem from '@/components/admin/accounting-system';
+import BackupSystem from '@/components/admin/backup-system';
+import ReportsSystem from '@/components/admin/reports-system';
+import CalendarManagement from '@/components/admin/calendar-management';
+import SuppliersManagement from '@/components/admin/suppliers-management';
+import MaintenanceManagement from '@/components/admin/maintenance-management';
 
 export default function AdminFinal() {
   const [, navigate] = useLocation();
@@ -161,6 +171,72 @@ export default function AdminFinal() {
       name: 'Journaux',
       icon: FileText,
       component: ActivityLogs
+    },
+    {
+      id: 'inventory',
+      name: 'Inventaire',
+      icon: Package,
+      component: InventoryManagement,
+      notification: notifications.lowStockItems
+    },
+    {
+      id: 'loyalty',
+      name: 'Fidélité',
+      icon: Gift,
+      component: LoyaltySystem
+    },
+    {
+      id: 'permissions',
+      name: 'Permissions',
+      icon: Shield,
+      component: PermissionsManagement,
+      adminOnly: true
+    },
+    {
+      id: 'schedule',
+      name: 'Planning',
+      icon: CalendarIcon,
+      component: WorkSchedule
+    },
+    {
+      id: 'accounting',
+      name: 'Comptabilité',
+      icon: DollarSign,
+      component: AccountingSystem,
+      adminOnly: true
+    },
+    {
+      id: 'backup',
+      name: 'Sauvegardes',
+      icon: Database,
+      component: BackupSystem,
+      adminOnly: true
+    },
+    {
+      id: 'reports',
+      name: 'Rapports',
+      icon: BarChart3,
+      component: ReportsSystem
+    },
+    {
+      id: 'calendar',
+      name: 'Calendrier',
+      icon: CalendarIcon,
+      component: CalendarManagement
+    },
+    {
+      id: 'suppliers',
+      name: 'Fournisseurs',
+      icon: Truck,
+      component: SuppliersManagement,
+      adminOnly: true
+    },
+    {
+      id: 'maintenance',
+      name: 'Maintenance',
+      icon: Wrench,
+      component: MaintenanceManagement,
+      adminOnly: true
     }
   ];
 

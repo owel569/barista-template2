@@ -1,243 +1,167 @@
-import React, { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
-import { Employee, WorkShift } from '@/types/admin';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogDescription,
-} from '@/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Calendar, Clock, Plus, Edit, Trash2, Users } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { format, startOfWeek, endOfWeek, addDays, parseISO } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  Calendar, Clock, Users, Plus, Edit, Trash2, ChevronLeft, ChevronRight
+} from 'lucide-react';
 
-interface WorkScheduleProps {
-  userRole?: 'directeur' | 'employe';
+interface Employee {
+  id: number;
+  firstName: string;
+  lastName: string;
+  position: string;
+  isActive: boolean;
 }
 
-export default function WorkSchedule({ userRole = 'directeur' }: WorkScheduleProps) {
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingShift, setEditingShift] = useState<WorkShift | null>(null);
-  const [newShift, setNewShift] = useState({
-    employeeId: '',
-    date: format(new Date(), 'yyyy-MM-dd'),
-    startTime: '09:00',
-    endTime: '17:00',
-    position: 'Barista',
-    status: 'scheduled' as 'scheduled' | 'completed' | 'cancelled',
-    notes: ''
-  });
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
+interface WorkShift {
+  id: number;
+  employeeId: number;
+  employeeName: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  position: string;
+  status: 'scheduled' | 'confirmed' | 'completed' | 'cancelled';
+  notes?: string;
+}
 
-  const { data: employees = [], isLoading: employeesLoading } = useQuery<Employee[]>({
-    queryKey: ['/api/admin/employees'],
-    retry: 1,
-  });
+interface ScheduleStats {
+  totalShifts: number;
+  totalHours: number;
+  employeesScheduled: number;
+  shiftsThisWeek: number;
+}
 
-  const { data: workShifts = [], isLoading: shiftsLoading } = useQuery<WorkShift[]>({
-    queryKey: ['/api/admin/work-shifts'],
-    retry: 1,
-  });
+export default function WorkSchedule() {
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [shifts, setShifts] = useState<WorkShift[]>([]);
+  const [stats, setStats] = useState<ScheduleStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [currentWeek, setCurrentWeek] = useState(new Date());
+  const [showAddForm, setShowAddForm] = useState(false);
 
-  const createShiftMutation = useMutation({
-    mutationFn: async (data: any) => {
-      return await apiRequest('/api/admin/work-shifts', {
-        method: 'POST',
-        body: JSON.stringify(data)
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/work-shifts'] });
-      setIsDialogOpen(false);
-      setNewShift({
-        employeeId: '',
-        date: format(new Date(), 'yyyy-MM-dd'),
-        startTime: '09:00',
-        endTime: '17:00',
-        position: 'Barista',
-        status: 'scheduled',
-        notes: ''
-      });
-      toast({
-        title: 'Succès',
-        description: 'Horaire créé avec succès',
-      });
-    },
-    onError: () => {
-      toast({
-        title: 'Erreur',
-        description: 'Erreur lors de la création de l\'horaire',
-        variant: 'destructive',
-      });
-    },
-  });
+  useEffect(() => {
+    fetchScheduleData();
+  }, [currentWeek]);
 
-  const updateShiftMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: any }) => {
-      return await apiRequest(`/api/admin/work-shifts/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(data)
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/work-shifts'] });
-      setIsDialogOpen(false);
-      setEditingShift(null);
-      toast({
-        title: 'Succès',
-        description: 'Horaire mis à jour avec succès',
-      });
-    },
-    onError: () => {
-      toast({
-        title: 'Erreur',
-        description: 'Erreur lors de la mise à jour de l\'horaire',
-        variant: 'destructive',
-      });
-    },
-  });
+  const fetchScheduleData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      const [employeesRes, shiftsRes, statsRes] = await Promise.all([
+        fetch('/api/admin/employees', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }),
+        fetch(`/api/admin/work-shifts?week=${currentWeek.toISOString()}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }),
+        fetch('/api/admin/work-shifts/stats', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+      ]);
 
-  const deleteShiftMutation = useMutation({
-    mutationFn: async (id: number) => {
-      return await apiRequest(`/api/admin/work-shifts/${id}`, {
-        method: 'DELETE'
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/work-shifts'] });
-      toast({
-        title: 'Succès',
-        description: 'Horaire supprimé avec succès',
-      });
-    },
-    onError: () => {
-      toast({
-        title: 'Erreur',
-        description: 'Erreur lors de la suppression de l\'horaire',
-        variant: 'destructive',
-      });
-    },
-  });
-
-  const handleCreateShift = () => {
-    const data = {
-      ...newShift,
-      employeeId: parseInt(newShift.employeeId),
-    };
-    createShiftMutation.mutate(data);
-  };
-
-  const handleUpdateShift = () => {
-    if (editingShift) {
-      const data = {
-        ...newShift,
-        employeeId: parseInt(newShift.employeeId),
-      };
-      updateShiftMutation.mutate({ id: editingShift.id, data });
-    }
-  };
-
-  const handleEdit = (shift: WorkShift) => {
-    setEditingShift(shift);
-    setNewShift({
-      employeeId: shift.employeeId.toString(),
-      date: shift.date,
-      startTime: shift.startTime,
-      endTime: shift.endTime,
-      position: shift.position,
-      status: shift.status,
-      notes: shift.notes || ''
-    });
-    setIsDialogOpen(true);
-  };
-
-  const handleDelete = (id: number) => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cet horaire ?')) {
-      deleteShiftMutation.mutate(id);
-    }
-  };
-
-  const getPositionColor = (position: string) => {
-    switch (position) {
-      case 'Barista': return 'bg-yellow-100 text-yellow-800';
-      case 'Serveur': return 'bg-blue-100 text-blue-800';
-      case 'Cuisinier': return 'bg-purple-100 text-purple-800';
-      case 'Manager': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      if (employeesRes.ok && shiftsRes.ok && statsRes.ok) {
+        const [employeesData, shiftsData, statsData] = await Promise.all([
+          employeesRes.json(),
+          shiftsRes.json(),
+          statsRes.json()
+        ]);
+        
+        setEmployees(employeesData);
+        setShifts(shiftsData);
+        setStats(statsData);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement du planning:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'scheduled': return 'bg-blue-100 text-blue-800';
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'confirmed':
+        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
+      case 'scheduled':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400';
+      case 'completed':
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
+      case 'cancelled':
+        return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
     }
   };
 
-  const getStatusLabel = (status: string) => {
+  const getStatusText = (status: string) => {
     switch (status) {
+      case 'confirmed': return 'Confirmé';
       case 'scheduled': return 'Planifié';
       case 'completed': return 'Terminé';
       case 'cancelled': return 'Annulé';
-      default: return status;
+      default: return 'Inconnu';
     }
   };
 
-  const getEmployeeName = (employeeId: number) => {
-    const employee = employees.find(e => e.id === employeeId);
-    return employee ? `${employee.firstName} ${employee.lastName}` : 'Employé inconnu';
+  const getWeekDays = (date: Date) => {
+    const week = [];
+    const startOfWeek = new Date(date);
+    const day = startOfWeek.getDay();
+    const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is sunday
+    startOfWeek.setDate(diff);
+
+    for (let i = 0; i < 7; i++) {
+      const day = new Date(startOfWeek);
+      day.setDate(startOfWeek.getDate() + i);
+      week.push(day);
+    }
+
+    return week;
   };
 
-  const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
-  const weekEnd = endOfWeek(selectedDate, { weekStartsOn: 1 });
+  const navigateWeek = (direction: 'prev' | 'next') => {
+    const newWeek = new Date(currentWeek);
+    newWeek.setDate(currentWeek.getDate() + (direction === 'next' ? 7 : -7));
+    setCurrentWeek(newWeek);
+  };
 
-  const currentWeekShifts = workShifts.filter(shift => {
-    const shiftDate = parseISO(shift.date);
-    return shiftDate >= weekStart && shiftDate <= weekEnd;
-  });
+  const updateShiftStatus = async (shiftId: number, status: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch(`/api/admin/work-shifts/${shiftId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status })
+      });
 
-  const isReadOnly = userRole === 'employe';
+      if (response.ok) {
+        await fetchScheduleData();
+      }
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du statut:', error);
+    }
+  };
 
-  if (employeesLoading || shiftsLoading) {
+  const weekDays = getWeekDays(currentWeek);
+  const weekStart = weekDays[0];
+  const weekEnd = weekDays[6];
+
+  if (loading) {
     return (
       <div className="p-6 space-y-6">
-        <div className="animate-pulse">
-          <div className="h-6 bg-gray-200 rounded w-1/4 mb-4"></div>
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 bg-gray-200 rounded"></div>
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-64"></div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded"></div>
             ))}
           </div>
         </div>
@@ -247,288 +171,393 @@ export default function WorkSchedule({ userRole = 'directeur' }: WorkSchedulePro
 
   return (
     <div className="p-6 space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Calendar className="h-6 w-6 text-blue-600" />
-          <h1 className="text-2xl font-bold">Planning des Employés</h1>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Planning de Travail
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400">
+            Gestion des horaires et équipes
+          </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="bg-purple-50 text-purple-700">
-            {userRole === 'directeur' ? 'Directeur' : 'Employé'}
-            {isReadOnly && ' (lecture seule)'}
-          </Badge>
-          {!isReadOnly && (
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Ajouter un horaire
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>
-                    {editingShift ? 'Modifier l\'horaire' : 'Ajouter un horaire'}
-                  </DialogTitle>
-                  <DialogDescription>
-                    {editingShift ? 'Modifiez les détails de l\'horaire' : 'Créez un nouvel horaire pour un employé'}
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Employé</label>
-                    <Select value={newShift.employeeId} onValueChange={(value) => setNewShift(prev => ({ ...prev, employeeId: value }))}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sélectionner un employé" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {employees.map(employee => (
-                          <SelectItem key={employee.id} value={employee.id.toString()}>
-                            {employee.firstName} {employee.lastName} - {employee.position}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Date</label>
-                      <Input
-                        type="date"
-                        value={newShift.date}
-                        onChange={(e) => setNewShift(prev => ({ ...prev, date: e.target.value }))}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Poste</label>
-                      <Select value={newShift.position} onValueChange={(value) => setNewShift(prev => ({ ...prev, position: value }))}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Barista">Barista</SelectItem>
-                          <SelectItem value="Serveur">Serveur</SelectItem>
-                          <SelectItem value="Cuisinier">Cuisinier</SelectItem>
-                          <SelectItem value="Manager">Manager</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Heure de début</label>
-                      <Input
-                        type="time"
-                        value={newShift.startTime}
-                        onChange={(e) => setNewShift(prev => ({ ...prev, startTime: e.target.value }))}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Heure de fin</label>
-                      <Input
-                        type="time"
-                        value={newShift.endTime}
-                        onChange={(e) => setNewShift(prev => ({ ...prev, endTime: e.target.value }))}
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Statut</label>
-                    <Select value={newShift.status} onValueChange={(value) => setNewShift(prev => ({ ...prev, status: value as 'scheduled' | 'completed' | 'cancelled' }))}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="scheduled">Planifié</SelectItem>
-                        <SelectItem value="completed">Terminé</SelectItem>
-                        <SelectItem value="cancelled">Annulé</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Notes</label>
-                    <Input
-                      value={newShift.notes}
-                      onChange={(e) => setNewShift(prev => ({ ...prev, notes: e.target.value }))}
-                      placeholder="Notes optionnelles..."
-                    />
-                  </div>
-                  <div className="flex gap-2">
-                    <Button 
-                      onClick={editingShift ? handleUpdateShift : handleCreateShift}
-                      disabled={!newShift.employeeId || !newShift.date}
-                    >
-                      {editingShift ? 'Mettre à jour' : 'Créer'}
-                    </Button>
-                    <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                      Annuler
-                    </Button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-          )}
-        </div>
+        <Button onClick={() => setShowAddForm(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Nouveau Créneau
+        </Button>
       </div>
-
-      {/* Sélection de la semaine */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="h-5 w-5" />
-            Semaine du {format(weekStart, 'dd MMM', { locale: fr })} au {format(weekEnd, 'dd MMM yyyy', { locale: fr })}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex justify-between items-center">
-            <Button
-              variant="outline"
-              onClick={() => setSelectedDate(addDays(selectedDate, -7))}
-            >
-              ← Semaine précédente
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => setSelectedDate(new Date())}
-            >
-              Aujourd'hui
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => setSelectedDate(addDays(selectedDate, 7))}
-            >
-              Semaine suivante →
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Tableau des horaires */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Clock className="h-5 w-5" />
-            Horaires de la semaine ({currentWeekShifts.length} services)
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Employé</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Horaires</TableHead>
-                  <TableHead>Poste</TableHead>
-                  <TableHead>Statut</TableHead>
-                  <TableHead>Notes</TableHead>
-                  {!isReadOnly && <TableHead className="w-20">Actions</TableHead>}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {currentWeekShifts.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={isReadOnly ? 6 : 7} className="text-center py-8 text-gray-500">
-                      Aucun horaire planifié pour cette semaine
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  currentWeekShifts.map((shift) => (
-                    <TableRow key={shift.id}>
-                      <TableCell className="font-medium">
-                        {getEmployeeName(shift.employeeId)}
-                      </TableCell>
-                      <TableCell>
-                        {format(parseISO(shift.date), 'dd/MM/yyyy', { locale: fr })}
-                      </TableCell>
-                      <TableCell>
-                        {shift.startTime} - {shift.endTime}
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={getPositionColor(shift.position)}>
-                          {shift.position}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={getStatusColor(shift.status)}>
-                          {getStatusLabel(shift.status)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="max-w-48 truncate">
-                        {shift.notes || '-'}
-                      </TableCell>
-                      {!isReadOnly && (
-                        <TableCell>
-                          <div className="flex gap-1">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleEdit(shift)}
-                            >
-                              <Edit className="h-3 w-3" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDelete(shift.id)}
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      )}
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Statistiques */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Services cette semaine</p>
-                <p className="text-2xl font-bold">{currentWeekShifts.length}</p>
+      {stats && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    Total Créneaux
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {stats.totalShifts}
+                  </p>
+                </div>
+                <Calendar className="h-8 w-8 text-blue-500" />
               </div>
-              <Clock className="h-8 w-8 text-blue-600" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Employés actifs</p>
-                <p className="text-2xl font-bold">{employees.filter(e => e.status === 'active').length}</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    Total Heures
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {stats.totalHours}h
+                  </p>
+                </div>
+                <Clock className="h-8 w-8 text-green-500" />
               </div>
-              <Users className="h-8 w-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Heures planifiées</p>
-                <p className="text-2xl font-bold">
-                  {currentWeekShifts.reduce((total, shift) => {
-                    const start = new Date(`2000-01-01T${shift.startTime}`);
-                    const end = new Date(`2000-01-01T${shift.endTime}`);
-                    return total + (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-                  }, 0).toFixed(0)}h
-                </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    Employés Actifs
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {stats.employeesScheduled}
+                  </p>
+                </div>
+                <Users className="h-8 w-8 text-purple-500" />
               </div>
-              <Calendar className="h-8 w-8 text-purple-600" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    Cette Semaine
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {stats.shiftsThisWeek}
+                  </p>
+                </div>
+                <Calendar className="h-8 w-8 text-orange-500" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      <Tabs defaultValue="calendar" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="calendar">Vue Calendrier</TabsTrigger>
+          <TabsTrigger value="shifts">Liste des Créneaux</TabsTrigger>
+          <TabsTrigger value="employees">Employés</TabsTrigger>
+          <TabsTrigger value="analytics">Analyses</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="calendar" className="space-y-6">
+          {/* Navigation de semaine */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <Button variant="outline" onClick={() => navigateWeek('prev')}>
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <div className="text-center">
+                  <h3 className="text-lg font-semibold">
+                    {weekStart.toLocaleDateString('fr-FR', { 
+                      day: 'numeric', 
+                      month: 'long' 
+                    })} - {weekEnd.toLocaleDateString('fr-FR', { 
+                      day: 'numeric', 
+                      month: 'long', 
+                      year: 'numeric' 
+                    })}
+                  </h3>
+                </div>
+                <Button variant="outline" onClick={() => navigateWeek('next')}>
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Grille hebdomadaire */}
+          <Card>
+            <CardContent className="p-6">
+              <div className="grid grid-cols-8 gap-4">
+                {/* Header */}
+                <div className="font-semibold text-sm text-gray-600 dark:text-gray-400">
+                  Employé
+                </div>
+                {weekDays.map((day) => (
+                  <div key={day.toISOString()} className="text-center">
+                    <div className="font-semibold text-sm">
+                      {day.toLocaleDateString('fr-FR', { weekday: 'short' })}
+                    </div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">
+                      {day.getDate()}
+                    </div>
+                  </div>
+                ))}
+
+                {/* Employés et créneaux */}
+                {employees.filter(emp => emp.isActive).map((employee) => (
+                  <React.Fragment key={employee.id}>
+                    <div className="py-4 border-t">
+                      <div className="font-medium text-sm">
+                        {employee.firstName} {employee.lastName}
+                      </div>
+                      <Badge variant="outline" className="text-xs">
+                        {employee.position}
+                      </Badge>
+                    </div>
+                    {weekDays.map((day) => {
+                      const dayShifts = shifts.filter(shift => 
+                        shift.employeeId === employee.id &&
+                        new Date(shift.date).toDateString() === day.toDateString()
+                      );
+
+                      return (
+                        <div key={day.toISOString()} className="py-4 border-t min-h-[80px]">
+                          <div className="space-y-2">
+                            {dayShifts.map((shift) => (
+                              <div
+                                key={shift.id}
+                                className="text-xs p-2 rounded bg-blue-100 dark:bg-blue-900/20 cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-900/40"
+                              >
+                                <div className="font-medium">
+                                  {shift.startTime} - {shift.endTime}
+                                </div>
+                                <Badge className={getStatusColor(shift.status)} variant="outline">
+                                  {getStatusText(shift.status)}
+                                </Badge>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </React.Fragment>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="shifts" className="space-y-6">
+          <div className="space-y-4">
+            {shifts.map((shift) => (
+              <Card key={shift.id} className="hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4 flex-1">
+                      <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
+                        <Clock className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                      </div>
+                      
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="font-semibold text-gray-900 dark:text-white">
+                            {shift.employeeName}
+                          </h3>
+                          <Badge className={getStatusColor(shift.status)}>
+                            {getStatusText(shift.status)}
+                          </Badge>
+                          <Badge variant="outline">{shift.position}</Badge>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                          <div>
+                            <span className="text-gray-600 dark:text-gray-400">Date:</span>
+                            <p className="font-medium">
+                              {new Date(shift.date).toLocaleDateString('fr-FR')}
+                            </p>
+                          </div>
+                          <div>
+                            <span className="text-gray-600 dark:text-gray-400">Horaires:</span>
+                            <p className="font-medium">{shift.startTime} - {shift.endTime}</p>
+                          </div>
+                          <div>
+                            <span className="text-gray-600 dark:text-gray-400">Durée:</span>
+                            <p className="font-medium">
+                              {(() => {
+                                const start = new Date(`2000-01-01T${shift.startTime}`);
+                                const end = new Date(`2000-01-01T${shift.endTime}`);
+                                const diff = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+                                return `${diff}h`;
+                              })()}
+                            </p>
+                          </div>
+                          <div>
+                            <span className="text-gray-600 dark:text-gray-400">Notes:</span>
+                            <p className="font-medium">{shift.notes || 'Aucune'}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      {shift.status === 'scheduled' && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => updateShiftStatus(shift.id, 'confirmed')}
+                          className="text-green-600 hover:text-green-700"
+                        >
+                          Confirmer
+                        </Button>
+                      )}
+                      
+                      {shift.status === 'confirmed' && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => updateShiftStatus(shift.id, 'completed')}
+                          className="text-blue-600 hover:text-blue-700"
+                        >
+                          Terminer
+                        </Button>
+                      )}
+                      
+                      <Button size="sm" variant="outline">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="employees" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {employees.map((employee) => {
+              const employeeShifts = shifts.filter(shift => shift.employeeId === employee.id);
+              const totalHours = employeeShifts.reduce((sum, shift) => {
+                const start = new Date(`2000-01-01T${shift.startTime}`);
+                const end = new Date(`2000-01-01T${shift.endTime}`);
+                const diff = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+                return sum + diff;
+              }, 0);
+
+              return (
+                <Card key={employee.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="font-semibold text-gray-900 dark:text-white">
+                          {employee.firstName} {employee.lastName}
+                        </h3>
+                        <Badge variant="outline">{employee.position}</Badge>
+                      </div>
+                      <Badge className={employee.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
+                        {employee.isActive ? 'Actif' : 'Inactif'}
+                      </Badge>
+                    </div>
+                    
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span>Créneaux programmés:</span>
+                        <span className="font-semibold">{employeeShifts.length}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Total heures:</span>
+                        <span className="font-semibold">{totalHours.toFixed(1)}h</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Heures/semaine:</span>
+                        <span className="font-semibold">
+                          {(totalHours / Math.max(1, Math.ceil(employeeShifts.length / 7))).toFixed(1)}h
+                        </span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="analytics" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Répartition par Poste</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {Array.from(new Set(employees.map(emp => emp.position))).map((position) => {
+                    const positionEmployees = employees.filter(emp => emp.position === position);
+                    const positionShifts = shifts.filter(shift => shift.position === position);
+                    
+                    return (
+                      <div key={position} className="flex items-center justify-between">
+                        <span className="font-medium">{position}</span>
+                        <div className="text-right">
+                          <p className="font-semibold">{positionEmployees.length} employés</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">
+                            {positionShifts.length} créneaux
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Statistiques Hebdomadaires</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span>Créneaux confirmés:</span>
+                    <Badge className="bg-green-100 text-green-800">
+                      {shifts.filter(shift => shift.status === 'confirmed').length}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>En attente:</span>
+                    <Badge className="bg-blue-100 text-blue-800">
+                      {shifts.filter(shift => shift.status === 'scheduled').length}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Terminés:</span>
+                    <Badge className="bg-gray-100 text-gray-800">
+                      {shifts.filter(shift => shift.status === 'completed').length}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Taux de confirmation:</span>
+                    <span className="font-semibold">
+                      {shifts.length > 0 
+                        ? Math.round((shifts.filter(shift => shift.status === 'confirmed').length / shifts.length) * 100)
+                        : 0}%
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

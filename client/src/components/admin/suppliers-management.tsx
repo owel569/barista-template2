@@ -1,499 +1,342 @@
-import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
-import { Button } from '@/components/ui/button';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useToast } from '@/hooks/use-toast';
 import { 
-  Building2, 
-  Phone, 
-  Mail, 
-  MapPin, 
-  Star,
-  TrendingUp,
-  TrendingDown,
-  Package,
-  Euro,
-  Calendar,
-  Plus,
-  Edit,
-  Trash2,
-  Eye,
-  FileText,
-  Clock,
-  AlertTriangle,
-  CheckCircle
+  Truck, Plus, Edit, Trash2, Phone, Mail, MapPin, DollarSign, Package2, Star
 } from 'lucide-react';
-
-interface SuppliersManagementProps {
-  userRole?: 'directeur' | 'employe';
-}
 
 interface Supplier {
   id: number;
   name: string;
-  contact_person: string;
+  company: string;
   email: string;
   phone: string;
   address: string;
-  city: string;
-  postal_code: string;
   category: string;
   rating: number;
   status: 'active' | 'inactive' | 'pending';
-  payment_terms: string;
-  delivery_time: string;
-  notes: string;
-  created_at: string;
-  total_orders: number;
-  total_spent: number;
-  last_order: string;
+  totalOrders: number;
+  totalAmount: number;
+  lastOrder: string;
+  products: string[];
 }
 
-export default function SuppliersManagement({ userRole = 'directeur' }: SuppliersManagementProps) {
-  const [activeTab, setActiveTab] = useState('suppliers');
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
-  const [supplierForm, setSupplierForm] = useState({
-    name: '',
-    contact_person: '',
-    email: '',
-    phone: '',
-    address: '',
-    city: '',
-    postal_code: '',
-    category: '',
-    rating: 0,
-    status: 'active',
-    payment_terms: '',
-    delivery_time: '',
-    notes: ''
-  });
+interface SupplierStats {
+  totalSuppliers: number;
+  activeSuppliers: number;
+  totalOrders: number;
+  averageRating: number;
+}
 
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
+export default function SuppliersManagement() {
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [stats, setStats] = useState<SupplierStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
-  // Données factices pour les fournisseurs
-  const suppliers: Supplier[] = [
-    {
-      id: 1,
-      name: 'Café Premium SAS',
-      contact_person: 'Jean Dupont',
-      email: 'contact@cafepremium.fr',
-      phone: '+33 1 23 45 67 89',
-      address: '123 Rue du Commerce',
-      city: 'Paris',
-      postal_code: '75001',
-      category: 'Café',
-      rating: 4.5,
-      status: 'active',
-      payment_terms: '30 jours',
-      delivery_time: '2-3 jours',
-      notes: 'Excellent fournisseur, qualité constante',
-      created_at: '2024-01-15T09:00:00Z',
-      total_orders: 45,
-      total_spent: 15420.50,
-      last_order: '2025-07-05T14:30:00Z'
-    },
-    {
-      id: 2,
-      name: 'Laiterie du Terroir',
-      contact_person: 'Marie Martin',
-      email: 'marie@laiterieduterroir.fr',
-      phone: '+33 2 34 56 78 90',
-      address: '456 Route de la Ferme',
-      city: 'Rouen',
-      postal_code: '76000',
-      category: 'Produits laitiers',
-      rating: 4.2,
-      status: 'active',
-      payment_terms: '45 jours',
-      delivery_time: '1-2 jours',
-      notes: 'Produits bio de qualité',
-      created_at: '2024-02-20T10:15:00Z',
-      total_orders: 32,
-      total_spent: 8945.30,
-      last_order: '2025-07-08T11:20:00Z'
-    },
-    {
-      id: 3,
-      name: 'Boulangerie Artisanale',
-      contact_person: 'Pierre Lefevre',
-      email: 'pierre@boulangerie-artisanale.fr',
-      phone: '+33 3 45 67 89 01',
-      address: '789 Avenue des Boulangers',
-      city: 'Lyon',
-      postal_code: '69000',
-      category: 'Pâtisserie',
-      rating: 4.8,
-      status: 'active',
-      payment_terms: '15 jours',
-      delivery_time: '1 jour',
-      notes: 'Livraison très rapide, produits frais',
-      created_at: '2024-03-10T08:45:00Z',
-      total_orders: 67,
-      total_spent: 12876.90,
-      last_order: '2025-07-09T16:00:00Z'
+  useEffect(() => {
+    fetchSuppliersData();
+  }, []);
+
+  const fetchSuppliersData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      const [suppliersRes, statsRes] = await Promise.all([
+        fetch('/api/admin/suppliers', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }),
+        fetch('/api/admin/suppliers/stats', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+      ]);
+
+      if (suppliersRes.ok && statsRes.ok) {
+        const [suppliersData, statsData] = await Promise.all([
+          suppliersRes.json(),
+          statsRes.json()
+        ]);
+        
+        setSuppliers(suppliersData);
+        setStats(statsData);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des fournisseurs:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
-
-  const orders = [
-    {
-      id: 1,
-      supplier: 'Café Premium SAS',
-      date: '2025-07-05',
-      items: ['Café Arabica Premium - 10kg', 'Café Robusta - 5kg'],
-      amount: 450.00,
-      status: 'delivered',
-      delivery_date: '2025-07-07'
-    },
-    {
-      id: 2,
-      supplier: 'Laiterie du Terroir',
-      date: '2025-07-08',
-      items: ['Lait bio - 20L', 'Crème fraîche - 5L'],
-      amount: 85.50,
-      status: 'pending',
-      delivery_date: '2025-07-10'
-    },
-    {
-      id: 3,
-      supplier: 'Boulangerie Artisanale',
-      date: '2025-07-09',
-      items: ['Croissants - 50 pièces', 'Pain de mie - 10 pièces'],
-      amount: 127.50,
-      status: 'confirmed',
-      delivery_date: '2025-07-10'
-    }
-  ];
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const supplierData = {
-      ...supplierForm,
-      id: selectedSupplier?.id || Date.now(),
-      created_at: selectedSupplier?.created_at || new Date().toISOString(),
-      total_orders: selectedSupplier?.total_orders || 0,
-      total_spent: selectedSupplier?.total_spent || 0,
-      last_order: selectedSupplier?.last_order || ''
-    };
-
-    if (selectedSupplier) {
-      toast({
-        title: 'Succès',
-        description: 'Fournisseur modifié avec succès',
-      });
-    } else {
-      toast({
-        title: 'Succès',
-        description: 'Nouveau fournisseur ajouté avec succès',
-      });
-    }
-
-    setIsDialogOpen(false);
-    setSelectedSupplier(null);
-    setSupplierForm({
-      name: '',
-      contact_person: '',
-      email: '',
-      phone: '',
-      address: '',
-      city: '',
-      postal_code: '',
-      category: '',
-      rating: 0,
-      status: 'active',
-      payment_terms: '',
-      delivery_time: '',
-      notes: ''
-    });
-  };
-
-  const handleEdit = (supplier: Supplier) => {
-    setSelectedSupplier(supplier);
-    setSupplierForm({
-      name: supplier.name,
-      contact_person: supplier.contact_person,
-      email: supplier.email,
-      phone: supplier.phone,
-      address: supplier.address,
-      city: supplier.city,
-      postal_code: supplier.postal_code,
-      category: supplier.category,
-      rating: supplier.rating,
-      status: supplier.status,
-      payment_terms: supplier.payment_terms,
-      delivery_time: supplier.delivery_time,
-      notes: supplier.notes
-    });
-    setIsDialogOpen(true);
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-100 text-green-800';
-      case 'inactive': return 'bg-gray-100 text-gray-800';
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'delivered': return 'bg-green-100 text-green-800';
-      case 'confirmed': return 'bg-blue-100 text-blue-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'active':
+        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
+      case 'inactive':
+        return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
     }
   };
 
-  const getStatusIcon = (status: string) => {
+  const getStatusText = (status: string) => {
     switch (status) {
-      case 'active':
-      case 'delivered':
-        return <CheckCircle className="h-4 w-4" />;
-      case 'pending':
-        return <Clock className="h-4 w-4" />;
-      case 'inactive':
-        return <AlertTriangle className="h-4 w-4" />;
-      default:
-        return <AlertTriangle className="h-4 w-4" />;
+      case 'active': return 'Actif';
+      case 'inactive': return 'Inactif';
+      case 'pending': return 'En attente';
+      default: return 'Inconnu';
     }
   };
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'Café':
+        return 'bg-brown-100 text-brown-800 dark:bg-brown-900/20 dark:text-brown-400';
+      case 'Pâtisserie':
+        return 'bg-pink-100 text-pink-800 dark:bg-pink-900/20 dark:text-pink-400';
+      case 'Équipement':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400';
+      case 'Emballage':
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
+    }
+  };
+
+  const renderStars = (rating: number) => {
+    return Array.from({ length: 5 }, (_, index) => (
+      <Star
+        key={index}
+        className={`h-4 w-4 ${index < rating 
+          ? 'text-yellow-500 fill-current' 
+          : 'text-gray-300 dark:text-gray-600'
+        }`}
+      />
+    ));
+  };
+
+  const filteredSuppliers = suppliers.filter(supplier => {
+    const matchesSearch = supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         supplier.company.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || supplier.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  if (loading) {
+    return (
+      <div className="p-6 space-y-6">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-64"></div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Gestion des Fournisseurs</h2>
-        {userRole === 'directeur' && (
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={() => setSelectedSupplier(null)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Nouveau Fournisseur
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>
-                  {selectedSupplier ? 'Modifier le fournisseur' : 'Nouveau fournisseur'}
-                </DialogTitle>
-                <DialogDescription>
-                  Remplissez les informations du fournisseur
-                </DialogDescription>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="name">Nom de l'entreprise</Label>
-                    <Input
-                      id="name"
-                      value={supplierForm.name}
-                      onChange={(e) => setSupplierForm({...supplierForm, name: e.target.value})}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="contact_person">Personne de contact</Label>
-                    <Input
-                      id="contact_person"
-                      value={supplierForm.contact_person}
-                      onChange={(e) => setSupplierForm({...supplierForm, contact_person: e.target.value})}
-                      required
-                    />
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={supplierForm.email}
-                      onChange={(e) => setSupplierForm({...supplierForm, email: e.target.value})}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="phone">Téléphone</Label>
-                    <Input
-                      id="phone"
-                      value={supplierForm.phone}
-                      onChange={(e) => setSupplierForm({...supplierForm, phone: e.target.value})}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="address">Adresse</Label>
-                  <Input
-                    id="address"
-                    value={supplierForm.address}
-                    onChange={(e) => setSupplierForm({...supplierForm, address: e.target.value})}
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="city">Ville</Label>
-                    <Input
-                      id="city"
-                      value={supplierForm.city}
-                      onChange={(e) => setSupplierForm({...supplierForm, city: e.target.value})}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="postal_code">Code postal</Label>
-                    <Input
-                      id="postal_code"
-                      value={supplierForm.postal_code}
-                      onChange={(e) => setSupplierForm({...supplierForm, postal_code: e.target.value})}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="category">Catégorie</Label>
-                    <Select value={supplierForm.category} onValueChange={(value) => setSupplierForm({...supplierForm, category: value})}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choisir une catégorie" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Café">Café</SelectItem>
-                        <SelectItem value="Produits laitiers">Produits laitiers</SelectItem>
-                        <SelectItem value="Pâtisserie">Pâtisserie</SelectItem>
-                        <SelectItem value="Épicerie">Épicerie</SelectItem>
-                        <SelectItem value="Emballage">Emballage</SelectItem>
-                        <SelectItem value="Équipement">Équipement</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="status">Statut</Label>
-                    <Select value={supplierForm.status} onValueChange={(value) => setSupplierForm({...supplierForm, status: value as 'active' | 'inactive' | 'pending'})}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="active">Actif</SelectItem>
-                        <SelectItem value="inactive">Inactif</SelectItem>
-                        <SelectItem value="pending">En attente</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="payment_terms">Conditions de paiement</Label>
-                    <Input
-                      id="payment_terms"
-                      value={supplierForm.payment_terms}
-                      onChange={(e) => setSupplierForm({...supplierForm, payment_terms: e.target.value})}
-                      placeholder="ex: 30 jours"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="delivery_time">Délai de livraison</Label>
-                    <Input
-                      id="delivery_time"
-                      value={supplierForm.delivery_time}
-                      onChange={(e) => setSupplierForm({...supplierForm, delivery_time: e.target.value})}
-                      placeholder="ex: 2-3 jours"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="notes">Notes</Label>
-                  <Textarea
-                    id="notes"
-                    value={supplierForm.notes}
-                    onChange={(e) => setSupplierForm({...supplierForm, notes: e.target.value})}
-                    rows={3}
-                  />
-                </div>
-
-                <div className="flex justify-end space-x-2">
-                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                    Annuler
-                  </Button>
-                  <Button type="submit">
-                    {selectedSupplier ? 'Modifier' : 'Ajouter'}
-                  </Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
-        )}
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Gestion des Fournisseurs
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400">
+            Gestion des partenaires et fournisseurs
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Input
+            placeholder="Rechercher un fournisseur..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-64"
+          />
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="border rounded-lg px-3 py-2"
+          >
+            <option value="all">Toutes catégories</option>
+            <option value="Café">Café</option>
+            <option value="Pâtisserie">Pâtisserie</option>
+            <option value="Équipement">Équipement</option>
+            <option value="Emballage">Emballage</option>
+          </select>
+          <Button>
+            <Plus className="h-4 w-4 mr-2" />
+            Nouveau Fournisseur
+          </Button>
+        </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
+      {/* Statistiques */}
+      {stats && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    Total Fournisseurs
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {stats.totalSuppliers}
+                  </p>
+                </div>
+                <Truck className="h-8 w-8 text-blue-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    Fournisseurs Actifs
+                  </p>
+                  <p className="text-2xl font-bold text-green-600">
+                    {stats.activeSuppliers}
+                  </p>
+                </div>
+                <Package2 className="h-8 w-8 text-green-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    Commandes Totales
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {stats.totalOrders}
+                  </p>
+                </div>
+                <DollarSign className="h-8 w-8 text-purple-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    Note Moyenne
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-2xl font-bold text-yellow-600">
+                      {stats.averageRating.toFixed(1)}
+                    </p>
+                    <div className="flex">
+                      {renderStars(Math.round(stats.averageRating))}
+                    </div>
+                  </div>
+                </div>
+                <Star className="h-8 w-8 text-yellow-500" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      <Tabs defaultValue="suppliers" className="space-y-6">
+        <TabsList>
           <TabsTrigger value="suppliers">Fournisseurs</TabsTrigger>
           <TabsTrigger value="orders">Commandes</TabsTrigger>
+          <TabsTrigger value="contracts">Contrats</TabsTrigger>
           <TabsTrigger value="analytics">Analyses</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="suppliers" className="space-y-4">
-          <div className="grid gap-4">
-            {suppliers.map((supplier) => (
-              <Card key={supplier.id}>
+        <TabsContent value="suppliers" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {filteredSuppliers.map((supplier) => (
+              <Card key={supplier.id} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className="p-2 bg-blue-100 rounded-full">
-                        <Building2 className="h-6 w-6 text-blue-600" />
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
+                        <Truck className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold">{supplier.name}</h3>
-                        <p className="text-sm text-gray-600">{supplier.contact_person}</p>
-                        <div className="flex items-center space-x-4 mt-2">
-                          <span className="flex items-center text-sm text-gray-500">
-                            <Mail className="h-4 w-4 mr-1" />
-                            {supplier.email}
-                          </span>
-                          <span className="flex items-center text-sm text-gray-500">
-                            <Phone className="h-4 w-4 mr-1" />
-                            {supplier.phone}
-                          </span>
-                        </div>
+                        <h3 className="font-semibold text-gray-900 dark:text-white">
+                          {supplier.name}
+                        </h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {supplier.company}
+                        </p>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-4">
-                      <div className="text-right">
-                        <div className="text-sm font-medium">
-                          {supplier.total_orders} commandes
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {supplier.total_spent.toFixed(2)} €
-                        </div>
-                      </div>
-                      <Badge className={getStatusColor(supplier.status)}>
-                        {getStatusIcon(supplier.status)}
-                        <span className="ml-1">
-                          {supplier.status === 'active' ? 'Actif' : 
-                           supplier.status === 'inactive' ? 'Inactif' : 'En attente'}
-                        </span>
-                      </Badge>
-                      {userRole === 'directeur' && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEdit(supplier)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                      )}
+                    <Badge className={getStatusColor(supplier.status)}>
+                      {getStatusText(supplier.status)}
+                    </Badge>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Mail className="h-4 w-4 text-gray-500" />
+                      <span className="text-gray-600 dark:text-gray-400">{supplier.email}</span>
                     </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Phone className="h-4 w-4 text-gray-500" />
+                      <span className="text-gray-600 dark:text-gray-400">{supplier.phone}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <MapPin className="h-4 w-4 text-gray-500" />
+                      <span className="text-gray-600 dark:text-gray-400 truncate">{supplier.address}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 my-3">
+                    <Badge className={getCategoryColor(supplier.category)}>
+                      {supplier.category}
+                    </Badge>
+                    <div className="flex items-center gap-1">
+                      {renderStars(supplier.rating)}
+                      <span className="text-sm text-gray-600 dark:text-gray-400 ml-1">
+                        ({supplier.rating}/5)
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 text-sm border-t pt-3">
+                    <div>
+                      <span className="text-gray-600 dark:text-gray-400">Commandes:</span>
+                      <p className="font-semibold">{supplier.totalOrders}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600 dark:text-gray-400">Total:</span>
+                      <p className="font-semibold text-green-600">
+                        {supplier.totalAmount.toFixed(2)}€
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="text-xs text-gray-500 dark:text-gray-500 mt-2">
+                    Dernière commande: {new Date(supplier.lastOrder).toLocaleDateString('fr-FR')}
+                  </div>
+
+                  <div className="flex items-center gap-2 mt-4">
+                    <Button size="sm" variant="outline" className="flex-1">
+                      <Edit className="h-4 w-4 mr-2" />
+                      Modifier
+                    </Button>
+                    <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -501,96 +344,186 @@ export default function SuppliersManagement({ userRole = 'directeur' }: Supplier
           </div>
         </TabsContent>
 
-        <TabsContent value="orders" className="space-y-4">
+        <TabsContent value="orders" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Commandes Récentes</CardTitle>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Fournisseur</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Articles</TableHead>
-                    <TableHead>Montant</TableHead>
-                    <TableHead>Statut</TableHead>
-                    <TableHead>Livraison</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {orders.map((order) => (
-                    <TableRow key={order.id}>
-                      <TableCell>{order.supplier}</TableCell>
-                      <TableCell>{new Date(order.date).toLocaleDateString('fr-FR')}</TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          {order.items.map((item, idx) => (
-                            <div key={idx} className="text-sm">{item}</div>
-                          ))}
-                        </div>
-                      </TableCell>
-                      <TableCell>{order.amount.toFixed(2)} €</TableCell>
-                      <TableCell>
-                        <Badge className={getStatusColor(order.status)}>
-                          {order.status === 'delivered' ? 'Livré' :
-                           order.status === 'confirmed' ? 'Confirmé' : 'En attente'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {new Date(order.delivery_date).toLocaleDateString('fr-FR')}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <div className="space-y-4">
+                {[
+                  { id: 'ORD-001', supplier: 'Café Premium', amount: 1250.00, status: 'delivered', date: '2025-01-09' },
+                  { id: 'ORD-002', supplier: 'Pâtisserie Deluxe', amount: 890.50, status: 'pending', date: '2025-01-08' },
+                  { id: 'ORD-003', supplier: 'Équipement Pro', amount: 3450.00, status: 'processing', date: '2025-01-07' },
+                  { id: 'ORD-004', supplier: 'Emballage Eco', amount: 560.75, status: 'delivered', date: '2025-01-06' }
+                ].map((order) => (
+                  <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
+                        <Package2 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold">{order.id}</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{order.supplier}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="text-right">
+                      <p className="font-semibold">{order.amount.toFixed(2)}€</p>
+                      <Badge className={
+                        order.status === 'delivered' 
+                          ? 'bg-green-100 text-green-800' 
+                          : order.status === 'pending'
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : 'bg-blue-100 text-blue-800'
+                      }>
+                        {order.status === 'delivered' ? 'Livré' : 
+                         order.status === 'pending' ? 'En attente' : 'En cours'}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="analytics" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <TabsContent value="contracts" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm">Fournisseurs Actifs</CardTitle>
+                <CardTitle>Contrats Actifs</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
-                  {suppliers.filter(s => s.status === 'active').length}
+                <div className="space-y-4">
+                  {[
+                    { supplier: 'Café Premium', type: 'Annuel', expiry: '2025-12-31', value: 45000 },
+                    { supplier: 'Pâtisserie Deluxe', type: 'Trimestriel', expiry: '2025-03-31', value: 12000 },
+                    { supplier: 'Équipement Pro', type: 'Maintenance', expiry: '2025-06-30', value: 8500 }
+                  ].map((contract, index) => (
+                    <div key={index} className="p-4 border rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-semibold">{contract.supplier}</h4>
+                        <Badge variant="outline">{contract.type}</Badge>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-gray-600 dark:text-gray-400">Expiration:</span>
+                          <p className="font-medium">
+                            {new Date(contract.expiry).toLocaleDateString('fr-FR')}
+                          </p>
+                        </div>
+                        <div>
+                          <span className="text-gray-600 dark:text-gray-400">Valeur:</span>
+                          <p className="font-medium text-green-600">{contract.value.toFixed(2)}€</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <p className="text-sm text-gray-600">
-                  sur {suppliers.length} fournisseurs
-                </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm">Commandes ce mois</CardTitle>
+                <CardTitle>Contrats à Renouveler</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{orders.length}</div>
-                <p className="text-sm text-gray-600">
-                  Total: {orders.reduce((sum, order) => sum + order.amount, 0).toFixed(2)} €
-                </p>
+                <div className="space-y-4">
+                  {[
+                    { supplier: 'Emballage Eco', type: 'Annuel', expiry: '2025-02-15', value: 15000 },
+                    { supplier: 'Nettoyage Pro', type: 'Semestriel', expiry: '2025-01-31', value: 6000 }
+                  ].map((contract, index) => (
+                    <div key={index} className="p-4 border rounded-lg bg-yellow-50 dark:bg-yellow-900/20">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-semibold">{contract.supplier}</h4>
+                        <Badge className="bg-yellow-100 text-yellow-800">{contract.type}</Badge>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-gray-600 dark:text-gray-400">Expiration:</span>
+                          <p className="font-medium text-red-600">
+                            {new Date(contract.expiry).toLocaleDateString('fr-FR')}
+                          </p>
+                        </div>
+                        <div>
+                          <span className="text-gray-600 dark:text-gray-400">Valeur:</span>
+                          <p className="font-medium">{contract.value.toFixed(2)}€</p>
+                        </div>
+                      </div>
+                      <Button size="sm" className="w-full mt-3">
+                        Renouveler
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="analytics" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Performance par Catégorie</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {['Café', 'Pâtisserie', 'Équipement', 'Emballage'].map((category) => {
+                    const categorySuppliers = suppliers.filter(s => s.category === category);
+                    const avgRating = categorySuppliers.length > 0 
+                      ? categorySuppliers.reduce((sum, s) => sum + s.rating, 0) / categorySuppliers.length 
+                      : 0;
+                    
+                    return (
+                      <div key={category} className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Badge className={getCategoryColor(category)}>{category}</Badge>
+                          <span>{categorySuppliers.length} fournisseurs</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="flex">
+                            {renderStars(Math.round(avgRating))}
+                          </div>
+                          <span className="font-semibold">{avgRating.toFixed(1)}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm">Meilleur Fournisseur</CardTitle>
+                <CardTitle>Top Fournisseurs</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-lg font-bold">
-                  {suppliers.reduce((best, supplier) => 
-                    supplier.rating > best.rating ? supplier : best
-                  ).name}
+                <div className="space-y-4">
+                  {suppliers
+                    .sort((a, b) => b.totalAmount - a.totalAmount)
+                    .slice(0, 5)
+                    .map((supplier, index) => (
+                      <div key={supplier.id} className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                            {index + 1}
+                          </div>
+                          <div>
+                            <p className="font-medium">{supplier.name}</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">{supplier.company}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-green-600">{supplier.totalAmount.toFixed(2)}€</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">
+                            {supplier.totalOrders} commandes
+                          </p>
+                        </div>
+                      </div>
+                    ))}
                 </div>
-                <p className="text-sm text-gray-600">
-                  Note: {suppliers.reduce((best, supplier) => 
-                    supplier.rating > best.rating ? supplier : best
-                  ).rating}/5
-                </p>
               </CardContent>
             </Card>
           </div>

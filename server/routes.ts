@@ -1659,6 +1659,302 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // APIs pour les rapports
+  app.get('/api/admin/reports/data', authenticateToken, async (req, res) => {
+    try {
+      const reportData = {
+        totalSales: 45250.75,
+        totalCustomers: 342,
+        averageOrderValue: 23.50,
+        topProducts: [
+          { name: 'Cappuccino Premium', sales: 8750.25 },
+          { name: 'Croissant Artisanal', sales: 6890.50 },
+          { name: 'Latte Macchiato', sales: 5420.75 },
+          { name: 'Café Americano', sales: 4950.25 },
+          { name: 'Muffin Chocolat', sales: 3680.00 }
+        ],
+        salesTrend: [
+          { date: '2025-01-01', amount: 1250.00 },
+          { date: '2025-01-02', amount: 1480.50 },
+          { date: '2025-01-03', amount: 1650.75 },
+          { date: '2025-01-04', amount: 1890.25 },
+          { date: '2025-01-05', amount: 2150.00 },
+          { date: '2025-01-06', amount: 1980.75 },
+          { date: '2025-01-07', amount: 2250.50 }
+        ]
+      };
+      res.json(reportData);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
+  // APIs pour la comptabilité
+  app.get('/api/admin/accounting/transactions', authenticateToken, async (req, res) => {
+    try {
+      const transactions = [
+        {
+          id: 1,
+          type: 'income',
+          category: 'Ventes Café',
+          amount: 1250.50,
+          description: 'Ventes journalières café',
+          date: '2025-01-09',
+          reference: 'VTE-2025-001'
+        },
+        {
+          id: 2,
+          type: 'expense',
+          category: 'Matières Premières',
+          amount: 450.25,
+          description: 'Achat grains de café',
+          date: '2025-01-08',
+          reference: 'ACH-2025-001'
+        }
+      ];
+      res.json(transactions);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
+  app.get('/api/admin/accounting/summary', authenticateToken, async (req, res) => {
+    try {
+      const summary = {
+        totalIncome: 25680.75,
+        totalExpenses: 18420.50,
+        netProfit: 7260.25,
+        monthlyGrowth: 12.5
+      };
+      res.json(summary);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
+  // APIs pour les sauvegardes
+  app.get('/api/admin/backups', authenticateToken, async (req, res) => {
+    try {
+      const backups = [
+        {
+          id: 1,
+          name: 'Sauvegarde_2025-01-09',
+          type: 'manual',
+          status: 'completed',
+          size: 2458624,
+          createdAt: '2025-01-09T10:30:00Z',
+          tables: ['users', 'menu_items', 'reservations', 'orders']
+        },
+        {
+          id: 2,
+          name: 'Auto_Backup_2025-01-08',
+          type: 'automatic',
+          status: 'completed',
+          size: 2156789,
+          createdAt: '2025-01-08T02:00:00Z',
+          tables: ['users', 'menu_items', 'reservations', 'orders']
+        }
+      ];
+      res.json(backups);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
+  app.get('/api/admin/backups/settings', authenticateToken, async (req, res) => {
+    try {
+      const settings = {
+        autoBackupEnabled: true,
+        backupFrequency: 'daily',
+        retentionDays: 30,
+        compressionEnabled: true
+      };
+      res.json(settings);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
+  // APIs pour le calendrier
+  app.get('/api/admin/calendar/events', authenticateToken, async (req, res) => {
+    try {
+      const events = [
+        {
+          id: 1,
+          title: 'Réservation - Table 5',
+          type: 'reservation',
+          date: '2025-01-10',
+          startTime: '19:00',
+          endTime: '21:00',
+          description: 'Réservation pour 4 personnes',
+          attendees: ['Client Martin'],
+          status: 'confirmed'
+        },
+        {
+          id: 2,
+          title: 'Maintenance Machine à Café',
+          type: 'maintenance',
+          date: '2025-01-11',
+          startTime: '08:00',
+          endTime: '10:00',
+          description: 'Maintenance préventive',
+          attendees: ['Technicien Pro'],
+          status: 'scheduled'
+        }
+      ];
+      res.json(events);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
+  app.get('/api/admin/calendar/stats', authenticateToken, async (req, res) => {
+    try {
+      const stats = {
+        totalEvents: 25,
+        eventsThisWeek: 8,
+        reservationsToday: 12,
+        maintenanceScheduled: 3
+      };
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
+  // APIs pour les fournisseurs
+  app.get('/api/admin/suppliers', authenticateToken, async (req, res) => {
+    try {
+      const suppliers = [
+        {
+          id: 1,
+          name: 'Jean Dubois',
+          company: 'Café Premium SARL',
+          email: 'contact@cafe-premium.fr',
+          phone: '+33123456789',
+          address: '123 Rue du Commerce, 75001 Paris',
+          category: 'Café',
+          rating: 5,
+          status: 'active',
+          totalOrders: 45,
+          totalAmount: 12500.75,
+          lastOrder: '2025-01-08',
+          products: ['Arabica', 'Robusta', 'Expresso']
+        },
+        {
+          id: 2,
+          name: 'Marie Delacroix',
+          company: 'Pâtisserie Deluxe',
+          email: 'marie@patisserie-deluxe.fr',
+          phone: '+33234567890',
+          address: '456 Avenue des Gourmets, 75002 Paris',
+          category: 'Pâtisserie',
+          rating: 4,
+          status: 'active',
+          totalOrders: 32,
+          totalAmount: 8750.50,
+          lastOrder: '2025-01-07',
+          products: ['Croissants', 'Macarons', 'Gâteaux']
+        }
+      ];
+      res.json(suppliers);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
+  app.get('/api/admin/suppliers/stats', authenticateToken, async (req, res) => {
+    try {
+      const stats = {
+        totalSuppliers: 12,
+        activeSuppliers: 10,
+        totalOrders: 156,
+        averageRating: 4.3
+      };
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
+  // APIs pour la maintenance
+  app.get('/api/admin/maintenance/tasks', authenticateToken, async (req, res) => {
+    try {
+      const tasks = [
+        {
+          id: 1,
+          title: 'Maintenance Machine à Café Principale',
+          description: 'Nettoyage et calibrage de la machine principale',
+          equipment: 'Machine à Café Pro X1',
+          priority: 'high',
+          status: 'pending',
+          assignedTo: 'Technicien Martin',
+          scheduledDate: '2025-01-12',
+          cost: 150.00,
+          notes: 'Prévoir 2 heures d\'intervention'
+        },
+        {
+          id: 2,
+          title: 'Réparation Four Pâtisserie',
+          description: 'Remplacement du thermostat défaillant',
+          equipment: 'Four Convection Pro',
+          priority: 'urgent',
+          status: 'in_progress',
+          assignedTo: 'Technicien Dubois',
+          scheduledDate: '2025-01-10',
+          cost: 250.00,
+          notes: 'Pièce commandée'
+        }
+      ];
+      res.json(tasks);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
+  app.get('/api/admin/maintenance/equipment', authenticateToken, async (req, res) => {
+    try {
+      const equipment = [
+        {
+          id: 1,
+          name: 'Machine à Café Pro X1',
+          type: 'Machine à café',
+          location: 'Comptoir principal',
+          status: 'operational',
+          lastMaintenance: '2024-12-15',
+          nextMaintenance: '2025-01-15',
+          warrantyExpiry: '2025-12-31'
+        },
+        {
+          id: 2,
+          name: 'Four Convection Pro',
+          type: 'Four',
+          location: 'Cuisine',
+          status: 'maintenance',
+          lastMaintenance: '2024-11-20',
+          nextMaintenance: '2025-01-20'
+        }
+      ];
+      res.json(equipment);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
+  app.get('/api/admin/maintenance/stats', authenticateToken, async (req, res) => {
+    try {
+      const stats = {
+        totalTasks: 15,
+        pendingTasks: 5,
+        completedThisMonth: 8,
+        totalCost: 1250.75
+      };
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
   // Setup WebSocket server
   wsManager.initialize(server);
 

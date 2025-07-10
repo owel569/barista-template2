@@ -1,377 +1,482 @@
-import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Download, Calendar, TrendingUp, Users, ShoppingCart } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
-
-interface ReportsSystemProps {
-  userRole: 'directeur' | 'employe';
-}
+import { 
+  BarChart3, Download, Calendar, Users, DollarSign, TrendingUp, FileText, Filter
+} from 'lucide-react';
 
 interface Report {
-  id: number;
+  id: string;
   name: string;
-  type: 'sales' | 'customers' | 'products' | 'financial';
-  period: string;
-  createdAt: string;
-  status: 'completed' | 'generating' | 'failed';
+  type: 'sales' | 'customers' | 'inventory' | 'financial';
+  description: string;
+  lastGenerated: string;
+  format: 'PDF' | 'Excel' | 'CSV';
+  icon: any;
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+interface ReportData {
+  totalSales: number;
+  totalCustomers: number;
+  averageOrderValue: number;
+  topProducts: Array<{ name: string; sales: number }>;
+  salesTrend: Array<{ date: string; amount: number }>;
+}
 
-export default function ReportsSystem({ userRole }: ReportsSystemProps) {
-  const [reports, setReports] = useState<Report[]>([]);
-  const [salesData, setSalesData] = useState([]);
-  const [customerData, setCustomerData] = useState([]);
-  const [productData, setProductData] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isGenerating, setIsGenerating] = useState(false);
+export default function ReportsSystem() {
+  const [reportData, setReportData] = useState<ReportData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [generatingReport, setGeneratingReport] = useState<string | null>(null);
 
   useEffect(() => {
-    loadReports();
-    loadAnalyticsData();
+    fetchReportData();
   }, []);
 
-  const loadReports = async () => {
+  const fetchReportData = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/admin/reports', {
+      
+      const response = await fetch('/api/admin/reports/data', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      
+
       if (response.ok) {
         const data = await response.json();
-        setReports(data || []);
+        setReportData(data);
       }
     } catch (error) {
-      console.error('Erreur lors du chargement des rapports:', error);
-    }
-  };
-
-  const loadAnalyticsData = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      
-      const [salesRes, customerRes, productRes] = await Promise.all([
-        fetch('/api/admin/reports/sales-analytics', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('/api/admin/reports/customer-analytics', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('/api/admin/reports/product-analytics', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
-      ]);
-
-      if (salesRes.ok) {
-        const sales = await salesRes.json();
-        setSalesData(sales);
-      }
-      
-      if (customerRes.ok) {
-        const customers = await customerRes.json();
-        setCustomerData(customers);
-      }
-      
-      if (productRes.ok) {
-        const products = await productRes.json();
-        setProductData(products);
-      }
-    } catch (error) {
-      console.error('Erreur lors du chargement des données analytiques:', error);
+      console.error('Erreur lors du chargement des données de rapport:', error);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const generateReport = async (type: string, period: string) => {
-    if (userRole !== 'directeur') return;
-    
-    setIsGenerating(true);
+  const reports: Report[] = [
+    {
+      id: 'sales-monthly',
+      name: 'Rapport de Ventes Mensuel',
+      type: 'sales',
+      description: 'Analyse détaillée des ventes du mois avec tendances et comparaisons',
+      lastGenerated: '2025-01-09',
+      format: 'PDF',
+      icon: BarChart3
+    },
+    {
+      id: 'customers-analysis',
+      name: 'Analyse Clients',
+      type: 'customers',
+      description: 'Profil des clients, fidélité et comportements d\'achat',
+      lastGenerated: '2025-01-08',
+      format: 'Excel',
+      icon: Users
+    },
+    {
+      id: 'inventory-status',
+      name: 'État des Stocks',
+      type: 'inventory',
+      description: 'Niveau des stocks, alertes et prévisions de réapprovisionnement',
+      lastGenerated: '2025-01-09',
+      format: 'CSV',
+      icon: FileText
+    },
+    {
+      id: 'financial-summary',
+      name: 'Résumé Financier',
+      type: 'financial',
+      description: 'Bilan financier avec revenus, dépenses et rentabilité',
+      lastGenerated: '2025-01-07',
+      format: 'PDF',
+      icon: DollarSign
+    },
+    {
+      id: 'performance-dashboard',
+      name: 'Tableau de Bord Performance',
+      type: 'sales',
+      description: 'KPIs principaux et indicateurs de performance',
+      lastGenerated: '2025-01-09',
+      format: 'PDF',
+      icon: TrendingUp
+    },
+    {
+      id: 'customer-satisfaction',
+      name: 'Satisfaction Client',
+      type: 'customers',
+      description: 'Enquêtes, avis et niveau de satisfaction des clients',
+      lastGenerated: '2025-01-06',
+      format: 'Excel',
+      icon: Users
+    }
+  ];
+
+  const generateReport = async (reportId: string) => {
+    setGeneratingReport(reportId);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/admin/reports/generate', {
+      
+      const response = await fetch(`/api/admin/reports/generate/${reportId}`, {
         method: 'POST',
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ type, period })
-      });
-      
-      if (response.ok) {
-        await loadReports();
-      }
-    } catch (error) {
-      console.error('Erreur lors de la génération du rapport:', error);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const downloadReport = async (reportId: number) => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`/api/admin/reports/${reportId}/download`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      
+
       if (response.ok) {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `rapport-${reportId}.pdf`;
+        a.download = `${reportId}_${new Date().toISOString().split('T')[0]}.pdf`;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
       }
     } catch (error) {
-      console.error('Erreur lors du téléchargement:', error);
+      console.error('Erreur lors de la génération du rapport:', error);
+    } finally {
+      setGeneratingReport(null);
     }
   };
 
-  const getReportTypeIcon = (type: string) => {
+  const getTypeColor = (type: string) => {
     switch (type) {
-      case 'sales': return <TrendingUp className="h-4 w-4" />;
-      case 'customers': return <Users className="h-4 w-4" />;
-      case 'products': return <ShoppingCart className="h-4 w-4" />;
-      case 'financial': return <FileText className="h-4 w-4" />;
-      default: return <FileText className="h-4 w-4" />;
+      case 'sales':
+        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
+      case 'customers':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400';
+      case 'inventory':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
+      case 'financial':
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
     }
   };
 
-  const getReportTypeName = (type: string) => {
+  const getTypeText = (type: string) => {
     switch (type) {
       case 'sales': return 'Ventes';
       case 'customers': return 'Clients';
-      case 'products': return 'Produits';
+      case 'inventory': return 'Inventaire';
       case 'financial': return 'Financier';
-      default: return 'Rapport';
+      default: return 'Général';
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'generating': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-      case 'failed': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
-    }
-  };
-
-  if (isLoading) {
+  if (loading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-300">Chargement des rapports...</p>
+      <div className="p-6 space-y-6">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-64"></div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            ))}
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* En-tête */}
+    <div className="p-6 space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Système de Rapports</h2>
-          <p className="text-gray-600 dark:text-gray-300">Analyses et rapports détaillés de l'activité</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Système de Rapports
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400">
+            Génération et analyse de rapports détaillés
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline">
+            <Filter className="h-4 w-4 mr-2" />
+            Filtres
+          </Button>
+          <Button variant="outline">
+            <Calendar className="h-4 w-4 mr-2" />
+            Période
+          </Button>
         </div>
       </div>
 
-      <Tabs defaultValue="analytics" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="analytics">Analyses en Temps Réel</TabsTrigger>
-          <TabsTrigger value="reports">Rapports Générés</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="analytics" className="space-y-6">
-          {/* Graphique des ventes */}
+      {/* Statistiques rapides */}
+      {reportData && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <TrendingUp className="h-5 w-5 mr-2" />
-                Évolution des Ventes (7 derniers jours)
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={salesData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="revenue" stroke="#8884d8" strokeWidth={2} />
-                </LineChart>
-              </ResponsiveContainer>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    Ventes Totales
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {reportData.totalSales.toFixed(2)}€
+                  </p>
+                </div>
+                <DollarSign className="h-8 w-8 text-green-500" />
+              </div>
             </CardContent>
           </Card>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Répartition des clients */}
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    Total Clients
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {reportData.totalCustomers}
+                  </p>
+                </div>
+                <Users className="h-8 w-8 text-blue-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    Panier Moyen
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {reportData.averageOrderValue.toFixed(2)}€
+                  </p>
+                </div>
+                <BarChart3 className="h-8 w-8 text-purple-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    Rapports Générés
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {reports.length}
+                  </p>
+                </div>
+                <FileText className="h-8 w-8 text-orange-500" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      <Tabs defaultValue="available" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="available">Rapports Disponibles</TabsTrigger>
+          <TabsTrigger value="custom">Rapports Personnalisés</TabsTrigger>
+          <TabsTrigger value="scheduled">Rapports Programmés</TabsTrigger>
+          <TabsTrigger value="analytics">Analyses Avancées</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="available" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {reports.map((report) => {
+              const IconComponent = report.icon;
+              
+              return (
+                <Card key={report.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
+                          <IconComponent className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                            {report.name}
+                          </h3>
+                          <Badge className={getTypeColor(report.type)}>
+                            {getTypeText(report.type)}
+                          </Badge>
+                        </div>
+                      </div>
+                      <Badge variant="outline">{report.format}</Badge>
+                    </div>
+                    
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                      {report.description}
+                    </p>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs text-gray-500 dark:text-gray-500">
+                        Dernière génération: {new Date(report.lastGenerated).toLocaleDateString('fr-FR')}
+                      </div>
+                      <Button
+                        size="sm"
+                        onClick={() => generateReport(report.id)}
+                        disabled={generatingReport === report.id}
+                      >
+                        {generatingReport === report.id ? (
+                          <TrendingUp className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                          <Download className="h-4 w-4 mr-2" />
+                        )}
+                        Générer
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="custom" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Créer un Rapport Personnalisé</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold mb-2">Métriques Disponibles</h4>
+                    <div className="space-y-2">
+                      {['Ventes par période', 'Top produits', 'Analyse clients', 'Rentabilité', 'Stocks', 'Réservations'].map((metric) => (
+                        <label key={metric} className="flex items-center space-x-2">
+                          <input type="checkbox" className="rounded" />
+                          <span className="text-sm">{metric}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold mb-2">Options de Format</h4>
+                    <div className="space-y-2">
+                      {['PDF', 'Excel', 'CSV'].map((format) => (
+                        <label key={format} className="flex items-center space-x-2">
+                          <input type="radio" name="format" className="rounded" />
+                          <span className="text-sm">{format}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <Button className="w-full">
+                    Créer le Rapport
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="scheduled" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Users className="h-5 w-5 mr-2" />
-                  Répartition des Clients
-                </CardTitle>
+                <CardTitle>Rapports Programmés</CardTitle>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={250}>
-                  <PieChart>
-                    <Pie
-                      data={customerData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    >
-                      {customerData.map((entry: any, index: number) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
+                <div className="space-y-4">
+                  {[
+                    { name: 'Rapport Hebdomadaire', frequency: 'Chaque lundi', nextRun: '2025-01-13' },
+                    { name: 'Bilan Mensuel', frequency: 'Le 1er de chaque mois', nextRun: '2025-02-01' },
+                    { name: 'Analyse Trimestrielle', frequency: 'Chaque trimestre', nextRun: '2025-04-01' }
+                  ].map((scheduled, index) => (
+                    <div key={index} className="p-4 border rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-semibold">{scheduled.name}</h4>
+                        <Badge className="bg-blue-100 text-blue-800">Actif</Badge>
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                        {scheduled.frequency}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-500">
+                        Prochaine exécution: {new Date(scheduled.nextRun).toLocaleDateString('fr-FR')}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
 
-            {/* Top produits */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <ShoppingCart className="h-5 w-5 mr-2" />
-                  Produits les Plus Vendus
-                </CardTitle>
+                <CardTitle>Nouveau Rapport Programmé</CardTitle>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={productData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="sales" fill="#82ca9d" />
-                  </BarChart>
-                </ResponsiveContainer>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Nom du rapport</label>
+                    <input type="text" className="w-full border rounded-lg px-3 py-2" placeholder="Mon rapport personnalisé" />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Fréquence</label>
+                    <select className="w-full border rounded-lg px-3 py-2">
+                      <option>Quotidien</option>
+                      <option>Hebdomadaire</option>
+                      <option>Mensuel</option>
+                      <option>Trimestriel</option>
+                    </select>
+                  </div>
+                  
+                  <Button className="w-full">
+                    Programmer le Rapport
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>
         </TabsContent>
 
-        <TabsContent value="reports" className="space-y-6">
-          {/* Génération de rapports */}
-          {userRole === 'directeur' && (
+        <TabsContent value="analytics" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>Générer un Nouveau Rapport</CardTitle>
+                <CardTitle>Top Produits</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <Button
-                    onClick={() => generateReport('sales', 'monthly')}
-                    disabled={isGenerating}
-                    variant="outline"
-                    className="h-20 flex-col"
-                  >
-                    <TrendingUp className="h-6 w-6 mb-2" />
-                    <span>Rapport Ventes</span>
-                  </Button>
-                  
-                  <Button
-                    onClick={() => generateReport('customers', 'monthly')}
-                    disabled={isGenerating}
-                    variant="outline"
-                    className="h-20 flex-col"
-                  >
-                    <Users className="h-6 w-6 mb-2" />
-                    <span>Rapport Clients</span>
-                  </Button>
-                  
-                  <Button
-                    onClick={() => generateReport('products', 'monthly')}
-                    disabled={isGenerating}
-                    variant="outline"
-                    className="h-20 flex-col"
-                  >
-                    <ShoppingCart className="h-6 w-6 mb-2" />
-                    <span>Rapport Produits</span>
-                  </Button>
-                  
-                  <Button
-                    onClick={() => generateReport('financial', 'monthly')}
-                    disabled={isGenerating}
-                    variant="outline"
-                    className="h-20 flex-col"
-                  >
-                    <FileText className="h-6 w-6 mb-2" />
-                    <span>Rapport Financier</span>
-                  </Button>
+                <div className="space-y-4">
+                  {reportData?.topProducts.map((product, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                          {index + 1}
+                        </div>
+                        <span className="font-medium">{product.name}</span>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-green-600">{product.sales}€</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">ventes</p>
+                      </div>
+                    </div>
+                  )) || []}
                 </div>
               </CardContent>
             </Card>
-          )}
 
-          {/* Liste des rapports */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Rapports Disponibles</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {reports.length === 0 ? (
-                <div className="text-center py-8">
-                  <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600 dark:text-gray-300">Aucun rapport généré</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {reports.map((report) => (
-                    <div key={report.id} className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-                      <div className="flex items-center space-x-4">
-                        {getReportTypeIcon(report.type)}
-                        <div>
-                          <p className="font-medium">{report.name}</p>
-                          <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300">
-                            <span>{getReportTypeName(report.type)}</span>
-                            <span>•</span>
-                            <span>{report.period}</span>
-                            <span>•</span>
-                            <span>{new Date(report.createdAt).toLocaleDateString('fr-FR')}</span>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2">
-                        <Badge className={getStatusColor(report.status)}>
-                          {report.status === 'completed' ? 'Terminé' : 
-                           report.status === 'generating' ? 'Génération...' : 'Échoué'}
-                        </Badge>
-                        {report.status === 'completed' && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => downloadReport(report.id)}
-                          >
-                            <Download className="h-4 w-4 mr-1" />
-                            Télécharger
-                          </Button>
-                        )}
-                      </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Tendance des Ventes</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {reportData?.salesTrend.slice(0, 7).map((day, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <span className="text-sm">{new Date(day.date).toLocaleDateString('fr-FR')}</span>
+                      <span className="font-semibold">{day.amount.toFixed(2)}€</span>
                     </div>
-                  ))}
+                  )) || []}
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
