@@ -23,7 +23,10 @@ import {
   Shield,
   Database,
   Clock,
-  FileText
+  FileText,
+  Server,
+  Building2,
+  Wrench
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -54,6 +57,9 @@ import ReportsSystem from '@/components/admin/reports-system';
 import CalendarSystem from '@/components/admin/calendar-system';
 import DragDropSystem from '@/components/admin/drag-drop-system';
 import NotificationsSystem from '@/components/admin/notifications-system';
+import SystemMonitoring from '@/components/admin/system-monitoring';
+import SuppliersManagement from '@/components/admin/suppliers-management';
+import MaintenanceSystem from '@/components/admin/maintenance-system';
 
 interface User {
   id: number;
@@ -196,7 +202,10 @@ export default function AdminSimple() {
         { icon: FileText, label: 'Rapports', section: 'reports', module: 'reports' },
         { icon: Calendar, label: 'Calendrier', section: 'calendar', module: 'calendar' },
         { icon: Bell, label: 'Notifications', section: 'notifications', module: 'notifications' },
-        { icon: Settings, label: 'Glisser-Déposer', section: 'dragdrop', module: 'dragdrop' }
+        { icon: Settings, label: 'Glisser-Déposer', section: 'dragdrop', module: 'dragdrop' },
+        { icon: Server, label: 'Monitoring', section: 'monitoring', module: 'monitoring' },
+        { icon: Building2, label: 'Fournisseurs', section: 'suppliers', module: 'suppliers' },
+        { icon: Wrench, label: 'Maintenance', section: 'maintenance', module: 'maintenance' }
       );
     }
 
@@ -226,6 +235,9 @@ export default function AdminSimple() {
       case 'calendar': return hasPermission('employees', 'view') ? <CalendarSystem userRole={user.role} /> : <div>Accès non autorisé</div>;
       case 'notifications': return hasPermission('employees', 'view') ? <NotificationsSystem userRole={user.role} /> : <div>Accès non autorisé</div>;
       case 'dragdrop': return hasPermission('employees', 'view') ? <DragDropSystem userRole={user.role} /> : <div>Accès non autorisé</div>;
+      case 'monitoring': return hasPermission('employees', 'view') ? <SystemMonitoring userRole={user.role} /> : <div>Accès non autorisé</div>;
+      case 'suppliers': return hasPermission('employees', 'view') ? <SuppliersManagement userRole={user.role} /> : <div>Accès non autorisé</div>;
+      case 'maintenance': return hasPermission('employees', 'view') ? <MaintenanceSystem userRole={user.role} /> : <div>Accès non autorisé</div>;
       default: return <Dashboard />;
     }
   };
