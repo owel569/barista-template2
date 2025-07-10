@@ -1,20 +1,10 @@
 import type { Express, Request, Response, NextFunction } from "express";
+import type { VerifyErrors } from "jsonwebtoken";
 import { createServer, type Server } from "http";
 import { wsManager } from "./websocket";
 import { storage } from "./storage";
 
-// Augmentation du type Express Request pour inclure la propriété user
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        id: number;
-        username: string;
-        role: string;
-      };
-    }
-  }
-}
+// Les types Express sont maintenant définis dans server/types/express.d.ts
 import { 
   insertReservationSchema, 
   insertContactMessageSchema, 
@@ -43,11 +33,12 @@ const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
     return res.status(401).json({ message: 'Token d\'accès requis' });
   }
 
-  jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
+  jwt.verify(token, JWT_SECRET, (err: VerifyErrors | null, decoded: any) => {
     if (err) {
+      console.log('Token verification failed:', err.message);
       return res.status(403).json({ message: 'Token invalide' });
     }
-    req.user = user;
+    req.user = decoded as { id: number; username: string; role: string };
     next();
   });
 };
