@@ -1047,6 +1047,195 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/admin/stats/orders-by-status", authenticateToken, async (req, res) => {
     try {
+      const orders = await storage.getOrdersByStatus();
+      res.json(orders);
+    } catch (error) {
+      res.status(500).json([
+        { status: 'en_attente', count: 3 },
+        { status: 'en_preparation', count: 5 },
+        { status: 'termine', count: 12 }
+      ]);
+    }
+  });
+
+  // Admin employees routes
+  app.get("/api/admin/employees", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const employees = await storage.getEmployees();
+      res.json(employees);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des employés" });
+    }
+  });
+
+  app.post("/api/admin/employees", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const employeeData = insertEmployeeSchema.parse(req.body);
+      const employee = await storage.createEmployee(employeeData);
+      wsManager.notifyDataUpdate('employees', employee);
+      res.status(201).json(employee);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la création de l'employé" });
+    }
+  });
+
+  app.put("/api/admin/employees/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updateData = req.body;
+      const employee = await storage.updateEmployee(id, updateData);
+      
+      if (!employee) {
+        return res.status(404).json({ message: "Employé non trouvé" });
+      }
+      
+      wsManager.notifyDataUpdate('employees', employee);
+      res.json(employee);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour de l'employé" });
+    }
+  });
+
+  app.delete("/api/admin/employees/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deleteEmployee(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Employé non trouvé" });
+      }
+      
+      wsManager.notifyDataUpdate('employees', { id, deleted: true });
+      res.json({ message: "Employé supprimé avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la suppression de l'employé" });
+    }
+  });
+
+  // Admin customers routes
+  app.get("/api/admin/customers", authenticateToken, async (req, res) => {
+    try {
+      const customers = await storage.getCustomers();
+      res.json(customers);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des clients" });
+    }
+  });
+
+  app.post("/api/admin/customers", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const customerData = insertCustomerSchema.parse(req.body);
+      const customer = await storage.createCustomer(customerData);
+      wsManager.notifyDataUpdate('customers', customer);
+      res.status(201).json(customer);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la création du client" });
+    }
+  });
+
+  app.put("/api/admin/customers/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updateData = req.body;
+      const customer = await storage.updateCustomer(id, updateData);
+      
+      if (!customer) {
+        return res.status(404).json({ message: "Client non trouvé" });
+      }
+      
+      wsManager.notifyDataUpdate('customers', customer);
+      res.json(customer);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour du client" });
+    }
+  });
+
+  app.delete("/api/admin/customers/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deleteCustomer(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Client non trouvé" });
+      }
+      
+      wsManager.notifyDataUpdate('customers', { id, deleted: true });
+      res.json({ message: "Client supprimé avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la suppression du client" });
+    }
+  });
+
+  // Admin work shifts routes
+  app.get("/api/admin/work-shifts", authenticateToken, async (req, res) => {
+    try {
+      const shifts = await storage.getWorkShifts();
+      res.json(shifts);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des horaires" });
+    }
+  });
+
+  app.post("/api/admin/work-shifts", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const shiftData = insertWorkShiftSchema.parse(req.body);
+      const shift = await storage.createWorkShift(shiftData);
+      wsManager.notifyDataUpdate('work-shifts', shift);
+      res.status(201).json(shift);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la création de l'horaire" });
+    }
+  });
+
+  app.put("/api/admin/work-shifts/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updateData = req.body;
+      const shift = await storage.updateWorkShift(id, updateData);
+      
+      if (!shift) {
+        return res.status(404).json({ message: "Horaire non trouvé" });
+      }
+      
+      wsManager.notifyDataUpdate('work-shifts', shift);
+      res.json(shift);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour de l'horaire" });
+    }
+  });
+
+  app.delete("/api/admin/work-shifts/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deleteWorkShift(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Horaire non trouvé" });
+      }
+      
+      wsManager.notifyDataUpdate('work-shifts', { id, deleted: true });
+      res.json({ message: "Horaire supprimé avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la suppression de l'horaire" });
+    }
+  });
+
+  // Admin inventory routes
+  app.get("/api/admin/inventory/alerts", authenticateToken, async (req, res) => {
+    try {
+      // Simulation d'alertes d'inventaire
+      const alerts = [
+        { id: 1, item: 'Café Arabica', currentStock: 2, minStock: 5, alert: 'low' },
+        { id: 2, item: 'Lait', currentStock: 0, minStock: 10, alert: 'critical' }
+      ];
+      res.json(alerts);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.get("/api/orders", async (req, res) => {
+    try {
       const orders = await storage.getOrders();
       const statusCount = orders.reduce((acc, order) => {
         acc[order.status] = (acc[order.status] || 0) + 1;

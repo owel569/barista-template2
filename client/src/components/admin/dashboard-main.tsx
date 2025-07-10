@@ -52,28 +52,28 @@ export default function DashboardMain() {
     queryFn: async () => {
       const [reservations, revenue, orders, occupancy, messages, inventory, customers, employees] = await Promise.all([
         fetch('/api/admin/stats/today-reservations', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
         }).then(r => r.json()),
         fetch('/api/admin/stats/monthly-revenue', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
         }).then(r => r.json()),
         fetch('/api/admin/stats/active-orders', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
         }).then(r => r.json()),
         fetch('/api/admin/stats/occupancy-rate', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
         }).then(r => r.json()),
         fetch('/api/admin/notifications/new-messages', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
         }).then(r => r.json().catch(() => ({ count: 0 }))),
         fetch('/api/admin/inventory/alerts', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
         }).then(r => r.json().catch(() => [])),
         fetch('/api/admin/customers', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
         }).then(r => r.json().catch(() => [])),
         fetch('/api/admin/employees', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
         }).then(r => r.json().catch(() => []))
       ]);
 

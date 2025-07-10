@@ -1,117 +1,118 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { toast } from '@/hooks/use-toast';
+import type { NotificationData } from '@/types/admin';
 
-interface NotificationData {
-  pendingReservations: number;
-  newMessages: number;
-  pendingOrders: number;
-  lowStockItems: number;
-}
-
-export function useWebSocket() {
+export const useWebSocket = () => {
   const [isConnected, setIsConnected] = useState(false);
-  const [notifications, setNotifications] = useState<NotificationData>({
-    pendingReservations: 0,
-    newMessages: 0,
-    pendingOrders: 0,
-    lowStockItems: 0
-  });
-  
-  const wsRef = useRef<WebSocket | null>(null);
-  const lastFetchRef = useRef<number>(0);
-  const mountedRef = useRef(true);
+  const [notifications, setNotifications] = useState<NotificationData[]>([]);
+  const ws = useRef<WebSocket | null>(null);
+  const reconnectTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  const connect = () => {
+    try {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${window.location.host}/ws`;
+      
+      ws.current = new WebSocket(wsUrl);
+
+      ws.current.onopen = () => {
+        console.log('WebSocket connecté');
+        setIsConnected(true);
+        if (reconnectTimeout.current) {
+          clearTimeout(reconnectTimeout.current);
+          reconnectTimeout.current = null;
+        }
+      };
+
+      ws.current.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          handleNotification(data);
+        } catch (error) {
+          console.error('Erreur parsing message WebSocket:', error);
+        }
+      };
+
+      ws.current.onclose = () => {
+        console.log('WebSocket déconnecté');
+        setIsConnected(false);
+        // Reconnexion automatique après 3 secondes
+        if (!reconnectTimeout.current) {
+          reconnectTimeout.current = setTimeout(() => {
+            connect();
+          }, 3000);
+        }
+      };
+
+      ws.current.onerror = (error) => {
+        console.error('Erreur WebSocket:', error);
+        setIsConnected(false);
+      };
+    } catch (error) {
+      console.error('Erreur connexion WebSocket:', error);
+      setIsConnected(false);
+    }
+  };
+
+  const handleNotification = (data: any) => {
+    const notification: NotificationData = {
+      id: Date.now(),
+      type: data.type || 'system',
+      title: data.title || 'Nouvelle notification',
+      message: data.message || '',
+      read: false,
+      timestamp: new Date(),
+      data: data.data
+    };
+
+    setNotifications(prev => [notification, ...prev.slice(0, 49)]); // Garder max 50 notifications
+
+    // Afficher toast pour les nouvelles notifications importantes
+    if (['reservation', 'order', 'message'].includes(notification.type)) {
+      toast({
+        title: notification.title,
+        description: notification.message,
+      });
+    }
+  };
+
+  const markAsRead = (notificationId: number) => {
+    setNotifications(prev => 
+      prev.map(n => 
+        n.id === notificationId ? { ...n, read: true } : n
+      )
+    );
+  };
+
+  const clearNotifications = () => {
+    setNotifications([]);
+  };
+
+  const sendMessage = (message: any) => {
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      ws.current.send(JSON.stringify(message));
+    }
+  };
 
   useEffect(() => {
-    mountedRef.current = true;
-    
-    // Fetch notifications once on mount
-    const fetchInitialNotifications = async () => {
-      const now = Date.now();
-      if (now - lastFetchRef.current < 1000) return; // Throttle to 1 second
-      
-      try {
-        const token = localStorage.getItem('token');
-        if (!token || !mountedRef.current) return;
-
-        lastFetchRef.current = now;
-        const response = await fetch('/api/admin/notifications/count', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (response.ok && mountedRef.current) {
-          const data = await response.json();
-          setNotifications(data);
-        }
-      } catch (error) {
-        console.log('Erreur notifications:', error);
-      }
-    };
-
-    fetchInitialNotifications();
-
-    // Connect WebSocket only once
-    const connectWebSocket = () => {
-      if (wsRef.current?.readyState === WebSocket.OPEN) return;
-      
-      try {
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${protocol}//${window.location.host}/ws`;
-        
-        wsRef.current = new WebSocket(wsUrl);
-
-        wsRef.current.onopen = () => {
-          if (mountedRef.current) {
-            console.log('WebSocket connecté');
-            setIsConnected(true);
-          }
-        };
-
-        wsRef.current.onmessage = (event) => {
-          if (!mountedRef.current) return;
-          
-          try {
-            const message = JSON.parse(event.data);
-            if (message.type === 'notification' || message.type === 'data_update') {
-              // Trigger a single notification refresh
-              setTimeout(() => {
-                if (mountedRef.current) {
-                  fetchInitialNotifications();
-                }
-              }, 1000);
-            }
-          } catch (error) {
-            console.log('Message WebSocket non géré');
-          }
-        };
-
-        wsRef.current.onclose = () => {
-          if (mountedRef.current) {
-            console.log('WebSocket fermé');
-            setIsConnected(false);
-          }
-        };
-
-        wsRef.current.onerror = () => {
-          if (mountedRef.current) {
-            setIsConnected(false);
-          }
-        };
-      } catch (error) {
-        console.log('Erreur WebSocket:', error);
-      }
-    };
-
-    connectWebSocket();
+    connect();
 
     return () => {
-      mountedRef.current = false;
-      if (wsRef.current?.readyState === WebSocket.OPEN) {
-        wsRef.current.close();
+      if (reconnectTimeout.current) {
+        clearTimeout(reconnectTimeout.current);
+      }
+      if (ws.current) {
+        ws.current.close();
       }
     };
   }, []);
 
   return {
     isConnected,
-    notifications
+    notifications,
+    unreadCount: notifications.filter(n => !n.read).length,
+    markAsRead,
+    clearNotifications,
+    sendMessage
   };
-}
+};
