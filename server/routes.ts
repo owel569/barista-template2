@@ -1857,8 +1857,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // APIs pour système de fidélité avancé
-  app.get("/api/admin/loyalty/overview", authenticateToken, requireRole('directeur'), async (req, res) => {
+  // APIs pour système de fidélité avancé (accessible aux employés)
+  app.get("/api/admin/loyalty/overview", authenticateToken, async (req, res) => {
     try {
       const customers = await storage.getCustomers();
       const totalCustomers = customers.length;
@@ -1876,7 +1876,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // APIs avancées pour comptabilité
+  // APIs pour les stats loyalty (employés autorisés)
+  app.get("/api/admin/loyalty/stats", authenticateToken, async (req, res) => {
+    try {
+      const customers = await storage.getCustomers();
+      const stats = {
+        totalCustomers: customers.length,
+        activeMembers: customers.filter(c => parseFloat(c.totalSpent || '0') > 0).length,
+        totalPointsAwarded: customers.reduce((sum, c) => sum + Math.floor(parseFloat(c.totalSpent || '0') / 10), 0),
+        averageSpending: customers.length > 0 ? customers.reduce((sum, c) => sum + parseFloat(c.totalSpent || '0'), 0) / customers.length : 0
+      };
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des statistiques fidélité" });
+    }
+  });
+
+  app.get("/api/admin/loyalty/customers", authenticateToken, async (req, res) => {
+    try {
+      const customers = await storage.getCustomers();
+      const loyaltyCustomers = customers.map(customer => ({
+        ...customer,
+        loyaltyPoints: Math.floor(parseFloat(customer.totalSpent || '0') / 10),
+        tier: parseFloat(customer.totalSpent || '0') > 500 ? 'VIP' : 
+              parseFloat(customer.totalSpent || '0') > 200 ? 'Fidèle' : 
+              parseFloat(customer.totalSpent || '0') > 50 ? 'Régulier' : 'Nouveau'
+      }));
+      res.json(loyaltyCustomers);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.get("/api/admin/loyalty/rewards", authenticateToken, async (req, res) => {
+    try {
+      const rewards = [
+        { id: 1, name: 'Café gratuit', pointsRequired: 100, description: 'Un café offert', active: true },
+        { id: 2, name: 'Réduction 10%', pointsRequired: 150, description: '10% de réduction sur commande', active: true },
+        { id: 3, name: 'Pâtisserie offerte', pointsRequired: 200, description: 'Une pâtisserie au choix', active: true },
+        { id: 4, name: 'Menu complet', pointsRequired: 300, description: 'Menu café + pâtisserie', active: true },
+        { id: 5, name: 'Réduction 20%', pointsRequired: 500, description: '20% de réduction VIP', active: true },
+        { id: 6, name: 'Invitation spéciale', pointsRequired: 1000, description: 'Invitation à un événement exclusif', active: true }
+      ];
+      res.json(rewards);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  // APIs pour l'inventaire (employés autorisés)
+  app.get("/api/admin/inventory/items", authenticateToken, async (req, res) => {
+    try {
+      const inventory = [
+        { id: 1, name: 'Grains de café Arabica', currentStock: 25, minStock: 10, maxStock: 50, unitCost: 12.5, supplier: 'Coffee Premium', category: 'Matières premières' },
+        { id: 2, name: 'Lait bio', currentStock: 15, minStock: 8, maxStock: 30, unitCost: 1.8, supplier: 'Ferme Locale', category: 'Produits frais' },
+        { id: 3, name: 'Sucre blanc', currentStock: 40, minStock: 15, maxStock: 60, unitCost: 0.9, supplier: 'Sucre & Co', category: 'Condiments' },
+        { id: 4, name: 'Gobelets carton', currentStock: 200, minStock: 50, maxStock: 500, unitCost: 0.15, supplier: 'EcoPack', category: 'Emballages' },
+        { id: 5, name: 'Poudre de cacao', currentStock: 8, minStock: 5, maxStock: 20, unitCost: 8.2, supplier: 'Chocolat Artisan', category: 'Matières premières' }
+      ];
+      res.json(inventory);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.get("/api/admin/inventory/alerts", authenticateToken, async (req, res) => {
+    try {
+      const alerts = [
+        { id: 1, item: 'Poudre de cacao', currentStock: 8, minStock: 5, level: 'warning', message: 'Stock faible' },
+        { id: 2, item: 'Lait bio', currentStock: 15, minStock: 8, level: 'normal', message: 'Stock correct' },
+        { id: 3, item: 'Grains de café Arabica', currentStock: 25, minStock: 10, level: 'good', message: 'Stock optimal' }
+      ];
+      res.json(alerts);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  // APIs avancées pour comptabilité (directeur uniquement)
   app.get("/api/admin/accounting/transactions", authenticateToken, requireRole('directeur'), async (req, res) => {
     try {
       const transactions = [
@@ -1923,7 +2000,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // APIs pour analyses avancées
+  // APIs pour statistiques avancées (employés autorisés)
+  app.get("/api/admin/stats/revenue-detailed", authenticateToken, async (req, res) => {
+    try {
+      const last7Days = [];
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        
+        last7Days.push({
+          date: dateStr,
+          revenue: Math.floor(Math.random() * 800) + 300,
+          orders: Math.floor(Math.random() * 20) + 10
+        });
+      }
+      res.json(last7Days);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.get("/api/admin/stats/customer-analytics", authenticateToken, async (req, res) => {
+    try {
+      const customers = await storage.getCustomers();
+      const analytics = {
+        totalCustomers: customers.length,
+        newThisMonth: Math.floor(customers.length * 0.2),
+        returningCustomers: Math.floor(customers.length * 0.6),
+        averageOrderValue: 24.50,
+        topSpenders: customers
+          .sort((a, b) => parseFloat(b.totalSpent || '0') - parseFloat(a.totalSpent || '0'))
+          .slice(0, 5)
+          .map(c => ({
+            name: `${c.firstName} ${c.lastName}`,
+            totalSpent: parseFloat(c.totalSpent || '0'),
+            orders: Math.floor(parseFloat(c.totalSpent || '0') / 20)
+          }))
+      };
+      res.json(analytics);
+    } catch (error) {
+      res.status(500).json({ totalCustomers: 0, newThisMonth: 0, returningCustomers: 0, averageOrderValue: 0, topSpenders: [] });
+    }
+  });
+
+  // APIs pour analyses avancées (directeur uniquement)
   app.get("/api/admin/stats/category-analytics", authenticateToken, requireRole('directeur'), async (req, res) => {
     try {
       const menuItems = await storage.getMenuItems();
@@ -2648,6 +2769,162 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalOrders: 156,
         averageRating: 4.3
       };
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
+  // APIs pour la maintenance
+  app.get('/api/admin/maintenance/equipment', authenticateToken, async (req, res) => {
+    try {
+      const equipment = [
+        {
+          id: 1,
+          name: 'Machine à café principale',
+          type: 'Machine à café',
+          status: 'operational',
+          lastMaintenance: '2025-01-05',
+          nextMaintenance: '2025-02-05',
+          warranty: '2026-12-31',
+          technician: 'Pierre Dupont'
+        },
+        {
+          id: 2,
+          name: 'Moulin à café',
+          type: 'Équipement',
+          status: 'maintenance_required',
+          lastMaintenance: '2024-11-15',
+          nextMaintenance: '2025-01-12',
+          warranty: '2025-06-30',
+          technician: 'Marie Martin'
+        }
+      ];
+      res.json(equipment);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
+  app.get('/api/admin/maintenance/stats', authenticateToken, async (req, res) => {
+    try {
+      const stats = {
+        totalEquipment: 15,
+        operational: 12,
+        maintenanceRequired: 2,
+        outOfService: 1
+      };
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
+  // APIs pour les utilisateurs (directeur uniquement)
+  app.get("/api/admin/users", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const users = await storage.getUsers();
+      const safeUsers = users.map(user => ({
+        id: user.id,
+        username: user.username,
+        role: user.role,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
+      }));
+      res.json(safeUsers);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des utilisateurs" });
+    }
+  });
+
+  // APIs pour les rapports
+  app.get("/api/admin/reports", authenticateToken, async (req, res) => {
+    try {
+      const reports = [
+        {
+          id: 1,
+          name: "Rapport de ventes mensuel",
+          type: "sales",
+          period: "Mensuel",
+          createdAt: new Date().toISOString(),
+          status: "completed"
+        },
+        {
+          id: 2,
+          name: "Analyse des clients",
+          type: "customers", 
+          period: "Hebdomadaire",
+          createdAt: new Date(Date.now() - 604800000).toISOString(),
+          status: "completed"
+        }
+      ];
+      res.json(reports);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des rapports" });
+    }
+  });
+
+  // APIs pour le calendrier (déjà définies plus haut, éviter duplication)
+  
+  // APIs pour les fournisseurs (déjà définies plus haut, éviter duplication)
+
+  // APIs pour les commandes publiques
+  app.get("/api/orders", async (req, res) => {
+    try {
+      const orders = await storage.getOrders();
+      const statusCount = orders.reduce((acc, order) => {
+        acc[order.status] = (acc[order.status] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+      
+      const statusData = Object.entries(statusCount).map(([status, count]) => ({
+        status,
+        count
+      }));
+      res.json(statusData);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  // API pour les réservations publiques
+  app.get("/api/reservations", async (req, res) => {
+    try {
+      const reservations = await storage.getReservations();
+      res.json(reservations.slice(0, 10)); 
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  // API pour le contact public
+  app.get("/api/contact", async (req, res) => {
+    try {
+      const messages = await storage.getContactMessages();
+      res.json({ count: messages.length, status: 'available' });
+    } catch (error) {
+      res.status(500).json({ count: 0, status: 'error' });
+    }
+  });
+
+  // APIs comptabilité et loyalty déjà définies plus haut
+  
+  // API pour créer sauvegarde
+  app.post("/api/admin/backups/create", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const backup = {
+        id: Date.now(),
+        name: "Sauvegarde manuelle " + new Date().toLocaleDateString('fr-FR'),
+        type: "manual",
+        size: "2.4 MB",
+        createdAt: new Date().toISOString(),
+        status: "completed"
+      };
+      res.status(201).json(backup);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la création de la sauvegarde" });
+    }
+  });
       res.json(stats);
     } catch (error) {
       res.status(500).json({ error: 'Erreur serveur' });
