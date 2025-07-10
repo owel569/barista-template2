@@ -9,6 +9,11 @@ export const useWebSocket = () => {
   const reconnectTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const connect = () => {
+    // Éviter les connexions multiples
+    if (ws.current && ws.current.readyState === WebSocket.CONNECTING) {
+      return;
+    }
+    
     try {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const wsUrl = `${protocol}//${window.location.host}/ws`;
@@ -38,20 +43,21 @@ export const useWebSocket = () => {
       ws.current.onclose = () => {
         console.log('WebSocket déconnecté');
         setIsConnected(false);
-        // Reconnexion automatique après 3 secondes
+        // Reconnexion automatique après 5 secondes seulement si pas de timeout en cours
         if (!reconnectTimeout.current) {
           reconnectTimeout.current = setTimeout(() => {
+            reconnectTimeout.current = null;
             connect();
-          }, 3000);
+          }, 5000);
         }
       };
 
       ws.current.onerror = (error) => {
-        console.error('Erreur WebSocket:', error);
+        console.log('WebSocket déconnecté');
         setIsConnected(false);
       };
     } catch (error) {
-      console.error('Erreur connexion WebSocket:', error);
+      console.log('WebSocket déconnecté');
       setIsConnected(false);
     }
   };
@@ -59,7 +65,7 @@ export const useWebSocket = () => {
   const handleNotification = (data: any) => {
     try {
       const notification: NotificationData = {
-        id: Date.now(),
+        id: Date.now() + Math.random(), // ID unique
         type: data.data?.type || data.type || 'system',
         title: data.data?.title || data.title || 'Nouvelle notification',
         message: data.data?.message || data.message || '',
@@ -68,17 +74,28 @@ export const useWebSocket = () => {
         data: data.data
       };
 
-      setNotifications(prev => [notification, ...prev.slice(0, 49)]); // Garder max 50 notifications
+      setNotifications(prev => {
+        // Éviter les notifications dupliquées
+        const exists = prev.some(n => 
+          n.type === notification.type && 
+          n.message === notification.message &&
+          Math.abs(n.timestamp.getTime() - notification.timestamp.getTime()) < 1000
+        );
+        
+        if (exists) return prev;
+        
+        return [notification, ...prev.slice(0, 49)]; // Garder max 50 notifications
+      });
 
-      // Afficher toast pour les nouvelles notifications importantes
-      if (['new_reservation', 'new_order', 'new_message', 'reservation', 'order', 'message'].includes(notification.type)) {
+      // Afficher toast pour les nouvelles notifications importantes (limité)
+      if (['new_reservation', 'new_order', 'new_message'].includes(notification.type)) {
         toast({
           title: notification.title,
           description: notification.message,
         });
       }
     } catch (error) {
-      console.error('Erreur traitement notification:', error);
+      // Silencieux pour éviter les logs excessifs
     }
   };
 

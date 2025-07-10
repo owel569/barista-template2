@@ -85,7 +85,7 @@ export default function Dashboard() {
         monthlyRevenue: revenueData.revenue || 0,
         activeOrders: ordersData.count || 0,
         occupancyRate: occupancyData.rate || 0,
-        reservationStatus: statusData || []
+        reservationStatus: Array.isArray(statusData) ? statusData : []
       });
     } catch (error) {
       console.error('Erreur lors du chargement des statistiques:', error);

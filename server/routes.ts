@@ -548,6 +548,254 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin Statistics routes
+  app.get("/api/admin/stats/today-reservations", authenticateToken, async (req, res) => {
+    try {
+      const count = await storage.getTodayReservationCount();
+      res.json({ count });
+    } catch (error) {
+      console.error('Erreur getTodayReservationCount:', error);
+      res.json({ count: 0 });
+    }
+  });
+
+  app.get("/api/admin/stats/monthly-revenue", authenticateToken, async (req, res) => {
+    try {
+      const now = new Date();
+      const startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+      const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+      
+      const stats = await storage.getRevenueStats(startDate, endDate);
+      const revenue = stats.reduce((total, day) => total + day.revenue, 0);
+      res.json({ revenue });
+    } catch (error) {
+      console.error('Erreur getRevenueStats:', error);
+      res.json({ revenue: 0 });
+    }
+  });
+
+  app.get("/api/admin/stats/active-orders", authenticateToken, async (req, res) => {
+    try {
+      const orders = await storage.getOrdersByStatus();
+      const activeCount = orders
+        .filter(o => o.status === 'pending' || o.status === 'preparing')
+        .reduce((sum, o) => sum + o.count, 0);
+      res.json({ count: activeCount });
+    } catch (error) {
+      console.error('Erreur getOrdersByStatus:', error);
+      res.json({ count: 0 });
+    }
+  });
+
+  app.get("/api/admin/stats/occupancy-rate", authenticateToken, async (req, res) => {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const rate = await storage.getOccupancyRate(today);
+      res.json({ rate });
+    } catch (error) {
+      console.error('Erreur getOccupancyRate:', error);
+      res.json({ rate: 0 });
+    }
+  });
+
+  app.get("/api/admin/stats/reservation-status", authenticateToken, async (req, res) => {
+    try {
+      const reservations = await storage.getReservations();
+      const statusCounts = reservations.reduce((acc, reservation) => {
+        const status = reservation.status || 'pending';
+        acc[status] = (acc[status] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+      const result = Object.entries(statusCounts).map(([status, count]) => ({
+        status,
+        count
+      }));
+      
+      res.json(result);
+    } catch (error) {
+      console.error('Erreur reservation status stats:', error);
+      res.json([]);
+    }
+  });
+
+  app.get("/api/admin/stats/daily-reservations", authenticateToken, async (req, res) => {
+    try {
+      const { year, month } = req.query;
+      const currentYear = year ? parseInt(year as string) : new Date().getFullYear();
+      const currentMonth = month ? parseInt(month as string) : new Date().getMonth() + 1;
+      
+      const stats = await storage.getMonthlyReservationStats(currentYear, currentMonth);
+      res.json(stats);
+    } catch (error) {
+      console.error('Erreur getMonthlyReservationStats:', error);
+      res.json([]);
+    }
+  });
+
+  app.get("/api/admin/stats/orders-by-status", authenticateToken, async (req, res) => {
+    try {
+      const stats = await storage.getOrdersByStatus();
+      res.json(stats);
+    } catch (error) {
+      console.error('Erreur getOrdersByStatus:', error);
+      res.json([]);
+    }
+  });
+
+  // Admin employees routes
+  app.get("/api/admin/employees", authenticateToken, async (req, res) => {
+    try {
+      const employees = await storage.getEmployees();
+      res.json(employees);
+    } catch (error) {
+      console.error('Erreur getEmployees:', error);
+      res.status(500).json({ message: "Erreur lors de la récupération des employés" });
+    }
+  });
+
+  app.post("/api/admin/employees", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const employeeData = insertEmployeeSchema.parse(req.body);
+      const employee = await storage.createEmployee(employeeData);
+      wsManager.notifyDataUpdate('employees', employee);
+      res.status(201).json(employee);
+    } catch (error) {
+      console.error('Erreur création employé:', error);
+      res.status(400).json({ message: "Erreur lors de la création de l'employé" });
+    }
+  });
+
+  app.put("/api/admin/employees/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const employeeData = req.body;
+      const employee = await storage.updateEmployee(id, employeeData);
+      
+      if (!employee) {
+        return res.status(404).json({ message: "Employé non trouvé" });
+      }
+      
+      wsManager.notifyDataUpdate('employees', employee);
+      res.json(employee);
+    } catch (error) {
+      res.status(400).json({ message: "Erreur lors de la mise à jour de l'employé" });
+    }
+  });
+
+  app.delete("/api/admin/employees/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deleteEmployee(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Employé non trouvé" });
+      }
+      
+      wsManager.notifyDataUpdate('employees');
+      res.json({ message: "Employé supprimé avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la suppression de l'employé" });
+    }
+  });
+
+  // Admin work shifts routes
+  app.get("/api/admin/work-shifts", authenticateToken, async (req, res) => {
+    try {
+      const shifts = await storage.getWorkShifts();
+      res.json(shifts);
+    } catch (error) {
+      console.error('Erreur getWorkShifts:', error);
+      res.status(500).json({ message: "Erreur lors de la récupération des horaires" });
+    }
+  });
+
+  app.post("/api/admin/work-shifts", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const shiftData = insertWorkShiftSchema.parse(req.body);
+      const shift = await storage.createWorkShift(shiftData);
+      wsManager.notifyDataUpdate('work-shifts', shift);
+      res.status(201).json(shift);
+    } catch (error) {
+      console.error('Erreur création horaire:', error);
+      res.status(400).json({ message: "Erreur lors de la création de l'horaire" });
+    }
+  });
+
+  app.put("/api/admin/work-shifts/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const shiftData = req.body;
+      const shift = await storage.updateWorkShift(id, shiftData);
+      
+      if (!shift) {
+        return res.status(404).json({ message: "Horaire non trouvé" });
+      }
+      
+      wsManager.notifyDataUpdate('work-shifts', shift);
+      res.json(shift);
+    } catch (error) {
+      res.status(400).json({ message: "Erreur lors de la mise à jour de l'horaire" });
+    }
+  });
+
+  app.delete("/api/admin/work-shifts/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deleteWorkShift(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Horaire non trouvé" });
+      }
+      
+      wsManager.notifyDataUpdate('work-shifts');
+      res.json({ message: "Horaire supprimé avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la suppression de l'horaire" });
+    }
+  });
+
+  // Admin settings routes
+  app.get("/api/admin/settings", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const defaultSettings = {
+        restaurantName: "Barista Café",
+        restaurantAddress: "123 Rue de la Paix, 75001 Paris",
+        restaurantPhone: "+33 1 42 86 87 88",
+        restaurantEmail: "contact@barista-cafe.fr",
+        openingHours: {
+          monday: { open: "07:00", close: "19:00", closed: false },
+          tuesday: { open: "07:00", close: "19:00", closed: false },
+          wednesday: { open: "07:00", close: "19:00", closed: false },
+          thursday: { open: "07:00", close: "19:00", closed: false },
+          friday: { open: "07:00", close: "21:00", closed: false },
+          saturday: { open: "08:00", close: "21:00", closed: false },
+          sunday: { open: "08:00", close: "18:00", closed: false }
+        },
+        maxReservationDays: 30,
+        maxTableCapacity: 8,
+        reservationNotificationTime: 60,
+        currency: "EUR",
+        taxRate: 20,
+        enableLoyaltyProgram: true,
+        loyaltyPointsRate: 10
+      };
+      res.json(defaultSettings);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des paramètres" });
+    }
+  });
+
+  app.put("/api/admin/settings", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const settings = req.body;
+      // Dans une vraie application, sauvegarder en base de données
+      res.json(settings);
+    } catch (error) {
+      res.status(400).json({ message: "Erreur lors de la mise à jour des paramètres" });
+    }
+  });
+
 
 
   // Admin employees routes (accessible to directeur only)

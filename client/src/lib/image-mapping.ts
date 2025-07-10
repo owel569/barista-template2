@@ -1,6 +1,6 @@
-// Système centralisé de mapping des images pour éviter les problèmes d'affichage
+// Système centralisé de mapping des images avec URLs Pexels authentiques selon spécifications
 export const IMAGE_MAPPING: Record<string, string> = {
-  // Cafés
+  // Cafés - URLs directes Pexels HD
   "Espresso Classique": "https://images.pexels.com/photos/28538132/pexels-photo-28538132.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "Latte Art": "https://images.pexels.com/photos/433145/pexels-photo-433145.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "Cappuccino Premium": "https://images.pexels.com/photos/162947/pexels-photo-162947.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
@@ -8,19 +8,21 @@ export const IMAGE_MAPPING: Record<string, string> = {
   "Café Mocha": "https://images.pexels.com/photos/6895939/pexels-photo-6895939.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "Café Frappé": "https://images.pexels.com/photos/11512983/pexels-photo-11512983.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   
-  // Boissons
+  // Boissons - URLs Pexels spécifiées
   "Thé Vert Premium": "https://images.pexels.com/photos/7565503/pexels-photo-7565503.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
+  "Thé Vert": "https://images.pexels.com/photos/32754882/pexels-photo-32754882.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "Chocolat Chaud": "https://images.pexels.com/photos/15529714/pexels-photo-15529714.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "Jus d'Orange Pressé": "https://images.pexels.com/photos/96974/pexels-photo-96974.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "Smoothie du Jour": "https://images.pexels.com/photos/11160116/pexels-photo-11160116.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   
-  // Pâtisseries
+  // Pâtisseries - URLs Pexels spécifiées
   "Croissants Artisanaux": "https://images.pexels.com/photos/10560686/pexels-photo-10560686.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "Macarons Français": "https://images.pexels.com/photos/11345217/pexels-photo-11345217.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "Éclair au Chocolat": "https://images.pexels.com/photos/1414234/pexels-photo-1414234.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "Mille-feuille": "https://images.pexels.com/photos/8738018/pexels-photo-8738018.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
+  "Gâteaux au Chocolat": "https://images.pexels.com/photos/1126728/pexels-photo-1126728.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   
-  // Plats
+  // Plats - URLs Pexels spécifiées
   "Sandwich Club": "https://images.pexels.com/photos/28681955/pexels-photo-28681955.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "Salade César": "https://images.pexels.com/photos/1059905/pexels-photo-1059905.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "Quiche Lorraine": "https://images.pexels.com/photos/1267320/pexels-photo-1267320.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop"
