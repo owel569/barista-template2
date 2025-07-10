@@ -2719,6 +2719,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // API manquante: Inventory Items
+  app.get("/api/admin/inventory/items", authenticateToken, async (req, res) => {
+    try {
+      const items = [
+        { id: 1, name: 'Café en grains Arabica', category: 'Café', currentStock: 25, minStock: 10, maxStock: 50, unitCost: 12.50, supplier: 'Café Premium', lastRestocked: '2024-07-08', status: 'ok' },
+        { id: 2, name: 'Lait entier', category: 'Produits laitiers', currentStock: 8, minStock: 15, maxStock: 30, unitCost: 2.80, supplier: 'Laiterie France', lastRestocked: '2024-07-09', status: 'low' },
+        { id: 3, name: 'Sucre blanc', category: 'Édulcorants', currentStock: 3, minStock: 5, maxStock: 20, unitCost: 1.50, supplier: 'Sucres & Co', lastRestocked: '2024-07-06', status: 'critical' },
+        { id: 4, name: 'Croissants surgelés', category: 'Pâtisseries', currentStock: 0, minStock: 10, maxStock: 40, unitCost: 0.85, supplier: 'Pâtisserie Delice', lastRestocked: '2024-07-05', status: 'out' },
+        { id: 5, name: 'Capsules recyclables', category: 'Accessoires', currentStock: 150, minStock: 100, maxStock: 300, unitCost: 0.15, supplier: 'EcoCap', lastRestocked: '2024-07-10', status: 'ok' }
+      ];
+      res.json(items);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération de l'inventaire" });
+    }
+  });
+
+  // API manquante: Maintenance Equipment
+  app.get("/api/admin/maintenance/equipments", authenticateToken, async (req, res) => {
+    try {
+      const equipments = [
+        { id: 1, name: 'Machine à café principale', type: 'Café', status: 'operational', lastMaintenance: '2024-07-01', nextMaintenance: '2024-08-01', location: 'Comptoir principal' },
+        { id: 2, name: 'Réfrigérateur vitrines', type: 'Réfrigération', status: 'maintenance_required', lastMaintenance: '2024-06-15', nextMaintenance: '2024-07-15', location: 'Comptoir pâtisseries' },
+        { id: 3, name: 'Four à pâtisserie', type: 'Cuisson', status: 'operational', lastMaintenance: '2024-06-20', nextMaintenance: '2024-07-20', location: 'Cuisine' },
+        { id: 4, name: 'Système de ventilation', type: 'Ventilation', status: 'warning', lastMaintenance: '2024-05-10', nextMaintenance: '2024-07-10', location: 'Plafond cuisine' }
+      ];
+      res.json(equipments);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des équipements" });
+    }
+  });
+
+  // API manquante: Notifications All
+  app.get("/api/admin/notifications/all", authenticateToken, async (req, res) => {
+    try {
+      const notifications = [
+        { id: 1, type: 'reservation', title: 'Nouvelle réservation', message: 'Réservation pour 4 personnes à 19h30', read: false, timestamp: new Date(), priority: 'medium' },
+        { id: 2, type: 'inventory', title: 'Stock faible', message: 'Stock de lait entier critique', read: false, timestamp: new Date(), priority: 'high' },
+        { id: 3, type: 'maintenance', title: 'Maintenance requise', message: 'Réfrigérateur nécessite une maintenance', read: true, timestamp: new Date(), priority: 'medium' },
+        { id: 4, type: 'order', title: 'Nouvelle commande', message: 'Commande #1247 reçue', read: false, timestamp: new Date(), priority: 'low' }
+      ];
+      res.json(notifications);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des notifications" });
+    }
+  });
+
   // Setup WebSocket server
   wsManager.initialize(server);
 

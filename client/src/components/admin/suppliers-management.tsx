@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  Truck, Plus, Edit, Trash2, Phone, Mail, MapPin, DollarSign, Package2, Star
+  Truck, Plus, Edit, Trash2, Phone, Mail, MapPin, DollarSign, Package, Star
 } from 'lucide-react';
 
 interface Supplier {
@@ -209,7 +209,7 @@ export default function SuppliersManagement() {
                     {stats.activeSuppliers}
                   </p>
                 </div>
-                <Package2 className="h-8 w-8 text-green-500" />
+                <Package className="h-8 w-8 text-green-500" />
               </div>
             </CardContent>
           </Card>
@@ -360,7 +360,7 @@ export default function SuppliersManagement() {
                   <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
-                        <Package2 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        <Package className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                       </div>
                       <div>
                         <h4 className="font-semibold">{order.id}</h4>

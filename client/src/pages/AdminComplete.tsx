@@ -20,7 +20,7 @@ import {
   DropdownMenuSeparator, DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
 import { useTheme } from '@/contexts/theme-context';
-import { useWebSocket } from '@/hooks/use-websocket';
+import { useWebSocket } from '@/hooks/useWebSocket';
 
 // Import all admin modules
 import Dashboard from '@/components/admin/dashboard';
@@ -276,7 +276,17 @@ const AdminComplete: React.FC = () => {
   const queryClient = useQueryClient();
 
   // Notifications WebSocket
-  const { notifications, isConnected } = useWebSocket();
+  const { notifications: wsNotifications, isConnected } = useWebSocket();
+  
+  // Conversion des notifications WebSocket au format attendu
+  const notifications = {
+    pendingReservations: wsNotifications.filter(n => n.type === 'reservation').length,
+    pendingOrders: wsNotifications.filter(n => n.type === 'order').length,
+    newMessages: wsNotifications.filter(n => n.type === 'message').length,
+    lowStockItems: wsNotifications.filter(n => n.type === 'stock').length,
+    maintenanceAlerts: wsNotifications.filter(n => n.type === 'maintenance').length,
+    systemAlerts: wsNotifications.filter(n => n.type === 'system').length,
+  };
 
   // Permissions utilisateur
   const permissions = usePermissions(user);
@@ -352,7 +362,6 @@ const AdminComplete: React.FC = () => {
   }
 
   return (
-    <ThemeProvider defaultTheme="system" storageKey="admin-theme">
       <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
         {/* Sidebar */}
         <div className={cn(
@@ -495,7 +504,6 @@ const AdminComplete: React.FC = () => {
           </main>
         </div>
       </div>
-    </ThemeProvider>
   );
 };
 

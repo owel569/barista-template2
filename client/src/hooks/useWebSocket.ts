@@ -101,9 +101,18 @@ export const useWebSocket = () => {
   };
 
   useEffect(() => {
-    connect();
+    let mounted = true;
+    
+    const connectIfMounted = () => {
+      if (mounted) {
+        connect();
+      }
+    };
+    
+    connectIfMounted();
 
     return () => {
+      mounted = false;
       if (reconnectTimeout.current) {
         clearTimeout(reconnectTimeout.current);
       }
