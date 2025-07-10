@@ -27,7 +27,7 @@ import Gallery from "@/components/gallery";
 function Router() {
   const [location] = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const showSidebar = !['/login', '/register', '/admin', '/employe'].includes(location) && !location.startsWith('/admin/');
+  const showSidebar = !['/login', '/register', '/admin', '/employe', '/admin-complete'].includes(location) && !location.startsWith('/admin/');
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -50,7 +50,7 @@ function Router() {
           <Route path="/reservation" component={InteractiveReservation} />
           <Route path="/admin/login" component={LoginSimple} />
           <Route path="/admin" component={AdminFinal} />
-          <Route path="/admin/:section" component={AdminFinal} />
+          <Route path="/admin-complete" component={AdminComplete} />
           <Route path="/employe" component={AdminFinal} />
           <Route path="/employe/:section" component={AdminFinal} />
 

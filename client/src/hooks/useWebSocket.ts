@@ -1,122 +1,117 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
-interface WebSocketMessage {
-  type: string;
-  data: any;
+interface NotificationData {
+  pendingReservations: number;
+  newMessages: number;
+  pendingOrders: number;
+  lowStockItems: number;
 }
 
 export function useWebSocket() {
-  const ws = useRef<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const [notifications, setNotifications] = useState({
+  const [notifications, setNotifications] = useState<NotificationData>({
     pendingReservations: 0,
     newMessages: 0,
     pendingOrders: 0,
     lowStockItems: 0
   });
+  
+  const wsRef = useRef<WebSocket | null>(null);
+  const lastFetchRef = useRef<number>(0);
+  const mountedRef = useRef(true);
 
   useEffect(() => {
+    mountedRef.current = true;
+    
+    // Fetch notifications once on mount
+    const fetchInitialNotifications = async () => {
+      const now = Date.now();
+      if (now - lastFetchRef.current < 1000) return; // Throttle to 1 second
+      
+      try {
+        const token = localStorage.getItem('token');
+        if (!token || !mountedRef.current) return;
+
+        lastFetchRef.current = now;
+        const response = await fetch('/api/admin/notifications/count', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.ok && mountedRef.current) {
+          const data = await response.json();
+          setNotifications(data);
+        }
+      } catch (error) {
+        console.log('Erreur notifications:', error);
+      }
+    };
+
+    fetchInitialNotifications();
+
+    // Connect WebSocket only once
     const connectWebSocket = () => {
+      if (wsRef.current?.readyState === WebSocket.OPEN) return;
+      
       try {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const wsUrl = `${protocol}//${window.location.host}/ws`;
         
-        ws.current = new WebSocket(wsUrl);
+        wsRef.current = new WebSocket(wsUrl);
 
-        ws.current.onopen = () => {
-          console.log('WebSocket connecté');
-          setIsConnected(true);
-        };
-
-        ws.current.onmessage = (event) => {
-          try {
-            const message: WebSocketMessage = JSON.parse(event.data);
-            
-            switch (message.type) {
-              case 'notification_update':
-                setNotifications(prev => ({
-                  ...prev,
-                  ...message.data
-                }));
-                break;
-              case 'new_reservation':
-                setNotifications(prev => ({
-                  ...prev,
-                  pendingReservations: prev.pendingReservations + 1
-                }));
-                break;
-              case 'new_message':
-                setNotifications(prev => ({
-                  ...prev,
-                  newMessages: prev.newMessages + 1
-                }));
-                break;
-              case 'new_order':
-                setNotifications(prev => ({
-                  ...prev,
-                  pendingOrders: prev.pendingOrders + 1
-                }));
-                break;
-              default:
-                console.log('Message WebSocket non géré:', message);
-            }
-          } catch (error) {
-            console.error('Erreur parsing WebSocket:', error);
+        wsRef.current.onopen = () => {
+          if (mountedRef.current) {
+            console.log('WebSocket connecté');
+            setIsConnected(true);
           }
         };
 
-        ws.current.onclose = () => {
-          console.log('WebSocket fermé, reconnexion dans 3s...');
-          setIsConnected(false);
-          setTimeout(connectWebSocket, 3000);
+        wsRef.current.onmessage = (event) => {
+          if (!mountedRef.current) return;
+          
+          try {
+            const message = JSON.parse(event.data);
+            if (message.type === 'notification' || message.type === 'data_update') {
+              // Trigger a single notification refresh
+              setTimeout(() => {
+                if (mountedRef.current) {
+                  fetchInitialNotifications();
+                }
+              }, 1000);
+            }
+          } catch (error) {
+            console.log('Message WebSocket non géré');
+          }
         };
 
-        ws.current.onerror = (error) => {
-          console.error('Erreur WebSocket:', error);
-          setIsConnected(false);
+        wsRef.current.onclose = () => {
+          if (mountedRef.current) {
+            console.log('WebSocket fermé');
+            setIsConnected(false);
+          }
+        };
+
+        wsRef.current.onerror = () => {
+          if (mountedRef.current) {
+            setIsConnected(false);
+          }
         };
       } catch (error) {
-        console.error('Erreur lors de la connexion WebSocket:', error);
-        setTimeout(connectWebSocket, 3000);
+        console.log('Erreur WebSocket:', error);
       }
     };
 
     connectWebSocket();
 
     return () => {
-      if (ws.current) {
-        ws.current.close();
+      mountedRef.current = false;
+      if (wsRef.current?.readyState === WebSocket.OPEN) {
+        wsRef.current.close();
       }
     };
   }, []);
 
-  const sendMessage = (message: WebSocketMessage) => {
-    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-      ws.current.send(JSON.stringify(message));
-    }
-  };
-
-  const refreshNotifications = async () => {
-    try {
-      const response = await fetch('/api/admin/notifications/count', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setNotifications(data);
-      }
-    } catch (error) {
-      console.error('Erreur lors du rafraîchissement des notifications:', error);
-    }
-  };
-
   return {
     isConnected,
-    notifications,
-    sendMessage,
-    refreshNotifications
+    notifications
   };
 }
