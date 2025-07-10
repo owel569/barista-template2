@@ -53,16 +53,16 @@ export default function DashboardMain() {
       const [reservations, revenue, orders, occupancy, messages, inventory, customers, employees] = await Promise.all([
         fetch('/api/admin/stats/today-reservations', {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-        }).then(r => r.json()),
+        }).then(r => r.json()).catch(() => ({ count: 0 })),
         fetch('/api/admin/stats/monthly-revenue', {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-        }).then(r => r.json()),
+        }).then(r => r.json()).catch(() => ({ revenue: 0 })),
         fetch('/api/admin/stats/active-orders', {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-        }).then(r => r.json()),
+        }).then(r => r.json()).catch(() => ({ count: 0 })),
         fetch('/api/admin/stats/occupancy-rate', {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-        }).then(r => r.json()),
+        }).then(r => r.json()).catch(() => ({ rate: 0 })),
         fetch('/api/admin/notifications/new-messages', {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
         }).then(r => r.json().catch(() => ({ count: 0 }))),

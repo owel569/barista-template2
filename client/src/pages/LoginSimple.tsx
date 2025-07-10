@@ -34,8 +34,9 @@ export default function LoginSimple() {
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem('token', data.token);
-        navigate('/admin/dashboard');
+        localStorage.setItem('auth_token', data.token);
+        localStorage.setItem('auth_user', JSON.stringify(data.user));
+        navigate('/admin');
       } else {
         setError(data.message || 'Erreur de connexion');
       }

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useAuth } from "@/lib/auth";
+import { useState, useContext } from "react";
+import { AuthContext } from "@/contexts/auth-context";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,7 @@ import { Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 
 export default function Register() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated } = useContext(AuthContext);
   const [, navigate] = useLocation();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -40,19 +40,23 @@ export default function Register() {
     setIsRegistering(true);
 
     try {
-      const response = await apiRequest("POST", "/api/auth/register", {
-        username,
-        password,
-        confirmPassword,
-        role: "admin"
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username,
+          password,
+          confirmPassword,
+          role: "admin"
+        })
       });
 
       const data = await response.json();
       
       if (response.ok) {
         // Store token and user info
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("auth_token", data.token);
+        localStorage.setItem("auth_user", JSON.stringify(data.user));
         
         toast({
           title: "Compte créé avec succès",

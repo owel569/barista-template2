@@ -5,7 +5,6 @@ import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/auth-context";
-import { UserProvider } from "@/hooks/use-user";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { ThemeProvider } from "@/contexts/theme-context";
 import Sidebar from "@/components/sidebar";
@@ -83,12 +82,10 @@ function App() {
       <ThemeProvider>
         <LanguageProvider>
           <AuthProvider>
-            <UserProvider>
-              <TooltipProvider>
+            <TooltipProvider>
               <Toaster />
               <Router />
-              </TooltipProvider>
-            </UserProvider>
+            </TooltipProvider>
           </AuthProvider>
         </LanguageProvider>
       </ThemeProvider>
