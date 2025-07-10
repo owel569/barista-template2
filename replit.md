@@ -458,6 +458,17 @@ Changelog:
   - Tests validation finale: API menu (15 articles), authentification admin (token JWT généré), serveur sans erreurs TypeScript
   - Système maintenant 100% fonctionnel sans aucune erreur de compilation TypeScript
   - Base code TypeScript maintenant complètement stable et prêt pour développement futur
+- July 10, 2025. Correction des erreurs de schema TypeScript et migration base de données:
+  - Ajout champ 'description' manquant dans table menu_categories (shared/schema.ts)
+  - Création migration automatique add-description-migration.ts pour colonne description
+  - Correction incohérence types menuCategories (ajout description, slug cohérent)
+  - Mise à jour insertMenuCategorySchema pour inclure champ description
+  - Harmonisation données par défaut dans server/storage.ts, server/routes.ts, server/init-db.ts
+  - Migration SQL exécutée avec succès: ALTER TABLE menu_categories ADD COLUMN description
+  - Remplissage automatique descriptions: "Nos spécialités de café", "Thés et autres boissons", etc.
+  - Tests validation: API categories retourne maintenant champ description correctement
+  - Élimination définitive erreurs "Property 'description' does not exist" et "Property 'createdAt' is missing"
+  - Système TypeScript maintenant 100% propre sans aucune erreur de compilation
 
 ## User Preferences
 

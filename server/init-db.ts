@@ -4,10 +4,14 @@ import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import { cleanupDuplicateMenuItems } from "./cleanup-duplicates";
 import { insertTestData } from "./test-data";
+import { addDescriptionColumn } from "./add-description-migration";
 
 export async function initializeDatabase() {
   try {
     console.log("Initialisation de la base de données...");
+
+    // Ajouter la colonne description si nécessaire
+    await addDescriptionColumn();
 
     // Nettoyer les doublons existants
     await cleanupDuplicateMenuItems();
