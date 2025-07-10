@@ -1273,5 +1273,138 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Backup System APIs
+  app.get("/api/admin/backups", authenticateToken, async (req, res) => {
+    try {
+      const backups = [
+        {
+          id: 1,
+          name: "Sauvegarde automatique quotidienne",
+          type: "auto",
+          size: "2.5 MB",
+          createdAt: new Date().toISOString(),
+          status: "completed"
+        },
+        {
+          id: 2,
+          name: "Sauvegarde manuelle",
+          type: "manual",
+          size: "2.3 MB",
+          createdAt: new Date(Date.now() - 86400000).toISOString(),
+          status: "completed"
+        }
+      ];
+      res.json({ backups, autoBackupEnabled: true });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des sauvegardes" });
+    }
+  });
+
+  app.post("/api/admin/backups/create", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const backup = {
+        id: Date.now(),
+        name: "Sauvegarde manuelle " + new Date().toLocaleDateString('fr-FR'),
+        type: "manual",
+        size: "2.4 MB",
+        createdAt: new Date().toISOString(),
+        status: "completed"
+      };
+      res.status(201).json(backup);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la création de la sauvegarde" });
+    }
+  });
+
+  // Reports System APIs
+  app.get("/api/admin/reports", authenticateToken, async (req, res) => {
+    try {
+      const reports = [
+        {
+          id: 1,
+          name: "Rapport de ventes mensuel",
+          type: "sales",
+          period: "Mensuel",
+          createdAt: new Date().toISOString(),
+          status: "completed"
+        },
+        {
+          id: 2,
+          name: "Analyse des clients",
+          type: "customers", 
+          period: "Hebdomadaire",
+          createdAt: new Date(Date.now() - 604800000).toISOString(),
+          status: "completed"
+        }
+      ];
+      res.json(reports);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des rapports" });
+    }
+  });
+
+  app.get("/api/admin/reports/sales-analytics", authenticateToken, async (req, res) => {
+    try {
+      const salesData = [
+        { date: "2025-07-04", revenue: 450 },
+        { date: "2025-07-05", revenue: 520 },
+        { date: "2025-07-06", revenue: 380 },
+        { date: "2025-07-07", revenue: 610 },
+        { date: "2025-07-08", revenue: 480 },
+        { date: "2025-07-09", revenue: 550 },
+        { date: "2025-07-10", revenue: 420 }
+      ];
+      res.json(salesData);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des données de ventes" });
+    }
+  });
+
+  app.get("/api/admin/reports/customer-analytics", authenticateToken, async (req, res) => {
+    try {
+      const customerData = [
+        { name: "Nouveaux", value: 35 },
+        { name: "Réguliers", value: 45 },
+        { name: "Fidèles", value: 15 },
+        { name: "VIP", value: 5 }
+      ];
+      res.json(customerData);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des données clients" });
+    }
+  });
+
+  app.get("/api/admin/reports/product-analytics", authenticateToken, async (req, res) => {
+    try {
+      const productData = [
+        { name: "Cappuccino", sales: 45 },
+        { name: "Latte", sales: 38 },
+        { name: "Espresso", sales: 32 },
+        { name: "Americano", sales: 28 },
+        { name: "Macchiato", sales: 22 }
+      ];
+      res.json(productData);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des données produits" });
+    }
+  });
+
+  app.post("/api/admin/reports/generate", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const { type, period } = req.body;
+      const report = {
+        id: Date.now(),
+        name: `Rapport ${type} ${period}`,
+        type,
+        period,
+        createdAt: new Date().toISOString(),
+        status: "completed"
+      };
+      res.status(201).json(report);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la génération du rapport" });
+    }
+  });
+
   return server;
 }

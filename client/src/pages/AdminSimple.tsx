@@ -22,7 +22,8 @@ import {
   Star,
   Shield,
   Database,
-  Clock
+  Clock,
+  FileText
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -48,6 +49,8 @@ import InventoryManagement from '@/components/admin/inventory-management';
 import LoyaltySystem from '@/components/admin/loyalty-system';
 import WorkSchedule from '@/components/admin/work-schedule';
 import AccountingSystem from '@/components/admin/accounting-system';
+import BackupSystem from '@/components/admin/backup-system';
+import ReportsSystem from '@/components/admin/reports-system';
 
 interface User {
   id: number;
@@ -185,7 +188,9 @@ export default function AdminSimple() {
         { icon: Package2, label: 'Stocks', section: 'inventory', module: 'inventory' },
         { icon: Star, label: 'Fidélité', section: 'loyalty', module: 'loyalty' },
         { icon: Clock, label: 'Planning', section: 'schedule', module: 'schedule' },
-        { icon: Database, label: 'Comptabilité', section: 'accounting', module: 'accounting' }
+        { icon: Database, label: 'Comptabilité', section: 'accounting', module: 'accounting' },
+        { icon: Database, label: 'Sauvegardes', section: 'backups', module: 'backups' },
+        { icon: FileText, label: 'Rapports', section: 'reports', module: 'reports' }
       );
     }
 
@@ -210,6 +215,8 @@ export default function AdminSimple() {
       case 'loyalty': return hasPermission('employees', 'view') ? <LoyaltySystem /> : <div>Accès non autorisé</div>;
       case 'schedule': return hasPermission('employees', 'view') ? <WorkSchedule /> : <div>Accès non autorisé</div>;
       case 'accounting': return hasPermission('employees', 'view') ? <AccountingSystem userRole={user.role} /> : <div>Accès non autorisé</div>;
+      case 'backups': return hasPermission('employees', 'view') ? <BackupSystem userRole={user.role} /> : <div>Accès non autorisé</div>;
+      case 'reports': return hasPermission('employees', 'view') ? <ReportsSystem userRole={user.role} /> : <div>Accès non autorisé</div>;
       default: return <Dashboard />;
     }
   };
