@@ -45,6 +45,7 @@ export const permissions = pgTable("permissions", {
 export const menuCategories = pgTable("menu_categories", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
+  description: text("description"),
   slug: text("slug").notNull().unique(),
   displayOrder: integer("display_order").notNull().default(0),
 });
@@ -58,7 +59,7 @@ export const menuItems = pgTable("menu_items", {
   categoryId: integer("category_id").notNull(),
   imageUrl: text("image_url"),
   available: boolean("available").notNull().default(true),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 // Tables in the restaurant
@@ -304,6 +305,7 @@ export const insertPermissionSchema = createInsertSchema(permissions).pick({
 
 export const insertMenuCategorySchema = createInsertSchema(menuCategories).pick({
   name: true,
+  description: true,
   slug: true,
   displayOrder: true,
 });

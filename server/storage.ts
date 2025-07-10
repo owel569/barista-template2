@@ -202,10 +202,10 @@ export class DatabaseStorage implements IStorage {
       console.error('Erreur getMenuCategories:', error);
       // Retourner des données par défaut si la BD n'est pas disponible
       return [
-        { id: 1, name: 'Cafés', description: 'Nos délicieux cafés', displayOrder: 1 },
-        { id: 2, name: 'Thés', description: 'Sélection de thés premium', displayOrder: 2 },
-        { id: 3, name: 'Pâtisseries', description: 'Pâtisseries fraîches', displayOrder: 3 },
-        { id: 4, name: 'Plats', description: 'Plats savoureux', displayOrder: 4 }
+        { id: 1, name: 'Cafés', description: 'Nos délicieux cafés', slug: 'cafes', displayOrder: 1 },
+        { id: 2, name: 'Thés', description: 'Sélection de thés premium', slug: 'thes', displayOrder: 2 },
+        { id: 3, name: 'Pâtisseries', description: 'Pâtisseries fraîches', slug: 'patisseries', displayOrder: 3 },
+        { id: 4, name: 'Plats', description: 'Plats savoureux', slug: 'plats', displayOrder: 4 }
       ];
     }
   }

@@ -49,10 +49,10 @@ export async function initializeDatabase() {
     // Create menu categories seulement s'il n'en existe pas
     if (existingCategories.length === 0) {
       const categories = [
-        { name: "Cafés", slug: "cafes", displayOrder: 1 },
-        { name: "Boissons", slug: "boissons", displayOrder: 2 },
-        { name: "Pâtisseries", slug: "patisseries", displayOrder: 3 },
-        { name: "Plats", slug: "plats", displayOrder: 4 }
+        { name: "Cafés", description: "Nos spécialités de café", slug: "cafes", displayOrder: 1 },
+        { name: "Boissons", description: "Thés et autres boissons", slug: "boissons", displayOrder: 2 },
+        { name: "Pâtisseries", description: "Viennoiseries et desserts", slug: "patisseries", displayOrder: 3 },
+        { name: "Plats", description: "Plats savoureux", slug: "plats", displayOrder: 4 }
       ];
 
       await db.insert(menuCategories).values(categories);

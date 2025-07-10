@@ -220,9 +220,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Erreur getMenuCategories:', error);
       // Retourner des données par défaut si la base de données n'est pas disponible
       const defaultCategories = [
-        { id: 1, name: "Cafés", description: "Nos spécialités de café", sortOrder: 1, createdAt: new Date().toISOString() },
-        { id: 2, name: "Pâtisseries", description: "Viennoiseries et desserts", sortOrder: 2, createdAt: new Date().toISOString() },
-        { id: 3, name: "Boissons", description: "Thés et autres boissons", sortOrder: 3, createdAt: new Date().toISOString() }
+        { id: 1, name: "Cafés", description: "Nos spécialités de café", slug: "cafes", displayOrder: 1 },
+        { id: 2, name: "Pâtisseries", description: "Viennoiseries et desserts", slug: "patisseries", displayOrder: 2 },
+        { id: 3, name: "Boissons", description: "Thés et autres boissons", slug: "boissons", displayOrder: 3 }
       ];
       res.json(defaultCategories);
     }
