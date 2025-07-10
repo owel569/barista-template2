@@ -10,10 +10,11 @@ import { LanguageProvider } from "./contexts/LanguageContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Sidebar from "@/components/sidebar";
 import Home from "@/pages/home";
-import LoginSimple from "@/pages/login-simple";
+import LoginSimple from "@/pages/LoginSimple";
 import Register from "@/pages/register";
 import InteractiveReservation from "@/components/interactive-reservation";
 import AdminHorizontal from "@/pages/admin-horizontal";
+import AdminSimple from "@/pages/AdminSimple";
 
 import NotFound from "@/pages/not-found";
 import MenuPage from "@/components/menu-page";
@@ -46,10 +47,10 @@ function Router() {
           <Route path="/register" component={Register} />
           <Route path="/reservation" component={InteractiveReservation} />
           <Route path="/admin/login" component={LoginSimple} />
-          <Route path="/admin" component={AdminHorizontal} />
-          <Route path="/admin/:section" component={AdminHorizontal} />
-          <Route path="/employe" component={AdminHorizontal} />
-          <Route path="/employe/:section" component={AdminHorizontal} />
+          <Route path="/admin" component={AdminSimple} />
+          <Route path="/admin/:section" component={AdminSimple} />
+          <Route path="/employe" component={AdminSimple} />
+          <Route path="/employe/:section" component={AdminSimple} />
 
           <Route component={NotFound} />
         </Switch>

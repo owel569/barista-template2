@@ -1024,6 +1024,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Notifications APIs
+  app.get("/api/admin/notifications/pending-reservations", authenticateToken, async (req, res) => {
+    try {
+      const reservations = await storage.getPendingNotificationReservations();
+      res.json({ count: reservations.length, reservations });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des réservations en attente", count: 0 });
+    }
+  });
+
+  app.get("/api/admin/notifications/new-messages", authenticateToken, async (req, res) => {
+    try {
+      const messages = await storage.getContactMessages();
+      const unreadCount = messages.filter(m => m.status === 'nouveau').length;
+      res.json({ count: unreadCount, messages: messages.filter(m => m.status === 'nouveau') });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des nouveaux messages", count: 0 });
+    }
+  });
+
+  app.get("/api/admin/notifications/pending-orders", authenticateToken, async (req, res) => {
+    try {
+      const orders = await storage.getOrders();
+      const pendingCount = orders.filter(o => o.status === 'en_attente' || o.status === 'en_preparation').length;
+      res.json({ count: pendingCount, orders: orders.filter(o => o.status === 'en_attente' || o.status === 'en_preparation') });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des commandes en attente", count: 0 });
+    }
+  });
+
   app.get("/api/admin/stats/monthly-revenue", authenticateToken, async (req, res) => {
     try {
       const currentMonth = new Date().getMonth() + 1;
