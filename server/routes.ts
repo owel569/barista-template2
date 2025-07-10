@@ -982,6 +982,396 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin inventory management routes
+  app.get("/api/admin/inventory", authenticateToken, async (req, res) => {
+    try {
+      // Simuler des données d'inventaire basées sur le menu
+      const menuItems = await storage.getMenuItems();
+      const inventoryData = menuItems.map(item => ({
+        id: item.id,
+        name: item.name,
+        category: item.categoryId,
+        currentStock: Math.floor(Math.random() * 100) + 10,
+        minStock: 10,
+        maxStock: 100,
+        unit: 'unités',
+        supplier: 'Fournisseur Principal',
+        lastRestocked: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
+        costPerUnit: parseFloat(item.price) * 0.4,
+        status: Math.random() > 0.8 ? 'faible' : 'normal'
+      }));
+      res.json(inventoryData);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération de l'inventaire" });
+    }
+  });
+
+  app.post("/api/admin/inventory", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const inventoryData = req.body;
+      wsManager.notifyDataUpdate('inventory', inventoryData);
+      res.status(201).json({ id: Date.now(), ...inventoryData });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de l'ajout de l'élément d'inventaire" });
+    }
+  });
+
+  app.put("/api/admin/inventory/:id", authenticateToken, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updateData = req.body;
+      wsManager.notifyDataUpdate('inventory', { id, ...updateData });
+      res.json({ id, ...updateData });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour de l'inventaire" });
+    }
+  });
+
+  app.get("/api/admin/inventory/alerts", authenticateToken, async (req, res) => {
+    try {
+      const alerts = [
+        { id: 1, item: 'Café Arabica', level: 'critique', currentStock: 5, minStock: 10 },
+        { id: 2, item: 'Lait', level: 'faible', currentStock: 15, minStock: 20 },
+        { id: 3, item: 'Sucre', level: 'faible', currentStock: 8, minStock: 15 }
+      ];
+      res.json(alerts);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des alertes" });
+    }
+  });
+
+  // Admin accounting system routes
+  app.get("/api/admin/accounting/transactions", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const transactions = [
+        { id: 1, date: new Date(), type: 'vente', description: 'Commande #1234', amount: 24.50, category: 'revenus' },
+        { id: 2, date: new Date(), type: 'achat', description: 'Fournitures café', amount: -85.00, category: 'achats' },
+        { id: 3, date: new Date(), type: 'vente', description: 'Commande #1235', amount: 18.75, category: 'revenus' },
+        { id: 4, date: new Date(), type: 'frais', description: 'Électricité', amount: -120.00, category: 'charges' }
+      ];
+      res.json(transactions);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des transactions" });
+    }
+  });
+
+  app.post("/api/admin/accounting/transactions", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const transaction = { id: Date.now(), ...req.body, date: new Date() };
+      wsManager.notifyDataUpdate('accounting', transaction);
+      res.status(201).json(transaction);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de l'ajout de la transaction" });
+    }
+  });
+
+  app.get("/api/admin/accounting/summary", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const summary = {
+        totalRevenue: 12450.75,
+        totalExpenses: 8230.50,
+        profit: 4220.25,
+        profitMargin: 33.9
+      };
+      res.json(summary);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération du résumé" });
+    }
+  });
+
+  // Admin backup system routes
+  app.get("/api/admin/backups", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const backups = [
+        { id: 1, name: 'backup_2024_01_10.sql', date: new Date(), size: '2.5 MB', type: 'automatique' },
+        { id: 2, name: 'backup_2024_01_09.sql', date: new Date(Date.now() - 24*60*60*1000), size: '2.4 MB', type: 'automatique' },
+        { id: 3, name: 'backup_manuel_2024_01_08.sql', date: new Date(Date.now() - 2*24*60*60*1000), size: '2.3 MB', type: 'manuel' }
+      ];
+      res.json(backups);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des sauvegardes" });
+    }
+  });
+
+  app.post("/api/admin/backups/create", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const backup = {
+        id: Date.now(),
+        name: `backup_manuel_${new Date().toISOString().split('T')[0]}.sql`,
+        date: new Date(),
+        size: '2.6 MB',
+        type: 'manuel'
+      };
+      res.status(201).json(backup);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la création de la sauvegarde" });
+    }
+  });
+
+  app.delete("/api/admin/backups/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      res.json({ message: "Sauvegarde supprimée avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la suppression de la sauvegarde" });
+    }
+  });
+
+  // Admin reports system routes
+  app.get("/api/admin/reports/sales", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const salesData = [
+        { date: '2024-01-01', revenue: 450.75, orders: 23 },
+        { date: '2024-01-02', revenue: 520.30, orders: 28 },
+        { date: '2024-01-03', revenue: 380.90, orders: 19 },
+        { date: '2024-01-04', revenue: 620.45, orders: 31 },
+        { date: '2024-01-05', revenue: 490.20, orders: 25 }
+      ];
+      res.json(salesData);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des rapports de vente" });
+    }
+  });
+
+  app.get("/api/admin/reports/products", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const productData = [
+        { name: 'Cappuccino', sales: 125, revenue: 625.00 },
+        { name: 'Espresso', sales: 98, revenue: 294.00 },
+        { name: 'Latte', sales: 87, revenue: 391.50 },
+        { name: 'Americano', sales: 76, revenue: 304.00 }
+      ];
+      res.json(productData);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des rapports produits" });
+    }
+  });
+
+  app.get("/api/admin/reports/customers", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const customerData = [
+        { name: 'Sophie Laurent', orders: 12, totalSpent: 185.50, avgOrder: 15.46 },
+        { name: 'Jean Dupont', orders: 8, totalSpent: 124.80, avgOrder: 15.60 },
+        { name: 'Marie Martin', orders: 15, totalSpent: 267.75, avgOrder: 17.85 }
+      ];
+      res.json(customerData);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des rapports clients" });
+    }
+  });
+
+  // Admin suppliers management routes
+  app.get("/api/admin/suppliers", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const suppliers = [
+        { id: 1, name: 'Café Premium', contact: 'Jean Café', email: 'jean@cafepremium.fr', phone: '+33123456789', category: 'Café' },
+        { id: 2, name: 'Laiterie France', contact: 'Marie Lait', email: 'marie@laiterie.fr', phone: '+33234567890', category: 'Produits laitiers' },
+        { id: 3, name: 'Pâtisserie Delice', contact: 'Pierre Sucre', email: 'pierre@delice.fr', phone: '+33345678901', category: 'Pâtisseries' }
+      ];
+      res.json(suppliers);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des fournisseurs" });
+    }
+  });
+
+  app.post("/api/admin/suppliers", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const supplier = { id: Date.now(), ...req.body };
+      wsManager.notifyDataUpdate('suppliers', supplier);
+      res.status(201).json(supplier);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de l'ajout du fournisseur" });
+    }
+  });
+
+  app.put("/api/admin/suppliers/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const supplier = { id, ...req.body };
+      wsManager.notifyDataUpdate('suppliers', supplier);
+      res.json(supplier);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour du fournisseur" });
+    }
+  });
+
+  app.delete("/api/admin/suppliers/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      res.json({ message: "Fournisseur supprimé avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la suppression du fournisseur" });
+    }
+  });
+
+  // Admin maintenance system routes
+  app.get("/api/admin/maintenance", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const maintenanceItems = [
+        { id: 1, equipment: 'Machine à café principale', lastMaintenance: '2024-01-01', nextMaintenance: '2024-02-01', status: 'bon', priority: 'normale' },
+        { id: 2, equipment: 'Réfrigérateur', lastMaintenance: '2023-12-15', nextMaintenance: '2024-01-15', status: 'attention', priority: 'élevée' },
+        { id: 3, equipment: 'Four', lastMaintenance: '2024-01-05', nextMaintenance: '2024-02-05', status: 'excellent', priority: 'faible' }
+      ];
+      res.json(maintenanceItems);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des équipements" });
+    }
+  });
+
+  app.post("/api/admin/maintenance", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const maintenanceItem = { id: Date.now(), ...req.body };
+      wsManager.notifyDataUpdate('maintenance', maintenanceItem);
+      res.status(201).json(maintenanceItem);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de l'ajout de l'équipement" });
+    }
+  });
+
+  app.put("/api/admin/maintenance/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const maintenanceItem = { id, ...req.body };
+      wsManager.notifyDataUpdate('maintenance', maintenanceItem);
+      res.json(maintenanceItem);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour de l'équipement" });
+    }
+  });
+
+  app.get("/api/admin/maintenance/alerts", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const alerts = [
+        { id: 1, equipment: 'Réfrigérateur', message: 'Maintenance prévue dans 3 jours', priority: 'élevée' },
+        { id: 2, equipment: 'Machine à café secondaire', message: 'Nettoyage requis', priority: 'normale' }
+      ];
+      res.json(alerts);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des alertes" });
+    }
+  });
+
+  // Admin calendar management routes
+  app.get("/api/admin/calendar/events", authenticateToken, async (req, res) => {
+    try {
+      const events = [
+        { id: 1, title: 'Formation équipe', date: '2024-01-15', time: '14:00', type: 'formation' },
+        { id: 2, title: 'Livraison café', date: '2024-01-16', time: '10:00', type: 'livraison' },
+        { id: 3, title: 'Réunion équipe', date: '2024-01-17', time: '16:00', type: 'reunion' }
+      ];
+      res.json(events);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des événements" });
+    }
+  });
+
+  app.post("/api/admin/calendar/events", authenticateToken, async (req, res) => {
+    try {
+      const event = { id: Date.now(), ...req.body };
+      wsManager.notifyDataUpdate('calendar', event);
+      res.status(201).json(event);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de l'ajout de l'événement" });
+    }
+  });
+
+  app.put("/api/admin/calendar/events/:id", authenticateToken, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const event = { id, ...req.body };
+      wsManager.notifyDataUpdate('calendar', event);
+      res.json(event);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour de l'événement" });
+    }
+  });
+
+  app.delete("/api/admin/calendar/events/:id", authenticateToken, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      res.json({ message: "Événement supprimé avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la suppression de l'événement" });
+    }
+  });
+
+  // Admin notifications management routes
+  app.get("/api/admin/notifications/system", authenticateToken, async (req, res) => {
+    try {
+      const notifications = [
+        { id: 1, type: 'info', title: 'Nouvelle réservation', message: 'Réservation pour 4 personnes à 19h', timestamp: new Date(), read: false },
+        { id: 2, type: 'warning', title: 'Stock faible', message: 'Le café Arabica est en stock faible', timestamp: new Date(), read: false },
+        { id: 3, type: 'success', title: 'Commande terminée', message: 'Commande #1234 terminée avec succès', timestamp: new Date(), read: true }
+      ];
+      res.json(notifications);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des notifications" });
+    }
+  });
+
+  app.put("/api/admin/notifications/:id/read", authenticateToken, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      res.json({ message: "Notification marquée comme lue" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour de la notification" });
+    }
+  });
+
+  app.delete("/api/admin/notifications/:id", authenticateToken, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      res.json({ message: "Notification supprimée avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la suppression de la notification" });
+    }
+  });
+
+  // Admin permissions management routes
+  app.get("/api/admin/permissions", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const permissions = [
+        { id: 1, userId: 2, module: 'reservations', canView: true, canCreate: true, canUpdate: true, canDelete: false },
+        { id: 2, userId: 2, module: 'orders', canView: true, canCreate: true, canUpdate: true, canDelete: false },
+        { id: 3, userId: 2, module: 'customers', canView: true, canCreate: false, canUpdate: false, canDelete: false },
+        { id: 4, userId: 2, module: 'menu', canView: true, canCreate: true, canUpdate: true, canDelete: false }
+      ];
+      res.json(permissions);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la récupération des permissions" });
+    }
+  });
+
+  app.post("/api/admin/permissions", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const permission = { id: Date.now(), ...req.body };
+      wsManager.notifyDataUpdate('permissions', permission);
+      res.status(201).json(permission);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de l'ajout de la permission" });
+    }
+  });
+
+  app.put("/api/admin/permissions/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const permission = { id, ...req.body };
+      wsManager.notifyDataUpdate('permissions', permission);
+      res.json(permission);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la mise à jour de la permission" });
+    }
+  });
+
+  app.delete("/api/admin/permissions/:id", authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      res.json({ message: "Permission supprimée avec succès" });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de la suppression de la permission" });
+    }
+  });
+
   // APIs manquantes pour les statistiques avancées
   app.get("/api/admin/stats/monthly-revenue", authenticateToken, async (req, res) => {
     try {

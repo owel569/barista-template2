@@ -1,20 +1,28 @@
 import React, { useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { 
-  Menu, X, Home, Calendar, ShoppingCart, Users, Coffee, MessageSquare,
-  Settings, BarChart3, FileText, Shield, Package, Gift, DollarSign,
-  Database, Calendar as CalendarIcon, Truck, Wrench, Bell, LogOut,
-  Sun, Moon, ChevronDown, Wifi, WifiOff
-} from 'lucide-react';
-import { usePermissions } from '@/hooks/usePermissions';
-import { useWebSocket } from '@/hooks/useWebSocket';
+import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { 
+  Home, Calendar, ShoppingCart, Users, Coffee, MessageSquare, Shield, 
+  Settings, BarChart3, FileText, Package, Gift, DollarSign, Database, 
+  Truck, Wrench, Bell, ChevronLeft, ChevronRight, Menu, Sun, Moon,
+  Calendar as CalendarIcon, TrendingUp, AlertTriangle, LogOut, User,
+  Activity, Layers, PieChart, Target, Zap, Clock, MapPin, Smartphone
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { 
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, 
+  DropdownMenuSeparator, DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
+import { useTheme } from '@/contexts/theme-context';
+import { useWebSocket } from '@/hooks/use-websocket';
 
-// Import admin modules
+// Import all admin modules
 import Dashboard from '@/components/admin/dashboard';
 import Reservations from '@/components/admin/reservations';
 import Orders from '@/components/admin/orders';
@@ -37,363 +45,458 @@ import SuppliersManagement from '@/components/admin/suppliers-management';
 import MaintenanceSystem from '@/components/admin/maintenance-system';
 import NotificationsSystem from '@/components/admin/notifications-system';
 
-export default function AdminComplete() {
-  const [, navigate] = useLocation();
+// Interface pour les notifications
+interface NotificationData {
+  pendingReservations: number;
+  pendingOrders: number;
+  newMessages: number;
+  lowStockItems: number;
+  maintenanceAlerts: number;
+  systemAlerts: number;
+}
+
+// Interface pour les informations utilisateur
+interface UserData {
+  id: number;
+  username: string;
+  role: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  lastLogin?: string;
+}
+
+// Hook pour les permissions utilisateur
+const usePermissions = (user: UserData | null) => {
+  const isAdmin = user?.role === 'directeur' || user?.role === 'admin';
+  const isEmployee = user?.role === 'employe' || user?.role === 'employee';
+  
+  return {
+    isAdmin,
+    isEmployee,
+    canAccess: (module: string) => {
+      if (isAdmin) return true;
+      if (isEmployee) {
+        // Modules accessibles aux employés
+        const employeeModules = [
+          'dashboard', 'reservations', 'orders', 'customers', 'menu', 
+          'messages', 'statistics', 'logs', 'inventory', 'loyalty', 
+          'calendar', 'notifications'
+        ];
+        return employeeModules.includes(module);
+      }
+      return false;
+    },
+    canEdit: (module: string) => {
+      if (isAdmin) return true;
+      if (isEmployee) {
+        // Modules modifiables par les employés
+        const editableModules = [
+          'reservations', 'orders', 'menu', 'messages', 'inventory', 'loyalty'
+        ];
+        return editableModules.includes(module);
+      }
+      return false;
+    },
+    canDelete: (module: string) => {
+      if (isAdmin) return true;
+      // Employés ne peuvent pas supprimer dans la plupart des modules
+      return false;
+    }
+  };
+};
+
+// Configuration des modules d'administration
+const getAdminModules = (permissions: any, notifications: NotificationData) => [
+  {
+    id: 'dashboard',
+    name: 'Tableau de bord',
+    icon: Home,
+    component: Dashboard,
+    always: true,
+    description: 'Vue d\'ensemble des activités'
+  },
+  {
+    id: 'reservations',
+    name: 'Réservations',
+    icon: Calendar,
+    component: Reservations,
+    notification: notifications.pendingReservations,
+    description: 'Gestion des réservations clients'
+  },
+  {
+    id: 'orders',
+    name: 'Commandes',
+    icon: ShoppingCart,
+    component: Orders,
+    notification: notifications.pendingOrders,
+    description: 'Suivi des commandes'
+  },
+  {
+    id: 'customers',
+    name: 'Clients',
+    icon: Users,
+    component: Customers,
+    description: 'Gestion de la clientèle'
+  },
+  {
+    id: 'menu',
+    name: 'Menu',
+    icon: Coffee,
+    component: MenuManagement,
+    description: 'Gestion du menu et des produits'
+  },
+  {
+    id: 'messages',
+    name: 'Messages',
+    icon: MessageSquare,
+    component: Messages,
+    notification: notifications.newMessages,
+    description: 'Messages de contact'
+  },
+  {
+    id: 'inventory',
+    name: 'Inventaire',
+    icon: Package,
+    component: InventoryManagement,
+    notification: notifications.lowStockItems,
+    description: 'Gestion des stocks'
+  },
+  {
+    id: 'loyalty',
+    name: 'Fidélité',
+    icon: Gift,
+    component: LoyaltySystem,
+    description: 'Programme de fidélité'
+  },
+  {
+    id: 'calendar',
+    name: 'Calendrier',
+    icon: CalendarIcon,
+    component: CalendarManagement,
+    description: 'Planning et événements'
+  },
+  {
+    id: 'statistics',
+    name: 'Statistiques',
+    icon: BarChart3,
+    component: Statistics,
+    description: 'Analyses et métriques'
+  },
+  {
+    id: 'notifications',
+    name: 'Notifications',
+    icon: Bell,
+    component: NotificationsSystem,
+    description: 'Centre de notifications'
+  },
+  {
+    id: 'logs',
+    name: 'Journaux',
+    icon: FileText,
+    component: ActivityLogs,
+    description: 'Historique des activités'
+  },
+  // Modules réservés aux administrateurs
+  {
+    id: 'employees',
+    name: 'Employés',
+    icon: Shield,
+    component: Employees,
+    adminOnly: true,
+    description: 'Gestion des employés'
+  },
+  {
+    id: 'permissions',
+    name: 'Permissions',
+    icon: Shield,
+    component: PermissionsManagement,
+    adminOnly: true,
+    description: 'Gestion des permissions'
+  },
+  {
+    id: 'accounting',
+    name: 'Comptabilité',
+    icon: DollarSign,
+    component: AccountingSystem,
+    adminOnly: true,
+    description: 'Gestion financière'
+  },
+  {
+    id: 'reports',
+    name: 'Rapports',
+    icon: TrendingUp,
+    component: ReportsSystem,
+    adminOnly: true,
+    description: 'Rapports détaillés'
+  },
+  {
+    id: 'suppliers',
+    name: 'Fournisseurs',
+    icon: Truck,
+    component: SuppliersManagement,
+    adminOnly: true,
+    description: 'Gestion des fournisseurs'
+  },
+  {
+    id: 'maintenance',
+    name: 'Maintenance',
+    icon: Wrench,
+    component: MaintenanceSystem,
+    adminOnly: true,
+    notification: notifications.maintenanceAlerts,
+    description: 'Maintenance des équipements'
+  },
+  {
+    id: 'backups',
+    name: 'Sauvegardes',
+    icon: Database,
+    component: BackupSystem,
+    adminOnly: true,
+    description: 'Sauvegarde des données'
+  },
+  {
+    id: 'settings',
+    name: 'Paramètres',
+    icon: Settings,
+    component: AdminSettings,
+    adminOnly: true,
+    description: 'Configuration générale'
+  }
+];
+
+// Composant principal de l'administration
+const AdminComplete: React.FC = () => {
   const [activeModule, setActiveModule] = useState('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<UserData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [, setLocation] = useLocation();
+  const { theme, setTheme } = useTheme();
+  const queryClient = useQueryClient();
 
-  const { permissions, isLoading, hasPermission, isDirecteur } = usePermissions();
-  const { isConnected, notifications } = useWebSocket();
+  // Notifications WebSocket
+  const { notifications, isConnected } = useWebSocket();
 
-  useEffect(() => {
-    // Vérifier l'authentification
-    const token = localStorage.getItem('token');
-    if (!token) {
-      navigate('/login');
-      return;
-    }
+  // Permissions utilisateur
+  const permissions = usePermissions(user);
 
-    // Décoder le token pour obtenir les infos utilisateur
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      setUser(payload);
-    } catch (error) {
-      console.error('Token invalide:', error);
-      navigate('/login');
-    }
-  }, [navigate]);
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/login');
-  };
-
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-    document.documentElement.classList.toggle('dark');
-  };
-
-  // Configuration des modules selon les permissions
-  const adminModules = [
-    {
-      id: 'dashboard',
-      name: 'Tableau de bord',
-      icon: Home,
-      component: Dashboard,
-      always: true
-    },
-    {
-      id: 'reservations',
-      name: 'Réservations',
-      icon: Calendar,
-      component: Reservations,
-      notification: notifications.pendingReservations
-    },
-    {
-      id: 'orders',
-      name: 'Commandes',
-      icon: ShoppingCart,
-      component: Orders,
-      notification: notifications.pendingOrders
-    },
-    {
-      id: 'customers',
-      name: 'Clients',
-      icon: Users,
-      component: Customers
-    },
-    {
-      id: 'menu',
-      name: 'Menu',
-      icon: Coffee,
-      component: MenuManagement
-    },
-    {
-      id: 'messages',
-      name: 'Messages',
-      icon: MessageSquare,
-      component: Messages,
-      notification: notifications.newMessages
-    },
-    {
-      id: 'employees',
-      name: 'Employés',
-      icon: Shield,
-      component: Employees,
-      adminOnly: true
-    },
-    {
-      id: 'inventory',
-      name: 'Inventaire',
-      icon: Package,
-      component: InventoryManagement,
-      notification: notifications.lowStockItems
-    },
-    {
-      id: 'loyalty',
-      name: 'Fidélité',
-      icon: Gift,
-      component: LoyaltySystem
-    },
-    {
-      id: 'accounting',
-      name: 'Comptabilité',
-      icon: DollarSign,
-      component: AccountingSystem,
-      adminOnly: true
-    },
-    {
-      id: 'statistics',
-      name: 'Statistiques',
-      icon: BarChart3,
-      component: Statistics
-    },
-    {
-      id: 'reports',
-      name: 'Rapports',
-      icon: FileText,
-      component: ReportsSystem,
-      adminOnly: true
-    },
-    {
-      id: 'calendar',
-      name: 'Planning',
-      icon: CalendarIcon,
-      component: CalendarManagement
-    },
-    {
-      id: 'suppliers',
-      name: 'Fournisseurs',
-      icon: Truck,
-      component: SuppliersManagement,
-      adminOnly: true
-    },
-    {
-      id: 'maintenance',
-      name: 'Maintenance',
-      icon: Wrench,
-      component: MaintenanceSystem,
-      adminOnly: true
-    },
-    {
-      id: 'backups',
-      name: 'Sauvegardes',
-      icon: Database,
-      component: BackupSystem,
-      adminOnly: true
-    },
-    {
-      id: 'permissions',
-      name: 'Permissions',
-      icon: Shield,
-      component: PermissionsManagement,
-      adminOnly: true
-    },
-    {
-      id: 'logs',
-      name: 'Logs',
-      icon: FileText,
-      component: ActivityLogs,
-      adminOnly: true
-    },
-    {
-      id: 'notifications',
-      name: 'Notifications',
-      icon: Bell,
-      component: NotificationsSystem
-    },
-    {
-      id: 'settings',
-      name: 'Paramètres',
-      icon: Settings,
-      component: AdminSettings,
-      adminOnly: true
-    }
-  ];
-
-  // Filtrer les modules selon les permissions
-  const availableModules = adminModules.filter(module => {
-    if (module.always) return true;
-    if (module.adminOnly && !isDirecteur) return false;
-    return hasPermission(module.id, 'view');
+  // Récupération des données utilisateur
+  const { data: userData, isLoading: userLoading } = useQuery({
+    queryKey: ['/api/auth/verify'],
+    retry: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  const currentModule = availableModules.find(m => m.id === activeModule);
-  const CurrentComponent = currentModule?.component || Dashboard;
+  // Effet pour définir l'utilisateur
+  useEffect(() => {
+    if (userData) {
+      setUser(userData);
+    }
+    setIsLoading(userLoading);
+  }, [userData, userLoading]);
+
+  // Vérification de l'authentification
+  useEffect(() => {
+    if (!isLoading && !user) {
+      setLocation('/login');
+    }
+  }, [isLoading, user, setLocation]);
+
+  // Fonction de déconnexion
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      queryClient.clear();
+      setLocation('/login');
+      toast({
+        title: 'Déconnexion réussie',
+        description: 'Vous avez été déconnecté avec succès.'
+      });
+    } catch (error) {
+      console.error('Erreur lors de la déconnexion:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Erreur lors de la déconnexion.',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  // Filtrage des modules selon les permissions
+  const availableModules = getAdminModules(permissions, notifications).filter(
+    module => module.always || permissions.canAccess(module.id)
+  );
+
+  // Composant du module actuel
+  const ActiveModuleComponent = availableModules.find(m => m.id === activeModule)?.component || Dashboard;
+
+  // Calcul du total des notifications
+  const totalNotifications = notifications.pendingReservations + 
+    notifications.pendingOrders + 
+    notifications.newMessages + 
+    notifications.lowStockItems + 
+    notifications.maintenanceAlerts + 
+    notifications.systemAlerts;
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Chargement...</p>
-        </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
+  if (!user) {
+    return null;
+  }
+
   return (
-    <div className={cn("min-h-screen bg-gray-50 dark:bg-gray-900", isDarkMode && "dark")}>
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 fixed top-0 left-0 right-0 z-50">
-        <div className="flex items-center justify-between px-4 h-16">
-          <div className="flex items-center space-x-4">
+    <ThemeProvider defaultTheme="system" storageKey="admin-theme">
+      <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
+        {/* Sidebar */}
+        <div className={cn(
+          "bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300",
+          sidebarCollapsed ? "w-16" : "w-64"
+        )}>
+          {/* Header du sidebar */}
+          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+            <div className={cn("flex items-center space-x-3", sidebarCollapsed && "justify-center")}>
+              <div className="h-8 w-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <Coffee className="h-4 w-4 text-white" />
+              </div>
+              {!sidebarCollapsed && (
+                <span className="font-bold text-gray-900 dark:text-white">Barista Admin</span>
+              )}
+            </div>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="text-gray-600 dark:text-gray-400"
+              className="p-1.5"
             >
-              {sidebarCollapsed ? <Menu className="h-5 w-5" /> : <X className="h-5 w-5" />}
+              {sidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
             </Button>
-            
-            <div className="flex items-center space-x-3">
-              <div className="h-8 w-8 bg-amber-600 rounded-lg flex items-center justify-center">
-                <Coffee className="h-5 w-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Barista Café
-                </h1>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Administration
-                </p>
-              </div>
-            </div>
           </div>
 
-          <div className="flex items-center space-x-3">
-            {/* Statut connexion WebSocket */}
-            <div className="flex items-center space-x-2">
-              {isConnected ? (
-                <Wifi className="h-4 w-4 text-green-500" />
-              ) : (
-                <WifiOff className="h-4 w-4 text-red-500" />
-              )}
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                {isConnected ? 'En ligne' : 'Hors ligne'}
-              </span>
-            </div>
-
-            {/* Notifications */}
-            <div className="flex items-center space-x-2">
-              {notifications.pendingReservations > 0 && (
-                <Badge variant="destructive" className="text-xs">
-                  {notifications.pendingReservations} réservations
-                </Badge>
-              )}
-              {notifications.newMessages > 0 && (
-                <Badge variant="destructive" className="text-xs">
-                  {notifications.newMessages} messages
-                </Badge>
-              )}
-            </div>
-
-            {/* Thème */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleTheme}
-              className="text-gray-600 dark:text-gray-400"
-            >
-              {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </Button>
-
-            {/* User menu */}
-            <div className="flex items-center space-x-3">
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
-                  {user?.username}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {isDirecteur ? 'Directeur' : 'Employé'}
-                </p>
-              </div>
-              <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-amber-600 text-white">
-                  {user?.username?.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleLogout}
-                className="text-gray-600 dark:text-gray-400"
+          {/* Navigation */}
+          <nav className="p-2 space-y-1">
+            {availableModules.map((module) => (
+              <button
+                key={module.id}
+                onClick={() => setActiveModule(module.id)}
+                className={cn(
+                  "w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors",
+                  activeModule === module.id 
+                    ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200" 
+                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                )}
               >
-                <LogOut className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+                <module.icon className="h-5 w-5 flex-shrink-0" />
+                {!sidebarCollapsed && (
+                  <>
+                    <span className="flex-1">{module.name}</span>
+                    {module.notification && module.notification > 0 && (
+                      <Badge variant="destructive" className="ml-auto">
+                        {module.notification}
+                      </Badge>
+                    )}
+                  </>
+                )}
+              </button>
+            ))}
+          </nav>
         </div>
-      </header>
 
-      <div className="flex pt-16">
-        {/* Sidebar */}
-        <aside className={cn(
-          "fixed left-0 top-16 h-[calc(100vh-4rem)] bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 z-40",
-          sidebarCollapsed ? "w-16" : "w-64"
-        )}>
-          <div className="flex flex-col h-full">
-            <div className="flex-1 overflow-y-auto py-4">
-              <nav className="space-y-1 px-2">
-                {availableModules.map((module) => {
-                  const Icon = module.icon;
-                  const isActive = activeModule === module.id;
-                  
-                  return (
-                    <button
-                      key={module.id}
-                      onClick={() => setActiveModule(module.id)}
-                      className={cn(
-                        "w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors",
-                        isActive 
-                          ? "bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border-r-2 border-amber-600" 
-                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      )}
+        {/* Contenu principal */}
+        <div className="flex-1 flex flex-col">
+          {/* Topbar */}
+          <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  {availableModules.find(m => m.id === activeModule)?.name || 'Tableau de bord'}
+                </h1>
+                {!isConnected && (
+                  <Badge variant="destructive">
+                    <AlertTriangle className="h-3 w-3 mr-1" />
+                    Connexion WebSocket perdue
+                  </Badge>
+                )}
+              </div>
+
+              <div className="flex items-center space-x-4">
+                {/* Notifications */}
+                {totalNotifications > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setActiveModule('notifications')}
+                    className="relative"
+                  >
+                    <Bell className="h-5 w-5" />
+                    <Badge 
+                      variant="destructive" 
+                      className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
                     >
-                      <Icon className="h-5 w-5 flex-shrink-0" />
-                      {!sidebarCollapsed && (
-                        <>
-                          <span className="flex-1 text-left">{module.name}</span>
-                          {module.notification && module.notification > 0 && (
-                            <Badge variant="destructive" className="text-xs">
-                              {module.notification}
-                            </Badge>
-                          )}
-                        </>
-                      )}
-                    </button>
-                  );
-                })}
-              </nav>
-            </div>
-          </div>
-        </aside>
+                      {totalNotifications}
+                    </Badge>
+                  </Button>
+                )}
 
-        {/* Main content */}
-        <main className={cn(
-          "flex-1 transition-all duration-300",
-          sidebarCollapsed ? "ml-16" : "ml-64"
-        )}>
-          <div className="p-6">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                {currentModule?.name || 'Tableau de bord'}
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
-                {isDirecteur ? 'Interface Directeur' : 'Interface Employé'} - 
-                Gestion complète du café
-              </p>
+                {/* Toggle theme */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+                >
+                  {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+                </Button>
+
+                {/* Menu utilisateur */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback>
+                          {user?.firstName?.[0] || user?.username?.[0]?.toUpperCase() || 'U'}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <div className="flex items-center justify-start gap-2 p-2">
+                      <div className="flex flex-col space-y-1 leading-none">
+                        <p className="font-medium">{user?.firstName || user?.username}</p>
+                        <p className="text-xs text-muted-foreground">{user?.email}</p>
+                        <Badge variant="secondary" className="w-fit">
+                          {user?.role === 'directeur' ? 'Directeur' : 'Employé'}
+                        </Badge>
+                      </div>
+                    </div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => setActiveModule('settings')}>
+                      <Settings className="mr-2 h-4 w-4" />
+                      Paramètres
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleLogout}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Déconnexion
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
-            
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-              <CurrentComponent />
-            </div>
-          </div>
-        </main>
+          </header>
+
+          {/* Contenu du module */}
+          <main className="flex-1 overflow-auto p-6">
+            <ActiveModuleComponent />
+          </main>
+        </div>
       </div>
-    </div>
+    </ThemeProvider>
   );
-}
+};
+
+export default AdminComplete;
