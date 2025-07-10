@@ -48,7 +48,7 @@ import { z } from 'zod';
 import { Plus, Pencil, Trash2, Eye, Users, UserCheck, Clock, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useWebSocket } from '@/hooks/useWebSocket';
-// import { PhoneInput } from '@/components/ui/phone-input'; // Remplacé par Input standard
+import { InternationalPhoneInput } from '@/components/ui/international-phone-input';
 
 const employeeSchema = z.object({
   firstName: z.string().min(2, 'Le prénom doit contenir au moins 2 caractères'),
@@ -56,9 +56,9 @@ const employeeSchema = z.object({
   email: z.string().email('Email invalide'),
   position: z.string().min(2, 'Le poste doit contenir au moins 2 caractères'),
   department: z.string().min(2, 'Le département doit contenir au moins 2 caractères'),
-  phone: z.string().min(8, 'Le téléphone doit contenir au moins 8 chiffres'),
+  phone: z.string().min(8, 'Le téléphone doit contenir au moins 8 chiffres').regex(/^(\+212|0)[0-9]{8,9}$|^(\+33|0)[0-9]{9}$|^(\+|00)[1-9][0-9]{1,14}$/, 'Format invalide. Utilisez +212XXXXXXXXX (Maroc), +33XXXXXXXXX (France) ou format international'),
   hireDate: z.string(),
-  salary: z.string().min(1, 'Le salaire est requis').refine(val => !isNaN(parseFloat(val)), 'Le salaire doit être un nombre'),
+  salary: z.coerce.number().positive('Le salaire doit être supérieur à 0').min(1000, 'Salaire minimum : 1000 DH').max(50000, 'Salaire maximum : 50000 DH'),
   status: z.enum(['active', 'inactive']).optional(),
 });
 
@@ -324,10 +324,10 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                     <FormItem>
                       <FormLabel>Téléphone</FormLabel>
                       <FormControl>
-                        <Input
-                          {...field}
-                          placeholder="Ex: +33612345678"
-                          type="tel"
+                        <InternationalPhoneInput
+                          value={field.value}
+                          onChange={field.onChange}
+                          placeholder="Numéro de téléphone"
                         />
                       </FormControl>
                       <FormMessage />
@@ -354,7 +354,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                     name="salary"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Salaire (€)</FormLabel>
+                        <FormLabel>Salaire (DH)</FormLabel>
                         <FormControl>
                           <div>
                             <Input
@@ -366,7 +366,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                               placeholder="2500.50"
                               onChange={(e) => field.onChange(Number(e.target.value))}
                             />
-                            <p className="text-xs text-gray-500 mt-1">💰 Format : 2500 ou 2500.50 (pas de virgule)</p>
+                            <p className="text-xs text-gray-500 mt-1">💰 Salaire en dirhams marocains (DH). Min: 1000 DH, Max: 50000 DH</p>
                           </div>
                         </FormControl>
                         <FormMessage />

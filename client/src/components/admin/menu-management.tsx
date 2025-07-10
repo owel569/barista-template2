@@ -55,7 +55,7 @@ import { getImageUrlByName } from '@/lib/image-mapping';
 const menuItemSchema = z.object({
   name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
   description: z.string().min(10, 'La description doit contenir au moins 10 caractères'),
-  price: z.coerce.number().min(0.01, 'Le prix doit être supérieur à 0').max(999.99, 'Prix maximum : 999,99€'),
+  price: z.coerce.number().positive('Le prix doit être supérieur à 0').min(0.01, 'Prix minimum : 0,01€').max(999.99, 'Prix maximum : 999,99€'),
   categoryId: z.coerce.number().min(1, 'Veuillez sélectionner une catégorie'),
   available: z.boolean(),
   imageUrl: z.string().optional(),
@@ -316,16 +316,22 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                     name="price"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Prix (€)</FormLabel>
+                        <FormLabel>Prix (DH)</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
                             step="0.01"
+                            min="0.01"
+                            max="999.99"
+                            placeholder="Ex: 25.50"
                             {...field}
                             onChange={(e) => field.onChange(Number(e.target.value))}
                           />
                         </FormControl>
                         <FormMessage />
+                        <div className="text-xs text-muted-foreground">
+                          Saisissez un prix en dirhams (DH). Min: 0,01 DH, Max: 999,99 DH
+                        </div>
                       </FormItem>
                     )}
                   />
