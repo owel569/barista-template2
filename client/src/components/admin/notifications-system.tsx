@@ -298,7 +298,11 @@ export default function NotificationsSystem({ userRole }: NotificationsSystemPro
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    {format(new Date(notification.createdAt), 'dd/MM/yyyy HH:mm', { locale: fr })}
+                    {notification.createdAt ? (
+                      isNaN(new Date(notification.createdAt).getTime()) ? 
+                        'Date invalide' : 
+                        format(new Date(notification.createdAt), 'dd/MM/yyyy HH:mm', { locale: fr })
+                    ) : 'Pas de date'}
                   </TableCell>
                   <TableCell>
                     {notification.read ? (

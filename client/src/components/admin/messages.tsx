@@ -289,7 +289,11 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                     {message.subject}
                   </TableCell>
                   <TableCell>
-                    {format(new Date(message.createdAt), 'dd/MM/yyyy HH:mm', { locale: fr })}
+                    {message.createdAt ? (
+                      isNaN(new Date(message.createdAt).getTime()) ? 
+                        'Date invalide' : 
+                        format(new Date(message.createdAt), 'dd/MM/yyyy HH:mm', { locale: fr })
+                    ) : 'Pas de date'}
                   </TableCell>
                   <TableCell>
                     <Badge className={getStatusColor(message.status)}>

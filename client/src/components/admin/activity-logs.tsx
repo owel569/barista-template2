@@ -232,7 +232,9 @@ export default function ActivityLogs({ userRole }: ActivityLogsProps) {
                 <TableRow key={log.id}>
                   <TableCell>
                     {log.createdAt && !isNaN(new Date(log.createdAt).getTime()) 
-                      ? format(new Date(log.createdAt), 'dd/MM/yyyy HH:mm:ss', { locale: fr })
+                      ? (log.createdAt && !isNaN(new Date(log.createdAt).getTime()) ?
+                          format(new Date(log.createdAt), 'dd/MM/yyyy HH:mm:ss', { locale: fr }) :
+                          'Date invalide')
                       : 'Date invalide'
                     }
                   </TableCell>
