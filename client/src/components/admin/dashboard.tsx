@@ -89,6 +89,13 @@ export default function Dashboard() {
       });
     } catch (error) {
       console.error('Erreur lors du chargement des statistiques:', error);
+      setStats({
+        todayReservations: 0,
+        monthlyRevenue: 0,
+        activeOrders: 0,
+        occupancyRate: 0,
+        reservationStatus: []
+      });
     } finally {
       setLoading(false);
     }

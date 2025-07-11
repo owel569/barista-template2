@@ -272,7 +272,7 @@ export default function AdminFinal() {
   const currentModule = availableModules.find(m => m.id === activeModule);
   const CurrentComponent = currentModule?.component || Dashboard;
 
-  if (isLoading) {
+  if (!user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>

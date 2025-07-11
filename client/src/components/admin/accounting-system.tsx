@@ -133,7 +133,7 @@ export default function AccountingSystem() {
                     Revenus Totaux
                   </p>
                   <p className="text-2xl font-bold text-green-600">
-                    {summary.totalIncome.toFixed(2)}€
+                    {Number(summary.totalIncome || 0).toFixed(2)}€
                   </p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-green-500" />
@@ -149,7 +149,7 @@ export default function AccountingSystem() {
                     Dépenses Totales
                   </p>
                   <p className="text-2xl font-bold text-red-600">
-                    {summary.totalExpenses.toFixed(2)}€
+                    {Number(summary.totalExpenses || 0).toFixed(2)}€
                   </p>
                 </div>
                 <TrendingDown className="h-8 w-8 text-red-500" />
@@ -165,7 +165,7 @@ export default function AccountingSystem() {
                     Bénéfice Net
                   </p>
                   <p className={`text-2xl font-bold ${summary.netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {summary.netProfit.toFixed(2)}€
+                    {Number(summary.netProfit || 0).toFixed(2)}€
                   </p>
                 </div>
                 <DollarSign className="h-8 w-8 text-blue-500" />
@@ -181,7 +181,7 @@ export default function AccountingSystem() {
                     Croissance Mensuelle
                   </p>
                   <p className={`text-2xl font-bold ${summary.monthlyGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {summary.monthlyGrowth >= 0 ? '+' : ''}{summary.monthlyGrowth.toFixed(1)}%
+                    {Number(summary.monthlyGrowth || 0) >= 0 ? '+' : ''}{Number(summary.monthlyGrowth || 0).toFixed(1)}%
                   </p>
                 </div>
                 {summary.monthlyGrowth >= 0 ? 
@@ -287,7 +287,7 @@ export default function AccountingSystem() {
                       <div key={category} className="flex items-center justify-between">
                         <span className="font-medium">{category}</span>
                         <div className="text-right">
-                          <p className="font-bold text-green-600">{total.toFixed(2)}€</p>
+                          <p className="font-bold text-green-600">{Number(total || 0).toFixed(2)}€</p>
                           <p className="text-xs text-gray-600 dark:text-gray-400">
                             {categoryTransactions.length} transactions
                           </p>
@@ -313,7 +313,7 @@ export default function AccountingSystem() {
                       <div key={category} className="flex items-center justify-between">
                         <span className="font-medium">{category}</span>
                         <div className="text-right">
-                          <p className="font-bold text-red-600">{total.toFixed(2)}€</p>
+                          <p className="font-bold text-red-600">{Number(total || 0).toFixed(2)}€</p>
                           <p className="text-xs text-gray-600 dark:text-gray-400">
                             {categoryTransactions.length} transactions
                           </p>

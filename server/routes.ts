@@ -105,6 +105,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({ token, user: { id: user.id, username: user.username, role: user.role } });
     } catch (error) {
+      console.error('Erreur login:', error);
       res.status(500).json({ message: 'Erreur serveur' });
     }
   });
@@ -420,6 +421,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const customerData = req.body;
       
+      // Validation des champs obligatoires
+      if (!customerData.firstName || !customerData.lastName) {
+        return res.status(400).json({ error: 'Les champs firstName et lastName sont obligatoires' });
+      }
+      
       // Traiter le champ name pour l'extraire en firstName et lastName
       if (customerData.name && !customerData.firstName && !customerData.lastName) {
         const nameParts = customerData.name.split(' ');
@@ -454,6 +460,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/admin/employees', authenticateToken, async (req, res) => {
     try {
       const employeeData = req.body;
+      
+      // Validation des champs obligatoires
+      if (!employeeData.firstName || !employeeData.lastName) {
+        return res.status(400).json({ error: 'Les champs firstName et lastName sont obligatoires' });
+      }
       
       // Traiter le champ name pour l'extraire en firstName et lastName
       if (employeeData.name && !employeeData.firstName && !employeeData.lastName) {
@@ -1045,12 +1056,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const menuData = req.body;
       
+      // Validation des champs obligatoires
+      if (!menuData.name) {
+        return res.status(400).json({ error: 'Le champ name est obligatoire' });
+      }
+      
       // Valeurs par défaut
       if (!menuData.available) menuData.available = true;
       if (!menuData.price) menuData.price = 0;
       if (!menuData.categoryId) menuData.categoryId = 1;
       
       const item = await storage.createMenuItem(menuData);
+      broadcast({ type: 'menu_item_created', data: item });
       res.status(201).json(item);
     } catch (error) {
       console.error('Erreur création article menu:', error);
