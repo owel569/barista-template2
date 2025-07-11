@@ -932,5 +932,597 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Routes Suppliers - Ajout des routes manquantes
+  app.get('/api/admin/suppliers', authenticateToken, async (req, res) => {
+    try {
+      const suppliers = [
+        {
+          id: 1,
+          name: 'Pierre Dubois',
+          company: 'Café Excellence',
+          email: 'p.dubois@cafe-excellence.fr',
+          phone: '+33 1 23 45 67 89',
+          address: '45 Rue des Grains, Paris',
+          category: 'Café',
+          rating: 4.8,
+          status: 'active',
+          totalOrders: 125,
+          totalAmount: 15420.50,
+          lastOrder: '2025-07-08',
+          products: ['Arabica Bio', 'Robusta Premium', 'Décaféiné']
+        },
+        {
+          id: 2,
+          name: 'Marie Martin',
+          company: 'Pâtisserie Artisanale',
+          email: 'm.martin@patisserie-artisanale.fr',
+          phone: '+33 1 34 56 78 90',
+          address: '23 Avenue des Boulangers, Lyon',
+          category: 'Pâtisserie',
+          rating: 4.6,
+          status: 'active',
+          totalOrders: 89,
+          totalAmount: 8750.25,
+          lastOrder: '2025-07-09',
+          products: ['Croissants', 'Pains au chocolat', 'Macarons']
+        },
+        {
+          id: 3,
+          name: 'Jean Moreau',
+          company: 'Laiterie des Alpes',
+          email: 'j.moreau@laiterie-alpes.fr',
+          phone: '+33 4 76 12 34 56',
+          address: '67 Route de la Montagne, Grenoble',
+          category: 'Laitier',
+          rating: 4.5,
+          status: 'active',
+          totalOrders: 156,
+          totalAmount: 12350.75,
+          lastOrder: '2025-07-10',
+          products: ['Lait Bio', 'Crème fraîche', 'Beurre fermier']
+        }
+      ];
+      res.json(suppliers);
+    } catch (error) {
+      console.error('Erreur suppliers:', error);
+      res.status(500).json([]);
+    }
+  });
+
+  app.get('/api/admin/suppliers/stats', authenticateToken, async (req, res) => {
+    try {
+      const stats = {
+        totalSuppliers: 3,
+        activeSuppliers: 3,
+        totalOrders: 370,
+        averageRating: 4.6,
+        totalAmount: 36521.50,
+        categories: {
+          'Café': 1,
+          'Pâtisserie': 1,
+          'Laitier': 1
+        }
+      };
+      res.json(stats);
+    } catch (error) {
+      console.error('Erreur suppliers stats:', error);
+      res.status(500).json({});
+    }
+  });
+
+  app.post('/api/admin/suppliers', authenticateToken, async (req, res) => {
+    try {
+      const supplierData = req.body;
+      const newSupplier = {
+        id: Date.now(),
+        ...supplierData,
+        totalOrders: 0,
+        totalAmount: 0,
+        rating: 0,
+        status: 'active',
+        lastOrder: null
+      };
+      res.status(201).json(newSupplier);
+    } catch (error) {
+      console.error('Erreur création supplier:', error);
+      res.status(500).json({ error: 'Erreur lors de la création du fournisseur' });
+    }
+  });
+
+  // Routes Delivery - Nouvelles routes pour le suivi des livraisons
+  app.get('/api/admin/deliveries', authenticateToken, async (req, res) => {
+    try {
+      const deliveries = [
+        {
+          id: 1,
+          orderId: 123,
+          customerName: 'Sophie Laurent',
+          customerPhone: '+33612345678',
+          address: '15 Rue de la Paix',
+          city: 'Paris',
+          postalCode: '75001',
+          driverId: 1,
+          driverName: 'Marc Dubois',
+          status: 'in_transit',
+          estimatedTime: '25',
+          totalAmount: 45.50,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      ];
+      res.json(deliveries);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.get('/api/admin/drivers', authenticateToken, async (req, res) => {
+    try {
+      const drivers = [
+        { id: 1, name: 'Marc Dubois', phone: '+33612345678', vehicleType: 'Scooter', isAvailable: true, currentDeliveries: 1 },
+        { id: 2, name: 'Julie Martin', phone: '+33623456789', vehicleType: 'Vélo', isAvailable: true, currentDeliveries: 0 }
+      ];
+      res.json(drivers);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.get('/api/admin/orders-for-delivery', authenticateToken, async (req, res) => {
+    try {
+      const orders = await storage.getOrders();
+      const deliveryOrders = orders.filter((order: any) => order.orderType === 'delivery' && order.status === 'ready');
+      res.json(deliveryOrders);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.post('/api/admin/deliveries', authenticateToken, async (req, res) => {
+    try {
+      const deliveryData = req.body;
+      const newDelivery = {
+        id: Date.now(),
+        ...deliveryData,
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      broadcast({ type: 'delivery_created', data: newDelivery });
+      res.status(201).json(newDelivery);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur lors de la création de la livraison' });
+    }
+  });
+
+  app.put('/api/admin/deliveries/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updateData = req.body;
+      const updatedDelivery = {
+        id: parseInt(id),
+        ...updateData,
+        updatedAt: new Date().toISOString()
+      };
+      broadcast({ type: 'delivery_updated', data: updatedDelivery });
+      res.json(updatedDelivery);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur lors de la mise à jour de la livraison' });
+    }
+  });
+
+  // Routes Inventory améliorées
+  app.get('/api/admin/inventory/items', authenticateToken, async (req, res) => {
+    try {
+      const inventoryItems = [
+        {
+          id: 1,
+          name: 'Grains de café Arabica',
+          category: 'Café',
+          currentStock: 25,
+          minThreshold: 10,
+          maxCapacity: 100,
+          unit: 'kg',
+          unitCost: 15.50,
+          supplierId: 1,
+          supplierName: 'Café Excellence',
+          lastRestocked: '2025-07-05',
+          expiryDate: '2026-01-15',
+          status: 'normal'
+        },
+        {
+          id: 2,
+          name: 'Lait entier',
+          category: 'Laitier',
+          currentStock: 5,
+          minThreshold: 15,
+          maxCapacity: 50,
+          unit: 'litre',
+          unitCost: 1.20,
+          supplierId: 3,
+          supplierName: 'Laiterie des Alpes',
+          lastRestocked: '2025-07-08',
+          expiryDate: '2025-07-15',
+          status: 'low'
+        },
+        {
+          id: 3,
+          name: 'Croissants surgelés',
+          category: 'Pâtisserie',
+          currentStock: 2,
+          minThreshold: 20,
+          maxCapacity: 100,
+          unit: 'pièce',
+          unitCost: 0.85,
+          supplierId: 2,
+          supplierName: 'Pâtisserie Artisanale',
+          lastRestocked: '2025-07-01',
+          expiryDate: '2025-08-01',
+          status: 'critical'
+        }
+      ];
+      res.json(inventoryItems);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.get('/api/admin/inventory/alerts', authenticateToken, async (req, res) => {
+    try {
+      const alerts = [
+        {
+          id: 1,
+          type: 'low_stock',
+          itemName: 'Lait entier',
+          currentStock: 5,
+          threshold: 15,
+          severity: 'medium',
+          message: 'Stock faible - Recommandé de réapprovisionner',
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: 2,
+          type: 'critical_stock',
+          itemName: 'Croissants surgelés',
+          currentStock: 2,
+          threshold: 20,
+          severity: 'high',
+          message: 'Stock critique - Réapprovisionnement urgent requis',
+          createdAt: new Date().toISOString()
+        }
+      ];
+      res.json(alerts);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  // Routes Online Ordering - Nouvelles APIs pour commandes en ligne
+  app.get('/api/admin/online-orders', authenticateToken, async (req, res) => {
+    try {
+      const onlineOrders = [
+        {
+          id: 1,
+          orderNumber: 'WEB-001',
+          customerName: 'Marie Dupont',
+          customerEmail: 'marie.dupont@email.com',
+          customerPhone: '+33612345678',
+          platform: 'website',
+          orderType: 'delivery',
+          status: 'preparing',
+          items: [
+            { id: 1, menuItemId: 1, name: 'Cappuccino', quantity: 2, unitPrice: 4.50, customizations: ['Lait d\'avoine'] },
+            { id: 2, menuItemId: 5, name: 'Croissant', quantity: 1, unitPrice: 2.80 }
+          ],
+          totalAmount: 11.80,
+          paymentStatus: 'paid',
+          paymentMethod: 'card',
+          notes: 'Livraison au 2ème étage',
+          estimatedTime: '25',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: 2,
+          orderNumber: 'APP-002',
+          customerName: 'Jean Martin',
+          customerEmail: 'jean.martin@email.com',
+          customerPhone: '+33623456789',
+          platform: 'mobile_app',
+          orderType: 'pickup',
+          status: 'ready',
+          items: [
+            { id: 3, menuItemId: 2, name: 'Latte', quantity: 1, unitPrice: 5.20 },
+            { id: 4, menuItemId: 8, name: 'Muffin', quantity: 2, unitPrice: 3.50 }
+          ],
+          totalAmount: 12.20,
+          paymentStatus: 'paid',
+          paymentMethod: 'mobile',
+          estimatedTime: '15',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      ];
+      res.json(onlineOrders);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.get('/api/admin/online-orders/stats', authenticateToken, async (req, res) => {
+    try {
+      const stats = {
+        website: { orders: 45, revenue: 1250.50 },
+        mobile_app: { orders: 32, revenue: 890.75 },
+        phone: { orders: 18, revenue: 445.25 }
+      };
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({});
+    }
+  });
+
+  app.get('/api/admin/online-ordering/settings', authenticateToken, async (req, res) => {
+    try {
+      const settings = {
+        onlineOrderingEnabled: true,
+        deliveryEnabled: true,
+        pickupEnabled: true,
+        onlinePaymentEnabled: true,
+        minPrepTime: 15,
+        minDeliveryTime: 30,
+        deliveryFee: 5.00,
+        minDeliveryAmount: 25.00
+      };
+      res.json(settings);
+    } catch (error) {
+      res.status(500).json({});
+    }
+  });
+
+  app.put('/api/admin/online-orders/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updateData = req.body;
+      const updatedOrder = {
+        id: parseInt(id),
+        ...updateData,
+        updatedAt: new Date().toISOString()
+      };
+      broadcast({ type: 'online_order_updated', data: updatedOrder });
+      res.json(updatedOrder);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur lors de la mise à jour de la commande' });
+    }
+  });
+
+  // Routes Table Management - Gestion des tables
+  app.get('/api/admin/tables', authenticateToken, async (req, res) => {
+    try {
+      const tables = [
+        {
+          id: 1,
+          number: 1,
+          capacity: 4,
+          location: 'main_floor',
+          status: 'available',
+          position: { x: 100, y: 100 },
+          shape: 'round',
+          isVip: false
+        },
+        {
+          id: 2,
+          number: 2,
+          capacity: 2,
+          location: 'main_floor',
+          status: 'occupied',
+          currentReservation: {
+            id: 1,
+            customerName: 'Sophie Laurent',
+            time: '19:30',
+            guests: 2,
+            duration: 90
+          },
+          position: { x: 200, y: 100 },
+          shape: 'square',
+          isVip: false
+        },
+        {
+          id: 3,
+          number: 3,
+          capacity: 6,
+          location: 'terrace',
+          status: 'reserved',
+          nextReservation: {
+            id: 2,
+            customerName: 'Jean Dubois',
+            time: '20:00',
+            guests: 4
+          },
+          position: { x: 300, y: 100 },
+          shape: 'rectangle',
+          isVip: true
+        }
+      ];
+      res.json(tables);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.get('/api/admin/table-layouts', authenticateToken, async (req, res) => {
+    try {
+      const layouts = [
+        { id: 1, name: 'Configuration Standard', isActive: true },
+        { id: 2, name: 'Configuration Événement', isActive: false }
+      ];
+      res.json(layouts);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.get('/api/admin/tables/occupancy', authenticateToken, async (req, res) => {
+    try {
+      const stats = { rate: 75 };
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ rate: 0 });
+    }
+  });
+
+  app.post('/api/admin/tables', authenticateToken, async (req, res) => {
+    try {
+      const tableData = req.body;
+      const newTable = {
+        id: Date.now(),
+        ...tableData,
+        status: 'available',
+        position: { x: 100, y: 100 }
+      };
+      broadcast({ type: 'table_created', data: newTable });
+      res.status(201).json(newTable);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur lors de la création de la table' });
+    }
+  });
+
+  app.put('/api/admin/tables/:id/status', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      const updatedTable = {
+        id: parseInt(id),
+        status,
+        updatedAt: new Date().toISOString()
+      };
+      broadcast({ type: 'table_status_updated', data: updatedTable });
+      res.json(updatedTable);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur lors de la mise à jour du statut' });
+    }
+  });
+
+  // Routes User Profiles - Profils utilisateurs détaillés
+  app.get('/api/admin/user-profiles', authenticateToken, async (req, res) => {
+    try {
+      const profiles = [
+        {
+          id: 1,
+          firstName: 'Sophie',
+          lastName: 'Laurent',
+          email: 'sophie.laurent@email.com',
+          phone: '+33612345678',
+          address: '15 Rue de la Paix',
+          city: 'Paris',
+          postalCode: '75001',
+          preferences: {
+            emailNotifications: true,
+            smsNotifications: false,
+            promotionalEmails: true,
+            favoriteTable: 3,
+            dietaryRestrictions: ['Végétarien'],
+            allergens: ['Noix'],
+            language: 'fr',
+            currency: 'EUR'
+          },
+          loyalty: {
+            points: 350,
+            level: 'Gold',
+            nextLevelPoints: 500,
+            totalSpent: 1250.75,
+            visitsCount: 28,
+            joinDate: '2024-01-15'
+          },
+          paymentMethods: [
+            { id: 1, type: 'card', name: 'Visa ****1234', lastFour: '1234', expiryDate: '12/26', isDefault: true }
+          ],
+          addresses: [
+            { id: 1, name: 'Domicile', street: '15 Rue de la Paix', city: 'Paris', postalCode: '75001', isDefault: true }
+          ],
+          orderHistory: [
+            {
+              id: 1,
+              orderNumber: 'ORD-001',
+              date: '2025-07-10',
+              totalAmount: 25.50,
+              status: 'completed',
+              items: [
+                { name: 'Cappuccino', quantity: 2, price: 4.50 },
+                { name: 'Croissant', quantity: 1, price: 2.80 }
+              ]
+            }
+          ],
+          favoriteItems: [
+            { id: 1, menuItemId: 1, name: 'Cappuccino', price: 4.50, addedDate: '2024-02-01', orderCount: 15 },
+            { id: 2, menuItemId: 5, name: 'Croissant', price: 2.80, addedDate: '2024-02-15', orderCount: 8 }
+          ],
+          reviews: [
+            {
+              id: 1,
+              orderId: 1,
+              rating: 5,
+              comment: 'Excellent service et café délicieux !',
+              date: '2025-07-10',
+              response: 'Merci pour votre retour positif !'
+            }
+          ]
+        }
+      ];
+      res.json(profiles);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.get('/api/admin/user-profiles/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      // Retourner le profil détaillé
+      const profile = {
+        id: parseInt(id),
+        firstName: 'Sophie',
+        lastName: 'Laurent',
+        email: 'sophie.laurent@email.com',
+        phone: '+33612345678'
+        // ... autres détails
+      };
+      res.json(profile);
+    } catch (error) {
+      res.status(500).json({});
+    }
+  });
+
+  app.put('/api/admin/user-profiles/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updateData = req.body;
+      const updatedProfile = {
+        id: parseInt(id),
+        ...updateData,
+        updatedAt: new Date().toISOString()
+      };
+      broadcast({ type: 'user_profile_updated', data: updatedProfile });
+      res.json(updatedProfile);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur lors de la mise à jour du profil' });
+    }
+  });
+
+  app.post('/api/admin/user-profiles/:userId/addresses', authenticateToken, async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const addressData = req.body;
+      const newAddress = {
+        id: Date.now(),
+        ...addressData,
+        userId: parseInt(userId)
+      };
+      res.status(201).json(newAddress);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur lors de l\'ajout de l\'adresse' });
+    }
+  });
+
   return server;
 }

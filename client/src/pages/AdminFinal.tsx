@@ -33,6 +33,10 @@ import ReportsSystem from '@/components/admin/reports-system';
 import CalendarManagement from '@/components/admin/calendar-management';
 import SuppliersManagement from '@/components/admin/suppliers-management';
 import MaintenanceManagement from '@/components/admin/maintenance-management';
+import DeliveryTracking from '@/components/admin/delivery-tracking';
+import OnlineOrdering from '@/components/admin/online-ordering';
+import TableManagement from '@/components/admin/table-management';
+import UserProfile from '@/components/admin/user-profile';
 
 export default function AdminFinal() {
   const [, navigate] = useLocation();
@@ -259,6 +263,30 @@ export default function AdminFinal() {
       icon: Wrench,
       component: MaintenanceManagement,
       adminOnly: true
+    },
+    {
+      id: 'delivery',
+      name: 'Livraisons',
+      icon: Truck,
+      component: DeliveryTracking
+    },
+    {
+      id: 'online-ordering',
+      name: 'Commandes Web',
+      icon: Wifi,
+      component: OnlineOrdering
+    },
+    {
+      id: 'tables',
+      name: 'Gestion Tables',
+      icon: Home,
+      component: TableManagement
+    },
+    {
+      id: 'user-profiles',
+      name: 'Profils Clients',
+      icon: Users,
+      component: UserProfile
     }
   ];
 
