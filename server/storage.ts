@@ -66,6 +66,7 @@ export interface IStorage {
   getContactMessages(): Promise<ContactMessage[]>;
   createContactMessage(message: any): Promise<ContactMessage>;
   updateContactMessageStatus(id: number, status: string): Promise<ContactMessage | undefined>;
+  updateMessageStatus(id: number, status: string): Promise<ContactMessage | undefined>;
 
   // Orders
   getOrders(): Promise<Order[]>;
@@ -469,6 +470,10 @@ async createMessage(message: any): Promise<ContactMessage> {
       .where(eq(contactMessages.id, id))
       .returning();
     return updatedMessage || undefined;
+  }
+
+  async updateMessageStatus(id: number, status: string): Promise<ContactMessage | undefined> {
+    return this.updateContactMessageStatus(id, status);
   }
 
   // Orders

@@ -915,6 +915,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // API pour les logs d'activité
+  app.get('/api/admin/activity-logs', authenticateToken, async (req, res) => {
+    try {
+      const logs = await storage.getActivityLogs(50);
+      res.json(logs);
+    } catch (error) {
+      console.error('Erreur récupération logs:', error);
+      res.status(500).json([]);
+    }
+  });
+
   // API pour ajouter des articles de menu
   app.post('/api/admin/menu/items', authenticateToken, async (req, res) => {
     try {

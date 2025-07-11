@@ -383,7 +383,7 @@ export default function InventoryManagement() {
                   const totalValue = supplierItems.reduce((sum, item) => sum + (item.currentStock * item.unitCost), 0);
                   
                   return (
-                    <div key={supplier} className="border rounded-lg p-4">
+                    <div key={`supplier-${supplier}-${index}`} className="border rounded-lg p-4">
                       <div className="flex items-center justify-between mb-2">
                         <h3 className="font-semibold">{supplier}</h3>
                         <Badge variant="outline">{supplierItems.length} articles</Badge>
@@ -407,12 +407,12 @@ export default function InventoryManagement() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {Array.from(new Set(items.map(item => item.category))).map((category) => {
+                  {Array.from(new Set(items.map(item => item.category))).map((category, index) => {
                     const categoryItems = items.filter(item => item.category === category);
                     const totalValue = categoryItems.reduce((sum, item) => sum + (item.currentStock * item.unitCost), 0);
                     
                     return (
-                      <div key={category} className="flex items-center justify-between">
+                      <div key={`category-${category}-${index}`} className="flex items-center justify-between">
                         <span className="font-medium">{category}</span>
                         <div className="text-right">
                           <p className="font-semibold">{totalValue.toFixed(2)}€</p>
