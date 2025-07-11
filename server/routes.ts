@@ -316,6 +316,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post('/api/admin/reservations', authenticateToken, async (req, res) => {
+    try {
+      const reservationData = req.body;
+      const reservation = await storage.createReservation(reservationData);
+      broadcast({ type: 'new_reservation', data: reservation });
+      res.status(201).json(reservation);
+    } catch (error) {
+      console.error('Erreur création réservation admin:', error);
+      res.status(500).json({ error: 'Erreur lors de la création de la réservation' });
+    }
+  });
+
+  app.put('/api/admin/reservations/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const reservationData = req.body;
+      const reservation = await storage.updateReservation(Number(id), reservationData);
+      broadcast({ type: 'reservation_updated', data: reservation });
+      res.json(reservation);
+    } catch (error) {
+      console.error('Erreur modification réservation admin:', error);
+      res.status(500).json({ error: 'Erreur lors de la modification de la réservation' });
+    }
+  });
+
+  app.delete('/api/admin/reservations/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteReservation(Number(id));
+      broadcast({ type: 'reservation_deleted', data: { id: Number(id) } });
+      res.json({ message: 'Réservation supprimée avec succès' });
+    } catch (error) {
+      console.error('Erreur suppression réservation admin:', error);
+      res.status(500).json({ error: 'Erreur lors de la suppression de la réservation' });
+    }
+  });
+
   app.get('/api/admin/orders', authenticateToken, async (req, res) => {
     try {
       const orders = await storage.getOrders();

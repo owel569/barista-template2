@@ -103,7 +103,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
 
   const createMutation = useMutation({
     mutationFn: async (data: MenuItemFormData) => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
       const response = await fetch('/api/admin/menu/items', {
         method: 'POST',
         headers: {
@@ -141,7 +141,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: MenuItemFormData }) => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
       const response = await fetch(`/api/admin/menu/items/${id}`, {
         method: 'PUT',
         headers: {
@@ -177,9 +177,20 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => apiRequest(`/api/menu/items/${id}`, {
-      method: 'DELETE',
-    }),
+    mutationFn: async (id: number) => {
+      const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
+      const response = await fetch(`/api/admin/menu/items/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erreur lors de la suppression');
+      }
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/menu/items'] });
       queryClient.refetchQueries({ queryKey: ['/api/menu/items'] });

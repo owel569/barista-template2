@@ -57,6 +57,7 @@ export interface IStorage {
   createReservation(reservation: any): Promise<Reservation>;
   createReservationWithItems(reservation: any, cartItems: any[]): Promise<Reservation>;
   updateReservationStatus(id: number, status: string): Promise<Reservation | undefined>;
+  updateReservation(id: number, reservation: any): Promise<Reservation | undefined>;
   markNotificationSent(id: number): Promise<Reservation | undefined>;
   deleteReservation(id: number): Promise<boolean>;
   checkReservationConflict(date: string, time: string, tableId?: number): Promise<boolean>;
@@ -388,6 +389,19 @@ async createReservation(reservation: any): Promise<Reservation> {
     const [updatedReservation] = await db
       .update(reservations)
       .set({ status })
+      .where(eq(reservations.id, id))
+      .returning();
+    return updatedReservation || undefined;
+  }
+
+  async updateReservation(id: number, reservationData: any): Promise<Reservation | undefined> {
+    const data = { ...reservationData };
+    delete (data as any).id;
+    delete (data as any).createdAt;
+    
+    const [updatedReservation] = await db
+      .update(reservations)
+      .set(data)
       .where(eq(reservations.id, id))
       .returning();
     return updatedReservation || undefined;
