@@ -253,12 +253,8 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
   };
 
   const onSubmit = (data: MenuItemFormData) => {
-    // Si l'URL est une URL blob temporaire, utiliser l'image personnalisée à la place
-    if (data.imageUrl && data.imageUrl.startsWith('blob:')) {
-      data.imageUrl = getImageUrlByName(data.name);
-    }
-    
-    // Si pas d'image fournie, utiliser l'image personnalisée automatiquement
+    // MODIFICATION : Conserver l'URL personnalisée de l'utilisateur
+    // Ne remplacer par l'image par défaut QUE si aucune URL n'est fournie
     if (!data.imageUrl || data.imageUrl.trim() === '') {
       data.imageUrl = getImageUrlByName(data.name);
     }

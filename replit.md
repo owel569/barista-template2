@@ -605,6 +605,14 @@ Changelog:
   - Ajout "jus de citron vert" dans image-mapping.ts avec URL Pexels appropriée
   - Correction article existant (ID: 134) avec image personnalisée correcte
   - Validation finale : système d'images 100% fonctionnel avec URLs Pexels authentiques
+- July 11, 2025. CORRECTION DÉFINITIVE IMAGES PERSONNALISÉES ET PERMISSIONS ADMIN:
+  - Modifié système d'images pour respecter les URLs personnalisées de l'utilisateur
+  - Système ne remplace plus automatiquement les URLs personnalisées par des images par défaut
+  - Seules les images sans URL utilisent maintenant les images par défaut du mapping
+  - Corrigé système de permissions admin pour permettre modifications réelles
+  - Routes API permissions entièrement fonctionnelles avec authentification JWT
+  - Test validé : admin peut maintenant modifier permissions utilisateurs
+  - Suppression article avec URL blob temporaire problématique
 - July 11, 2025. DIAGNOSTIC COMPLET ET RÉSOLUTION FINALE DE L'INTERFACE ADMIN:
   - Effectué diagnostic complet de l'interface admin avec identification de tous les problèmes
   - Résolu problème d'authentification frontend: synchronisation tokens localStorage (token/auth_token)

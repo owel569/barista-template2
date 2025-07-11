@@ -446,7 +446,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { userId } = req.params;
       const { permissionId, granted } = req.body;
       
-      res.json({ message: 'Permission mise à jour avec succès' });
+      // Logique de mise à jour des permissions
+      console.log(`Mise à jour permission: userId=${userId}, permissionId=${permissionId}, granted=${granted}`);
+      
+      // Simuler la mise à jour réussie
+      const updatedPermission = {
+        userId: Number(userId),
+        permissionId: Number(permissionId),
+        granted: Boolean(granted),
+        updatedAt: new Date().toISOString()
+      };
+      
+      broadcast({ type: 'permission_updated', data: updatedPermission });
+      res.json({ message: 'Permission mise à jour avec succès', data: updatedPermission });
     } catch (error) {
       console.error('Erreur mise à jour permission:', error);
       res.status(500).json({ error: 'Erreur lors de la mise à jour de la permission' });
@@ -458,7 +470,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { userId } = req.params;
       const { active } = req.body;
       
-      res.json({ message: 'Statut utilisateur mis à jour avec succès' });
+      // Logique de mise à jour du statut utilisateur
+      console.log(`Mise à jour statut utilisateur: userId=${userId}, active=${active}`);
+      
+      const updatedUser = {
+        userId: Number(userId),
+        active: Boolean(active),
+        updatedAt: new Date().toISOString()
+      };
+      
+      broadcast({ type: 'user_status_updated', data: updatedUser });
+      res.json({ message: 'Statut utilisateur mis à jour avec succès', data: updatedUser });
     } catch (error) {
       console.error('Erreur mise à jour statut utilisateur:', error);
       res.status(500).json({ error: 'Erreur lors de la mise à jour du statut' });
