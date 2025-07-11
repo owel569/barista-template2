@@ -39,7 +39,7 @@ export default function Reservations() {
 
   const fetchReservations = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
       const response = await fetch('/api/admin/reservations', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -57,7 +57,7 @@ export default function Reservations() {
 
   const updateReservationStatus = async (id: number, status: string) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
       const response = await fetch(`/api/admin/reservations/${id}/status`, {
         method: 'PUT',
         headers: {

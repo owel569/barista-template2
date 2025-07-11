@@ -93,7 +93,7 @@ export default function Statistics({ userRole }: StatisticsProps) {
   const fetchStatistics = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
       
       // Fetch revenue statistics
       const revenueResponse = await fetch(`/api/admin/stats/revenue-detailed?range=${dateRange}`, {

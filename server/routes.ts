@@ -1001,11 +1001,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const reservations = await storage.getReservations();
       const today = new Date().toISOString().split('T')[0];
-      const todayReservations = reservations.filter(r => 
-        r.date && r.date.toISOString().split('T')[0] === today
-      );
+      const todayReservations = reservations.filter(r => {
+        if (!r.date) return false;
+        const reservationDate = typeof r.date === 'string' ? r.date : r.date.toISOString();
+        return reservationDate.split('T')[0] === today;
+      });
       res.json({ count: todayReservations.length, reservations: todayReservations });
     } catch (error) {
+      console.error('Erreur daily-reservations:', error);
       res.status(500).json({ count: 0, reservations: [] });
     }
   });

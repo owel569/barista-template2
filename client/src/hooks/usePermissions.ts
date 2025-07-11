@@ -2,15 +2,18 @@ import { useContext } from 'react';
 import { AuthContext } from '@/contexts/auth-context';
 import { DEFAULT_DIRECTEUR_PERMISSIONS, DEFAULT_EMPLOYE_PERMISSIONS, type ModulePermissions } from '@/types/admin';
 
-export const usePermissions = () => {
+export const usePermissions = (userRole?: 'directeur' | 'employe') => {
   const { user } = useContext(AuthContext);
+  
+  // Utiliser userRole s'il est fourni, sinon utiliser user du contexte
+  const effectiveRole = userRole || user?.role;
 
   const getPermissions = (): ModulePermissions => {
-    if (!user) return {};
+    if (!effectiveRole) return {};
     
-    if (user.role === 'directeur') {
+    if (effectiveRole === 'directeur') {
       return DEFAULT_DIRECTEUR_PERMISSIONS;
-    } else if (user.role === 'employe') {
+    } else if (effectiveRole === 'employe') {
       return DEFAULT_EMPLOYE_PERMISSIONS;
     }
     
@@ -45,7 +48,8 @@ export const usePermissions = () => {
     canCreate,
     canUpdate,
     canDelete,
-    isDirecteur: user?.role === 'directeur',
-    isEmploye: user?.role === 'employe'
+    isDirecteur: effectiveRole === 'directeur',
+    isEmploye: effectiveRole === 'employe',
+    isLoading: false
   };
 };
