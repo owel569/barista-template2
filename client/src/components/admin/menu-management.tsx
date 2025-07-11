@@ -517,7 +517,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                     </TableCell>
                     <TableCell className="font-medium">{item.name}</TableCell>
                     <TableCell className="max-w-xs truncate">{item.description}</TableCell>
-                    <TableCell className="font-semibold">{typeof item.price === 'number' ? item.price.toFixed(2) : parseFloat(item.price || '0').toFixed(2)}€</TableCell>
+                    <TableCell className="font-semibold">{typeof item.price === 'number' ? (item.price || 0).toFixed(2) : parseFloat(item.price || '0').toFixed(2)}€</TableCell>
                     <TableCell>
                       <Badge variant="outline">
                         {category?.name || 'Sans catégorie'}

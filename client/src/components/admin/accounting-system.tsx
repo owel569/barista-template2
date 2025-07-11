@@ -221,7 +221,7 @@ export default function AccountingSystem() {
                           <div>
                             <span className="text-gray-600 dark:text-gray-400">Montant:</span>
                             <p className={`font-bold ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
-                              {transaction.type === 'income' ? '+' : '-'}{transaction.amount.toFixed(2)}€
+                              {transaction.type === 'income' ? '+' : '-'}{(transaction.amount || 0).toFixed(2)}€
                             </p>
                           </div>
                           <div>

@@ -320,7 +320,7 @@ export default function SuppliersManagement() {
                     <div>
                       <span className="text-gray-600 dark:text-gray-400">Total:</span>
                       <p className="font-semibold text-green-600">
-                        {supplier.totalAmount.toFixed(2)}€
+                        {(supplier.totalAmount || 0).toFixed(2)}€
                       </p>
                     </div>
                   </div>

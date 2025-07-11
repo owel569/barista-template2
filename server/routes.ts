@@ -600,6 +600,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Route pour les notifications count (correction problème API)
+  app.get('/api/admin/notifications/count', authenticateToken, async (req, res) => {
+    try {
+      const reservations = await storage.getReservations();
+      const messages = await storage.getContactMessages();
+      const orders = await storage.getOrders();
+      
+      const pendingReservations = reservations.filter(r => r.status === 'pending').length;
+      const newMessages = messages.filter(m => m.status === 'nouveau').length;
+      const pendingOrders = orders.filter(o => o.status === 'pending').length;
+      
+      res.json({
+        pendingReservations,
+        newMessages,
+        pendingOrders,
+        lowStockItems: 2 // Mock pour l'instant
+      });
+    } catch (error) {
+      console.error('Erreur notifications count:', error);
+      res.status(500).json({
+        pendingReservations: 0,
+        newMessages: 0,
+        pendingOrders: 0,
+        lowStockItems: 0
+      });
+    }
+  });
+
   // Routes pour les notifications
   app.get('/api/admin/notifications/pending-reservations', authenticateToken, async (req, res) => {
     try {

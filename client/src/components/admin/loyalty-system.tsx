@@ -380,7 +380,7 @@ export default function LoyaltySystem() {
                           </div>
                           <div>
                             <span className="text-gray-600 dark:text-gray-400">Total dépensé:</span>
-                            <p className="font-medium">{customer.totalSpent.toFixed(2)}€</p>
+                            <p className="font-medium">{(customer.totalSpent || 0).toFixed(2)}€</p>
                           </div>
                           <div>
                             <span className="text-gray-600 dark:text-gray-400">Email:</span>
