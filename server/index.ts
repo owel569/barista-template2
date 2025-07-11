@@ -70,8 +70,15 @@ app.use((req, res, next) => {
     }
   }, 1000); // Délai de 1 seconde après le démarrage
 
-  // Enregistrer d'abord les routes API AVANT le middleware Vite
+  // IMPORTANT: Enregistrer les routes API AVANT tout middleware Vite
   const server = await registerRoutes(app);
+
+  // Configuration Vite APRÈS les routes API pour éviter les conflits
+  if (app.get("env") === "development") {
+    await setupVite(app, server);
+  } else {
+    serveStatic(app);
+  }
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
@@ -80,13 +87,6 @@ app.use((req, res, next) => {
     res.status(status).json({ message });
     throw err;
   });
-
-  // Configuration Vite APRÈS les routes API pour éviter les conflits
-  if (app.get("env") === "development") {
-    await setupVite(app, server);
-  } else {
-    serveStatic(app);
-  }
 
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.

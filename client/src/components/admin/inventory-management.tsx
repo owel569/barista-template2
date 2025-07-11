@@ -378,7 +378,7 @@ export default function InventoryManagement() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {Array.from(new Set(items.map(item => item.supplier))).map((supplier) => {
+                {Array.from(new Set(items.map(item => item.supplier))).map((supplier, index) => {
                   const supplierItems = items.filter(item => item.supplier === supplier);
                   const totalValue = supplierItems.reduce((sum, item) => sum + (item.currentStock * item.unitCost), 0);
                   

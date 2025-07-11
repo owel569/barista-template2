@@ -390,6 +390,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         employeeData.department = 'Général';
       }
       
+      if (!employeeData.position) {
+        employeeData.position = 'Employé';
+      }
+      
       if (!employeeData.hireDate) {
         employeeData.hireDate = new Date().toISOString();
       }
@@ -634,6 +638,126 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(report);
     } catch (error) {
       res.status(500).json({});
+    }
+  });
+
+  // APIs pour les sauvegardes
+  app.get('/api/admin/backups', authenticateToken, async (req, res) => {
+    try {
+      const backups = [
+        { id: 1, name: 'Sauvegarde automatique', date: new Date().toISOString(), size: '2.5 MB', type: 'automatic' },
+        { id: 2, name: 'Sauvegarde manuelle', date: new Date(Date.now() - 86400000).toISOString(), size: '2.3 MB', type: 'manual' },
+        { id: 3, name: 'Sauvegarde hebdomadaire', date: new Date(Date.now() - 604800000).toISOString(), size: '2.1 MB', type: 'automatic' }
+      ];
+      res.json(backups);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.get('/api/admin/backups/settings', authenticateToken, async (req, res) => {
+    try {
+      const settings = {
+        autoBackupEnabled: true,
+        backupFrequency: 'daily',
+        retentionDays: 30,
+        backupLocation: 'cloud',
+        compression: true,
+        encryptionEnabled: true
+      };
+      res.json(settings);
+    } catch (error) {
+      res.status(500).json({});
+    }
+  });
+
+  app.post('/api/admin/backups/create', authenticateToken, async (req, res) => {
+    try {
+      const { name, type } = req.body;
+      const backup = {
+        id: Date.now(),
+        name: name || 'Sauvegarde manuelle',
+        date: new Date().toISOString(),
+        size: '2.4 MB',
+        type: type || 'manual',
+        status: 'completed'
+      };
+      res.json(backup);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur lors de la création de la sauvegarde' });
+    }
+  });
+
+  // APIs pour les permissions
+  app.get('/api/admin/permissions', authenticateToken, async (req, res) => {
+    try {
+      const permissions = [
+        { id: 1, name: 'Gestion des réservations', description: 'Créer, modifier et supprimer des réservations', enabled: true },
+        { id: 2, name: 'Gestion du menu', description: 'Ajouter, modifier et supprimer des articles du menu', enabled: true },
+        { id: 3, name: 'Gestion des employés', description: 'Gérer les comptes employés', enabled: false },
+        { id: 4, name: 'Accès aux statistiques', description: 'Consulter les rapports et statistiques', enabled: true },
+        { id: 5, name: 'Gestion des paramètres', description: 'Modifier les paramètres du restaurant', enabled: false }
+      ];
+      res.json(permissions);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.get('/api/admin/users', authenticateToken, async (req, res) => {
+    try {
+      const users = [
+        { id: 1, username: 'admin', role: 'directeur', lastLogin: new Date().toISOString(), active: true },
+        { id: 2, username: 'employe', role: 'employe', lastLogin: new Date(Date.now() - 86400000).toISOString(), active: true },
+        { id: 3, username: 'serveur1', role: 'employe', lastLogin: new Date(Date.now() - 172800000).toISOString(), active: false }
+      ];
+      res.json(users);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  // APIs pour la comptabilité
+  app.get('/api/admin/accounting/transactions', authenticateToken, async (req, res) => {
+    try {
+      const transactions = [
+        { id: 1, date: new Date().toISOString(), type: 'recette', amount: 450.75, description: 'Ventes du jour', category: 'ventes' },
+        { id: 2, date: new Date(Date.now() - 86400000).toISOString(), type: 'dépense', amount: -120.50, description: 'Achat ingrédients', category: 'approvisionnement' },
+        { id: 3, date: new Date(Date.now() - 172800000).toISOString(), type: 'recette', amount: 380.25, description: 'Ventes du jour', category: 'ventes' }
+      ];
+      res.json(transactions);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.get('/api/admin/accounting/stats', authenticateToken, async (req, res) => {
+    try {
+      const stats = {
+        totalRevenue: 25430.75,
+        totalExpenses: 8950.25,
+        netProfit: 16480.50,
+        monthlyGrowth: 12.5,
+        averageDailyRevenue: 847.69,
+        topExpenseCategory: 'Approvisionnement'
+      };
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({});
+    }
+  });
+
+  app.post('/api/admin/accounting/transactions', authenticateToken, async (req, res) => {
+    try {
+      const transactionData = req.body;
+      const transaction = {
+        id: Date.now(),
+        ...transactionData,
+        date: new Date().toISOString()
+      };
+      res.status(201).json(transaction);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur lors de la création de la transaction' });
     }
   });
 
