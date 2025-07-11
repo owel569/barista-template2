@@ -13,6 +13,7 @@ export const IMAGE_MAPPING: Record<string, string> = {
   "Thé Vert": "https://images.pexels.com/photos/32754882/pexels-photo-32754882.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "Chocolat Chaud": "https://images.pexels.com/photos/15529714/pexels-photo-15529714.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "Jus d'Orange Pressé": "https://images.pexels.com/photos/96974/pexels-photo-96974.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
+  "jus de citron vert": "https://images.pexels.com/photos/1546003/pexels-photo-1546003.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "Smoothie du Jour": "https://images.pexels.com/photos/11160116/pexels-photo-11160116.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   
   // Pâtisseries - URLs Pexels spécifiées

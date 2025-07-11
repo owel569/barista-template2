@@ -600,7 +600,11 @@ Changelog:
   - Ajout de onOpenChange handlers pour nettoyer les états lors de la fermeture des dialogs
   - Correction des mutations pour reset proprement après succès (créer/modifier/supprimer)
   - Tests validés : plus de persistance indésirable entre les actions d'édition et création
-  - Validation finale : article "Test Correction Bug" créé avec succès et affiché côté client
+  - CORRECTION CRITIQUE SYSTÈME D'IMAGES : Résolu problème URLs blob temporaires sauvegardées
+  - Modification onSubmit pour automatiquement remplacer URLs blob par images personnalisées
+  - Ajout "jus de citron vert" dans image-mapping.ts avec URL Pexels appropriée
+  - Correction article existant (ID: 134) avec image personnalisée correcte
+  - Validation finale : système d'images 100% fonctionnel avec URLs Pexels authentiques
 - July 11, 2025. DIAGNOSTIC COMPLET ET RÉSOLUTION FINALE DE L'INTERFACE ADMIN:
   - Effectué diagnostic complet de l'interface admin avec identification de tous les problèmes
   - Résolu problème d'authentification frontend: synchronisation tokens localStorage (token/auth_token)

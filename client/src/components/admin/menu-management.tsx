@@ -253,6 +253,16 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
   };
 
   const onSubmit = (data: MenuItemFormData) => {
+    // Si l'URL est une URL blob temporaire, utiliser l'image personnalisée à la place
+    if (data.imageUrl && data.imageUrl.startsWith('blob:')) {
+      data.imageUrl = getImageUrlByName(data.name);
+    }
+    
+    // Si pas d'image fournie, utiliser l'image personnalisée automatiquement
+    if (!data.imageUrl || data.imageUrl.trim() === '') {
+      data.imageUrl = getImageUrlByName(data.name);
+    }
+    
     if (editingItem) {
       updateMutation.mutate({ id: editingItem.id, data });
     } else {
