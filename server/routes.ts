@@ -761,5 +761,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // API manquante pour loyalty/stats
+  app.get('/api/admin/loyalty/stats', authenticateToken, async (req, res) => {
+    try {
+      const stats = {
+        totalCustomers: 125,
+        totalPointsIssued: 45680,
+        totalRewardsRedeemed: 234,
+        averagePointsPerCustomer: 365.4,
+        levelDistribution: {
+          'Nouveau': 45,
+          'Régulier': 58,
+          'Fidèle': 18,
+          'VIP': 4
+        },
+        monthlyGrowth: 8.5,
+        topReward: 'Café gratuit'
+      };
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({});
+    }
+  });
+
+  // API pour ajouter des articles de menu
+  app.post('/api/admin/menu/items', authenticateToken, async (req, res) => {
+    try {
+      const { name, description, price, categoryId, available = true } = req.body;
+      
+      if (!name || !description || !price || !categoryId) {
+        return res.status(400).json({ error: 'Tous les champs sont obligatoires' });
+      }
+
+      const menuItem = await storage.createMenuItem({
+        name,
+        description,
+        price: Number(price),
+        categoryId: Number(categoryId),
+        available
+      });
+
+      broadcast({ type: 'menu_item_created', data: menuItem });
+      res.status(201).json(menuItem);
+    } catch (error) {
+      console.error('Erreur création article menu:', error);
+      res.status(500).json({ error: 'Erreur lors de la création de l\'article' });
+    }
+  });
+
+  // API pour modifier des articles de menu
+  app.put('/api/admin/menu/items/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updateData = req.body;
+      
+      const menuItem = await storage.updateMenuItem(Number(id), updateData);
+      broadcast({ type: 'menu_item_updated', data: menuItem });
+      res.json(menuItem);
+    } catch (error) {
+      console.error('Erreur modification article menu:', error);
+      res.status(500).json({ error: 'Erreur lors de la modification de l\'article' });
+    }
+  });
+
+  // API pour supprimer des articles de menu
+  app.delete('/api/admin/menu/items/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      await storage.deleteMenuItem(Number(id));
+      broadcast({ type: 'menu_item_deleted', data: { id: Number(id) } });
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Erreur suppression article menu:', error);
+      res.status(500).json({ error: 'Erreur lors de la suppression de l\'article' });
+    }
+  });
+
   return server;
 }

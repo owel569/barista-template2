@@ -164,9 +164,9 @@ export default function BackupSystem() {
     }
   };
 
-  const completedBackups = backups.filter(b => b.status === 'completed').length;
-  const totalSize = backups.filter(b => b.status === 'completed').reduce((sum, b) => sum + b.size, 0);
-  const lastBackup = backups.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+  const completedBackups = backups ? backups.filter(b => b.status === 'completed').length : 0;
+  const totalSize = backups ? backups.filter(b => b.status === 'completed').reduce((sum, b) => sum + (b.size || 0), 0) : 0;
+  const lastBackup = backups && backups.length > 0 ? backups.sort((a, b) => new Date(b.createdAt || '').getTime() - new Date(a.createdAt || '').getTime())[0] : null;
 
   if (loading) {
     return (

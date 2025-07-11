@@ -3,316 +3,324 @@
  * Valide TOUTES les fonctionnalités: authentification, APIs, CRUD, temps réel
  */
 
-import fs from 'fs';
-
-// Configuration
-const BASE_URL = 'http://localhost:5000';
-const TEST_CREDENTIALS = {
-  admin: { username: 'admin', password: 'admin123' },
-  employee: { username: 'employe', password: 'employe123' }
-};
-
-let adminToken = '';
-let employeeToken = '';
+const baseUrl = 'http://localhost:5000';
 
 async function makeRequest(endpoint, options = {}) {
-  const url = `${BASE_URL}${endpoint}`;
-  const response = await fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers
-    },
-    ...options
-  });
-  
-  const contentType = response.headers.get('content-type');
-  let data;
-  
-  if (contentType && contentType.includes('application/json')) {
-    data = await response.json();
-  } else {
-    data = await response.text();
+  try {
+    const response = await fetch(`${baseUrl}${endpoint}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    });
+    
+    if (!response.ok) {
+      return { success: false, status: response.status, error: response.statusText };
+    }
+    
+    const data = await response.json();
+    return { success: true, data, status: response.status };
+  } catch (error) {
+    return { success: false, error: error.message };
   }
-  
-  return { response, data, status: response.status };
 }
 
 async function authenticate() {
-  console.log('\n🔐 Test d\'authentification...');
+  console.log('🔐 Test d\'authentification...');
   
-  // Test admin
-  const adminAuth = await makeRequest('/api/auth/login', {
+  const result = await makeRequest('/api/auth/login', {
     method: 'POST',
-    body: JSON.stringify(TEST_CREDENTIALS.admin)
+    body: JSON.stringify({ username: 'admin', password: 'admin123' })
   });
   
-  if (adminAuth.status === 200 && adminAuth.data.token) {
-    adminToken = adminAuth.data.token;
-    console.log('✅ Authentification admin réussie');
+  if (result.success) {
+    console.log('✅ Authentification réussie');
+    return result.data.token;
   } else {
-    console.log('❌ Échec authentification admin:', adminAuth.data);
-    return false;
+    console.log('❌ Échec de l\'authentification');
+    return null;
   }
-  
-  // Test employé
-  const empAuth = await makeRequest('/api/auth/login', {
-    method: 'POST',
-    body: JSON.stringify(TEST_CREDENTIALS.employee)
-  });
-  
-  if (empAuth.status === 200 && empAuth.data.token) {
-    employeeToken = empAuth.data.token;
-    console.log('✅ Authentification employé réussie');
-  } else {
-    console.log('❌ Échec authentification employé:', empAuth.data);
-    return false;
-  }
-  
-  return true;
 }
 
 async function testPublicAPIs() {
-  console.log('\n📱 Test APIs publiques...');
+  console.log('\n🌐 Test des APIs publiques...');
   
   const endpoints = [
-    '/api/menu/items',
     '/api/menu/categories',
+    '/api/menu/items',
     '/api/tables'
   ];
   
-  let success = 0;
-  
+  let passed = 0;
   for (const endpoint of endpoints) {
     const result = await makeRequest(endpoint);
-    if (result.status === 200) {
-      console.log(`✅ ${endpoint} - ${Array.isArray(result.data) ? result.data.length : 'OK'} éléments`);
-      success++;
+    if (result.success) {
+      console.log(`✅ ${endpoint}: OK`);
+      passed++;
     } else {
-      console.log(`❌ ${endpoint} - Status: ${result.status}`);
+      console.log(`❌ ${endpoint}: ${result.error}`);
     }
   }
   
-  console.log(`📊 APIs publiques: ${success}/${endpoints.length} fonctionnelles`);
-  return success === endpoints.length;
+  return { passed, total: endpoints.length };
 }
 
 async function testAdminAPIs() {
-  console.log('\n👨‍💼 Test APIs admin...');
+  console.log('\n🔧 Test des APIs administratives...');
+  
+  const token = await authenticate();
+  if (!token) return { passed: 0, total: 0 };
   
   const adminEndpoints = [
+    // Statistiques
     '/api/admin/stats/today-reservations',
     '/api/admin/stats/monthly-revenue',
     '/api/admin/stats/active-orders',
     '/api/admin/stats/occupancy-rate',
+    '/api/admin/stats/daily-reservations',
+    '/api/admin/stats/orders-by-status',
     '/api/admin/stats/reservation-status',
+    
+    // Gestion
     '/api/admin/customers',
     '/api/admin/employees',
     '/api/admin/reservations',
     '/api/admin/orders',
     '/api/admin/messages',
     '/api/admin/work-shifts',
+    '/api/admin/work-shifts/stats',
+    
+    // Fonctionnalités avancées
+    '/api/admin/backups',
+    '/api/admin/backups/settings',
+    '/api/admin/permissions',
+    '/api/admin/users',
+    '/api/admin/accounting/transactions',
+    '/api/admin/accounting/stats',
     '/api/admin/inventory/items',
     '/api/admin/inventory/alerts',
     '/api/admin/loyalty/customers',
     '/api/admin/loyalty/rewards',
     '/api/admin/loyalty/stats',
-    '/api/admin/notifications/count',
+    '/api/admin/calendar/events',
+    '/api/admin/calendar/stats',
     '/api/admin/settings',
-    '/api/admin/accounting',
-    '/api/admin/backups',
-    '/api/admin/reports'
+    '/api/admin/reports/sales',
+    '/api/admin/reports/customers',
+    '/api/admin/reports/products',
+    '/api/admin/notifications/count'
   ];
   
-  let success = 0;
-  
+  let passed = 0;
   for (const endpoint of adminEndpoints) {
     const result = await makeRequest(endpoint, {
-      headers: { 'Authorization': `Bearer ${adminToken}` }
+      headers: { 'Authorization': `Bearer ${token}` }
     });
     
-    if (result.status === 200) {
-      console.log(`✅ ${endpoint} - ${typeof result.data === 'object' ? 'OK' : result.data.slice(0, 50)}`);
-      success++;
+    if (result.success) {
+      console.log(`✅ ${endpoint}: OK`);
+      passed++;
     } else {
-      console.log(`❌ ${endpoint} - Status: ${result.status}`);
+      console.log(`❌ ${endpoint}: ${result.status} ${result.error}`);
     }
   }
   
-  console.log(`📊 APIs admin: ${success}/${adminEndpoints.length} fonctionnelles`);
-  return success >= adminEndpoints.length * 0.9; // 90% minimum
+  return { passed, total: adminEndpoints.length };
 }
 
 async function testCRUDOperations() {
-  console.log('\n🔄 Test opérations CRUD...');
+  console.log('\n✏️ Test des opérations CRUD...');
   
-  let success = 0;
-  const total = 3;
+  const token = await authenticate();
+  if (!token) return { passed: 0, total: 0 };
+  
+  const timestamp = Date.now();
+  let passed = 0;
+  let total = 0;
   
   // Test création client
-  try {
-    const customerData = {
-      firstName: 'Client',
-      lastName: 'Test System',
-      email: 'test.system@example.com',
+  total++;
+  const clientResult = await makeRequest('/api/admin/customers', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify({
+      firstName: 'TestSystem',
+      lastName: 'Complete',
+      email: `test.system.${timestamp}@example.com`,
       phone: '+33612345678',
-      address: '123 Test Street'
-    };
-    
-    const createResult = await makeRequest('/api/admin/customers', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${adminToken}` },
-      body: JSON.stringify(customerData)
-    });
-    
-    if (createResult.status === 201) {
-      console.log('✅ Création client réussie');
-      success++;
-    } else {
-      console.log('❌ Échec création client:', createResult.data);
-    }
-  } catch (error) {
-    console.log('❌ Erreur création client:', error.message);
+      loyaltyPoints: 100,
+      totalSpent: 250.50
+    })
+  });
+  
+  if (clientResult.success) {
+    console.log('✅ Création client: OK');
+    passed++;
+  } else {
+    console.log(`❌ Création client: ${clientResult.error}`);
   }
   
   // Test création employé
-  try {
-    const employeeData = {
-      firstName: 'Employé',
-      lastName: 'Test System',
-      email: 'employe.test@example.com',
-      phone: '+33687654321',
-      position: 'Testeur',
-      department: 'QA',
-      salary: 2500
-    };
-    
-    const createResult = await makeRequest('/api/admin/employees', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${adminToken}` },
-      body: JSON.stringify(employeeData)
-    });
-    
-    if (createResult.status === 201) {
-      console.log('✅ Création employé réussie');
-      success++;
-    } else {
-      console.log('❌ Échec création employé:', createResult.data);
-    }
-  } catch (error) {
-    console.log('❌ Erreur création employé:', error.message);
+  total++;
+  const employeeResult = await makeRequest('/api/admin/employees', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify({
+      firstName: 'EmployéSystem',
+      lastName: 'Test',
+      email: `employe.system.${timestamp}@example.com`,
+      phone: '+33623456789',
+      department: 'Service',
+      position: 'Serveur',
+      salary: 1900
+    })
+  });
+  
+  if (employeeResult.success) {
+    console.log('✅ Création employé: OK');
+    passed++;
+  } else {
+    console.log(`❌ Création employé: ${employeeResult.error}`);
   }
   
   // Test création article menu
-  try {
-    const menuData = {
-      name: 'Café Test Final',
-      description: 'Test de création article menu',
-      price: 5.50,
+  total++;
+  const menuResult = await makeRequest('/api/admin/menu/items', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify({
+      name: 'Café Test System',
+      description: 'Test complet du système',
+      price: 4.50,
       categoryId: 1,
       available: true
-    };
-    
-    const createResult = await makeRequest('/api/admin/menu', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${adminToken}` },
-      body: JSON.stringify(menuData)
-    });
-    
-    if (createResult.status === 201 || createResult.status === 200) {
-      console.log('✅ Création article menu réussie');
-      success++;
-    } else {
-      console.log('❌ Échec création article menu:', createResult.data);
-    }
-  } catch (error) {
-    console.log('❌ Erreur création article menu:', error.message);
+    })
+  });
+  
+  if (menuResult.success) {
+    console.log('✅ Création article menu: OK');
+    passed++;
+  } else {
+    console.log(`❌ Création article menu: ${menuResult.error}`);
   }
   
-  console.log(`📊 CRUD Operations: ${success}/${total} réussies`);
-  return success >= 2; // Au moins 2/3 doivent réussir
+  // Test création transaction
+  total++;
+  const transactionResult = await makeRequest('/api/admin/accounting/transactions', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify({
+      type: 'recette',
+      amount: 2500.00,
+      description: 'Test système complet',
+      category: 'validation'
+    })
+  });
+  
+  if (transactionResult.success) {
+    console.log('✅ Création transaction: OK');
+    passed++;
+  } else {
+    console.log(`❌ Création transaction: ${transactionResult.error}`);
+  }
+  
+  // Test création sauvegarde
+  total++;
+  const backupResult = await makeRequest('/api/admin/backups/create', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify({
+      name: 'Test Système Complet',
+      type: 'manual'
+    })
+  });
+  
+  if (backupResult.success) {
+    console.log('✅ Création sauvegarde: OK');
+    passed++;
+  } else {
+    console.log(`❌ Création sauvegarde: ${backupResult.error}`);
+  }
+  
+  return { passed, total };
 }
 
 async function testNotificationsSystem() {
-  console.log('\n🔔 Test système de notifications...');
+  console.log('\n🔔 Test du système de notifications...');
+  
+  const token = await authenticate();
+  if (!token) return { passed: 0, total: 0 };
+  
+  let passed = 0;
+  let total = 1;
   
   const result = await makeRequest('/api/admin/notifications/count', {
-    headers: { 'Authorization': `Bearer ${adminToken}` }
+    headers: { 'Authorization': `Bearer ${token}` }
   });
   
-  if (result.status === 200 && typeof result.data === 'object') {
-    console.log('✅ Système de notifications fonctionnel');
-    console.log(`📊 Notifications: ${result.data.pendingReservations} réservations, ${result.data.newMessages} messages`);
-    return true;
+  if (result.success) {
+    console.log('✅ Notifications count: OK');
+    console.log(`   - Réservations en attente: ${result.data.pendingReservations}`);
+    console.log(`   - Nouveaux messages: ${result.data.newMessages}`);
+    console.log(`   - Commandes en attente: ${result.data.pendingOrders}`);
+    passed++;
   } else {
-    console.log('❌ Système de notifications défaillant');
-    return false;
+    console.log(`❌ Notifications count: ${result.error}`);
   }
+  
+  return { passed, total };
 }
 
 async function generateReport() {
-  console.log('\n📋 Génération du rapport de test...');
+  console.log('\n📊 RAPPORT COMPLET DE MIGRATION');
+  console.log('='.repeat(70));
   
-  const authResult = await authenticate();
-  const publicAPIsResult = await testPublicAPIs();
-  const adminAPIsResult = await testAdminAPIs();
-  const crudResult = await testCRUDOperations();
-  const notificationsResult = await testNotificationsSystem();
+  const results = {
+    public: await testPublicAPIs(),
+    admin: await testAdminAPIs(),
+    crud: await testCRUDOperations(),
+    notifications: await testNotificationsSystem()
+  };
   
-  const totalTests = 5;
-  const passedTests = [authResult, publicAPIsResult, adminAPIsResult, crudResult, notificationsResult].filter(Boolean).length;
-  const successRate = (passedTests / totalTests * 100).toFixed(1);
+  const totalPassed = results.public.passed + results.admin.passed + results.crud.passed + results.notifications.passed;
+  const totalTests = results.public.total + results.admin.total + results.crud.total + results.notifications.total;
+  const successRate = ((totalPassed / totalTests) * 100).toFixed(1);
   
-  const report = `
-==============================================
-🎯 RAPPORT DE TEST SYSTÈME BARISTA CAFÉ
-==============================================
-
-Date: ${new Date().toLocaleString('fr-FR')}
-Migration: Replit Agent → Replit Standard
-
-📊 RÉSULTATS GLOBAUX:
-• Tests réussis: ${passedTests}/${totalTests}
-• Taux de réussite: ${successRate}%
-• Statut: ${successRate >= 80 ? '✅ SYSTÈME OPÉRATIONNEL' : '❌ CORRECTIONS NÉCESSAIRES'}
-
-🔍 DÉTAIL PAR COMPOSANT:
-• Authentification: ${authResult ? '✅ OK' : '❌ ÉCHEC'}
-• APIs publiques: ${publicAPIsResult ? '✅ OK' : '❌ ÉCHEC'}
-• APIs admin: ${adminAPIsResult ? '✅ OK' : '❌ ÉCHEC'}
-• Opérations CRUD: ${crudResult ? '✅ OK' : '❌ ÉCHEC'}
-• Notifications: ${notificationsResult ? '✅ OK' : '❌ ÉCHEC'}
-
-🎉 FONCTIONNALITÉS VALIDÉES:
-• Site public avec menu interactif
-• Système de réservation
-• Interface admin complète
-• Authentification JWT sécurisée
-• Base de données PostgreSQL
-• APIs temps réel
-• WebSocket fonctionnel
-• Permissions différenciées directeur/employé
-
-💡 IDENTIFIANTS DE TEST:
-• Directeur: admin / admin123
-• Employé: employe / employe123
-
-==============================================
-`;
-
-  console.log(report);
+  console.log(`\n📈 RÉSULTATS DÉTAILLÉS:`);
+  console.log(`   🌐 APIs publiques:        ${results.public.passed}/${results.public.total} (${((results.public.passed/results.public.total)*100).toFixed(1)}%)`);
+  console.log(`   🔧 APIs administratives:  ${results.admin.passed}/${results.admin.total} (${((results.admin.passed/results.admin.total)*100).toFixed(1)}%)`);
+  console.log(`   ✏️  Opérations CRUD:      ${results.crud.passed}/${results.crud.total} (${((results.crud.passed/results.crud.total)*100).toFixed(1)}%)`);
+  console.log(`   🔔 Notifications:         ${results.notifications.passed}/${results.notifications.total} (${((results.notifications.passed/results.notifications.total)*100).toFixed(1)}%)`);
   
-  // Sauvegarder le rapport
-  fs.writeFileSync('RAPPORT_TEST_FINAL.txt', report);
-  console.log('📄 Rapport sauvegardé dans RAPPORT_TEST_FINAL.txt');
+  console.log(`\n🎯 RÉSULTAT GLOBAL:`);
+  console.log(`   ✅ Tests réussis: ${totalPassed}/${totalTests}`);
+  console.log(`   📊 Taux de réussite: ${successRate}%`);
   
-  return successRate >= 80;
+  if (successRate >= 95) {
+    console.log('\n🎉 MIGRATION TERMINÉE AVEC SUCCÈS!');
+    console.log('✅ Toutes les fonctionnalités sont opérationnelles');
+    console.log('✅ Système prêt pour utilisation en production');
+  } else if (successRate >= 90) {
+    console.log('\n⚠️  Migration presque terminée');
+    console.log('📝 Quelques ajustements mineurs nécessaires');
+  } else {
+    console.log('\n❌ Migration incomplète');
+    console.log('🔧 Corrections importantes nécessaires');
+  }
+  
+  console.log('\n🔑 IDENTIFIANTS DE TEST:');
+  console.log('   Admin: admin / admin123');
+  console.log('   Employé: employe / employe123');
+  
+  return successRate;
 }
 
-// Exécution du test complet
-generateReport().then(success => {
-  console.log(`\n🏁 Test terminé: ${success ? 'SUCCÈS' : 'ÉCHEC'}`);
-  process.exit(success ? 0 : 1);
+// Exécuter tous les tests
+generateReport().then(successRate => {
+  console.log(`\n🏁 Test terminé avec ${successRate}% de réussite`);
+  process.exit(successRate >= 95 ? 0 : 1);
 }).catch(error => {
-  console.error('❌ Erreur durant les tests:', error);
+  console.error('❌ Erreur lors du test:', error);
   process.exit(1);
 });

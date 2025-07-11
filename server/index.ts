@@ -72,6 +72,9 @@ app.use((req, res, next) => {
 
   // IMPORTANT: Enregistrer les routes API AVANT tout middleware Vite
   const server = await registerRoutes(app);
+  
+  // Vérifier que les routes sont bien enregistrées
+  console.log('🔗 Routes API enregistrées avant middleware Vite');
 
   // Configuration Vite APRÈS les routes API pour éviter les conflits
   if (app.get("env") === "development") {
