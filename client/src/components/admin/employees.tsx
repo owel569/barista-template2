@@ -112,7 +112,18 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/employees'] });
       setIsDialogOpen(false);
-      form.reset();
+      setEditingEmployee(null);
+      form.reset({
+        firstName: '',
+        lastName: '',
+        email: '',
+        position: '',
+        department: '',
+        phone: '',
+        hireDate: new Date().toISOString().split('T')[0],
+        salary: 0,
+        status: 'active',
+      });
       toast({
         title: 'Succès',
         description: 'Employé créé avec succès',
@@ -137,7 +148,17 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/employees'] });
       setIsDialogOpen(false);
       setEditingEmployee(null);
-      form.reset();
+      form.reset({
+        firstName: '',
+        lastName: '',
+        email: '',
+        position: '',
+        department: '',
+        phone: '',
+        hireDate: new Date().toISOString().split('T')[0],
+        salary: 0,
+        status: 'active',
+      });
       toast({
         title: 'Succès',
         description: 'Employé mis à jour avec succès',
@@ -204,7 +225,17 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
 
   const openNewDialog = () => {
     setEditingEmployee(null);
-    form.reset();
+    form.reset({
+      firstName: '',
+      lastName: '',
+      email: '',
+      position: '',
+      department: '',
+      phone: '',
+      hireDate: new Date().toISOString().split('T')[0],
+      salary: 0,
+      status: 'active',
+    });
     setIsDialogOpen(true);
   };
 
@@ -228,7 +259,24 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
           <h1 className="text-2xl font-bold">Gestion des Employés</h1>
           <p className="text-muted-foreground">Gérez votre équipe et leurs informations</p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => {
+          if (!open) {
+            // Reset form when dialog closes
+            setEditingEmployee(null);
+            form.reset({
+              firstName: '',
+              lastName: '',
+              email: '',
+              position: '',
+              department: '',
+              phone: '',
+              hireDate: new Date().toISOString().split('T')[0],
+              salary: 0,
+              status: 'active',
+            });
+          }
+          setIsDialogOpen(open);
+        }}>
           <DialogTrigger asChild>
             <Button onClick={openNewDialog}>
               <Plus className="h-4 w-4 mr-2" />

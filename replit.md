@@ -593,6 +593,14 @@ Changelog:
   - APIs complètes pour tous les modules avec données authentiques
   - Interface admin avec navigation horizontale et permissions granulaires
   - Configuration terminée pour utilisation complète du système de café restaurant
+- July 11, 2025. CORRECTION COMPLÈTE DES BUGS DE PERSISTANCE DES FORMULAIRES ET IMAGES:
+  - Résolu définitivement le problème de persistance des données dans tous les formulaires admin
+  - Correction bug critique : formulaires gardaient les données précédentes lors du passage édition/création
+  - Implémentation de reset complet des formulaires dans menu-management.tsx et employees.tsx
+  - Ajout de onOpenChange handlers pour nettoyer les états lors de la fermeture des dialogs
+  - Correction des mutations pour reset proprement après succès (créer/modifier/supprimer)
+  - Tests validés : plus de persistance indésirable entre les actions d'édition et création
+  - Validation finale : article "Test Correction Bug" créé avec succès et affiché côté client
 - July 11, 2025. DIAGNOSTIC COMPLET ET RÉSOLUTION FINALE DE L'INTERFACE ADMIN:
   - Effectué diagnostic complet de l'interface admin avec identification de tous les problèmes
   - Résolu problème d'authentification frontend: synchronisation tokens localStorage (token/auth_token)

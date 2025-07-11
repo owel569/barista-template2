@@ -124,7 +124,16 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
       queryClient.invalidateQueries({ queryKey: ['/api/menu/categories'] });
       queryClient.refetchQueries({ queryKey: ['/api/menu/items'] });
       setIsDialogOpen(false);
-      form.reset();
+      setEditingItem(null);
+      setPreviewUrl('');
+      form.reset({
+        name: '',
+        description: '',
+        price: 0,
+        categoryId: 0,
+        available: true,
+        imageUrl: '',
+      });
       toast({
         title: 'Succès',
         description: 'Article de menu créé avec succès',
@@ -161,7 +170,14 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
       queryClient.refetchQueries({ queryKey: ['/api/menu/items'] });
       setIsDialogOpen(false);
       setEditingItem(null);
-      form.reset();
+      form.reset({
+        name: '',
+        description: '',
+        price: 0,
+        categoryId: 0,
+        available: true,
+        imageUrl: '',
+      });
       toast({
         title: 'Succès',
         description: 'Article mis à jour avec succès',
@@ -268,7 +284,14 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
   const openNewDialog = () => {
     setEditingItem(null);
     setPreviewUrl('');
-    form.reset();
+    form.reset({
+      name: '',
+      description: '',
+      price: 0,
+      categoryId: 0,
+      available: true,
+      imageUrl: '',
+    });
     setIsDialogOpen(true);
   };
 
@@ -298,7 +321,22 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
           <h1 className="text-2xl font-bold">Gestion du Menu</h1>
           <p className="text-muted-foreground">Gérez vos articles de menu et leurs prix</p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => {
+          if (!open) {
+            // Reset form when dialog closes
+            setEditingItem(null);
+            setPreviewUrl('');
+            form.reset({
+              name: '',
+              description: '',
+              price: 0,
+              categoryId: 0,
+              available: true,
+              imageUrl: '',
+            });
+          }
+          setIsDialogOpen(open);
+        }}>
           <DialogTrigger asChild>
             <Button onClick={openNewDialog}>
               <Plus className="h-4 w-4 mr-2" />
