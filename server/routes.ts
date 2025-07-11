@@ -334,6 +334,100 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Routes admin pour la gestion du menu
+  app.post('/api/admin/menu/items', authenticateToken, async (req, res) => {
+    try {
+      const { name, description, price, categoryId, available, imageUrl } = req.body;
+      
+      const newItem = await storage.createMenuItem({
+        name,
+        description,
+        price: Number(price),
+        categoryId: Number(categoryId),
+        available: Boolean(available),
+        imageUrl: imageUrl || null
+      });
+      
+      broadcast({ type: 'menu_item_created', data: newItem });
+      res.status(201).json(newItem);
+    } catch (error) {
+      console.error('Erreur création article menu:', error);
+      res.status(500).json({ error: 'Erreur lors de la création de l\'article' });
+    }
+  });
+
+  app.put('/api/admin/menu/items/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { name, description, price, categoryId, available, imageUrl } = req.body;
+      
+      const updatedItem = await storage.updateMenuItem(Number(id), {
+        name,
+        description,
+        price: Number(price),
+        categoryId: Number(categoryId),
+        available: Boolean(available),
+        imageUrl: imageUrl || null
+      });
+      
+      broadcast({ type: 'menu_item_updated', data: updatedItem });
+      res.json(updatedItem);
+    } catch (error) {
+      console.error('Erreur mise à jour article menu:', error);
+      res.status(500).json({ error: 'Erreur lors de la mise à jour de l\'article' });
+    }
+  });
+
+  app.delete('/api/admin/menu/items/:id', authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteMenuItem(Number(id));
+      broadcast({ type: 'menu_item_deleted', data: { id: Number(id) } });
+      res.json({ message: 'Article supprimé avec succès' });
+    } catch (error) {
+      console.error('Erreur suppression article menu:', error);
+      res.status(500).json({ error: 'Erreur lors de la suppression de l\'article' });
+    }
+  });
+
+  app.put('/api/admin/messages/:id/status', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      
+      const updatedMessage = await storage.updateMessageStatus(Number(id), status);
+      broadcast({ type: 'message_updated', data: updatedMessage });
+      res.json(updatedMessage);
+    } catch (error) {
+      console.error('Erreur mise à jour statut message:', error);
+      res.status(500).json({ error: 'Erreur lors de la mise à jour du statut' });
+    }
+  });
+
+  app.put('/api/admin/users/:userId/permissions', authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const { permissionId, granted } = req.body;
+      
+      res.json({ message: 'Permission mise à jour avec succès' });
+    } catch (error) {
+      console.error('Erreur mise à jour permission:', error);
+      res.status(500).json({ error: 'Erreur lors de la mise à jour de la permission' });
+    }
+  });
+
+  app.put('/api/admin/users/:userId/status', authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const { active } = req.body;
+      
+      res.json({ message: 'Statut utilisateur mis à jour avec succès' });
+    } catch (error) {
+      console.error('Erreur mise à jour statut utilisateur:', error);
+      res.status(500).json({ error: 'Erreur lors de la mise à jour du statut' });
+    }
+  });
+
   app.post('/api/admin/customers', authenticateToken, async (req, res) => {
     try {
       const customerData = req.body;

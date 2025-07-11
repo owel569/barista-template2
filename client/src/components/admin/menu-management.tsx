@@ -102,10 +102,22 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: MenuItemFormData) => apiRequest('/api/menu/items', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
+    mutationFn: async (data: MenuItemFormData) => {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/admin/menu/items', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(data)
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erreur lors de la création');
+      }
+      return response.json();
+    },
     onSuccess: () => {
       // Forcer le rechargement immédiat des données
       queryClient.invalidateQueries({ queryKey: ['/api/menu/items'] });
@@ -128,11 +140,22 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: MenuItemFormData }) =>
-      apiRequest(`/api/menu/items/${id}`, {
+    mutationFn: async ({ id, data }: { id: number; data: MenuItemFormData }) => {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/admin/menu/items/${id}`, {
         method: 'PUT',
-        body: JSON.stringify(data),
-      }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(data)
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erreur lors de la mise à jour');
+      }
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/menu/items'] });
       queryClient.refetchQueries({ queryKey: ['/api/menu/items'] });

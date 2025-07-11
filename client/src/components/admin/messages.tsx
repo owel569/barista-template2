@@ -66,13 +66,25 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
   });
 
   const updateStatusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: number; status: string }) =>
-      apiRequest(`/api/admin/messages/${id}/status`, {
+    mutationFn: async ({ id, status }: { id: number; status: string }) => {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/admin/messages/${id}/status`, {
         method: 'PUT',
-        body: JSON.stringify({ status }),
-      }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ status })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erreur lors de la mise à jour');
+      }
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/messages'] });
+      queryClient.refetchQueries({ queryKey: ['/api/admin/messages'] });
       toast({
         title: 'Succès',
         description: 'Statut du message mis à jour',

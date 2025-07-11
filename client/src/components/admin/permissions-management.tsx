@@ -1,42 +1,80 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
+import { Separator } from '@/components/ui/separator';
 import { 
-  Shield, Users, Settings, Eye, Edit, Plus, Trash2, Save
-} from 'lucide-react';
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from '@/components/ui/table';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger,
+  DialogDescription 
+} from '@/components/ui/dialog';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
+import { Settings, Users, Shield, Plus, Edit, Trash2, Save, UserPlus } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface Permission {
   id: number;
-  userId: number;
+  name: string;
+  description: string;
   module: string;
-  canView: boolean;
-  canCreate: boolean;
-  canEdit: boolean;
-  canDelete: boolean;
+  actions: string[];
+  enabled: boolean;
 }
 
 interface User {
   id: number;
   username: string;
-  role: string;
+  email: string;
+  role: 'directeur' | 'employe';
+  permissions: number[];
+  lastLogin: string;
+  active: boolean;
+}
+
+interface UserPermission {
+  userId: number;
+  permissionId: number;
+  granted: boolean;
+  grantedBy: string;
+  grantedAt: string;
 }
 
 export default function PermissionsManagement() {
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+  const [userPermissions, setUserPermissions] = useState<UserPermission[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedUser, setSelectedUser] = useState<number | null>(null);
-
-  const modules = [
-    'dashboard', 'reservations', 'orders', 'customers', 'menu',
-    'messages', 'employees', 'inventory', 'loyalty', 'statistics',
-    'logs', 'settings', 'accounting', 'backup', 'reports'
-  ];
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [showAddUserDialog, setShowAddUserDialog] = useState(false);
+  const [showPermissionDialog, setShowPermissionDialog] = useState(false);
+  const [newUser, setNewUser] = useState({
+    username: '',
+    email: '',
+    password: '',
+    role: 'employe' as 'directeur' | 'employe'
+  });
+  const { toast } = useToast();
 
   useEffect(() => {
     fetchData();
@@ -60,9 +98,9 @@ export default function PermissionsManagement() {
           permissionsRes.json(),
           usersRes.json()
         ]);
-        
-        setPermissions(permissionsData);
-        setUsers(usersData);
+
+        setPermissions(permissionsData || []);
+        setUsers(usersData || []);
       }
     } catch (error) {
       console.error('Erreur lors du chargement:', error);
@@ -71,296 +109,418 @@ export default function PermissionsManagement() {
     }
   };
 
-  const updatePermission = async (userId: number, module: string, field: string, value: boolean) => {
+  const updateUserPermission = async (userId: number, permissionId: number, granted: boolean) => {
     try {
       const token = localStorage.getItem('token');
       
-      const response = await fetch('/api/admin/permissions', {
+      const response = await fetch(`/api/admin/users/${userId}/permissions`, {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          userId,
-          module,
-          [field]: value
+          permissionId,
+          granted
         })
       });
 
       if (response.ok) {
-        await fetchData();
+        // Mettre à jour l'état local
+        setUsers(users.map(user => 
+          user.id === userId 
+            ? {
+                ...user,
+                permissions: granted 
+                  ? [...user.permissions, permissionId]
+                  : user.permissions.filter(p => p !== permissionId)
+              }
+            : user
+        ));
+        
+        toast({
+          title: "Permission mise à jour",
+          description: `Permission ${granted ? 'accordée' : 'révoquée'} avec succès`
+        });
+      } else {
+        throw new Error('Erreur lors de la mise à jour');
       }
     } catch (error) {
-      console.error('Erreur lors de la mise à jour:', error);
+      console.error('Erreur:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour la permission",
+        variant: "destructive"
+      });
     }
   };
 
-  const getUserPermissions = (userId: number) => {
-    return permissions.filter(p => p.userId === userId);
+  const createUser = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(newUser)
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        setUsers([...users, userData]);
+        setNewUser({
+          username: '',
+          email: '',
+          password: '',
+          role: 'employe'
+        });
+        setShowAddUserDialog(false);
+        
+        toast({
+          title: "Utilisateur créé",
+          description: "L'utilisateur a été créé avec succès"
+        });
+      } else {
+        throw new Error('Erreur lors de la création');
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de créer l'utilisateur",
+        variant: "destructive"
+      });
+    }
   };
 
-  const getModulePermission = (userId: number, module: string) => {
-    return permissions.find(p => p.userId === userId && p.module === module) || {
-      canView: false,
-      canCreate: false,
-      canEdit: false,
-      canDelete: false
-    };
+  const toggleUserStatus = async (userId: number, active: boolean) => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch(`/api/admin/users/${userId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ active })
+      });
+
+      if (response.ok) {
+        setUsers(users.map(user => 
+          user.id === userId ? { ...user, active } : user
+        ));
+        
+        toast({
+          title: "Statut mis à jour",
+          description: `Utilisateur ${active ? 'activé' : 'désactivé'} avec succès`
+        });
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour le statut",
+        variant: "destructive"
+      });
+    }
   };
+
+  const modules = [
+    'dashboard', 'reservations', 'orders', 'customers', 'menu', 
+    'messages', 'employees', 'settings', 'statistics', 'reports'
+  ];
 
   if (loading) {
     return (
       <div className="p-6 space-y-6">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-64"></div>
-          <div className="h-96 bg-gray-200 dark:bg-gray-700 rounded"></div>
+        <div className="flex items-center gap-2">
+          <Shield className="h-6 w-6" />
+          <h2 className="text-2xl font-bold">Gestion des Permissions</h2>
         </div>
+        <div className="text-center py-8">Chargement...</div>
       </div>
     );
   }
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Gestion des Permissions
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400">
-            Contrôle d'accès granulaire par utilisateur et module
-          </p>
-        </div>
         <div className="flex items-center gap-2">
-          <Shield className="h-5 w-5 text-blue-500" />
-          <span className="text-sm text-gray-600 dark:text-gray-400">
-            {users.length} utilisateurs
-          </span>
+          <Shield className="h-6 w-6" />
+          <h2 className="text-2xl font-bold">Gestion des Permissions</h2>
         </div>
+        <Dialog open={showAddUserDialog} onOpenChange={setShowAddUserDialog}>
+          <DialogTrigger asChild>
+            <Button>
+              <UserPlus className="h-4 w-4 mr-2" />
+              Ajouter Utilisateur
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Créer un nouvel utilisateur</DialogTitle>
+              <DialogDescription>
+                Créer un compte utilisateur avec des permissions spécifiques
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="username">Nom d'utilisateur</Label>
+                <Input
+                  id="username"
+                  value={newUser.username}
+                  onChange={(e) => setNewUser({...newUser, username: e.target.value})}
+                  placeholder="Nom d'utilisateur"
+                />
+              </div>
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={newUser.email}
+                  onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+                  placeholder="email@example.com"
+                />
+              </div>
+              <div>
+                <Label htmlFor="password">Mot de passe</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={newUser.password}
+                  onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+                  placeholder="Mot de passe"
+                />
+              </div>
+              <div>
+                <Label htmlFor="role">Rôle</Label>
+                <Select value={newUser.role} onValueChange={(value: 'directeur' | 'employe') => setNewUser({...newUser, role: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner un rôle" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="employe">Employé</SelectItem>
+                    <SelectItem value="directeur">Directeur</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button 
+                onClick={createUser} 
+                className="w-full"
+                disabled={!newUser.username || !newUser.email || !newUser.password}
+              >
+                Créer l'utilisateur
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
-      <Tabs defaultValue="permissions" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="permissions">Permissions par Module</TabsTrigger>
-          <TabsTrigger value="users">Gestion Utilisateurs</TabsTrigger>
-          <TabsTrigger value="overview">Vue d'Ensemble</TabsTrigger>
+      <Tabs defaultValue="users" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="users">Utilisateurs</TabsTrigger>
+          <TabsTrigger value="permissions">Permissions</TabsTrigger>
+          <TabsTrigger value="matrix">Matrice</TabsTrigger>
         </TabsList>
-
-        <TabsContent value="permissions" className="space-y-6">
-          {/* Sélection utilisateur */}
+        
+        <TabsContent value="users" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                Sélectionner un Utilisateur
-              </CardTitle>
+              <CardTitle>Utilisateurs du système</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {users.map((user) => (
-                  <Button
-                    key={user.id}
-                    variant={selectedUser === user.id ? "default" : "outline"}
-                    onClick={() => setSelectedUser(user.id)}
-                    className="h-auto p-4 justify-start"
-                  >
-                    <div className="text-left">
-                      <p className="font-medium">{user.username}</p>
-                      <Badge variant={user.role === 'directeur' ? 'default' : 'secondary'} className="text-xs">
-                        {user.role === 'directeur' ? 'Directeur' : 'Employé'}
-                      </Badge>
-                    </div>
-                  </Button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Permissions par module */}
-          {selectedUser && (
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  Permissions - {users.find(u => u.id === selectedUser)?.username}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {modules.map((module) => {
-                    const permission = getModulePermission(selectedUser, module);
-                    
-                    return (
-                      <div key={module} className="border rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-4">
-                          <h3 className="font-semibold capitalize">{module}</h3>
-                          <Badge variant="outline">{module}</Badge>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Utilisateur</TableHead>
+                    <TableHead>Rôle</TableHead>
+                    <TableHead>Permissions</TableHead>
+                    <TableHead>Dernière connexion</TableHead>
+                    <TableHead>Statut</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {users.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">{user.username}</div>
+                          <div className="text-sm text-gray-500">{user.email}</div>
                         </div>
-                        
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                          <div className="flex items-center justify-between">
-                            <Label htmlFor={`${module}-view`}>Voir</Label>
-                            <Switch
-                              id={`${module}-view`}
-                              checked={permission.canView}
-                              onCheckedChange={(checked) => 
-                                updatePermission(selectedUser, module, 'canView', checked)
-                              }
-                            />
-                          </div>
-                          
-                          <div className="flex items-center justify-between">
-                            <Label htmlFor={`${module}-create`}>Créer</Label>
-                            <Switch
-                              id={`${module}-create`}
-                              checked={permission.canCreate}
-                              onCheckedChange={(checked) => 
-                                updatePermission(selectedUser, module, 'canCreate', checked)
-                              }
-                            />
-                          </div>
-                          
-                          <div className="flex items-center justify-between">
-                            <Label htmlFor={`${module}-edit`}>Modifier</Label>
-                            <Switch
-                              id={`${module}-edit`}
-                              checked={permission.canEdit}
-                              onCheckedChange={(checked) => 
-                                updatePermission(selectedUser, module, 'canEdit', checked)
-                              }
-                            />
-                          </div>
-                          
-                          <div className="flex items-center justify-between">
-                            <Label htmlFor={`${module}-delete`}>Supprimer</Label>
-                            <Switch
-                              id={`${module}-delete`}
-                              checked={permission.canDelete}
-                              onCheckedChange={(checked) => 
-                                updatePermission(selectedUser, module, 'canDelete', checked)
-                              }
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-
-        <TabsContent value="users" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Utilisateurs et Rôles</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {users.map((user) => (
-                  <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center">
-                        <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                      </div>
-                      <div>
-                        <p className="font-medium">{user.username}</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">ID: {user.id}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <Badge variant={user.role === 'directeur' ? 'default' : 'secondary'}>
-                        {user.role === 'directeur' ? 'Directeur' : 'Employé'}
-                      </Badge>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setSelectedUser(user.id)}
-                      >
-                        <Settings className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Statistiques</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span>Total utilisateurs:</span>
-                    <span className="font-semibold">{users.length}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Directeurs:</span>
-                    <span className="font-semibold">
-                      {users.filter(u => u.role === 'directeur').length}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Employés:</span>
-                    <span className="font-semibold">
-                      {users.filter(u => u.role === 'employe').length}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Modules:</span>
-                    <span className="font-semibold">{modules.length}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Accès Rapide</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <Button variant="outline" size="sm" className="w-full justify-start">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nouvel Utilisateur
-                </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Permissions Globales
-                </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start">
-                  <Eye className="h-4 w-4 mr-2" />
-                  Audit des Accès
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Modules Critiques</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {['employees', 'accounting', 'backup', 'settings'].map((module) => (
-                    <div key={module} className="flex items-center justify-between">
-                      <span className="capitalize text-sm">{module}</span>
-                      <Badge variant="secondary" className="text-xs">
-                        Admin
-                      </Badge>
-                    </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={user.role === 'directeur' ? 'default' : 'secondary'}>
+                          {user.role === 'directeur' ? 'Directeur' : 'Employé'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">
+                          {user.permissions?.length || 0} permissions
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Jamais'}
+                      </TableCell>
+                      <TableCell>
+                        <Switch
+                          checked={user.active}
+                          onCheckedChange={(checked) => toggleUserStatus(user.id, checked)}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSelectedUser(user)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="permissions" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Permissions disponibles</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4">
+                {modules.map((module) => (
+                  <Card key={module}>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg capitalize">{module}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-4 gap-4">
+                        {['view', 'create', 'edit', 'delete'].map((action) => (
+                          <div key={action} className="flex items-center space-x-2">
+                            <Badge variant="outline" className="capitalize">
+                              {action}
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="matrix" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Matrice des permissions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Utilisateur</TableHead>
+                      {modules.map((module) => (
+                        <TableHead key={module} className="capitalize">
+                          {module}
+                        </TableHead>
+                      ))}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {users.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell className="font-medium">
+                          {user.username}
+                        </TableCell>
+                        {modules.map((module) => (
+                          <TableCell key={module}>
+                            <div className="space-y-1">
+                              {['view', 'create', 'edit', 'delete'].map((action) => {
+                                const permissionId = permissions.find(p => 
+                                  p.module === module && p.actions.includes(action)
+                                )?.id;
+                                const hasPermission = permissionId && user.permissions?.includes(permissionId);
+                                
+                                return (
+                                  <Switch
+                                    key={action}
+                                    checked={hasPermission || false}
+                                    onCheckedChange={(checked) => 
+                                      permissionId && updateUserPermission(user.id, permissionId, checked)
+                                    }
+                                    disabled={!permissionId}
+                                  />
+                                );
+                              })}
+                            </div>
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
+
+      {selectedUser && (
+        <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Permissions de {selectedUser.username}</DialogTitle>
+              <DialogDescription>
+                Gérer les permissions spécifiques pour cet utilisateur
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              {modules.map((module) => (
+                <Card key={module}>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg capitalize">{module}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 gap-4">
+                      {['view', 'create', 'edit', 'delete'].map((action) => {
+                        const permissionId = permissions.find(p => 
+                          p.module === module && p.actions.includes(action)
+                        )?.id;
+                        const hasPermission = permissionId && selectedUser.permissions?.includes(permissionId);
+                        
+                        return (
+                          <div key={action} className="flex items-center space-x-2">
+                            <Switch
+                              checked={hasPermission || false}
+                              onCheckedChange={(checked) => 
+                                permissionId && updateUserPermission(selectedUser.id, permissionId, checked)
+                              }
+                              disabled={!permissionId}
+                            />
+                            <Label className="capitalize">{action}</Label>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

@@ -131,7 +131,11 @@ export default function BackupSystem() {
       });
 
       if (response.ok) {
-        await fetchBackupData();
+        const newBackup = await response.json();
+        setBackups(prev => [newBackup, ...prev]);
+        console.log('Sauvegarde créée avec succès');
+      } else {
+        console.error('Erreur lors de la création de la sauvegarde');
       }
     } catch (error) {
       console.error('Erreur lors de la création de la sauvegarde:', error);
