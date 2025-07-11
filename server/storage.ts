@@ -444,6 +444,10 @@ async createContactMessage(message: any): Promise<ContactMessage> {
   return newMessage;
 }
 
+async createMessage(message: any): Promise<ContactMessage> {
+  return this.createContactMessage(message);
+}
+
   async updateContactMessageStatus(id: number, status: string): Promise<ContactMessage | undefined> {
     const [updatedMessage] = await db
       .update(contactMessages)
