@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Coffee, GlassWater, Cookie, Utensils, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { getMenuItemImage } from "@/data/images";
+import { getItemImageUrl } from "@/lib/image-mapping";
 
 interface MenuItem {
   id: number;
@@ -143,12 +143,16 @@ export default function Menu() {
   
   // Filtrer les éléments par catégorie
   const getItemsByCategory = (categorySlug: string) => {
-    if (menuItems.length === 0) return defaultMenuItems[categorySlug as keyof typeof defaultMenuItems] || [];
+    // Toujours utiliser les données de l'API si disponibles
+    if (menuItems.length > 0) {
+      const categoryId = displayCategories.find(cat => cat.slug === categorySlug)?.id;
+      if (!categoryId) return [];
+      
+      return menuItems.filter((item: any) => item.categoryId === categoryId || item.category_id === categoryId);
+    }
     
-    const categoryId = displayCategories.find(cat => cat.slug === categorySlug)?.id;
-    if (!categoryId) return [];
-    
-    return menuItems.filter((item: any) => item.categoryId === categoryId || item.category_id === categoryId);
+    // Utiliser les données par défaut uniquement si l'API n'a pas de données
+    return defaultMenuItems[categorySlug as keyof typeof defaultMenuItems] || [];
   };
   
   const displayItems = getItemsByCategory(activeTab);
@@ -199,11 +203,15 @@ export default function Menu() {
             <Card key={item.id} className="bg-white shadow-lg overflow-hidden hover:transform hover:scale-105 transition duration-300">
               <div className="w-full h-48 bg-coffee-light/20 overflow-hidden">
                 <img 
-                  src={item.imageUrl || item.image_url || getMenuItemImage(item.name)} 
+                  src={item.imageUrl || item.image_url || getItemImageUrl(item.name, activeTab)} 
                   alt={item.name} 
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    e.currentTarget.src = getMenuItemImage(item.name);
+                    // En cas d'erreur, utiliser le système de mapping centralisé
+                    const fallbackImage = getItemImageUrl(item.name, activeTab);
+                    if (e.currentTarget.src !== fallbackImage) {
+                      e.currentTarget.src = fallbackImage;
+                    }
                   }}
                 />
               </div>

@@ -545,7 +545,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                         alt={item.name}
                         className="w-12 h-12 object-cover rounded"
                         onError={(e) => {
-                          e.currentTarget.src = '/api/placeholder/48/48';
+                          e.currentTarget.src = getImageUrlByName(item.name);
                         }}
                       />
                     </TableCell>
