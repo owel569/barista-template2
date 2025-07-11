@@ -11,15 +11,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   useEffect(() => {
-    // Récupérer le thème depuis localStorage
-    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
-    if (savedTheme) {
-      setTheme(savedTheme);
-    } else {
-      // Forcer le mode clair par défaut pour éviter le mode sombre
-      setTheme('light');
-      localStorage.setItem('theme', 'light');
-    }
+    // Forcer le mode clair par défaut TOUJOURS
+    setTheme('light');
+    localStorage.setItem('theme', 'light');
+    // S'assurer que le document n'a pas la classe dark
+    document.documentElement.classList.remove('dark');
   }, []);
 
   useEffect(() => {

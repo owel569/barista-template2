@@ -96,6 +96,28 @@ export default function Settings({ userRole }: SettingsProps) {
     retryDelay: 1000,
   });
 
+  // Synchroniser avec les données récupérées
+  useEffect(() => {
+    if (fetchedSettings) {
+      setSettings(prev => ({
+        ...defaultSettings,
+        ...fetchedSettings,
+        reservationSettings: {
+          ...defaultSettings.reservationSettings,
+          ...(fetchedSettings.reservationSettings || {})
+        },
+        notificationSettings: {
+          ...defaultSettings.notificationSettings,
+          ...(fetchedSettings.notificationSettings || {})
+        },
+        openingHours: {
+          ...defaultSettings.openingHours,
+          ...(fetchedSettings.openingHours || {})
+        }
+      }));
+    }
+  }, [fetchedSettings]);
+
   const saveMutation = useMutation({
     mutationFn: (settings: RestaurantSettings) =>
       apiRequest('/api/admin/settings', {

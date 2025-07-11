@@ -19,9 +19,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   children, 
   defaultTheme = 'system'
 }) => {
-  const [theme, setTheme] = useState<Theme>(() => {
-    return (localStorage.getItem('theme') as Theme) || defaultTheme;
-  });
+  const [theme, setTheme] = useState<Theme>('light');
 
   const [isDark, setIsDark] = useState(false);
 

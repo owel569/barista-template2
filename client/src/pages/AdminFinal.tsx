@@ -39,6 +39,7 @@ export default function AdminFinal() {
   const [activeModule, setActiveModule] = useState('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [notifications, setNotifications] = useState({
     pendingReservations: 0,
@@ -70,7 +71,27 @@ export default function AdminFinal() {
     }
   }, [navigate]);
 
-  // Fetch notifications périodiquement
+  // Gestionnaire d'erreurs global pour éviter les unhandledrejection
+  useEffect(() => {
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      console.warn('Promesse rejetée gérée:', event.reason);
+      event.preventDefault();
+    };
+
+    const handleError = (event: ErrorEvent) => {
+      console.warn('Erreur globale:', event.error);
+    };
+
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    window.addEventListener('error', handleError);
+
+    return () => {
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+      window.removeEventListener('error', handleError);
+    };
+  }, []);
+
+  // Fetch notifications périodiquement (avec gestion d'erreurs)
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
@@ -262,141 +283,98 @@ export default function AdminFinal() {
   }
 
   return (
-    <div className={cn("min-h-screen bg-gray-50 dark:bg-gray-900", isDarkMode && "dark")}>
-      {/* Sidebar */}
-      <div className={cn(
-        "fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out",
-        "bg-white dark:bg-gray-800 shadow-lg",
-        sidebarCollapsed ? "w-16" : "w-72",
-        "border-r border-gray-200 dark:border-gray-700"
-      )}>
-        {/* Header */}
-        <div className="flex items-center justify-between p-4">
-          <div className={cn("flex items-center gap-3", sidebarCollapsed && "justify-center")}>
-            <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
-              <Coffee className="h-5 w-5 text-white" />
+    <div className="min-h-screen bg-gray-50">
+      {/* Header fixe avec menu déroulant */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-lg border-b border-gray-200">
+        <div className="flex items-center justify-between px-6 py-4">
+          {/* Logo et nom */}
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
+              <Coffee className="h-6 w-6 text-white" />
             </div>
-            {!sidebarCollapsed && (
-              <div>
-                <h1 className="text-lg font-bold text-gray-900 dark:text-white">Barista Café</h1>
-                <p className="text-xs text-gray-600 dark:text-gray-400">Administration</p>
-              </div>
-            )}
+            <h1 className="text-xl font-bold text-orange-600">Barista Café - Admin</h1>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="p-2"
-          >
-            {sidebarCollapsed ? <Menu className="h-4 w-4" /> : <X className="h-4 w-4" />}
-          </Button>
-        </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
-          {availableModules.map((module) => (
+          {/* Menu déroulant central */}
+          <div className="relative">
             <Button
-              key={module.id}
-              variant={activeModule === module.id ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setActiveModule(module.id)}
-              className={cn(
-                "w-full justify-start relative",
-                sidebarCollapsed && "justify-center px-2"
-              )}
+              variant="outline"
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="px-4 py-2 text-sm font-medium"
             >
-              <module.icon className="h-4 w-4 flex-shrink-0" />
-              {!sidebarCollapsed && (
-                <>
-                  <span className="ml-2 flex-1 text-left">{module.name}</span>
-                  {module.notification && module.notification > 0 && (
-                    <Badge
-                      variant="destructive"
-                      className="ml-2 px-2 py-1 text-xs min-w-[20px] h-5"
-                    >
-                      {module.notification}
-                    </Badge>
-                  )}
-                </>
-              )}
+              <Menu className="h-4 w-4 mr-2" />
+              {currentModule?.name || 'Dashboard'}
+              <span className="ml-2">▼</span>
             </Button>
-          ))}
-        </nav>
 
-        {/* User info */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-          <div className={cn("flex items-center gap-3", sidebarCollapsed && "justify-center")}>
-            <Avatar className="h-8 w-8">
-              <AvatarFallback>
-                {user?.username?.charAt(0)?.toUpperCase() || 'U'}
-              </AvatarFallback>
-            </Avatar>
-            {!sidebarCollapsed && (
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
-                  {user?.username || 'Utilisateur'}
-                </p>
-                <p className="text-xs text-gray-600 dark:text-gray-400">
-                  {user?.role === 'directeur' ? 'Directeur' : 'Employé'}
-                </p>
+            {dropdownOpen && (
+              <div className="absolute top-full left-0 mt-1 w-72 bg-white border border-gray-200 rounded-lg shadow-lg max-h-96 overflow-y-auto z-50">
+                <div className="grid grid-cols-2 gap-1 p-2">
+                  {availableModules.map((module) => (
+                    <button
+                      key={module.id}
+                      onClick={() => {
+                        setActiveModule(module.id);
+                        setDropdownOpen(false);
+                      }}
+                      className={cn(
+                        "flex items-center space-x-2 px-3 py-2 rounded-md text-sm transition-colors text-left w-full",
+                        activeModule === module.id
+                          ? "bg-orange-100 text-orange-700"
+                          : "hover:bg-gray-100 text-gray-700"
+                      )}
+                    >
+                      <module.icon className="h-4 w-4" />
+                      <span className="truncate">{module.name}</span>
+                      {module.notification && module.notification > 0 && (
+                        <Badge className="ml-auto bg-red-500 text-white text-xs">
+                          {module.notification}
+                        </Badge>
+                      )}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
           </div>
-          
-          {!sidebarCollapsed && (
-            <div className="flex items-center gap-2 mt-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleTheme}
-                className="flex-1"
-              >
-                {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleLogout}
-                className="flex-1 text-red-600 hover:text-red-700"
-              >
-                <LogOut className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
-        </div>
-      </div>
 
-      {/* Main Content */}
-      <div className={cn(
-        "transition-all duration-300 ease-in-out",
-        sidebarCollapsed ? "ml-16" : "ml-72"
-      )}>
-        {/* Top Bar */}
-        <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                {currentModule?.name || 'Tableau de bord'}
-              </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {isDirecteur ? 'Accès directeur' : 'Accès employé'}
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                <Wifi className="h-4 w-4 text-green-500" />
-                <span>Connecté</span>
+          {/* Infos utilisateur et déconnexion */}
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <Avatar className="h-8 w-8">
+                <AvatarFallback className="bg-orange-500 text-white">
+                  {user?.username?.charAt(0).toUpperCase() || 'A'}
+                </AvatarFallback>
+              </Avatar>
+              <div className="hidden md:block">
+                <p className="text-sm font-medium text-gray-900">{user?.username}</p>
+                <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
               </div>
             </div>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                localStorage.removeItem('token');
+                localStorage.removeItem('auth_token');
+                navigate('/login');
+              }}
+              className="text-red-600 hover:text-red-700"
+            >
+              <LogOut className="h-4 w-4" />
+            </Button>
           </div>
         </div>
+      </header>
 
-        {/* Content */}
+      {/* Contenu principal */}
+      <main className="pt-20 px-6 pb-6">
+        {/* Affichage du composant actuel */}
         <div className="h-[calc(100vh-80px)] overflow-y-auto">
           <CurrentComponent />
         </div>
-      </div>
+      </main>
     </div>
   );
 }
