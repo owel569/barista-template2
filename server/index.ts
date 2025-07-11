@@ -49,9 +49,6 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Démarrer le serveur rapidement avec les routes API d'abord
-  const server = await registerRoutes(app);
-  
   // Configuration PostgreSQL automatique - en arrière-plan
   setTimeout(async () => {
     try {
@@ -73,6 +70,9 @@ app.use((req, res, next) => {
     }
   }, 1000); // Délai de 1 seconde après le démarrage
 
+  // Enregistrer d'abord les routes API AVANT le middleware Vite
+  const server = await registerRoutes(app);
+
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
@@ -81,9 +81,7 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
+  // Configuration Vite APRÈS les routes API pour éviter les conflits
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
