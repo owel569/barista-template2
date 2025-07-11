@@ -54,11 +54,14 @@ function getStatusColor(status: string): string {
 export async function registerRoutes(app: Express): Promise<Server> {
   const server = createServer(app);
   
-  // Configuration WebSocket
-  const wss = new WebSocketServer({ server });
+  // Configuration WebSocket sur un chemin spécifique pour éviter les conflits avec Vite HMR
+  const wss = new WebSocketServer({ 
+    server,
+    path: '/api/ws' // Utilise un chemin spécifique pour éviter les conflits
+  });
   
-  wss.on('connection', (ws) => {
-    console.log('WebSocket connecté');
+  wss.on('connection', (ws, req) => {
+    console.log('WebSocket connecté sur /api/ws');
     
     ws.on('message', (message) => {
       console.log('Message WebSocket reçu:', message.toString());
