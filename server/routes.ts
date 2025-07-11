@@ -8,7 +8,6 @@ import { storage } from './storage';
 import { insertUserSchema } from '../shared/schema';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'barista-secret-key-ultra-secure-2025';
-
 const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -23,7 +22,7 @@ const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
       return res.status(403).json({ message: 'Token invalide' });
     }
     (req as any).user = user;
-    next();
+    return next(); // Added return here
   });
 };
 
