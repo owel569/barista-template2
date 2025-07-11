@@ -1,85 +1,97 @@
-import { useEffect, useRef } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import { useEffect, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
-export const useWebSocket = () => {
-  const { toast } = useToast();
-  const ws = useRef<WebSocket | null>(null);
+export function useWebSocket() {
+  const [isConnected, setIsConnected] = useState(false);
+  const wsRef = useRef<WebSocket | null>(null);
+  const queryClient = useQueryClient();
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
-  
+
   useEffect(() => {
-    const connectWebSocket = () => {
+    const connect = () => {
       try {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const wsUrl = `${protocol}//${window.location.host}/api/ws`;
         
-        ws.current = new WebSocket(wsUrl);
-        
-        ws.current.onopen = () => {
+        wsRef.current = new WebSocket(wsUrl);
+
+        wsRef.current.onopen = () => {
           console.log('WebSocket connecté');
+          setIsConnected(true);
           reconnectAttempts.current = 0;
         };
-        
-        ws.current.onmessage = (event) => {
+
+        wsRef.current.onmessage = (event) => {
           try {
             const data = JSON.parse(event.data);
+            console.log('Message WebSocket reçu:', data);
             
+            // Invalider les caches appropriés selon le type de données
             switch (data.type) {
               case 'new_reservation':
-                toast({
-                  title: "Nouvelle réservation",
-                  description: `Réservation de ${data.data.customerName}`,
-                });
+              case 'reservation_updated':
+                queryClient.invalidateQueries({ queryKey: ['/api/admin/reservations'] });
+                queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/today-reservations'] });
+                queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/reservation-status'] });
+                queryClient.invalidateQueries({ queryKey: ['/api/admin/notifications/count'] });
                 break;
               case 'new_order':
-                toast({
-                  title: "Nouvelle commande",
-                  description: `Commande de ${data.data.customerName}`,
-                });
+              case 'order_updated':
+                queryClient.invalidateQueries({ queryKey: ['/api/admin/orders'] });
+                queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/active-orders'] });
+                queryClient.invalidateQueries({ queryKey: ['/api/admin/stats/orders-by-status'] });
                 break;
-              case 'new_message':
-                toast({
-                  title: "Nouveau message",
-                  description: `Message de ${data.data.email}`,
-                });
+              case 'customer_created':
+              case 'customer_updated':
+                queryClient.invalidateQueries({ queryKey: ['/api/admin/customers'] });
+                queryClient.invalidateQueries({ queryKey: ['/api/admin/loyalty/customers'] });
                 break;
-              case 'update':
-                // Actualiser les données
-                window.dispatchEvent(new CustomEvent('data-update', { detail: data.data }));
+              case 'employee_created':
+              case 'employee_updated':
+                queryClient.invalidateQueries({ queryKey: ['/api/admin/employees'] });
                 break;
+              case 'message_received':
+                queryClient.invalidateQueries({ queryKey: ['/api/admin/messages'] });
+                queryClient.invalidateQueries({ queryKey: ['/api/admin/notifications/count'] });
+                break;
+              default:
+                // Rafraîchir toutes les données en cas de doute
+                queryClient.invalidateQueries();
             }
           } catch (error) {
-            console.error('Erreur lors du parsing du message WebSocket:', error);
+            console.error('Erreur parsing message WebSocket:', error);
           }
         };
-        
-        ws.current.onclose = () => {
-          console.log('WebSocket fermé');
+
+        wsRef.current.onclose = () => {
+          console.log('WebSocket déconnecté');
+          setIsConnected(false);
           
-          // Reconnexion automatique
+          // Tentative de reconnexion automatique
           if (reconnectAttempts.current < maxReconnectAttempts) {
             reconnectAttempts.current++;
-            setTimeout(connectWebSocket, 2000 * reconnectAttempts.current);
+            console.log(`Tentative de reconnexion ${reconnectAttempts.current}/${maxReconnectAttempts}`);
+            setTimeout(() => connect(), 3000 * reconnectAttempts.current);
           }
         };
-        
-        ws.current.onerror = (error) => {
+
+        wsRef.current.onerror = (error) => {
           console.error('Erreur WebSocket:', error);
         };
-        
       } catch (error) {
-        console.error('Erreur lors de la connexion WebSocket:', error);
+        console.error('Erreur connexion WebSocket:', error);
       }
     };
-    
-    connectWebSocket();
-    
+
+    connect();
+
     return () => {
-      if (ws.current) {
-        ws.current.close();
+      if (wsRef.current) {
+        wsRef.current.close();
       }
     };
-  }, [toast]);
-  
-  return ws.current;
-};
+  }, [queryClient]);
+
+  return { isConnected };
+}

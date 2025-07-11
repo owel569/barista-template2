@@ -672,6 +672,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Routes manquantes pour les statistiques dashboard
+  app.get('/api/admin/stats/today-reservations', authenticateToken, async (req, res) => {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const reservations = await storage.getReservationsByDate(today);
+      res.json({ count: reservations.length });
+    } catch (error) {
+      res.status(500).json({ count: 0 });
+    }
+  });
+
+  app.get('/api/admin/stats/monthly-revenue', authenticateToken, async (req, res) => {
+    try {
+      const currentMonth = new Date().getMonth() + 1;
+      const currentYear = new Date().getFullYear();
+      const revenueStats = await storage.getRevenueStats(`${currentYear}-${currentMonth.toString().padStart(2, '0')}-01`, `${currentYear}-${currentMonth.toString().padStart(2, '0')}-31`);
+      const totalRevenue = revenueStats.reduce((sum, stat) => sum + stat.revenue, 0);
+      res.json({ revenue: totalRevenue });
+    } catch (error) {
+      res.status(500).json({ revenue: 0 });
+    }
+  });
+
+  app.get('/api/admin/stats/active-orders', authenticateToken, async (req, res) => {
+    try {
+      const orders = await storage.getOrders();
+      const activeOrders = orders.filter(o => o.status === 'en_preparation' || o.status === 'pending');
+      res.json({ count: activeOrders.length });
+    } catch (error) {
+      res.status(500).json({ count: 0 });
+    }
+  });
+
+  app.get('/api/admin/stats/occupancy-rate', authenticateToken, async (req, res) => {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const occupancyRate = await storage.getOccupancyRate(today);
+      res.json({ rate: Math.round(occupancyRate) });
+    } catch (error) {
+      res.status(500).json({ rate: 0 });
+    }
+  });
+
+  app.get('/api/admin/stats/reservation-status', authenticateToken, async (req, res) => {
+    try {
+      const reservations = await storage.getReservations();
+      const statusCounts = reservations.reduce((acc: any, reservation) => {
+        const status = reservation.status || 'unknown';
+        acc[status] = (acc[status] || 0) + 1;
+        return acc;
+      }, {});
+      
+      res.json(statusCounts);
+    } catch (error) {
+      res.status(500).json({ confirmed: 0, pending: 0, cancelled: 0 });
+    }
+  });
+
+  app.get('/api/admin/stats/orders-by-status', authenticateToken, async (req, res) => {
+    try {
+      const ordersByStatus = await storage.getOrdersByStatus();
+      res.json(ordersByStatus);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.get('/api/admin/stats/daily-reservations', authenticateToken, async (req, res) => {
+    try {
+      const currentMonth = new Date().getMonth() + 1;
+      const currentYear = new Date().getFullYear();
+      const monthlyStats = await storage.getMonthlyReservationStats(currentYear, currentMonth);
+      res.json(monthlyStats);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
   // Routes pour la comptabilité
   app.get('/api/admin/accounting', authenticateToken, async (req, res) => {
     try {

@@ -1,55 +1,38 @@
-import { useContext } from 'react';
-import { AuthContext } from '@/contexts/auth-context';
-import { DEFAULT_DIRECTEUR_PERMISSIONS, DEFAULT_EMPLOYE_PERMISSIONS, type ModulePermissions } from '@/types/admin';
-
-export const usePermissions = (userRole?: 'directeur' | 'employe') => {
-  const { user } = useContext(AuthContext);
-  
-  // Utiliser userRole s'il est fourni, sinon utiliser user du contexte
-  const effectiveRole = userRole || user?.role;
-
-  const getPermissions = (): ModulePermissions => {
-    if (!effectiveRole) return {};
-    
-    if (effectiveRole === 'directeur') {
-      return DEFAULT_DIRECTEUR_PERMISSIONS;
-    } else if (effectiveRole === 'employe') {
-      return DEFAULT_EMPLOYE_PERMISSIONS;
+export function usePermissions(userRole: 'directeur' | 'employe') {
+  const hasPermission = (module: string, action: 'view' | 'create' | 'edit' | 'delete') => {
+    // Le directeur a tous les droits
+    if (userRole === 'directeur') {
+      return true;
     }
     
-    return {};
+    // Les employés ont des permissions limitées
+    if (userRole === 'employe') {
+      switch (module) {
+        case 'customers':
+          return action === 'view'; // Employés peuvent seulement voir les clients
+        case 'employees':
+        case 'settings':
+        case 'permissions':
+        case 'accounting':
+          return false; // Employés n'ont pas accès à ces modules
+        case 'menu':
+          return action !== 'delete'; // Employés peuvent tout sauf supprimer
+        case 'reservations':
+        case 'orders':
+        case 'messages':
+        case 'inventory':
+        case 'loyalty':
+        case 'statistics':
+        case 'reports':
+        case 'notifications':
+          return true; // Employés ont accès complet à ces modules
+        default:
+          return false;
+      }
+    }
+    
+    return false;
   };
 
-  const hasPermission = (module: string, action: 'view' | 'create' | 'update' | 'delete'): boolean => {
-    const permissions = getPermissions();
-    return permissions[module]?.[action] ?? false;
-  };
-
-  const canAccess = (module: string): boolean => {
-    return hasPermission(module, 'view');
-  };
-
-  const canCreate = (module: string): boolean => {
-    return hasPermission(module, 'create');
-  };
-
-  const canUpdate = (module: string): boolean => {
-    return hasPermission(module, 'update');
-  };
-
-  const canDelete = (module: string): boolean => {
-    return hasPermission(module, 'delete');
-  };
-
-  return {
-    permissions: getPermissions(),
-    hasPermission,
-    canAccess,
-    canCreate,
-    canUpdate,
-    canDelete,
-    isDirecteur: effectiveRole === 'directeur',
-    isEmploye: effectiveRole === 'employe',
-    isLoading: false
-  };
-};
+  return { hasPermission };
+}

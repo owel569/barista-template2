@@ -48,11 +48,11 @@ export default function AdminFinal() {
     lowStockItems: 0
   });
 
-  const { permissions, isLoading, hasPermission, isDirecteur } = usePermissions();
+  const { hasPermission } = usePermissions(user?.role || 'employe');
 
   useEffect(() => {
     // Vérifier l'authentification une seule fois
-    const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
+    const token = localStorage.getItem('token');
     if (!token) {
       navigate('/login');
       return;
@@ -62,9 +62,6 @@ export default function AdminFinal() {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       setUser(payload);
-      // Synchroniser les tokens
-      localStorage.setItem('token', token);
-      localStorage.setItem('auth_token', token);
     } catch (error) {
       console.error('Token invalide:', error);
       navigate('/login');
@@ -95,7 +92,7 @@ export default function AdminFinal() {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
+        const token = localStorage.getItem('token');
         if (!token) return;
 
         const response = await fetch('/api/admin/notifications/count', {
@@ -120,6 +117,7 @@ export default function AdminFinal() {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('auth_token'); // Nettoyer l'ancien token aussi
     navigate('/login');
   };
 
