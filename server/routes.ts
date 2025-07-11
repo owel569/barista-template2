@@ -948,6 +948,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // API pour récupérer les articles de menu (corrigée)
+  app.get('/api/admin/menu/items', authenticateToken, async (req, res) => {
+    try {
+      const menuItems = await storage.getMenuItems();
+      console.log('Menu items retrieved:', menuItems.length);
+      res.json(menuItems);
+    } catch (error) {
+      console.error('Erreur récupération articles menu:', error);
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
+  // API pour récupérer les catégories de menu (corrigée)  
+  app.get('/api/admin/menu/categories', authenticateToken, async (req, res) => {
+    try {
+      const categories = await storage.getMenuCategories();
+      console.log('Menu categories retrieved:', categories.length);
+      res.json(categories);
+    } catch (error) {
+      console.error('Erreur récupération catégories menu:', error);
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
   // API pour ajouter des articles de menu
   app.post('/api/admin/menu/items', authenticateToken, async (req, res) => {
     try {
@@ -1170,7 +1194,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { id } = req.params;
       const updateData = req.body;
       const updatedDelivery = {
-        id: parseInt(id),
+        id: parseInt(id ?? "0"),
         ...updateData,
         updatedAt: new Date().toISOString()
       };
