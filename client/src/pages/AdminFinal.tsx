@@ -37,6 +37,11 @@ import DeliveryTracking from '@/components/admin/delivery-tracking';
 import OnlineOrdering from '@/components/admin/online-ordering';
 import TableManagement from '@/components/admin/table-management';
 import UserProfile from '@/components/admin/user-profile';
+import AnalyticsDashboard from '@/components/admin/analytics-dashboard';
+import AdvancedPOS from '@/components/admin/advanced-pos';
+import StaffScheduling from '@/components/admin/staff-scheduling';
+import QualityControl from '@/components/admin/quality-control';
+import CustomerFeedback from '@/components/admin/customer-feedback';
 
 export default function AdminFinal() {
   const [, navigate] = useLocation();
@@ -287,6 +292,37 @@ export default function AdminFinal() {
       name: 'Profils Clients',
       icon: Users,
       component: UserProfile
+    },
+    {
+      id: 'analytics',
+      name: 'Analytics Avancées',
+      icon: BarChart3,
+      component: AnalyticsDashboard
+    },
+    {
+      id: 'pos',
+      name: 'Point de Vente',
+      icon: ShoppingCart,
+      component: AdvancedPOS
+    },
+    {
+      id: 'staff-scheduling',
+      name: 'Planning Personnel',
+      icon: Calendar,
+      component: StaffScheduling,
+      adminOnly: true
+    },
+    {
+      id: 'quality',
+      name: 'Contrôle Qualité',
+      icon: Shield,
+      component: QualityControl
+    },
+    {
+      id: 'feedback',
+      name: 'Feedback Clients',
+      icon: MessageSquare,
+      component: CustomerFeedback
     }
   ];
 

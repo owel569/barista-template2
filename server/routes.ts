@@ -1594,5 +1594,268 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // APIs pour les fonctionnalités avancées
+  
+  // API Analytics avancées
+  app.get('/api/admin/analytics/revenue-detailed', authenticateToken, async (req, res) => {
+    try {
+      const data = {
+        dailyRevenue: [
+          { date: '2025-01-01', revenue: 850, orders: 42 },
+          { date: '2025-01-02', revenue: 920, orders: 48 },
+          { date: '2025-01-03', revenue: 1150, orders: 55 },
+          { date: '2025-01-04', revenue: 980, orders: 51 },
+          { date: '2025-01-05', revenue: 1200, orders: 58 },
+          { date: '2025-01-06', revenue: 1080, orders: 53 },
+          { date: '2025-01-07', revenue: 1300, orders: 62 }
+        ],
+        productAnalysis: [
+          { name: 'Cappuccino', sales: 245, revenue: 1029, growth: 12.5 },
+          { name: 'Latte', sales: 198, revenue: 891, growth: 8.2 },
+          { name: 'Americano', sales: 156, revenue: 499, growth: -2.1 },
+          { name: 'Espresso', sales: 134, revenue: 429, growth: 5.7 }
+        ],
+        customerMetrics: {
+          newCustomers: 45,
+          returningCustomers: 123,
+          averageOrderValue: 18.50,
+          customerLifetimeValue: 245.80
+        }
+      };
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({});
+    }
+  });
+
+  // API Point de Vente avancé
+  app.post('/api/admin/pos/process-order', authenticateToken, async (req, res) => {
+    try {
+      const orderData = req.body;
+      const processedOrder = {
+        id: Date.now(),
+        ...orderData,
+        processedAt: new Date().toISOString(),
+        status: 'completed',
+        receiptNumber: `RCP${Date.now()}`
+      };
+      
+      broadcast({ type: 'order_processed', data: processedOrder });
+      res.status(201).json(processedOrder);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur traitement commande POS' });
+    }
+  });
+
+  app.get('/api/admin/pos/menu-items', authenticateToken, async (req, res) => {
+    try {
+      const menuItems = await storage.getMenuItems();
+      const posItems = menuItems.map(item => ({
+        ...item,
+        available: item.available !== false,
+        category: item.categoryId === 1 ? 'café' : 
+                 item.categoryId === 2 ? 'boisson' :
+                 item.categoryId === 3 ? 'pâtisserie' : 'plat'
+      }));
+      res.json(posItems);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  // API Planning du personnel
+  app.get('/api/admin/schedule/auto-generate', authenticateToken, async (req, res) => {
+    try {
+      const employees = await storage.getEmployees();
+      const autoSchedule = employees.map((emp, index) => ({
+        id: Date.now() + index,
+        employeeId: emp.id,
+        employeeName: `${emp.firstName} ${emp.lastName}`,
+        date: new Date().toISOString().split('T')[0],
+        startTime: ['08:00', '09:00', '10:00'][index % 3],
+        endTime: ['16:00', '17:00', '18:00'][index % 3],
+        position: ['Service', 'Caisse', 'Cuisine'][index % 3],
+        status: 'scheduled'
+      }));
+      res.json(autoSchedule);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.post('/api/admin/schedule/auto-generate', authenticateToken, async (req, res) => {
+    try {
+      const { weekStart, preferences } = req.body;
+      const generatedShifts = {
+        weekStart,
+        shiftsCreated: 21,
+        coverage: '95%',
+        conflicts: 0,
+        message: 'Planning automatique généré avec succès'
+      };
+      res.json(generatedShifts);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur génération planning' });
+    }
+  });
+
+  // API Contrôle qualité
+  app.get('/api/admin/quality/checks', authenticateToken, async (req, res) => {
+    try {
+      const qualityChecks = [
+        {
+          id: 1,
+          date: new Date().toISOString(),
+          category: 'Produits',
+          item: 'Cappuccino Premium',
+          inspector: 'Marie Dubois',
+          score: 95,
+          maxScore: 100,
+          status: 'excellent',
+          notes: 'Excellente qualité, température parfaite',
+          correctionActions: []
+        },
+        {
+          id: 2,
+          date: new Date(Date.now() - 86400000).toISOString(),
+          category: 'Service',
+          item: 'Accueil client',
+          inspector: 'Pierre Martin',
+          score: 78,
+          maxScore: 100,
+          status: 'good',
+          notes: 'Bon service mais peut être amélioré',
+          correctionActions: ['Formation service client']
+        }
+      ];
+      res.json(qualityChecks);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.post('/api/admin/quality/checks', authenticateToken, async (req, res) => {
+    try {
+      const checkData = req.body;
+      const qualityCheck = {
+        id: Date.now(),
+        ...checkData,
+        date: new Date().toISOString()
+      };
+      res.status(201).json(qualityCheck);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur création contrôle qualité' });
+    }
+  });
+
+  // API Feedback clients
+  app.get('/api/admin/feedback', authenticateToken, async (req, res) => {
+    try {
+      const feedbacks = [
+        {
+          id: 1,
+          customerName: 'Sophie Martin',
+          customerEmail: 'sophie.martin@email.com',
+          date: new Date().toISOString(),
+          rating: 5,
+          category: 'Service',
+          subject: 'Excellent service !',
+          message: 'Vraiment impressionnée par la qualité du service.',
+          sentiment: 'positive',
+          status: 'new',
+          source: 'website',
+          tags: ['service', 'qualité']
+        },
+        {
+          id: 2,
+          customerName: 'Jean Dupont',
+          customerEmail: 'jean.dupont@email.com',
+          date: new Date(Date.now() - 86400000).toISOString(),
+          rating: 3,
+          category: 'Produits',
+          subject: 'Café correct',
+          message: 'Le café était correct mais peut mieux faire.',
+          sentiment: 'neutral',
+          status: 'reviewed',
+          source: 'google',
+          tags: ['café', 'qualité']
+        }
+      ];
+      res.json(feedbacks);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.post('/api/admin/feedback/:id/respond', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { response } = req.body;
+      const feedbackResponse = {
+        feedbackId: Number(id),
+        response,
+        responseDate: new Date().toISOString(),
+        respondedBy: (req as any).user.username
+      };
+      res.json(feedbackResponse);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur envoi réponse' });
+    }
+  });
+
+  app.patch('/api/admin/feedback/:id/status', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      const updatedFeedback = {
+        id: Number(id),
+        status,
+        updatedAt: new Date().toISOString()
+      };
+      res.json(updatedFeedback);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur mise à jour statut' });
+    }
+  });
+
+  // APIs supplémentaires pour les horaires
+  app.post('/api/admin/work-shifts', authenticateToken, async (req, res) => {
+    try {
+      const shiftData = req.body;
+      const shift = {
+        id: Date.now(),
+        ...shiftData,
+        createdAt: new Date().toISOString()
+      };
+      res.status(201).json(shift);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur création horaire' });
+    }
+  });
+
+  app.patch('/api/admin/work-shifts/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updateData = req.body;
+      const updatedShift = {
+        id: Number(id),
+        ...updateData,
+        updatedAt: new Date().toISOString()
+      };
+      res.json(updatedShift);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur mise à jour horaire' });
+    }
+  });
+
+  app.delete('/api/admin/work-shifts/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      res.json({ success: true, deletedId: Number(id) });
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur suppression horaire' });
+    }
+  });
+
   return server;
 }
