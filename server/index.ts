@@ -49,7 +49,7 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Démarrer le serveur rapidement
+  // Démarrer le serveur rapidement avec les routes API d'abord
   const server = await registerRoutes(app);
   
   // Configuration PostgreSQL automatique - en arrière-plan

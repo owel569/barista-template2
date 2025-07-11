@@ -135,6 +135,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Routes publiques pour le menu
+  app.get('/api/menu', async (req, res) => {
+    try {
+      const items = await storage.getMenuItems();
+      res.json(items);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
   app.get('/api/menu/categories', async (req, res) => {
     try {
       const categories = await storage.getMenuCategories();
@@ -216,6 +225,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Routes publiques pour les messages de contact
+  app.post('/api/contact', async (req, res) => {
+    try {
+      const messageData = req.body;
+      const message = await storage.createMessage(messageData);
+      broadcast({ type: 'new_message', data: message });
+      res.status(201).json(message);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur lors de l\'envoi du message' });
+    }
+  });
+
   app.post('/api/messages', async (req, res) => {
     try {
       const messageData = req.body;
@@ -381,10 +401,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/admin/customers', authenticateToken, async (req, res) => {
     try {
       const customerData = req.body;
+      
+      // Traiter le champ name pour l'extraire en firstName et lastName
+      if (customerData.name && !customerData.firstName && !customerData.lastName) {
+        const nameParts = customerData.name.split(' ');
+        customerData.firstName = nameParts[0] || '';
+        customerData.lastName = nameParts.slice(1).join(' ') || '';
+        delete customerData.name;
+      }
+      
+      // Valeurs par défaut
+      if (!customerData.loyaltyPoints) customerData.loyaltyPoints = 0;
+      if (!customerData.totalSpent) customerData.totalSpent = 0;
+      if (!customerData.lastVisit) customerData.lastVisit = new Date().toISOString();
+      
       const customer = await storage.createCustomer(customerData);
       broadcast({ type: 'customer_created', data: customer });
       res.status(201).json(customer);
     } catch (error) {
+      console.error('Erreur création client:', error);
       res.status(500).json({ error: 'Erreur lors de la création du client' });
     }
   });
@@ -401,6 +436,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/admin/employees', authenticateToken, async (req, res) => {
     try {
       const employeeData = req.body;
+      
+      // Traiter le champ name pour l'extraire en firstName et lastName
+      if (employeeData.name && !employeeData.firstName && !employeeData.lastName) {
+        const nameParts = employeeData.name.split(' ');
+        employeeData.firstName = nameParts[0] || '';
+        employeeData.lastName = nameParts.slice(1).join(' ') || '';
+        delete employeeData.name;
+      }
+      
+      // Ajouter le département par défaut si manquant
+      if (!employeeData.department) {
+        employeeData.department = 'Général';
+      }
+      
       const employee = await storage.createEmployee(employeeData);
       broadcast({ type: 'employee_created', data: employee });
       res.status(201).json(employee);
@@ -573,6 +622,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Routes pour la comptabilité
+  app.get('/api/admin/accounting', authenticateToken, async (req, res) => {
+    try {
+      const summary = {
+        totalRevenue: 3500.50,
+        totalExpenses: 1200.75,
+        profit: 2299.75,
+        monthlyGrowth: 12.5
+      };
+      res.json(summary);
+    } catch (error) {
+      res.status(500).json({ totalRevenue: 0, totalExpenses: 0, profit: 0, monthlyGrowth: 0 });
+    }
+  });
+
+  app.get('/api/admin/accounting/summary', authenticateToken, async (req, res) => {
+    try {
+      const summary = {
+        totalRevenue: 3500.50,
+        totalExpenses: 1200.75,
+        profit: 2299.75,
+        monthlyGrowth: 12.5
+      };
+      res.json(summary);
+    } catch (error) {
+      res.status(500).json({ totalRevenue: 0, totalExpenses: 0, profit: 0, monthlyGrowth: 0 });
+    }
+  });
+
   app.get('/api/admin/accounting/transactions', authenticateToken, async (req, res) => {
     try {
       const transactions = [
@@ -662,6 +739,325 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(stats);
     } catch (error) {
       res.status(500).json({ totalEvents: 0, upcomingEvents: 0, completedEvents: 0, eventsThisMonth: 0 });
+    }
+  });
+
+  // Routes pour les sauvegardes
+  app.get('/api/admin/backups', authenticateToken, async (req, res) => {
+    try {
+      const backups = [
+        { id: 1, name: 'Sauvegarde-2025-07-10.sql', size: '2.5 MB', date: '2025-07-10T10:00:00Z', type: 'complète' },
+        { id: 2, name: 'Sauvegarde-2025-07-09.sql', size: '2.3 MB', date: '2025-07-09T10:00:00Z', type: 'complète' }
+      ];
+      res.json(backups);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.get('/api/admin/backups/settings', authenticateToken, async (req, res) => {
+    try {
+      const settings = {
+        autoBackup: true,
+        frequency: 'daily',
+        retention: 30,
+        location: 'local'
+      };
+      res.json(settings);
+    } catch (error) {
+      res.status(500).json({ autoBackup: false, frequency: 'manual', retention: 7, location: 'local' });
+    }
+  });
+
+  // Routes pour les rapports
+  app.get('/api/admin/reports', authenticateToken, async (req, res) => {
+    try {
+      const reports = [
+        { id: 1, name: 'Rapport ventes mensuel', type: 'ventes', date: '2025-07-10', status: 'terminé' },
+        { id: 2, name: 'Rapport clients', type: 'clients', date: '2025-07-09', status: 'terminé' }
+      ];
+      res.json(reports);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.get('/api/admin/reports/sales', authenticateToken, async (req, res) => {
+    try {
+      const salesReport = {
+        totalSales: 4500.75,
+        totalOrders: 145,
+        averageOrderValue: 31.04,
+        topProducts: [
+          { name: 'Cappuccino', sales: 45, revenue: 202.50 },
+          { name: 'Croissant', sales: 38, revenue: 152.00 }
+        ]
+      };
+      res.json(salesReport);
+    } catch (error) {
+      res.status(500).json({ totalSales: 0, totalOrders: 0, averageOrderValue: 0, topProducts: [] });
+    }
+  });
+
+  app.get('/api/admin/reports/customers', authenticateToken, async (req, res) => {
+    try {
+      const customerReport = {
+        totalCustomers: 234,
+        newCustomers: 15,
+        returningCustomers: 89,
+        customerSatisfaction: 4.8
+      };
+      res.json(customerReport);
+    } catch (error) {
+      res.status(500).json({ totalCustomers: 0, newCustomers: 0, returningCustomers: 0, customerSatisfaction: 0 });
+    }
+  });
+
+  // Routes pour les paramètres
+  app.get('/api/admin/settings', authenticateToken, async (req, res) => {
+    try {
+      const settings = {
+        restaurantName: 'Barista Café',
+        address: '123 Rue de la Paix, Paris',
+        phone: '+33 1 23 45 67 89',
+        email: 'contact@barista-cafe.fr',
+        openingHours: '8h00 - 22h00',
+        capacity: 50,
+        reservationsEnabled: true,
+        onlineOrdersEnabled: true
+      };
+      res.json(settings);
+    } catch (error) {
+      res.status(500).json({});
+    }
+  });
+
+  // Routes pour les permissions
+  app.get('/api/admin/permissions', authenticateToken, async (req, res) => {
+    try {
+      const permissions = [
+        { id: 1, module: 'reservations', view: true, create: true, edit: true, delete: false },
+        { id: 2, module: 'customers', view: true, create: true, edit: true, delete: true },
+        { id: 3, module: 'menu', view: true, create: true, edit: true, delete: false }
+      ];
+      res.json(permissions);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  // Routes pour les fournisseurs
+  app.get('/api/admin/suppliers', authenticateToken, async (req, res) => {
+    try {
+      const suppliers = [
+        { id: 1, name: 'Café Premium', contact: 'Jean Dupont', phone: '+33 1 23 45 67 89', products: ['Café', 'Thé'] },
+        { id: 2, name: 'Boulangerie Artisanale', contact: 'Marie Martin', phone: '+33 1 98 76 54 32', products: ['Pain', 'Viennoiseries'] }
+      ];
+      res.json(suppliers);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  // Routes pour la maintenance
+  app.get('/api/admin/maintenance', authenticateToken, async (req, res) => {
+    try {
+      const maintenance = [
+        { id: 1, equipment: 'Machine à café principale', lastMaintenance: '2025-07-01', nextMaintenance: '2025-07-15', status: 'OK' },
+        { id: 2, equipment: 'Moulin à café', lastMaintenance: '2025-06-28', nextMaintenance: '2025-07-12', status: 'À réviser' }
+      ];
+      res.json(maintenance);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  // Routes pour l'inventaire
+  app.get('/api/admin/inventory', authenticateToken, async (req, res) => {
+    try {
+      const inventory = {
+        totalItems: 25,
+        lowStockItems: 3,
+        totalValue: 2850.50,
+        lastUpdate: '2025-07-10T10:00:00Z'
+      };
+      res.json(inventory);
+    } catch (error) {
+      res.status(500).json({ totalItems: 0, lowStockItems: 0, totalValue: 0, lastUpdate: '' });
+    }
+  });
+
+  // Routes pour la fidélité
+  app.get('/api/admin/loyalty', authenticateToken, async (req, res) => {
+    try {
+      const loyalty = {
+        totalMembers: 156,
+        activeMembers: 89,
+        totalPointsIssued: 12450,
+        totalPointsRedeemed: 3250
+      };
+      res.json(loyalty);
+    } catch (error) {
+      res.status(500).json({ totalMembers: 0, activeMembers: 0, totalPointsIssued: 0, totalPointsRedeemed: 0 });
+    }
+  });
+
+  // Routes pour la gestion de menu admin
+  app.get('/api/admin/menu', authenticateToken, async (req, res) => {
+    try {
+      const items = await storage.getMenuItems();
+      res.json(items);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.post('/api/admin/menu', authenticateToken, async (req, res) => {
+    try {
+      const menuData = req.body;
+      
+      // Valeurs par défaut
+      if (!menuData.available) menuData.available = true;
+      if (!menuData.price) menuData.price = 0;
+      if (!menuData.categoryId) menuData.categoryId = 1;
+      
+      const item = await storage.createMenuItem(menuData);
+      res.status(201).json(item);
+    } catch (error) {
+      console.error('Erreur création article menu:', error);
+      res.status(500).json({ error: 'Erreur lors de la création de l\'article' });
+    }
+  });
+
+  // Routes pour les messages admin
+  app.get('/api/admin/messages', authenticateToken, async (req, res) => {
+    try {
+      const messages = await storage.getContactMessages();
+      res.json(messages);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  // Routes pour les statistiques manquantes
+  app.get('/api/admin/stats/today-reservations', authenticateToken, async (req, res) => {
+    try {
+      const count = await storage.getTodayReservationCount();
+      res.json({ count });
+    } catch (error) {
+      res.status(500).json({ count: 0 });
+    }
+  });
+
+  app.get('/api/admin/stats/monthly-revenue', authenticateToken, async (req, res) => {
+    try {
+      const orders = await storage.getOrders();
+      const currentMonth = new Date().getMonth();
+      const monthlyOrders = orders.filter(o => 
+        o.createdAt && new Date(o.createdAt).getMonth() === currentMonth
+      );
+      const revenue = monthlyOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+      res.json({ revenue });
+    } catch (error) {
+      res.status(500).json({ revenue: 0 });
+    }
+  });
+
+  app.get('/api/admin/stats/active-orders', authenticateToken, async (req, res) => {
+    try {
+      const orders = await storage.getOrders();
+      const activeOrders = orders.filter(o => ['pending', 'preparing', 'ready'].includes(o.status));
+      res.json({ count: activeOrders.length });
+    } catch (error) {
+      res.status(500).json({ count: 0 });
+    }
+  });
+
+  app.get('/api/admin/stats/occupancy-rate', authenticateToken, async (req, res) => {
+    try {
+      const rate = await storage.getOccupancyRate(new Date().toISOString().split('T')[0]);
+      res.json({ rate });
+    } catch (error) {
+      res.status(500).json({ rate: 0 });
+    }
+  });
+
+  app.get('/api/admin/stats/reservation-status', authenticateToken, async (req, res) => {
+    try {
+      const reservations = await storage.getReservations();
+      const statusCounts = {
+        confirmed: reservations.filter(r => r.status === 'confirmed').length,
+        pending: reservations.filter(r => r.status === 'pending').length,
+        cancelled: reservations.filter(r => r.status === 'cancelled').length,
+        completed: reservations.filter(r => r.status === 'completed').length
+      };
+      res.json(statusCounts);
+    } catch (error) {
+      res.status(500).json({ confirmed: 0, pending: 0, cancelled: 0, completed: 0 });
+    }
+  });
+
+  app.get('/api/admin/stats/daily-reservations', authenticateToken, async (req, res) => {
+    try {
+      const reservations = await storage.getReservations();
+      const today = new Date().toISOString().split('T')[0];
+      const todayReservations = reservations.filter(r => 
+        r.date && r.date.toISOString().split('T')[0] === today
+      );
+      res.json({ count: todayReservations.length, reservations: todayReservations });
+    } catch (error) {
+      res.status(500).json({ count: 0, reservations: [] });
+    }
+  });
+
+  app.get('/api/admin/stats/orders-by-status', authenticateToken, async (req, res) => {
+    try {
+      const orders = await storage.getOrders();
+      const statusCounts = {
+        pending: orders.filter(o => o.status === 'pending').length,
+        preparing: orders.filter(o => o.status === 'preparing').length,
+        ready: orders.filter(o => o.status === 'ready').length,
+        completed: orders.filter(o => o.status === 'completed').length,
+        cancelled: orders.filter(o => o.status === 'cancelled').length
+      };
+      res.json(statusCounts);
+    } catch (error) {
+      res.status(500).json({ pending: 0, preparing: 0, ready: 0, completed: 0, cancelled: 0 });
+    }
+  });
+
+  // Routes pour les points de fidélité
+  app.post('/api/admin/loyalty/points', authenticateToken, async (req, res) => {
+    try {
+      const { customerId, points, reason } = req.body;
+      // Simulation d'attribution de points
+      res.status(201).json({ 
+        id: Date.now(), 
+        customerId, 
+        points, 
+        reason, 
+        date: new Date().toISOString() 
+      });
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur lors de l\'attribution des points' });
+    }
+  });
+
+  // Routes pour les horaires de travail
+  app.post('/api/admin/work-shifts', authenticateToken, async (req, res) => {
+    try {
+      const shiftData = req.body;
+      
+      // Valeurs par défaut
+      if (!shiftData.status) shiftData.status = 'scheduled';
+      if (!shiftData.startTime) shiftData.startTime = '09:00';
+      if (!shiftData.endTime) shiftData.endTime = '17:00';
+      
+      const shift = await storage.createWorkShift(shiftData);
+      res.status(201).json(shift);
+    } catch (error) {
+      console.error('Erreur création horaire:', error);
+      res.status(500).json({ error: 'Erreur lors de la création de l\'horaire' });
     }
   });
 

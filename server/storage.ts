@@ -423,6 +423,10 @@ async createReservation(reservation: any): Promise<Reservation> {
     return await db.select().from(contactMessages).orderBy(desc(contactMessages.createdAt));
   }
 
+  async getMessages(): Promise<ContactMessage[]> {
+    return await db.select().from(contactMessages).orderBy(desc(contactMessages.createdAt));
+  }
+
 async createContactMessage(message: any): Promise<ContactMessage> {
   // Préparer les données pour l'insertion
   const data = {
