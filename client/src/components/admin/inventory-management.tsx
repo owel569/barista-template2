@@ -61,7 +61,7 @@ export default function InventoryManagement() {
         ]);
         
         // Traiter les données pour s'assurer que tous les nombres sont correctement formatés
-        const processedItems = itemsData.map((item: any) => ({
+        const processedItems = (itemsData || []).map((item: any) => ({
           ...item,
           currentStock: Number(item.currentStock) || 0,
           minStock: Number(item.minStock) || 0,

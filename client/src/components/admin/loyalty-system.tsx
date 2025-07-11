@@ -72,7 +72,7 @@ export default function LoyaltySystem() {
         ]);
         
         // Assurer que les données numériques sont correctement formatées
-        const processedCustomers = customersData.map((customer: any) => ({
+        const processedCustomers = (customersData || []).map((customer: any) => ({
           ...customer,
           points: Number(customer.points) || 0,
           totalSpent: Number(customer.totalSpent) || 0

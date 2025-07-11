@@ -55,7 +55,7 @@ export default function BackupSystem() {
         ]);
         
         // Traiter les données pour s'assurer que les tailles sont des nombres
-        const processedBackups = backupsData.map((backup: any) => ({
+        const processedBackups = (backupsData || []).map((backup: any) => ({
           ...backup,
           size: Number(backup.size) || 0
         }));
