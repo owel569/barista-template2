@@ -60,8 +60,23 @@ export default function InventoryManagement() {
           alertsRes.json()
         ]);
         
-        setItems(itemsData);
-        setAlerts(alertsData);
+        // Traiter les données pour s'assurer que tous les nombres sont correctement formatés
+        const processedItems = itemsData.map((item: any) => ({
+          ...item,
+          currentStock: Number(item.currentStock) || 0,
+          minStock: Number(item.minStock) || 0,
+          maxStock: Number(item.maxStock) || 0,
+          unitCost: Number(item.unitCost) || 0
+        }));
+        
+        const processedAlerts = alertsData.map((alert: any) => ({
+          ...alert,
+          currentStock: Number(alert.currentStock) || 0,
+          minStock: Number(alert.minStock) || 0
+        }));
+        
+        setItems(processedItems);
+        setAlerts(processedAlerts);
       }
     } catch (error) {
       console.error('Erreur lors du chargement de l\'inventaire:', error);

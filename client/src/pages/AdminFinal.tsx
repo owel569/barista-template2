@@ -265,7 +265,7 @@ export default function AdminFinal() {
   // Filtrer les modules selon les permissions
   const availableModules = adminModules.filter(module => {
     if (module.always) return true;
-    if (module.adminOnly && !isDirecteur) return false;
+    if (module.adminOnly && user?.role !== 'directeur') return false;
     return true;
   });
 

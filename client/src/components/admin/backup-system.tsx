@@ -54,7 +54,13 @@ export default function BackupSystem() {
           settingsRes.json()
         ]);
         
-        setBackups(backupsData);
+        // Traiter les données pour s'assurer que les tailles sont des nombres
+        const processedBackups = backupsData.map((backup: any) => ({
+          ...backup,
+          size: Number(backup.size) || 0
+        }));
+        
+        setBackups(processedBackups);
         setSettings(settingsData);
       }
     } catch (error) {

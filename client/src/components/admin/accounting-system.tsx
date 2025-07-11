@@ -53,8 +53,22 @@ export default function AccountingSystem() {
           summaryRes.json()
         ]);
         
-        setTransactions(transactionsData);
-        setSummary(summaryData);
+        // Traiter les données pour s'assurer que les montants sont des nombres
+        const processedTransactions = transactionsData.map((transaction: any) => ({
+          ...transaction,
+          amount: Number(transaction.amount) || 0
+        }));
+        
+        const processedSummary = summaryData ? {
+          ...summaryData,
+          totalIncome: Number(summaryData.totalIncome) || 0,
+          totalExpenses: Number(summaryData.totalExpenses) || 0,
+          netProfit: Number(summaryData.netProfit) || 0,
+          monthlyGrowth: Number(summaryData.monthlyGrowth) || 0
+        } : null;
+        
+        setTransactions(processedTransactions);
+        setSummary(processedSummary);
       }
     } catch (error) {
       console.error('Erreur lors du chargement de la comptabilité:', error);
