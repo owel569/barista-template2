@@ -446,7 +446,9 @@ export const insertEmployeeSchema = createInsertSchema(employees).pick({
   salary: z.coerce.number().min(0.01, "Le salaire doit être supérieur à 0").max(99999.99, "Salaire maximum : 99 999,99€"),
   hireDate: z.string().refine((date) => {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
-    const year = parseInt(date.split('-')[0]);
+    const dateParts = date.split('-');
+    if (dateParts.length === 0 || !dateParts[0]) return false;
+    const year = parseInt(dateParts[0]);
     return year >= 1970 && year <= 3000;
   }, "Format de date invalide ou année doit être entre 1970 et 3000"),
   status: z.enum(["active", "inactive", "terminated"]).default("active"),
