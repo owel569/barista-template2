@@ -530,3 +530,19 @@ export const generateEmployeeColors = (employees: Employee[]): Record<number, st
   
   return employeeColors;
 };
+
+// Fonctions de formatage manquantes
+export const formatDuration = (hours: number): string => {
+  const h = Math.floor(hours);
+  const m = Math.round((hours - h) * 60);
+  if (m === 0) return `${h}h`;
+  return `${h}h ${m}m`;
+};
+
+export const formatCurrency = (amount: number): string => {
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'EUR',
+    minimumFractionDigits: 2,
+  }).format(amount);
+};
