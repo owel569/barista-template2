@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'wouter';
+import { useLocation } from 'wouter';
+import { AuthTokenManager, ApiClient } from '@/lib/auth-utils';
 
 interface AuthState {
   token: string | null;
@@ -15,73 +16,62 @@ export const useAuth = () => {
     isAuthenticated: false,
     isLoading: true
   });
-  
-  const [, navigate] = useNavigate();
+  const [, setLocation] = useLocation();
 
   // Initialiser l'état d'authentification
   useEffect(() => {
-    const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
-    const user = localStorage.getItem('user');
-    
-    if (token && user) {
+    const initAuth = async () => {
       try {
-        const parsedUser = JSON.parse(user);
-        setAuthState({
-          token,
-          user: parsedUser,
-          isAuthenticated: true,
-          isLoading: false
-        });
+        const token = AuthTokenManager.getToken();
+        const storedUser = localStorage.getItem('user');
+        
+        if (token && storedUser && AuthTokenManager.isTokenValid()) {
+          const user = JSON.parse(storedUser);
+          setAuthState({
+            token,
+            user,
+            isAuthenticated: true,
+            isLoading: false
+          });
+        } else {
+          // Token invalide ou expiré
+          AuthTokenManager.removeToken();
+          setAuthState(prev => ({ ...prev, isLoading: false }));
+        }
       } catch (error) {
-        console.error('Erreur parsing user:', error);
-        logout();
+        console.error('Erreur initialisation auth:', error);
+        setAuthState(prev => ({ ...prev, isLoading: false }));
       }
-    } else {
-      setAuthState(prev => ({ ...prev, isLoading: false }));
-    }
+    };
+
+    initAuth();
   }, []);
 
   // Fonction de login
   const login = useCallback(async (username: string, password: string) => {
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
+      const response = await ApiClient.post('/auth/login', { username, password });
+      
+      // Stocker les données d'authentification
+      AuthTokenManager.setToken(response.token);
+      localStorage.setItem('user', JSON.stringify(response.user));
+      
+      setAuthState({
+        token: response.token,
+        user: response.user,
+        isAuthenticated: true,
+        isLoading: false
       });
-
-      if (response.ok) {
-        const data = await response.json();
-        
-        // Stocker les données d'authentification
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('auth_token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        
-        setAuthState({
-          token: data.token,
-          user: data.user,
-          isAuthenticated: true,
-          isLoading: false
-        });
-        
-        return { success: true, user: data.user };
-      } else {
-        const errorData = await response.json();
-        return { success: false, error: errorData.message || 'Erreur de connexion' };
-      }
-    } catch (error) {
-      return { success: false, error: 'Erreur de connexion au serveur' };
+      
+      return { success: true, user: response.user };
+    } catch (error: any) {
+      return { success: false, error: error.message || 'Erreur de connexion au serveur' };
     }
   }, []);
 
   // Fonction de logout
   const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user');
+    AuthTokenManager.removeToken();
     
     setAuthState({
       token: null,
@@ -90,26 +80,16 @@ export const useAuth = () => {
       isLoading: false
     });
     
-    navigate('/login');
-  }, [navigate]);
+    setLocation('/login');
+  }, [setLocation]);
 
   // Vérifier si le token est valide
   const validateToken = useCallback(async () => {
     if (!authState.token) return false;
     
     try {
-      const response = await fetch('/api/auth/validate', {
-        headers: {
-          'Authorization': `Bearer ${authState.token}`
-        }
-      });
-      
-      if (response.ok) {
-        return true;
-      } else {
-        logout();
-        return false;
-      }
+      await ApiClient.get('/auth/validate');
+      return true;
     } catch (error) {
       logout();
       return false;
@@ -118,42 +98,16 @@ export const useAuth = () => {
 
   // Intercepteur pour les requêtes API
   const apiRequest = useCallback(async (url: string, options: RequestInit = {}) => {
-    const token = authState.token;
-    
-    const headers = {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    };
-    
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-    
     try {
-      const response = await fetch(url, {
-        ...options,
-        headers,
-      });
-      
+      return await ApiClient.request(url, options);
+    } catch (error: any) {
       // Gérer les erreurs d'authentification
-      if (response.status === 401) {
+      if (error.message.includes('Session expirée')) {
         logout();
-        throw new Error('Session expirée. Veuillez vous reconnecter.');
       }
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Erreur lors de la requête');
-      }
-      
-      return response;
-    } catch (error) {
-      if (error instanceof Error && error.message.includes('Session expirée')) {
-        throw error;
-      }
-      throw new Error('Erreur de connexion au serveur');
+      throw error;
     }
-  }, [authState.token, logout]);
+  }, [logout]);
 
   return {
     ...authState,
