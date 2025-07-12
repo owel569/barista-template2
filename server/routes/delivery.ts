@@ -68,7 +68,7 @@ deliveryRouter.patch('/:id/status', (req, res) => {
     case 'cancelled': delivery.progress = 0; break;
   }
   
-  retournres.json(delivery);
+  return res.json(delivery);
 });
 
 // Create new delivery
