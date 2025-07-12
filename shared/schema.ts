@@ -341,13 +341,23 @@ export const insertReservationSchema = createInsertSchema(reservations).pick({
   customerEmail: z.string().email("Email invalide"),
   customerPhone: z.string().min(10, "Numéro de téléphone invalide"),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Format de date invalide").refine((date) => {
-    const dateParts = date.split('-');
-    if (dateParts.length < 1 || !dateParts[0]) return false;
-    const year = parseInt(dateParts[0]);
+    // Vérifier que la date est valide
+    const d = new Date(date + 'T00:00:00');
+    if (isNaN(d.getTime())) return false;
+    
+    // Vérifier que la date correspond exactement à l'input (évite 2023-02-30 -> 2023-03-02)
+    const isoDate = d.toISOString().split('T')[0];
+    if (isoDate !== date) return false;
+    
+    // Vérifier que l'année est dans la plage acceptable
+    const year = d.getFullYear();
     const currentYear = new Date().getFullYear();
     return year >= currentYear && year <= 3000;
-  }, "L'année doit être entre maintenant et 3000"),
-  time: z.string().regex(/^\d{2}:\d{2}$/, "Format d'heure invalide"),
+  }, "Date invalide ou l'année doit être entre maintenant et 3000"),
+  time: z.string().regex(/^\d{2}:\d{2}$/, "Format d'heure invalide").refine((time) => {
+    const [hours, minutes] = time.split(':').map(Number);
+    return hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59;
+  }, "Heure invalide (HH:MM, HH: 0-23, MM: 0-59)"),
   guests: z.number().min(1).max(8, "Maximum 8 personnes"),
   status: z.string().default("confirmed"),
 });
