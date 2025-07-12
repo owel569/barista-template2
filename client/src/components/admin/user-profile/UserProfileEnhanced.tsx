@@ -16,13 +16,13 @@ import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useAuth } from '@/hooks/useAuth';
-import { usePermissions } from '@/components/auth/AuthProvider';
+import { usePermissions } from '@/lib/auth-utils';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useReactToPrint } from 'react-to-print';
 import { QRCodeCanvas } from 'qrcode.react';
 import * as XLSX from 'xlsx';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 
 // Types pour les profils utilisateur
 interface UserProfile {

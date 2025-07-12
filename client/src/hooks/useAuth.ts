@@ -72,14 +72,13 @@ export const useAuth = () => {
   // Fonction de logout
   const logout = useCallback(() => {
     AuthTokenManager.removeToken();
-    
+    localStorage.removeItem('user');
     setAuthState({
       token: null,
       user: null,
       isAuthenticated: false,
       isLoading: false
     });
-    
     setLocation('/login');
   }, [setLocation]);
 
