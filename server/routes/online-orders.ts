@@ -134,7 +134,7 @@ onlineOrdersRouter.get('/:id', (req, res) => {
     return res.status(404).json({ message: 'Commande non trouvée' });
   }
   
-  res.json(order);
+  return res.json(order);
 });
 
 // Delete online order
