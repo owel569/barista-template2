@@ -122,7 +122,7 @@ onlineOrdersRouter.patch('/:id/status', (req, res) => {
   }
   
   order.status = status;
-  res.json(order);
+  return res.json(order);
 });
 
 // Get order by ID
