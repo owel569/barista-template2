@@ -416,31 +416,6 @@ export const insertOrderItemSchema = createInsertSchema(orderItems).pick({
   price: z.coerce.number().min(0.01, "Le prix doit être supérieur à 0").max(999.99, "Prix maximum : 999,99€"),
 });
 
-export const insertWorkShiftSchema = createInsertSchema(workShifts).pick({
-  employeeId: true,
-  date: true,
-  startTime: true,
-  endTime: true,
-  position: true,
-  status: true,
-  notes: true,
-}).extend({
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Format de date invalide").refine((date) => {
-    if (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      return false;
-    }
-    const dateParts = date.split('-');
-    if (dateParts.length !== 3 || !dateParts[0]) {
-      return false;
-    }
-    const year = parseInt(dateParts[0]);
-    const currentYear = new Date().getFullYear();
-    return year >= currentYear && year <= 3000;
-  }, "Format de date invalide ou l'année doit être entre maintenant et 3000"),
-  startTime: z.string().regex(/^\d{2}:\d{2}$/, "Format d'heure invalide"),
-  endTime: z.string().regex(/^\d{2}:\d{2}$/, "Format d'heure invalide"),
-});
-
 export const insertEmployeeSchema = createInsertSchema(employees).pick({
   firstName: true,
   lastName: true,
