@@ -396,6 +396,27 @@ export const registerSchema = z.object({
 
 export type RegisterData = z.infer<typeof registerSchema>;
 
+// Schema pour l'insertion de clients
+export const insertCustomerSchema = createInsertSchema(customers).pick({
+  firstName: true,
+  lastName: true,
+  email: true,
+  phone: true,
+  address: true,
+  dateOfBirth: true,
+  totalOrders: true,
+  totalSpent: true,
+  preferredContactMethod: true,
+  notes: true,
+}).extend({
+  email: z.string().email("Email invalide"),
+  firstName: z.string().min(2, "Prénom requis"),
+  lastName: z.string().min(2, "Nom requis"),
+  phone: z.string().min(8, "Téléphone requis (minimum 8 chiffres)"),
+  dateOfBirth: z.string().optional(),
+  preferredContactMethod: z.enum(["email", "phone", "sms"]).default("email"),
+});
+
 // New schemas for the extended functionality
 export const insertOrderSchema = createInsertSchema(orders).pick({
   customerName: true,
