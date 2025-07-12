@@ -360,32 +360,34 @@ export default function AdminFinal() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header fixe avec menu déroulant */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-lg border-b border-gray-200">
-        <div className="flex items-center justify-between px-6 py-4">
-          {/* Logo et nom */}
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
-              <Coffee className="h-6 w-6 text-white" />
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Header compact avec menu déroulant */}
+      <header className="sticky top-0 z-50 bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between px-4 py-3">
+          {/* Logo compact */}
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
+              <Coffee className="h-5 w-5 text-white" />
             </div>
-            <h1 className="text-xl font-bold text-orange-600">Barista Café - Admin</h1>
+            <h1 className="text-lg font-semibold text-orange-600 dark:text-orange-400 hidden sm:block">
+              Barista Café
+            </h1>
           </div>
 
-          {/* Menu déroulant central */}
+          {/* Menu déroulant compact */}
           <div className="relative">
             <Button
               variant="outline"
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="px-4 py-2 text-sm font-medium"
+              className="px-3 py-2 text-sm font-medium h-9"
             >
               <Menu className="h-4 w-4 mr-2" />
-              {currentModule?.name || 'Dashboard'}
-              <span className="ml-2">▼</span>
+              <span className="hidden sm:inline">{currentModule?.name || 'Dashboard'}</span>
+              <span className="sm:hidden">Menu</span>
             </Button>
 
             {dropdownOpen && (
-              <div className="absolute top-full left-0 mt-1 w-72 bg-white border border-gray-200 rounded-lg shadow-lg max-h-96 overflow-y-auto z-50">
+              <div className="absolute top-full right-0 mt-1 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-80 overflow-y-auto z-50">
                 <div className="grid grid-cols-2 gap-1 p-2">
                   {availableModules.map((module) => (
                     <button
@@ -395,16 +397,16 @@ export default function AdminFinal() {
                         setDropdownOpen(false);
                       }}
                       className={cn(
-                        "flex items-center space-x-2 px-3 py-2 rounded-md text-sm transition-colors text-left w-full",
+                        "flex items-center space-x-2 px-2 py-2 rounded-md text-xs transition-colors text-left w-full",
                         activeModule === module.id
-                          ? "bg-orange-100 text-orange-700"
-                          : "hover:bg-gray-100 text-gray-700"
+                          ? "bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300"
+                          : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
                       )}
                     >
-                      <module.icon className="h-4 w-4" />
-                      <span className="truncate">{module.name}</span>
+                      <module.icon className="h-4 w-4 flex-shrink-0" />
+                      <span className="truncate text-xs">{module.name}</span>
                       {module.notification && module.notification > 0 && (
-                        <Badge className="ml-auto bg-red-500 text-white text-xs">
+                        <Badge className="ml-auto bg-red-500 text-white text-xs px-1 py-0">
                           {module.notification}
                         </Badge>
                       )}
@@ -415,17 +417,17 @@ export default function AdminFinal() {
             )}
           </div>
 
-          {/* Infos utilisateur et déconnexion */}
-          <div className="flex items-center space-x-4">
+          {/* Infos utilisateur compact */}
+          <div className="flex items-center space-x-2">
             <div className="flex items-center space-x-2">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-orange-500 text-white">
+              <Avatar className="h-7 w-7">
+                <AvatarFallback className="bg-orange-500 text-white text-sm">
                   {user?.username?.charAt(0).toUpperCase() || 'A'}
                 </AvatarFallback>
               </Avatar>
-              <div className="hidden md:block">
-                <p className="text-sm font-medium text-gray-900">{user?.username}</p>
-                <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
+              <div className="hidden lg:block">
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{user?.username}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{user?.role}</p>
               </div>
             </div>
             
@@ -437,7 +439,7 @@ export default function AdminFinal() {
                 localStorage.removeItem('auth_token');
                 navigate('/login');
               }}
-              className="text-red-600 hover:text-red-700"
+              className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 h-8 w-8 p-0"
             >
               <LogOut className="h-4 w-4" />
             </Button>
@@ -446,7 +448,7 @@ export default function AdminFinal() {
       </header>
 
       {/* Contenu principal */}
-      <main className="pt-20 px-6 pb-6">
+      <main className="p-4">
         {/* Affichage du composant actuel */}
         <div className="h-[calc(100vh-80px)] overflow-y-auto">
           <CurrentComponent />

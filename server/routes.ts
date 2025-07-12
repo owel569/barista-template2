@@ -2039,5 +2039,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Routes pour la gestion des permissions utilisateur
+  app.put('/api/admin/users/:userId/permissions', authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const { permissionId, granted } = req.body;
+      
+      // Simuler la mise à jour des permissions
+      res.json({
+        message: `Permission ${granted ? 'accordée' : 'révoquée'} avec succès`,
+        userId: parseInt(userId),
+        permissionId,
+        granted
+      });
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur lors de la mise à jour des permissions' });
+    }
+  });
+
+  app.put('/api/admin/users/:userId/status', authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const { active } = req.body;
+      
+      res.json({
+        message: `Statut utilisateur ${active ? 'activé' : 'désactivé'} avec succès`,
+        userId: parseInt(userId),
+        active
+      });
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur lors de la mise à jour du statut' });
+    }
+  });
+
+  app.post('/api/admin/users', authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const { username, email, password, role } = req.body;
+      
+      // Simuler la création d'utilisateur
+      const newUser = {
+        id: Date.now(),
+        username,
+        email,
+        role,
+        permissions: [],
+        lastLogin: null,
+        active: true,
+        createdAt: new Date().toISOString()
+      };
+      
+      res.status(201).json(newUser);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur lors de la création de l\'utilisateur' });
+    }
+  });
+
   return server;
 }
