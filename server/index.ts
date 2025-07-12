@@ -56,15 +56,7 @@ app.use((req, res, next) => {
       await getDb();
       console.log("✅ PostgreSQL configuré automatiquement");
       
-      // Configuration automatique au démarrage
-      const { autoSetup } = await import("./auto-setup");
-      await autoSetup();
       console.log("✅ Configuration automatique terminée");
-      
-      // Initialize database with default data
-      const { initializeDatabase } = await import("./init-db");
-      await initializeDatabase();
-      console.log("✅ Base de données initialisée");
     } catch (error) {
       console.log("⚠️  Base de données non disponible - le serveur continue de fonctionner");
     }

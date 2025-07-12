@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import * as schema from '@shared/schema';
-import { ensurePostgresRunning } from './postgres-auto';
+// PostgreSQL configuration removed - using environment variables directly
 
 // Configuration automatique de PostgreSQL
 let pool: Pool;
@@ -10,18 +10,13 @@ let db: ReturnType<typeof drizzle>;
 
 async function initializeDatabase() {
   try {
-    let connectionString: string;
+    const connectionString = process.env.DATABASE_URL;
     
-    // Priorité à la base de données Replit PostgreSQL native
-    if (process.env.DATABASE_URL) {
-      connectionString = process.env.DATABASE_URL;
-      console.log('✅ Utilisation de la base de données PostgreSQL Replit');
-    } else {
-      // Fallback vers le système PostgreSQL automatique
-      const databaseUrl = await ensurePostgresRunning();
-      connectionString = databaseUrl;
-      console.log('✅ Utilisation du système PostgreSQL automatique');
+    if (!connectionString) {
+      throw new Error('DATABASE_URL environment variable is not set');
     }
+    
+    console.log('✅ Utilisation de la base de données PostgreSQL Replit');
     
     pool = new Pool({
       connectionString,
