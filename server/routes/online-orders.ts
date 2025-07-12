@@ -147,7 +147,7 @@ onlineOrdersRouter.delete('/:id', (req, res) => {
   }
   
   onlineOrders.splice(orderIndex, 1);
-  res.status(204).send();
+  return res.status(204).send();
 });
 
 // Helper function to calculate estimated ready time
