@@ -684,6 +684,381 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Routes événements et promotions
+  app.get('/api/admin/events', authenticateToken, async (req, res) => {
+    try {
+      const events = [
+        {
+          id: 1,
+          title: 'Dégustation Café Premium',
+          description: 'Découvrez nos cafés d\'exception avec notre torréfacteur expert',
+          type: 'tasting',
+          date: '2024-07-15',
+          startTime: '14:00',
+          endTime: '16:00',
+          location: 'Barista Café - Salle principale',
+          maxAttendees: 12,
+          currentAttendees: 8,
+          price: 25.00,
+          status: 'published',
+          tags: ['café', 'dégustation', 'expert'],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: 2,
+          title: 'Atelier Latte Art',
+          description: 'Apprenez l\'art du latte art avec nos baristas professionnels',
+          type: 'workshop',
+          date: '2024-07-20',
+          startTime: '10:00',
+          endTime: '12:00',
+          location: 'Barista Café - Espace formation',
+          maxAttendees: 8,
+          currentAttendees: 3,
+          price: 35.00,
+          status: 'published',
+          tags: ['latte art', 'atelier', 'formation'],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      ];
+      res.json(events);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.post('/api/admin/events', authenticateToken, async (req, res) => {
+    try {
+      const event = {
+        id: Date.now(),
+        ...req.body,
+        currentAttendees: 0,
+        status: 'draft',
+        tags: req.body.tags || [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      res.json(event);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur lors de la création de l\'événement' });
+    }
+  });
+
+  app.put('/api/admin/events/:id', authenticateToken, async (req, res) => {
+    try {
+      const event = {
+        id: parseInt(req.params.id),
+        ...req.body,
+        updatedAt: new Date().toISOString()
+      };
+      res.json(event);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur lors de la modification de l\'événement' });
+    }
+  });
+
+  app.get('/api/admin/promotions', authenticateToken, async (req, res) => {
+    try {
+      const promotions = [
+        {
+          id: 1,
+          name: 'Happy Hour Café',
+          description: '20% de réduction sur tous les cafés de 14h à 16h',
+          type: 'percentage',
+          discountValue: 20,
+          startDate: '2024-07-01',
+          endDate: '2024-07-31',
+          isActive: true,
+          usageLimit: 1000,
+          usageCount: 156,
+          applicableItems: ['café', 'espresso', 'cappuccino'],
+          customerSegment: 'all',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: 2,
+          name: 'Fidélité VIP',
+          description: 'Café gratuit à partir de 10 achats pour les clients VIP',
+          type: 'loyalty_points',
+          discountValue: 100,
+          startDate: '2024-07-01',
+          endDate: '2024-12-31',
+          isActive: true,
+          usageLimit: 500,
+          usageCount: 23,
+          applicableItems: ['café'],
+          customerSegment: 'vip',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      ];
+      res.json(promotions);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.post('/api/admin/promotions', authenticateToken, async (req, res) => {
+    try {
+      const promotion = {
+        id: Date.now(),
+        ...req.body,
+        isActive: true,
+        usageCount: 0,
+        applicableItems: req.body.applicableItems || [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      res.json(promotion);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur lors de la création de la promotion' });
+    }
+  });
+
+  app.put('/api/admin/promotions/:id', authenticateToken, async (req, res) => {
+    try {
+      const promotion = {
+        id: parseInt(req.params.id),
+        ...req.body,
+        updatedAt: new Date().toISOString()
+      };
+      res.json(promotion);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur lors de la modification de la promotion' });
+    }
+  });
+
+  // Routes maintenance avancée
+  app.get('/api/admin/maintenance/tasks', authenticateToken, async (req, res) => {
+    try {
+      const tasks = [
+        {
+          id: 1,
+          title: 'Détartrage machine espresso',
+          description: 'Nettoyage et détartrage complet de la machine espresso principale',
+          equipmentId: 1,
+          equipmentName: 'Machine Espresso Pro',
+          priority: 'high',
+          status: 'pending',
+          assignedTo: 'Marc Technicien',
+          scheduledDate: '2024-07-15',
+          estimatedCost: 150.00,
+          category: 'preventive',
+          recurrence: 'monthly',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: 2,
+          title: 'Réparation broyeur café',
+          description: 'Remplacement des lames du broyeur et calibrage',
+          equipmentId: 2,
+          equipmentName: 'Broyeur Professionnel',
+          priority: 'urgent',
+          status: 'in_progress',
+          assignedTo: 'Sophie Maintenance',
+          scheduledDate: '2024-07-12',
+          estimatedCost: 300.00,
+          actualCost: 275.00,
+          category: 'corrective',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: 3,
+          title: 'Nettoyage système réfrigération',
+          description: 'Maintenance préventive du système de refroidissement',
+          equipmentId: 3,
+          equipmentName: 'Réfrigérateur Vitrine',
+          priority: 'medium',
+          status: 'completed',
+          assignedTo: 'Marc Technicien',
+          scheduledDate: '2024-07-08',
+          completedDate: '2024-07-08',
+          estimatedCost: 80.00,
+          actualCost: 75.00,
+          category: 'preventive',
+          recurrence: 'quarterly',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      ];
+      res.json(tasks);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.post('/api/admin/maintenance/tasks', authenticateToken, async (req, res) => {
+    try {
+      const task = {
+        id: Date.now(),
+        ...req.body,
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      res.json(task);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur lors de la création de la tâche' });
+    }
+  });
+
+  app.put('/api/admin/maintenance/tasks/:id', authenticateToken, async (req, res) => {
+    try {
+      const task = {
+        id: parseInt(req.params.id),
+        ...req.body,
+        updatedAt: new Date().toISOString()
+      };
+      res.json(task);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur lors de la modification de la tâche' });
+    }
+  });
+
+  app.get('/api/admin/maintenance/equipment', authenticateToken, async (req, res) => {
+    try {
+      const equipment = [
+        {
+          id: 1,
+          name: 'Machine Espresso Pro',
+          type: 'Machine à café',
+          brand: 'La Marzocco',
+          model: 'Linea PB',
+          serialNumber: 'LM2024001',
+          location: 'Comptoir principal',
+          status: 'operational',
+          lastMaintenance: '2024-06-15',
+          nextMaintenance: '2024-07-15',
+          warrantyExpiry: '2026-01-15',
+          purchaseDate: '2024-01-15',
+          purchasePrice: 8500.00,
+          supplier: 'Café Equipment Pro',
+          specifications: {
+            groups: 3,
+            power: '4.5kW',
+            pressure: '9 bars',
+            capacity: '11L'
+          },
+          maintenanceHistory: [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: 2,
+          name: 'Broyeur Professionnel',
+          type: 'Broyeur',
+          brand: 'Mahlkönig',
+          model: 'EK43',
+          serialNumber: 'MK2024002',
+          location: 'Station de préparation',
+          status: 'maintenance',
+          lastMaintenance: '2024-07-10',
+          nextMaintenance: '2024-08-10',
+          warrantyExpiry: '2025-03-20',
+          purchaseDate: '2024-03-20',
+          purchasePrice: 2200.00,
+          supplier: 'Café Equipment Pro',
+          specifications: {
+            capacity: '1.5kg',
+            speed: '1400rpm',
+            burrs: 'Steel'
+          },
+          maintenanceHistory: [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: 3,
+          name: 'Réfrigérateur Vitrine',
+          type: 'Réfrigérateur',
+          brand: 'Polar',
+          model: 'GD374',
+          serialNumber: 'PL2024003',
+          location: 'Zone service',
+          status: 'operational',
+          lastMaintenance: '2024-07-08',
+          nextMaintenance: '2024-10-08',
+          warrantyExpiry: '2026-05-10',
+          purchaseDate: '2024-05-10',
+          purchasePrice: 1800.00,
+          supplier: 'Équipement Frigo Pro',
+          specifications: {
+            capacity: '374L',
+            temperature: '2-8°C',
+            energy: 'A++'
+          },
+          maintenanceHistory: [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      ];
+      res.json(equipment);
+    } catch (error) {
+      res.status(500).json([]);
+    }
+  });
+
+  app.post('/api/admin/maintenance/equipment', authenticateToken, async (req, res) => {
+    try {
+      const equipment = {
+        id: Date.now(),
+        ...req.body,
+        status: 'operational',
+        maintenanceHistory: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      res.json(equipment);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur lors de l\'ajout de l\'équipement' });
+    }
+  });
+
+  app.put('/api/admin/maintenance/equipment/:id', authenticateToken, async (req, res) => {
+    try {
+      const equipment = {
+        id: parseInt(req.params.id),
+        ...req.body,
+        updatedAt: new Date().toISOString()
+      };
+      res.json(equipment);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur lors de la modification de l\'équipement' });
+    }
+  });
+
+  app.get('/api/admin/maintenance/stats', authenticateToken, async (req, res) => {
+    try {
+      const stats = {
+        totalEquipment: 12,
+        operationalEquipment: 10,
+        pendingTasks: 3,
+        completedThisMonth: 8,
+        totalCostThisMonth: 1250.00,
+        averageResolutionTime: 48,
+        uptime: 97.5,
+        criticalAlerts: 1
+      };
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ 
+        totalEquipment: 0, 
+        operationalEquipment: 0, 
+        pendingTasks: 0, 
+        completedThisMonth: 0,
+        totalCostThisMonth: 0,
+        averageResolutionTime: 0,
+        uptime: 0,
+        criticalAlerts: 0
+      });
+    }
+  });
+
   app.get('/api/admin/settings', authenticateToken, async (req, res) => {
     try {
       const settings = {

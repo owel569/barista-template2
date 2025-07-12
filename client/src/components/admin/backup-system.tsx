@@ -55,13 +55,19 @@ export default function BackupSystem() {
         ]);
         
         // Traiter les données pour s'assurer que les tailles sont des nombres
-        const processedBackups = (backupsData || []).map((backup: any) => ({
+        const processedBackups = Array.isArray(backupsData) ? backupsData.map((backup: any) => ({
           ...backup,
-          size: Number(backup.size) || 0
-        }));
+          size: Number(backup.size) || 0,
+          tables: Array.isArray(backup.tables) ? backup.tables : []
+        })) : [];
         
         setBackups(processedBackups);
-        setSettings(settingsData);
+        setSettings(settingsData || {
+          autoBackupEnabled: true,
+          backupFrequency: 'daily',
+          retentionDays: 30,
+          compressionEnabled: true
+        });
       }
     } catch (error) {
       console.error('Erreur lors du chargement des sauvegardes:', error);

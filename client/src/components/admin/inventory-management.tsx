@@ -69,11 +69,11 @@ export default function InventoryManagement() {
           unitCost: Number(item.unitCost) || 0
         }));
         
-        const processedAlerts = alertsData.map((alert: any) => ({
+        const processedAlerts = Array.isArray(alertsData) ? alertsData.map((alert: any) => ({
           ...alert,
           currentStock: Number(alert.currentStock) || 0,
           minStock: Number(alert.minStock) || 0
-        }));
+        })) : [];
         
         setItems(processedItems);
         setAlerts(processedAlerts);

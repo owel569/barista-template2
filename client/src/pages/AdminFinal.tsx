@@ -33,9 +33,11 @@ import ReportsSystem from '@/components/admin/reports-system';
 import CalendarManagement from '@/components/admin/calendar-management';
 import SuppliersManagement from '@/components/admin/suppliers-management';
 import MaintenanceManagement from '@/components/admin/maintenance-management';
+import AdvancedMaintenance from '@/components/admin/advanced-maintenance';
 import DeliveryTracking from '@/components/admin/delivery-tracking';
 import OnlineOrdering from '@/components/admin/online-ordering';
 import TableManagement from '@/components/admin/table-management';
+import EventsPromotions from '@/components/admin/events-promotions';
 import UserProfile from '@/components/admin/user-profile';
 import AnalyticsDashboard from '@/components/admin/analytics-dashboard';
 import AdvancedPOS from '@/components/admin/advanced-pos';
@@ -270,6 +272,13 @@ export default function AdminFinal() {
       adminOnly: true
     },
     {
+      id: 'advanced-maintenance',
+      name: 'Maintenance Avancée',
+      icon: Wrench,
+      component: AdvancedMaintenance,
+      adminOnly: true
+    },
+    {
       id: 'delivery',
       name: 'Livraisons',
       icon: Truck,
@@ -323,6 +332,12 @@ export default function AdminFinal() {
       name: 'Feedback Clients',
       icon: MessageSquare,
       component: CustomerFeedback
+    },
+    {
+      id: 'events',
+      name: 'Événements & Promotions',
+      icon: Calendar,
+      component: EventsPromotions
     }
   ];
 
