@@ -355,7 +355,14 @@ export const insertReservationSchema = createInsertSchema(reservations).pick({
     return year >= currentYear && year <= 3000;
   }, "Date invalide ou l'année doit être entre maintenant et 3000"),
   time: z.string().regex(/^\d{2}:\d{2}$/, "Format d'heure invalide").refine((time) => {
-    const [hours, minutes] = time.split(':').map(Number);
+    const timeParts = time.split(':');
+    if (timeParts.length !== 2) return false;
+    
+    const hours = Number(timeParts[0]);
+    const minutes = Number(timeParts[1]);
+    
+    if (isNaN(hours) || isNaN(minutes)) return false;
+    
     return hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59;
   }, "Heure invalide (HH:MM, HH: 0-23, MM: 0-59)"),
   guests: z.number().min(1).max(8, "Maximum 8 personnes"),
