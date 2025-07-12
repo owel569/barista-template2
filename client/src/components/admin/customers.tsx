@@ -182,9 +182,16 @@ export default function Customers({ userRole, user }: CustomersProps) {
   };
 
   const deleteCustomer = async (id: number) => {
-    if (isReadOnly) return;
+    if (isReadOnly) {
+      toast({
+        title: "Accès refusé",
+        description: "Vous n'avez pas les permissions pour supprimer des clients",
+        variant: "destructive",
+      });
+      return;
+    }
 
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce client ?')) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce client ? Cette action est irréversible.')) {
       return;
     }
 
@@ -201,12 +208,19 @@ export default function Customers({ userRole, user }: CustomersProps) {
           title: "Succès",
           description: "Client supprimé avec succès",
         });
+      } else {
+        const errorData = await response.json();
+        toast({
+          title: "Erreur",
+          description: errorData.error || "Impossible de supprimer le client",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error('Erreur lors de la suppression:', error);
       toast({
         title: "Erreur",
-        description: "Impossible de supprimer le client",
+        description: "Erreur de connexion lors de la suppression",
         variant: "destructive",
       });
     }

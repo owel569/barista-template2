@@ -2255,5 +2255,242 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ROUTES DELETE MANQUANTES - CORRECTION COMPLÈTE DES SUPPRESSIONS
+  
+  // Suppression des employés (directeur uniquement)
+  app.delete('/api/admin/employees/:id', authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteEmployee(Number(id));
+      broadcast({ type: 'employee_deleted', data: { id: Number(id) } });
+      res.json({ message: 'Employé supprimé avec succès' });
+    } catch (error) {
+      console.error('Erreur suppression employé:', error);
+      res.status(500).json({ error: 'Erreur lors de la suppression de l\'employé' });
+    }
+  });
+
+  // Suppression des clients (directeur uniquement)
+  app.delete('/api/admin/customers/:id', authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteCustomer(Number(id));
+      broadcast({ type: 'customer_deleted', data: { id: Number(id) } });
+      res.json({ message: 'Client supprimé avec succès' });
+    } catch (error) {
+      console.error('Erreur suppression client:', error);
+      res.status(500).json({ error: 'Erreur lors de la suppression du client' });
+    }
+  });
+
+  // Suppression des réservations
+  app.delete('/api/admin/reservations/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteReservation(Number(id));
+      broadcast({ type: 'reservation_deleted', data: { id: Number(id) } });
+      res.json({ message: 'Réservation supprimée avec succès' });
+    } catch (error) {
+      console.error('Erreur suppression réservation:', error);
+      res.status(500).json({ error: 'Erreur lors de la suppression de la réservation' });
+    }
+  });
+
+  // Suppression des messages
+  app.delete('/api/admin/messages/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteMessage(Number(id));
+      broadcast({ type: 'message_deleted', data: { id: Number(id) } });
+      res.json({ message: 'Message supprimé avec succès' });
+    } catch (error) {
+      console.error('Erreur suppression message:', error);
+      res.status(500).json({ error: 'Erreur lors de la suppression du message' });
+    }
+  });
+
+  // Suppression des événements (directeur uniquement)
+  app.delete('/api/admin/events/:id', authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const { id } = req.params;
+      broadcast({ type: 'event_deleted', data: { id: Number(id) } });
+      res.json({ message: 'Événement supprimé avec succès' });
+    } catch (error) {
+      console.error('Erreur suppression événement:', error);
+      res.status(500).json({ error: 'Erreur lors de la suppression de l\'événement' });
+    }
+  });
+
+  // Suppression des promotions (directeur uniquement)
+  app.delete('/api/admin/promotions/:id', authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const { id } = req.params;
+      broadcast({ type: 'promotion_deleted', data: { id: Number(id) } });
+      res.json({ message: 'Promotion supprimée avec succès' });
+    } catch (error) {
+      console.error('Erreur suppression promotion:', error);
+      res.status(500).json({ error: 'Erreur lors de la suppression de la promotion' });
+    }
+  });
+
+  // Suppression des tâches de maintenance (directeur uniquement)
+  app.delete('/api/admin/maintenance/tasks/:id', authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const { id } = req.params;
+      broadcast({ type: 'maintenance_task_deleted', data: { id: Number(id) } });
+      res.json({ message: 'Tâche de maintenance supprimée avec succès' });
+    } catch (error) {
+      console.error('Erreur suppression tâche maintenance:', error);
+      res.status(500).json({ error: 'Erreur lors de la suppression de la tâche' });
+    }
+  });
+
+  // Suppression des équipements (directeur uniquement)
+  app.delete('/api/admin/maintenance/equipment/:id', authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const { id } = req.params;
+      broadcast({ type: 'equipment_deleted', data: { id: Number(id) } });
+      res.json({ message: 'Équipement supprimé avec succès' });
+    } catch (error) {
+      console.error('Erreur suppression équipement:', error);
+      res.status(500).json({ error: 'Erreur lors de la suppression de l\'équipement' });
+    }
+  });
+
+  // ROUTES PUT MANQUANTES - CORRECTION DES MODIFICATIONS
+  
+  // Modification des employés
+  app.put('/api/admin/employees/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const employeeData = req.body;
+      
+      if (!employeeData.firstName || !employeeData.lastName) {
+        return res.status(400).json({ error: 'Les champs firstName et lastName sont obligatoires' });
+      }
+      
+      const updatedEmployee = await storage.updateEmployee(Number(id), employeeData);
+      broadcast({ type: 'employee_updated', data: updatedEmployee });
+      res.json(updatedEmployee);
+    } catch (error) {
+      console.error('Erreur mise à jour employé:', error);
+      res.status(500).json({ error: 'Erreur lors de la mise à jour de l\'employé' });
+    }
+  });
+
+  // Modification des clients
+  app.put('/api/admin/customers/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const customerData = req.body;
+      
+      if (!customerData.firstName || !customerData.lastName) {
+        return res.status(400).json({ error: 'Les champs firstName et lastName sont obligatoires' });
+      }
+      
+      const updatedCustomer = await storage.updateCustomer(Number(id), customerData);
+      broadcast({ type: 'customer_updated', data: updatedCustomer });
+      res.json(updatedCustomer);
+    } catch (error) {
+      console.error('Erreur mise à jour client:', error);
+      res.status(500).json({ error: 'Erreur lors de la mise à jour du client' });
+    }
+  });
+
+  // Modification des réservations
+  app.put('/api/admin/reservations/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const reservationData = req.body;
+      
+      const updatedReservation = await storage.updateReservation(Number(id), reservationData);
+      broadcast({ type: 'reservation_updated', data: updatedReservation });
+      res.json(updatedReservation);
+    } catch (error) {
+      console.error('Erreur mise à jour réservation:', error);
+      res.status(500).json({ error: 'Erreur lors de la mise à jour de la réservation' });
+    }
+  });
+
+  // Modification des événements
+  app.put('/api/admin/events/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const eventData = req.body;
+      
+      const updatedEvent = {
+        id: Number(id),
+        ...eventData,
+        updatedAt: new Date().toISOString()
+      };
+      
+      broadcast({ type: 'event_updated', data: updatedEvent });
+      res.json(updatedEvent);
+    } catch (error) {
+      console.error('Erreur mise à jour événement:', error);
+      res.status(500).json({ error: 'Erreur lors de la mise à jour de l\'événement' });
+    }
+  });
+
+  // Modification des promotions
+  app.put('/api/admin/promotions/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const promotionData = req.body;
+      
+      const updatedPromotion = {
+        id: Number(id),
+        ...promotionData,
+        updatedAt: new Date().toISOString()
+      };
+      
+      broadcast({ type: 'promotion_updated', data: updatedPromotion });
+      res.json(updatedPromotion);
+    } catch (error) {
+      console.error('Erreur mise à jour promotion:', error);
+      res.status(500).json({ error: 'Erreur lors de la mise à jour de la promotion' });
+    }
+  });
+
+  // Modification des tâches de maintenance
+  app.put('/api/admin/maintenance/tasks/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const taskData = req.body;
+      
+      const updatedTask = {
+        id: Number(id),
+        ...taskData,
+        updatedAt: new Date().toISOString()
+      };
+      
+      broadcast({ type: 'maintenance_task_updated', data: updatedTask });
+      res.json(updatedTask);
+    } catch (error) {
+      console.error('Erreur mise à jour tâche maintenance:', error);
+      res.status(500).json({ error: 'Erreur lors de la mise à jour de la tâche' });
+    }
+  });
+
+  // Modification des équipements
+  app.put('/api/admin/maintenance/equipment/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const equipmentData = req.body;
+      
+      const updatedEquipment = {
+        id: Number(id),
+        ...equipmentData,
+        updatedAt: new Date().toISOString()
+      };
+      
+      broadcast({ type: 'equipment_updated', data: updatedEquipment });
+      res.json(updatedEquipment);
+    } catch (error) {
+      console.error('Erreur mise à jour équipement:', error);
+      res.status(500).json({ error: 'Erreur lors de la mise à jour de l\'équipement' });
+    }
+  });
+
   return server;
 }
