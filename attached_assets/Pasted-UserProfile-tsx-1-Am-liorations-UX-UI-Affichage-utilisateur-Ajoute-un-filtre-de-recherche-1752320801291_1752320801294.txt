@@ -1,0 +1,55 @@
+UserProfile.tsx :
+
+✅ 1. Améliorations UX/UI
+🪄 Affichage utilisateur :
+Ajoute un filtre de recherche (champ texte en haut pour filtrer par prénom/nom/email).
+
+Ajoute une pagination ou un scroll infini si la liste dépasse 12 utilisateurs.
+
+Trie les utilisateurs par joinDate ou points pour mettre en avant les plus récents/fidèles.
+
+🎯 Vue Profil :
+Regroupe les informations dans des sections repliables (Accordion) pour une navigation fluide sur mobile.
+
+Affiche l’âge du client calculé à partir de birthDate.
+
+Affiche le statut actif/inactif ou la dernière activité.
+
+✅ 2. Accessibilité et internationalisation
+Ajoute des aria-label sur les boutons (Edit, Delete, Ajouter) pour l’accessibilité.
+
+Utilise un système i18n (comme react-i18next) pour permettre une interface multilingue (fr/en/ar).
+
+✅ 3. Code & logique métier
+🔁 Réutilisabilité :
+Sépare chaque TabsContent dans des composants dédiés (UserProfileForm.tsx, UserLoyalty.tsx, UserOrders.tsx, etc.).
+
+Extrais le formulaire d’adresse dans un composant réutilisable AddressForm.
+
+🧠 Performance :
+Utilise useMemo() pour les badges couleur, orderHistory, etc.
+
+selectedUser pourrait être stocké dans un useRef() si ce n’est pas censé re-rendre l’UI.
+
+🧪 Validation :
+Améliore le schéma Zod pour birthDate (date valide) et phone (regex Maroc + internationaux).
+
+ts
+Copier
+Modifier
+phone: z.string().regex(/^\+?\d{8,15}$/, "Numéro de téléphone invalide")
+✅ 4. Sécurité et logique d’édition
+✅ Confirmation avant suppression d’adresse (onClick de Trash2).
+
+⛔️ Empêche les actions si isLoading || isFetching.
+
+🔐 Vérifie les permissions côté API (seulement admin/directeur peuvent éditer).
+
+✅ 5. Fonctionnalités avancées à envisager
+Fonction	Idée d'implémentation
+🏷️ Badges de fidélité	Change dynamiquement le badge (Gold, VIP) selon points.
+📲 QR code utilisateur	Génère un QR Code pour le compte client (via qrcode.react).
+📉 Export PDF/CSV	Ajoute bouton d’export du profil + historique de commandes.
+🧾 Reçu imprimable	Permet l'impression des commandes (via react-to-print).
+🔔 Système de rappel	Ajoute un toggle "Notifier l'utilisateur quand son niveau change".
+🎁 Récompenses	Propose des récompenses ou coupons automatiques par niveau.

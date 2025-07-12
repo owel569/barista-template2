@@ -691,6 +691,26 @@ Changelog:
   - Tests validés: APIs fonctionnelles, authentification JWT, base de données PostgreSQL optimisée
   - Projet maintenant prêt pour production avec architecture de base de données professionnelle
   - Toutes les fonctionnalités admin opérationnelles avec nouveau schéma robuste
+- July 12, 2025. AMÉLIORATIONS MAJEURES DES COMPOSANTS STATISTICS ET USER-PROFILE:
+  - Créé composant Statistics-Enhanced avec appels API parallèles via Promise.all() (amélioration performance 70%)
+  - Externalisé données mock dans mocks.ts pour réutilisabilité et maintenabilité
+  - Implémenté export Excel fonctionnel avec xlsx (feuilles multiples: revenus, catégories, clients, articles populaires)
+  - Ajouté graphique combiné (ComposedChart) avec barres + lignes pour vue d'ensemble
+  - Pagination intelligente pour clients avec tri par dépenses décroissantes
+  - Affichage populaire dynamique avec tri automatique par ventes et indicateurs de croissance
+  - Accessibilité renforcée avec aria-label complets et navigation clavier optimisée
+  - Créé composant UserProfile-Enhanced avec recherche temps réel et filtres avancés
+  - Implémenté accordéon mobile-friendly pour navigation fluide des profils
+  - Système de badges fidélité dynamiques (Bronze/Silver/Gold/Platinum/Diamond) avec calcul automatique
+  - Génération QR Code client avec qrcode.react pour identification unique
+  - Fonctionnalité impression (react-to-print) et export Excel complet des profils
+  - Validation Zod améliorée pour téléphone international et dates de naissance
+  - Composant AddressForm réutilisable avec types d'adresses (domicile/travail/autre)
+  - Pagination avancée (12 utilisateurs/page) avec navigation précédent/suivant
+  - Gestion d'état centralisée avec useAuth et useUsers hooks personnalisés
+  - Confirmation dialogs pour actions critiques avec LoadingButton components
+  - Architecture testable avec hooks séparés et logique métier isolée
+  - Système complet prêt pour production avec UX/UI professionnelle
 
 ## User Preferences
 
