@@ -416,29 +416,29 @@ export const insertOrderItemSchema = createInsertSchema(orderItems).pick({
   price: z.coerce.number().min(0.01, "Le prix doit être supérieur à 0").max(999.99, "Prix maximum : 999,99€"),
 });
 
-export const insertCustomerSchema = createInsertSchema(customers).pick({
-  firstName: true,
-  lastName: true,
-  email: true,
-  phone: true,
-  address: true,
-  dateOfBirth: true,
-  preferredContactMethod: true,
+export const insertWorkShiftSchema = createInsertSchema(workShifts).pick({
+  employeeId: true,
+  date: true,
+  startTime: true,
+  endTime: true,
+  position: true,
+  status: true,
   notes: true,
 }).extend({
-  email: z.string().email("Email invalide"),
-  firstName: z.string().min(2, "Prénom requis"),
-  lastName: z.string().min(2, "Nom requis"),
-  phone: z.string().min(8, "Téléphone requis (minimum 8 chiffres)").optional(),
-  address: z.string().optional(),
-  dateOfBirth: z.string().optional().refine((date) => {
-    if (!date || date === "") return true;
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
-    const year = parseInt(date.split('-')[0]);
-    return year >= 1900 && year <= 3000;
-  }, "L'année doit être entre 1900 et 3000"),
-  preferredContactMethod: z.enum(["email", "phone", "sms"]).default("email"),
-  notes: z.string().optional(),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Format de date invalide").refine((date) => {
+    if (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return false;
+    }
+    const dateParts = date.split('-');
+    if (dateParts.length !== 3 || !dateParts[0]) {
+      return false;
+    }
+    const year = parseInt(dateParts[0]);
+    const currentYear = new Date().getFullYear();
+    return year >= currentYear && year <= 3000;
+  }, "Format de date invalide ou l'année doit être entre maintenant et 3000"),
+  startTime: z.string().regex(/^\d{2}:\d{2}$/, "Format d'heure invalide"),
+  endTime: z.string().regex(/^\d{2}:\d{2}$/, "Format d'heure invalide"),
 });
 
 export const insertEmployeeSchema = createInsertSchema(employees).pick({
