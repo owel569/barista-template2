@@ -483,10 +483,17 @@ export const insertWorkShiftSchema = createInsertSchema(workShifts).pick({
   notes: true,
 }).extend({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Format de date invalide").refine((date) => {
-    const year = parseInt(date.split('-')[0]);
+    if (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return false;
+    }
+    const dateParts = date.split('-');
+    if (dateParts.length !== 3 || !dateParts[0]) {
+      return false;
+    }
+    const year = parseInt(dateParts[0]);
     const currentYear = new Date().getFullYear();
     return year >= currentYear && year <= 3000;
-  }, "L'année doit être entre maintenant et 3000"),
+  }, "Format de date invalide ou l'année doit être entre maintenant et 3000"),
   startTime: z.string().regex(/^\d{2}:\d{2}$/, "Format d'heure invalide"),
   endTime: z.string().regex(/^\d{2}:\d{2}$/, "Format d'heure invalide"),
 });
