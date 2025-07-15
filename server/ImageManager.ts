@@ -49,7 +49,7 @@ export class ImageManager {
     async addImage(imageData: InsertMenuItemImage): Promise<MenuItemImage> {
         const db = await this.db;
 
-        // Récupérer le nom du menu item pour l'altText automatique si manquant
+        // Générer un altText automatique si manquant
         let altText = imageData.altText;
         if (!altText) {
             const menuItem = await db
@@ -57,10 +57,8 @@ export class ImageManager {
                 .from(menuItems)
                 .where(eq(menuItems.id, imageData.menuItemId))
                 .limit(1);
-            
-            if (menuItem.length > 0) {
-                altText = `Image de ${menuItem[0].name}`;
-            }
+
+            altText = menuItem.length > 0 ? `Image de ${menuItem[0].name}` : 'Image de menu';
         }
 
         // Si c'est une image principale, désactiver les autres images principales
@@ -76,7 +74,8 @@ export class ImageManager {
             .values({
                 ...imageData,
                 altText,
-                isPrimary: imageData.isPrimary ?? true
+                isPrimary: imageData.isPrimary ?? true,
+                uploadMethod: imageData.uploadMethod ?? 'url'
             })
             .returning();
 
@@ -144,14 +143,14 @@ export class ImageManager {
      */
     async getOptimalImage(menuItemId: number, categorySlug?: string): Promise<{ url: string; alt: string }> {
         const db = await this.db;
-        
+
         // Récupérer les informations du menu item pour le fallback altText
         const menuItem = await db
             .select()
             .from(menuItems)
             .where(eq(menuItems.id, menuItemId))
             .limit(1);
-            
+
         const menuItemName = menuItem.length > 0 ? menuItem[0].name : 'Élément de menu';
 
         // 1. Essayer d'abord l'image principale de la base de données
@@ -204,7 +203,7 @@ export class ImageManager {
                         isPrimary: true,
                         uploadMethod: 'pexels'
                     });
-                    
+
                     migratedCount++;
                     console.log(`✅ Image migrée pour: ${menuItem.name}`);
                 } else if (existingImage) {

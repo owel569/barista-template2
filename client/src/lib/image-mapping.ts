@@ -89,3 +89,18 @@ export function validateImageUrl(url: string): Promise<boolean> {
     img.src = url;
   });
 }
+
+// Alias pour compatibilité avec l'ancien code
+export function getImageUrlByName(itemName: string, categoryName?: string): string {
+  return getItemImageUrl(itemName, categoryName);
+}
+
+// Constantes pour les images par défaut des catégories
+export const DEFAULT_CATEGORY_IMAGES: Record<string, string> = {
+  'cafe': imageMapping['cafe'],
+  'boisson': imageMapping['cafe'],
+  'patisserie': imageMapping['pastry'],
+  'plat': imageMapping['food'],
+  'dessert': imageMapping['pastry'],
+  'default': imageMapping['default']
+};
