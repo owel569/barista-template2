@@ -1,7 +1,8 @@
+// Import du mapping depuis JSON pour édition facile
+import imageMappingData from './image-mapping.json';
+
 // Mapping principal des images avec clés normalisées
-export const IMAGE_MAPPING: Record<string, string> = {
-  // Cafés - URLs directes Pexels HD
-  "espresso classique": "https://images.pexels.com/photos/28538132/pexels-photo-28538132.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
+export const IMAGE_MAPPING: Record<string, string> = imageMappingData.images;
   "latte art": "https://images.pexels.com/photos/433145/pexels-photo-433145.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "cappuccino premium": "https://images.pexels.com/photos/162947/pexels-photo-162947.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "cappuccino": "https://images.pexels.com/photos/162947/pexels-photo-162947.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
@@ -35,9 +36,8 @@ export const IMAGE_MAPPING: Record<string, string> = {
   "quiche lorraine": "https://images.pexels.com/photos/1267320/pexels-photo-1267320.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop"
 };
 
-// Images par défaut par catégorie si aucune image spécifique n'est trouvée
-export const DEFAULT_CATEGORY_IMAGES: Record<string, string> = {
-  "cafes": "https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
+// Images par défaut par catégorie depuis JSON
+export const DEFAULT_CATEGORY_IMAGES: Record<string, string> = imageMappingData.categories;
   "thes": "https://images.pexels.com/photos/1638280/pexels-photo-1638280.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "boissons": "https://images.pexels.com/photos/1638280/pexels-photo-1638280.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "patisseries": "https://images.pexels.com/photos/2067396/pexels-photo-2067396.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
