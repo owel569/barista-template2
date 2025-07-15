@@ -20,7 +20,11 @@ async function initializeDatabase() {
     
     pool = new Pool({
       connectionString,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      host: 'localhost',
+      port: 5432,
+      database: 'barista_cafe',
+      user: 'runner'
     });
 
     db = drizzle(pool, { schema });
