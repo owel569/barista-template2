@@ -220,16 +220,29 @@ export class DatabaseStorage implements IStorage {
   // Menu Items
   async getMenuItems(): Promise<MenuItem[]> {
     try {
-      const result = await db.select().from(menuItems).orderBy(asc(menuItems.name));
+      const result = await db.select({
+        id: menuItems.id,
+        name: menuItems.name,
+        description: menuItems.description,
+        price: menuItems.price,
+        categoryId: menuItems.categoryId,
+        imageUrl: menuItems.imageUrl,
+        available: menuItems.available,
+        createdAt: menuItems.createdAt,
+        category: menuCategories.slug
+      }).from(menuItems)
+      .leftJoin(menuCategories, eq(menuItems.categoryId, menuCategories.id))
+      .orderBy(asc(menuItems.name));
+      
       return result;
     } catch (error) {
       console.error('Erreur getMenuItems:', error);
       // Retourner des données par défaut si la BD n'est pas disponible
       return [
-        { id: 1, name: 'Espresso', description: 'Café court et corsé', price: '2.50', categoryId: 1, available: true, imageUrl: 'https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg' },
-        { id: 2, name: 'Cappuccino', description: 'Café avec mousse de lait', price: '3.50', categoryId: 1, available: true, imageUrl: 'https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg' },
-        { id: 3, name: 'Thé Vert', description: 'Thé vert premium', price: '2.00', categoryId: 2, available: true, imageUrl: 'https://images.pexels.com/photos/1638280/pexels-photo-1638280.jpeg' },
-        { id: 4, name: 'Croissant', description: 'Croissant frais au beurre', price: '2.80', categoryId: 3, available: true, imageUrl: 'https://images.pexels.com/photos/209540/pexels-photo-209540.jpeg' }
+        { id: 1, name: 'Espresso Classique', description: 'Café court et corsé', price: '2.50', categoryId: 1, available: true, imageUrl: null, category: 'cafes' },
+        { id: 2, name: 'Cappuccino Premium', description: 'Café avec mousse de lait', price: '3.50', categoryId: 1, available: true, imageUrl: null, category: 'cafes' },
+        { id: 3, name: 'Thé Vert Premium', description: 'Thé vert premium', price: '2.00', categoryId: 2, available: true, imageUrl: null, category: 'thes' },
+        { id: 4, name: 'Croissants Artisanaux', description: 'Croissant frais au beurre', price: '2.80', categoryId: 3, available: true, imageUrl: null, category: 'patisseries' }
       ];
     }
   }

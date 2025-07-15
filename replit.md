@@ -111,3 +111,16 @@ Preferred communication style: Simple, everyday language.
 - **Performance**: Optimisations React Query et lazy loading
 
 Le système est conçu pour être facilement extensible avec des modules additionnels comme la gestion des stocks, les promotions, et l'analyse avancée.
+
+## Recent Changes: Latest modifications with dates
+
+### 2025-07-15: Migration vers Replit
+✓ Migration complète de Replit Agent vers Replit environnement
+✓ Configuration PostgreSQL automatique avec variables d'environnement
+✓ Génération et application des migrations de base de données
+✓ Résolution des problèmes d'images - système IMAGE_MAPPING intégré
+✓ Correction des noms d'éléments de menu pour correspondre au mapping existant
+✓ Ajout de la propriété category dans l'API pour améliorer l'affichage des images
+✓ Création des données de test initiales (admin, menu, tables, catégories)
+✓ Vérification du fonctionnement complet des API endpoints
+✓ Application fonctionnelle sur port 5000 avec système d'images opérationnel
