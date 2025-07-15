@@ -92,15 +92,16 @@ export function validateImageUrl(url: string): Promise<boolean> {
 
 // Alias pour compatibilité avec l'ancien code
 export function getImageUrlByName(itemName: string, categoryName?: string): string {
-  return getItemImageUrl(itemName, categoryName);
+  const result = getItemImageUrl(itemName, categoryName);
+  return result || imageMapping['default'] || '/api/images/default-item.jpg';
 }
 
 // Constantes pour les images par défaut des catégories
 export const DEFAULT_CATEGORY_IMAGES: Record<string, string> = {
-  'cafe': imageMapping['cafe'] ?? '/api/images/coffee-default.jpg',
-  'boisson': imageMapping['cafe'] ?? '/api/images/coffee-default.jpg',
-  'patisserie': imageMapping['pastry'] ?? '/api/images/pastry-default.jpg',
-  'plat': imageMapping['food'] ?? '/api/images/food-default.jpg',
-  'dessert': imageMapping['pastry'] ?? '/api/images/pastry-default.jpg',
-  'default': imageMapping['default'] ?? '/api/images/default-item.jpg'
+  'cafe': imageMapping['cafe'] || '/api/images/coffee-default.jpg',
+  'boisson': imageMapping['cafe'] || '/api/images/coffee-default.jpg',
+  'patisserie': imageMapping['pastry'] || '/api/images/pastry-default.jpg',
+  'plat': imageMapping['food'] || '/api/images/food-default.jpg',
+  'dessert': imageMapping['pastry'] || '/api/images/pastry-default.jpg',
+  'default': imageMapping['default'] || '/api/images/default-item.jpg'
 };

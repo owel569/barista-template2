@@ -57,11 +57,10 @@ export class ImageManager {
                 .from(menuItems)
                 .where(eq(menuItems.id, imageData.menuItemId))
                 .limit(1);
-
-            altText = menuItem.length > 0 ? `Image de ${menuItem[0].name}` : 'Image de menu';
+            altText = menuItem.length > 0 ? `Image de ${menuItem[0].name}` : 'Image du menu';
         }
 
-        // Si c'est une image principale, désactiver les autres images principales
+        // Si cette image doit être principale, désactiver les autres
         if (imageData.isPrimary) {
             await db
                 .update(menuItemImages)
@@ -69,21 +68,16 @@ export class ImageManager {
                 .where(eq(menuItemImages.menuItemId, imageData.menuItemId));
         }
 
-        const result = await db
+        const [newImage] = await db
             .insert(menuItemImages)
             .values({
                 ...imageData,
                 altText,
-                isPrimary: imageData.isPrimary ?? true,
-                uploadMethod: imageData.uploadMethod ?? 'url'
+                uploadMethod: imageData.uploadMethod || 'url'
             })
             .returning();
 
-        if (result.length === 0) {
-            throw new Error('Échec de l\'ajout de l\'image');
-        }
-
-        return result[0];
+        return newImage;
     }
 
     /**

@@ -265,7 +265,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Créer un utilisateur admin par défaut
       try {
-        const bcrypt = require('bcrypt');
+        const bcrypt = await import('bcrypt');
         const hashedPassword = await bcrypt.hash('admin123', 10);
         const adminUser = {
           username: 'admin',
