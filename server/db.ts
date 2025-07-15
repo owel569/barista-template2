@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
+import { sql } from 'drizzle-orm';
 import * as schema from '@shared/schema';
 // PostgreSQL configuration removed - using environment variables directly
 

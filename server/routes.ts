@@ -62,10 +62,6 @@ const requireRole = (role: string) => {
 export async function registerRoutes(app: Express): Promise<Server> {
   const server = createServer(app);
   
-  // Middleware de gestion d'erreurs
-  app.use(errorHandler);
-  app.use(notFoundHandler);
-  
   // Configuration WebSocket
   const wss = new WebSocketServer({ 
     server,
@@ -2065,6 +2061,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Erreur lors de la création de l\'utilisateur' });
     }
   });
+
+  // Middleware de gestion d'erreurs - DOIT être à la fin
+  // Note: notFoundHandler will be handled by Vite middleware for non-API routes
+  app.use(errorHandler);
 
   return server;
 }
