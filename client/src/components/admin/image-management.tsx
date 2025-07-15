@@ -14,7 +14,7 @@ interface MenuItemImage {
   id: number;
   menuItemId: number;
   imageUrl: string;
-  altText?: string;
+  altText?: string | null;
   isPrimary: boolean;
   uploadMethod: 'url' | 'upload' | 'generated';
   createdAt: string;

@@ -244,10 +244,18 @@ export const menuCategoriesRelations = relations(menuCategories, ({ many }) => (
   menuItems: many(menuItems),
 }));
 
-export const menuItemsRelations = relations(menuItems, ({ one }) => ({
+export const menuItemsRelations = relations(menuItems, ({ one, many }) => ({
   category: one(menuCategories, {
     fields: [menuItems.categoryId],
     references: [menuCategories.id],
+  }),
+  images: many(menuItemImages),
+}));
+
+export const menuItemImagesRelations = relations(menuItemImages, ({ one }) => ({
+  menuItem: one(menuItems, {
+    fields: [menuItemImages.menuItemId],
+    references: [menuItems.id],
   }),
 }));
 
@@ -582,3 +590,5 @@ export type ActivityLog = typeof activityLogs.$inferSelect;
 export type InsertActivityLog = z.infer<typeof insertActivityLogSchema>;
 export type Permission = typeof permissions.$inferSelect;
 export type InsertPermission = z.infer<typeof insertPermissionSchema>;
+export type MenuItemImage = typeof menuItemImages.$inferSelect;
+export type InsertMenuItemImage = typeof menuItemImages.$inferInsert;

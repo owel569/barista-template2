@@ -7,7 +7,7 @@ export interface MenuItemImage {
   id: number;
   menuItemId: number;
   imageUrl: string;
-  altText?: string;
+  altText?: string | null;
   isPrimary: boolean;
   uploadMethod: 'url' | 'upload' | 'generated';
   createdAt: Date;
@@ -17,7 +17,7 @@ export interface MenuItemImage {
 export interface InsertMenuItemImage {
   menuItemId: number;
   imageUrl: string;
-  altText?: string;
+  altText?: string | null;
   isPrimary?: boolean;
   uploadMethod?: 'url' | 'upload' | 'generated';
 }
