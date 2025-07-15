@@ -660,27 +660,23 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
     return newCustomer;
   }
 
-  async updateCustomer(id: number, customer: Partial<InsertCustomer>): Promise<Customer | undefined> {
+  async updateCustomer(id: number, customer: Partial<InsertCustomer>): Promise<Customer> {
     const [updatedCustomer] = await db
       .update(customers)
       .set({ ...customer, updatedAt: new Date() })
       .where(eq(customers.id, id))
       .returning();
-    return updatedCustomer || undefined;
+    
+    if (!updatedCustomer) {
+      throw new Error(`Customer with id ${id} not found`);
+    }
+    
+    return updatedCustomer;
   }
 
   async deleteCustomer(id: number): Promise<boolean> {
     const result = await db.delete(customers).where(eq(customers.id, id));
     return (result.rowCount ?? 0) > 0;
-  }
-
-  async updateCustomer(id: number, customerData: Partial<InsertCustomer>): Promise<Customer> {
-    const [updated] = await db
-      .update(customers)
-      .set({ ...customerData, updatedAt: new Date() })
-      .where(eq(customers.id, id))
-      .returning();
-    return updated;
   }
 
   // Employees
@@ -703,27 +699,23 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
     return newEmployee;
   }
 
-  async updateEmployee(id: number, employee: Partial<InsertEmployee>): Promise<Employee | undefined> {
+  async updateEmployee(id: number, employee: Partial<InsertEmployee>): Promise<Employee> {
     const [updatedEmployee] = await db
       .update(employees)
       .set({ ...employee, updatedAt: new Date() })
       .where(eq(employees.id, id))
       .returning();
-    return updatedEmployee || undefined;
+    
+    if (!updatedEmployee) {
+      throw new Error(`Employee with id ${id} not found`);
+    }
+    
+    return updatedEmployee;
   }
 
   async deleteEmployee(id: number): Promise<boolean> {
     const result = await db.delete(employees).where(eq(employees.id, id));
     return (result.rowCount ?? 0) > 0;
-  }
-
-  async updateEmployee(id: number, employeeData: Partial<InsertEmployee>): Promise<Employee> {
-    const [updated] = await db
-      .update(employees)
-      .set({ ...employeeData, updatedAt: new Date() })
-      .where(eq(employees.id, id))
-      .returning();
-    return updated;
   }
 
   // Work Shifts
@@ -897,18 +889,6 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
       .where(eq(orders.id, id))
       .returning();
     return updated;
-  }
-
-  async deleteOrder(id: number): Promise<void> {
-    await db.delete(orders).where(eq(orders.id, id));
-  }
-
-  async createOrder(orderData: InsertOrder): Promise<Order> {
-    const [created] = await db
-      .insert(orders)
-      .values(orderData)
-      .returning();
-    return created;
   }
 
   async updateTable(id: number, tableData: Partial<InsertTable>): Promise<Table> {
