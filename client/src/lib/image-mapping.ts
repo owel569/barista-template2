@@ -1,8 +1,5 @@
-// Import du mapping depuis JSON pour édition facile
-import imageMappingData from './image-mapping.json';
-
 // Mapping principal des images avec clés normalisées
-export const IMAGE_MAPPING: Record<string, string> = imageMappingData.images;
+export const IMAGE_MAPPING: Record<string, string> = {
   "latte art": "https://images.pexels.com/photos/433145/pexels-photo-433145.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "cappuccino premium": "https://images.pexels.com/photos/162947/pexels-photo-162947.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "cappuccino": "https://images.pexels.com/photos/162947/pexels-photo-162947.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
@@ -36,8 +33,8 @@ export const IMAGE_MAPPING: Record<string, string> = imageMappingData.images;
   "quiche lorraine": "https://images.pexels.com/photos/1267320/pexels-photo-1267320.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop"
 };
 
-// Images par défaut par catégorie depuis JSON
-export const DEFAULT_CATEGORY_IMAGES: Record<string, string> = imageMappingData.categories;
+// Images par défaut par catégorie
+export const DEFAULT_CATEGORY_IMAGES: Record<string, string> = {
   "thes": "https://images.pexels.com/photos/1638280/pexels-photo-1638280.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "boissons": "https://images.pexels.com/photos/1638280/pexels-photo-1638280.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "patisseries": "https://images.pexels.com/photos/2067396/pexels-photo-2067396.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
@@ -182,10 +179,7 @@ export function getImageMappingStats(): {
   };
 }
 
-// Fonction alias pour compatibilité
-export const getImageUrlByName = (itemName: string): string => {
-  return getItemImageUrl(itemName);
-};
+
 
 // Statistiques du mapping (pour debug/admin)
 export const getMappingStats = () => {

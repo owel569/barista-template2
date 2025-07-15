@@ -1,39 +1,28 @@
 import 'dotenv/config';
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/better-sqlite3';
+import Database from 'better-sqlite3';
 import { sql } from 'drizzle-orm';
 import * as schema from '@shared/schema';
-// PostgreSQL configuration removed - using environment variables directly
 
-// Configuration automatique de PostgreSQL
-let pool: Pool;
+// Configuration automatique de SQLite
+let sqlite: Database.Database;
 let db: ReturnType<typeof drizzle>;
 
 async function initializeDatabase() {
   try {
-    const connectionString = process.env.DATABASE_URL;
+    const databasePath = process.env.DATABASE_URL?.replace('file:', '') || './barista_cafe.db';
+    
+    console.log('✅ Utilisation de la base de données SQLite pour le développement');
 
-    if (!connectionString) {
-      throw new Error('DATABASE_URL environment variable is not set');
-    }
+    sqlite = new Database(databasePath);
+    sqlite.pragma('journal_mode = WAL'); // Enable WAL mode for better performance
+    sqlite.pragma('synchronous = normal'); // Balanced performance/safety
+    sqlite.pragma('cache_size = 1000'); // Increase cache size
+    sqlite.pragma('temp_store = memory'); // Use memory for temp tables
+    sqlite.pragma('foreign_keys = ON'); // Enable foreign key constraints
 
-    console.log('✅ Utilisation de la base de données PostgreSQL Replit');
-
-    pool = new Pool({
-      connectionString,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-      max: 10,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 10000,
-      allowExitOnIdle: false,
-      keepAlive: true,
-      keepAliveInitialDelayMillis: 10000,
-      statement_timeout: 30000,
-      query_timeout: 30000
-    });
-
-    db = drizzle(pool, { schema });
-    console.log('✅ Base de données connectée:', connectionString.replace(/\/\/.*@/, '//***@'));
+    db = drizzle(sqlite, { schema });
+    console.log('✅ Base de données SQLite connectée:', databasePath);
     return db;
   } catch (error) {
     console.error('❌ Erreur de connexion à la base de données:', error);
