@@ -51,6 +51,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { usePermissions } from '@/hooks/usePermissions';
 import { getImageUrlByName } from '@/lib/image-mapping';
+import { ImageManagement } from './image-management';
 
 const menuItemSchema = z.object({
   name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
@@ -75,6 +76,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [uploading, setUploading] = useState(false);
+  const [imageManagementItem, setImageManagementItem] = useState<MenuItem | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
@@ -285,6 +287,10 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
     if (confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) {
       deleteMutation.mutate(id);
     }
+  };
+
+  const handleImageManagement = (item: MenuItem) => {
+    setImageManagementItem(item);
   };
 
   const openNewDialog = () => {
@@ -615,6 +621,14 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleImageManagement(item)}
+                          className="text-blue-600 hover:text-blue-700"
+                        >
+                          <Image className="h-4 w-4" />
+                        </Button>
                         {canDelete && (
                           <Button
                             size="sm"
@@ -641,6 +655,14 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
           </Table>
         </CardContent>
       </Card>
+
+      {/* Modal de gestion d'images */}
+      {imageManagementItem && (
+        <ImageManagement
+          menuItem={imageManagementItem}
+          onClose={() => setImageManagementItem(null)}
+        />
+      )}
     </div>
   );
 }
