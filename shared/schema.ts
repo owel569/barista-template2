@@ -14,6 +14,7 @@ export const contactMethodEnum = pgEnum('contact_method', ['email', 'phone', 'sm
 export const messageStatusEnum = pgEnum('message_status', ['new', 'read', 'replied']);
 export const positionEnum = pgEnum('position', ['manager', 'server', 'chef', 'barista', 'cashier']);
 export const departmentEnum = pgEnum('department', ['kitchen', 'service', 'management']);
+export const uploadMethodEnum = pgEnum('upload_method', ['url', 'upload', 'generated', 'pexels']);
 
 // Users table for admin authentication with enhanced roles
 export const users = pgTable("users", {
@@ -87,7 +88,7 @@ export const menuItemImages = pgTable("menu_item_images", {
   imageUrl: text("image_url").notNull(),
   altText: text("alt_text"),
   isPrimary: boolean("is_primary").notNull().default(true),
-  uploadMethod: varchar("upload_method", { length: 20 }).notNull().default("url"), // 'url', 'upload', 'generated'
+  uploadMethod: uploadMethodEnum("upload_method").notNull().default("url"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => ({
