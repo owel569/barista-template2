@@ -37,7 +37,7 @@ export const imageMapping: Record<string, string> = {
 
 export function getItemImageUrl(itemName: string, categoryName?: string, customImageUrl?: string): string {
   // Si une URL personnalisée est fournie, l'utiliser en priorité
-  if (customImageUrl) {
+  if (customImageUrl && customImageUrl.trim()) {
     return customImageUrl;
   }
   
@@ -55,29 +55,29 @@ export function getItemImageUrl(itemName: string, categoryName?: string, customI
   if (categoryName) {
     const normalizedCategory = categoryName.toLowerCase();
     if (normalizedCategory.includes('café') || normalizedCategory.includes('boisson')) {
-      return imageMapping['cafe'];
+      return imageMapping['cafe'] || imageMapping['default'];
     }
     if (normalizedCategory.includes('pâtisserie')) {
-      return imageMapping['pastry'];
+      return imageMapping['pastry'] || imageMapping['default'];
     }
     if (normalizedCategory.includes('plat')) {
-      return imageMapping['food'];
+      return imageMapping['food'] || imageMapping['default'];
     }
   }
   
   // Image par défaut
-  return imageMapping['default'];
+  return imageMapping['default'] || '/api/images/default-item.jpg';
 }
 
 export function getCategoryImageUrl(categoryName: string): string {
   const normalized = categoryName.toLowerCase();
   
-  if (normalized.includes('café')) return imageMapping['cafe'];
-  if (normalized.includes('boisson')) return imageMapping['cafe'];
-  if (normalized.includes('pâtisserie')) return imageMapping['pastry'];
-  if (normalized.includes('plat')) return imageMapping['food'];
+  if (normalized.includes('café')) return imageMapping['cafe'] || imageMapping['default'];
+  if (normalized.includes('boisson')) return imageMapping['cafe'] || imageMapping['default'];
+  if (normalized.includes('pâtisserie')) return imageMapping['pastry'] || imageMapping['default'];
+  if (normalized.includes('plat')) return imageMapping['food'] || imageMapping['default'];
   
-  return imageMapping['default'];
+  return imageMapping['default'] || '/api/images/default-item.jpg';
 }
 
 // Fonction pour valider si une image existe
@@ -92,7 +92,7 @@ export function validateImageUrl(url: string): Promise<boolean> {
 
 // Alias pour compatibilité avec l'ancien code
 export function getImageUrlByName(itemName: string, categoryName?: string): string {
-  return getItemImageUrl(itemName, categoryName);
+  return getItemImageUrl(itemName, categoryName) || imageMapping['default'] || '/api/images/default-item.jpg';
 }
 
 // Constantes pour les images par défaut des catégories

@@ -50,7 +50,7 @@ export class ImageManager {
         const db = await this.db;
 
         // Générer un altText automatique si manquant
-        let altText = imageData.altText;
+        let altText: string = imageData.altText || '';
         if (!altText) {
             const menuItem = await db
                 .select()
