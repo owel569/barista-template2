@@ -341,7 +341,7 @@ export default function OnlineOrdering() {
                       {statusLabels[order.status]}
                     </Badge>
                   </TableCell>
-                  <TableCell>{order.totalAmount.toFixed(2)}€</TableCell>
+                  <TableCell>{(order.totalAmount || 0).toFixed(2)}€</TableCell>
                   <TableCell>
                     <Badge variant={order.paymentStatus === 'paid' ? 'default' : 'secondary'}>
                       {order.paymentStatus === 'paid' ? 'Payé' : 

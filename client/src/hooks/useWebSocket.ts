@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from 'react';
 
 interface WebSocketMessage {
@@ -10,9 +11,15 @@ export function useWebSocket(url: string = '/api/ws') {
   const [lastMessage, setLastMessage] = useState<WebSocketMessage | null>(null);
   const ws = useRef<WebSocket | null>(null);
   const reconnectAttempts = useRef(0);
-  const maxReconnectAttempts = 5;
+  const maxReconnectAttempts = 3;
+  const reconnectTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const connect = () => {
+    // Éviter les connexions multiples
+    if (ws.current && (ws.current.readyState === WebSocket.CONNECTING || ws.current.readyState === WebSocket.OPEN)) {
+      return;
+    }
+
     try {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const wsUrl = `${protocol}//${window.location.host}${url}`;
@@ -38,26 +45,24 @@ export function useWebSocket(url: string = '/api/ws') {
         console.log('WebSocket déconnecté');
         setIsConnected(false);
 
-        // Tentative de reconnexion
+        // Tentative de reconnexion limitée
         if (reconnectAttempts.current < maxReconnectAttempts) {
           reconnectAttempts.current++;
-          setTimeout(() => {
+          const delay = 3000 * reconnectAttempts.current;
+          
+          reconnectTimeout.current = setTimeout(() => {
             connect();
-          }, 3000 * reconnectAttempts.current);
+          }, delay);
         }
       };
 
       ws.current.onerror = (error) => {
         console.error('Erreur WebSocket:', error);
-        // Tentative de reconnexion après délai
-        setTimeout(() => {
-          if (ws.current && ws.current.readyState === WebSocket.CLOSED) {
-            connect();
-          }
-        }, 5000);
+        setIsConnected(false);
       };
     } catch (error) {
       console.error('Erreur connexion WebSocket:', error);
+      setIsConnected(false);
     }
   };
 
@@ -71,6 +76,9 @@ export function useWebSocket(url: string = '/api/ws') {
     connect();
 
     return () => {
+      if (reconnectTimeout.current) {
+        clearTimeout(reconnectTimeout.current);
+      }
       if (ws.current) {
         ws.current.close();
       }
