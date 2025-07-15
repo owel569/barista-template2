@@ -186,3 +186,14 @@ Le système est conçu pour être facilement extensible avec des modules additio
 ✓ Stockage unifié tokens et utilisateurs dans localStorage
 ✓ Correction hooks usePermissions avec méthodes can/canView/canCreate/canEdit/canDelete
 ✓ Application Barista Café 100% fonctionnelle avec admin opérationnel
+
+### 2025-07-15: Amélioration système d'images robuste et professionnel
+✓ Implémentation normalisation des clés (suppression accents, casse, espaces)
+✓ Système de recherche partielle pour correspondances flexibles
+✓ Ajout de logs de debug configurables pour suivi des erreurs d'images
+✓ Création fichier JSON séparé pour édition facile des mappings d'images
+✓ Tests unitaires complets pour validation du système d'images
+✓ Fonction de validation d'URL pour vérification de l'accessibilité des images
+✓ Statistiques du mapping d'images avec métriques de couverture
+✓ Correction erreurs de promesses non gérées dans les logs console
+✓ Migration réussie de 8 images Pexels HD avec clés normalisées

@@ -37,7 +37,11 @@ export default function HomeMenuPreview() {
                     alt={item.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = getItemImageUrl('default', item.category?.slug);
+                      try {
+                        (e.target as HTMLImageElement).src = getItemImageUrl('default', item.category?.slug);
+                      } catch (error) {
+                        console.warn('Erreur lors du chargement de l\'image de fallback:', error);
+                      }
                     }}
                   />
                 </div>

@@ -230,8 +230,12 @@ export default function InteractiveReservation() {
                               alt={item.name}
                               className="w-full h-full object-cover rounded-lg"
                               onError={(e) => {
-                                const target = e.currentTarget as HTMLImageElement;
-                                target.src = getItemImageUrl('default', item.category?.toLowerCase());
+                                try {
+                                  const target = e.currentTarget as HTMLImageElement;
+                                  target.src = getItemImageUrl('default', item.category?.toLowerCase());
+                                } catch (error) {
+                                  console.warn('Erreur lors du chargement de l\'image de fallback:', error);
+                                }
                               }}
                             />
                           </div>

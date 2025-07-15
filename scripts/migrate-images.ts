@@ -3,7 +3,7 @@ import 'dotenv/config';
 import { getDb } from '../server/db';
 import { menuItemImages, menuItems } from '../shared/schema';
 import { eq } from 'drizzle-orm';
-import { IMAGE_MAPPING } from '../client/src/lib/image-mapping';
+import { IMAGE_MAPPING, normalizeKey } from '../client/src/lib/image-mapping';
 
 async function migrateImagesToDatabase() {
   console.log('🖼️ Migration des images IMAGE_MAPPING vers la base de données...');
@@ -22,8 +22,9 @@ async function migrateImagesToDatabase() {
     let migratedCount = 0;
     
     for (const menuItem of menuItemsList) {
-      // Chercher l'image correspondante dans IMAGE_MAPPING
-      const imageUrl = IMAGE_MAPPING[menuItem.name];
+      // Normaliser le nom pour correspondre aux nouvelles clés
+      const normalizedName = normalizeKey(menuItem.name);
+      const imageUrl = IMAGE_MAPPING[normalizedName];
       
       if (imageUrl) {
         await db.insert(menuItemImages).values({
@@ -34,10 +35,11 @@ async function migrateImagesToDatabase() {
           uploadMethod: 'pexels'
         });
         
-        console.log(`✅ Image migrée pour: ${menuItem.name}`);
+        console.log(`✅ Image migrée pour: ${menuItem.name} (clé: ${normalizedName})`);
         migratedCount++;
       } else {
-        console.log(`⚠️ Aucune image trouvée pour: ${menuItem.name}`);
+        console.log(`⚠️ Aucune image trouvée pour: ${menuItem.name} (clé normalisée: ${normalizedName})`);
+        console.log(`🔍 Clés disponibles: ${Object.keys(IMAGE_MAPPING).join(', ')}`);
       }
     }
     
