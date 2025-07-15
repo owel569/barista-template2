@@ -13,20 +13,9 @@ import { tablesRouter } from './routes/tables';
 import { userProfileRouter } from './routes/user-profile';
 import { validateBody, validateParams, validateQuery } from './middleware/validation';
 import { errorHandler, notFoundHandler, asyncHandler } from './middleware/error-handler';
+import { createLogger, validateRequestWithLogging } from './middleware/logging';
+import { cacheMiddleware, invalidateCache } from './middleware/cache';
 import { loginSchema, registerSchema, reservationSchema, customerSchema, employeeSchema, menuItemSchema } from './validation-schemas';
-
-// Configuration de logging améliorée
-const createLogger = (module: string) => ({
-  info: (message: string, data?: any) => {
-    console.log(`[${new Date().toISOString()}] [${module}] INFO: ${message}`, data ? JSON.stringify(data) : '');
-  },
-  error: (message: string, error?: any) => {
-    console.error(`[${new Date().toISOString()}] [${module}] ERROR: ${message}`, error);
-  },
-  warn: (message: string, data?: any) => {
-    console.warn(`[${new Date().toISOString()}] [${module}] WARN: ${message}`, data ? JSON.stringify(data) : '');
-  }
-});
 
 const logger = createLogger('ROUTES');
 
@@ -166,7 +155,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Routes publiques
-  app.get('/api/menu/categories', async (req, res) => {
+  app.get('/api/menu/categories', cacheMiddleware(600), async (req, res) => {
     try {
       const categories = await storage.getMenuCategories();
       res.json(categories);
@@ -175,7 +164,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/menu/items', async (req, res) => {
+  app.get('/api/menu/items', cacheMiddleware(300), async (req, res) => {
     try {
       const items = await storage.getMenuItems();
       res.json(items);
@@ -479,7 +468,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.status(201).json(newItem);
   }));
 
-  app.put('/api/admin/menu/items/:id', authenticateToken, validateBody(menuItemSchema), asyncHandler(async (req: Request, res: Response) => {
+  app.put('/api/admin/menu/items/:id', authenticateToken, validateRequestWithLogging(menuItemSchema), asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
     const { name, description, price, categoryId, available, imageUrl } = req.body;
     

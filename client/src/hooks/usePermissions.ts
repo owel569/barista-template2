@@ -3,11 +3,11 @@ import { useState, useEffect } from 'react';
 import { 
   DEFAULT_PERMISSIONS, 
   ALL_ACCESS_ROLES,
-  STORAGE_KEYS,
   type Role, 
   type PermissionAction, 
   type PermissionsMap 
 } from '@/constants/permissions';
+import { STORAGE_KEYS } from '@/constants/storage';
 
 interface User {
   id: number;
@@ -37,6 +37,11 @@ export function usePermissions(user: User | null) {
     setIsLoading(true);
     try {
       const token = localStorage.getItem(STORAGE_KEYS.token);
+      if (!token) {
+        setPermissions(DEFAULT_PERMISSIONS[role] || {});
+        return;
+      }
+      
       const response = await fetch(`/api/admin/users/${userId}/permissions`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -45,7 +50,11 @@ export function usePermissions(user: User | null) {
 
       if (response.ok) {
         const userCustomPermissions = await response.json();
-        setPermissions(userCustomPermissions);
+        if (userCustomPermissions && typeof userCustomPermissions === 'object') {
+          setPermissions(userCustomPermissions);
+        } else {
+          throw new Error('Invalid permissions data');
+        }
       } else {
         // Fallback vers les permissions par défaut
         setPermissions(DEFAULT_PERMISSIONS[role] || {});
