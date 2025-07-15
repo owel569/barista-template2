@@ -384,7 +384,7 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(reservations.createdAt));
   }
 
-  async createReservationWithItems(reservationData: any, cartItems: any[]): Promise<Reservation> {
+  async createReservationWithItems(reservationData: InsertReservation, cartItems: { menuItem: { id: number; price: string }; quantity: number; notes?: string }[]): Promise<Reservation> {
     const [reservation] = await db.insert(reservations).values(reservationData).returning();
     
     if (cartItems && cartItems.length > 0) {
@@ -424,7 +424,7 @@ export class DatabaseStorage implements IStorage {
     return reservation || undefined;
   }
 
-async createReservation(reservation: any): Promise<Reservation> {
+async createReservation(reservation: InsertReservation): Promise<Reservation> {
   // On retire createdAt s'il existe (juste au cas où), pour laisser la BDD le gérer (defaultNow)
   const data = { ...reservation };
   delete (data as any).createdAt;
@@ -442,7 +442,7 @@ async createReservation(reservation: any): Promise<Reservation> {
     return updatedReservation || undefined;
   }
 
-  async updateReservation(id: number, reservationData: any): Promise<Reservation | undefined> {
+  async updateReservation(id: number, reservationData: Partial<InsertReservation>): Promise<Reservation | undefined> {
     const data = { ...reservationData };
     delete (data as any).id;
     delete (data as any).createdAt;
@@ -489,7 +489,7 @@ async createReservation(reservation: any): Promise<Reservation> {
     return await db.select().from(contactMessages).orderBy(desc(contactMessages.createdAt));
   }
 
-async createContactMessage(message: any): Promise<ContactMessage> {
+async createContactMessage(message: InsertContactMessage): Promise<ContactMessage> {
   // Préparer les données pour l'insertion
   const data = {
     firstName: message.firstName || '',
@@ -498,7 +498,7 @@ async createContactMessage(message: any): Promise<ContactMessage> {
     subject: message.subject,
     message: message.message,
     phone: message.phone || null,
-    status: 'nouveau'
+    status: message.status || 'nouveau'
   };
   
   console.log('Données reçues pour insertion message:', data);
@@ -506,7 +506,7 @@ async createContactMessage(message: any): Promise<ContactMessage> {
   return newMessage;
 }
 
-async createMessage(message: any): Promise<ContactMessage> {
+async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
   return this.createContactMessage(message);
 }
 
@@ -544,12 +544,12 @@ async createMessage(message: any): Promise<ContactMessage> {
     return order || undefined;
   }
 
-  async createOrder(order: any): Promise<Order> {
+  async createOrder(order: InsertOrder): Promise<Order> {
     const [newOrder] = await db.insert(orders).values(order).returning();
     return newOrder;
   }
 
-  async createOrderWithItems(orderData: any, items: any[]): Promise<Order> {
+  async createOrderWithItems(orderData: InsertOrder, items: InsertOrderItem[]): Promise<Order> {
     // Créer la commande
     const [newOrder] = await db.insert(orders).values(orderData).returning();
     
@@ -622,12 +622,12 @@ async createMessage(message: any): Promise<ContactMessage> {
     return customer || undefined;
   }
 
-  async createCustomer(customer: any): Promise<Customer> {
+  async createCustomer(customer: InsertCustomer): Promise<Customer> {
     const [newCustomer] = await db.insert(customers).values(customer).returning();
     return newCustomer;
   }
 
-  async updateCustomer(id: number, customer: any): Promise<Customer | undefined> {
+  async updateCustomer(id: number, customer: Partial<InsertCustomer>): Promise<Customer | undefined> {
     const [updatedCustomer] = await db
       .update(customers)
       .set({ ...customer, updatedAt: new Date() })
@@ -656,12 +656,12 @@ async createMessage(message: any): Promise<ContactMessage> {
     return employee || undefined;
   }
 
-  async createEmployee(employee: any): Promise<Employee> {
+  async createEmployee(employee: InsertEmployee): Promise<Employee> {
     const [newEmployee] = await db.insert(employees).values(employee).returning();
     return newEmployee;
   }
 
-  async updateEmployee(id: number, employee: any): Promise<Employee | undefined> {
+  async updateEmployee(id: number, employee: Partial<InsertEmployee>): Promise<Employee | undefined> {
     const [updatedEmployee] = await db
       .update(employees)
       .set({ ...employee, updatedAt: new Date() })
