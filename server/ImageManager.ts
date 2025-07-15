@@ -1,4 +1,10 @@
-import { DEFAULT_CATEGORY_IMAGES } from "@/lib/image-mapping";
+// Images par défaut par catégorie
+const DEFAULT_CATEGORY_IMAGES: Record<string, string> = {
+  "cafes": "https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
+  "boissons": "https://images.pexels.com/photos/1638280/pexels-photo-1638280.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
+  "patisseries": "https://images.pexels.com/photos/2067396/pexels-photo-2067396.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
+  "plats": "https://images.pexels.com/photos/4676406/pexels-photo-4676406.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop"
+};
 import { menuItemImages, menuItems } from "@shared/schema";
 import { and, eq, desc } from "drizzle-orm";
 import { getDb } from "./db";

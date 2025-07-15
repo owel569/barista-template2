@@ -206,6 +206,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Setup et initialisation
+  app.post('/api/setup/initialize', async (req, res) => {
+    try {
+      console.log('🔧 Initialisation de la base de données...');
+      
+      // Créer les catégories de menu par défaut
+      const categories = [
+        { name: 'Cafés', description: 'Nos délicieux cafés', slug: 'cafes', displayOrder: 1 },
+        { name: 'Boissons', description: 'Boissons chaudes et froides', slug: 'boissons', displayOrder: 2 },
+        { name: 'Pâtisseries', description: 'Pâtisseries fraîches', slug: 'patisseries', displayOrder: 3 },
+        { name: 'Plats', description: 'Plats savoureux', slug: 'plats', displayOrder: 4 }
+      ];
+      
+      for (const category of categories) {
+        try {
+          await storage.createMenuCategory(category);
+        } catch (error) {
+          console.log('Catégorie existe déjà:', category.name);
+        }
+      }
+      
+      // Créer des éléments de menu par défaut
+      const menuItems = [
+        { name: 'Espresso Classique', description: 'Café court et corsé', price: '2.50', categoryId: 1, available: true },
+        { name: 'Cappuccino Premium', description: 'Café avec mousse de lait', price: '3.50', categoryId: 1, available: true },
+        { name: 'Latte Art', description: 'Café latte avec art décoratif', price: '4.00', categoryId: 1, available: true },
+        { name: 'Thé Vert Premium', description: 'Thé vert de qualité supérieure', price: '2.00', categoryId: 2, available: true },
+        { name: 'Chocolat Chaud', description: 'Chocolat chaud crémeux', price: '3.00', categoryId: 2, available: true },
+        { name: 'Croissants Artisanaux', description: 'Croissant frais au beurre', price: '2.80', categoryId: 3, available: true },
+        { name: 'Macarons Français', description: 'Macarons aux saveurs variées', price: '1.50', categoryId: 3, available: true },
+        { name: 'Sandwich Club', description: 'Sandwich triple étages', price: '8.50', categoryId: 4, available: true }
+      ];
+      
+      for (const item of menuItems) {
+        try {
+          await storage.createMenuItem(item);
+        } catch (error) {
+          console.log('Élément existe déjà:', item.name);
+        }
+      }
+      
+      // Créer des tables par défaut
+      const tables = [
+        { number: 1, capacity: 2, status: 'available', location: 'Fenêtre' },
+        { number: 2, capacity: 4, status: 'available', location: 'Centre' },
+        { number: 3, capacity: 6, status: 'available', location: 'Terrasse' },
+        { number: 4, capacity: 2, status: 'available', location: 'Bar' }
+      ];
+      
+      for (const table of tables) {
+        try {
+          await storage.createTable(table);
+        } catch (error) {
+          console.log('Table existe déjà:', table.number);
+        }
+      }
+      
+      // Créer un utilisateur admin par défaut
+      try {
+        const bcrypt = require('bcrypt');
+        const hashedPassword = await bcrypt.hash('admin123', 10);
+        const adminUser = {
+          username: 'admin',
+          email: 'admin@barista-cafe.com',
+          password: hashedPassword,
+          role: 'directeur',
+          isActive: true
+        };
+        await storage.createUser(adminUser);
+      } catch (error) {
+        console.log('Utilisateur admin existe déjà');
+      }
+      
+      console.log('✅ Base de données initialisée avec succès');
+      res.json({ message: 'Base de données initialisée avec succès', status: 'success' });
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'initialisation:', error);
+      res.status(500).json({ error: 'Erreur lors de l\'initialisation', details: error.message });
+    }
+  });
+
   // Routes admin
   app.get('/api/admin/notifications/count', authenticateToken, async (req, res) => {
     try {
