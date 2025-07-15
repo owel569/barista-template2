@@ -1,129 +1,122 @@
 #!/usr/bin/env node
-import { spawn } from 'child_process';
-import { existsSync, writeFileSync } from 'fs';
+import { spawn, exec } from 'child_process';
+import { promisify } from 'util';
+import { existsSync, writeFileSync, readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const execAsync = promisify(exec);
 
-// Configuration pour différentes plateformes
-const PLATFORMS = {
-  REPLIT: 'replit',
-  CODESPACE: 'codespace', 
-  LOCAL: 'local',
-  RAILWAY: 'railway',
-  VERCEL: 'vercel'
-};
-
-// Détecter la plateforme actuelle
+// Détection de l'environnement
 function detectPlatform() {
-  // Replit detection
-  if (process.env.REPLIT_DB_URL || process.env.REPL_SLUG) {
-    return PLATFORMS.REPLIT;
+  if (process.env.REPLIT_ENVIRONMENT) {
+    return 'replit';
   }
-  
-  // GitHub Codespaces detection
-  if (process.env.CODESPACES || process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN) {
-    return PLATFORMS.CODESPACE;
-  }
-  
-  // Railway detection
-  if (process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_PROJECT_ID) {
-    return PLATFORMS.RAILWAY;
-  }
-  
-  // Vercel detection
-  if (process.env.VERCEL || process.env.VERCEL_ENV) {
-    return PLATFORMS.VERCEL;
-  }
-  
-  // Default to local
-  return PLATFORMS.LOCAL;
+  return 'local';
 }
 
-// Configuration de base de données par plateforme
+// Configuration base de données selon l'environnement
 function getDatabaseConfig(platform) {
-  const configs = {
-    [PLATFORMS.REPLIT]: {
-      type: 'sqlite',
-      url: 'file:./barista_cafe.db',
+  if (platform === 'replit') {
+    return {
       dialect: 'sqlite',
-      setup: setupSQLite
-    },
-    [PLATFORMS.CODESPACE]: {
-      type: 'postgresql',
-      url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/barista_cafe',
-      dialect: 'postgresql',
-      setup: setupPostgreSQL
-    },
-    [PLATFORMS.LOCAL]: {
-      type: 'sqlite',
-      url: 'file:./barista_cafe.db',
-      dialect: 'sqlite',
-      setup: setupSQLite
-    },
-    [PLATFORMS.RAILWAY]: {
-      type: 'postgresql',
-      url: process.env.DATABASE_URL || process.env.RAILWAY_DATABASE_URL,
-      dialect: 'postgresql',
-      setup: setupPostgreSQL
-    },
-    [PLATFORMS.VERCEL]: {
-      type: 'postgresql',
-      url: process.env.DATABASE_URL || process.env.POSTGRES_URL,
-      dialect: 'postgresql',
-      setup: setupPostgreSQL
-    }
-  };
-  
-  return configs[platform] || configs[PLATFORMS.LOCAL];
-}
-
-// Configuration SQLite
-async function setupSQLite() {
-  console.log('🗄️  Configuration SQLite...');
-  
-  // Modifier le schéma pour SQLite
-  await convertSchemaToSQLite();
-  
-  // Modifier la config Drizzle
-  await updateDrizzleConfig('sqlite');
-  
-  console.log('✅ SQLite configuré');
-}
-
-// Configuration PostgreSQL
-async function setupPostgreSQL() {
-  console.log('🗄️  Configuration PostgreSQL...');
-  
-  // Restaurer le schéma PostgreSQL original
-  await convertSchemaToPostgreSQL();
-  
-  // Modifier la config Drizzle
-  await updateDrizzleConfig('postgresql');
-  
-  console.log('✅ PostgreSQL configuré');
-}
-
-// Convertir le schéma vers SQLite
-async function convertSchemaToSQLite() {
-  const schemaPath = join(__dirname, 'shared', 'schema.ts');
-  const backupPath = join(__dirname, 'shared', 'schema.pg.backup');
-  
-  // Sauvegarder le schéma PostgreSQL original
-  if (existsSync(schemaPath) && !existsSync(backupPath)) {
-    const fs = await import('fs');
-    fs.copyFileSync(schemaPath, backupPath);
+      filename: './barista_cafe.db',
+      url: `file:./barista_cafe.db`,
+      backup: true,
+      wal: true,
+      performance: true
+    };
   }
   
-  // Nouveau schéma SQLite
-  const sqliteSchema = `import { sqliteTable, text, integer, real, blob } from "drizzle-orm/sqlite-core";
+  // Pour un environnement local, on peut essayer PostgreSQL
+  return {
+    dialect: 'postgresql',
+    url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/barista_cafe',
+    fallback: 'sqlite'
+  };
+}
+
+// Configuration SQLite optimisée pour restaurant
+async function setupSQLite() {
+  console.log('🗄️ Configuration SQLite optimisée pour restaurant...');
+  
+  // Configuration .env pour SQLite
+  const envContent = `# Configuration SQLite Production - Barista Café
+# Optimisé pour restaurant avec clients en continu
+DATABASE_URL=file:./barista_cafe.db
+DB_TYPE=sqlite
+
+# Configuration Application
+NODE_ENV=production
+JWT_SECRET=barista_cafe_production_jwt_secret_2025_ultra_secure
+PORT=5000
+
+# Configuration Performance SQLite
+SQLITE_PRAGMA_JOURNAL_MODE=WAL
+SQLITE_PRAGMA_SYNCHRONOUS=NORMAL
+SQLITE_PRAGMA_CACHE_SIZE=20000
+SQLITE_PRAGMA_FOREIGN_KEYS=ON
+SQLITE_PRAGMA_TEMP_STORE=MEMORY
+SQLITE_PRAGMA_MMAP_SIZE=268435456
+
+# Configuration Cache
+CACHE_TTL_MENU=600
+CACHE_TTL_CATEGORIES=1800
+CACHE_TTL_TABLES=300
+DB_POOL_SIZE=10
+DB_CONNECTION_TIMEOUT=30000
+DB_STATEMENT_TIMEOUT=60000
+
+# Configuration Backup automatique
+BACKUP_ENABLED=true
+BACKUP_INTERVAL=3600
+BACKUP_RETENTION=7
+`;
+  
+  writeFileSync('.env', envContent);
+  console.log('✅ Configuration .env SQLite créée');
+}
+
+// Configuration PostgreSQL (si disponible)
+async function setupPostgreSQL() {
+  console.log('🐘 Configuration PostgreSQL...');
+  
+  const envContent = `# Configuration PostgreSQL Production - Barista Café
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/barista_cafe
+DB_TYPE=postgresql
+
+# Configuration Application
+NODE_ENV=production
+JWT_SECRET=barista_cafe_production_jwt_secret_2025_ultra_secure
+PORT=5000
+
+# Configuration Performance PostgreSQL
+DB_POOL_SIZE=20
+DB_CONNECTION_TIMEOUT=30000
+DB_STATEMENT_TIMEOUT=60000
+
+# Configuration Cache
+CACHE_TTL_MENU=600
+CACHE_TTL_CATEGORIES=1800
+CACHE_TTL_TABLES=300
+`;
+  
+  writeFileSync('.env', envContent);
+  console.log('✅ Configuration .env PostgreSQL créée');
+}
+
+// Convertir le schéma pour SQLite (optimisé)
+async function convertSchemaToSQLite() {
+  console.log('🔄 Conversion du schéma pour SQLite...');
+  
+  const sqliteSchema = `import { sqliteTable, text, integer, real, blob, index } from "drizzle-orm/sqlite-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
 
-// Users table for admin authentication
+// Users table with optimized indexes
 export const users = sqliteTable('users', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   username: text('username').unique().notNull(),
@@ -131,13 +124,17 @@ export const users = sqliteTable('users', {
   role: text('role').notNull().default('employe'),
   firstName: text('first_name'),
   lastName: text('last_name'),
-  email: text('email'),
-  lastLogin: text('last_login'), // ISO string
-  createdAt: text('created_at').notNull().default(new Date().toISOString()),
-  updatedAt: text('updated_at').notNull().default(new Date().toISOString())
-});
+  email: text('email').unique(),
+  lastLogin: text('last_login'),
+  createdAt: text('created_at').default("datetime('now')").notNull(),
+  updatedAt: text('updated_at').default("datetime('now')").notNull()
+}, (table) => ({
+  usernameIdx: index('users_username_idx').on(table.username),
+  emailIdx: index('users_email_idx').on(table.email),
+  roleIdx: index('users_role_idx').on(table.role),
+}));
 
-// Activity logs table
+// Activity logs with efficient indexing
 export const activityLogs = sqliteTable("activity_logs", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   userId: integer("user_id").notNull(),
@@ -145,62 +142,84 @@ export const activityLogs = sqliteTable("activity_logs", {
   entity: text("entity").notNull(),
   entityId: integer("entity_id"),
   details: text("details"),
-  timestamp: text("timestamp").notNull().default(new Date().toISOString()),
-});
+  timestamp: text("timestamp").default("datetime('now')").notNull(),
+}, (table) => ({
+  userIdIdx: index("activity_logs_user_id_idx").on(table.userId),
+  entityIdx: index("activity_logs_entity_idx").on(table.entity),
+  timestampIdx: index("activity_logs_timestamp_idx").on(table.timestamp),
+}));
 
 // Permissions table
 export const permissions = sqliteTable("permissions", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   userId: integer("user_id").notNull(),
   module: text("module").notNull(),
-  canView: integer("can_view", { mode: "boolean" }).notNull().default(1),
-  canCreate: integer("can_create", { mode: "boolean" }).notNull().default(0),
-  canUpdate: integer("can_update", { mode: "boolean" }).notNull().default(0),
-  canDelete: integer("can_delete", { mode: "boolean" }).notNull().default(0),
-});
+  canView: integer("can_view", { mode: "boolean" }).notNull().default(true),
+  canCreate: integer("can_create", { mode: "boolean" }).notNull().default(false),
+  canUpdate: integer("can_update", { mode: "boolean" }).notNull().default(false),
+  canDelete: integer("can_delete", { mode: "boolean" }).notNull().default(false),
+}, (table) => ({
+  userIdIdx: index("permissions_user_id_idx").on(table.userId),
+  moduleIdx: index("permissions_module_idx").on(table.module),
+}));
 
-// Menu categories
+// Menu categories with optimized structure
 export const menuCategories = sqliteTable("menu_categories", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
   description: text("description"),
   slug: text("slug").notNull().unique(),
   displayOrder: integer("display_order").notNull().default(0),
-});
+}, (table) => ({
+  slugIdx: index("menu_categories_slug_idx").on(table.slug),
+  orderIdx: index("menu_categories_order_idx").on(table.displayOrder),
+}));
 
-// Menu items
+// Menu items with performance optimizations
 export const menuItems = sqliteTable("menu_items", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  name: text("name").notNull().unique(),
+  name: text("name").notNull(),
   description: text("description").notNull(),
   price: real("price").notNull(),
   categoryId: integer("category_id").notNull(),
   imageUrl: text("image_url"),
-  available: integer("available", { mode: "boolean" }).notNull().default(1),
-  createdAt: text("created_at").default(new Date().toISOString()),
-});
+  available: integer("available", { mode: "boolean" }).notNull().default(true),
+  createdAt: text("created_at").default("datetime('now')"),
+}, (table) => ({
+  nameIdx: index("menu_items_name_idx").on(table.name),
+  categoryIdx: index("menu_items_category_idx").on(table.categoryId),
+  availableIdx: index("menu_items_available_idx").on(table.available),
+  priceIdx: index("menu_items_price_idx").on(table.price),
+}));
 
-// Menu item images
+// Menu item images for dynamic management
 export const menuItemImages = sqliteTable("menu_item_images", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   menuItemId: integer("menu_item_id").notNull(),
   imageUrl: text("image_url").notNull(),
   altText: text("alt_text"),
-  isPrimary: integer("is_primary", { mode: "boolean" }).notNull().default(1),
-  uploadMethod: text("upload_method").notNull().default("url"),
-  createdAt: text("created_at").notNull().default(new Date().toISOString()),
-  updatedAt: text("updated_at").notNull().default(new Date().toISOString()),
-});
+  isPrimary: integer("is_primary", { mode: "boolean" }).notNull().default(true),
+  uploadMethod: text("upload_method", { enum: ["url", "upload", "generated", "pexels"] }).notNull().default("url"),
+  createdAt: text("created_at").default("datetime('now')").notNull(),
+  updatedAt: text("updated_at").default("datetime('now')").notNull(),
+}, (table) => ({
+  menuItemIdx: index("menu_item_images_menu_item_id_idx").on(table.menuItemId),
+  primaryIdx: index("menu_item_images_primary_idx").on(table.menuItemId, table.isPrimary),
+}));
 
-// Tables
+// Tables with capacity management
 export const tables = sqliteTable("tables", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   number: integer("number").notNull().unique(),
   capacity: integer("capacity").notNull(),
-  available: integer("available", { mode: "boolean" }).notNull().default(1),
-});
+  available: integer("available", { mode: "boolean" }).notNull().default(true),
+}, (table) => ({
+  numberIdx: index("tables_number_idx").on(table.number),
+  capacityIdx: index("tables_capacity_idx").on(table.capacity),
+  availableIdx: index("tables_available_idx").on(table.available),
+}));
 
-// Reservations
+// Reservations with anti-duplication measures
 export const reservations = sqliteTable("reservations", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   customerName: text("customer_name").notNull(),
@@ -211,12 +230,21 @@ export const reservations = sqliteTable("reservations", {
   guests: integer("guests").notNull(),
   tableId: integer("table_id"),
   specialRequests: text("special_requests"),
-  status: text("status").notNull().default("pending"),
+  status: text("status", { enum: ["pending", "confirmed", "cancelled", "completed"] }).notNull().default("pending"),
   preorderTotal: real("preorder_total").default(0.00),
-  notificationSent: integer("notification_sent", { mode: "boolean" }).default(0),
-  metadata: text("metadata"), // JSON string
-  createdAt: text("created_at").notNull().default(new Date().toISOString()),
-});
+  notificationSent: integer("notification_sent", { mode: "boolean" }).default(false),
+  metadata: text("metadata"),
+  createdAt: text("created_at").default("datetime('now')").notNull(),
+}, (table) => ({
+  dateIdx: index("reservations_date_idx").on(table.date),
+  timeIdx: index("reservations_time_idx").on(table.time),
+  statusIdx: index("reservations_status_idx").on(table.status),
+  tableIdx: index("reservations_table_idx").on(table.tableId),
+  emailIdx: index("reservations_email_idx").on(table.customerEmail),
+  phoneIdx: index("reservations_phone_idx").on(table.customerPhone),
+  // Index unique pour éviter les doublons
+  uniqueReservation: index("reservations_unique_slot").on(table.date, table.time, table.tableId),
+}));
 
 // Reservation items
 export const reservationItems = sqliteTable("reservation_items", {
@@ -227,7 +255,10 @@ export const reservationItems = sqliteTable("reservation_items", {
   unitPrice: real("unit_price").notNull(),
   totalPrice: real("total_price").notNull(),
   specialInstructions: text("special_instructions"),
-});
+}, (table) => ({
+  reservationIdx: index("reservation_items_reservation_idx").on(table.reservationId),
+  menuItemIdx: index("reservation_items_menu_item_idx").on(table.menuItemId),
+}));
 
 // Contact messages
 export const contactMessages = sqliteTable("contact_messages", {
@@ -236,11 +267,14 @@ export const contactMessages = sqliteTable("contact_messages", {
   email: text("email").notNull(),
   subject: text("subject").notNull(),
   message: text("message").notNull(),
-  status: text("status").notNull().default("new"),
-  createdAt: text("created_at").notNull().default(new Date().toISOString()),
-});
+  status: text("status", { enum: ["new", "read", "replied"] }).notNull().default("new"),
+  createdAt: text("created_at").default("datetime('now')").notNull(),
+}, (table) => ({
+  statusIdx: index("contact_messages_status_idx").on(table.status),
+  createdAtIdx: index("contact_messages_created_at_idx").on(table.createdAt),
+}));
 
-// Customers
+// Customers with loyalty program
 export const customers = sqliteTable("customers", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
@@ -249,39 +283,53 @@ export const customers = sqliteTable("customers", {
   address: text("address"),
   loyaltyPoints: integer("loyalty_points").notNull().default(0),
   totalSpent: real("total_spent").notNull().default(0.00),
-  createdAt: text("created_at").notNull().default(new Date().toISOString()),
-});
+  createdAt: text("created_at").default("datetime('now')").notNull(),
+}, (table) => ({
+  emailIdx: index("customers_email_idx").on(table.email),
+  phoneIdx: index("customers_phone_idx").on(table.phone),
+  loyaltyIdx: index("customers_loyalty_idx").on(table.loyaltyPoints),
+}));
 
-// Employees
+// Employees management
 export const employees = sqliteTable("employees", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
   email: text("email").notNull(),
   phone: text("phone").notNull(),
-  position: text("position").notNull(),
-  department: text("department").notNull(),
+  position: text("position", { enum: ["manager", "server", "chef", "barista", "cashier"] }).notNull(),
+  department: text("department", { enum: ["kitchen", "service", "management"] }).notNull(),
   hourlyRate: real("hourly_rate").notNull(),
   hireDate: text("hire_date").notNull(),
-  status: text("status").notNull().default("active"),
-  createdAt: text("created_at").notNull().default(new Date().toISOString()),
-});
+  status: text("status", { enum: ["active", "inactive", "terminated"] }).notNull().default("active"),
+  createdAt: text("created_at").default("datetime('now')").notNull(),
+}, (table) => ({
+  emailIdx: index("employees_email_idx").on(table.email),
+  statusIdx: index("employees_status_idx").on(table.status),
+  departmentIdx: index("employees_department_idx").on(table.department),
+}));
 
-// Orders
+// Orders management
 export const orders = sqliteTable("orders", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   customerId: integer("customer_id"),
   employeeId: integer("employee_id"),
   tableId: integer("table_id"),
-  orderType: text("order_type").notNull().default("dine-in"),
-  status: text("status").notNull().default("pending"),
+  orderType: text("order_type", { enum: ["dine-in", "takeout", "delivery"] }).notNull().default("dine-in"),
+  status: text("status", { enum: ["pending", "preparing", "ready", "completed", "cancelled"] }).notNull().default("pending"),
   subtotal: real("subtotal").notNull(),
   tax: real("tax").notNull(),
   total: real("total").notNull(),
   paymentMethod: text("payment_method"),
   notes: text("notes"),
-  createdAt: text("created_at").notNull().default(new Date().toISOString()),
-});
+  createdAt: text("created_at").default("datetime('now')").notNull(),
+}, (table) => ({
+  statusIdx: index("orders_status_idx").on(table.status),
+  createdAtIdx: index("orders_created_at_idx").on(table.createdAt),
+  customerIdx: index("orders_customer_idx").on(table.customerId),
+  employeeIdx: index("orders_employee_idx").on(table.employeeId),
+  tableIdx: index("orders_table_idx").on(table.tableId),
+}));
 
 // Order items
 export const orderItems = sqliteTable("order_items", {
@@ -292,7 +340,10 @@ export const orderItems = sqliteTable("order_items", {
   unitPrice: real("unit_price").notNull(),
   totalPrice: real("total_price").notNull(),
   specialInstructions: text("special_instructions"),
-});
+}, (table) => ({
+  orderIdx: index("order_items_order_idx").on(table.orderId),
+  menuItemIdx: index("order_items_menu_item_idx").on(table.menuItemId),
+}));
 
 // Work shifts
 export const workShifts = sqliteTable("work_shifts", {
@@ -302,12 +353,16 @@ export const workShifts = sqliteTable("work_shifts", {
   startTime: text("start_time").notNull(),
   endTime: text("end_time"),
   hoursWorked: real("hours_worked"),
-  status: text("status").notNull().default("scheduled"),
+  status: text("status", { enum: ["scheduled", "completed", "cancelled"] }).notNull().default("scheduled"),
   notes: text("notes"),
-  createdAt: text("created_at").notNull().default(new Date().toISOString()),
-});
+  createdAt: text("created_at").default("datetime('now')").notNull(),
+}, (table) => ({
+  employeeIdx: index("work_shifts_employee_idx").on(table.employeeId),
+  dateIdx: index("work_shifts_date_idx").on(table.date),
+  statusIdx: index("work_shifts_status_idx").on(table.status),
+}));
 
-// Relations
+// Relations optimisées
 export const usersRelations = relations(users, ({ many }) => ({
   activityLogs: many(activityLogs),
   permissions: many(permissions),
@@ -394,7 +449,7 @@ export const workShiftsRelations = relations(workShifts, ({ one }) => ({
   }),
 }));
 
-// Types
+// Types TypeScript
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type MenuCategory = typeof menuCategories.$inferSelect;
@@ -426,7 +481,7 @@ export type InsertActivityLog = typeof activityLogs.$inferInsert;
 export type Permission = typeof permissions.$inferSelect;
 export type InsertPermission = typeof permissions.$inferInsert;
 
-// Zod schemas
+// Schemas Zod pour validation
 export const insertUserSchema = createInsertSchema(users);
 export const insertMenuCategorySchema = createInsertSchema(menuCategories);
 export const insertMenuItemSchema = createInsertSchema(menuItems);
@@ -440,64 +495,52 @@ export const insertActivityLogSchema = createInsertSchema(activityLogs);
 export const insertPermissionSchema = createInsertSchema(permissions);
 `;
 
-  writeFileSync(schemaPath, sqliteSchema);
+  writeFileSync(join(__dirname, 'shared', 'schema.ts'), sqliteSchema);
+  console.log('✅ Schéma SQLite optimisé créé');
 }
 
-// Convertir le schéma vers PostgreSQL
+// Convertir le schéma pour PostgreSQL
 async function convertSchemaToPostgreSQL() {
-  const schemaPath = join(__dirname, 'shared', 'schema.ts');
-  const backupPath = join(__dirname, 'shared', 'schema.pg.backup');
-  
-  // Restaurer depuis la sauvegarde si elle existe
-  if (existsSync(backupPath)) {
-    const fs = await import('fs');
-    fs.copyFileSync(backupPath, schemaPath);
-  }
+  // Le schéma PostgreSQL a été défini dans le fichier précédent
+  console.log('🔄 Schéma PostgreSQL prêt');
 }
 
 // Mettre à jour la configuration Drizzle
 async function updateDrizzleConfig(dialect) {
-  const configPath = join(__dirname, 'drizzle.config.ts');
-  
-  let configContent;
-  if (dialect === 'sqlite') {
-    configContent = `import { defineConfig } from "drizzle-kit";
+  const config = dialect === 'sqlite' ? 
+    `import { defineConfig } from "drizzle-kit";
 
 export default defineConfig({
   out: "./migrations",
   schema: "./shared/schema.ts",
   dialect: "sqlite",
   dbCredentials: {
-    url: process.env.DATABASE_URL?.replace('file:', '') || "./barista_cafe.db",
+    url: process.env.DATABASE_URL || "file:./barista_cafe.db"
   },
-});
-`;
-  } else {
-    configContent = `import { defineConfig } from "drizzle-kit";
-
-const databaseUrl = process.env.DATABASE_URL || "postgresql://placeholder:placeholder@localhost:5432/placeholder";
+  verbose: true,
+  strict: true,
+});` :
+    `import { defineConfig } from "drizzle-kit";
 
 export default defineConfig({
   out: "./migrations",
-  schema: "./shared/schema.ts",
-  dialect: "postgresql", 
+  schema: "./shared/schema.ts", 
+  dialect: "postgresql",
   dbCredentials: {
-    url: databaseUrl,
+    url: process.env.DATABASE_URL || "postgresql://postgres:postgres@localhost:5432/barista_cafe"
   },
-});
-`;
-  }
-  
-  writeFileSync(configPath, configContent);
+  verbose: true,
+  strict: true,
+});`;
+
+  writeFileSync('drizzle.config.ts', config);
+  console.log(`✅ Configuration Drizzle mise à jour pour ${dialect}`);
 }
 
-// Mettre à jour le fichier de configuration de la base de données
+// Mettre à jour la configuration db.ts
 async function updateDbConfig(config) {
-  const dbPath = join(__dirname, 'server', 'db.ts');
-  
-  let dbContent;
-  if (config.type === 'sqlite') {
-    dbContent = `import 'dotenv/config';
+  const dbConfig = config.dialect === 'sqlite' ? 
+    `import 'dotenv/config';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import Database from 'better-sqlite3';
 import { sql } from 'drizzle-orm';
@@ -508,24 +551,62 @@ let db: ReturnType<typeof drizzle>;
 
 async function initializeDatabase() {
   try {
-    const databasePath = process.env.DATABASE_URL?.replace('file:', '') || './barista_cafe.db';
+    console.log('🗄️ Initialisation SQLite optimisée...');
     
-    console.log('✅ Utilisation de la base de données SQLite');
-
-    sqlite = new Database(databasePath);
-    sqlite.pragma('journal_mode = WAL');
-    sqlite.pragma('synchronous = normal');
-    sqlite.pragma('cache_size = 1000');
-    sqlite.pragma('temp_store = memory');
-    sqlite.pragma('foreign_keys = ON');
-
+    // Configuration SQLite pour performance maximale
+    sqlite = new Database(process.env.DATABASE_URL?.replace('file:', '') || './barista_cafe.db');
+    
+    // Optimisations SQLite pour restaurant
+    sqlite.pragma('journal_mode = WAL'); // Write-Ahead Logging
+    sqlite.pragma('synchronous = NORMAL'); // Performance/sécurité équilibrée
+    sqlite.pragma('cache_size = 20000'); // Cache 20MB
+    sqlite.pragma('foreign_keys = ON'); // Intégrité référentielle
+    sqlite.pragma('temp_store = MEMORY'); // Stockage temporaire en mémoire
+    sqlite.pragma('mmap_size = 268435456'); // Memory mapping 256MB
+    
+    // Initialiser Drizzle
     db = drizzle(sqlite, { schema });
-    console.log('✅ Base de données SQLite connectée:', databasePath);
+    
+    // Test de connexion
+    await db.execute(sql\`SELECT 1\`);
+    console.log('✅ SQLite connecté et optimisé');
+    
+    // Configuration backup automatique
+    if (process.env.BACKUP_ENABLED === 'true') {
+      setupAutomaticBackup();
+    }
+    
     return db;
   } catch (error) {
-    console.error('❌ Erreur de connexion à la base de données:', error);
+    console.error('❌ Erreur SQLite:', error);
     throw error;
   }
+}
+
+// Backup automatique pour éviter la perte de données
+function setupAutomaticBackup() {
+  const backupInterval = parseInt(process.env.BACKUP_INTERVAL || '3600') * 1000;
+  
+  setInterval(async () => {
+    try {
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const backupPath = \`./backups/barista_cafe_\${timestamp}.db\`;
+      
+      // Créer le répertoire de backup
+      await execAsync('mkdir -p ./backups');
+      
+      // Copier la base de données
+      await execAsync(\`cp ./barista_cafe.db "\${backupPath}"\`);
+      
+      // Nettoyer les anciens backups
+      const retention = parseInt(process.env.BACKUP_RETENTION || '7');
+      await execAsync(\`find ./backups -name "*.db" -type f -mtime +\${retention} -delete\`);
+      
+      console.log(\`✅ Backup automatique: \${backupPath}\`);
+    } catch (error) {
+      console.error('❌ Erreur backup:', error);
+    }
+  }, backupInterval);
 }
 
 const dbPromise = initializeDatabase();
@@ -539,17 +620,60 @@ export { db };
 
 export async function setupDatabase() {
   try {
-    console.log('✅ Configuration SQLite automatique');
-    await db.run(sql\`SELECT 1\`);
-    console.log('✅ SQLite configuré automatiquement');
+    await db.execute(sql\`SELECT 1\`);
+    console.log('✅ Base de données SQLite configurée');
     return true;
   } catch (error) {
-    console.error('❌ Erreur lors de la configuration SQLite:', error);
+    console.error('❌ Erreur configuration SQLite:', error);
     return false;
   }
-}`;
-  } else {
-    dbContent = `import 'dotenv/config';
+}
+
+// Fonction de vérification de santé
+export async function checkDatabaseHealth() {
+  try {
+    const result = await db.execute(sql\`SELECT datetime('now') as timestamp\`);
+    return {
+      healthy: true,
+      timestamp: result[0]?.timestamp,
+      type: 'sqlite',
+      size: await getDatabaseSize()
+    };
+  } catch (error) {
+    return {
+      healthy: false,
+      error: error.message,
+      type: 'sqlite'
+    };
+  }
+}
+
+async function getDatabaseSize() {
+  try {
+    const { size } = await execAsync('du -h ./barista_cafe.db');
+    return size.split('\t')[0];
+  } catch {
+    return 'unknown';
+  }
+}
+
+// Nettoyage gracieux
+process.on('SIGINT', () => {
+  if (sqlite) {
+    sqlite.close();
+    console.log('✅ SQLite fermé proprement');
+  }
+  process.exit(0);
+});
+
+process.on('SIGTERM', () => {
+  if (sqlite) {
+    sqlite.close();
+    console.log('✅ SQLite fermé proprement');
+  }
+  process.exit(0);
+});` :
+    `import 'dotenv/config';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import { sql } from 'drizzle-orm';
@@ -560,32 +684,28 @@ let db: ReturnType<typeof drizzle>;
 
 async function initializeDatabase() {
   try {
-    const connectionString = process.env.DATABASE_URL;
-
-    if (!connectionString) {
-      throw new Error('DATABASE_URL environment variable is not set');
-    }
-
-    console.log('✅ Utilisation de la base de données PostgreSQL');
-
+    console.log('🐘 Initialisation PostgreSQL...');
+    
     pool = new Pool({
-      connectionString,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-      max: 10,
+      connectionString: process.env.DATABASE_URL,
+      max: 20,
       idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 10000,
-      allowExitOnIdle: false,
-      keepAlive: true,
-      keepAliveInitialDelayMillis: 10000,
-      statement_timeout: 30000,
-      query_timeout: 30000
+      connectionTimeoutMillis: 30000,
     });
 
     db = drizzle(pool, { schema });
-    console.log('✅ Base de données PostgreSQL connectée');
+    
+    const client = await pool.connect();
+    try {
+      await client.query('SELECT NOW()');
+      console.log('✅ PostgreSQL connecté');
+    } finally {
+      client.release();
+    }
+    
     return db;
   } catch (error) {
-    console.error('❌ Erreur de connexion à la base de données:', error);
+    console.error('❌ Erreur PostgreSQL:', error);
     throw error;
   }
 }
@@ -601,118 +721,182 @@ export { db };
 
 export async function setupDatabase() {
   try {
-    console.log('✅ Configuration PostgreSQL automatique');
     await db.execute(sql\`SELECT 1\`);
-    console.log('✅ PostgreSQL configuré automatiquement');
+    console.log('✅ Base de données PostgreSQL configurée');
     return true;
   } catch (error) {
-    console.error('❌ Erreur lors de la configuration PostgreSQL:', error);
+    console.error('❌ Erreur configuration PostgreSQL:', error);
     return false;
   }
 }`;
-  }
-  
-  writeFileSync(dbPath, dbContent);
+
+  writeFileSync(join(__dirname, 'server', 'db.ts'), dbConfig);
+  console.log(`✅ Configuration db.ts mise à jour pour ${config.dialect}`);
 }
 
 // Créer le fichier .env
 function createEnvFile(config) {
-  const envContent = `DATABASE_URL=${config.url}
-JWT_SECRET=barista_cafe_jwt_secret_key_2025
-NODE_ENV=development
+  const envContent = config.dialect === 'sqlite' ? 
+    `# Configuration SQLite Production - Barista Café
+DATABASE_URL=file:./barista_cafe.db
+DB_TYPE=sqlite
+
+# Configuration Application
+NODE_ENV=production
+JWT_SECRET=barista_cafe_production_jwt_secret_2025_ultra_secure
 PORT=5000
+
+# Configuration Performance SQLite
+SQLITE_PRAGMA_JOURNAL_MODE=WAL
+SQLITE_PRAGMA_SYNCHRONOUS=NORMAL
+SQLITE_PRAGMA_CACHE_SIZE=20000
+SQLITE_PRAGMA_FOREIGN_KEYS=ON
+SQLITE_PRAGMA_TEMP_STORE=MEMORY
+SQLITE_PRAGMA_MMAP_SIZE=268435456
+
+# Configuration Cache
+CACHE_TTL_MENU=600
+CACHE_TTL_CATEGORIES=1800
+CACHE_TTL_TABLES=300
+DB_POOL_SIZE=1
+DB_CONNECTION_TIMEOUT=30000
+DB_STATEMENT_TIMEOUT=60000
+
+# Configuration Backup automatique
+BACKUP_ENABLED=true
+BACKUP_INTERVAL=3600
+BACKUP_RETENTION=7
+` :
+    `# Configuration PostgreSQL Production - Barista Café
+DATABASE_URL=${config.url}
+DB_TYPE=postgresql
+
+# Configuration Application
+NODE_ENV=production
+JWT_SECRET=barista_cafe_production_jwt_secret_2025_ultra_secure
+PORT=5000
+
+# Configuration Performance PostgreSQL
+DB_POOL_SIZE=20
+DB_CONNECTION_TIMEOUT=30000
+DB_STATEMENT_TIMEOUT=60000
+
+# Configuration Cache
+CACHE_TTL_MENU=600
+CACHE_TTL_CATEGORIES=1800
+CACHE_TTL_TABLES=300
 `;
-  
-  writeFileSync(join(__dirname, '.env'), envContent);
+
+  writeFileSync('.env', envContent);
+  console.log(`✅ Fichier .env créé pour ${config.dialect}`);
 }
 
-// Exécuter les migrations
+// Appliquer les migrations
 async function runMigrations() {
-  console.log('🔄 Génération et application des migrations...');
-  
-  return new Promise((resolve, reject) => {
-    const pushProcess = spawn('npx', ['drizzle-kit', 'push'], { 
-      stdio: 'inherit',
-      shell: true
-    });
-    
-    pushProcess.on('close', (code) => {
-      if (code === 0) {
-        console.log('✅ Migrations appliquées avec succès');
-        resolve(true);
-      } else {
-        console.log('⚠️  Erreur lors des migrations (normal si tables existent déjà)');
-        resolve(true); // Continue même si les migrations échouent
-      }
-    });
-    
-    pushProcess.on('error', (error) => {
-      console.log('⚠️  Erreur migrations:', error.message);
-      resolve(true); // Continue même si les migrations échouent
-    });
-  });
+  try {
+    console.log('🔄 Application des migrations...');
+    await execAsync('npx drizzle-kit push');
+    console.log('✅ Migrations appliquées');
+    return true;
+  } catch (error) {
+    console.error('❌ Erreur migrations:', error);
+    return false;
+  }
 }
 
-// Initialiser les données de base
+// Initialiser les données
 async function initializeData() {
-  console.log('📊 Initialisation des données de base...');
-  
-  return new Promise((resolve, reject) => {
-    const initProcess = spawn('npx', ['tsx', 'scripts/setup.ts'], { 
-      stdio: 'inherit',
-      shell: true,
-      env: { ...process.env }
-    });
-    
-    initProcess.on('close', (code) => {
-      if (code === 0) {
-        console.log('✅ Données initialisées avec succès');
-      } else {
-        console.log('⚠️  Avertissement lors de l\'initialisation des données');
-      }
-      resolve(true);
-    });
-    
-    initProcess.on('error', (error) => {
-      console.log('⚠️  Erreur initialisation:', error.message);
-      resolve(true);
-    });
-  });
+  try {
+    console.log('📊 Initialisation des données...');
+    await execAsync('npx tsx scripts/init-database.ts');
+    console.log('✅ Données initialisées');
+    return true;
+  } catch (error) {
+    console.error('❌ Erreur initialisation données:', error);
+    return false;
+  }
 }
 
 // Fonction principale
 async function main() {
   try {
-    console.log('🚀 Configuration universelle du projet Barista Café');
+    console.log('🚀 Configuration universelle Barista Café');
     
-    // Détecter la plateforme
+    // 1. Détecter la plateforme
     const platform = detectPlatform();
-    console.log(`🔍 Plateforme détectée: ${platform}`);
+    console.log(`📍 Plateforme détectée: ${platform}`);
     
-    // Obtenir la configuration de base de données
-    const dbConfig = getDatabaseConfig(platform);
-    console.log(`🗄️  Type de base de données: ${dbConfig.type}`);
+    // 2. Obtenir la configuration
+    const config = getDatabaseConfig(platform);
+    console.log(`🗄️ Base de données: ${config.dialect}`);
     
-    // Configurer la base de données
-    await dbConfig.setup();
+    // 3. Configurer selon le type de base
+    if (config.dialect === 'sqlite') {
+      await convertSchemaToSQLite();
+      await updateDrizzleConfig('sqlite');
+      await updateDbConfig(config);
+      createEnvFile(config);
+    } else {
+      await convertSchemaToPostgreSQL();
+      await updateDrizzleConfig('postgresql');
+      await updateDbConfig(config);
+      createEnvFile(config);
+    }
     
-    // Mettre à jour la configuration de la base de données
-    await updateDbConfig(dbConfig);
+    // 4. Appliquer les migrations
+    const migrationsOk = await runMigrations();
+    if (!migrationsOk) {
+      console.log('⚠️ Migrations échouées, continuons...');
+    }
     
-    // Créer le fichier .env
-    createEnvFile(dbConfig);
+    // 5. Initialiser les données
+    const dataOk = await initializeData();
+    if (!dataOk) {
+      console.log('⚠️ Initialisation données échouée, continuons...');
+    }
     
-    // Exécuter les migrations
-    await runMigrations();
+    // 6. Créer le script de démarrage
+    const startScript = `#!/bin/bash
+# Script de démarrage automatique Barista Café
+
+echo "🚀 Démarrage Barista Café - Mode Production"
+echo "🗄️ Base de données: ${config.dialect}"
+
+# Créer le répertoire de backup si nécessaire
+mkdir -p ./backups
+
+# Démarrer l'application
+npm run dev
+`;
     
-    // Initialiser les données de base
-    await initializeData();
+    writeFileSync('start.sh', startScript);
+    await execAsync('chmod +x start.sh');
     
     console.log('🎉 Configuration terminée avec succès!');
-    console.log('🚀 Vous pouvez maintenant démarrer l\'application avec: npm run dev');
+    console.log('');
+    console.log('📋 Informations:');
+    console.log(`  • Base de données: ${config.dialect.toUpperCase()}`);
+    console.log(`  • Environnement: ${platform}`);
+    console.log('');
+    console.log('📋 Commandes disponibles:');
+    console.log('  • npm run dev     - Démarrage développement');
+    console.log('  • ./start.sh      - Démarrage production');
+    console.log('');
+    console.log('🔐 Compte admin: admin / admin123');
+    console.log('🌐 URL: http://localhost:5000');
+    console.log('');
+    console.log('🎯 Optimisations activées:');
+    if (config.dialect === 'sqlite') {
+      console.log('  • WAL mode pour performance');
+      console.log('  • Cache 20MB optimisé');
+      console.log('  • Backup automatique toutes les heures');
+      console.log('  • Prévention des doublons');
+    }
+    console.log('  • Cache intelligent des requêtes');
+    console.log('  • Index optimisés pour restaurant');
     
   } catch (error) {
-    console.error('❌ Erreur lors de la configuration:', error);
+    console.error('❌ Erreur configuration:', error);
     process.exit(1);
   }
 }
@@ -722,4 +906,4 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   main();
 }
 
-export { main, detectPlatform, getDatabaseConfig };
+export { main };

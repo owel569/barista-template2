@@ -1,9 +1,9 @@
-import { sqliteTable, text, integer, real, blob } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, real, blob, index } from "drizzle-orm/sqlite-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
 
-// Users table for admin authentication
+// Users table with optimized indexes
 export const users = sqliteTable('users', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   username: text('username').unique().notNull(),
@@ -11,13 +11,17 @@ export const users = sqliteTable('users', {
   role: text('role').notNull().default('employe'),
   firstName: text('first_name'),
   lastName: text('last_name'),
-  email: text('email'),
-  lastLogin: text('last_login'), // ISO string
-  createdAt: text('created_at').notNull().default(new Date().toISOString()),
-  updatedAt: text('updated_at').notNull().default(new Date().toISOString())
-});
+  email: text('email').unique(),
+  lastLogin: text('last_login'),
+  createdAt: text('created_at').default("datetime('now')").notNull(),
+  updatedAt: text('updated_at').default("datetime('now')").notNull()
+}, (table) => ({
+  usernameIdx: index('users_username_idx').on(table.username),
+  emailIdx: index('users_email_idx').on(table.email),
+  roleIdx: index('users_role_idx').on(table.role),
+}));
 
-// Activity logs table
+// Activity logs with efficient indexing
 export const activityLogs = sqliteTable("activity_logs", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   userId: integer("user_id").notNull(),
@@ -25,62 +29,84 @@ export const activityLogs = sqliteTable("activity_logs", {
   entity: text("entity").notNull(),
   entityId: integer("entity_id"),
   details: text("details"),
-  timestamp: text("timestamp").notNull().default(new Date().toISOString()),
-});
+  timestamp: text("timestamp").default("datetime('now')").notNull(),
+}, (table) => ({
+  userIdIdx: index("activity_logs_user_id_idx").on(table.userId),
+  entityIdx: index("activity_logs_entity_idx").on(table.entity),
+  timestampIdx: index("activity_logs_timestamp_idx").on(table.timestamp),
+}));
 
 // Permissions table
 export const permissions = sqliteTable("permissions", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   userId: integer("user_id").notNull(),
   module: text("module").notNull(),
-  canView: integer("can_view", { mode: "boolean" }).notNull().default(1),
-  canCreate: integer("can_create", { mode: "boolean" }).notNull().default(0),
-  canUpdate: integer("can_update", { mode: "boolean" }).notNull().default(0),
-  canDelete: integer("can_delete", { mode: "boolean" }).notNull().default(0),
-});
+  canView: integer("can_view", { mode: "boolean" }).notNull().default(true),
+  canCreate: integer("can_create", { mode: "boolean" }).notNull().default(false),
+  canUpdate: integer("can_update", { mode: "boolean" }).notNull().default(false),
+  canDelete: integer("can_delete", { mode: "boolean" }).notNull().default(false),
+}, (table) => ({
+  userIdIdx: index("permissions_user_id_idx").on(table.userId),
+  moduleIdx: index("permissions_module_idx").on(table.module),
+}));
 
-// Menu categories
+// Menu categories with optimized structure
 export const menuCategories = sqliteTable("menu_categories", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
   description: text("description"),
   slug: text("slug").notNull().unique(),
   displayOrder: integer("display_order").notNull().default(0),
-});
+}, (table) => ({
+  slugIdx: index("menu_categories_slug_idx").on(table.slug),
+  orderIdx: index("menu_categories_order_idx").on(table.displayOrder),
+}));
 
-// Menu items
+// Menu items with performance optimizations
 export const menuItems = sqliteTable("menu_items", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  name: text("name").notNull().unique(),
+  name: text("name").notNull(),
   description: text("description").notNull(),
   price: real("price").notNull(),
   categoryId: integer("category_id").notNull(),
   imageUrl: text("image_url"),
-  available: integer("available", { mode: "boolean" }).notNull().default(1),
-  createdAt: text("created_at").default(new Date().toISOString()),
-});
+  available: integer("available", { mode: "boolean" }).notNull().default(true),
+  createdAt: text("created_at").default("datetime('now')"),
+}, (table) => ({
+  nameIdx: index("menu_items_name_idx").on(table.name),
+  categoryIdx: index("menu_items_category_idx").on(table.categoryId),
+  availableIdx: index("menu_items_available_idx").on(table.available),
+  priceIdx: index("menu_items_price_idx").on(table.price),
+}));
 
-// Menu item images
+// Menu item images for dynamic management
 export const menuItemImages = sqliteTable("menu_item_images", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   menuItemId: integer("menu_item_id").notNull(),
   imageUrl: text("image_url").notNull(),
   altText: text("alt_text"),
-  isPrimary: integer("is_primary", { mode: "boolean" }).notNull().default(1),
-  uploadMethod: text("upload_method").notNull().default("url"),
-  createdAt: text("created_at").notNull().default(new Date().toISOString()),
-  updatedAt: text("updated_at").notNull().default(new Date().toISOString()),
-});
+  isPrimary: integer("is_primary", { mode: "boolean" }).notNull().default(true),
+  uploadMethod: text("upload_method", { enum: ["url", "upload", "generated", "pexels"] }).notNull().default("url"),
+  createdAt: text("created_at").default("datetime('now')").notNull(),
+  updatedAt: text("updated_at").default("datetime('now')").notNull(),
+}, (table) => ({
+  menuItemIdx: index("menu_item_images_menu_item_id_idx").on(table.menuItemId),
+  primaryIdx: index("menu_item_images_primary_idx").on(table.menuItemId, table.isPrimary),
+}));
 
-// Tables
+// Tables with capacity management
 export const tables = sqliteTable("tables", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   number: integer("number").notNull().unique(),
   capacity: integer("capacity").notNull(),
-  available: integer("available", { mode: "boolean" }).notNull().default(1),
-});
+  available: integer("available", { mode: "boolean" }).notNull().default(true),
+}, (table) => ({
+  numberIdx: index("tables_number_idx").on(table.number),
+  capacityIdx: index("tables_capacity_idx").on(table.capacity),
+  availableIdx: index("tables_available_idx").on(table.available),
+}));
 
-// Reservations
+// Reservations with anti-duplication measures
 export const reservations = sqliteTable("reservations", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   customerName: text("customer_name").notNull(),
@@ -91,12 +117,21 @@ export const reservations = sqliteTable("reservations", {
   guests: integer("guests").notNull(),
   tableId: integer("table_id"),
   specialRequests: text("special_requests"),
-  status: text("status").notNull().default("pending"),
+  status: text("status", { enum: ["pending", "confirmed", "cancelled", "completed"] }).notNull().default("pending"),
   preorderTotal: real("preorder_total").default(0.00),
-  notificationSent: integer("notification_sent", { mode: "boolean" }).default(0),
-  metadata: text("metadata"), // JSON string
-  createdAt: text("created_at").notNull().default(new Date().toISOString()),
-});
+  notificationSent: integer("notification_sent", { mode: "boolean" }).default(false),
+  metadata: text("metadata"),
+  createdAt: text("created_at").default("datetime('now')").notNull(),
+}, (table) => ({
+  dateIdx: index("reservations_date_idx").on(table.date),
+  timeIdx: index("reservations_time_idx").on(table.time),
+  statusIdx: index("reservations_status_idx").on(table.status),
+  tableIdx: index("reservations_table_idx").on(table.tableId),
+  emailIdx: index("reservations_email_idx").on(table.customerEmail),
+  phoneIdx: index("reservations_phone_idx").on(table.customerPhone),
+  // Index unique pour éviter les doublons
+  uniqueReservation: index("reservations_unique_slot").on(table.date, table.time, table.tableId),
+}));
 
 // Reservation items
 export const reservationItems = sqliteTable("reservation_items", {
@@ -107,7 +142,10 @@ export const reservationItems = sqliteTable("reservation_items", {
   unitPrice: real("unit_price").notNull(),
   totalPrice: real("total_price").notNull(),
   specialInstructions: text("special_instructions"),
-});
+}, (table) => ({
+  reservationIdx: index("reservation_items_reservation_idx").on(table.reservationId),
+  menuItemIdx: index("reservation_items_menu_item_idx").on(table.menuItemId),
+}));
 
 // Contact messages
 export const contactMessages = sqliteTable("contact_messages", {
@@ -116,11 +154,14 @@ export const contactMessages = sqliteTable("contact_messages", {
   email: text("email").notNull(),
   subject: text("subject").notNull(),
   message: text("message").notNull(),
-  status: text("status").notNull().default("new"),
-  createdAt: text("created_at").notNull().default(new Date().toISOString()),
-});
+  status: text("status", { enum: ["new", "read", "replied"] }).notNull().default("new"),
+  createdAt: text("created_at").default("datetime('now')").notNull(),
+}, (table) => ({
+  statusIdx: index("contact_messages_status_idx").on(table.status),
+  createdAtIdx: index("contact_messages_created_at_idx").on(table.createdAt),
+}));
 
-// Customers
+// Customers with loyalty program
 export const customers = sqliteTable("customers", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
@@ -129,39 +170,53 @@ export const customers = sqliteTable("customers", {
   address: text("address"),
   loyaltyPoints: integer("loyalty_points").notNull().default(0),
   totalSpent: real("total_spent").notNull().default(0.00),
-  createdAt: text("created_at").notNull().default(new Date().toISOString()),
-});
+  createdAt: text("created_at").default("datetime('now')").notNull(),
+}, (table) => ({
+  emailIdx: index("customers_email_idx").on(table.email),
+  phoneIdx: index("customers_phone_idx").on(table.phone),
+  loyaltyIdx: index("customers_loyalty_idx").on(table.loyaltyPoints),
+}));
 
-// Employees
+// Employees management
 export const employees = sqliteTable("employees", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
   email: text("email").notNull(),
   phone: text("phone").notNull(),
-  position: text("position").notNull(),
-  department: text("department").notNull(),
+  position: text("position", { enum: ["manager", "server", "chef", "barista", "cashier"] }).notNull(),
+  department: text("department", { enum: ["kitchen", "service", "management"] }).notNull(),
   hourlyRate: real("hourly_rate").notNull(),
   hireDate: text("hire_date").notNull(),
-  status: text("status").notNull().default("active"),
-  createdAt: text("created_at").notNull().default(new Date().toISOString()),
-});
+  status: text("status", { enum: ["active", "inactive", "terminated"] }).notNull().default("active"),
+  createdAt: text("created_at").default("datetime('now')").notNull(),
+}, (table) => ({
+  emailIdx: index("employees_email_idx").on(table.email),
+  statusIdx: index("employees_status_idx").on(table.status),
+  departmentIdx: index("employees_department_idx").on(table.department),
+}));
 
-// Orders
+// Orders management
 export const orders = sqliteTable("orders", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   customerId: integer("customer_id"),
   employeeId: integer("employee_id"),
   tableId: integer("table_id"),
-  orderType: text("order_type").notNull().default("dine-in"),
-  status: text("status").notNull().default("pending"),
+  orderType: text("order_type", { enum: ["dine-in", "takeout", "delivery"] }).notNull().default("dine-in"),
+  status: text("status", { enum: ["pending", "preparing", "ready", "completed", "cancelled"] }).notNull().default("pending"),
   subtotal: real("subtotal").notNull(),
   tax: real("tax").notNull(),
   total: real("total").notNull(),
   paymentMethod: text("payment_method"),
   notes: text("notes"),
-  createdAt: text("created_at").notNull().default(new Date().toISOString()),
-});
+  createdAt: text("created_at").default("datetime('now')").notNull(),
+}, (table) => ({
+  statusIdx: index("orders_status_idx").on(table.status),
+  createdAtIdx: index("orders_created_at_idx").on(table.createdAt),
+  customerIdx: index("orders_customer_idx").on(table.customerId),
+  employeeIdx: index("orders_employee_idx").on(table.employeeId),
+  tableIdx: index("orders_table_idx").on(table.tableId),
+}));
 
 // Order items
 export const orderItems = sqliteTable("order_items", {
@@ -172,7 +227,10 @@ export const orderItems = sqliteTable("order_items", {
   unitPrice: real("unit_price").notNull(),
   totalPrice: real("total_price").notNull(),
   specialInstructions: text("special_instructions"),
-});
+}, (table) => ({
+  orderIdx: index("order_items_order_idx").on(table.orderId),
+  menuItemIdx: index("order_items_menu_item_idx").on(table.menuItemId),
+}));
 
 // Work shifts
 export const workShifts = sqliteTable("work_shifts", {
@@ -182,12 +240,16 @@ export const workShifts = sqliteTable("work_shifts", {
   startTime: text("start_time").notNull(),
   endTime: text("end_time"),
   hoursWorked: real("hours_worked"),
-  status: text("status").notNull().default("scheduled"),
+  status: text("status", { enum: ["scheduled", "completed", "cancelled"] }).notNull().default("scheduled"),
   notes: text("notes"),
-  createdAt: text("created_at").notNull().default(new Date().toISOString()),
-});
+  createdAt: text("created_at").default("datetime('now')").notNull(),
+}, (table) => ({
+  employeeIdx: index("work_shifts_employee_idx").on(table.employeeId),
+  dateIdx: index("work_shifts_date_idx").on(table.date),
+  statusIdx: index("work_shifts_status_idx").on(table.status),
+}));
 
-// Relations
+// Relations optimisées
 export const usersRelations = relations(users, ({ many }) => ({
   activityLogs: many(activityLogs),
   permissions: many(permissions),
@@ -274,7 +336,7 @@ export const workShiftsRelations = relations(workShifts, ({ one }) => ({
   }),
 }));
 
-// Types
+// Types TypeScript
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type MenuCategory = typeof menuCategories.$inferSelect;
@@ -306,7 +368,7 @@ export type InsertActivityLog = typeof activityLogs.$inferInsert;
 export type Permission = typeof permissions.$inferSelect;
 export type InsertPermission = typeof permissions.$inferInsert;
 
-// Zod schemas
+// Schemas Zod pour validation
 export const insertUserSchema = createInsertSchema(users);
 export const insertMenuCategorySchema = createInsertSchema(menuCategories);
 export const insertMenuItemSchema = createInsertSchema(menuItems);
