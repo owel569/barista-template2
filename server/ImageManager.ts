@@ -43,6 +43,20 @@ export class ImageManager {
     async addImage(imageData: InsertMenuItemImage): Promise<MenuItemImage> {
         const db = await this.db;
 
+        // Récupérer le nom du menu item pour l'altText automatique si manquant
+        let altText = imageData.altText;
+        if (!altText) {
+            const menuItem = await db
+                .select()
+                .from(menuItems)
+                .where(eq(menuItems.id, imageData.menuItemId))
+                .limit(1);
+            
+            if (menuItem.length > 0) {
+                altText = `Image de ${menuItem[0].name}`;
+            }
+        }
+
         // Si c'est une image principale, désactiver les autres images principales
         if (imageData.isPrimary) {
             await db
@@ -55,6 +69,7 @@ export class ImageManager {
             .insert(menuItemImages)
             .values({
                 ...imageData,
+                altText,
                 isPrimary: imageData.isPrimary ?? true
             })
             .returning();
@@ -114,19 +129,47 @@ export class ImageManager {
      * Cette fonction remplace l'ancien système IMAGE_MAPPING
      */
     async getOptimalImageUrl(menuItemId: number, categorySlug?: string): Promise<string> {
+        const image = await this.getOptimalImage(menuItemId, categorySlug);
+        return image.url;
+    }
+
+    /**
+     * Obtient l'image optimale avec URL et altText pour un élément de menu
+     */
+    async getOptimalImage(menuItemId: number, categorySlug?: string): Promise<{ url: string; alt: string }> {
+        const db = await this.db;
+        
+        // Récupérer les informations du menu item pour le fallback altText
+        const menuItem = await db
+            .select()
+            .from(menuItems)
+            .where(eq(menuItems.id, menuItemId))
+            .limit(1);
+            
+        const menuItemName = menuItem.length > 0 ? menuItem[0].name : 'Élément de menu';
+
         // 1. Essayer d'abord l'image principale de la base de données
         const primaryImage = await this.getPrimaryImage(menuItemId);
         if (primaryImage) {
-            return primaryImage.imageUrl;
+            return {
+                url: primaryImage.imageUrl,
+                alt: primaryImage.altText || `Image de ${menuItemName}`
+            };
         }
 
         // 2. Utiliser l'image par défaut de la catégorie
         if (categorySlug && DEFAULT_CATEGORY_IMAGES[categorySlug]) {
-            return DEFAULT_CATEGORY_IMAGES[categorySlug];
+            return {
+                url: DEFAULT_CATEGORY_IMAGES[categorySlug],
+                alt: `Image par défaut pour ${menuItemName}`
+            };
         }
 
         // 3. Image par défaut générique
-        return "https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop";
+        return {
+            url: "https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
+            alt: `Image de ${menuItemName}`
+        };
     }
 
     /**
@@ -134,24 +177,41 @@ export class ImageManager {
      */
     async migrateFromImageMapping(imageMapping: Record<string, string>): Promise<void> {
         const db = await this.db;
+        let migratedCount = 0;
+        let errorCount = 0;
 
         // Récupérer tous les éléments de menu
         const menuItemsList = await db.select().from(menuItems);
+        console.log(`🔄 Début migration de ${menuItemsList.length} éléments de menu`);
 
         for (const menuItem of menuItemsList) {
-            // Vérifier si l'élément a déjà une image dans la nouvelle table
-            const existingImage = await this.getPrimaryImage(menuItem.id);
+            try {
+                // Vérifier si l'élément a déjà une image dans la nouvelle table
+                const existingImage = await this.getPrimaryImage(menuItem.id);
 
-            if (!existingImage && imageMapping[menuItem.name]) {
-                // Ajouter l'image depuis IMAGE_MAPPING
-                await this.addImage({
-                    menuItemId: menuItem.id,
-                    imageUrl: imageMapping[menuItem.name],
-                    altText: menuItem.name,
-                    isPrimary: true,
-                    uploadMethod: 'url'
-                });
+                if (!existingImage && imageMapping[menuItem.name]) {
+                    // Ajouter l'image depuis IMAGE_MAPPING
+                    await this.addImage({
+                        menuItemId: menuItem.id,
+                        imageUrl: imageMapping[menuItem.name],
+                        altText: `Image de ${menuItem.name}`,
+                        isPrimary: true,
+                        uploadMethod: 'pexels'
+                    });
+                    
+                    migratedCount++;
+                    console.log(`✅ Image migrée pour: ${menuItem.name}`);
+                } else if (existingImage) {
+                    console.log(`⏭️ Image déjà existante pour: ${menuItem.name}`);
+                } else {
+                    console.log(`⚠️ Aucune image trouvée dans le mapping pour: ${menuItem.name}`);
+                }
+            } catch (error) {
+                errorCount++;
+                console.error(`❌ Erreur migration image pour ${menuItem.name}:`, error);
             }
         }
+
+        console.log(`✅ Migration terminée: ${migratedCount} images migrées, ${errorCount} erreurs`);
     }
 }

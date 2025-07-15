@@ -10,7 +10,7 @@ const addImageSchema = z.object({
   imageUrl: z.string().url(),
   altText: z.string().optional(),
   isPrimary: z.boolean().optional(),
-  uploadMethod: z.enum(['url', 'upload', 'generated']).optional()
+  uploadMethod: z.enum(['url', 'upload', 'generated', 'pexels']).optional()
 });
 
 // GET /api/admin/images/:menuItemId - Récupérer les images d'un élément de menu
@@ -76,13 +76,13 @@ router.delete("/:imageId", async (req, res) => {
   }
 });
 
-// GET /api/admin/images/optimal/:menuItemId - Obtenir l'URL optimale d'une image
+// GET /api/admin/images/optimal/:menuItemId - Obtenir l'image optimale avec URL et altText
 router.get("/optimal/:menuItemId", async (req, res) => {
   try {
     const menuItemId = parseInt(req.params.menuItemId);
     const categorySlug = req.query.category as string;
-    const imageUrl = await imageManager.getOptimalImageUrl(menuItemId, categorySlug);
-    res.json({ imageUrl });
+    const image = await imageManager.getOptimalImage(menuItemId, categorySlug);
+    res.json({ imageUrl: image.url, altText: image.alt });
   } catch (error) {
     console.error("Erreur lors de la récupération de l'image optimale:", error);
     res.status(500).json({ error: "Erreur serveur" });

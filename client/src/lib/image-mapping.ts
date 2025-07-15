@@ -74,6 +74,14 @@ export function getItemImageUrl(
  * Cette fonction va progressivement remplacer getItemImageUrl
  */
 export async function getOptimalImageUrl(menuItemId: number, categorySlug?: string): Promise<string> {
+  const image = await getOptimalImage(menuItemId, categorySlug);
+  return image.url;
+}
+
+/**
+ * Obtient l'image optimale avec URL et altText depuis la base de données
+ */
+export async function getOptimalImage(menuItemId: number, categorySlug?: string): Promise<{ url: string; alt: string }> {
   try {
     const response = await fetch(`/api/admin/images/optimal/${menuItemId}?category=${categorySlug || ''}`, {
       headers: {
@@ -83,14 +91,16 @@ export async function getOptimalImageUrl(menuItemId: number, categorySlug?: stri
     
     if (response.ok) {
       const data = await response.json();
-      return data.imageUrl;
+      return { url: data.imageUrl, alt: data.altText };
     }
     
     // Fallback vers l'ancien système
-    return getItemImageUrl('', categorySlug);
+    const fallbackUrl = getItemImageUrl('', categorySlug);
+    return { url: fallbackUrl, alt: 'Image du menu' };
   } catch (error) {
     console.error('Erreur lors de la récupération de l\'image optimale:', error);
-    return getItemImageUrl('', categorySlug);
+    const fallbackUrl = getItemImageUrl('', categorySlug);
+    return { url: fallbackUrl, alt: 'Image du menu' };
   }
 }
 
