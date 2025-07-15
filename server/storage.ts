@@ -217,7 +217,7 @@ export class DatabaseStorage implements IStorage {
     return newCategory;
   }
 
-  // Menu Items
+  // Menu Items avec gestion d'images améliorée
   async getMenuItems(): Promise<MenuItem[]> {
     try {
       const result = await db.select({

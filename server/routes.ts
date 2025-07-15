@@ -6,6 +6,7 @@ import bcrypt from 'bcrypt';
 import { z } from 'zod';
 import { storage } from './storage';
 import { insertUserSchema } from '../shared/schema';
+import imageRoutes from './routes/image-routes';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'barista-secret-key-ultra-secure-2025';
 const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
@@ -425,6 +426,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Erreur lors de la suppression de l\'article' });
     }
   });
+
+  // Routes pour la gestion des images
+  app.use('/api/admin/images', authenticateToken, imageRoutes);
 
   app.put('/api/admin/messages/:id/status', authenticateToken, async (req, res) => {
     try {

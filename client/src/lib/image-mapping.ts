@@ -69,5 +69,30 @@ export function getItemImageUrl(
   return "https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop";
 }
 
+/**
+ * Obtient l'URL d'image optimale depuis la base de données
+ * Cette fonction va progressivement remplacer getItemImageUrl
+ */
+export async function getOptimalImageUrl(menuItemId: number, categorySlug?: string): Promise<string> {
+  try {
+    const response = await fetch(`/api/admin/images/optimal/${menuItemId}?category=${categorySlug || ''}`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      return data.imageUrl;
+    }
+    
+    // Fallback vers l'ancien système
+    return getItemImageUrl('', categorySlug);
+  } catch (error) {
+    console.error('Erreur lors de la récupération de l\'image optimale:', error);
+    return getItemImageUrl('', categorySlug);
+  }
+}
+
 // Alias pour compatibilité
 export const getImageUrlByName = getItemImageUrl;

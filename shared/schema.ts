@@ -80,6 +80,21 @@ export const menuItems = pgTable("menu_items", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Table pour la gestion dynamique des images
+export const menuItemImages = pgTable("menu_item_images", {
+  id: serial("id").primaryKey(),
+  menuItemId: integer("menu_item_id").notNull().references(() => menuItems.id, { onDelete: "cascade" }),
+  imageUrl: text("image_url").notNull(),
+  altText: text("alt_text"),
+  isPrimary: boolean("is_primary").notNull().default(true),
+  uploadMethod: varchar("upload_method", { length: 20 }).notNull().default("url"), // 'url', 'upload', 'generated'
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  menuItemIdx: index("menu_item_images_menu_item_id_idx").on(table.menuItemId),
+  primaryIdx: index("menu_item_images_primary_idx").on(table.menuItemId, table.isPrimary),
+}));
+
 // Tables in the restaurant
 export const tables = pgTable("tables", {
   id: serial("id").primaryKey(),
