@@ -181,3 +181,19 @@ export function getImageMappingStats(): {
     missingImages: [] // À implémenter si nécessaire
   };
 }
+
+// Fonction alias pour compatibilité
+export const getImageUrlByName = (itemName: string): string => {
+  return getItemImageUrl(itemName);
+};
+
+// Statistiques du mapping (pour debug/admin)
+export const getMappingStats = () => {
+  const totalMappings = Object.keys(IMAGE_MAPPING).length;
+  const categories = Object.keys(DEFAULT_CATEGORY_IMAGES).length;
+  return {
+    totalMappings,
+    categories,
+    lastUpdated: new Date().toISOString()
+  };
+};
