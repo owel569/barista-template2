@@ -82,39 +82,44 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const refreshUserData = async () => {
     const savedToken = localStorage.getItem(STORAGE_KEYS.token);
-    if (!savedToken) return;
+    if (!savedToken) {
+      console.log('Aucun token sauvegardé trouvé');
+      return;
+    }
 
     try {
-      const response = await fetch('/api/auth/me', {
+      console.log('Rafraîchissement des données utilisateur...');
+      
+      const response = await fetch('/api/auth/verify', {
         headers: {
           'Authorization': `Bearer ${savedToken}`
         }
       });
 
+      console.log('Réponse verification:', response.status);
+
       if (response.ok) {
-        const userData = await response.json();
+        const data = await response.json();
+        console.log('Données de vérification reçues:', data);
         
-        // Validation de la réponse
-        if (userData && typeof userData === 'object' && userData.id) {
-          setUser(userData);
-          localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(userData));
+        if (data.valid && data.user && typeof data.user === 'object' && data.user.id) {
+          setUser(data.user);
+          localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(data.user));
+          console.log('✅ Données utilisateur rafraîchies');
         } else {
-          throw new Error('Invalid user data received from server');
+          throw new Error('Données utilisateur invalides reçues du serveur');
         }
       } else {
-        // Token invalide côté serveur, nettoyer l'authentification
         console.warn('Token invalide côté serveur, déconnexion automatique');
         logout();
       }
     } catch (error) {
       console.error('Erreur lors du rafraîchissement des données utilisateur:', error);
-      // En cas d'erreur réseau, garder l'utilisateur connecté avec les données existantes
-      // Sauf si c'est une erreur d'authentification
-      if (error instanceof TypeError) {
-        // Erreur réseau, garder l'état actuel
+      
+      if (error instanceof TypeError && error.message.includes('fetch')) {
         console.warn('Erreur réseau, conservation de l\'état d\'authentification actuel');
       } else {
-        // Autre erreur, déconnecter l'utilisateur
+        console.warn('Erreur d\'authentification, déconnexion');
         logout();
       }
     }

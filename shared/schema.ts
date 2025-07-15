@@ -17,23 +17,18 @@ export const departmentEnum = pgEnum('department', ['kitchen', 'service', 'manag
 export const uploadMethodEnum = pgEnum('upload_method', ['url', 'upload', 'generated', 'pexels']);
 
 // Users table for admin authentication with enhanced roles
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(), // Hash BCrypt du mot de passe
-  role: userRoleEnum("role").notNull().default("employe"),
-  firstName: text("first_name"),
-  lastName: text("last_name"),
-  email: text("email"),
-  phone: text("phone"),
-  isActive: boolean("is_active").notNull().default(true),
-  lastLogin: timestamp("last_login"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-}, (table) => ({
-  usernameIdx: index("users_username_idx").on(table.username),
-  roleIdx: index("users_role_idx").on(table.role),
-}));
+export const users = pgTable('users', {
+  id: serial('id').primaryKey(),
+  username: varchar('username', { length: 50 }).unique().notNull(),
+  password: varchar('password', { length: 255 }).notNull(),
+  role: varchar('role', { length: 20 }).notNull().default('employe'),
+  firstName: varchar('first_name', { length: 50 }),
+  lastName: varchar('last_name', { length: 50 }),
+  email: varchar('email', { length: 100 }),
+  lastLogin: timestamp('last_login'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull()
+});
 
 // Activity logs table for audit trail
 export const activityLogs = pgTable("activity_logs", {

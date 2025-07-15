@@ -22,31 +22,68 @@ export default function LoginSimple() {
     setError('');
     setIsLoading(true);
 
+    // Validation côté client
+    if (!formData.username.trim() || !formData.password.trim()) {
+      setError('Veuillez remplir tous les champs');
+      setIsLoading(false);
+      return;
+    }
+
     try {
+      console.log('Tentative de connexion pour:', formData.username);
+      
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          username: formData.username.trim(),
+          password: formData.password
+        }),
       });
 
-      const data = await response.json();
+      console.log('Réponse statut:', response.status);
+      
+      if (!response.ok) {
+        if (response.status === 500) {
+          throw new Error('Erreur serveur - Problème de base de données');
+        }
+        if (response.status === 401) {
+          throw new Error('Identifiants incorrects');
+        }
+        throw new Error(`Erreur ${response.status}`);
+      }
 
-      if (response.ok) {
+      const data = await response.json();
+      console.log('Données reçues:', { ...data, user: data.user ? { ...data.user, password: '[HIDDEN]' } : null });
+
+      if (data.token && data.user) {
+        // Stockage sécurisé des données d'authentification
         localStorage.setItem('auth_token', data.token);
         localStorage.setItem('auth_user', JSON.stringify(data.user));
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         
-        // Forcer le rechargement de la page pour s'assurer que le contexte est mis à jour
+        console.log('Authentification réussie, redirection...');
+        
+        // Redirection immédiate
         window.location.href = '/admin';
       } else {
-        setError(data.message || 'Erreur de connexion');
+        throw new Error('Données d\'authentification manquantes');
       }
-    } catch (err) {
-      setError('Erreur de connexion au serveur');
-      console.error('Login error:', err);
+    } catch (err: any) {
+      console.error('Erreur de connexion détaillée:', err);
+      
+      if (err.message.includes('base de données')) {
+        setError('Erreur de base de données - Contactez l\'administrateur');
+      } else if (err.message.includes('Identifiants')) {
+        setError('Nom d\'utilisateur ou mot de passe incorrect');
+      } else if (err.name === 'TypeError') {
+        setError('Impossible de contacter le serveur');
+      } else {
+        setError(err.message || 'Erreur de connexion inattendue');
+      }
     } finally {
       setIsLoading(false);
     }
