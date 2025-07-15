@@ -55,29 +55,29 @@ export function getItemImageUrl(itemName: string, categoryName?: string, customI
   if (categoryName) {
     const normalizedCategory = categoryName.toLowerCase();
     if (normalizedCategory.includes('café') || normalizedCategory.includes('boisson')) {
-      return imageMapping['cafe'] || imageMapping['default'];
+      return imageMapping['cafe'] ?? imageMapping['default'] ?? '/api/images/coffee-default.jpg';
     }
     if (normalizedCategory.includes('pâtisserie')) {
-      return imageMapping['pastry'] || imageMapping['default'];
+      return imageMapping['pastry'] ?? imageMapping['default'] ?? '/api/images/pastry-default.jpg';
     }
     if (normalizedCategory.includes('plat')) {
-      return imageMapping['food'] || imageMapping['default'];
+      return imageMapping['food'] ?? imageMapping['default'] ?? '/api/images/food-default.jpg';
     }
   }
   
   // Image par défaut
-  return imageMapping['default'] || '/api/images/default-item.jpg';
+  return imageMapping['default'] ?? '/api/images/default-item.jpg';
 }
 
 export function getCategoryImageUrl(categoryName: string): string {
   const normalized = categoryName.toLowerCase();
   
-  if (normalized.includes('café')) return imageMapping['cafe'] || imageMapping['default'];
-  if (normalized.includes('boisson')) return imageMapping['cafe'] || imageMapping['default'];
-  if (normalized.includes('pâtisserie')) return imageMapping['pastry'] || imageMapping['default'];
-  if (normalized.includes('plat')) return imageMapping['food'] || imageMapping['default'];
+  if (normalized.includes('café')) return imageMapping['cafe'] ?? imageMapping['default'] ?? '/api/images/coffee-default.jpg';
+  if (normalized.includes('boisson')) return imageMapping['cafe'] ?? imageMapping['default'] ?? '/api/images/coffee-default.jpg';
+  if (normalized.includes('pâtisserie')) return imageMapping['pastry'] ?? imageMapping['default'] ?? '/api/images/pastry-default.jpg';
+  if (normalized.includes('plat')) return imageMapping['food'] ?? imageMapping['default'] ?? '/api/images/food-default.jpg';
   
-  return imageMapping['default'] || '/api/images/default-item.jpg';
+  return imageMapping['default'] ?? '/api/images/default-item.jpg';
 }
 
 // Fonction pour valider si une image existe
