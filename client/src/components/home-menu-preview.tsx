@@ -33,9 +33,12 @@ export default function HomeMenuPreview() {
               <CardContent className="p-0">
                 <div className="aspect-square overflow-hidden rounded-t-lg">
                   <img 
-                    src={getItemImageUrl(item.name)}
+                    src={getItemImageUrl(item.name, item.category?.slug)}
                     alt={item.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = getItemImageUrl('default', item.category?.slug);
+                    }}
                   />
                 </div>
                 <div className="p-6">

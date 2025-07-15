@@ -226,11 +226,12 @@ export default function InteractiveReservation() {
                         <CardContent className="p-4">
                           <div className="aspect-square mb-3 rounded-lg overflow-hidden bg-coffee-light/20">
                             <img 
-                              src={getItemImageUrl(item.name, undefined, item.imageUrl)}
+                              src={getItemImageUrl(item.name, item.category?.toLowerCase())}
                               alt={item.name}
                               className="w-full h-full object-cover rounded-lg"
                               onError={(e) => {
-                                e.currentTarget.src = getItemImageUrl(item.name);
+                                const target = e.currentTarget as HTMLImageElement;
+                                target.src = getItemImageUrl('default', item.category?.toLowerCase());
                               }}
                             />
                           </div>

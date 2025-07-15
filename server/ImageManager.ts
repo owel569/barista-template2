@@ -156,17 +156,12 @@ export class ImageManager {
             };
         }
 
-        // 2. Utiliser l'image par défaut de la catégorie
-        if (categorySlug && DEFAULT_CATEGORY_IMAGES[categorySlug]) {
-            return {
-                url: DEFAULT_CATEGORY_IMAGES[categorySlug],
-                alt: `Image par défaut pour ${menuItemName}`
-            };
-        }
-
-        // 3. Image par défaut générique
+        // 2. Fallback vers le nouveau système IMAGE_MAPPING Pexels
+        const { getItemImageUrl } = await import('../client/src/lib/image-mapping');
+        const imageUrl = getItemImageUrl(menuItemName, categorySlug);
+        
         return {
-            url: "https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
+            url: imageUrl,
             alt: `Image de ${menuItemName}`
         };
     }

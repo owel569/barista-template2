@@ -116,11 +116,12 @@ export default function MenuPage() {
               {/* Image HD */}
               <div className="aspect-video bg-coffee-light/20 overflow-hidden">
                 <img 
-                  src={getItemImageUrl(item.name, item.category?.toLowerCase(), item.imageUrl)}
+                  src={getItemImageUrl(item.name, item.category?.toLowerCase())}
                   alt={item.name}
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    e.currentTarget.src = getItemImageUrl(item.name, item.category?.toLowerCase());
+                    const target = e.currentTarget as HTMLImageElement;
+                    target.src = getItemImageUrl('default', item.category?.toLowerCase());
                   }}
                 />
               </div>

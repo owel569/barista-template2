@@ -114,64 +114,64 @@ async function initializeDatabase() {
       await db.insert(tables).values(table).onConflictDoNothing();
     }
     
-    // 5. Ajouter des images par défaut
-    console.log('🖼️ Ajout des images par défaut...');
+    // 5. Ajouter des images Pexels HD par défaut
+    console.log('🖼️ Ajout des images Pexels HD...');
     const imageData = [
       {
         menuItemId: 1,
-        imageUrl: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=300',
+        imageUrl: 'https://images.pexels.com/photos/28538132/pexels-photo-28538132.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop',
         altText: 'Espresso Classique',
         isPrimary: true,
-        uploadMethod: 'url' as const
+        uploadMethod: 'pexels' as const
       },
       {
         menuItemId: 2,
-        imageUrl: 'https://images.unsplash.com/photo-1534778101976-62847782c213?w=300',
+        imageUrl: 'https://images.pexels.com/photos/162947/pexels-photo-162947.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop',
         altText: 'Cappuccino',
         isPrimary: true,
-        uploadMethod: 'url' as const
+        uploadMethod: 'pexels' as const
       },
       {
         menuItemId: 3,
-        imageUrl: 'https://images.unsplash.com/photo-1561882468-9110e03e0f78?w=300',
+        imageUrl: 'https://images.pexels.com/photos/433145/pexels-photo-433145.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop',
         altText: 'Latte Macchiato',
         isPrimary: true,
-        uploadMethod: 'url' as const
+        uploadMethod: 'pexels' as const
       },
       {
         menuItemId: 4,
-        imageUrl: 'https://images.unsplash.com/photo-1556881286-fc731ad2c3cd?w=300',
+        imageUrl: 'https://images.pexels.com/photos/32754882/pexels-photo-32754882.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop',
         altText: 'Thé Earl Grey',
         isPrimary: true,
-        uploadMethod: 'url' as const
+        uploadMethod: 'pexels' as const
       },
       {
         menuItemId: 5,
-        imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300',
+        imageUrl: 'https://images.pexels.com/photos/10560686/pexels-photo-10560686.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop',
         altText: 'Croissant au Beurre',
         isPrimary: true,
-        uploadMethod: 'url' as const
+        uploadMethod: 'pexels' as const
       },
       {
         menuItemId: 6,
-        imageUrl: 'https://images.unsplash.com/photo-1486427944299-d1955d23e34d?w=300',
+        imageUrl: 'https://images.pexels.com/photos/1126728/pexels-photo-1126728.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop',
         altText: 'Muffin Chocolat',
         isPrimary: true,
-        uploadMethod: 'url' as const
+        uploadMethod: 'pexels' as const
       },
       {
         menuItemId: 7,
-        imageUrl: 'https://images.unsplash.com/photo-1553530979-859a67c21dea?w=300',
+        imageUrl: 'https://images.pexels.com/photos/11160116/pexels-photo-11160116.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop',
         altText: 'Smoothie Fruits Rouges',
         isPrimary: true,
-        uploadMethod: 'url' as const
+        uploadMethod: 'pexels' as const
       },
       {
         menuItemId: 8,
-        imageUrl: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=300',
+        imageUrl: 'https://images.pexels.com/photos/15529714/pexels-photo-15529714.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop',
         altText: 'Chocolat Chaud',
         isPrimary: true,
-        uploadMethod: 'url' as const
+        uploadMethod: 'pexels' as const
       }
     ];
     
