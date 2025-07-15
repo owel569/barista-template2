@@ -147,6 +147,9 @@ export class DatabaseStorage implements IStorage {
           username: users.username,
           password: users.password,
           role: users.role,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email,
           lastLogin: users.lastLogin,
           createdAt: users.createdAt,
           updatedAt: users.updatedAt
