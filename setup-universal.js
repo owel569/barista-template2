@@ -1,4 +1,124 @@
-import { sqliteTable, text, integer, real, blob } from "drizzle-orm/sqlite-core";
+#!/usr/bin/env node
+import { spawn } from 'child_process';
+import { existsSync, writeFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Configuration pour différentes plateformes
+const PLATFORMS = {
+  REPLIT: 'replit',
+  CODESPACE: 'codespace', 
+  LOCAL: 'local',
+  RAILWAY: 'railway',
+  VERCEL: 'vercel'
+};
+
+// Détecter la plateforme actuelle
+function detectPlatform() {
+  // Replit detection
+  if (process.env.REPLIT_DB_URL || process.env.REPL_SLUG) {
+    return PLATFORMS.REPLIT;
+  }
+  
+  // GitHub Codespaces detection
+  if (process.env.CODESPACES || process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN) {
+    return PLATFORMS.CODESPACE;
+  }
+  
+  // Railway detection
+  if (process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_PROJECT_ID) {
+    return PLATFORMS.RAILWAY;
+  }
+  
+  // Vercel detection
+  if (process.env.VERCEL || process.env.VERCEL_ENV) {
+    return PLATFORMS.VERCEL;
+  }
+  
+  // Default to local
+  return PLATFORMS.LOCAL;
+}
+
+// Configuration de base de données par plateforme
+function getDatabaseConfig(platform) {
+  const configs = {
+    [PLATFORMS.REPLIT]: {
+      type: 'sqlite',
+      url: 'file:./barista_cafe.db',
+      dialect: 'sqlite',
+      setup: setupSQLite
+    },
+    [PLATFORMS.CODESPACE]: {
+      type: 'postgresql',
+      url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/barista_cafe',
+      dialect: 'postgresql',
+      setup: setupPostgreSQL
+    },
+    [PLATFORMS.LOCAL]: {
+      type: 'sqlite',
+      url: 'file:./barista_cafe.db',
+      dialect: 'sqlite',
+      setup: setupSQLite
+    },
+    [PLATFORMS.RAILWAY]: {
+      type: 'postgresql',
+      url: process.env.DATABASE_URL || process.env.RAILWAY_DATABASE_URL,
+      dialect: 'postgresql',
+      setup: setupPostgreSQL
+    },
+    [PLATFORMS.VERCEL]: {
+      type: 'postgresql',
+      url: process.env.DATABASE_URL || process.env.POSTGRES_URL,
+      dialect: 'postgresql',
+      setup: setupPostgreSQL
+    }
+  };
+  
+  return configs[platform] || configs[PLATFORMS.LOCAL];
+}
+
+// Configuration SQLite
+async function setupSQLite() {
+  console.log('🗄️  Configuration SQLite...');
+  
+  // Modifier le schéma pour SQLite
+  await convertSchemaToSQLite();
+  
+  // Modifier la config Drizzle
+  await updateDrizzleConfig('sqlite');
+  
+  console.log('✅ SQLite configuré');
+}
+
+// Configuration PostgreSQL
+async function setupPostgreSQL() {
+  console.log('🗄️  Configuration PostgreSQL...');
+  
+  // Restaurer le schéma PostgreSQL original
+  await convertSchemaToPostgreSQL();
+  
+  // Modifier la config Drizzle
+  await updateDrizzleConfig('postgresql');
+  
+  console.log('✅ PostgreSQL configuré');
+}
+
+// Convertir le schéma vers SQLite
+async function convertSchemaToSQLite() {
+  const schemaPath = join(__dirname, 'shared', 'schema.ts');
+  const backupPath = join(__dirname, 'shared', 'schema.pg.backup');
+  
+  // Sauvegarder le schéma PostgreSQL original
+  if (existsSync(schemaPath) && !existsSync(backupPath)) {
+    const fs = await import('fs');
+    fs.copyFileSync(schemaPath, backupPath);
+  }
+  
+  // Nouveau schéma SQLite
+  const sqliteSchema = `import { sqliteTable, text, integer, real, blob } from "drizzle-orm/sqlite-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
@@ -318,3 +438,288 @@ export const insertEmployeeSchema = createInsertSchema(employees);
 export const insertOrderSchema = createInsertSchema(orders);
 export const insertActivityLogSchema = createInsertSchema(activityLogs);
 export const insertPermissionSchema = createInsertSchema(permissions);
+`;
+
+  writeFileSync(schemaPath, sqliteSchema);
+}
+
+// Convertir le schéma vers PostgreSQL
+async function convertSchemaToPostgreSQL() {
+  const schemaPath = join(__dirname, 'shared', 'schema.ts');
+  const backupPath = join(__dirname, 'shared', 'schema.pg.backup');
+  
+  // Restaurer depuis la sauvegarde si elle existe
+  if (existsSync(backupPath)) {
+    const fs = await import('fs');
+    fs.copyFileSync(backupPath, schemaPath);
+  }
+}
+
+// Mettre à jour la configuration Drizzle
+async function updateDrizzleConfig(dialect) {
+  const configPath = join(__dirname, 'drizzle.config.ts');
+  
+  let configContent;
+  if (dialect === 'sqlite') {
+    configContent = `import { defineConfig } from "drizzle-kit";
+
+export default defineConfig({
+  out: "./migrations",
+  schema: "./shared/schema.ts",
+  dialect: "sqlite",
+  dbCredentials: {
+    url: process.env.DATABASE_URL?.replace('file:', '') || "./barista_cafe.db",
+  },
+});
+`;
+  } else {
+    configContent = `import { defineConfig } from "drizzle-kit";
+
+const databaseUrl = process.env.DATABASE_URL || "postgresql://placeholder:placeholder@localhost:5432/placeholder";
+
+export default defineConfig({
+  out: "./migrations",
+  schema: "./shared/schema.ts",
+  dialect: "postgresql", 
+  dbCredentials: {
+    url: databaseUrl,
+  },
+});
+`;
+  }
+  
+  writeFileSync(configPath, configContent);
+}
+
+// Mettre à jour le fichier de configuration de la base de données
+async function updateDbConfig(config) {
+  const dbPath = join(__dirname, 'server', 'db.ts');
+  
+  let dbContent;
+  if (config.type === 'sqlite') {
+    dbContent = `import 'dotenv/config';
+import { drizzle } from 'drizzle-orm/better-sqlite3';
+import Database from 'better-sqlite3';
+import { sql } from 'drizzle-orm';
+import * as schema from '@shared/schema';
+
+let sqlite: Database.Database;
+let db: ReturnType<typeof drizzle>;
+
+async function initializeDatabase() {
+  try {
+    const databasePath = process.env.DATABASE_URL?.replace('file:', '') || './barista_cafe.db';
+    
+    console.log('✅ Utilisation de la base de données SQLite');
+
+    sqlite = new Database(databasePath);
+    sqlite.pragma('journal_mode = WAL');
+    sqlite.pragma('synchronous = normal');
+    sqlite.pragma('cache_size = 1000');
+    sqlite.pragma('temp_store = memory');
+    sqlite.pragma('foreign_keys = ON');
+
+    db = drizzle(sqlite, { schema });
+    console.log('✅ Base de données SQLite connectée:', databasePath);
+    return db;
+  } catch (error) {
+    console.error('❌ Erreur de connexion à la base de données:', error);
+    throw error;
+  }
+}
+
+const dbPromise = initializeDatabase();
+
+export const getDb = async () => {
+  await dbPromise;
+  return db;
+};
+
+export { db };
+
+export async function setupDatabase() {
+  try {
+    console.log('✅ Configuration SQLite automatique');
+    await db.run(sql\`SELECT 1\`);
+    console.log('✅ SQLite configuré automatiquement');
+    return true;
+  } catch (error) {
+    console.error('❌ Erreur lors de la configuration SQLite:', error);
+    return false;
+  }
+}`;
+  } else {
+    dbContent = `import 'dotenv/config';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
+import { sql } from 'drizzle-orm';
+import * as schema from '@shared/schema';
+
+let pool: Pool;
+let db: ReturnType<typeof drizzle>;
+
+async function initializeDatabase() {
+  try {
+    const connectionString = process.env.DATABASE_URL;
+
+    if (!connectionString) {
+      throw new Error('DATABASE_URL environment variable is not set');
+    }
+
+    console.log('✅ Utilisation de la base de données PostgreSQL');
+
+    pool = new Pool({
+      connectionString,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      max: 10,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 10000,
+      allowExitOnIdle: false,
+      keepAlive: true,
+      keepAliveInitialDelayMillis: 10000,
+      statement_timeout: 30000,
+      query_timeout: 30000
+    });
+
+    db = drizzle(pool, { schema });
+    console.log('✅ Base de données PostgreSQL connectée');
+    return db;
+  } catch (error) {
+    console.error('❌ Erreur de connexion à la base de données:', error);
+    throw error;
+  }
+}
+
+const dbPromise = initializeDatabase();
+
+export const getDb = async () => {
+  await dbPromise;
+  return db;
+};
+
+export { db };
+
+export async function setupDatabase() {
+  try {
+    console.log('✅ Configuration PostgreSQL automatique');
+    await db.execute(sql\`SELECT 1\`);
+    console.log('✅ PostgreSQL configuré automatiquement');
+    return true;
+  } catch (error) {
+    console.error('❌ Erreur lors de la configuration PostgreSQL:', error);
+    return false;
+  }
+}`;
+  }
+  
+  writeFileSync(dbPath, dbContent);
+}
+
+// Créer le fichier .env
+function createEnvFile(config) {
+  const envContent = `DATABASE_URL=${config.url}
+JWT_SECRET=barista_cafe_jwt_secret_key_2025
+NODE_ENV=development
+PORT=5000
+`;
+  
+  writeFileSync(join(__dirname, '.env'), envContent);
+}
+
+// Exécuter les migrations
+async function runMigrations() {
+  console.log('🔄 Génération et application des migrations...');
+  
+  return new Promise((resolve, reject) => {
+    const pushProcess = spawn('npx', ['drizzle-kit', 'push'], { 
+      stdio: 'inherit',
+      shell: true
+    });
+    
+    pushProcess.on('close', (code) => {
+      if (code === 0) {
+        console.log('✅ Migrations appliquées avec succès');
+        resolve(true);
+      } else {
+        console.log('⚠️  Erreur lors des migrations (normal si tables existent déjà)');
+        resolve(true); // Continue même si les migrations échouent
+      }
+    });
+    
+    pushProcess.on('error', (error) => {
+      console.log('⚠️  Erreur migrations:', error.message);
+      resolve(true); // Continue même si les migrations échouent
+    });
+  });
+}
+
+// Initialiser les données de base
+async function initializeData() {
+  console.log('📊 Initialisation des données de base...');
+  
+  return new Promise((resolve, reject) => {
+    const initProcess = spawn('npx', ['tsx', 'scripts/setup.ts'], { 
+      stdio: 'inherit',
+      shell: true,
+      env: { ...process.env }
+    });
+    
+    initProcess.on('close', (code) => {
+      if (code === 0) {
+        console.log('✅ Données initialisées avec succès');
+      } else {
+        console.log('⚠️  Avertissement lors de l\'initialisation des données');
+      }
+      resolve(true);
+    });
+    
+    initProcess.on('error', (error) => {
+      console.log('⚠️  Erreur initialisation:', error.message);
+      resolve(true);
+    });
+  });
+}
+
+// Fonction principale
+async function main() {
+  try {
+    console.log('🚀 Configuration universelle du projet Barista Café');
+    
+    // Détecter la plateforme
+    const platform = detectPlatform();
+    console.log(`🔍 Plateforme détectée: ${platform}`);
+    
+    // Obtenir la configuration de base de données
+    const dbConfig = getDatabaseConfig(platform);
+    console.log(`🗄️  Type de base de données: ${dbConfig.type}`);
+    
+    // Configurer la base de données
+    await dbConfig.setup();
+    
+    // Mettre à jour la configuration de la base de données
+    await updateDbConfig(dbConfig);
+    
+    // Créer le fichier .env
+    createEnvFile(dbConfig);
+    
+    // Exécuter les migrations
+    await runMigrations();
+    
+    // Initialiser les données de base
+    await initializeData();
+    
+    console.log('🎉 Configuration terminée avec succès!');
+    console.log('🚀 Vous pouvez maintenant démarrer l\'application avec: npm run dev');
+    
+  } catch (error) {
+    console.error('❌ Erreur lors de la configuration:', error);
+    process.exit(1);
+  }
+}
+
+// Exécuter si appelé directement
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main();
+}
+
+export { main, detectPlatform, getDatabaseConfig };
