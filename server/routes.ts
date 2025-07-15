@@ -1371,7 +1371,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
-  // Routes pour les données du tableau de bord
+  // Routes pour les données du tableau de bord (consolidées)
   app.get('/api/admin/dashboard/stats', authenticateToken, async (req, res) => {
     try {
       const todayReservations = await storage.getTodayReservationCount();
@@ -1786,118 +1786,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Routes essentielles manquantes pour 100% de complétude
-  app.get('/api/admin/dashboard/stats', authenticateToken, async (req, res) => {
-    try {
-      const todayReservations = await storage.getTodayReservationCount();
-      const monthlyRevenue = 8750.00;
-      const orders = await storage.getOrders();
-      const activeOrders = orders.filter(o => o.status === 'en_preparation' || o.status === 'en_attente').length;
-      const occupancyRate = await storage.getOccupancyRate(new Date().toISOString().split('T')[0]);
-      
-      res.json({
-        todayReservations,
-        monthlyRevenue,
-        activeOrders,
-        occupancyRate
-      });
-    } catch (error) {
-      res.status(500).json({
-        todayReservations: 0,
-        monthlyRevenue: 0,
-        activeOrders: 0,
-        occupancyRate: 0
-      });
-    }
-  });
-
-  app.get('/api/admin/dashboard/revenue-chart', authenticateToken, async (req, res) => {
-    try {
-      const revenueData = [
-        { date: '2024-07-01', revenue: 850.50 },
-        { date: '2024-07-02', revenue: 920.75 },
-        { date: '2024-07-03', revenue: 1150.25 },
-        { date: '2024-07-04', revenue: 980.00 },
-        { date: '2024-07-05', revenue: 1250.75 },
-        { date: '2024-07-06', revenue: 890.50 },
-        { date: '2024-07-07', revenue: 1420.00 },
-        { date: '2024-07-08', revenue: 1180.25 },
-        { date: '2024-07-09', revenue: 1050.50 },
-        { date: '2024-07-10', revenue: 1350.75 },
-        { date: '2024-07-11', revenue: 1180.00 },
-        { date: '2024-07-12', revenue: 1250.00 }
-      ];
-      res.json(revenueData);
-    } catch (error) {
-      res.status(500).json([]);
-    }
-  });
-
-  app.get('/api/admin/analytics/customer-analytics', authenticateToken, async (req, res) => {
-    try {
-      const customers = await storage.getCustomers();
-      const analytics = {
-        totalCustomers: customers.length,
-        newCustomersThisMonth: Math.floor(customers.length * 0.15),
-        averageOrderValue: 23.45,
-        customerRetentionRate: 68.5,
-        topCustomers: customers.slice(0, 5).map(c => ({
-          name: `${c.firstName} ${c.lastName}`,
-          orders: Math.floor(Math.random() * 50) + 5,
-          totalSpent: c.totalSpent || Math.random() * 1000 + 200
-        })),
-        acquisitionChannels: [
-          { channel: 'Bouche à oreille', percentage: 35 },
-          { channel: 'Réseaux sociaux', percentage: 25 },
-          { channel: 'Site web', percentage: 20 },
-          { channel: 'Applications', percentage: 20 }
-        ]
-      };
-      res.json(analytics);
-    } catch (error) {
-      res.status(500).json({ totalCustomers: 0, newCustomersThisMonth: 0, averageOrderValue: 0, customerRetentionRate: 0, topCustomers: [], acquisitionChannels: [] });
-    }
-  });
-
-  app.get('/api/admin/analytics/product-analytics', authenticateToken, async (req, res) => {
-    try {
-      const menuItems = await storage.getMenuItems();
-      const analytics = {
-        totalProducts: menuItems.length,
-        topSellingProducts: menuItems.slice(0, 10).map(item => ({
-          name: item.name,
-          unitsSold: Math.floor(Math.random() * 200) + 50,
-          revenue: (Math.floor(Math.random() * 200) + 50) * item.price
-        })),
-        categoryPerformance: [
-          { category: 'Cafés', sales: 1250, revenue: 15420.50 },
-          { category: 'Pâtisseries', sales: 890, revenue: 8750.25 },
-          { category: 'Plats', sales: 650, revenue: 10320.75 }
-        ],
-        profitMargins: menuItems.map(item => ({
-          name: item.name,
-          price: item.price,
-          cost: item.price * 0.4,
-          margin: item.price * 0.6
-        }))
-      };
-      res.json(analytics);
-    } catch (error) {
-      res.status(500).json({ totalProducts: 0, topSellingProducts: [], categoryPerformance: [], profitMargins: [] });
-    }
-  });
-
-  app.get('/api/admin/notifications', authenticateToken, async (req, res) => {
-    try {
-      const notifications = [
-        { id: 1, type: 'info', title: 'Nouvelle réservation', message: 'Réservation pour 4 personnes à 19h30', timestamp: new Date().toISOString(), read: false },
-        { id: 2, type: 'warning', title: 'Stock faible', message: 'Le stock de lait est en dessous du seuil minimum', timestamp: new Date(Date.now() - 3600000).toISOString(), read: false },
-        { id: 3, type: 'success', title: 'Commande terminée', message: 'Commande #1234 prête à être servie', timestamp: new Date(Date.now() - 7200000).toISOString(), read: true }
-      ];
-      res.json(notifications);
-    } catch (error) {
-      res.status(500).json([]);
-    }
-  });
+  
 
   // Routes statistiques manquantes détectées dans les logs
   app.get('/api/admin/stats/revenue-detailed', authenticateToken, async (req, res) => {

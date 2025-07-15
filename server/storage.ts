@@ -288,7 +288,7 @@ export class DatabaseStorage implements IStorage {
       }).from(menuItems)
       .leftJoin(menuCategories, eq(menuItems.categoryId, menuCategories.id))
       .orderBy(asc(menuItems.name));
-      
+
       return result;
     } catch (error) {
       console.error('Erreur getMenuItems:', error);
@@ -384,7 +384,7 @@ export class DatabaseStorage implements IStorage {
 
   async getReservationsWithItems(): Promise<any[]> {
     const reservationsData = await db.select().from(reservations).orderBy(desc(reservations.createdAt));
-    
+
     const reservationsWithItems = await Promise.all(
       reservationsData.map(async (reservation) => {
         const items = await db
@@ -419,7 +419,7 @@ export class DatabaseStorage implements IStorage {
 
   async createReservationWithItems(reservationData: InsertReservation, cartItems: { menuItem: { id: number; price: string }; quantity: number; notes?: string }[]): Promise<Reservation> {
     const [reservation] = await db.insert(reservations).values(reservationData).returning();
-    
+
     if (cartItems && cartItems.length > 0) {
       const reservationItemsData = cartItems.map((item) => ({
         reservationId: reservation.id,
@@ -428,10 +428,10 @@ export class DatabaseStorage implements IStorage {
         unitPrice: item.menuItem.price,
         notes: item.notes || null,
       }));
-      
+
       await db.insert(reservationItems).values(reservationItemsData);
     }
-    
+
     return reservation;
   }
 
@@ -479,7 +479,7 @@ async createReservation(reservation: InsertReservation): Promise<Reservation> {
     const data = { ...reservationData };
     delete (data as any).id;
     delete (data as any).createdAt;
-    
+
     const [updatedReservation] = await db
       .update(reservations)
       .set(data)
@@ -533,7 +533,7 @@ async createContactMessage(message: InsertContactMessage): Promise<ContactMessag
     phone: message.phone || null,
     status: message.status || 'nouveau'
   };
-  
+
   console.log('Données reçues pour insertion message:', data);
   const [newMessage] = await db.insert(contactMessages).values(data).returning();
   return newMessage;
@@ -585,7 +585,7 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
   async createOrderWithItems(orderData: InsertOrder, items: InsertOrderItem[]): Promise<Order> {
     // Créer la commande
     const [newOrder] = await db.insert(orders).values(orderData).returning();
-    
+
     // Ajouter les articles de la commande
     if (items && items.length > 0) {
       const orderItemsData = items.map(item => ({
@@ -595,10 +595,10 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
         price: item.price,
         notes: item.notes || null,
       }));
-      
+
       await db.insert(orderItems).values(orderItemsData);
     }
-    
+
     return newOrder;
   }
 
@@ -740,6 +740,31 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
     return (result.rowCount ?? 0) > 0;
   }
 
+  async getWorkShifts() {
+    try {
+      const db = await this.db;
+      const shifts = await db.select().from(workShifts);
+      return shifts;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des shifts:', error);
+      return [];
+    }
+  }
+
+  async getActivityLogs(limit: number = 50) {
+    try {
+      // Simuler des logs d'activité
+      return [
+        { id: 1, action: 'LOGIN', user: 'admin', timestamp: new Date().toISOString(), details: 'Connexion réussie' },
+        { id: 2, action: 'CREATE_RESERVATION', user: 'admin', timestamp: new Date(Date.now() - 1800000).toISOString(), details: 'Nouvelle réservation créée' },
+        { id: 3, action: 'UPDATE_MENU', user: 'admin', timestamp: new Date(Date.now() - 3600000).toISOString(), details: 'Menu mis à jour' }
+      ].slice(0, limit);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des logs:', error);
+      return [];
+    }
+  }
+
   // Statistics
   async getTodayReservationCount(): Promise<number> {
     const today = new Date().toISOString().split('T')[0];
@@ -769,7 +794,7 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
   async getMonthlyReservationStats(year: number, month: number): Promise<{ date: string; count: number }[]> {
     const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
     const endDate = `${year}-${month.toString().padStart(2, '0')}-31`;
-    
+
     const result = await db
       .select({
         date: reservations.date
@@ -793,7 +818,7 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
   async getRevenueStats(startDate: string, endDate: string): Promise<{ date: string; revenue: number }[]> {
     const start = new Date(startDate + 'T00:00:00Z');
     const end = new Date(endDate + 'T23:59:59Z');
-    
+
     const result = await db
       .select({
         date: orders.createdAt,

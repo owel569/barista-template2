@@ -5,7 +5,7 @@ import "./index.css";
 // Gestionnaire global pour les promesses non gérées
 window.addEventListener('unhandledrejection', (event) => {
   console.warn('Promesse non gérée:', event.reason);
-  event.preventDefault(); // Empêche l'affichage de l'erreur dans la console
+  // Ne pas empêcher l'affichage pour le debugging
 });
 
 // Gestionnaire global pour les erreurs non gérées
