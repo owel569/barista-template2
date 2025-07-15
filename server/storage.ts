@@ -137,7 +137,14 @@ export class DatabaseStorage implements IStorage {
         createdAt: users.createdAt,
         updatedAt: users.updatedAt
       }).from(users).where(eq(users.username, username));
-      return user || undefined;
+      
+      if (user) {
+        return {
+          ...user,
+          isActive: true // Ajout du champ manquant
+        };
+      }
+      return undefined;
     } catch (error) {
       console.error('Erreur getUserByUsername:', error);
       // Fallback pour l'utilisateur admin par défaut
@@ -149,7 +156,7 @@ export class DatabaseStorage implements IStorage {
           username: 'admin',
           email: 'admin@barista-cafe.com',
           password: hashedPassword,
-          role: 'directeur',
+          role: 'directeur' as const,
           firstName: 'Admin',
           lastName: 'Barista',
           isActive: true,
@@ -195,7 +202,7 @@ export class DatabaseStorage implements IStorage {
           username: 'admin',
           email: 'admin@barista-cafe.com',
           password: '$2b$10$2VW9dr/OLS8DlyHXpVqBP.l8nF0P1aOxKwoCz1bCzMLk7i4e5ym4S',
-          role: 'directeur',
+          role: 'directeur' as const,
           firstName: 'Admin',
           lastName: 'Barista',
           isActive: true,
@@ -223,6 +230,9 @@ export class DatabaseStorage implements IStorage {
 
   async createActivityLog(log: InsertActivityLog): Promise<ActivityLog> {
     const [newLog] = await db.insert(activityLogs).values(log).returning();
+    if (!newLog) {
+      throw new Error('Impossible de créer le log d\'activité');
+    }
     return newLog;
   }
 

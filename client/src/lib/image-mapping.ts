@@ -10,7 +10,7 @@ export const IMAGE_MAPPING: Record<string, string> = imageMappingData.images;
   "cafe mocha": "https://images.pexels.com/photos/6895939/pexels-photo-6895939.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "cafe frappe": "https://images.pexels.com/photos/11512983/pexels-photo-11512983.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "latte macchiato": "https://images.pexels.com/photos/433145/pexels-photo-433145.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  
+
   // Boissons - URLs Pexels spécifiées
   "the vert premium": "https://images.pexels.com/photos/7565503/pexels-photo-7565503.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "the vert": "https://images.pexels.com/photos/32754882/pexels-photo-32754882.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
@@ -20,7 +20,7 @@ export const IMAGE_MAPPING: Record<string, string> = imageMappingData.images;
   "jus de citron vert": "https://images.pexels.com/photos/1546003/pexels-photo-1546003.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "smoothie du jour": "https://images.pexels.com/photos/11160116/pexels-photo-11160116.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "smoothie fruits rouges": "https://images.pexels.com/photos/11160116/pexels-photo-11160116.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  
+
   // Pâtisseries - URLs Pexels spécifiées
   "croissants artisanaux": "https://images.pexels.com/photos/10560686/pexels-photo-10560686.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "croissant au beurre": "https://images.pexels.com/photos/10560686/pexels-photo-10560686.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
@@ -29,7 +29,7 @@ export const IMAGE_MAPPING: Record<string, string> = imageMappingData.images;
   "mille-feuille": "https://images.pexels.com/photos/8738018/pexels-photo-8738018.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "gateaux au chocolat": "https://images.pexels.com/photos/1126728/pexels-photo-1126728.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "muffin chocolat": "https://images.pexels.com/photos/1126728/pexels-photo-1126728.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  
+
   // Plats - URLs Pexels spécifiées
   "sandwich club": "https://images.pexels.com/photos/28681955/pexels-photo-28681955.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
   "salade cesar": "https://images.pexels.com/photos/1059905/pexels-photo-1059905.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
@@ -81,7 +81,7 @@ export function getItemImageUrl(
   // 1. Essayer le mapping exact avec clé normalisée
   const normalizedName = normalizeKey(itemName);
   const directMatch = IMAGE_MAPPING[normalizedName];
-  
+
   if (directMatch) {
     if (enableDebug) console.log(`[IMAGE_MAPPING] Image trouvée pour "${itemName}" -> ${directMatch}`);
     return directMatch;
@@ -91,7 +91,7 @@ export function getItemImageUrl(
   const partialMatch = Object.keys(IMAGE_MAPPING).find(key => 
     key.includes(normalizedName) || normalizedName.includes(key)
   );
-  
+
   if (partialMatch) {
     if (enableDebug) console.log(`[IMAGE_MAPPING] Correspondance partielle pour "${itemName}" -> ${IMAGE_MAPPING[partialMatch]}`);
     return IMAGE_MAPPING[partialMatch];
@@ -139,7 +139,7 @@ export function getImageWithAlt(
 ): { url: string; alt: string } {
   const url = getItemImageUrl(itemName, categorySlug, fallbackUrl, enableDebug);
   const alt = itemName ? `Image de ${itemName}` : 'Image du menu';
-  
+
   return { url, alt };
 }
 
@@ -153,12 +153,12 @@ export function validateImageUrl(url: string): Promise<boolean> {
       resolve(true);
       return;
     }
-    
+
     const img = new Image();
     img.onload = () => resolve(true);
     img.onerror = () => resolve(false);
     img.src = url;
-    
+
     // Timeout après 5 secondes
     setTimeout(() => resolve(false), 5000);
   });
@@ -174,7 +174,7 @@ export function getImageMappingStats(): {
 } {
   const totalImages = Object.keys(IMAGE_MAPPING).length;
   const categoriesWithImages = Object.keys(DEFAULT_CATEGORY_IMAGES);
-  
+
   return {
     totalImages,
     categoriesWithImages,
