@@ -88,7 +88,7 @@ export interface IStorage {
   getCustomer(id: number): Promise<Customer | undefined>;
   getCustomerByEmail(email: string): Promise<Customer | undefined>;
   createCustomer(customer: any): Promise<Customer>;
-  updateCustomer(id: number, customer: any): Promise<Customer | undefined>;
+  updateCustomer(id: number, customer: any): Promise<Customer>;
   deleteCustomer(id: number): Promise<boolean>;
 
   // Employees
@@ -96,7 +96,7 @@ export interface IStorage {
   getEmployee(id: number): Promise<Employee | undefined>;
   getEmployeeByEmail(email: string): Promise<Employee | undefined>;
   createEmployee(employee: any): Promise<Employee>;
-  updateEmployee(id: number, employee: any): Promise<Employee | undefined>;
+  updateEmployee(id: number, employee: any): Promise<Employee>;
   deleteEmployee(id: number): Promise<boolean>;
 
   // Work Shifts
@@ -666,11 +666,11 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
       .set({ ...customer, updatedAt: new Date() })
       .where(eq(customers.id, id))
       .returning();
-    
+
     if (!updatedCustomer) {
       throw new Error(`Customer with id ${id} not found`);
     }
-    
+
     return updatedCustomer;
   }
 
@@ -705,11 +705,11 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
       .set({ ...employee, updatedAt: new Date() })
       .where(eq(employees.id, id))
       .returning();
-    
+
     if (!updatedEmployee) {
       throw new Error(`Employee with id ${id} not found`);
     }
-    
+
     return updatedEmployee;
   }
 
