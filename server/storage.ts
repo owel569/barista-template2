@@ -674,6 +674,15 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
     return (result.rowCount ?? 0) > 0;
   }
 
+  async updateCustomer(id: number, customerData: Partial<InsertCustomer>): Promise<Customer> {
+    const [updated] = await db
+      .update(customers)
+      .set({ ...customerData, updatedAt: new Date() })
+      .where(eq(customers.id, id))
+      .returning();
+    return updated;
+  }
+
   // Employees
   async getEmployees(): Promise<Employee[]> {
     return await db.select().from(employees).orderBy(asc(employees.lastName), asc(employees.firstName));
@@ -706,6 +715,15 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
   async deleteEmployee(id: number): Promise<boolean> {
     const result = await db.delete(employees).where(eq(employees.id, id));
     return (result.rowCount ?? 0) > 0;
+  }
+
+  async updateEmployee(id: number, employeeData: Partial<InsertEmployee>): Promise<Employee> {
+    const [updated] = await db
+      .update(employees)
+      .set({ ...employeeData, updatedAt: new Date() })
+      .where(eq(employees.id, id))
+      .returning();
+    return updated;
   }
 
   // Work Shifts
@@ -870,6 +888,61 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
       totalSpent: parseFloat(customer.totalSpent),
       totalOrders: customer.totalOrders
     }));
+  }
+
+  async updateOrder(id: number, orderData: Partial<InsertOrder>): Promise<Order> {
+    const [updated] = await db
+      .update(orders)
+      .set({ ...orderData, updatedAt: new Date() })
+      .where(eq(orders.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteOrder(id: number): Promise<void> {
+    await db.delete(orders).where(eq(orders.id, id));
+  }
+
+  async createOrder(orderData: InsertOrder): Promise<Order> {
+    const [created] = await db
+      .insert(orders)
+      .values(orderData)
+      .returning();
+    return created;
+  }
+
+  async updateTable(id: number, tableData: Partial<InsertTable>): Promise<Table> {
+    const [updated] = await db
+      .update(tables)
+      .set(tableData)
+      .where(eq(tables.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteTable(id: number): Promise<void> {
+    await db.delete(tables).where(eq(tables.id, id));
+  }
+
+  async createMenuCategory(categoryData: InsertMenuCategory): Promise<MenuCategory> {
+    const [created] = await db
+      .insert(menuCategories)
+      .values(categoryData)
+      .returning();
+    return created;
+  }
+
+  async updateMenuCategory(id: number, categoryData: Partial<InsertMenuCategory>): Promise<MenuCategory> {
+    const [updated] = await db
+      .update(menuCategories)
+      .set(categoryData)
+      .where(eq(menuCategories.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteMenuCategory(id: number): Promise<void> {
+    await db.delete(menuCategories).where(eq(menuCategories.id, id));
   }
 }
 

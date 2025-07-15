@@ -112,34 +112,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     logger.info('Tentative de connexion', { username });
     
-    // Authentification avec fallback intégré directement dans getUserByUsername
-    const user = await storage.getUserByUsername(username);
-    if (!user) {
-      logger.warn('Échec de connexion - utilisateur non trouvé', { username });
-      return res.status(401).json({ message: 'Identifiants invalides' });
+    try {
+      // Authentification avec fallback intégré directement dans getUserByUsername
+      const user = await storage.getUserByUsername(username);
+      if (!user) {
+        logger.warn('Échec de connexion - utilisateur non trouvé', { username });
+        return res.status(401).json({ message: 'Identifiants invalides' });
+      }
+
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        logger.warn('Échec de connexion - mot de passe incorrect', { username });
+        return res.status(401).json({ message: 'Identifiants invalides' });
+      }
+
+      await storage.updateUserLastLogin(user.id);
+
+      const token = jwt.sign(
+        { id: user.id, username: user.username, role: user.role },
+        JWT_SECRET,
+        { expiresIn: '24h' }
+      );
+
+      logger.info('Connexion réussie', { username, role: user.role });
+
+      res.json({
+        message: 'Connexion réussie',
+        token,
+        user: { id: user.id, username: user.username, role: user.role }
+      });
+    } catch (error) {
+      logger.error('Erreur lors de la connexion', { username, error: error.message });
+      res.status(500).json({ message: 'Erreur serveur lors de la connexion' });
     }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      logger.warn('Échec de connexion - mot de passe incorrect', { username });
-      return res.status(401).json({ message: 'Identifiants invalides' });
-    }
-
-    await storage.updateUserLastLogin(user.id);
-
-    const token = jwt.sign(
-      { id: user.id, username: user.username, role: user.role },
-      JWT_SECRET,
-      { expiresIn: '24h' }
-    );
-
-    logger.info('Connexion réussie', { username, role: user.role });
-
-    res.json({
-      message: 'Connexion réussie',
-      token,
-      user: { id: user.id, username: user.username, role: user.role }
-    });
   }));
 
   app.get('/api/auth/verify', authenticateToken, async (req, res) => {
@@ -497,6 +502,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Routes pour la gestion des catégories de menu
+  app.post('/api/admin/menu/categories', authenticateToken, async (req, res) => {
+    try {
+      const categoryData = req.body;
+      const category = await storage.createMenuCategory(categoryData);
+      broadcast({ type: 'menu_category_created', data: category });
+      res.status(201).json(category);
+    } catch (error) {
+      console.error('Erreur création catégorie:', error);
+      res.status(500).json({ error: 'Erreur lors de la création de la catégorie' });
+    }
+  });
+
+  app.put('/api/admin/menu/categories/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const categoryData = req.body;
+      const category = await storage.updateMenuCategory(Number(id), categoryData);
+      broadcast({ type: 'menu_category_updated', data: category });
+      res.json(category);
+    } catch (error) {
+      console.error('Erreur modification catégorie:', error);
+      res.status(500).json({ error: 'Erreur lors de la modification de la catégorie' });
+    }
+  });
+
+  app.delete('/api/admin/menu/categories/:id', authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteMenuCategory(Number(id));
+      broadcast({ type: 'menu_category_deleted', data: { id: Number(id) } });
+      res.json({ message: 'Catégorie supprimée avec succès' });
+    } catch (error) {
+      console.error('Erreur suppression catégorie:', error);
+      res.status(500).json({ error: 'Erreur lors de la suppression de la catégorie' });
+    }
+  });
+
   // Routes pour la gestion des images
   app.use('/api/admin/images', authenticateToken, imageRoutes);
   
@@ -569,6 +612,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Erreur mise à jour statut utilisateur:', error);
       res.status(500).json({ error: 'Erreur lors de la mise à jour du statut' });
+    }
+  });
+
+  app.post('/api/admin/orders', authenticateToken, async (req, res) => {
+    try {
+      const orderData = req.body;
+      const order = await storage.createOrder(orderData);
+      broadcast({ type: 'order_created', data: order });
+      res.status(201).json(order);
+    } catch (error) {
+      console.error('Erreur création commande:', error);
+      res.status(500).json({ error: 'Erreur lors de la création de la commande' });
+    }
+  });
+
+  app.put('/api/admin/orders/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const orderData = req.body;
+      const order = await storage.updateOrder(Number(id), orderData);
+      broadcast({ type: 'order_updated', data: order });
+      res.json(order);
+    } catch (error) {
+      console.error('Erreur modification commande:', error);
+      res.status(500).json({ error: 'Erreur lors de la modification de la commande' });
+    }
+  });
+
+  app.delete('/api/admin/orders/:id', authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteOrder(Number(id));
+      broadcast({ type: 'order_deleted', data: { id: Number(id) } });
+      res.json({ message: 'Commande supprimée avec succès' });
+    } catch (error) {
+      console.error('Erreur suppression commande:', error);
+      res.status(500).json({ error: 'Erreur lors de la suppression de la commande' });
     }
   });
 
@@ -1477,6 +1557,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put('/api/admin/tables/:id', authenticateToken, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const tableData = req.body;
+      const table = await storage.updateTable(Number(id), tableData);
+      broadcast({ type: 'table_updated', data: table });
+      res.json(table);
+    } catch (error) {
+      console.error('Erreur modification table:', error);
+      res.status(500).json({ error: 'Erreur lors de la modification de la table' });
+    }
+  });
+
+  app.delete('/api/admin/tables/:id', authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteTable(Number(id));
+      broadcast({ type: 'table_deleted', data: { id: Number(id) } });
+      res.json({ message: 'Table supprimée avec succès' });
+    } catch (error) {
+      console.error('Erreur suppression table:', error);
+      res.status(500).json({ error: 'Erreur lors de la suppression de la table' });
+    }
+  });
+
   // Routes pour livraisons
   app.get('/api/admin/deliveries', authenticateToken, async (req, res) => {
     try {
@@ -1713,6 +1818,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Erreur lors de la suppression du client' });
     }
   });
+
+  app.put('/api/admin/customers/:id', authenticateToken, validateBody(customerSchema), asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const customerData = req.body;
+    
+    if (customerData.name && !customerData.firstName && !customerData.lastName) {
+      const nameParts = customerData.name.split(' ');
+      customerData.firstName = nameParts[0] || '';
+      customerData.lastName = nameParts.slice(1).join(' ') || '';
+      delete customerData.name;
+    }
+    
+    const customer = await storage.updateCustomer(Number(id), customerData);
+    broadcast({ type: 'customer_updated', data: customer });
+    res.json(customer);
+  }));
+
+  app.put('/api/admin/employees/:id', authenticateToken, validateBody(employeeSchema), asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const employeeData = req.body;
+    
+    if (employeeData.name && !employeeData.firstName && !employeeData.lastName) {
+      const nameParts = employeeData.name.split(' ');
+      employeeData.firstName = nameParts[0] || '';
+      employeeData.lastName = nameParts.slice(1).join(' ') || '';
+      delete employeeData.name;
+    }
+    
+    const employee = await storage.updateEmployee(Number(id), employeeData);
+    broadcast({ type: 'employee_updated', data: employee });
+    res.json(employee);
+  }));
 
   app.delete('/api/admin/employees/:id', authenticateToken, requireRole('directeur'), async (req, res) => {
     try {
