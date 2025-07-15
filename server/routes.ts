@@ -7,6 +7,13 @@ import { z } from 'zod';
 import { storage } from './storage';
 import { insertUserSchema } from '../shared/schema';
 import imageRoutes from './routes/image-routes';
+import { deliveryRouter } from './routes/delivery';
+import { onlineOrdersRouter } from './routes/online-orders';
+import { tablesRouter } from './routes/tables';
+import { userProfileRouter } from './routes/user-profile';
+import { validateBody, validateParams, validateQuery } from './middleware/validation';
+import { errorHandler, notFoundHandler, asyncHandler } from './middleware/error-handler';
+import { loginSchema, registerSchema, reservationSchema, customerSchema, employeeSchema, menuItemSchema } from './validation-schemas';
 
 // Configuration de logging améliorée
 const createLogger = (module: string) => ({
@@ -55,6 +62,10 @@ const requireRole = (role: string) => {
 export async function registerRoutes(app: Express): Promise<Server> {
   const server = createServer(app);
   
+  // Middleware de gestion d'erreurs
+  app.use(errorHandler);
+  app.use(notFoundHandler);
+  
   // Configuration WebSocket
   const wss = new WebSocketServer({ 
     server,
@@ -83,38 +94,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   };
 
   // Routes d'authentification
-  app.post('/api/auth/register', async (req, res) => {
-    try {
-      const { username, password, role } = req.body;
-      
-      const existingUser = await storage.getUserByUsername(username);
-      if (existingUser) {
-        return res.status(400).json({ message: 'Nom d\'utilisateur déjà utilisé' });
-      }
-
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const newUser = await storage.createUser({
-        username,
-        password: hashedPassword,
-        role: role || 'employe'
-      });
-
-      const token = jwt.sign(
-        { id: newUser.id, username: newUser.username, role: newUser.role },
-        JWT_SECRET,
-        { expiresIn: '24h' }
-      );
-
-      res.status(201).json({
-        message: 'Utilisateur créé avec succès',
-        token,
-        user: { id: newUser.id, username: newUser.username, role: newUser.role }
-      });
-    } catch (error) {
-      console.error('Erreur inscription:', error);
-      res.status(500).json({ message: 'Erreur serveur' });
+  app.post('/api/auth/register', validateBody(registerSchema), asyncHandler(async (req: Request, res: Response) => {
+    const { username, password, role } = req.body;
+    
+    const existingUser = await storage.getUserByUsername(username);
+    if (existingUser) {
+      return res.status(400).json({ message: 'Nom d\'utilisateur déjà utilisé' });
     }
-  });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = await storage.createUser({
+      username,
+      password: hashedPassword,
+      role: role || 'employe'
+    });
+
+    const token = jwt.sign(
+      { id: newUser.id, username: newUser.username, role: newUser.role },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    res.status(201).json({
+      message: 'Utilisateur créé avec succès',
+      token,
+      user: { id: newUser.id, username: newUser.username, role: newUser.role }
+    });
+  }));
 
   app.post('/api/auth/login', validateBody(loginSchema), asyncHandler(async (req: Request, res: Response) => {
     const { username, password } = req.body;
@@ -201,16 +207,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/reservations', async (req, res) => {
-    try {
-      const reservationData = req.body;
-      const reservation = await storage.createReservation(reservationData);
-      broadcast({ type: 'new_reservation', data: reservation });
-      res.status(201).json(reservation);
-    } catch (error) {
-      res.status(500).json({ error: 'Erreur lors de la création de la réservation' });
-    }
-  });
+  app.post('/api/reservations', validateBody(reservationSchema), asyncHandler(async (req: Request, res: Response) => {
+    const reservationData = req.body;
+    const reservation = await storage.createReservation(reservationData);
+    broadcast({ type: 'new_reservation', data: reservation });
+    res.status(201).json(reservation);
+  }));
 
   app.post('/api/contact', async (req, res) => {
     try {
@@ -414,17 +416,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/reservations', authenticateToken, async (req, res) => {
-    try {
-      const reservationData = req.body;
-      const reservation = await storage.createReservation(reservationData);
-      broadcast({ type: 'new_reservation', data: reservation });
-      res.status(201).json(reservation);
-    } catch (error) {
-      console.error('Erreur création réservation admin:', error);
-      res.status(500).json({ error: 'Erreur lors de la création de la réservation' });
-    }
-  });
+  app.post('/api/admin/reservations', authenticateToken, validateBody(reservationSchema), asyncHandler(async (req: Request, res: Response) => {
+    const reservationData = req.body;
+    const reservation = await storage.createReservation(reservationData);
+    broadcast({ type: 'new_reservation', data: reservation });
+    res.status(201).json(reservation);
+  }));
 
   app.put('/api/admin/reservations/:id', authenticateToken, async (req, res) => {
     try {
@@ -470,48 +467,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Routes admin pour la gestion du menu
-  app.post('/api/admin/menu/items', authenticateToken, async (req, res) => {
-    try {
-      const { name, description, price, categoryId, available, imageUrl } = req.body;
-      
-      const newItem = await storage.createMenuItem({
-        name,
-        description,
-        price: Number(price),
-        categoryId: Number(categoryId),
-        available: Boolean(available),
-        imageUrl: imageUrl || null
-      });
-      
-      broadcast({ type: 'menu_item_created', data: newItem });
-      res.status(201).json(newItem);
-    } catch (error) {
-      console.error('Erreur création article menu:', error);
-      res.status(500).json({ error: 'Erreur lors de la création de l\'article' });
-    }
-  });
+  app.post('/api/admin/menu/items', authenticateToken, validateBody(menuItemSchema), asyncHandler(async (req: Request, res: Response) => {
+    const { name, description, price, categoryId, available, imageUrl } = req.body;
+    
+    const newItem = await storage.createMenuItem({
+      name,
+      description,
+      price: Number(price),
+      categoryId: Number(categoryId),
+      available: Boolean(available),
+      imageUrl: imageUrl || null
+    });
+    
+    broadcast({ type: 'menu_item_created', data: newItem });
+    res.status(201).json(newItem);
+  }));
 
-  app.put('/api/admin/menu/items/:id', authenticateToken, async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { name, description, price, categoryId, available, imageUrl } = req.body;
-      
-      const updatedItem = await storage.updateMenuItem(Number(id), {
-        name,
-        description,
-        price: Number(price),
-        categoryId: Number(categoryId),
-        available: Boolean(available),
-        imageUrl: imageUrl || null
-      });
-      
-      broadcast({ type: 'menu_item_updated', data: updatedItem });
-      res.json(updatedItem);
-    } catch (error) {
-      console.error('Erreur mise à jour article menu:', error);
-      res.status(500).json({ error: 'Erreur lors de la mise à jour de l\'article' });
-    }
-  });
+  app.put('/api/admin/menu/items/:id', authenticateToken, validateBody(menuItemSchema), asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { name, description, price, categoryId, available, imageUrl } = req.body;
+    
+    const updatedItem = await storage.updateMenuItem(Number(id), {
+      name,
+      description,
+      price: Number(price),
+      categoryId: Number(categoryId),
+      available: Boolean(available),
+      imageUrl: imageUrl || null
+    });
+    
+    broadcast({ type: 'menu_item_updated', data: updatedItem });
+    res.json(updatedItem);
+  }));
 
   app.delete('/api/admin/menu/items/:id', authenticateToken, requireRole('directeur'), async (req, res) => {
     try {
@@ -527,6 +514,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Routes pour la gestion des images
   app.use('/api/admin/images', authenticateToken, imageRoutes);
+  
+  // Routes pour la gestion des livraisons
+  app.use('/api/admin/deliveries', authenticateToken, deliveryRouter);
+  
+  // Routes pour les commandes en ligne
+  app.use('/api/admin/online-orders', authenticateToken, onlineOrdersRouter);
+  
+  // Routes pour la gestion des tables
+  app.use('/api/admin/tables', authenticateToken, tablesRouter);
+  
+  // Routes pour le profil utilisateur
+  app.use('/api/user/profile', authenticateToken, userProfileRouter);
 
   app.put('/api/admin/messages/:id/status', authenticateToken, async (req, res) => {
     try {
@@ -588,33 +587,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/customers', authenticateToken, async (req, res) => {
-    try {
-      const customerData = req.body;
-      
-      if (!customerData.firstName || !customerData.lastName) {
-        return res.status(400).json({ error: 'Les champs firstName et lastName sont obligatoires' });
-      }
-      
-      if (customerData.name && !customerData.firstName && !customerData.lastName) {
-        const nameParts = customerData.name.split(' ');
-        customerData.firstName = nameParts[0] || '';
-        customerData.lastName = nameParts.slice(1).join(' ') || '';
-        delete customerData.name;
-      }
-      
-      if (!customerData.loyaltyPoints) customerData.loyaltyPoints = 0;
-      if (!customerData.totalSpent) customerData.totalSpent = 0;
-      if (!customerData.lastVisit) customerData.lastVisit = new Date().toISOString();
-      
-      const customer = await storage.createCustomer(customerData);
-      broadcast({ type: 'customer_created', data: customer });
-      res.status(201).json(customer);
-    } catch (error) {
-      console.error('Erreur création client:', error);
-      res.status(500).json({ error: 'Erreur lors de la création du client' });
+  app.post('/api/admin/customers', authenticateToken, validateBody(customerSchema), asyncHandler(async (req: Request, res: Response) => {
+    const customerData = req.body;
+    
+    if (customerData.name && !customerData.firstName && !customerData.lastName) {
+      const nameParts = customerData.name.split(' ');
+      customerData.firstName = nameParts[0] || '';
+      customerData.lastName = nameParts.slice(1).join(' ') || '';
+      delete customerData.name;
     }
-  });
+    
+    if (!customerData.loyaltyPoints) customerData.loyaltyPoints = 0;
+    if (!customerData.totalSpent) customerData.totalSpent = 0;
+    if (!customerData.lastVisit) customerData.lastVisit = new Date().toISOString();
+    
+    const customer = await storage.createCustomer(customerData);
+    broadcast({ type: 'customer_created', data: customer });
+    res.status(201).json(customer);
+  }));
 
   app.get('/api/admin/employees', authenticateToken, async (req, res) => {
     try {
@@ -625,41 +615,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/employees', authenticateToken, async (req, res) => {
-    try {
-      const employeeData = req.body;
-      
-      if (!employeeData.firstName || !employeeData.lastName) {
-        return res.status(400).json({ error: 'Les champs firstName et lastName sont obligatoires' });
-      }
-      
-      if (employeeData.name && !employeeData.firstName && !employeeData.lastName) {
-        const nameParts = employeeData.name.split(' ');
-        employeeData.firstName = nameParts[0] || '';
-        employeeData.lastName = nameParts.slice(1).join(' ') || '';
-        delete employeeData.name;
-      }
-      
-      if (!employeeData.department) {
-        employeeData.department = 'Général';
-      }
-      
-      if (!employeeData.position) {
-        employeeData.position = 'Employé';
-      }
-      
-      if (!employeeData.hireDate) {
-        employeeData.hireDate = new Date().toISOString();
-      }
-      
-      const employee = await storage.createEmployee(employeeData);
-      broadcast({ type: 'employee_created', data: employee });
-      res.status(201).json(employee);
-    } catch (error) {
-      console.error('Erreur création employé:', error);
-      res.status(500).json({ message: 'Erreur lors de la création de l\'employé' });
+  app.post('/api/admin/employees', authenticateToken, validateBody(employeeSchema), asyncHandler(async (req: Request, res: Response) => {
+    const employeeData = req.body;
+    
+    if (employeeData.name && !employeeData.firstName && !employeeData.lastName) {
+      const nameParts = employeeData.name.split(' ');
+      employeeData.firstName = nameParts[0] || '';
+      employeeData.lastName = nameParts.slice(1).join(' ') || '';
+      delete employeeData.name;
     }
-  });
+    
+    if (!employeeData.department) {
+      employeeData.department = 'Général';
+    }
+    
+    if (!employeeData.position) {
+      employeeData.position = 'Employé';
+    }
+    
+    if (!employeeData.hireDate) {
+      employeeData.hireDate = new Date().toISOString();
+    }
+    
+    const employee = await storage.createEmployee(employeeData);
+    broadcast({ type: 'employee_created', data: employee });
+    res.status(201).json(employee);
+  }));
 
   app.get('/api/admin/messages', authenticateToken, async (req, res) => {
     try {
