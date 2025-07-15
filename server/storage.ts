@@ -344,10 +344,10 @@ export class DatabaseStorage implements IStorage {
       console.error('Erreur getTables:', error);
       // Retourner des données par défaut si la BD n'est pas disponible
       return [
-        { id: 1, number: 1, capacity: 2, status: 'available', location: 'Fenêtre', available: true },
-        { id: 2, number: 2, capacity: 4, status: 'available', location: 'Centre', available: true },
-        { id: 3, number: 3, capacity: 6, status: 'available', location: 'Terrasse', available: true },
-        { id: 4, number: 4, capacity: 2, status: 'available', location: 'Bar', available: true }
+        { id: 1, number: 1, capacity: 2, available: true },
+        { id: 2, number: 2, capacity: 4, available: true },
+        { id: 3, number: 3, capacity: 6, available: true },
+        { id: 4, number: 4, capacity: 2, available: true }
       ];
     }
   }
