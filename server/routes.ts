@@ -8,6 +8,21 @@ import { storage } from './storage';
 import { insertUserSchema } from '../shared/schema';
 import imageRoutes from './routes/image-routes';
 
+// Configuration de logging améliorée
+const createLogger = (module: string) => ({
+  info: (message: string, data?: any) => {
+    console.log(`[${new Date().toISOString()}] [${module}] INFO: ${message}`, data ? JSON.stringify(data) : '');
+  },
+  error: (message: string, error?: any) => {
+    console.error(`[${new Date().toISOString()}] [${module}] ERROR: ${message}`, error);
+  },
+  warn: (message: string, data?: any) => {
+    console.warn(`[${new Date().toISOString()}] [${module}] WARN: ${message}`, data ? JSON.stringify(data) : '');
+  }
+});
+
+const logger = createLogger('ROUTES');
+
 const JWT_SECRET = process.env.JWT_SECRET || 'barista-secret-key-ultra-secure-2025';
 const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization'];
@@ -101,39 +116,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/auth/login', async (req, res) => {
-    try {
-      const { username, password } = req.body;
-      
-      // Authentification avec fallback intégré directement dans getUserByUsername
-      const user = await storage.getUserByUsername(username);
-      if (!user) {
-        return res.status(401).json({ message: 'Identifiants invalides' });
-      }
-
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid) {
-        return res.status(401).json({ message: 'Identifiants invalides' });
-      }
-
-      await storage.updateUserLastLogin(user.id);
-
-      const token = jwt.sign(
-        { id: user.id, username: user.username, role: user.role },
-        JWT_SECRET,
-        { expiresIn: '24h' }
-      );
-
-      res.json({
-        message: 'Connexion réussie',
-        token,
-        user: { id: user.id, username: user.username, role: user.role }
-      });
-    } catch (error) {
-      console.error('Erreur login:', error);
-      res.status(500).json({ message: 'Erreur serveur' });
+  app.post('/api/auth/login', validateBody(loginSchema), asyncHandler(async (req: Request, res: Response) => {
+    const { username, password } = req.body;
+    
+    logger.info('Tentative de connexion', { username });
+    
+    // Authentification avec fallback intégré directement dans getUserByUsername
+    const user = await storage.getUserByUsername(username);
+    if (!user) {
+      logger.warn('Échec de connexion - utilisateur non trouvé', { username });
+      return res.status(401).json({ message: 'Identifiants invalides' });
     }
-  });
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      logger.warn('Échec de connexion - mot de passe incorrect', { username });
+      return res.status(401).json({ message: 'Identifiants invalides' });
+    }
+
+    await storage.updateUserLastLogin(user.id);
+
+    const token = jwt.sign(
+      { id: user.id, username: user.username, role: user.role },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    logger.info('Connexion réussie', { username, role: user.role });
+
+    res.json({
+      message: 'Connexion réussie',
+      token,
+      user: { id: user.id, username: user.username, role: user.role }
+    });
+  }));
 
   app.get('/api/auth/verify', authenticateToken, async (req, res) => {
     try {
