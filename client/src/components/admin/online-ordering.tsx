@@ -196,7 +196,7 @@ export default function OnlineOrdering() {
                   <Switch checked={settings?.onlinePaymentEnabled} />
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Temps de préparation min.</label>
@@ -442,7 +442,7 @@ export default function OnlineOrdering() {
               </div>
 
               <div className="flex justify-between items-center pt-4 border-t">
-                <p className="text-lg font-bold">Total: {selectedOrder.totalAmount.toFixed(2)}€</p>
+                <p className="text-lg font-bold">Total: {(selectedOrder.totalAmount || 0).toFixed(2)}€</p>
                 <Badge className={statusColors[selectedOrder.status]}>
                   {statusLabels[selectedOrder.status]}
                 </Badge>

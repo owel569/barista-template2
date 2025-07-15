@@ -16,7 +16,7 @@ export function useWebSocket(url: string = '/api/ws') {
     try {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const wsUrl = `${protocol}//${window.location.host}${url}`;
-      
+
       ws.current = new WebSocket(wsUrl);
 
       ws.current.onopen = () => {
@@ -37,7 +37,7 @@ export function useWebSocket(url: string = '/api/ws') {
       ws.current.onclose = () => {
         console.log('WebSocket déconnecté');
         setIsConnected(false);
-        
+
         // Tentative de reconnexion
         if (reconnectAttempts.current < maxReconnectAttempts) {
           reconnectAttempts.current++;
@@ -49,6 +49,12 @@ export function useWebSocket(url: string = '/api/ws') {
 
       ws.current.onerror = (error) => {
         console.error('Erreur WebSocket:', error);
+        // Tentative de reconnexion après délai
+        setTimeout(() => {
+          if (ws.current && ws.current.readyState === WebSocket.CLOSED) {
+            connect();
+          }
+        }, 5000);
       };
     } catch (error) {
       console.error('Erreur connexion WebSocket:', error);

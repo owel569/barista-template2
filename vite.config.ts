@@ -33,5 +33,9 @@ export default defineConfig({
       strict: true,
       deny: ["**/.*"],
     },
+    hmr: {
+      overlay: false,
+    },
   },
 });
+```
