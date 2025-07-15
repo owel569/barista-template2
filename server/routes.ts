@@ -105,6 +105,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { username, password } = req.body;
       
+      // Authentification avec fallback intégré directement dans getUserByUsername
       const user = await storage.getUserByUsername(username);
       if (!user) {
         return res.status(401).json({ message: 'Identifiants invalides' });

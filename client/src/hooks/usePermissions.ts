@@ -1,7 +1,13 @@
 
-import React from 'react';
 import { useState, useEffect } from 'react';
-import { DEFAULT_PERMISSIONS, type Role, type PermissionAction, type PermissionsMap } from '@/constants/permissions';
+import { 
+  DEFAULT_PERMISSIONS, 
+  ALL_ACCESS_ROLES,
+  STORAGE_KEYS,
+  type Role, 
+  type PermissionAction, 
+  type PermissionsMap 
+} from '@/constants/permissions';
 
 interface User {
   id: number;
@@ -30,7 +36,7 @@ export function usePermissions(user: User | null) {
   const loadUserPermissions = async (userId: number, role: Role) => {
     setIsLoading(true);
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem(STORAGE_KEYS.token);
       const response = await fetch(`/api/admin/users/${userId}/permissions`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -56,11 +62,16 @@ export function usePermissions(user: User | null) {
   const hasPermission = (module: string, action: PermissionAction): boolean => {
     if (!user) return false;
     
-    // Le directeur a TOUS les droits, toujours
-    if (user.role === 'directeur') return true;
+    // Stratégie fallback plus précise avec ALL_ACCESS_ROLES
+    if (user && ALL_ACCESS_ROLES.includes(user.role)) return true;
 
     const modulePermissions = permissions[module] || [];
     return modulePermissions.includes(action);
+  };
+
+  // Méthode générique pour éviter la répétition
+  const can = (module: string, action: PermissionAction): boolean => {
+    return hasPermission(module, action);
   };
 
   const canView = (module: string): boolean => {
@@ -98,6 +109,7 @@ export function usePermissions(user: User | null) {
     permissions,
     isLoading,
     hasPermission,
+    can,
     canView,
     canCreate,
     canEdit,
