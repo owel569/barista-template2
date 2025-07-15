@@ -17,7 +17,9 @@ export const AuthContext = createContext<AuthContextType>({
   token: null,
   login: () => {},
   logout: () => {},
-  isAuthenticated: false
+  isAuthenticated: false,
+  isDirector: false,
+  refreshUserData: async () => {}
 });
 
 interface AuthProviderProps {
