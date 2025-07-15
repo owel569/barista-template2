@@ -104,5 +104,12 @@ export function usePermissions(user: User | null) {
     }
   };
 
-  return { permissions, hasPermission };
+  return { 
+    permissions, 
+    hasPermission,
+    canView: (module: string) => hasPermission(module, 'view'),
+    canCreate: (module: string) => hasPermission(module, 'create'),
+    canEdit: (module: string) => hasPermission(module, 'edit'),
+    canDelete: (module: string) => hasPermission(module, 'delete')
+  };
 }

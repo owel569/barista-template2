@@ -17,19 +17,20 @@ export class AuthTokenManager {
 
   // Récupérer le token depuis le stockage
   static getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY) || localStorage.getItem('token');
+    return localStorage.getItem('token') || localStorage.getItem(this.TOKEN_KEY);
   }
 
   // Stocker le token
   static setToken(token: string): void {
-    localStorage.setItem(this.TOKEN_KEY, token);
-    localStorage.setItem('token', token); // Compatibilité
+    localStorage.setItem('token', token);
+    localStorage.setItem(this.TOKEN_KEY, token); // Compatibilité
   }
 
   // Supprimer le token
   static removeToken(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem('token');
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem('user');
     localStorage.removeItem(this.USER_KEY);
   }
 
