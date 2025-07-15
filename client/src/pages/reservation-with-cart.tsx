@@ -107,7 +107,10 @@ export default function ReservationWithCart() {
   // Mutation pour créer la réservation
   const createReservationMutation = useMutation({
     mutationFn: (data: ReservationFormData & { cartItems: CartItem[] }) => 
-      apiRequest("POST", "/api/reservations", data),
+      apiRequest("/api/reservations", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
     onSuccess: () => {
       toast({
         title: "Réservation confirmée!",
