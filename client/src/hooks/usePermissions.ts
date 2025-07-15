@@ -1,81 +1,63 @@
+
 import React from 'react';
 import { useState, useEffect } from 'react';
+import { DEFAULT_PERMISSIONS, type Role, type PermissionAction, type PermissionsMap } from '@/constants/permissions';
 
 interface User {
   id: number;
   username: string;
-  role: 'directeur' | 'employe';
+  role: Role;
 }
-
-interface Permission {
-  module: string;
-  actions: string[];
-}
-
-const DEFAULT_PERMISSIONS = {
-  directeur: {
-    dashboard: ['view'],
-    reservations: ['view', 'create', 'edit', 'delete'],
-    orders: ['view', 'create', 'edit', 'delete'],
-    customers: ['view', 'create', 'edit', 'delete'],
-    menu: ['view', 'create', 'edit', 'delete'],
-    messages: ['view', 'create', 'edit', 'delete'],
-    employees: ['view', 'create', 'edit', 'delete'],
-    settings: ['view', 'edit'],
-    statistics: ['view'],
-    logs: ['view'],
-    inventory: ['view', 'create', 'edit', 'delete'],
-    loyalty: ['view', 'create', 'edit', 'delete'],
-    permissions: ['view', 'edit'],
-    accounting: ['view', 'create', 'edit', 'delete'],
-    backup: ['view', 'create'],
-    reports: ['view'],
-    calendar: ['view', 'create', 'edit', 'delete'],
-    suppliers: ['view', 'create', 'edit', 'delete'],
-    maintenance: ['view', 'create', 'edit', 'delete'],
-    delivery: ['view', 'edit'],
-    tables: ['view', 'create', 'edit', 'delete'],
-    analytics: ['view'],
-    pos: ['use'],
-    scheduling: ['view', 'create', 'edit', 'delete'],
-    quality: ['view', 'create', 'edit'],
-    feedback: ['view', 'create', 'edit', 'respond']
-  },
-  employe: {
-    dashboard: ['view'],
-    reservations: ['view', 'create', 'edit'],
-    orders: ['view', 'create', 'edit'],
-    customers: ['view'],
-    menu: ['view', 'edit'],
-    messages: ['view', 'create'],
-    statistics: ['view'],
-    logs: ['view'],
-    inventory: ['view'],
-    loyalty: ['view', 'edit'],
-    delivery: ['view', 'edit'],
-    tables: ['view', 'edit'],
-    analytics: ['view'],
-    pos: ['use'],
-    quality: ['view', 'create'],
-    feedback: ['view', 'create']
-  }
-};
 
 export function usePermissions(user: User | null) {
-  const [permissions, setPermissions] = useState<Record<string, string[]>>({});
+  const [permissions, setPermissions] = useState<PermissionsMap>({});
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (user && user.role) {
-      const userPermissions = DEFAULT_PERMISSIONS[user.role] || {};
-      setPermissions(userPermissions);
+      // Le directeur a automatiquement tous les droits selon DEFAULT_PERMISSIONS
+      if (user.role === 'directeur') {
+        setPermissions(DEFAULT_PERMISSIONS.directeur);
+      } else {
+        // Pour les employés, charger les permissions depuis l'API ou utiliser les permissions par défaut
+        loadUserPermissions(user.id, user.role);
+      }
     } else {
       setPermissions({});
     }
   }, [user]);
 
-  const hasPermission = (module: string, action: string): boolean => {
+  const loadUserPermissions = async (userId: number, role: Role) => {
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem('auth_token');
+      const response = await fetch(`/api/admin/users/${userId}/permissions`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const userCustomPermissions = await response.json();
+        setPermissions(userCustomPermissions);
+      } else {
+        // Fallback vers les permissions par défaut
+        setPermissions(DEFAULT_PERMISSIONS[role] || {});
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des permissions:', error);
+      // Fallback vers les permissions par défaut
+      setPermissions(DEFAULT_PERMISSIONS[role] || {});
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const hasPermission = (module: string, action: PermissionAction): boolean => {
     if (!user) return false;
-    if (user.role === 'directeur') return true; // Directeur a tous les droits
+    
+    // Le directeur a TOUS les droits, toujours
+    if (user.role === 'directeur') return true;
 
     const modulePermissions = permissions[module] || [];
     return modulePermissions.includes(action);
@@ -97,12 +79,34 @@ export function usePermissions(user: User | null) {
     return hasPermission(module, 'delete');
   };
 
+  const canRespond = (module: string): boolean => {
+    return hasPermission(module, 'respond');
+  };
+
+  const canUse = (module: string): boolean => {
+    return hasPermission(module, 'use');
+  };
+
+  // Fonction pour rafraîchir les permissions (utile après une modification)
+  const refreshPermissions = () => {
+    if (user && user.role !== 'directeur') {
+      loadUserPermissions(user.id, user.role);
+    }
+  };
+
   return {
     permissions,
+    isLoading,
     hasPermission,
     canView,
     canCreate,
     canEdit,
-    canDelete
+    canDelete,
+    canRespond,
+    canUse,
+    refreshPermissions,
+    // Méthodes utilitaires
+    isDirector: user?.role === 'directeur',
+    isEmployee: user?.role === 'employe'
   };
 }

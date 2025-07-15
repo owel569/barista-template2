@@ -111,7 +111,18 @@ export default function PermissionsManagement() {
 
   const updateUserPermission = async (userId: number, permissionId: number, granted: boolean) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('auth_token');
+      const targetUser = users.find(u => u.id === userId);
+      
+      // Vérifier si c'est un directeur (ne peut pas être modifié)
+      if (targetUser?.role === 'directeur') {
+        toast({
+          title: "Modification interdite",
+          description: "Les permissions du directeur ne peuvent pas être modifiées",
+          variant: "destructive"
+        });
+        return;
+      }
       
       const response = await fetch(`/api/admin/users/${userId}/permissions`, {
         method: 'PUT',
@@ -121,12 +132,14 @@ export default function PermissionsManagement() {
         },
         body: JSON.stringify({
           permissionId,
-          granted
+          granted,
+          module: permissions.find(p => p.id === permissionId)?.module,
+          action: permissions.find(p => p.id === permissionId)?.actions[0]
         })
       });
 
       if (response.ok) {
-        // Mettre à jour l'état local
+        // Mettre à jour l'état local IMMÉDIATEMENT
         setUsers(users.map(user => 
           user.id === userId 
             ? {
@@ -138,9 +151,14 @@ export default function PermissionsManagement() {
             : user
         ));
         
+        // Émettre un événement pour notifier les autres composants
+        window.dispatchEvent(new CustomEvent('permissions-updated', { 
+          detail: { userId, permissionId, granted } 
+        }));
+        
         toast({
           title: "Permission mise à jour",
-          description: `Permission ${granted ? 'accordée' : 'révoquée'} avec succès`
+          description: `Permission ${granted ? 'accordée' : 'révoquée'} avec succès - Effet immédiat`
         });
       } else {
         throw new Error('Erreur lors de la mise à jour');
