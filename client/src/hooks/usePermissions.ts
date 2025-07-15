@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from 'react';
 
 interface User {
@@ -75,7 +76,7 @@ export function usePermissions(user: User | null) {
   const hasPermission = (module: string, action: string): boolean => {
     if (!user) return false;
     if (user.role === 'directeur') return true; // Directeur a tous les droits
-    
+
     const modulePermissions = permissions[module] || [];
     return modulePermissions.includes(action);
   };
