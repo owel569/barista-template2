@@ -117,7 +117,7 @@ export default function ReservationWithCart() {
       setCart([]);
       queryClient.invalidateQueries({ queryKey: ["/api/reservations"] });
     },
-    onError: (error: any) => {
+    onError: () => {
       toast({
         title: "Erreur",
         description: "Impossible de créer la réservation. Veuillez réessayer.",
