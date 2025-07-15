@@ -15,6 +15,13 @@
       "when": 1750947656444,
       "tag": "0001_lonely_stepford_cuckoos",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1752575464769,
+      "tag": "0002_skinny_mikhail_rasputin",
+      "breakpoints": true
     }
   ]
 }
