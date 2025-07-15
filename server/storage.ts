@@ -137,7 +137,7 @@ export class DatabaseStorage implements IStorage {
         createdAt: users.createdAt,
         updatedAt: users.updatedAt
       }).from(users).where(eq(users.username, username));
-      
+
       if (user) {
         return {
           ...user,
@@ -937,3 +937,212 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
 }
 
 export const storage = new DatabaseStorage();
+
+export async function getActivityLogs(limit: number = 50, offset: number = 0): Promise<any[]> {
+  try {
+    const logs = await db.select().from(activityLogs)
+      .orderBy(desc(activityLogs.timestamp))
+      .limit(limit)
+      .offset(offset);
+    return logs;
+  } catch (error) {
+    console.error('Erreur lors de la récupération des logs:', error);
+    return [];
+  }
+}
+
+export async function getUserActions(userId?: number): Promise<any[]> {
+  try {
+    let query = db.select().from(activityLogs)
+      .orderBy(desc(activityLogs.timestamp));
+
+    if (userId) {
+      query = query.where(eq(activityLogs.userId, userId));
+    }
+
+    const actions = await query.limit(100);
+    return actions;
+  } catch (error) {
+    console.error('Erreur lors de la récupération des actions utilisateur:', error);
+    return [];
+  }
+}
+
+export async function getSystemMetrics() {
+  try {
+    const metrics = {
+      uptime: process.uptime(),
+      memoryUsage: process.memoryUsage(),
+      platform: process.platform,
+      nodeVersion: process.version,
+      timestamp: new Date().toISOString()
+    };
+    return metrics;
+  } catch (error) {
+    console.error('Erreur lors de la récupération des métriques système:', error);
+    return null;
+  }
+}
+
+export async function getUsers() {
+  return await db.select().from(users);
+}
+
+export async function updateUser(userId: number, userData: {
+  username?: string;
+  email?: string;
+  role?: string;
+  firstName?: string;
+  lastName?: string;
+  isActive?: boolean;
+}) {
+  const result = await db.update(users)
+    .set({
+      ...userData,
+      updatedAt: new Date()
+    })
+    .where(eq(users.id, userId))
+    .returning();
+
+  if (!result[0]) {
+    throw new Error('Utilisateur non trouvé');
+  }
+
+  return result[0];
+}
+
+export async function deleteUser(userId: number) {
+  const result = await db.delete(users)
+    .where(eq(users.id, userId))
+    .returning();
+
+  if (!result[0]) {
+    throw new Error('Utilisateur non trouvé');
+  }
+
+  return result[0];
+}
+
+export async function createUser(userData: {
+  username: string;
+  password: string;
+  role: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  isActive?: boolean;
+}): Promise<{
+  id: number;
+  username: string;
+  password: string;
+  role: string;
+  firstName: string | null;
+  lastName: string | null;
+  email: string | null;
+  lastLogin: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+  isActive: boolean;
+}> {
+  const result = await db.insert(users).values({
+    ...userData,
+    firstName: userData.firstName || null,
+    lastName: userData.lastName || null,
+    email: userData.email || null,
+    isActive: userData.isActive !== undefined ? userData.isActive : true,
+    lastLogin: null,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  }).returning();
+
+  if (!result[0]) {
+    throw new Error('Échec de la création de l\'utilisateur');
+  }
+
+  return {
+    ...result[0],
+    isActive: result[0].isActive ?? true
+  };
+}
+
+export async function logActivity(userId: number, action: string, entity: string, entityId?: number, details?: string): Promise<{
+  id: number;
+  userId: number;
+  action: string;
+  entity: string;
+  entityId: number | null;
+  details: string | null;
+  timestamp: Date;
+}> {
+  try {
+    const result = await db.insert(activityLogs).values({
+      userId,
+      action,
+      entity,
+      entityId: entityId || null,
+      details: details || null,
+      timestamp: new Date()
+    }).returning();
+
+    if (!result[0]) {
+      throw new Error('Échec de la création du log d\'activité');
+    }
+
+    return result[0];
+  } catch (error) {
+    console.error('Erreur lors de l\'enregistrement de l\'activité:', error);
+    throw error;
+  }
+}
+
+export async function getWorkShifts() {
+  // Simuler des données de shift pour le moment
+  return [
+    { id: 1, employeeId: 1, date: '2024-07-12', startTime: '08:00', endTime: '16:00', position: 'Serveur', notes: null },
+    { id: 2, employeeId: 2, date: '2024-07-12', startTime: '14:00', endTime: '22:00', position: 'Barista', notes: 'Formation nouvelle machine' },
+    { id: 3, employeeId: 3, date: '2024-07-12', startTime: '06:00', endTime: '14:00', position: 'Chef', notes: null }
+  ];
+}
+
+export async function createWorkShift(shiftData: {
+  employeeId: number;
+  date: string;
+  startTime: string;
+  endTime: string;
+  position: string;
+  notes?: string;
+}) {
+  // Simuler la création d'un shift
+  const newShift = {
+    id: Date.now(),
+    ...shiftData,
+    notes: shiftData.notes || null
+  };
+  return newShift;
+}
+
+export async function updateWorkShift(shiftId: number, shiftData: {
+  employeeId?: number;
+  date?: string;
+  startTime?: string;
+  endTime?: string;
+  position?: string;
+  notes?: string;
+}) {
+  // Simuler la mise à jour d'un shift
+  const updatedShift = {
+    id: shiftId,
+    employeeId: shiftData.employeeId || 1,
+    date: shiftData.date || '2024-07-12',
+    startTime: shiftData.startTime || '08:00',
+    endTime: shiftData.endTime || '16:00',
+    position: shiftData.position || 'Employé',
+    notes: shiftData.notes || null
+  };
+  return updatedShift;
+}
+
+export async function deleteWorkShift(shiftId: number) {
+  // Simuler la suppression d'un shift
+  return { id: shiftId };
+}

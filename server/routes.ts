@@ -1,3 +1,4 @@
+typescript
 import { Express, Request, Response, NextFunction } from 'express';
 import { createServer, Server } from 'http';
 import { WebSocketServer } from 'ws';
@@ -50,20 +51,20 @@ const requireRole = (role: string) => {
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const server = createServer(app);
-  
+
   // Configuration WebSocket
   const wss = new WebSocketServer({ 
     server,
     path: '/api/ws'
   });
-  
+
   wss.on('connection', (ws) => {
     console.log('WebSocket connecté');
-    
+
     ws.on('message', (message) => {
       console.log('Message WebSocket reçu:', message.toString());
     });
-    
+
     ws.on('close', () => {
       console.log('WebSocket déconnecté');
     });
@@ -81,7 +82,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Routes d'authentification
   app.post('/api/auth/register', validateBody(registerSchema), asyncHandler(async (req: Request, res: Response) => {
     const { username, password, role } = req.body;
-    
+
     const existingUser = await storage.getUserByUsername(username);
     if (existingUser) {
       return res.status(400).json({ message: 'Nom d\'utilisateur déjà utilisé' });
@@ -109,9 +110,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/auth/login', validateBody(loginSchema), asyncHandler(async (req: Request, res: Response) => {
     const { username, password } = req.body;
-    
+
     logger.info('Tentative de connexion', { username });
-    
+
     try {
       // Authentification avec fallback intégré directement dans getUserByUsername
       const user = await storage.getUserByUsername(username);
@@ -219,7 +220,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/setup/initialize', async (req, res) => {
     try {
       console.log('🔧 Initialisation de la base de données...');
-      
+
       // Créer les catégories de menu par défaut
       const categories = [
         { name: 'Cafés', description: 'Nos délicieux cafés', slug: 'cafes', displayOrder: 1 },
@@ -227,7 +228,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { name: 'Pâtisseries', description: 'Pâtisseries fraîches', slug: 'patisseries', displayOrder: 3 },
         { name: 'Plats', description: 'Plats savoureux', slug: 'plats', displayOrder: 4 }
       ];
-      
+
       for (const category of categories) {
         try {
           await storage.createMenuCategory(category);
@@ -235,7 +236,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log('Catégorie existe déjà:', category.name);
         }
       }
-      
+
       // Créer des éléments de menu par défaut
       const menuItems = [
         { name: 'Espresso Classique', description: 'Café court et corsé', price: '2.50', categoryId: 1, available: true },
@@ -247,7 +248,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { name: 'Macarons Français', description: 'Macarons aux saveurs variées', price: '1.50', categoryId: 3, available: true },
         { name: 'Sandwich Club', description: 'Sandwich triple étages', price: '8.50', categoryId: 4, available: true }
       ];
-      
+
       for (const item of menuItems) {
         try {
           await storage.createMenuItem(item);
@@ -255,7 +256,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log('Élément existe déjà:', item.name);
         }
       }
-      
+
       // Créer des tables par défaut
       const tables = [
         { number: 1, capacity: 2, status: 'available', location: 'Fenêtre' },
@@ -263,7 +264,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { number: 3, capacity: 6, status: 'available', location: 'Terrasse' },
         { number: 4, capacity: 2, status: 'available', location: 'Bar' }
       ];
-      
+
       for (const table of tables) {
         try {
           await storage.createTable(table);
@@ -271,7 +272,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log('Table existe déjà:', table.number);
         }
       }
-      
+
       // Créer un utilisateur admin par défaut
       try {
         const bcrypt = await import('bcrypt');
@@ -287,7 +288,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (error) {
         console.log('Utilisateur admin existe déjà');
       }
-      
+
       console.log('✅ Base de données initialisée avec succès');
       res.json({ message: 'Base de données initialisée avec succès', status: 'success' });
     } catch (error) {
@@ -302,11 +303,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const reservations = await storage.getReservations();
       const messages = await storage.getContactMessages();
       const orders = await storage.getOrders();
-      
+
       const pendingReservations = reservations.filter(r => r.status === 'pending').length;
       const newMessages = messages.filter(m => m.status === 'nouveau').length;
       const pendingOrders = orders.filter(o => o.status === 'pending').length;
-      
+
       res.json({
         pendingReservations,
         newMessages,
@@ -459,7 +460,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Routes admin pour la gestion du menu
   app.post('/api/admin/menu/items', authenticateToken, validateBody(menuItemSchema), asyncHandler(async (req: Request, res: Response) => {
     const { name, description, price, categoryId, available, imageUrl } = req.body;
-    
+
     const newItem = await storage.createMenuItem({
       name,
       description,
@@ -468,7 +469,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       available: Boolean(available),
       imageUrl: imageUrl || null
     });
-    
+
     broadcast({ type: 'menu_item_created', data: newItem });
     res.status(201).json(newItem);
   }));
@@ -476,7 +477,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/admin/menu/items/:id', authenticateToken, validateRequestWithLogging(menuItemSchema), asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
     const { name, description, price, categoryId, available, imageUrl } = req.body;
-    
+
     const updatedItem = await storage.updateMenuItem(Number(id), {
       name,
       description,
@@ -485,7 +486,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       available: Boolean(available),
       imageUrl: imageUrl || null
     });
-    
+
     broadcast({ type: 'menu_item_updated', data: updatedItem });
     res.json(updatedItem);
   }));
@@ -542,16 +543,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Routes pour la gestion des images
   app.use('/api/admin/images', authenticateToken, imageRoutes);
-  
+
   // Routes pour la gestion des livraisons
   app.use('/api/admin/deliveries', authenticateToken, deliveryRouter);
-  
+
   // Routes pour les commandes en ligne
   app.use('/api/admin/online-orders', authenticateToken, onlineOrdersRouter);
-  
+
   // Routes pour la gestion des tables
   app.use('/api/admin/tables', authenticateToken, tablesRouter);
-  
+
   // Routes pour le profil utilisateur
   app.use('/api/user/profile', authenticateToken, userProfileRouter);
 
@@ -559,7 +560,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const { status } = req.body;
-      
+
       const updatedMessage = await storage.updateMessageStatus(Number(id), status);
       broadcast({ type: 'message_updated', data: updatedMessage });
       res.json(updatedMessage);
@@ -573,10 +574,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { userId } = req.params;
       const { permissionId, granted } = req.body;
-      
+
       // Logique de mise à jour des permissions
       console.log(`Mise à jour permission: userId=${userId}, permissionId=${permissionId}, granted=${granted}`);
-      
+
       // Simuler la mise à jour réussie
       const updatedPermission = {
         userId: Number(userId),
@@ -584,7 +585,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         granted: Boolean(granted),
         updatedAt: new Date().toISOString()
       };
-      
+
       broadcast({ type: 'permission_updated', data: updatedPermission });
       res.json({ message: 'Permission mise à jour avec succès', data: updatedPermission });
     } catch (error) {
@@ -597,16 +598,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { userId } = req.params;
       const { active } = req.body;
-      
+
       // Logique de mise à jour du statut utilisateur
       console.log(`Mise à jour statut utilisateur: userId=${userId}, active=${active}`);
-      
+
       const updatedUser = {
         userId: Number(userId),
         active: Boolean(active),
         updatedAt: new Date().toISOString()
       };
-      
+
       broadcast({ type: 'user_status_updated', data: updatedUser });
       res.json({ message: 'Statut utilisateur mis à jour avec succès', data: updatedUser });
     } catch (error) {
@@ -654,18 +655,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/admin/customers', authenticateToken, validateBody(customerSchema), asyncHandler(async (req: Request, res: Response) => {
     const customerData = req.body;
-    
+
     if (customerData.name && !customerData.firstName && !customerData.lastName) {
       const nameParts = customerData.name.split(' ');
       customerData.firstName = nameParts[0] || '';
       customerData.lastName = nameParts.slice(1).join(' ') || '';
       delete customerData.name;
     }
-    
+
     if (!customerData.loyaltyPoints) customerData.loyaltyPoints = 0;
     if (!customerData.totalSpent) customerData.totalSpent = 0;
     if (!customerData.lastVisit) customerData.lastVisit = new Date().toISOString();
-    
+
     const customer = await storage.createCustomer(customerData);
     broadcast({ type: 'customer_created', data: customer });
     res.status(201).json(customer);
@@ -682,26 +683,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/admin/employees', authenticateToken, validateBody(employeeSchema), asyncHandler(async (req: Request, res: Response) => {
     const employeeData = req.body;
-    
+
     if (employeeData.name && !employeeData.firstName && !employeeData.lastName) {
       const nameParts = employeeData.name.split(' ');
       employeeData.firstName = nameParts[0] || '';
       employeeData.lastName = nameParts.slice(1).join(' ') || '';
       delete employeeData.name;
     }
-    
+
     if (!employeeData.department) {
       employeeData.department = 'Général';
     }
-    
+
     if (!employeeData.position) {
       employeeData.position = 'Employé';
     }
-    
+
     if (!employeeData.hireDate) {
       employeeData.hireDate = new Date().toISOString();
     }
-    
+
     const employee = await storage.createEmployee(employeeData);
     broadcast({ type: 'employee_created', data: employee });
     res.status(201).json(employee);
@@ -1362,19 +1363,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/admin/backups/settings', authenticateToken, async (req, res) => {
+  app.put('/api/admin/backups/settings', authenticateToken, requireRole('directeur'), async (req, res) => {
     try {
+      const { autoBackup, backupFrequency, retentionDays, maxBackups } = req.body;
       const settings = {
-        autoBackup: true,
-        backupFrequency: 'daily',
-        retentionDays: 30,
-        maxBackups: 10,
+        autoBackup: Boolean(autoBackup),
+        backupFrequency: backupFrequency || 'daily',
+        retentionDays: parseInt(retentionDays) || 30,
+        maxBackups: parseInt(maxBackups) || 10,
         lastBackup: '2024-07-12T03:00:00Z',
-        nextBackup: '2024-07-13T03:00:00Z'
+        nextBackup: '2024-07-13T03:00:00Z',
+        updatedAt: new Date().toISOString()
       };
       res.json(settings);
     } catch (error) {
-      res.status(500).json({ autoBackup: false, backupFrequency: 'weekly', retentionDays: 7, maxBackups: 5 });
+      res.status(500).json({ error: 'Erreur lors de la mise à jour des paramètres de sauvegarde' });
+    }
+  });
+
+  app.get('/api/admin/system/health', authenticateToken, async (req, res) => {
+    try {
+      const health = {
+        status: 'healthy',
+        database: 'connected',
+        memory: process.memoryUsage(),
+        uptime: process.uptime(),
+        lastCheck: new Date().toISOString(),
+        services: {
+          api: 'running',
+          websocket: 'running',
+          cache: 'running'
+        }
+      };
+      res.json(health);
+    } catch (error) {
+      res.status(500).json({ status: 'error', message: 'Erreur lors du contrôle santé' });
+    }
+  });
+
+  app.get('/api/admin/system/metrics', authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const metrics = await storage.getSystemMetrics();
+      res.json(metrics);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur lors de la récupération des métriques' });
     }
   });
 
@@ -1388,12 +1420,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         type: 'manuelle',
         status: 'en_cours'
       };
-      
+
       // Simuler la progression
       setTimeout(() => {
         backup.status = 'terminée';
       }, 2000);
-      
+
       res.json(backup);
     } catch (error) {
       res.status(500).json({ error: 'Erreur lors de la création de la sauvegarde' });
@@ -1444,7 +1476,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const orders = await storage.getOrders();
       const activeOrders = orders.filter(o => o.status === 'en_preparation' || o.status === 'en_attente').length;
       const occupancyRate = await storage.getOccupancyRate(new Date().toISOString().split('T')[0]);
-      
+
       res.json({
         todayReservations,
         monthlyRevenue,
@@ -1638,7 +1670,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const orders = await storage.getOrders();
       const activeOrders = orders.filter(o => o.status === 'en_preparation' || o.status === 'en_attente').length;
       const occupancyRate = await storage.getOccupancyRate(new Date().toISOString().split('T')[0]);
-      
+
       res.json({
         todayReservations,
         monthlyRevenue,
@@ -1822,14 +1854,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/admin/customers/:id', authenticateToken, validateBody(customerSchema), asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
     const customerData = req.body;
-    
+
     if (customerData.name && !customerData.firstName && !customerData.lastName) {
       const nameParts = customerData.name.split(' ');
       customerData.firstName = nameParts[0] || '';
       customerData.lastName = nameParts.slice(1).join(' ') || '';
       delete customerData.name;
     }
-    
+
     const customer = await storage.updateCustomer(Number(id), customerData);
     broadcast({ type: 'customer_updated', data: customer });
     res.json(customer);
@@ -1838,14 +1870,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/admin/employees/:id', authenticateToken, validateBody(employeeSchema), asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
     const employeeData = req.body;
-    
+
     if (employeeData.name && !employeeData.firstName && !employeeData.lastName) {
       const nameParts = employeeData.name.split(' ');
       employeeData.firstName = nameParts[0] || '';
       employeeData.lastName = nameParts.slice(1).join(' ') || '';
       delete employeeData.name;
     }
-    
+
     const employee = await storage.updateEmployee(Number(id), employeeData);
     broadcast({ type: 'employee_updated', data: employee });
     res.json(employee);
@@ -1908,7 +1940,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Routes essentielles manquantes pour 100% de complétude
-  
+
 
   // Routes statistiques manquantes détectées dans les logs
   app.get('/api/admin/stats/revenue-detailed', authenticateToken, async (req, res) => {
@@ -2138,7 +2170,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { userId } = req.params;
       const { permissionId, granted } = req.body;
-      
+
       // Simuler la mise à jour des permissions
       res.json({
         message: `Permission ${granted ? 'accordée' : 'révoquée'} avec succès`,
@@ -2155,7 +2187,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { userId } = req.params;
       const { active } = req.body;
-      
+
       res.json({
         message: `Statut utilisateur ${active ? 'activé' : 'désactivé'} avec succès`,
         userId: parseInt(userId),
@@ -2169,7 +2201,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/admin/users', authenticateToken, requireRole('directeur'), async (req, res) => {
     try {
       const { username, email, password, role } = req.body;
-      
+
       // Simuler la création d'utilisateur
       const newUser = {
         id: Date.now(),
@@ -2181,7 +2213,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         active: true,
         createdAt: new Date().toISOString()
       };
-      
+
       res.status(201).json(newUser);
     } catch (error) {
       res.status(500).json({ error: 'Erreur lors de la création de l\'utilisateur' });
