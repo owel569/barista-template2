@@ -13,7 +13,7 @@ export class ImageManager {
      */
     async getPrimaryImage(menuItemId: number): Promise<MenuItemImage | null> {
         const db = await this.db;
-        const [image] = await db
+        const result = await db
             .select()
             .from(menuItemImages)
             .where(and(
@@ -22,7 +22,7 @@ export class ImageManager {
             ))
             .limit(1);
 
-        return image || null;
+        return result.length > 0 ? result[0] : null;
     }
 
     /**
@@ -51,7 +51,7 @@ export class ImageManager {
                 .where(eq(menuItemImages.menuItemId, imageData.menuItemId));
         }
 
-        const [newImage] = await db
+        const result = await db
             .insert(menuItemImages)
             .values({
                 ...imageData,
@@ -59,7 +59,11 @@ export class ImageManager {
             })
             .returning();
 
-        return newImage;
+        if (result.length === 0) {
+            throw new Error('Échec de l\'ajout de l\'image');
+        }
+
+        return result[0];
     }
 
     /**
@@ -84,13 +88,13 @@ export class ImageManager {
             }
         }
 
-        const [updatedImage] = await db
+        const result = await db
             .update(menuItemImages)
             .set({ ...updates, updatedAt: new Date() })
             .where(eq(menuItemImages.id, imageId))
             .returning();
 
-        return updatedImage || null;
+        return result.length > 0 ? result[0] : null;
     }
 
     /**
@@ -102,7 +106,7 @@ export class ImageManager {
             .delete(menuItemImages)
             .where(eq(menuItemImages.id, imageId));
 
-        return result.rowCount !== null && result.rowCount > 0;
+        return (result as any).rowCount !== undefined && (result as any).rowCount > 0;
     }
 
     /**
