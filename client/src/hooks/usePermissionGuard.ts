@@ -25,16 +25,7 @@ export function useAccessControl(module: string, action: PermissionAction) {
   if (guard.isForbidden) {
     return {
       canAccess: false,
-      AccessDeniedComponent: () => (
-        <div className="p-4 text-center">
-          <div className="text-red-600 dark:text-red-400 mb-2">
-            Accès refusé
-          </div>
-          <div className="text-gray-600 dark:text-gray-400 text-sm">
-            Vous n'avez pas les permissions nécessaires pour accéder à cette fonctionnalité.
-          </div>
-        </div>
-      )
+      AccessDeniedComponent: () => null as React.ReactElement
     };
   }
 

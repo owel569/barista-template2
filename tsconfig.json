@@ -20,7 +20,7 @@
     "allowImportingTsExtensions": true,
     "moduleResolution": "bundler",
     "baseUrl": ".",
-    "types": ["node", "vite/client"],
+    "types": ["node"],
     "typeRoots": ["./node_modules/@types", "./server/types"],
     "paths": {
       "@/*": ["./client/src/*"],
