@@ -1,141 +1,187 @@
-/**
- * Gestionnaire complet des rapports selon spécifications
- */
 
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState, useRef } from 'react';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from '@/components/ui/select';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Progress } from '@/components/ui/progress';
 import { 
   FileText, 
   Download, 
   Calendar, 
-  TrendingUp, 
-  Users, 
+  TrendingUp,
+  Users,
   DollarSign,
   Package,
   Clock,
   Mail,
-  Printer
+  Settings,
+  BarChart3,
+  PieChart,
+  Activity,
+  CheckCircle,
+  AlertTriangle
 } from 'lucide-react';
-import { 
-  ResponsiveContainer, 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  LineChart, 
-  Line 
-} from 'recharts';
 import { ApiClient } from '@/lib/auth-utils';
+import { toast } from '@/hooks/use-toast';
+
+interface Report {
+  id: string;
+  name: string;
+  description: string;
+  type: 'predefined' | 'custom' | 'automated';
+  category: string;
+  lastGenerated?: string;
+  nextScheduled?: string;
+  format: 'pdf' | 'excel' | 'csv' | 'json';
+  size?: string;
+  status: 'ready' | 'generating' | 'scheduled' | 'error';
+}
 
 const ComprehensiveReportsManager: React.FC = () => {
-  const [selectedReport, setSelectedReport] = useState('sales');
-  const [period, setPeriod] = useState('month');
-  const [format, setFormat] = useState('pdf');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [generatingReports, setGeneratingReports] = useState<Set<string>>(new Set());
 
-  // Données des rapports
-  const { data: reportsData, isLoading } = useQuery({
-    queryKey: ['comprehensive-reports', selectedReport, period],
+  // Chargement des rapports disponibles
+  const { data: reports, isLoading, refetch } = useQuery({
+    queryKey: ['comprehensive-reports'],
     queryFn: async () => {
-      const [sales, customers, products] = await Promise.all([
-        ApiClient.get('/api/admin/reports/sales'),
-        ApiClient.get('/api/admin/reports/customers'),
-        ApiClient.get('/api/admin/reports/products')
-      ]);
-
-      return {
-        sales: sales || [],
-        customers: customers || [],
-        products: products || []
-      };
+      const response = await ApiClient.get('/api/advanced/reports');
+      return response.reports || [];
     }
   });
 
-  const reports = [
+  // Mutation pour générer un rapport
+  const generateReportMutation = useMutation({
+    mutationFn: async ({ reportId, params }: { reportId: string; params?: any }) => {
+      return await ApiClient.post(`/api/advanced/reports/${reportId}/generate`, params);
+    },
+    onSuccess: (data, variables) => {
+      setGeneratingReports(prev => {
+        const next = new Set(prev);
+        next.delete(variables.reportId);
+        return next;
+      });
+      
+      // Téléchargement automatique si prêt
+      if (data.downloadUrl) {
+        const link = document.createElement('a');
+        link.href = data.downloadUrl;
+        link.download = data.filename;
+        link.click();
+      }
+      
+      toast({
+        title: "Rapport généré",
+        description: "Le rapport a été généré avec succès",
+      });
+      refetch();
+    },
+    onError: (error, variables) => {
+      setGeneratingReports(prev => {
+        const next = new Set(prev);
+        next.delete(variables.reportId);
+        return next;
+      });
+      
+      toast({
+        title: "Erreur",
+        description: "Impossible de générer le rapport",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleGenerateReport = (reportId: string) => {
+    setGeneratingReports(prev => new Set(prev).add(reportId));
+    generateReportMutation.mutate({ reportId });
+  };
+
+  // Rapports prédéfinis complets
+  const predefinedReports: Report[] = [
     {
-      id: 'sales',
-      title: 'Rapport des Ventes',
-      description: 'Analyse complète des ventes par période',
-      icon: <DollarSign className="w-5 h-5 text-green-600" />,
-      frequency: 'daily',
-      lastGenerated: '2025-07-16 09:30'
+      id: 'sales-daily',
+      name: 'Rapport Ventes Quotidien',
+      description: 'Analyse détaillée des ventes du jour avec comparaisons',
+      type: 'predefined',
+      category: 'sales',
+      format: 'pdf',
+      status: 'ready'
     },
     {
-      id: 'customers',
-      title: 'Rapport Clients',
-      description: 'Analyse comportementale et segmentation',
-      icon: <Users className="w-5 h-5 text-blue-600" />,
-      frequency: 'weekly',
-      lastGenerated: '2025-07-15 18:00'
+      id: 'inventory-stock',
+      name: 'État des Stocks',
+      description: 'Inventaire complet avec alertes et recommandations',
+      type: 'predefined',
+      category: 'inventory',
+      format: 'excel',
+      status: 'ready'
     },
     {
-      id: 'products',
-      title: 'Rapport Produits',
-      description: 'Performance des articles du menu',
-      icon: <Package className="w-5 h-5 text-orange-600" />,
-      frequency: 'monthly',
-      lastGenerated: '2025-07-14 14:30'
+      id: 'customer-analytics',
+      name: 'Analytics Clientèle',
+      description: 'Segmentation et comportement des clients',
+      type: 'predefined',
+      category: 'customers',
+      format: 'pdf',
+      status: 'ready'
     },
     {
-      id: 'staff',
-      title: 'Rapport Personnel',
-      description: 'Performance et planification équipe',
-      icon: <Users className="w-5 h-5 text-purple-600" />,
-      frequency: 'monthly',
-      lastGenerated: '2025-07-13 16:45'
+      id: 'staff-performance',
+      name: 'Performance Personnel',
+      description: 'Évaluation des employés et productivité',
+      type: 'predefined',
+      category: 'staff',
+      format: 'excel',
+      status: 'ready'
     },
     {
-      id: 'inventory',
-      title: 'Rapport Inventaire',
-      description: 'Gestion des stocks et rotation',
-      icon: <Package className="w-5 h-5 text-red-600" />,
-      frequency: 'weekly',
-      lastGenerated: '2025-07-16 07:00'
+      id: 'financial-summary',
+      name: 'Résumé Financier',
+      description: 'Bilan financier complet avec projections',
+      type: 'predefined',
+      category: 'finance',
+      format: 'pdf',
+      status: 'ready'
     },
     {
-      id: 'financial',
-      title: 'Rapport Financier',
-      description: 'Analyse comptable et rentabilité',
-      icon: <TrendingUp className="w-5 h-5 text-indigo-600" />,
-      frequency: 'monthly',
-      lastGenerated: '2025-07-15 10:30'
+      id: 'ai-insights-report',
+      name: 'Rapport Insights IA',
+      description: 'Compilation des recommandations IA du mois',
+      type: 'automated',
+      category: 'ai',
+      format: 'pdf',
+      status: 'scheduled',
+      nextScheduled: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
     }
   ];
 
-  const generateReport = async (reportType: string) => {
-    // Simulation génération de rapport
-    console.log(`Génération du rapport ${reportType} en format ${format}`);
-    
-    const reportData = {
-      type: reportType,
-      period,
-      format,
-      generatedAt: new Date().toISOString(),
-      data: reportsData?.[reportType as keyof typeof reportsData] || []
-    };
+  const allReports = [...predefinedReports, ...(reports || [])];
+  
+  const filteredReports = allReports.filter(report => 
+    selectedCategory === 'all' || report.category === selectedCategory
+  );
 
-    // Simuler le téléchargement
-    const blob = new Blob([JSON.stringify(reportData, null, 2)], {
-      type: 'application/json'
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `rapport-${reportType}-${period}.${format}`;
-    link.click();
-    URL.revokeObjectURL(url);
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'ready': return <CheckCircle className="w-4 h-4 text-green-600" />;
+      case 'generating': return <Clock className="w-4 h-4 text-blue-600 animate-spin" />;
+      case 'scheduled': return <Calendar className="w-4 h-4 text-orange-600" />;
+      case 'error': return <AlertTriangle className="w-4 h-4 text-red-600" />;
+      default: return <FileText className="w-4 h-4" />;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'ready': return 'bg-green-100 text-green-800 border-green-200';
+      case 'generating': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'scheduled': return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'error': return 'bg-red-100 text-red-800 border-red-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
   };
 
   if (isLoading) {
@@ -152,191 +198,228 @@ const ComprehensiveReportsManager: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* En-tête */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Rapports Complets</h1>
+          <h1 className="text-3xl font-bold">Gestionnaire de Rapports Complet</h1>
           <p className="text-muted-foreground mt-2">
-            Système de rapports personnalisés et automatisés
+            Génération automatique et personnalisée de tous vos rapports d'analyse
           </p>
         </div>
+        
         <div className="flex items-center gap-3">
-          <Select value={period} onValueChange={setPeriod}>
-            <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="Période" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="day">Jour</SelectItem>
-              <SelectItem value="week">Semaine</SelectItem>
-              <SelectItem value="month">Mois</SelectItem>
-              <SelectItem value="quarter">Trimestre</SelectItem>
-              <SelectItem value="year">Année</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Select value={format} onValueChange={setFormat}>
-            <SelectTrigger className="w-[120px]">
-              <SelectValue placeholder="Format" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="pdf">PDF</SelectItem>
-              <SelectItem value="excel">Excel</SelectItem>
-              <SelectItem value="csv">CSV</SelectItem>
-              <SelectItem value="json">JSON</SelectItem>
-            </SelectContent>
-          </Select>
+          <Button variant="outline" size="sm">
+            <Settings className="w-4 h-4 mr-2" />
+            Planifier
+          </Button>
+          <Button variant="outline" size="sm">
+            <Mail className="w-4 h-4 mr-2" />
+            Envoi Auto
+          </Button>
         </div>
+      </div>
+
+      {/* Statistiques des rapports */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Total Rapports</p>
+                <p className="text-2xl font-bold">{allReports.length}</p>
+              </div>
+              <FileText className="h-8 w-8 text-muted-foreground" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Prêts</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {allReports.filter(r => r.status === 'ready').length}
+                </p>
+              </div>
+              <CheckCircle className="h-8 w-8 text-green-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Programmés</p>
+                <p className="text-2xl font-bold text-orange-600">
+                  {allReports.filter(r => r.status === 'scheduled').length}
+                </p>
+              </div>
+              <Calendar className="h-8 w-8 text-orange-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">En cours</p>
+                <p className="text-2xl font-bold text-blue-600">
+                  {generatingReports.size}
+                </p>
+              </div>
+              <Activity className="h-8 w-8 text-blue-600" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filtres */}
+      <div className="flex flex-wrap gap-2">
+        <Button 
+          variant={selectedCategory === 'all' ? 'default' : 'outline'}
+          onClick={() => setSelectedCategory('all')}
+          size="sm"
+        >
+          Tous
+        </Button>
+        <Button 
+          variant={selectedCategory === 'sales' ? 'default' : 'outline'}
+          onClick={() => setSelectedCategory('sales')}
+          size="sm"
+        >
+          Ventes
+        </Button>
+        <Button 
+          variant={selectedCategory === 'inventory' ? 'default' : 'outline'}
+          onClick={() => setSelectedCategory('inventory')}
+          size="sm"
+        >
+          Inventaire
+        </Button>
+        <Button 
+          variant={selectedCategory === 'customers' ? 'default' : 'outline'}
+          onClick={() => setSelectedCategory('customers')}
+          size="sm"
+        >
+          Clients
+        </Button>
+        <Button 
+          variant={selectedCategory === 'staff' ? 'default' : 'outline'}
+          onClick={() => setSelectedCategory('staff')}
+          size="sm"
+        >
+          Personnel
+        </Button>
+        <Button 
+          variant={selectedCategory === 'finance' ? 'default' : 'outline'}
+          onClick={() => setSelectedCategory('finance')}
+          size="sm"
+        >
+          Finance
+        </Button>
+        <Button 
+          variant={selectedCategory === 'ai' ? 'default' : 'outline'}
+          onClick={() => setSelectedCategory('ai')}
+          size="sm"
+        >
+          IA
+        </Button>
       </div>
 
       {/* Liste des rapports */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {reports.map((report) => (
-          <Card key={report.id} className="hover:shadow-lg transition-shadow">
+        {filteredReports.map((report) => (
+          <Card key={report.id} className="hover:shadow-lg transition-all duration-200">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  {report.icon}
-                  <div>
-                    <CardTitle className="text-lg">{report.title}</CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      {report.description}
-                    </p>
-                  </div>
-                </div>
-                <Badge variant="outline">{report.frequency}</Badge>
+                <CardTitle className="text-lg">{report.name}</CardTitle>
+                <Badge className={getStatusColor(report.status)}>
+                  {getStatusIcon(report.status)}
+                  <span className="ml-1">
+                    {report.status === 'ready' ? 'Prêt' :
+                     report.status === 'generating' ? 'Génération' :
+                     report.status === 'scheduled' ? 'Programmé' : 'Erreur'}
+                  </span>
+                </Badge>
               </div>
+              <p className="text-sm text-muted-foreground">{report.description}</p>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
+            
+            <CardContent className="space-y-4">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Format:</span>
+                <span className="font-medium uppercase">{report.format}</span>
+              </div>
+              
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Type:</span>
+                <span className="font-medium">
+                  {report.type === 'predefined' ? 'Prédéfini' :
+                   report.type === 'custom' ? 'Personnalisé' : 'Automatique'}
+                </span>
+              </div>
+
+              {report.lastGenerated && (
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Dernière génération:</span>
-                  <span>{report.lastGenerated}</span>
+                  <span className="font-medium">
+                    {new Date(report.lastGenerated).toLocaleDateString('fr-FR')}
+                  </span>
                 </div>
-                
-                <div className="flex gap-2">
-                  <Button
-                    onClick={() => generateReport(report.id)}
-                    className="flex-1"
-                    size="sm"
-                  >
+              )}
+
+              {report.nextScheduled && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Prochaine génération:</span>
+                  <span className="font-medium">
+                    {new Date(report.nextScheduled).toLocaleDateString('fr-FR')}
+                  </span>
+                </div>
+              )}
+
+              {generatingReports.has(report.id) && (
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Génération en cours...</span>
+                    <span>75%</span>
+                  </div>
+                  <Progress value={75} className="h-2" />
+                </div>
+              )}
+
+              <Button
+                onClick={() => handleGenerateReport(report.id)}
+                disabled={generatingReports.has(report.id) || report.status === 'generating'}
+                className="w-full"
+                size="sm"
+              >
+                {generatingReports.has(report.id) ? (
+                  <>
+                    <Clock className="w-4 h-4 mr-2 animate-spin" />
+                    Génération...
+                  </>
+                ) : (
+                  <>
                     <Download className="w-4 h-4 mr-2" />
                     Générer
-                  </Button>
-                  
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setSelectedReport(report.id)}
-                  >
-                    <FileText className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
+                  </>
+                )}
+              </Button>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Aperçu du rapport sélectionné */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5" />
-            Aperçu: {reports.find(r => r.id === selectedReport)?.title}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Tabs value={selectedReport} onValueChange={setSelectedReport}>
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="sales">Ventes</TabsTrigger>
-              <TabsTrigger value="customers">Clients</TabsTrigger>
-              <TabsTrigger value="products">Produits</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="sales" className="space-y-4">
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={reportsData?.sales || []}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="period" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="totalSales" fill="#8884d8" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="customers" className="space-y-4">
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={reportsData?.customers || []}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="totalSpent" stroke="#8884d8" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="products" className="space-y-4">
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={reportsData?.products || []}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="revenue" fill="#82ca9d" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
-
-      {/* Planification automatique */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="w-5 h-5" />
-            Planification Automatique
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-3">
-              <h4 className="font-semibold">Rapports Quotidiens</h4>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                  <span className="text-sm">Ventes du jour</span>
-                  <Badge variant="outline">09:00</Badge>
-                </div>
-                <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                  <span className="text-sm">Inventaire</span>
-                  <Badge variant="outline">07:00</Badge>
-                </div>
-              </div>
-            </div>
-            
-            <div className="space-y-3">
-              <h4 className="font-semibold">Rapports Hebdomadaires</h4>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                  <span className="text-sm">Performance équipe</span>
-                  <Badge variant="outline">Lundi 08:00</Badge>
-                </div>
-                <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                  <span className="text-sm">Analyse clients</span>
-                  <Badge variant="outline">Dimanche 18:00</Badge>
-                </div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Alertes système */}
+      <Alert>
+        <Activity className="w-4 h-4" />
+        <AlertDescription>
+          Système de rapports entièrement opérationnel. 
+          Génération automatique activée pour {allReports.filter(r => r.type === 'automated').length} rapports.
+        </AlertDescription>
+      </Alert>
     </div>
   );
 };

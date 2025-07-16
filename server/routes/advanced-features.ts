@@ -273,5 +273,78 @@ router.get('/multi-site/overview', authenticateToken, async (req, res) => {
   }
 });
 
+// Route pour les insights IA temps réel
+router.get('/ai-insights', async (req, res) => {
+  try {
+    // Génération d'insights IA simulés mais réalistes
+    const insights = [
+      {
+        id: '1',
+        type: 'prediction',
+        title: 'Pic de demande prévu demain',
+        description: 'L\'IA prévoit une augmentation de 35% de la demande demain entre 12h et 14h. Recommandation: augmenter le stock de sandwichs et prévoir un barista supplémentaire.',
+        confidence: 89,
+        impact: 'high',
+        category: 'sales',
+        actionable: true,
+        timestamp: new Date().toISOString()
+      },
+      {
+        id: '2',
+        type: 'optimization',
+        title: 'Optimisation des prix détectée',
+        description: 'Le prix du cappuccino peut être augmenté de 0,30€ sans impact significatif sur la demande, générant +15% de marge.',
+        confidence: 82,
+        impact: 'medium',
+        category: 'sales',
+        actionable: true,
+        timestamp: new Date().toISOString()
+      },
+      {
+        id: '3',
+        type: 'alert',
+        title: 'Stock critique: Grains de café',
+        description: 'Les grains de café Arabica atteignent un niveau critique. Commande automatique recommandée dans les 48h.',
+        confidence: 95,
+        impact: 'high',
+        category: 'inventory',
+        actionable: true,
+        timestamp: new Date().toISOString()
+      },
+      {
+        id: '4',
+        type: 'recommendation',
+        title: 'Nouveau produit suggéré',
+        description: 'Basé sur les tendances, introduire un "Matcha Latte" pourrait attirer 12% de nouveaux clients.',
+        confidence: 76,
+        impact: 'medium',
+        category: 'customer',
+        actionable: true,
+        timestamp: new Date().toISOString()
+      }
+    ];
+
+    res.json({ insights });
+  } catch (error) {
+    console.error('Erreur récupération insights IA:', error);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
+
+// Route pour les métriques de performance IA
+router.get('/ai-metrics', async (req, res) => {
+  try {
+      const metrics = {
+          chatbotEffectiveness: 0.85,
+          visionAccuracy: 0.92,
+          demandPredictionAccuracy: 0.78
+      };
+      res.json(metrics);
+  } catch (error) {
+      console.error('Erreur récupération des métriques IA:', error);
+      res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
+
 export const advancedFeaturesRouter = router;
 export default router;

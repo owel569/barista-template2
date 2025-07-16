@@ -18,50 +18,49 @@ const queryCache = new Map<string, { data: any; timestamp: number; ttl: number }
 
 async function initializeDatabase() {
   if (isInitialized && db) return db;
-  
+
   if (initPromise) return initPromise;
-  
+
   initPromise = (async () => {
     try {
       console.log('🗄️ Initialisation PostgreSQL optimisée...');
-      
+
       // Configuration PostgreSQL pool optimisée
       pool = new Pool({
         connectionString: process.env.DATABASE_URL,
-        max: 20, // Augmenté pour plus de performance
-        min: 2,  // Connexions minimales maintenues
-        idleTimeoutMillis: 60000, // Augmenté pour réduire la reconnexion
-        connectionTimeoutMillis: 15000,
-        acquireTimeoutMillis: 10000,
-        // Optimisations supplémentaires
-        allowExitOnIdle: false,
+        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+        // Configuration pour la stabilité des connexions
+        max: 20, // Maximum de connexions dans le pool
+        idleTimeoutMillis: 30000, // Timeout des connexions inactives
+        connectionTimeoutMillis: 2000, // Timeout de connexion
+        // Reconnexion automatique
         keepAlive: true,
         keepAliveInitialDelayMillis: 10000,
       });
-      
+
       // Initialiser Drizzle avec optimisations
       db = drizzle(pool, { 
         schema,
         logger: process.env.NODE_ENV === 'development'
       });
-      
+
       // Test de connexion avec retry
       await testConnection();
-      
+
       // Configuration des events du pool
       setupPoolEvents();
-      
+
       // Configuration backup automatique
       if (process.env.BACKUP_ENABLED === 'true') {
         setupAutomaticBackup();
       }
-      
+
       // Nettoyage périodique du cache
       setupCacheCleanup();
-      
+
       isInitialized = true;
       console.log('✅ PostgreSQL connecté et optimisé');
-      
+
       return db;
     } catch (error) {
       console.error('❌ Erreur PostgreSQL:', error);
@@ -69,7 +68,7 @@ async function initializeDatabase() {
       throw error;
     }
   })();
-  
+
   return initPromise;
 }
 
@@ -96,11 +95,11 @@ function setupPoolEvents() {
   pool.on('connect', (client) => {
     console.log('🔗 Nouvelle connexion PostgreSQL');
   });
-  
+
   pool.on('error', (err, client) => {
     console.error('❌ Erreur pool PostgreSQL:', err);
   });
-  
+
   pool.on('remove', (client) => {
     console.log('🔌 Connexion PostgreSQL fermée');
   });
@@ -133,22 +132,22 @@ export function setCachedQuery(key: string, data: any, ttl: number = 300000) {
 // Backup automatique pour éviter la perte de données
 function setupAutomaticBackup() {
   const backupInterval = parseInt(process.env.BACKUP_INTERVAL || '3600') * 1000;
-  
+
   setInterval(async () => {
     try {
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       const backupPath = `./backups/barista_cafe_${timestamp}.db`;
-      
+
       // Créer le répertoire de backup
       await execAsync('mkdir -p ./backups');
-      
+
       // Copier la base de données
       await execAsync(`cp ./barista_cafe.db "${backupPath}"`);
-      
+
       // Nettoyer les anciens backups
       const retention = parseInt(process.env.BACKUP_RETENTION || '7');
       await execAsync(`find ./backups -name "*.db" -type f -mtime +${retention} -delete`);
-      
+
       console.log(`✅ Backup automatique: ${backupPath}`);
     } catch (error) {
       console.error('❌ Erreur backup:', error);

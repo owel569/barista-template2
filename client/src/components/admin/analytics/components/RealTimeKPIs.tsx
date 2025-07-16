@@ -2,7 +2,20 @@
  * Composant KPI temps réel
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { 
+  TrendingUp, 
+  Users, 
+  Clock, 
+  Target,
+  Activity,
+  AlertCircle 
+} from 'lucide-react';
+import { ApiClient } from '@/lib/auth-utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';

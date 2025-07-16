@@ -45,6 +45,15 @@ import {
   XCircle
 } from 'lucide-react';
 import { ApiClient } from '@/lib/auth-utils';
+
+// Interfaces pour une meilleure gestion des types
+interface ModuleMetrics {
+  performance: number;
+  usage: number;
+  satisfaction: number;
+  uptime?: number;
+  errors?: number;
+}
 import { toast } from '@/hooks/use-toast';
 
 // Interface pour les modules
