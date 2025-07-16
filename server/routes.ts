@@ -31,6 +31,7 @@ import eventsRoutes from './routes/events.routes';
 import inventoryRoutes from './routes/inventory.routes';
 import feedbackRoutes from './routes/feedback.routes';
 import permissionsRoutes from './routes/permissions.routes';
+import kpisRoutes from './routes/kpis.routes';
 
 const logger = createLogger('ROUTES');
 
@@ -102,6 +103,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     router.use('/inventory', inventoryRoutes);
     router.use('/feedback', feedbackRoutes);
     router.use('/permissions', permissionsRoutes);
+    router.use('/kpis', kpisRoutes);
 
     // Validation schemas
     const loginSchema = z.object({

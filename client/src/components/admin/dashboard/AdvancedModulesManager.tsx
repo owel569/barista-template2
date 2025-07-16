@@ -232,6 +232,21 @@ const AdvancedModulesManager: React.FC = () => {
       }
     },
     {
+      id: 'ai-predictive-analytics',
+      title: 'Analytics Prédictives',
+      description: 'Prédictions IA pour stock et demande',
+      icon: <TrendingUp className="w-6 h-6 text-indigo-600" />,
+      status: 'active',
+      category: 'ai',
+      priority: 'high',
+      metrics: { performance: 92, usage: 78, satisfaction: 89 },
+      data: {
+        'Prédictions': '2,156',
+        'Précision': '94%',
+        'Économies': '€2,450'
+      }
+    },
+    {
       id: 'ai-voice-recognition',
       title: 'Reconnaissance Vocale',
       description: 'Prise de commande mains libres',
