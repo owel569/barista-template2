@@ -11,12 +11,47 @@ process.on('uncaughtException', (error) => {
 });
 
 import express, { type Request, Response, NextFunction } from "express";
+import compression from 'compression';
+import helmet from 'helmet';
+import cors from 'cors';
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+
+// Middleware de sécurité et performance
+app.use(helmet({
+  contentSecurityPolicy: false, // Désactivé pour Vite en développement
+  crossOriginEmbedderPolicy: false
+}));
+
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? process.env.FRONTEND_URL 
+    : true,
+  credentials: true
+}));
+
+// Compression pour améliorer les performances
+app.use(compression({
+  filter: (req, res) => {
+    if (req.headers['x-no-compression']) {
+      return false;
+    }
+    return compression.filter(req, res);
+  },
+  threshold: 1024 // Compresser seulement si > 1KB
+}));
+
+// Parsing optimisé
+app.use(express.json({ 
+  limit: '10mb',
+  strict: true
+}));
+app.use(express.urlencoded({ 
+  extended: false,
+  limit: '10mb'
+}));
 
 app.use((req, res, next) => {
   const start = Date.now();

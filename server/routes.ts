@@ -19,6 +19,7 @@ import { validateBody, validateParams, validateQuery } from './middleware/valida
 import { errorHandler, notFoundHandler, asyncHandler } from './middleware/error-handler';
 import { createLogger, validateRequestWithLogging } from './middleware/logging';
 import { cacheMiddleware, invalidateCache } from './middleware/cache';
+import { advancedCacheMiddleware, getCacheStats } from './middleware/cache-advanced';
 import { loginSchema, registerSchema, reservationSchema, customerSchema, employeeSchema, menuItemSchema } from './validation-schemas';
 import { db } from './db';
 import { users, reservations, menuItems, orders, categories, orderItems, events, loyaltyProgram, workSchedule, permissions, staff, suppliers, feedback, menuCategories, loyaltyCards, inventory } from '../shared/schema';
@@ -201,7 +202,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Routes publiques
-  app.get('/api/menu/categories', cacheMiddleware(600), async (req, res) => {
+  app.get('/api/menu/categories', advancedCacheMiddleware(600000), async (req, res) => {
     try {
       const categories = await storage.getMenuCategories();
       res.json(categories);
@@ -210,10 +211,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/menu/items', cacheMiddleware(300), async (req, res) => {
+  app.get('/api/menu/items', advancedCacheMiddleware(300000), async (req, res) => {
     try {
       const items = await storage.getMenuItems();
       res.json(items);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
+  // Route pour les statistiques de cache (admin seulement)
+  app.get('/api/admin/cache/stats', authenticateToken, requireRole('directeur'), async (req, res) => {
+    try {
+      const stats = getCacheStats();
+      res.json(stats);
     } catch (error) {
       res.status(500).json({ error: 'Erreur serveur' });
     }

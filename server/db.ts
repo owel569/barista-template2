@@ -10,36 +10,124 @@ const execAsync = promisify(exec);
 
 let pool: Pool;
 let db: ReturnType<typeof drizzle>;
+let isInitialized = false;
+let initPromise: Promise<ReturnType<typeof drizzle>> | null = null;
+
+// Cache des requêtes fréquentes
+const queryCache = new Map<string, { data: any; timestamp: number; ttl: number }>();
 
 async function initializeDatabase() {
-  try {
-    console.log('🗄️ Initialisation PostgreSQL...');
-    
-    // Configuration PostgreSQL pool
-    pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
-      max: 10,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 10000,
-    });
-    
-    // Initialiser Drizzle
-    db = drizzle(pool, { schema });
-    
-    // Test de connexion
-    const result = await pool.query('SELECT 1');
-    console.log('✅ PostgreSQL connecté et optimisé');
-    
-    // Configuration backup automatique
-    if (process.env.BACKUP_ENABLED === 'true') {
-      setupAutomaticBackup();
+  if (isInitialized && db) return db;
+  
+  if (initPromise) return initPromise;
+  
+  initPromise = (async () => {
+    try {
+      console.log('🗄️ Initialisation PostgreSQL optimisée...');
+      
+      // Configuration PostgreSQL pool optimisée
+      pool = new Pool({
+        connectionString: process.env.DATABASE_URL,
+        max: 20, // Augmenté pour plus de performance
+        min: 2,  // Connexions minimales maintenues
+        idleTimeoutMillis: 60000, // Augmenté pour réduire la reconnexion
+        connectionTimeoutMillis: 15000,
+        acquireTimeoutMillis: 10000,
+        // Optimisations supplémentaires
+        allowExitOnIdle: false,
+        keepAlive: true,
+        keepAliveInitialDelayMillis: 10000,
+      });
+      
+      // Initialiser Drizzle avec optimisations
+      db = drizzle(pool, { 
+        schema,
+        logger: process.env.NODE_ENV === 'development'
+      });
+      
+      // Test de connexion avec retry
+      await testConnection();
+      
+      // Configuration des events du pool
+      setupPoolEvents();
+      
+      // Configuration backup automatique
+      if (process.env.BACKUP_ENABLED === 'true') {
+        setupAutomaticBackup();
+      }
+      
+      // Nettoyage périodique du cache
+      setupCacheCleanup();
+      
+      isInitialized = true;
+      console.log('✅ PostgreSQL connecté et optimisé');
+      
+      return db;
+    } catch (error) {
+      console.error('❌ Erreur PostgreSQL:', error);
+      initPromise = null;
+      throw error;
     }
-    
-    return db;
-  } catch (error) {
-    console.error('❌ Erreur PostgreSQL:', error);
-    throw error;
+  })();
+  
+  return initPromise;
+}
+
+async function testConnection(retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const client = await pool.connect();
+      try {
+        await client.query('SELECT NOW()');
+        client.release();
+        return;
+      } catch (error) {
+        client.release();
+        throw error;
+      }
+    } catch (error) {
+      if (i === retries - 1) throw error;
+      await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+    }
   }
+}
+
+function setupPoolEvents() {
+  pool.on('connect', (client) => {
+    console.log('🔗 Nouvelle connexion PostgreSQL');
+  });
+  
+  pool.on('error', (err, client) => {
+    console.error('❌ Erreur pool PostgreSQL:', err);
+  });
+  
+  pool.on('remove', (client) => {
+    console.log('🔌 Connexion PostgreSQL fermée');
+  });
+}
+
+function setupCacheCleanup() {
+  setInterval(() => {
+    const now = Date.now();
+    for (const [key, value] of queryCache.entries()) {
+      if (now - value.timestamp > value.ttl) {
+        queryCache.delete(key);
+      }
+    }
+  }, 300000); // Nettoyage toutes les 5 minutes
+}
+
+// Fonction de cache intelligent
+export function getCachedQuery(key: string, ttl: number = 300000) {
+  const cached = queryCache.get(key);
+  if (cached && Date.now() - cached.timestamp < cached.ttl) {
+    return cached.data;
+  }
+  return null;
+}
+
+export function setCachedQuery(key: string, data: any, ttl: number = 300000) {
+  queryCache.set(key, { data, timestamp: Date.now(), ttl });
 }
 
 // Backup automatique pour éviter la perte de données

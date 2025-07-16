@@ -329,6 +329,15 @@ export class DatabaseStorage implements IStorage {
   // Menu Items avec gestion d'images améliorée
   async getMenuItems(): Promise<MenuItem[]> {
     try {
+      // Vérifier le cache d'abord
+      const { getCachedQuery, setCachedQuery } = await import('./db');
+      const cacheKey = 'menu_items_with_categories';
+      const cached = getCachedQuery(cacheKey);
+      
+      if (cached) {
+        return cached;
+      }
+
       const result = await db.select({
         id: menuItems.id,
         name: menuItems.name,
@@ -341,8 +350,11 @@ export class DatabaseStorage implements IStorage {
         category: menuCategories.slug
       }).from(menuItems)
       .leftJoin(menuCategories, eq(menuItems.categoryId, menuCategories.id))
+      .where(eq(menuItems.available, true)) // Filtrer directement en DB
       .orderBy(asc(menuItems.name));
 
+      // Mettre en cache pour 10 minutes
+      setCachedQuery(cacheKey, result, 600000);
       return result;
     } catch (error) {
       console.error('Erreur getMenuItems:', error);
@@ -432,8 +444,23 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Reservations
-  async getReservations(): Promise<Reservation[]> {
-    return await db.select().from(reservations).orderBy(desc(reservations.createdAt));
+  async getReservations(limit?: number, offset?: number): Promise<Reservation[]> {
+    let query = db.select().from(reservations).orderBy(desc(reservations.createdAt));
+    
+    if (limit) {
+      query = query.limit(limit);
+    }
+    
+    if (offset) {
+      query = query.offset(offset);
+    }
+    
+    return await query;
+  }
+
+  async getReservationsCount(): Promise<number> {
+    const result = await db.select({ count: sql`count(*)` }).from(reservations);
+    return Number(result[0]?.count || 0);
   }
 
   async getReservationsWithItems(): Promise<any[]> {
