@@ -2291,7 +2291,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/delivery', deliveryRouter);
   app.use('/api/online-orders', onlineOrdersRouter);
   app.use('/api/tables', tablesRouter);
-  //app.use('/api/permissions', permissionsRouter); // Use modularized routes instead
+  app.use('/api/permissions', permissionsRoutes);
   app.use('/api/inventory', inventoryRouter);
   app.use('/api/loyalty', loyaltyRouter);
   app.use('/api/images', imageRoutes);
