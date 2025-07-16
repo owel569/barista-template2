@@ -824,7 +824,9 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
       console.error('Erreur lors de la récupération des logs:', error);
       return [];
     }
-  }  // Statistics
+  }
+
+  // Statistics
   async getTodayReservationCount(): Promise<number> {
     const today = new Date().toISOString().split('T')[0];
     const result = await db
@@ -833,8 +835,6 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
       .where(eq(reservations.date, today));
     return result.length;
   }
-
-  Implementing IoT, AI, and advanced analytics functionalities to the DatabaseStorage class.```text
 
   async getOccupancyRate(date: string): Promise<number> {
     const totalTables = await db.select({ count: tables.id }).from(tables);
