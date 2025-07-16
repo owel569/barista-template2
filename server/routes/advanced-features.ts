@@ -435,59 +435,312 @@ router.post('/reports/:reportId/generate', async (req, res) => {
 router.get('/modules', async (req, res) => {
   try {
     const modules = [
+      // Intelligence Artificielle
       {
         id: 'ai-chatbot',
         name: 'Chatbot IA',
         description: 'Assistant virtuel pour réservations et commandes',
         category: 'ai',
         enabled: true,
-        metrics: { usage: 89, satisfaction: 4.7 }
+        metrics: { usage: 89, satisfaction: 4.7, performance: 95 }
       },
       {
-        id: 'predictive-analytics',
+        id: 'ai-predictive-analytics',
         name: 'Analytics Prédictives',
-        description: 'Prédiction des ventes et tendances',
-        category: 'analytics',
+        description: 'Prédictions IA pour stock et demande',
+        category: 'ai',
         enabled: true,
-        metrics: { accuracy: 94, predictions: 156 }
+        metrics: { accuracy: 94, predictions: 156, performance: 92 }
       },
       {
-        id: 'voice-orders',
-        name: 'Commandes Vocales',
-        description: 'Prise de commandes par reconnaissance vocale',
+        id: 'ai-voice-recognition',
+        name: 'Reconnaissance Vocale',
+        description: 'Prise de commande mains libres',
         category: 'ai',
-        enabled: false,
-        metrics: { accuracy: 87, orders: 23 }
+        enabled: true,
+        metrics: { accuracy: 92, orders: 156, performance: 88 }
       },
+      {
+        id: 'ai-vision-quality',
+        name: 'Vision par Ordinateur',
+        description: 'Contrôle qualité automatique des plats',
+        category: 'ai',
+        enabled: true,
+        metrics: { accuracy: 96, controls: 892, performance: 91 }
+      },
+      
+      // Applications Mobiles
+      {
+        id: 'mobile-staff-app',
+        name: 'App Staff Mobile',
+        description: 'Application dédiée pour le personnel',
+        category: 'mobile',
+        enabled: true,
+        metrics: { users: 12, sessions: 48, performance: 94 }
+      },
+      {
+        id: 'mobile-customer-app',
+        name: 'App Client Mobile',
+        description: 'Application de commande pour clients',
+        category: 'mobile',
+        enabled: true,
+        metrics: { downloads: 3456, orders: 167, performance: 93 }
+      },
+      {
+        id: 'mobile-manager-dashboard',
+        name: 'Dashboard Manager Mobile',
+        description: 'Tableau de bord pour managers',
+        category: 'mobile',
+        enabled: true,
+        metrics: { managers: 3, reports: 124, performance: 89 }
+      },
+      
+      // Présence Digitale
+      {
+        id: 'digital-social-media',
+        name: 'Gestion Réseaux Sociaux',
+        description: 'Automatisation posts et engagement',
+        category: 'digital',
+        enabled: true,
+        metrics: { posts: 156, engagement: 34, performance: 87 }
+      },
+      {
+        id: 'digital-reputation',
+        name: 'E-reputation',
+        description: 'Monitoring avis et réputation',
+        category: 'digital',
+        enabled: true,
+        metrics: { rating: 4.7, reviews: 234, performance: 91 }
+      },
+      {
+        id: 'digital-website-optimization',
+        name: 'Optimisation Site Web',
+        description: 'SEO et performance automatisés',
+        category: 'digital',
+        enabled: true,
+        metrics: { seoScore: 94, speed: 2.1, performance: 88 }
+      },
+      
+      // Paiements & Fintech
+      {
+        id: 'fintech-mobile-payments',
+        name: 'Paiements Mobiles',
+        description: 'Apple Pay, Google Pay, Samsung Pay',
+        category: 'fintech',
+        enabled: true,
+        metrics: { transactions: 1234, adoption: 67, performance: 96 }
+      },
+      {
+        id: 'fintech-cryptocurrency',
+        name: 'Paiements Crypto',
+        description: 'Bitcoin, Ethereum et stablecoins',
+        category: 'fintech',
+        enabled: false,
+        metrics: { payments: 0, wallets: 0, performance: 0 }
+      },
+      {
+        id: 'fintech-loyalty-tokens',
+        name: 'Tokens de Fidélité',
+        description: 'Système de fidélité blockchain',
+        category: 'fintech',
+        enabled: true,
+        metrics: { tokens: 12456, clients: 789, performance: 85 }
+      },
+      
+      // Durabilité & RSE
+      {
+        id: 'sustainability-waste-tracking',
+        name: 'Suivi Déchets',
+        description: 'Monitoring et réduction déchets',
+        category: 'sustainability',
+        enabled: true,
+        metrics: { wasteReduced: 67, co2Saved: 2.1, performance: 92 }
+      },
+      {
+        id: 'sustainability-carbon-footprint',
+        name: 'Empreinte Carbone',
+        description: 'Calcul et compensation automatique',
+        category: 'sustainability',
+        enabled: true,
+        metrics: { emissions: 145, compensation: 156, performance: 88 }
+      },
+      {
+        id: 'sustainability-local-suppliers',
+        name: 'Fournisseurs Locaux',
+        description: 'Priorité aux producteurs locaux',
+        category: 'sustainability',
+        enabled: true,
+        metrics: { localSuppliers: 78, distance: 45, performance: 90 }
+      },
+      
+      // Technologies Émergentes (IoT)
       {
         id: 'iot-sensors',
         name: 'Capteurs IoT',
-        description: 'Monitoring température et stocks',
+        description: 'Monitoring température, humidité, stock',
         category: 'iot',
         enabled: true,
-        metrics: { sensors: 12, alerts: 3 }
+        metrics: { sensors: 24, alerts: 3, performance: 94 }
       },
       {
-        id: 'automated-marketing',
+        id: 'iot-smart-equipment',
+        name: 'Équipements Connectés',
+        description: 'Machines à café et fours intelligents',
+        category: 'iot',
+        enabled: true,
+        metrics: { equipment: 8, alerts: 12, performance: 91 }
+      },
+      {
+        id: 'iot-energy-management',
+        name: 'Gestion Énergétique',
+        description: 'Optimisation consommation automatique',
+        category: 'iot',
+        enabled: true,
+        metrics: { savings: 23, cost: 456, performance: 89 }
+      },
+      
+      // Marketing & CRM Avancé
+      {
+        id: 'marketing-automation',
         name: 'Marketing Automatisé',
         description: 'Campagnes personnalisées par IA',
         category: 'marketing',
         enabled: true,
-        metrics: { campaigns: 8, conversion: 23.5 }
+        metrics: { campaigns: 8, conversion: 23.5, performance: 93 }
       },
       {
-        id: 'sustainability-tracker',
-        name: 'Suivi Durabilité',
-        description: 'Mesure impact environnemental',
-        category: 'sustainability',
+        id: 'marketing-customer-segmentation',
+        name: 'Segmentation Clients',
+        description: 'Analyse comportementale avancée',
+        category: 'marketing',
         enabled: true,
-        metrics: { carbonSaved: 145, wasteReduced: 67 }
+        metrics: { segments: 12, precision: 94, performance: 90 }
+      },
+      {
+        id: 'marketing-loyalty-gamification',
+        name: 'Gamification Fidélité',
+        description: 'Système de récompenses gamifié',
+        category: 'marketing',
+        enabled: true,
+        metrics: { players: 567, challenges: 1234, performance: 87 }
+      },
+      
+      // Sécurité & Conformité
+      {
+        id: 'security-gdpr-compliance',
+        name: 'Conformité RGPD',
+        description: 'Audit automatique et conformité',
+        category: 'security',
+        enabled: true,
+        metrics: { compliance: 98, audits: 12, performance: 98 }
+      },
+      {
+        id: 'security-fraud-detection',
+        name: 'Détection Fraude',
+        description: 'IA anti-fraude temps réel',
+        category: 'security',
+        enabled: true,
+        metrics: { blocked: 23, precision: 97.8, performance: 96 }
+      },
+      {
+        id: 'security-data-encryption',
+        name: 'Chiffrement Données',
+        description: 'Chiffrement bout en bout automatique',
+        category: 'security',
+        enabled: true,
+        metrics: { encrypted: 100, rotations: 24, performance: 99 }
+      },
+      
+      // Multi-établissements
+      {
+        id: 'multisite-central-management',
+        name: 'Gestion Centralisée',
+        description: 'Pilotage multi-sites unifié',
+        category: 'multisite',
+        enabled: true,
+        metrics: { sites: 3, sync: 99.9, performance: 92 }
+      },
+      {
+        id: 'multisite-performance-comparison',
+        name: 'Comparaison Performance',
+        description: 'Benchmarking entre établissements',
+        category: 'multisite',
+        enabled: true,
+        metrics: { metrics: 45, reports: 156, performance: 89 }
+      },
+      {
+        id: 'multisite-resource-sharing',
+        name: 'Partage Ressources',
+        description: 'Optimisation stocks inter-sites',
+        category: 'multisite',
+        enabled: true,
+        metrics: { transfers: 45, savings: 2340, performance: 88 }
       }
     ];
     
     res.json({ modules });
   } catch (error) {
     console.error('Erreur récupération modules:', error);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
+
+// Routes pour activer/désactiver les modules
+router.post('/modules/:moduleId/activate', authenticateToken, async (req, res) => {
+  try {
+    const { moduleId } = req.params;
+    
+    // Simulation activation module
+    console.log(`Activation du module: ${moduleId}`);
+    
+    res.json({ 
+      success: true, 
+      message: `Module ${moduleId} activé avec succès`,
+      moduleId,
+      status: 'active'
+    });
+  } catch (error) {
+    console.error('Erreur activation module:', error);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
+
+router.post('/modules/:moduleId/deactivate', authenticateToken, async (req, res) => {
+  try {
+    const { moduleId } = req.params;
+    
+    // Simulation désactivation module
+    console.log(`Désactivation du module: ${moduleId}`);
+    
+    res.json({ 
+      success: true, 
+      message: `Module ${moduleId} désactivé avec succès`,
+      moduleId,
+      status: 'inactive'
+    });
+  } catch (error) {
+    console.error('Erreur désactivation module:', error);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
+
+// Route pour configurer un module
+router.post('/modules/:moduleId/configure', authenticateToken, async (req, res) => {
+  try {
+    const { moduleId } = req.params;
+    const { config } = req.body;
+    
+    // Simulation configuration module
+    console.log(`Configuration du module: ${moduleId}`, config);
+    
+    res.json({ 
+      success: true, 
+      message: `Module ${moduleId} configuré avec succès`,
+      moduleId,
+      config
+    });
+  } catch (error) {
+    console.error('Erreur configuration module:', error);
     res.status(500).json({ message: 'Erreur serveur' });
   }
 });
