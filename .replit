@@ -21,7 +21,7 @@ externalPort = 3000
 exposeLocalhost = true
 
 [workflows]
-runButton = "Project"
+runButton = "Démarrer Barista Café"
 
 [[workflows.workflow]]
 name = "Project"
@@ -40,3 +40,12 @@ author = "agent"
 task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Démarrer Barista Café"
+author = 45106362
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"

@@ -69,12 +69,10 @@ app.use((req, res, next) => {
   console.log('🔗 Routes API enregistrées avant middleware Vite');
 
   // Routes avancées
-  import { advancedFeaturesRouter } from './routes/advanced-features';
-  import { router as analyticsRouter } from './routes/analytics';
-  import { router as dashboardRouter } from './routes/advanced-dashboard';
+  const { advancedFeaturesRouter } = await import('./routes/advanced-features');
+  const { router: analyticsRouter } = await import('./routes/analytics');
 
   app.use('/api/admin/advanced', advancedFeaturesRouter);
-  app.use('/api/admin/advanced', dashboardRouter);
   app.use('/api/admin/analytics', analyticsRouter);
 
   // Configuration Vite APRÈS les routes API pour éviter les conflits

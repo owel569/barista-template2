@@ -10,7 +10,7 @@ const logger = createLogger('ANALYTICS');
 router.get('/dashboard-stats', asyncHandler(async (req, res) => {
   try {
     const today = new Date().toISOString().split('T')[0];
-    
+
     // Stats temps réel
     const [
       dailyRevenue,
@@ -66,10 +66,10 @@ router.get('/dashboard-stats', asyncHandler(async (req, res) => {
 // Analytics de performance par période
 router.get('/performance/:period', asyncHandler(async (req, res) => {
   const { period } = req.params; // 'day', 'week', 'month', 'year'
-  
+
   try {
     const data = await storage.getPerformanceAnalytics(period);
-    
+
     // Calculs de tendances
     const trends = {
       revenue: data.currentRevenue - data.previousRevenue,
@@ -110,7 +110,7 @@ router.get('/predictions', asyncHandler(async (req, res) => {
   try {
     // Algorithmes ML simulés (à remplacer par vrais modèles)
     const historicalData = await storage.getHistoricalData(30); // 30 derniers jours
-    
+
     const predictions = {
       demandForecast: {
         tomorrow: {
@@ -158,7 +158,7 @@ router.get('/predictions', asyncHandler(async (req, res) => {
 router.get('/customer-analytics', asyncHandler(async (req, res) => {
   try {
     const analytics = await storage.getCustomerAnalytics();
-    
+
     res.json({
       segments: {
         vip: {
