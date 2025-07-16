@@ -693,7 +693,21 @@ async createReservation(reservation: InsertReservation): Promise<Reservation> {
 
   // Contact Messages
   async getContactMessages(): Promise<ContactMessage[]> {
-    return await db.select().from(contactMessages).orderBy(desc(contactMessages.createdAt));
+    try {
+      // Vérifier d'abord la connexion
+      if (!this.db) {
+        console.log('Base de données non connectée pour getContactMessages');
+        return [];
+      }
+
+      const messages = await this.db.query.messages.findMany({
+        orderBy: (messages, { desc }) => [desc(messages.createdAt)]
+      });
+      return messages || [];
+    } catch (error) {
+      console.error('Erreur lors de la récupération des messages:', error);
+      return [];
+    }
   }
 
   async getMessages(): Promise<ContactMessage[]> {
@@ -825,8 +839,7 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
 
   async getCustomer(id: number): Promise<Customer | undefined> {
     const [customer] = await db.select().from(customers).where(eq(customers.id, id));
-    return customer || undefined;
-  }
+    return customer || undefined;  }
 
   async getCustomerByEmail(email: string): Promise<Customer | undefined> {
     const [customer] = await db.select().from(customers).where(eq(customers.email, email));

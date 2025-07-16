@@ -29,16 +29,18 @@ async function initializeDatabase() {
       pool = new Pool({
         connectionString: process.env.DATABASE_URL,
         ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-        // Configuration stable pour Replit
-        max: 3, // Réduire à 3 connexions max
+        // Configuration optimisée pour Replit
+        max: 2, // Réduire à 2 connexions max pour éviter surcharge
         min: 1, // Maintenir 1 connexion minimum
-        idleTimeoutMillis: 300000, // 5 minutes d'inactivité
-        connectionTimeoutMillis: 15000, // 15 secondes pour se connecter
-        // Reconnexion automatique
+        idleTimeoutMillis: 30000, // 30 secondes d'inactivité seulement
+        connectionTimeoutMillis: 10000, // 10 secondes pour se connecter
+        // Reconnexion automatique optimisée
         keepAlive: true,
-        keepAliveInitialDelayMillis: 10000,
-        acquireTimeoutMillis: 90000, // 1.5 minute pour acquérir une connexion
-        statement_timeout: 30000, // 30 secondes timeout pour les requêtes
+        keepAliveInitialDelayMillis: 0,
+        acquireTimeoutMillis: 30000, // 30 secondes pour acquérir une connexion
+        statement_timeout: 20000, // 20 secondes timeout pour les requêtes
+        // Éviter les connexions suspendues
+        allowExitOnIdle: true,
       });
 
       // Initialiser Drizzle avec optimisations
