@@ -115,7 +115,7 @@ export default function AdminFinal() {
         const response = await fetch('/api/admin/notifications/count', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        
+
         if (response.ok) {
           const data = await response.json();
           setNotifications(data);
@@ -128,7 +128,7 @@ export default function AdminFinal() {
     fetchNotifications();
     // Rafraîchir toutes les 30 secondes
     const interval = setInterval(fetchNotifications, 30000);
-    
+
     return () => clearInterval(interval);
   }, []);
 
@@ -465,7 +465,7 @@ export default function AdminFinal() {
                 <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{user?.role}</p>
               </div>
             </div>
-            
+
             <Button
               variant="outline"
               size="sm"

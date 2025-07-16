@@ -28,12 +28,12 @@ router.get('/ai/chatbot/config', asyncHandler(async (req, res) => {
 
 router.post('/ai/recommendations', asyncHandler(async (req, res) => {
   const { customerId, context = 'menu' } = req.body;
-  
+
   try {
     // Algorithme de recommandation basé sur l'historique
     const customerHistory = await storage.getCustomerOrderHistory(customerId);
     const popularItems = await storage.getPopularDishes(30);
-    
+
     // IA de recommandation (simulée)
     const recommendations = {
       menu: [
@@ -97,7 +97,7 @@ router.get('/iot/sensors', asyncHandler(async (req, res) => {
 
 router.post('/iot/alert', asyncHandler(async (req, res) => {
   const { sensorId, alertType, value, threshold } = req.body;
-  
+
   try {
     // Enregistrer l'alerte
     const alert = await storage.createIoTAlert({
@@ -333,4 +333,72 @@ router.get('/security/audit', asyncHandler(async (req, res) => {
   }
 }));
 
-export { router as advancedFeaturesRouter };
+// IoT et capteurs connectés
+router.get('/iot/devices', asyncHandler(async (req, res) => {
+  try {
+    const devices = await storage.getIoTDevices();
+    res.json(devices);
+  } catch (error) {
+    logger.error('Erreur IoT devices', { error: error.message });
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+}));
+
+// Maintenance prédictive
+router.get('/maintenance/schedule', asyncHandler(async (req, res) => {
+  try {
+    const schedule = await storage.getMaintenanceSchedule();
+    res.json(schedule);
+  } catch (error) {
+    logger.error('Erreur maintenance schedule', { error: error.message });
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+}));
+
+// Analytics clients avancés
+router.get('/customers/:id/journey', asyncHandler(async (req, res) => {
+  try {
+    const customerId = parseInt(req.params.id);
+    const journey = await storage.getCustomerJourney(customerId);
+    res.json(journey);
+  } catch (error) {
+    logger.error('Erreur customer journey', { error: error.message });
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+}));
+
+// Chatbot insights
+router.get('/chatbot/insights', asyncHandler(async (req, res) => {
+  try {
+    const insights = await storage.getChatbotInsights();
+    res.json(insights);
+  } catch (error) {
+    logger.error('Erreur chatbot insights', { error: error.message });
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+}));
+
+// Sustainability metrics
+router.get('/sustainability/metrics', asyncHandler(async (req, res) => {
+  try {
+    const metrics = await storage.getSustainabilityMetrics();
+    res.json(metrics);
+  } catch (error) {
+    logger.error('Erreur sustainability', { error: error.message });
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+}));
+
+// Multi-établissements
+router.get('/multi-location/stats', asyncHandler(async (req, res) => {
+  try {
+    const stats = await storage.getMultiLocationStats();
+    res.json(stats);
+  } catch (error) {
+    logger.error('Erreur multi-location', { error: error.message });
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+}));
+
+// Export du router
+export default router;

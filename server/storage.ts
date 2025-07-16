@@ -120,6 +120,25 @@ export interface IStorage {
   getChatbotStats(): Promise<any>;
   getAutomatedReports(): Promise<any>;
   getAIAlerts(): Promise<any[]>;
+
+  // Fonctionnalités IoT et Capteurs
+  getIoTDevices(): Promise<any>;
+  getMaintenanceSchedule(): Promise<any>;
+
+  // Analytics clients avancés
+  getCustomerJourney(customerId: number): Promise<any>;
+
+  // Marketing automation
+  getTriggerCampaigns(): Promise<any>;
+
+  // Chatbot et IA
+  getChatbotInsights(): Promise<any>;
+
+  // Sustainability et RSE
+  getSustainabilityMetrics(): Promise<any>;
+
+  // Gestion multi-établissements
+  getMultiLocationStats(): Promise<any>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -801,6 +820,8 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
     return result.length;
   }
 
+  Implementing IoT, AI, and advanced analytics functionalities to the DatabaseStorage class.```text
+
   async getOccupancyRate(date: string): Promise<number> {
     const totalTables = await db.select({ count: tables.id }).from(tables);
     const reservedTables = await db
@@ -968,110 +989,195 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
         return [];
   }
 
-  // Nouvelles méthodes pour Dashboard IA
-  async getAIInsights() {
+  // Fonctionnalités IoT et Capteurs
+  async getIoTDevices() {
+    return [
+      {
+        id: 'temp_001',
+        name: 'Capteur Température Frigo',
+        type: 'temperature',
+        location: 'Cuisine - Réfrigérateur',
+        status: 'online',
+        value: 4.2,
+        unit: '°C',
+        lastUpdate: new Date().toISOString(),
+        alerts: []
+      },
+      {
+        id: 'hum_001', 
+        name: 'Capteur Humidité',
+        type: 'humidity',
+        location: 'Salle principale',
+        status: 'online',
+        value: 65,
+        unit: '%',
+        lastUpdate: new Date().toISOString(),
+        alerts: []
+      },
+      {
+        id: 'energy_001',
+        name: 'Compteur Énergétique',
+        type: 'energy',
+        location: 'Tableau électrique',
+        status: 'online', 
+        value: 24.5,
+        unit: 'kWh',
+        lastUpdate: new Date().toISOString(),
+        alerts: [{
+          type: 'info',
+          message: 'Consommation normale'
+        }]
+      }
+    ];
+  }
+
+  async getMaintenanceSchedule() {
+    return [
+      {
+        id: 1,
+        equipment: 'Machine à expresso',
+        type: 'préventive',
+        nextDate: '2025-01-20',
+        priority: 'haute',
+        estimatedDuration: '2h',
+        technician: 'Service technique'
+      },
+      {
+        id: 2,
+        equipment: 'Réfrigérateur',
+        type: 'contrôle',
+        nextDate: '2025-01-25',
+        priority: 'moyenne',
+        estimatedDuration: '1h',
+        technician: 'Maintenance interne'
+      }
+    ];
+  }
+
+  // Analytics clients avancés
+  async getCustomerJourney(customerId: number) {
     return {
-      insights: [
-        {
-          title: "Opportunité de vente",
-          type: "opportunity",
-          message: "Les ventes de cappuccino augmentent de 15% le weekend. Recommandation: Stock supplémentaire.",
-          confidence: 0.85,
-          action: "increase_stock"
-        },
-        {
-          title: "Alerte personnel",
-          type: "warning", 
-          message: "Pic d'affluence prévu à 15h30. Personnel supplémentaire recommandé.",
-          confidence: 0.92,
-          action: "schedule_staff"
-        },
-        {
-          title: "Performance optimale",
-          type: "info",
-          message: "Taux de satisfaction client: 4.8/5. Maintenir les standards actuels.",
-          confidence: 0.95,
-          action: "maintain"
-        }
+      totalVisits: 12,
+      avgSpentPerVisit: 15.40,
+      favoriteItems: ['Cappuccino', 'Croissant'],
+      preferredTimes: ['9:00-10:00', '14:00-15:00'],
+      seasonalPatterns: {
+        spring: 8,
+        summer: 15,
+        autumn: 10,
+        winter: 6
+      },
+      loyaltyScore: 85,
+      churnRisk: 'low'
+    };
+  }
+
+  // Marketing automation
+  async getTriggerCampaigns() {
+    return [
+      {
+        id: 'birthday_001',
+        name: 'Campagne Anniversaire',
+        trigger: 'birthday',
+        status: 'active',
+        targetSegment: 'VIP',
+        lastSent: '2025-01-10',
+        openRate: 0.78,
+        clickRate: 0.34
+      },
+      {
+        id: 'inactive_002',
+        name: 'Réactivation Client',
+        trigger: 'inactive_30_days',
+        status: 'active', 
+        targetSegment: 'Inactifs',
+        lastSent: '2025-01-12',
+        openRate: 0.45,
+        clickRate: 0.12
+      }
+    ];
+  }
+
+  // Chatbot et IA
+  async getChatbotInsights() {
+    return {
+      totalConversations: 1247,
+      resolvedQueries: 1114,
+      escalatedToHuman: 133,
+      avgResponseTime: 1.2,
+      topIntents: [
+        { intent: 'horaires', count: 234 },
+        { intent: 'menu', count: 189 },
+        { intent: 'reservation', count: 156 },
+        { intent: 'prix', count: 98 }
       ],
-      efficiency: 95,
-      recommendations: [
-        "Augmenter le stock de grains de café pour le weekend",
-        "Programmer un serveur supplémentaire à 15h30",
-        "Proposer une promotion sur les thés l'après-midi"
+      satisfactionScore: 4.2,
+      improvementSuggestions: [
+        'Ajouter plus de réponses sur les allergènes',
+        'Améliorer la compréhension des demandes de modification'
       ]
     };
   }
 
-  async getChatbotStats() {
+  // Sustainability et RSE
+  async getSustainabilityMetrics() {
     return {
-      totalInteractions: 1247,
-      successRate: 0.89,
-      topQueries: [
-        { query: "Horaires d'ouverture", count: 156 },
-        { query: "Menu du jour", count: 134 },
-        { query: "Réservation", count: 98 },
-        { query: "Prix", count: 87 }
-      ],
-      satisfactionScore: 4.2,
-      responseTime: 1.2 // secondes
+      wasteReduction: {
+        current: 15.2,
+        target: 20,
+        unit: '%',
+        trend: 'increasing'
+      },
+      energyConsumption: {
+        current: 245,
+        previous: 267,
+        unit: 'kWh/mois',
+        reduction: 8.2
+      },
+      localSourcing: {
+        percentage: 68,
+        suppliers: 12,
+        co2Saved: 124
+      },
+      packaging: {
+        ecoFriendly: 85,
+        recyclable: 92,
+        compostable: 45
+      }
     };
   }
 
-  async getAutomatedReports() {
+  // Gestion multi-établissements
+  async getMultiLocationStats() {
     return {
-      scheduled: [
+      totalLocations: 3,
+      locations: [
         {
-          name: "Rapport quotidien",
-          type: "daily",
-          lastRun: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-          nextRun: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
-          status: "active"
+          id: 1,
+          name: 'Barista Centre-ville',
+          revenue: 12450,
+          orders: 156,
+          staff: 8,
+          status: 'active'
         },
         {
-          name: "Analyse hebdomadaire",
-          type: "weekly", 
-          lastRun: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          nextRun: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-          status: "active"
+          id: 2,
+          name: 'Barista Gare',
+          revenue: 8920,
+          orders: 134,
+          staff: 6,
+          status: 'active'
+        },
+        {
+          id: 3,
+          name: 'Barista Campus',
+          revenue: 6780,
+          orders: 98,
+          staff: 5,
+          status: 'maintenance'
         }
-      ],
-      generated: 24,
-      emailsSent: 18,
-      averageGenTime: 45 // secondes
+      ]
     };
-  }
-
-  async getAIAlerts() {
-    return [
-      {
-        id: 1,
-        type: "stock",
-        severity: "medium",
-        message: "Stock de lait faible (2 jours restants)",
-        timestamp: new Date().toISOString(),
-        action: "reorder",
-        resolved: false
-      },
-      {
-        id: 2,
-        type: "equipment",
-        severity: "high",
-        message: "Machine espresso #2 - maintenance préventive requise",
-        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-        action: "schedule_maintenance",
-        resolved: false
-      },
-      {
-        id: 3,
-        type: "performance",
-        severity: "low",
-        message: "Temps d'attente moyen supérieur à la normale (8min vs 5min)",
-        timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-        action: "optimize_workflow",
-        resolved: true
-      }
-    ];
   }
 }
 
