@@ -1,20 +1,20 @@
-import { sqliteTable, text, integer, real, blob, index } from "drizzle-orm/sqlite-core";
+import { pgTable, text, integer, real, timestamp, serial, boolean, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
 
 // Users table with optimized indexes
-export const users = sqliteTable('users', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
+export const users = pgTable('users', {
+  id: serial('id').primaryKey(),
   username: text('username').unique().notNull(),
   password: text('password').notNull(),
   role: text('role').notNull().default('employe'),
   firstName: text('first_name'),
   lastName: text('last_name'),
   email: text('email').unique(),
-  lastLogin: text('last_login'),
-  createdAt: text('created_at').default("datetime('now')").notNull(),
-  updatedAt: text('updated_at').default("datetime('now')").notNull()
+  lastLogin: timestamp('last_login'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull()
 }, (table) => ({
   usernameIdx: index('users_username_idx').on(table.username),
   emailIdx: index('users_email_idx').on(table.email),
@@ -22,14 +22,14 @@ export const users = sqliteTable('users', {
 }));
 
 // Activity logs with efficient indexing
-export const activityLogs = sqliteTable("activity_logs", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const activityLogs = pgTable("activity_logs", {
+  id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),
   action: text("action").notNull(),
   entity: text("entity").notNull(),
   entityId: integer("entity_id"),
   details: text("details"),
-  timestamp: text("timestamp").default("datetime('now')").notNull(),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
 }, (table) => ({
   userIdIdx: index("activity_logs_user_id_idx").on(table.userId),
   entityIdx: index("activity_logs_entity_idx").on(table.entity),
@@ -37,22 +37,22 @@ export const activityLogs = sqliteTable("activity_logs", {
 }));
 
 // Permissions table
-export const permissions = sqliteTable("permissions", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const permissions = pgTable("permissions", {
+  id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),
   module: text("module").notNull(),
-  canView: integer("can_view", { mode: "boolean" }).notNull().default(true),
-  canCreate: integer("can_create", { mode: "boolean" }).notNull().default(false),
-  canUpdate: integer("can_update", { mode: "boolean" }).notNull().default(false),
-  canDelete: integer("can_delete", { mode: "boolean" }).notNull().default(false),
+  canView: boolean("can_view").notNull().default(true),
+  canCreate: boolean("can_create").notNull().default(false),
+  canUpdate: boolean("can_update").notNull().default(false),
+  canDelete: boolean("can_delete").notNull().default(false),
 }, (table) => ({
   userIdIdx: index("permissions_user_id_idx").on(table.userId),
   moduleIdx: index("permissions_module_idx").on(table.module),
 }));
 
 // Menu categories with optimized structure
-export const menuCategories = sqliteTable("menu_categories", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const menuCategories = pgTable("menu_categories", {
+  id: serial("id").primaryKey(),
   name: text("name").notNull(),
   description: text("description"),
   slug: text("slug").notNull().unique(),
@@ -63,15 +63,15 @@ export const menuCategories = sqliteTable("menu_categories", {
 }));
 
 // Menu items with performance optimizations
-export const menuItems = sqliteTable("menu_items", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const menuItems = pgTable("menu_items", {
+  id: serial("id").primaryKey(),
   name: text("name").notNull(),
   description: text("description").notNull(),
   price: real("price").notNull(),
   categoryId: integer("category_id").notNull(),
   imageUrl: text("image_url"),
-  available: integer("available", { mode: "boolean" }).notNull().default(true),
-  createdAt: text("created_at").default("datetime('now')"),
+  available: boolean("available").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow(),
 }, (table) => ({
   nameIdx: index("menu_items_name_idx").on(table.name),
   categoryIdx: index("menu_items_category_idx").on(table.categoryId),
@@ -80,26 +80,26 @@ export const menuItems = sqliteTable("menu_items", {
 }));
 
 // Menu item images for dynamic management
-export const menuItemImages = sqliteTable("menu_item_images", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const menuItemImages = pgTable("menu_item_images", {
+  id: serial("id").primaryKey(),
   menuItemId: integer("menu_item_id").notNull(),
   imageUrl: text("image_url").notNull(),
   altText: text("alt_text"),
-  isPrimary: integer("is_primary", { mode: "boolean" }).notNull().default(true),
-  uploadMethod: text("upload_method", { enum: ["url", "upload", "generated", "pexels"] }).notNull().default("url"),
-  createdAt: text("created_at").default("datetime('now')").notNull(),
-  updatedAt: text("updated_at").default("datetime('now')").notNull(),
+  isPrimary: boolean("is_primary").notNull().default(true),
+  uploadMethod: text("upload_method").notNull().default("url"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => ({
   menuItemIdx: index("menu_item_images_menu_item_id_idx").on(table.menuItemId),
   primaryIdx: index("menu_item_images_primary_idx").on(table.menuItemId, table.isPrimary),
 }));
 
 // Tables with capacity management
-export const tables = sqliteTable("tables", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const tables = pgTable("tables", {
+  id: serial("id").primaryKey(),
   number: integer("number").notNull().unique(),
   capacity: integer("capacity").notNull(),
-  available: integer("available", { mode: "boolean" }).notNull().default(true),
+  available: boolean("available").notNull().default(true),
 }, (table) => ({
   numberIdx: index("tables_number_idx").on(table.number),
   capacityIdx: index("tables_capacity_idx").on(table.capacity),
@@ -107,8 +107,8 @@ export const tables = sqliteTable("tables", {
 }));
 
 // Reservations with anti-duplication measures
-export const reservations = sqliteTable("reservations", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const reservations = pgTable("reservations", {
+  id: serial("id").primaryKey(),
   customerName: text("customer_name").notNull(),
   customerEmail: text("customer_email").notNull(),
   customerPhone: text("customer_phone").notNull(),
@@ -117,11 +117,11 @@ export const reservations = sqliteTable("reservations", {
   guests: integer("guests").notNull(),
   tableId: integer("table_id"),
   specialRequests: text("special_requests"),
-  status: text("status", { enum: ["pending", "confirmed", "cancelled", "completed"] }).notNull().default("pending"),
+  status: text("status").notNull().default("pending"),
   preorderTotal: real("preorder_total").default(0.00),
-  notificationSent: integer("notification_sent", { mode: "boolean" }).default(false),
+  notificationSent: boolean("notification_sent").default(false),
   metadata: text("metadata"),
-  createdAt: text("created_at").default("datetime('now')").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (table) => ({
   dateIdx: index("reservations_date_idx").on(table.date),
   timeIdx: index("reservations_time_idx").on(table.time),
@@ -134,8 +134,8 @@ export const reservations = sqliteTable("reservations", {
 }));
 
 // Reservation items
-export const reservationItems = sqliteTable("reservation_items", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const reservationItems = pgTable("reservation_items", {
+  id: serial("id").primaryKey(),
   reservationId: integer("reservation_id").notNull(),
   menuItemId: integer("menu_item_id").notNull(),
   quantity: integer("quantity").notNull(),
@@ -148,29 +148,29 @@ export const reservationItems = sqliteTable("reservation_items", {
 }));
 
 // Contact messages
-export const contactMessages = sqliteTable("contact_messages", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const contactMessages = pgTable("contact_messages", {
+  id: serial("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull(),
   subject: text("subject").notNull(),
   message: text("message").notNull(),
-  status: text("status", { enum: ["new", "read", "replied"] }).notNull().default("new"),
-  createdAt: text("created_at").default("datetime('now')").notNull(),
+  status: text("status").notNull().default("new"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (table) => ({
   statusIdx: index("contact_messages_status_idx").on(table.status),
   createdAtIdx: index("contact_messages_created_at_idx").on(table.createdAt),
 }));
 
 // Customers with loyalty program
-export const customers = sqliteTable("customers", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const customers = pgTable("customers", {
+  id: serial("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull(),
   phone: text("phone").notNull(),
   address: text("address"),
   loyaltyPoints: integer("loyalty_points").notNull().default(0),
   totalSpent: real("total_spent").notNull().default(0.00),
-  createdAt: text("created_at").default("datetime('now')").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (table) => ({
   emailIdx: index("customers_email_idx").on(table.email),
   phoneIdx: index("customers_phone_idx").on(table.phone),
@@ -178,18 +178,18 @@ export const customers = sqliteTable("customers", {
 }));
 
 // Employees management
-export const employees = sqliteTable("employees", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const employees = pgTable("employees", {
+  id: serial("id").primaryKey(),
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
   email: text("email").notNull(),
   phone: text("phone").notNull(),
-  position: text("position", { enum: ["manager", "server", "chef", "barista", "cashier"] }).notNull(),
-  department: text("department", { enum: ["kitchen", "service", "management"] }).notNull(),
+  position: text("position").notNull(),
+  department: text("department").notNull(),
   hourlyRate: real("hourly_rate").notNull(),
   hireDate: text("hire_date").notNull(),
-  status: text("status", { enum: ["active", "inactive", "terminated"] }).notNull().default("active"),
-  createdAt: text("created_at").default("datetime('now')").notNull(),
+  status: text("status").notNull().default("active"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (table) => ({
   emailIdx: index("employees_email_idx").on(table.email),
   statusIdx: index("employees_status_idx").on(table.status),
@@ -197,19 +197,19 @@ export const employees = sqliteTable("employees", {
 }));
 
 // Orders management
-export const orders = sqliteTable("orders", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const orders = pgTable("orders", {
+  id: serial("id").primaryKey(),
   customerId: integer("customer_id"),
   employeeId: integer("employee_id"),
   tableId: integer("table_id"),
-  orderType: text("order_type", { enum: ["dine-in", "takeout", "delivery"] }).notNull().default("dine-in"),
-  status: text("status", { enum: ["pending", "preparing", "ready", "completed", "cancelled"] }).notNull().default("pending"),
+  orderType: text("order_type").notNull().default("dine-in"),
+  status: text("status").notNull().default("pending"),
   subtotal: real("subtotal").notNull(),
   tax: real("tax").notNull(),
   total: real("total").notNull(),
   paymentMethod: text("payment_method"),
   notes: text("notes"),
-  createdAt: text("created_at").default("datetime('now')").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (table) => ({
   statusIdx: index("orders_status_idx").on(table.status),
   createdAtIdx: index("orders_created_at_idx").on(table.createdAt),
@@ -219,8 +219,8 @@ export const orders = sqliteTable("orders", {
 }));
 
 // Order items
-export const orderItems = sqliteTable("order_items", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const orderItems = pgTable("order_items", {
+  id: serial("id").primaryKey(),
   orderId: integer("order_id").notNull(),
   menuItemId: integer("menu_item_id").notNull(),
   quantity: integer("quantity").notNull(),
@@ -233,16 +233,16 @@ export const orderItems = sqliteTable("order_items", {
 }));
 
 // Work shifts
-export const workShifts = sqliteTable("work_shifts", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const workShifts = pgTable("work_shifts", {
+  id: serial("id").primaryKey(),
   employeeId: integer("employee_id").notNull(),
   date: text("date").notNull(),
   startTime: text("start_time").notNull(),
   endTime: text("end_time"),
   hoursWorked: real("hours_worked"),
-  status: text("status", { enum: ["scheduled", "completed", "cancelled"] }).notNull().default("scheduled"),
+  status: text("status").notNull().default("scheduled"),
   notes: text("notes"),
-  createdAt: text("created_at").default("datetime('now')").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (table) => ({
   employeeIdx: index("work_shifts_employee_idx").on(table.employeeId),
   dateIdx: index("work_shifts_date_idx").on(table.date),

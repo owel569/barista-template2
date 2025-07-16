@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import { sql } from 'drizzle-orm';
-import * as schema from '@shared/schema.pg';
+import * as schema from '@shared/schema';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 
