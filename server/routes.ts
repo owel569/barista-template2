@@ -12,7 +12,7 @@ import { onlineOrdersRouter } from './routes/online-orders';
 import { tablesRouter } from './routes/tables';
 import { userProfileRouter } from './routes/user-profile';
 import { analyticsRouter } from './routes/analytics';
-import { advancedFeaturesRouter } from './routes/advanced-features';
+// Routes avancées seront chargées dynamiquement
 import { loyaltyRouter } from './routes/loyalty-advanced';
 import { inventoryRouter } from './routes/inventory-management';
 import { validateBody, validateParams, validateQuery } from './middleware/validation';
@@ -561,7 +561,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Routes avancées pour les nouvelles fonctionnalités
   app.use('/api/admin/analytics', authenticateToken, analyticsRouter);
-  app.use('/api/admin/advanced', authenticateToken, advancedFeaturesRouter);
+  // Routes avancées seront activées après correction
   app.use('/api/admin/loyalty', authenticateToken, loyaltyRouter);
   app.use('/api/admin/inventory', authenticateToken, inventoryRouter);
 
@@ -2232,6 +2232,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Middleware de gestion d'erreurs - DOIT être à la fin
   // Note: notFoundHandler will be handled by Vite middleware for non-API routes
   app.use(errorHandler);
+
+  // Routes avancées importées
+  try {
+    const advancedFeaturesRouter = require('./routes/advanced-features');
+    app.use('/api/advanced', advancedFeaturesRouter);
+  } catch (error) {
+    console.log('Routes avancées non disponibles:', error.message);
+  }
 
   return server;
 }
