@@ -431,5 +431,85 @@ router.post('/reports/:reportId/generate', async (req, res) => {
   }
 });
 
+// Route pour récupérer les modules avancés
+router.get('/modules', async (req, res) => {
+  try {
+    const modules = [
+      {
+        id: 'ai-chatbot',
+        name: 'Chatbot IA',
+        description: 'Assistant virtuel pour réservations et commandes',
+        category: 'ai',
+        enabled: true,
+        metrics: { usage: 89, satisfaction: 4.7 }
+      },
+      {
+        id: 'predictive-analytics',
+        name: 'Analytics Prédictives',
+        description: 'Prédiction des ventes et tendances',
+        category: 'analytics',
+        enabled: true,
+        metrics: { accuracy: 94, predictions: 156 }
+      },
+      {
+        id: 'voice-orders',
+        name: 'Commandes Vocales',
+        description: 'Prise de commandes par reconnaissance vocale',
+        category: 'ai',
+        enabled: false,
+        metrics: { accuracy: 87, orders: 23 }
+      },
+      {
+        id: 'iot-sensors',
+        name: 'Capteurs IoT',
+        description: 'Monitoring température et stocks',
+        category: 'iot',
+        enabled: true,
+        metrics: { sensors: 12, alerts: 3 }
+      },
+      {
+        id: 'automated-marketing',
+        name: 'Marketing Automatisé',
+        description: 'Campagnes personnalisées par IA',
+        category: 'marketing',
+        enabled: true,
+        metrics: { campaigns: 8, conversion: 23.5 }
+      },
+      {
+        id: 'sustainability-tracker',
+        name: 'Suivi Durabilité',
+        description: 'Mesure impact environnemental',
+        category: 'sustainability',
+        enabled: true,
+        metrics: { carbonSaved: 145, wasteReduced: 67 }
+      }
+    ];
+    
+    res.json({ modules });
+  } catch (error) {
+    console.error('Erreur récupération modules:', error);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
+
+// Route pour les KPIs temps réel
+router.get('/kpis', async (req, res) => {
+  try {
+    const kpis = {
+      dailyRevenue: 654.50,
+      ordersCount: 47,
+      averageTicket: 13.90,
+      customerSatisfaction: 4.6,
+      tableOccupancy: 78,
+      staffEfficiency: 92
+    };
+    
+    res.json(kpis);
+  } catch (error) {
+    console.error('Erreur récupération KPIs:', error);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
+
 export const advancedFeaturesRouter = router;
 export default router;
