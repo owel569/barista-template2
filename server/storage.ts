@@ -139,6 +139,22 @@ export interface IStorage {
 
   // Gestion multi-établissements
   getMultiLocationStats(): Promise<any>;
+
+  createIoTAlert({
+    sensorId,
+    alertType,
+    value,
+    threshold,
+    timestamp,
+    status
+  }: {
+    sensorId: string;
+    alertType: string;
+    value: number;
+    threshold: number;
+    timestamp: string;
+    status: string;
+  }): Promise<any>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -808,9 +824,7 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
       console.error('Erreur lors de la récupération des logs:', error);
       return [];
     }
-  }
-
-  // Statistics
+  }  // Statistics
   async getTodayReservationCount(): Promise<number> {
     const today = new Date().toISOString().split('T')[0];
     const result = await db
@@ -1177,6 +1191,172 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
           status: 'maintenance'
         }
       ]
+    };
+  }
+
+  async createIoTAlert({
+    sensorId,
+    alertType,
+    value,
+    threshold,
+    timestamp,
+    status
+  }: {
+    sensorId: string;
+    alertType: string;
+    value: number;
+    threshold: number;
+    timestamp: string;
+    status: string;
+  }) {
+    // Simulation d'enregistrement d'alerte IoT
+    const alert = {
+      id: Date.now(),
+      sensorId,
+      alertType,
+      value,
+      threshold,
+      timestamp,
+      status,
+      createdAt: new Date().toISOString()
+    };
+
+    console.log('Alerte IoT créée:', alert);
+    return alert;
+  }
+
+  // Méthodes pour les nouvelles fonctionnalités des modules
+  async getIoTDevices() {
+    return {
+      sensors: [
+        { id: 'temp_kitchen', name: 'Température Cuisine', status: 'active', value: 22.5 },
+        { id: 'humidity_storage', name: 'Humidité Stockage', status: 'active', value: 45 },
+        { id: 'pressure_espresso', name: 'Pression Machine Espresso', status: 'warning', value: 8.5 }
+      ],
+      equipment: [
+        { id: 'espresso_1', name: 'Machine Espresso #1', status: 'active', healthScore: 95 },
+        { id: 'espresso_2', name: 'Machine Espresso #2', status: 'maintenance', healthScore: 65 },
+        { id: 'refrigerator', name: 'Réfrigérateur Principal', status: 'active', healthScore: 88 }
+      ]
+    };
+  }
+
+  async getMaintenanceSchedule() {
+    return {
+      upcoming: [
+        {
+          id: 1,
+          equipment: 'Machine Espresso #2',
+          type: 'Maintenance préventive',
+          date: '2025-01-20',
+          priority: 'high',
+          estimatedDuration: '2 heures'
+        },
+        {
+          id: 2,
+          equipment: 'Système Réfrigération',
+          type: 'Inspection routine',
+          date: '2025-01-25',
+          priority: 'medium',
+          estimatedDuration: '1 heure'
+        }
+      ],
+      history: [
+        {
+          id: 3,
+          equipment: 'Lave-vaisselle',
+          type: 'Réparation',
+          date: '2025-01-10',
+          status: 'completed',
+          cost: 150
+        }
+      ]
+    };
+  }
+
+  async getCustomerJourney(customerId: number) {
+    return {
+      customer: { id: customerId, name: 'Client Test', segment: 'VIP' },
+      timeline: [
+        { date: '2025-01-01', event: 'Première visite', details: 'Commande: Cappuccino' },
+        { date: '2025-01-05', event: 'Deuxième visite', details: 'Commande: Croissant + Café' },
+        { date: '2025-01-15', event: 'Inscription fidélité', details: 'Programme VIP activé' }
+      ],
+      analytics: {
+        totalVisits: 15,
+        averageSpent: 12.50,
+        favoriteItems: ['Cappuccino', 'Croissant au chocolat']
+      }
+    };
+  }
+
+  async getChatbotInsights() {
+    return {
+      interactions: {
+        daily: 45,
+        weekly: 280,
+        monthly: 1200
+      },
+      satisfaction: {
+        average: 4.2,
+        resolved: 85,
+        escalated: 15
+      },
+      topQueries: [
+        { question: 'Heures d\'ouverture', count: 120 },
+        { question: 'Menu du jour', count: 95 },
+        { question: 'Réservation', count: 80 }
+      ]
+    };
+  }
+
+  async getSustainabilityMetrics() {
+    return {
+      environmental: {
+        carbonFootprint: { monthly: 450, trend: -8, target: 400 },
+        wasteReduction: { foodWaste: 12, recyclable: 85, compostable: 60 },
+        energyConsumption: { daily: 125, renewable: 30, efficiency: 'B+' }
+      },
+      social: {
+        localSourcing: { percentage: 75, suppliers: ['Ferme Martin', 'Boulangerie Dubois'] },
+        community: { donations: 850, partnerships: 2, events: 3 }
+      }
+    };
+  }
+
+  async getMultiLocationStats() {
+    return {
+      locations: [
+        {
+          id: 1,
+          name: 'Barista Café Centre-ville',
+          revenue: 15000,
+          customers: 450,
+          status: 'active'
+        },
+        {
+          id: 2,
+          name: 'Barista Café Gare',
+          revenue: 12000,
+          customers: 380,
+          status: 'active'
+        }
+      ],
+      consolidated: {
+        totalRevenue: 27000,
+        totalCustomers: 830,
+        averageTicket: 32.53
+      }
+    };
+  }
+
+  async createMarketingCampaign(campaign: any) {
+    // Simulation de création de campagne
+    return {
+      ...campaign,
+      id: Date.now(),
+      status: 'active',
+      createdAt: new Date().toISOString()
     };
   }
 }

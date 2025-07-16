@@ -401,4 +401,5 @@ router.get('/multi-location/stats', asyncHandler(async (req, res) => {
 }));
 
 // Export du router
+export { router as advancedFeaturesRouter };
 export default router;

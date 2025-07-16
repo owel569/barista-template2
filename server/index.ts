@@ -68,12 +68,18 @@ app.use((req, res, next) => {
   // Vérifier que les routes sont bien enregistrées
   console.log('🔗 Routes API enregistrées avant middleware Vite');
 
-  // Routes avancées
-  const { advancedFeaturesRouter } = await import('./routes/advanced-features');
-  const { router: analyticsRouter } = await import('./routes/analytics');
-
-  app.use('/api/admin/advanced', advancedFeaturesRouter);
-  app.use('/api/admin/analytics', analyticsRouter);
+  // Routes avancées - import synchrone pour éviter les conflits
+  try {
+    const advancedModule = await import('./routes/advanced-features');
+    const analyticsModule = await import('./routes/analytics');
+    
+    app.use('/api/admin/advanced', advancedModule.advancedFeaturesRouter || advancedModule.default);
+    app.use('/api/admin/analytics', analyticsModule.router || analyticsModule.analyticsRouter);
+    
+    console.log('✅ Routes avancées chargées avec succès');
+  } catch (error) {
+    console.error('❌ Erreur lors du chargement des routes avancées:', error.message);
+  }
 
   // Configuration Vite APRÈS les routes API pour éviter les conflits
   if (app.get("env") === "development") {

@@ -1,114 +1,250 @@
 
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Thermometer, 
   Droplets, 
-  Zap, 
+  Gauge, 
   Wifi, 
+  WifiOff, 
   AlertTriangle,
   CheckCircle,
-  Activity,
+  Settings,
+  TrendingUp,
+  TrendingDown,
   Wrench
 } from 'lucide-react';
 
-const IoTDashboard = () => {
-  const { data: devices, isLoading } = useQuery({
-    queryKey: ['/api/admin/advanced/iot/devices'],
-    refetchInterval: 5000
-  });
+interface Sensor {
+  id: string;
+  name: string;
+  type: string;
+  value: number;
+  unit: string;
+  status: 'normal' | 'warning' | 'critical' | 'offline';
+  lastUpdate: string;
+  threshold?: {
+    min: number;
+    max: number;
+  };
+}
 
-  const { data: maintenance } = useQuery({
-    queryKey: ['/api/admin/advanced/maintenance/schedule'],
-    refetchInterval: 30000
-  });
+interface Equipment {
+  id: string;
+  name: string;
+  category: string;
+  status: 'active' | 'maintenance' | 'offline';
+  healthScore: number;
+  lastMaintenance: string;
+  nextMaintenance: string;
+  metrics: {
+    temperature?: number;
+    pressure?: number;
+    usage?: number;
+  };
+}
 
-  if (isLoading) {
+const IoTDashboard: React.FC = () => {
+  const [sensors, setSensors] = useState<Sensor[]>([]);
+  const [equipment, setEquipment] = useState<Equipment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [alerts, setAlerts] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchIoTData();
+    // Actualisation toutes les 5 secondes
+    const interval = setInterval(fetchIoTData, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchIoTData = async () => {
+    try {
+      const response = await fetch('/api/admin/advanced/iot/sensors');
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Transformation des données pour le composant
+        const sensorsData: Sensor[] = [
+          {
+            id: 'temp_kitchen',
+            name: 'Température Cuisine',
+            type: 'temperature',
+            value: data.kitchen?.temperature?.value || 22.5,
+            unit: '°C',
+            status: data.kitchen?.temperature?.status || 'normal',
+            lastUpdate: new Date().toISOString(),
+            threshold: { min: 18, max: 25 }
+          },
+          {
+            id: 'humidity_dining',
+            name: 'Humidité Salle',
+            type: 'humidity',
+            value: data.diningArea?.humidity || 45,
+            unit: '%',
+            status: 'normal',
+            lastUpdate: new Date().toISOString(),
+            threshold: { min: 40, max: 60 }
+          },
+          {
+            id: 'occupancy',
+            name: 'Occupation Salle',
+            type: 'occupancy',
+            value: data.diningArea?.occupancy?.value || 18,
+            unit: 'personnes',
+            status: data.diningArea?.occupancy?.status || 'normal',
+            lastUpdate: new Date().toISOString(),
+            threshold: { min: 0, max: 50 }
+          }
+        ];
+
+        const equipmentData: Equipment[] = [
+          {
+            id: 'espresso_1',
+            name: 'Machine Espresso #1',
+            category: 'Cuisine',
+            status: data.equipment?.espressoMachine1?.status === 'active' ? 'active' : 'maintenance',
+            healthScore: 95,
+            lastMaintenance: '2025-01-01',
+            nextMaintenance: '2025-03-01',
+            metrics: {
+              temperature: data.equipment?.espressoMachine1?.temp || 93,
+              pressure: data.equipment?.espressoMachine1?.pressure || 9
+            }
+          },
+          {
+            id: 'espresso_2',
+            name: 'Machine Espresso #2',
+            category: 'Cuisine',
+            status: data.equipment?.espressoMachine2?.status === 'maintenance_needed' ? 'maintenance' : 'active',
+            healthScore: 65,
+            lastMaintenance: '2024-12-15',
+            nextMaintenance: '2025-01-20',
+            metrics: {
+              temperature: data.equipment?.espressoMachine2?.temp || 85,
+              pressure: data.equipment?.espressoMachine2?.pressure || 7
+            }
+          },
+          {
+            id: 'dishwasher',
+            name: 'Lave-vaisselle',
+            category: 'Nettoyage',
+            status: 'active',
+            healthScore: 88,
+            lastMaintenance: '2025-01-05',
+            nextMaintenance: '2025-02-05',
+            metrics: {
+              usage: 75
+            }
+          }
+        ];
+
+        setSensors(sensorsData);
+        setEquipment(equipmentData);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des données IoT:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'normal':
+      case 'active':
+        return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case 'warning':
+      case 'maintenance':
+        return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
+      case 'critical':
+      case 'offline':
+        return <WifiOff className="h-4 w-4 text-red-500" />;
+      default:
+        return <Wifi className="h-4 w-4 text-gray-500" />;
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    const variants = {
+      'normal': 'default',
+      'active': 'default',
+      'warning': 'destructive',
+      'maintenance': 'secondary',
+      'critical': 'destructive',
+      'offline': 'destructive'
+    };
+    return <Badge variant={variants[status as keyof typeof variants] || 'default'}>{status}</Badge>;
+  };
+
+  const getSensorIcon = (type: string) => {
+    switch (type) {
+      case 'temperature':
+        return <Thermometer className="h-4 w-4" />;
+      case 'humidity':
+        return <Droplets className="h-4 w-4" />;
+      case 'pressure':
+        return <Gauge className="h-4 w-4" />;
+      default:
+        return <Settings className="h-4 w-4" />;
+    }
+  };
+
+  if (loading) {
     return (
-      <div className="p-6 space-y-6">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-2 text-sm text-gray-600">Chargement des capteurs IoT...</p>
-        </div>
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
 
-  const getDeviceIcon = (type: string) => {
-    switch (type) {
-      case 'temperature': return <Thermometer className="h-4 w-4" />;
-      case 'humidity': return <Droplets className="h-4 w-4" />;
-      case 'energy': return <Zap className="h-4 w-4" />;
-      default: return <Activity className="h-4 w-4" />;
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'online': return 'text-green-600';
-      case 'offline': return 'text-red-600';
-      case 'warning': return 'text-orange-600';
-      default: return 'text-gray-600';
-    }
-  };
-
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Dashboard IoT & Maintenance</h1>
-          <p className="text-gray-600">Surveillance en temps réel des équipements connectés</p>
-        </div>
-        <Badge variant="outline" className="text-green-600">
-          <Wifi className="h-4 w-4 mr-2" />
-          {devices?.filter((d: any) => d.status === 'online').length || 0} connectés
-        </Badge>
+    <div className="space-y-6 p-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-3xl font-bold tracking-tight">Tableau de Bord IoT</h2>
+        <Button onClick={fetchIoTData} variant="outline">
+          Actualiser
+        </Button>
       </div>
 
-      <Tabs defaultValue="devices" className="space-y-4">
+      <Tabs defaultValue="sensors" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="devices">Capteurs IoT</TabsTrigger>
-          <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
-          <TabsTrigger value="energy">Énergie</TabsTrigger>
+          <TabsTrigger value="sensors">Capteurs</TabsTrigger>
+          <TabsTrigger value="equipment">Équipements</TabsTrigger>
+          <TabsTrigger value="alerts">Alertes</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="devices" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {devices?.map((device: any) => (
-              <Card key={device.id}>
+        <TabsContent value="sensors">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {sensors.map((sensor) => (
+              <Card key={sensor.id}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium flex items-center gap-2">
-                    {getDeviceIcon(device.type)}
-                    {device.name}
-                  </CardTitle>
-                  <Badge variant={device.status === 'online' ? 'default' : 'destructive'}>
-                    {device.status === 'online' ? (
-                      <CheckCircle className="h-3 w-3 mr-1" />
-                    ) : (
-                      <AlertTriangle className="h-3 w-3 mr-1" />
-                    )}
-                    {device.status}
-                  </Badge>
+                  <CardTitle className="text-sm font-medium">{sensor.name}</CardTitle>
+                  {getSensorIcon(sensor.type)}
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{device.value} {device.unit}</div>
-                  <p className="text-xs text-muted-foreground">{device.location}</p>
+                  <div className="text-2xl font-bold">
+                    {sensor.value} {sensor.unit}
+                  </div>
+                  <div className="flex items-center justify-between mt-2">
+                    {getStatusBadge(sensor.status)}
+                    {getStatusIcon(sensor.status)}
+                  </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Dernière MAJ: {new Date(device.lastUpdate).toLocaleTimeString()}
+                    Dernière mise à jour: {new Date(sensor.lastUpdate).toLocaleTimeString()}
                   </p>
-                  {device.alerts?.length > 0 && (
+                  {sensor.threshold && (
                     <div className="mt-2">
-                      {device.alerts.map((alert: any, idx: number) => (
-                        <Alert key={idx} className="mt-1">
-                          <AlertDescription className="text-xs">
-                            {alert.message}
-                          </AlertDescription>
-                        </Alert>
-                      ))}
+                      <div className="text-xs text-muted-foreground">
+                        Seuils: {sensor.threshold.min} - {sensor.threshold.max} {sensor.unit}
+                      </div>
+                      <Progress 
+                        value={(sensor.value / sensor.threshold.max) * 100} 
+                        className="mt-1"
+                      />
                     </div>
                   )}
                 </CardContent>
@@ -117,84 +253,99 @@ const IoTDashboard = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="maintenance" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Wrench className="h-5 w-5" />
-                Planning de Maintenance Prédictive
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {maintenance?.map((item: any) => (
-                  <div key={item.id} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div>
-                      <div className="font-medium">{item.equipment}</div>
-                      <div className="text-sm text-gray-600">
-                        {item.type} - {item.estimatedDuration}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        Technicien: {item.technician}
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm font-medium">{item.nextDate}</div>
-                      <Badge variant={
-                        item.priority === 'haute' ? 'destructive' : 
-                        item.priority === 'moyenne' ? 'default' : 'secondary'
-                      }>
-                        {item.priority}
-                      </Badge>
+        <TabsContent value="equipment">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {equipment.map((item) => (
+              <Card key={item.id}>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">{item.name}</CardTitle>
+                    {getStatusIcon(item.status)}
+                  </div>
+                  <CardDescription>{item.category}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">État de santé</span>
+                    <div className="flex items-center space-x-2">
+                      <Progress value={item.healthScore} className="w-16" />
+                      <span className="text-sm font-medium">{item.healthScore}%</span>
                     </div>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  
+                  {getStatusBadge(item.status)}
+                  
+                  {item.metrics && (
+                    <div className="space-y-2">
+                      {item.metrics.temperature && (
+                        <div className="flex justify-between text-sm">
+                          <span>Température:</span>
+                          <span>{item.metrics.temperature}°C</span>
+                        </div>
+                      )}
+                      {item.metrics.pressure && (
+                        <div className="flex justify-between text-sm">
+                          <span>Pression:</span>
+                          <span>{item.metrics.pressure} bar</span>
+                        </div>
+                      )}
+                      {item.metrics.usage && (
+                        <div className="flex justify-between text-sm">
+                          <span>Utilisation:</span>
+                          <span>{item.metrics.usage}%</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  <div className="text-xs text-muted-foreground">
+                    <div>Dernière maintenance: {item.lastMaintenance}</div>
+                    <div>Prochaine maintenance: {item.nextMaintenance}</div>
+                  </div>
+                  
+                  <Button variant="outline" size="sm" className="w-full">
+                    <Wrench className="h-4 w-4 mr-2" />
+                    Gérer
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </TabsContent>
 
-        <TabsContent value="energy" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Consommation Actuelle</CardTitle>
-                <Zap className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">24.5 kWh</div>
-                <p className="text-xs text-muted-foreground">
-                  -8% vs mois dernier
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Économies CO₂</CardTitle>
-                <Activity className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">124 kg</div>
-                <p className="text-xs text-muted-foreground">
-                  CO₂ économisé ce mois
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Efficacité</CardTitle>
-                <CheckCircle className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">92%</div>
-                <p className="text-xs text-muted-foreground">
-                  Optimisation énergétique
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+        <TabsContent value="alerts">
+          <Card>
+            <CardHeader>
+              <CardTitle>Alertes Système</CardTitle>
+              <CardDescription>
+                Notifications en temps réel des capteurs et équipements
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {alerts.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <CheckCircle className="h-12 w-12 mx-auto mb-2 text-green-500" />
+                  <p>Aucune alerte active</p>
+                  <p className="text-sm">Tous les systèmes fonctionnent normalement</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {alerts.map((alert, index) => (
+                    <div key={index} className="flex items-center space-x-3 p-3 border rounded">
+                      <AlertTriangle className="h-5 w-5 text-yellow-500" />
+                      <div className="flex-1">
+                        <p className="font-medium">{alert.message}</p>
+                        <p className="text-sm text-muted-foreground">{alert.timestamp}</p>
+                      </div>
+                      <Button variant="outline" size="sm">
+                        Résoudre
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
