@@ -59,8 +59,7 @@ function App() {
   useEffect(() => {
     // Gestionnaire d'erreurs globales pour les promesses non gérées
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      console.error('Unhandled promise rejection:', event.reason);
-      // Empêcher l'erreur de se propager
+      // Supprimer les logs pour éviter le spam console
       event.preventDefault();
     };
 
