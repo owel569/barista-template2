@@ -1,565 +1,277 @@
-
-/**
- * Routes pour les fonctionnalités avancées du système Barista Café
- * Optimisation 100% selon spécifications utilisateur
- */
-
 import { Router } from 'express';
-import { eq, and, desc, gte, lte, sql } from 'drizzle-orm';
-import { db } from '../db';
-import { orders, reservations, menuItems, customers, employees, inventory } from '../../shared/schema';
-import { authenticateToken } from '../middleware/auth';
+import { storage } from '../storage';
 
 const router = Router();
 
-// Middleware pour la gestion d'erreurs
-const asyncHandler = (fn: Function) => (req: any, res: any, next: any) => {
-  Promise.resolve(fn(req, res, next)).catch(next);
+// Middleware d'authentification
+const authenticateToken = (req: any, res: any, next: any) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ error: 'Token manquant' });
+  }
+
+  try {
+    const jwt = require('jsonwebtoken');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'barista-secret-key-ultra-secure-2025');
+    req.user = decoded;
+    next();
+  } catch (error) {
+    return res.status(403).json({ error: 'Token invalide' });
+  }
 };
 
-// Logger optimisé
-const logger = {
-  info: (message: string, data?: any) => console.log(`[INFO] ${new Date().toISOString()} ${message}`, data || ''),
-  error: (message: string, error?: any) => console.error(`[ERROR] ${new Date().toISOString()} ${message}`, error || ''),
-  warn: (message: string, data?: any) => console.warn(`[WARN] ${new Date().toISOString()} ${message}`, data || '')
-};
+// === INTELLIGENCE ARTIFICIELLE ===
 
-// ===== INTELLIGENCE ARTIFICIELLE ET AUTOMATISATION =====
-
-// Chatbot IA et assistant virtuel
-router.post('/ai/chatbot', authenticateToken, asyncHandler(async (req, res) => {
-  const { query, context } = req.body;
-  
+// Chatbot IA
+router.get('/ai/chatbot/conversations', authenticateToken, async (req, res) => {
   try {
-    // Simulation d'un chatbot IA avancé
-    const responses = {
-      'réservation': 'Je peux vous aider avec votre réservation. Souhaitez-vous réserver pour combien de personnes ?',
-      'menu': 'Voici notre menu du jour. Nous avons des spécialités café et des pâtisseries fraîches.',
-      'commande': 'Je peux prendre votre commande. Que souhaitez-vous commander ?',
-      'horaires': 'Nous sommes ouverts de 7h à 22h du lundi au dimanche.',
-      'default': 'Comment puis-je vous aider aujourd\'hui ?'
-    };
-    
-    const response = responses[query.toLowerCase()] || responses.default;
-    
-    res.json({
-      response,
-      confidence: 0.95,
-      suggestions: [
-        'Réserver une table',
-        'Voir le menu',
-        'Passer une commande',
-        'Connaître les horaires'
-      ],
-      context: 'restaurant_assistance'
-    });
-  } catch (error) {
-    logger.error('Erreur chatbot IA:', error);
-    res.status(500).json({ error: 'Erreur du service chatbot' });
-  }
-}));
-
-// Prédiction de demande avec Machine Learning
-router.get('/ai/predict-demand', authenticateToken, asyncHandler(async (req, res) => {
-  const { date, timeRange } = req.query;
-  
-  try {
-    // Récupération des données historiques
-    const historicalData = await db
-      .select()
-      .from(orders)
-      .where(gte(orders.createdAt, new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)))
-      .orderBy(desc(orders.createdAt));
-    
-    // Algorithme de prédiction simple basé sur les tendances
-    const prediction = {
-      demand: Math.floor(Math.random() * 100 + 50),
-      confidence: 0.85,
-      factors: ['Météo favorable', 'Jour de semaine', 'Saison touristique'],
-      peakHours: ['08:00-10:00', '12:00-14:00', '18:00-20:00'],
-      recommendations: [
-        'Prévoir +20% de stock café',
-        'Augmenter personnel service',
-        'Préparer menu spécial'
-      ]
-    };
-    
-    res.json(prediction);
-  } catch (error) {
-    logger.error('Erreur prédiction demande:', error);
-    res.status(500).json({ error: 'Erreur service prédiction' });
-  }
-}));
-
-// Recommandations personnalisées IA
-router.get('/ai/recommendations/:customerId', authenticateToken, asyncHandler(async (req, res) => {
-  const { customerId } = req.params;
-  
-  try {
-    // Récupération historique client
-    const customerOrders = await db
-      .select()
-      .from(orders)
-      .where(eq(orders.customerId, parseInt(customerId)))
-      .limit(10);
-    
-    // Algorithme de recommandation basé sur l'historique
-    const recommendations = {
-      products: [
-        { name: 'Cappuccino Premium', confidence: 0.92, reason: 'Commandé 5 fois ce mois' },
-        { name: 'Croissant aux amandes', confidence: 0.87, reason: 'Apprécié les pâtisseries' },
-        { name: 'Latte Vanille', confidence: 0.78, reason: 'Préférence pour les boissons sucrées' }
-      ],
-      promotions: [
-        { title: 'Menu fidélité -10%', applicable: true },
-        { title: 'Happy Hour 15h-17h', applicable: true }
-      ],
-      personalizedMessage: 'Bonjour ! Votre cappuccino habituel vous attend.'
-    };
-    
-    res.json(recommendations);
-  } catch (error) {
-    logger.error('Erreur recommandations:', error);
-    res.status(500).json({ error: 'Erreur service recommandations' });
-  }
-}));
-
-// Détection d'anomalies en temps réel
-router.get('/ai/anomalies', authenticateToken, asyncHandler(async (req, res) => {
-  try {
-    const anomalies = [
-      {
-        type: 'stock',
-        severity: 'high',
-        message: 'Stock café en grains critique (< 5kg)',
-        timestamp: new Date().toISOString(),
-        action: 'Commander immédiatement'
-      },
-      {
-        type: 'performance',
-        severity: 'medium',
-        message: 'Temps d\'attente moyen +15%',
-        timestamp: new Date().toISOString(),
-        action: 'Optimiser processus service'
-      },
-      {
-        type: 'equipment',
-        severity: 'low',
-        message: 'Machine à café - maintenance recommandée',
-        timestamp: new Date().toISOString(),
-        action: 'Planifier maintenance'
-      }
+    const conversations = [
+      { id: 1, customer: 'Client A', message: 'Bonjour, je voudrais réserver une table', response: 'Bien sûr! Pour combien de personnes?', timestamp: new Date().toISOString() },
+      { id: 2, customer: 'Client B', message: 'Avez-vous des options végétariennes?', response: 'Oui, nous avons plusieurs plats végétariens délicieux', timestamp: new Date().toISOString() }
     ];
-    
-    res.json(anomalies);
+    res.json(conversations);
   } catch (error) {
-    logger.error('Erreur détection anomalies:', error);
-    res.status(500).json({ error: 'Erreur service détection' });
+    res.status(500).json([]);
   }
-}));
+});
 
-// ===== ANALYTICS AVANCÉES =====
-
-// Analyse prédictive des ventes
-router.get('/analytics/predict-sales', authenticateToken, asyncHandler(async (req, res) => {
-  const { timeframe = 'monthly' } = req.query;
-  
+router.post('/ai/chatbot/respond', authenticateToken, async (req, res) => {
   try {
-    const prediction = {
-      timeframe,
-      prediction: {
-        revenue: 15750,
-        orders: 420,
-        customers: 185,
-        confidence: 0.88
-      },
-      trends: {
-        revenue: '+12.5%',
-        orders: '+8.2%',
-        newCustomers: '+15.3%'
-      },
-      factors: [
-        'Saison estivale favorable',
-        'Nouveaux produits populaires',
-        'Campagne marketing efficace'
-      ],
-      recommendations: [
-        'Augmenter stock produits populaires',
-        'Planifier promotions ciblées',
-        'Optimiser horaires personnel'
-      ]
-    };
-    
-    res.json(prediction);
+    const { message } = req.body;
+
+    // Simulation réponse IA
+    let response = "Je suis désolé, je n'ai pas compris votre demande.";
+
+    if (message.toLowerCase().includes('réserver')) {
+      response = "Bien sûr! Pour combien de personnes souhaitez-vous réserver?";
+    } else if (message.toLowerCase().includes('menu')) {
+      response = "Nous avons un délicieux menu avec des cafés, pâtisseries et plats chauds. Que préférez-vous?";
+    } else if (message.toLowerCase().includes('horaires')) {
+      response = "Nous sommes ouverts tous les jours de 7h à 22h.";
+    }
+
+    res.json({ response, timestamp: new Date().toISOString() });
   } catch (error) {
-    logger.error('Erreur prédiction ventes:', error);
-    res.status(500).json({ error: 'Erreur service prédiction' });
+    res.status(500).json({ error: 'Erreur de traitement' });
   }
-}));
+});
 
-// Analyse comportementale clients
-router.get('/analytics/customer-behavior', authenticateToken, asyncHandler(async (req, res) => {
+// Vision par ordinateur
+router.get('/ai/vision/quality-checks', authenticateToken, async (req, res) => {
   try {
-    const analysis = {
-      segments: {
-        vip: { count: 45, percentage: 12, avgSpent: 95.50, frequency: 15 },
-        regular: { count: 180, percentage: 48, avgSpent: 45.30, frequency: 8 },
-        occasional: { count: 150, percentage: 40, avgSpent: 22.90, frequency: 3 }
-      },
-      insights: [
-        'Clients VIP génèrent 35% des revenus',
-        'Clients réguliers ont +25% de satisfaction',
-        'Nouveaux clients préfèrent les boissons chaudes'
-      ],
-      actionItems: [
-        'Créer programme VIP+ avec avantages exclusifs',
-        'Campagne de fidélisation clients occasionnels',
-        'Améliorer accueil nouveaux clients'
-      ],
-      bestHours: {
-        vip: ['09:00-11:00', '15:00-17:00'],
-        regular: ['12:00-14:00', '18:00-20:00'],
-        occasional: ['10:00-12:00', '14:00-16:00']
-      }
-    };
-    
-    res.json(analysis);
-  } catch (error) {
-    logger.error('Erreur analyse comportementale:', error);
-    res.status(500).json({ error: 'Erreur service analyse' });
-  }
-}));
-
-// ===== GESTION ÉVÉNEMENTS ET PROMOTIONS =====
-
-// Gestion complète des événements
-router.get('/events', authenticateToken, asyncHandler(async (req, res) => {
-  try {
-    const events = [
-      {
-        id: 1,
-        title: 'Soirée Jazz Live',
-        date: '2025-01-25',
-        time: '20:00',
-        type: 'entertainment',
-        status: 'confirmed',
-        capacity: 60,
-        booked: 45,
-        price: 25.00,
-        description: 'Soirée musicale avec le trio Jazz Harmonics'
-      },
-      {
-        id: 2,
-        title: 'Atelier Latte Art',
-        date: '2025-01-28',
-        time: '15:00',
-        type: 'workshop',
-        status: 'open',
-        capacity: 12,
-        booked: 8,
-        price: 35.00,
-        description: 'Apprenez les techniques de latte art'
-      },
-      {
-        id: 3,
-        title: 'Dégustation Café du Monde',
-        date: '2025-02-02',
-        time: '18:00',
-        type: 'tasting',
-        status: 'planning',
-        capacity: 20,
-        booked: 15,
-        price: 45.00,
-        description: 'Découvrez les cafés d\'exception'
-      }
+    const checks = [
+      { id: 1, dish: 'Cappuccino', quality: 'Excellent', score: 95, issues: [] },
+      { id: 2, dish: 'Croissant', quality: 'Bon', score: 87, issues: ['Légèrement trop doré'] },
+      { id: 3, dish: 'Sandwich', quality: 'Excellent', score: 92, issues: [] }
     ];
-    
-    res.json(events);
+    res.json(checks);
   } catch (error) {
-    logger.error('Erreur gestion événements:', error);
-    res.status(500).json({ error: 'Erreur service événements' });
+    res.status(500).json([]);
   }
-}));
+});
 
-// Système de promotions avancé
-router.get('/promotions', authenticateToken, asyncHandler(async (req, res) => {
+// Prédiction de la demande
+router.get('/ai/prediction/demand', authenticateToken, async (req, res) => {
   try {
-    const promotions = [
-      {
-        id: 1,
-        name: 'Happy Hour Café',
-        type: 'percentage',
-        value: 25,
-        startDate: '2025-01-20',
-        endDate: '2025-01-31',
-        timeRange: '15:00-17:00',
-        status: 'active',
-        conditions: 'Toutes boissons chaudes',
-        usage: 156,
-        maxUsage: 500
-      },
-      {
-        id: 2,
-        name: 'Menu Étudiant',
-        type: 'fixed_price',
-        value: 8.90,
-        status: 'active',
-        conditions: 'Carte étudiant + boisson + pâtisserie',
-        usage: 89,
-        maxUsage: 200
-      },
-      {
-        id: 3,
-        name: 'Fidélité Gold',
-        type: 'cumulative',
-        value: 15,
-        status: 'active',
-        conditions: '10 achats = 1 gratuit',
-        usage: 234,
-        maxUsage: 1000
-      }
-    ];
-    
-    res.json(promotions);
-  } catch (error) {
-    logger.error('Erreur gestion promotions:', error);
-    res.status(500).json({ error: 'Erreur service promotions' });
-  }
-}));
-
-// ===== GESTION AVANCÉE INVENTAIRE =====
-
-// Inventaire intelligent avec IoT
-router.get('/inventory/advanced', authenticateToken, asyncHandler(async (req, res) => {
-  try {
-    const inventoryData = [
-      {
-        id: 1,
-        item: 'Café Arabica Premium',
-        category: 'coffee',
-        currentStock: 25,
-        minStock: 15,
-        maxStock: 100,
-        unit: 'kg',
-        cost: 18.50,
-        sellPrice: 4.50,
-        supplier: 'Café Premium Bio',
-        lastRestocked: '2025-01-15',
-        nextRestock: '2025-01-25',
-        consumption: {
-          daily: 2.5,
-          weekly: 17.5,
-          trend: '+5%'
-        },
-        alerts: ['Stock bas dans 4 jours'],
-        iotSensors: {
-          temperature: 18,
-          humidity: 45,
-          status: 'optimal'
+    const predictions = {
+      tomorrow: {
+        expectedCustomers: 125,
+        peakHours: ['12:00-14:00', '19:00-21:00'],
+        recommendedStaff: 8,
+        stockNeeded: {
+          coffee: '5kg',
+          milk: '15L',
+          bread: '30 unités'
         }
       },
-      {
-        id: 2,
-        item: 'Lait Entier Bio',
-        category: 'dairy',
-        currentStock: 80,
-        minStock: 30,
-        maxStock: 150,
-        unit: 'L',
-        cost: 1.45,
-        sellPrice: 0.80,
-        supplier: 'Laiterie Locale',
-        lastRestocked: '2025-01-18',
-        nextRestock: '2025-01-22',
-        consumption: {
-          daily: 15,
-          weekly: 105,
-          trend: '+8%'
-        },
-        alerts: [],
-        iotSensors: {
-          temperature: 4,
-          humidity: 85,
-          status: 'optimal'
-        }
+      nextWeek: {
+        averageDaily: 110,
+        busyDays: ['Vendredi', 'Samedi', 'Dimanche'],
+        quietDays: ['Lundi', 'Mardi']
       }
-    ];
-    
-    res.json(inventoryData);
+    };
+    res.json(predictions);
   } catch (error) {
-    logger.error('Erreur inventaire avancé:', error);
-    res.status(500).json({ error: 'Erreur service inventaire' });
+    res.status(500).json({ expectedCustomers: 0, peakHours: [], recommendedStaff: 0, stockNeeded: {} });
   }
-}));
+});
 
-// ===== FEEDBACK ET QUALITÉ =====
+// === APPLICATIONS MOBILES ===
 
-// Système de feedback avancé
-router.get('/feedback/advanced', authenticateToken, asyncHandler(async (req, res) => {
+// App Staff
+router.get('/mobile/staff/notifications', authenticateToken, async (req, res) => {
   try {
-    const feedback = [
-      {
-        id: 1,
-        customer: 'Sophie Martin',
-        type: 'review',
-        rating: 5,
-        comment: 'Service exceptionnel et café délicieux !',
-        date: '2025-01-19',
-        categories: {
-          food: 5,
-          service: 5,
-          ambiance: 4,
-          pricing: 4
-        },
-        sentiment: 'très positif',
-        response: 'Merci infiniment pour ce retour !',
-        responseDate: '2025-01-19',
-        status: 'responded',
-        followUp: true
-      },
-      {
-        id: 2,
-        customer: 'Thomas Dubois',
-        type: 'suggestion',
-        rating: 4,
-        comment: 'Excellente qualité mais temps d\'attente perfectible',
-        date: '2025-01-18',
-        categories: {
-          food: 5,
-          service: 3,
-          ambiance: 4,
-          pricing: 4
-        },
-        sentiment: 'constructif',
-        status: 'in_progress',
-        actionTaken: 'Optimisation du processus de service',
-        followUp: true
-      }
+    const notifications = [
+      { id: 1, type: 'shift', message: 'Votre service commence dans 30 minutes', timestamp: new Date().toISOString() },
+      { id: 2, type: 'urgent', message: 'Table 5 demande assistance', timestamp: new Date().toISOString() }
     ];
-    
-    res.json(feedback);
+    res.json(notifications);
   } catch (error) {
-    logger.error('Erreur feedback avancé:', error);
-    res.status(500).json({ error: 'Erreur service feedback' });
+    res.status(500).json([]);
   }
-}));
+});
 
-// ===== CONTRÔLE QUALITÉ =====
-
-// Système de contrôle qualité complet
-router.get('/quality-control/complete', authenticateToken, asyncHandler(async (req, res) => {
+// App Manager
+router.get('/mobile/manager/dashboard', authenticateToken, async (req, res) => {
   try {
-    const qualityData = {
-      global: {
-        score: 92,
-        trend: '+2.5%',
-        lastAudit: '2025-01-15',
-        nextAudit: '2025-01-22'
+    const dashboard = {
+      todayRevenue: 1250.75,
+      activeOrders: 8,
+      staffPresent: 6,
+      tablesOccupied: 12,
+      alerts: 2
+    };
+    res.json(dashboard);
+  } catch (error) {
+    res.status(500).json({ todayRevenue: 0, activeOrders: 0, staffPresent: 0, tablesOccupied: 0, alerts: 0 });
+  }
+});
+
+// === PRÉSENCE DIGITALE ===
+
+// Réseaux sociaux
+router.get('/digital/social/posts', authenticateToken, async (req, res) => {
+  try {
+    const posts = [
+      { id: 1, platform: 'Instagram', content: 'Nouveau latte art spécial automne!', likes: 245, comments: 18 },
+      { id: 2, platform: 'Facebook', content: 'Promotion happy hour 14h-16h', likes: 89, comments: 12 }
+    ];
+    res.json(posts);
+  } catch (error) {
+    res.status(500).json([]);
+  }
+});
+
+// E-reputation
+router.get('/digital/reviews/summary', authenticateToken, async (req, res) => {
+  try {
+    const reviews = {
+      average: 4.7,
+      total: 234,
+      platforms: {
+        google: { rating: 4.8, count: 156 },
+        facebook: { rating: 4.6, count: 78 }
       },
-      areas: [
-        {
-          id: 1,
-          name: 'Hygiène Cuisine',
-          score: 96,
-          status: 'excellent',
-          lastCheck: '2025-01-18',
-          nextCheck: '2025-01-25',
-          issues: [],
-          improvements: ['Maintenir standards actuels']
-        },
-        {
-          id: 2,
-          name: 'Qualité Café',
-          score: 94,
-          status: 'excellent',
-          lastCheck: '2025-01-17',
-          nextCheck: '2025-01-24',
-          issues: [],
-          improvements: ['Température constante machine 2']
-        },
-        {
-          id: 3,
-          name: 'Service Client',
-          score: 88,
-          status: 'bon',
-          lastCheck: '2025-01-16',
-          nextCheck: '2025-01-23',
-          issues: ['Temps attente pic déjeuner'],
-          improvements: ['Formation équipe', 'Optimisation processus']
-        }
-      ],
-      certifications: [
-        {
-          name: 'ISO 22000',
-          status: 'valid',
-          expires: '2025-06-30',
-          renewalDue: 90
-        },
-        {
-          name: 'Bio Certification',
-          status: 'valid',
-          expires: '2025-12-31',
-          renewalDue: 245
-        }
+      recent: [
+        { platform: 'Google', rating: 5, comment: 'Excellent service!', date: '2024-01-15' },
+        { platform: 'Facebook', rating: 4, comment: 'Très bon café', date: '2024-01-14' }
       ]
     };
-    
-    res.json(qualityData);
+    res.json(reviews);
   } catch (error) {
-    logger.error('Erreur contrôle qualité:', error);
-    res.status(500).json({ error: 'Erreur service qualité' });
+    res.status(500).json({ average: 0, total: 0, platforms: {}, recent: [] });
   }
-}));
+});
 
-// ===== KPI TEMPS RÉEL =====
+// === PAIEMENTS & FINTECH ===
 
-// Tableau de bord KPI complet
-router.get('/kpis/realtime', authenticateToken, asyncHandler(async (req, res) => {
+// Paiements mobiles
+router.get('/fintech/payments/methods', authenticateToken, async (req, res) => {
   try {
-    const kpis = {
-      timestamp: new Date().toISOString(),
-      revenue: {
-        today: 1847.50,
-        target: 2000,
-        percentage: 92.4,
-        trend: '+8.5%'
-      },
-      orders: {
-        today: 89,
-        target: 100,
-        percentage: 89,
-        trend: '+12.3%'
-      },
-      customers: {
-        today: 67,
-        target: 80,
-        percentage: 83.8,
-        trend: '+15.2%'
-      },
-      satisfaction: {
-        score: 4.6,
-        target: 4.5,
-        percentage: 102.2,
-        trend: '+0.2'
-      },
-      operations: {
-        tableOccupancy: 0.78,
-        staffEfficiency: 0.91,
-        averageWaitTime: 8.5,
-        kitchenLoad: 0.65
-      },
-      alerts: [
-        'Pic d\'affluence prévu 12h30',
-        'Stock lait critique dans 2h',
-        'Réservation VIP 19h - table 5'
-      ]
-    };
-    
-    res.json(kpis);
+    const methods = [
+      { id: 1, name: 'Apple Pay', enabled: true, usage: 45 },
+      { id: 2, name: 'Google Pay', enabled: true, usage: 38 },
+      { id: 3, name: 'Samsung Pay', enabled: true, usage: 17 },
+      { id: 4, name: 'PayPal', enabled: false, usage: 0 }
+    ];
+    res.json(methods);
   } catch (error) {
-    logger.error('Erreur KPI temps réel:', error);
-    res.status(500).json({ error: 'Erreur service KPI' });
+    res.status(500).json([]);
   }
-}));
+});
 
+// === DURABILITÉ & RSE ===
+
+// Gestion des déchets
+router.get('/sustainability/waste/tracking', authenticateToken, async (req, res) => {
+  try {
+    const waste = {
+      daily: {
+        organic: 12.5,
+        recyclable: 8.2,
+        general: 5.1
+      },
+      monthly: {
+        organic: 375,
+        recyclable: 246,
+        general: 153
+      },
+      reduction: -15 // Pourcentage de réduction
+    };
+    res.json(waste);
+  } catch (error) {
+    res.status(500).json({ daily: {}, monthly: {}, reduction: 0 });
+  }
+});
+
+// === TECHNOLOGIES ÉMERGENTES ===
+
+// IoT
+router.get('/iot/sensors/status', authenticateToken, async (req, res) => {
+  try {
+    const sensors = [
+      { id: 1, name: 'Température frigo', value: 4.2, unit: '°C', status: 'normal' },
+      { id: 2, name: 'Humidité', value: 65, unit: '%', status: 'normal' },
+      { id: 3, name: 'Pression machine', value: 9.1, unit: 'bar', status: 'normal' }
+    ];
+    res.json(sensors);
+  } catch (error) {
+    res.status(500).json([]);
+  }
+});
+
+// === MARKETING & CRM AVANCÉ ===
+
+// Campagnes automatisées
+router.get('/marketing/campaigns/automated', authenticateToken, async (req, res) => {
+  try {
+    const campaigns = [
+      { id: 1, name: 'Bienvenue nouveaux clients', trigger: 'Première visite', sent: 156, opened: 89 },
+      { id: 2, name: 'Rappel fidélité', trigger: 'Inactivité 30 jours', sent: 78, opened: 45 }
+    ];
+    res.json(campaigns);
+  } catch (error) {
+    res.status(500).json([]);
+  }
+});
+
+// === SÉCURITÉ & CONFORMITÉ ===
+
+// Audit RGPD
+router.get('/security/gdpr/compliance', authenticateToken, async (req, res) => {
+  try {
+    const compliance = {
+      dataProcessing: 'Conforme',
+      consentManagement: 'Conforme',
+      dataRetention: 'Conforme',
+      rightToDelete: 'Conforme',
+      dataPortability: 'Conforme',
+      lastAudit: '2024-01-01',
+      score: 98
+    };
+    res.json(compliance);
+  } catch (error) {
+    res.status(500).json({ score: 0 });
+  }
+});
+
+// === MULTI-ÉTABLISSEMENTS ===
+
+// Gestion centralisée
+router.get('/multi-site/overview', authenticateToken, async (req, res) => {
+  try {
+    const sites = [
+      { id: 1, name: 'Barista Centre', revenue: 15420.50, customers: 1247, staff: 8 },
+      { id: 2, name: 'Barista Gare', revenue: 12890.75, customers: 1098, staff: 6 },
+      { id: 3, name: 'Barista Campus', revenue: 8950.25, customers: 856, staff: 5 }
+    ];
+    res.json(sites);
+  } catch (error) {
+    res.status(500).json([]);
+  }
+});
+
+export const advancedFeaturesRouter = router;
 export default router;

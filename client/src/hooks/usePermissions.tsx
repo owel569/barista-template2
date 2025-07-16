@@ -1,7 +1,14 @@
-
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import type { Permission, UserRole } from '@/types/admin';
+import { 
+  DEFAULT_PERMISSIONS, 
+  ALL_ACCESS_ROLES,
+  type Role, 
+  type PermissionAction, 
+  type PermissionsMap 
+} from '../constants/permissions';
+import { STORAGE_KEYS } from '../constants/storage';
 
 interface PermissionsCache {
   [key: string]: {
@@ -29,7 +36,7 @@ export const usePermissions = () => {
 
     const cacheKey = `${user.id}_${user.role}`;
     const cached = permissionsCache[cacheKey];
-    
+
     // Vérifier le cache
     if (cached && Date.now() - cached.timestamp < cached.ttl) {
       setPermissions(cached.permissions);
@@ -53,7 +60,7 @@ export const usePermissions = () => {
       }
 
       const data = await response.json();
-      
+
       // Mettre en cache
       permissionsCache[cacheKey] = {
         permissions: data,
@@ -78,7 +85,7 @@ export const usePermissions = () => {
   const hasPermission = useCallback((permission: string): boolean => {
     if (!user) return false;
     if (user.role === 'director') return true;
-    
+
     return permissions.some(p => 
       p.resource === permission && 
       (p.action === 'all' || p.action === 'read')
@@ -88,7 +95,7 @@ export const usePermissions = () => {
   const hasWritePermission = useCallback((resource: string): boolean => {
     if (!user) return false;
     if (user.role === 'director') return true;
-    
+
     return permissions.some(p => 
       p.resource === resource && 
       (p.action === 'all' || p.action === 'write')

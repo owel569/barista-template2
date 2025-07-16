@@ -12,7 +12,7 @@ import { onlineOrdersRouter } from './routes/online-orders';
 import { tablesRouter } from './routes/tables';
 import { userProfileRouter } from './routes/user-profile';
 import { analyticsRouter } from './routes/analytics';
-// Routes avancées seront chargées dynamiquement
+import permissionsRouter from './routes/permissions';
 import { loyaltyRouter } from './routes/loyalty-advanced';
 import { inventoryRouter } from './routes/inventory-management';
 import { validateBody, validateParams, validateQuery } from './middleware/validation';
@@ -2234,7 +2234,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Routes avancées importées
   try {
-    const advancedFeaturesRouter = require('./routes/advanced-features');
+    const { advancedFeaturesRouter } = await import('./routes/advanced-features');
     app.use('/api/advanced', advancedFeaturesRouter);
   } catch (error) {
     console.log('Routes avancées non disponibles:', error.message);
@@ -2249,7 +2249,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/inventory', inventoryRouter);
   app.use('/api/loyalty', loyaltyRouter);
   app.use('/api/images', imageRoutes);
-  app.use('/api/advanced-features', advancedFeaturesRoutes);
 
   return server;
 }
