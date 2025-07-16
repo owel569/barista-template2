@@ -268,7 +268,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { name: 'Pâtisseries', description: 'Pâtisseries fraîches', slug: 'patisseries', displayOrder: 3 },
         { name: 'Plats', description: 'Plats savoureux', slug: 'plats', displayOrder: 4 }
       ];
-
+      
       for (const category of categories) {
         try {
           await storage.createMenuCategory(category);
@@ -768,8 +768,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const shifts = await storage.getWorkShifts();
       res.json(shifts);
     } catch (error) {
-      res.status(500).json({ error: 'Erreur serveur' });
-    }
+      res.status(500).json({ error: 'Erreur serveur' });    }
   });
 
   app.get('/api/admin/work-shifts/stats', authenticateToken, async (req, res) => {
@@ -1490,8 +1489,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { id: 6, name: 'Gérer les paramètres', module: 'settings', actions: ['voir', 'modifier'] }
       ];
       res.json(permissions);
-    } catch (error) {
-      res.status(500).json([]);
+    } catch (error) {      res.status(500).json([]);
     }
   });
 
