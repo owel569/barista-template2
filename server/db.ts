@@ -30,14 +30,15 @@ async function initializeDatabase() {
         connectionString: process.env.DATABASE_URL,
         ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
         // Configuration stable pour Replit
-        max: 5, // Limiter à 5 connexions max
+        max: 3, // Réduire à 3 connexions max
         min: 1, // Maintenir 1 connexion minimum
-        idleTimeoutMillis: 120000, // 2 minutes d'inactivité
-        connectionTimeoutMillis: 10000, // 10 secondes pour se connecter
+        idleTimeoutMillis: 300000, // 5 minutes d'inactivité
+        connectionTimeoutMillis: 15000, // 15 secondes pour se connecter
         // Reconnexion automatique
         keepAlive: true,
-        keepAliveInitialDelayMillis: 5000,
-        acquireTimeoutMillis: 60000, // 1 minute pour acquérir une connexion
+        keepAliveInitialDelayMillis: 10000,
+        acquireTimeoutMillis: 90000, // 1.5 minute pour acquérir une connexion
+        statement_timeout: 30000, // 30 secondes timeout pour les requêtes
       });
 
       // Initialiser Drizzle avec optimisations

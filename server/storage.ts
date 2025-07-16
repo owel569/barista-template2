@@ -835,7 +835,7 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
 
   async createCustomer(customer: InsertCustomer): Promise<Customer> {
     const [newCustomer] = await db.insert(customers).values(customer).returning();
-    return newCustomer.
+    return newCustomer;
   }
 
   async updateCustomer(id: number, customer: Partial<InsertCustomer>): Promise<Customer> {
@@ -961,16 +961,7 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
     return (result.rowCount ?? 0) > 0;
   }
 
-  async getWorkShifts() {
-    try {
-      const db = await this.db;
-      const shifts = await db.select().from(workShifts);
-      return shifts;
-    } catch (error) {
-      console.error('Erreur lors de la récupération des shifts:', error);
-      return [];
-    }
-  }
+  // Cette méthode est déjà définie plus haut dans la classe
 
   async getActivityLogs(limit: number = 50) {
     try {
