@@ -1,111 +1,178 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { AlertTriangle, TrendingUp, Users, DollarSign, Clock, ShoppingCart } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { 
+  Brain, 
+  MessageSquare, 
+  FileText, 
+  Settings,
+  Zap,
+  TrendingUp,
+  Users,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  Bot
+} from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 
 const DashboardModule = () => {
-  // Données temps réel simulées (à remplacer par des vraies données API)
-  const realTimeStats = {
-    dailyRevenue: 2450,
-    currentOrders: 12,
-    occupiedTables: 18,
-    totalTables: 24,
-    popularDish: "Cappuccino",
-    pendingReservations: 5
-  };
+  // Récupérer les statistiques du tableau de bord
+  const { data: stats, isLoading } = useQuery({
+    queryKey: ['/api/admin/advanced/dashboard-stats'],
+    refetchInterval: 30000
+  });
 
-  const alerts = [
-    { type: 'warning', message: 'Stock faible: Grains de café', priority: 'high' },
-    { type: 'info', message: '3 réservations urgentes dans 30min', priority: 'medium' },
-    { type: 'error', message: 'Machine espresso #2 nécessite maintenance', priority: 'high' }
-  ];
+  // Récupérer les alertes IA
+  const { data: aiAlerts } = useQuery({
+    queryKey: ['/api/admin/advanced/ai-alerts'],
+    refetchInterval: 60000
+  });
 
-  const kpis = [
-    { title: 'Revenus du jour', value: `${realTimeStats.dailyRevenue}€`, change: '+12%', icon: DollarSign },
-    { title: 'Commandes actives', value: realTimeStats.currentOrders, change: '+3', icon: ShoppingCart },
-    { title: 'Tables occupées', value: `${realTimeStats.occupiedTables}/${realTimeStats.totalTables}`, change: '75%', icon: Users },
-    { title: 'Réservations en attente', value: realTimeStats.pendingReservations, change: '+2', icon: Clock }
-  ];
+  // Récupérer les rapports automatiques
+  const { data: reports } = useQuery({
+    queryKey: ['/api/admin/advanced/automated-reports'],
+    refetchInterval: 300000
+  });
+
+  if (isLoading) {
+    return (
+      <div className="p-6 space-y-6">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+          <p className="mt-2 text-sm text-gray-600">Chargement du tableau de bord avancé...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const aiInsights = stats?.aiInsights || {};
+  const chatbotStats = stats?.chatbot || {};
+  const automatedReports = stats?.reports || {};
 
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Tableau de Bord</h1>
+        <div>
+          <h1 className="text-3xl font-bold">Tableau de Bord Intelligence Artificielle</h1>
+          <p className="text-gray-600">Vue d'ensemble des fonctionnalités avancées</p>
+        </div>
         <Badge variant="outline" className="text-green-600">
-          En ligne
+          <Brain className="h-4 w-4 mr-2" />
+          IA Activée
         </Badge>
       </div>
 
-      {/* KPIs en temps réel */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {kpis.map((kpi, index) => (
-          <Card key={index}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{kpi.title}</CardTitle>
-              <kpi.icon className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{kpi.value}</div>
-              <p className="text-xs text-muted-foreground">
-                <span className="text-green-600">{kpi.change}</span> depuis hier
-              </p>
-            </CardContent>
-          </Card>
-        ))}
+      {/* Alertes critiques IA */}
+      {aiAlerts?.alerts && aiAlerts.alerts.length > 0 && (
+        <div className="space-y-2">
+          {aiAlerts.alerts.map((alert: any, index: number) => (
+            <Alert key={index} variant={alert.severity === 'high' ? 'destructive' : 'default'}>
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Alerte IA:</strong> {alert.message}
+              </AlertDescription>
+            </Alert>
+          ))}
+        </div>
+      )}
+
+      {/* Statistiques principales */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Assistant IA</CardTitle>
+            <Bot className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{chatbotStats.totalInteractions || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              Interactions aujourd'hui
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Insights IA</CardTitle>
+            <Brain className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{aiInsights.newInsights || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              Nouveaux insights
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Rapports Auto</CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{automatedReports.generated || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              Générés ce mois
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Efficacité IA</CardTitle>
+            <Zap className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{aiInsights.efficiency || 95}%</div>
+            <p className="text-xs text-muted-foreground">
+              Précision globale
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Alertes système */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5" />
-            Alertes Système
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {alerts.map((alert, index) => (
-              <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center gap-3">
-                  <Badge variant={alert.type === 'error' ? 'destructive' : alert.type === 'warning' ? 'secondary' : 'default'}>
-                    {alert.priority}
-                  </Badge>
-                  <span>{alert.message}</span>
-                </div>
-                <button className="text-sm text-blue-600 hover:underline">
-                  Résoudre
-                </button>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Tabs defaultValue="performance" className="w-full">
+      <Tabs defaultValue="chatbot" className="w-full">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="performance">Performance</TabsTrigger>
-          <TabsTrigger value="affluence">Affluence</TabsTrigger>
-          <TabsTrigger value="menu">Menu</TabsTrigger>
-          <TabsTrigger value="quick-actions">Actions Rapides</TabsTrigger>
+          <TabsTrigger value="chatbot">Assistant IA</TabsTrigger>
+          <TabsTrigger value="reports">Rapports</TabsTrigger>
+          <TabsTrigger value="insights">Insights</TabsTrigger>
+          <TabsTrigger value="automation">Automatisation</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="performance" className="space-y-4">
+        <TabsContent value="chatbot" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
-                <CardTitle>Chiffre d'Affaires</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <MessageSquare className="h-5 w-5" />
+                  Assistant Conversationnel
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
+                <div className="space-y-4">
                   <div className="flex justify-between">
-                    <span>Objectif journalier</span>
-                    <span>3000€</span>
+                    <span>Conversations actives</span>
+                    <Badge variant="outline">{chatbotStats.activeConversations || 0}</Badge>
                   </div>
-                  <Progress value={82} className="w-full" />
-                  <div className="text-sm text-muted-foreground">
-                    2450€ / 3000€ (82%)
+                  <div className="flex justify-between">
+                    <span>Taux de satisfaction</span>
+                    <Badge variant="outline" className="text-green-600">
+                      {chatbotStats.satisfactionRate || 92}%
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Temps de réponse</span>
+                    <span className="text-sm">{chatbotStats.averageResponseTime || '<1s'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Résolutions auto</span>
+                    <Badge variant="outline" className="text-blue-600">
+                      {chatbotStats.autoResolutionRate || 78}%
+                    </Badge>
                   </div>
                 </div>
               </CardContent>
@@ -113,99 +180,283 @@ const DashboardModule = () => {
 
             <Card>
               <CardHeader>
-                <CardTitle>Taux d'occupation</CardTitle>
+                <CardTitle>Questions fréquentes</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span>Tables occupées</span>
-                    <span>{realTimeStats.occupiedTables}/{realTimeStats.totalTables}</span>
-                  </div>
-                  <Progress value={75} className="w-full" />
-                  <div className="text-sm text-muted-foreground">
-                    75% d'occupation
-                  </div>
+                <div className="space-y-3">
+                  {chatbotStats.topQuestions?.slice(0, 5).map((question: any, index: number) => (
+                    <div key={index} className="flex justify-between items-center">
+                      <span className="text-sm">{question.question}</span>
+                      <Badge variant="outline">{question.count}</Badge>
+                    </div>
+                  )) || (
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Heures d'ouverture</span>
+                        <Badge variant="outline">45</Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Menu du jour</span>
+                        <Badge variant="outline">38</Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Réservation</span>
+                        <Badge variant="outline">32</Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Prix menu</span>
+                        <Badge variant="outline">28</Badge>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
           </div>
-        </TabsContent>
 
-        <TabsContent value="affluence" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Affluence par heure</CardTitle>
+              <CardTitle>Configuration Assistant</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {[
-                  { hour: '8h-10h', rate: 45, label: 'Petit-déjeuner' },
-                  { hour: '12h-14h', rate: 85, label: 'Déjeuner (pic)' },
-                  { hour: '15h-17h', rate: 30, label: 'Pause café' },
-                  { hour: '19h-21h', rate: 70, label: 'Dîner' }
-                ].map((slot, index) => (
-                  <div key={index} className="space-y-1">
-                    <div className="flex justify-between text-sm">
-                      <span>{slot.hour} - {slot.label}</span>
-                      <span>{slot.rate}%</span>
-                    </div>
-                    <Progress value={slot.rate} className="w-full" />
-                  </div>
-                ))}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Button variant="outline" className="h-20 flex flex-col">
+                  <Settings className="h-6 w-6 mb-2" />
+                  <span className="text-xs">Paramètres</span>
+                </Button>
+                <Button variant="outline" className="h-20 flex flex-col">
+                  <MessageSquare className="h-6 w-6 mb-2" />
+                  <span className="text-xs">Réponses</span>
+                </Button>
+                <Button variant="outline" className="h-20 flex flex-col">
+                  <Brain className="h-6 w-6 mb-2" />
+                  <span className="text-xs">Entraînement</span>
+                </Button>
+                <Button variant="outline" className="h-20 flex flex-col">
+                  <FileText className="h-6 w-6 mb-2" />
+                  <span className="text-xs">Base connaissance</span>
+                </Button>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="menu" className="space-y-4">
+        <TabsContent value="reports" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Plats Populaires</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Rapports Automatisés
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {[
-                  { dish: 'Cappuccino', orders: 45, trend: '+12%' },
-                  { dish: 'Croissant au beurre', orders: 32, trend: '+8%' },
-                  { dish: 'Salade César', orders: 28, trend: '+5%' },
-                  { dish: 'Espresso', orders: 24, trend: '+15%' }
-                ].map((item, index) => (
-                  <div key={index} className="flex justify-between items-center">
-                    <div>
-                      <span className="font-medium">{item.dish}</span>
-                      <span className="text-sm text-muted-foreground ml-2">
-                        {item.orders} commandes
-                      </span>
-                    </div>
-                    <Badge variant="outline" className="text-green-600">
-                      {item.trend}
-                    </Badge>
+              <div className="space-y-4">
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="text-center p-4 bg-blue-50 rounded-lg">
+                    <div className="text-2xl font-bold text-blue-600">{automatedReports.scheduled || 12}</div>
+                    <div className="text-sm text-blue-800">Rapports programmés</div>
                   </div>
-                ))}
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <div className="text-2xl font-bold text-green-600">{automatedReports.generated || 8}</div>
+                    <div className="text-sm text-green-800">Générés ce mois</div>
+                  </div>
+                  <div className="text-center p-4 bg-orange-50 rounded-lg">
+                    <div className="text-2xl font-bold text-orange-600">{automatedReports.pending || 2}</div>
+                    <div className="text-sm text-orange-800">En cours</div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <h4 className="font-medium">Prochains rapports</h4>
+                  {reports?.upcoming?.map((report: any, index: number) => (
+                    <div key={index} className="flex justify-between items-center p-3 border rounded">
+                      <div>
+                        <span className="font-medium">{report.name}</span>
+                        <span className="text-sm text-gray-500 ml-2">- {report.type}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-gray-400" />
+                        <span className="text-sm">{report.nextRun}</span>
+                      </div>
+                    </div>
+                  )) || (
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center p-3 border rounded">
+                        <div>
+                          <span className="font-medium">Rapport mensuel ventes</span>
+                          <span className="text-sm text-gray-500 ml-2">- PDF</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4 text-gray-400" />
+                          <span className="text-sm">01/02/2025</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center p-3 border rounded">
+                        <div>
+                          <span className="font-medium">Analyse clientèle</span>
+                          <span className="text-sm text-gray-500 ml-2">- Excel</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4 text-gray-400" />
+                          <span className="text-sm">05/02/2025</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="quick-actions" className="space-y-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { label: 'Nouvelle Réservation', action: 'reservations' },
-              { label: 'Prendre Commande', action: 'orders' },
-              { label: 'Gérer Tables', action: 'tables' },
-              { label: 'Menu du Jour', action: 'menu' },
-              { label: 'Stock Urgent', action: 'inventory' },
-              { label: 'Rapport Journalier', action: 'reports' },
-              { label: 'Notifications', action: 'notifications' },
-              { label: 'Paramètres', action: 'settings' }
-            ].map((action, index) => (
-              <Card key={index} className="cursor-pointer hover:shadow-md transition-shadow">
-                <CardContent className="p-4 text-center">
-                  <div className="text-sm font-medium">{action.label}</div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+        <TabsContent value="insights" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Brain className="h-5 w-5" />
+                Insights Intelligence Artificielle
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {aiInsights.insights?.slice(0, 3).map((insight: any, index: number) => (
+                  <div key={index} className="p-4 border rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <div className={`p-2 rounded ${
+                        insight.type === 'opportunity' ? 'bg-green-100' :
+                        insight.type === 'warning' ? 'bg-yellow-100' : 'bg-blue-100'
+                      }`}>
+                        {insight.type === 'opportunity' ? (
+                          <TrendingUp className="h-5 w-5 text-green-600" />
+                        ) : insight.type === 'warning' ? (
+                          <AlertTriangle className="h-5 w-5 text-yellow-600" />
+                        ) : (
+                          <CheckCircle className="h-5 w-5 text-blue-600" />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-medium">{insight.title}</h4>
+                        <p className="text-sm text-gray-600 mt-1">{insight.description}</p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <Badge variant="outline">
+                            Impact: {insight.impact}
+                          </Badge>
+                          <Badge variant="outline">
+                            Confiance: {insight.confidence}%
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )) || (
+                  <div className="space-y-3">
+                    <div className="p-4 border rounded-lg">
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 rounded bg-green-100">
+                          <TrendingUp className="h-5 w-5 text-green-600" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-medium">Opportunité de croissance</h4>
+                          <p className="text-sm text-gray-600 mt-1">
+                            L'ajout d'options végétariennes pourrait augmenter les ventes de 15%
+                          </p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Badge variant="outline">Impact: Élevé</Badge>
+                            <Badge variant="outline">Confiance: 87%</Badge>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-4 border rounded-lg">
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 rounded bg-blue-100">
+                          <CheckCircle className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-medium">Optimisation réussie</h4>
+                          <p className="text-sm text-gray-600 mt-1">
+                            Le nouveau système de réservation a réduit l'attente de 23%
+                          </p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Badge variant="outline">Impact: Moyen</Badge>
+                            <Badge variant="outline">Confiance: 95%</Badge>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="automation" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="h-5 w-5" />
+                Automatisations Actives
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 border rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium">Gestion Stock</h4>
+                      <Badge variant="outline" className="text-green-600">Actif</Badge>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-3">
+                      Commandes automatiques basées sur les prédictions IA
+                    </p>
+                    <div className="text-xs text-gray-500">
+                      Dernière action: Commande de café - il y a 2h
+                    </div>
+                  </div>
+
+                  <div className="p-4 border rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium">Notifications</h4>
+                      <Badge variant="outline" className="text-green-600">Actif</Badge>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-3">
+                      Alertes intelligentes pour l'équipe
+                    </p>
+                    <div className="text-xs text-gray-500">
+                      Dernière action: Alerte stock faible - il y a 30min
+                    </div>
+                  </div>
+
+                  <div className="p-4 border rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium">Rapports</h4>
+                      <Badge variant="outline" className="text-green-600">Actif</Badge>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-3">
+                      Génération automatique de rapports
+                    </p>
+                    <div className="text-xs text-gray-500">
+                      Dernière action: Rapport hebdomadaire - hier
+                    </div>
+                  </div>
+
+                  <div className="p-4 border rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium">Support Client</h4>
+                      <Badge variant="outline" className="text-green-600">Actif</Badge>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-3">
+                      Réponses automatiques aux questions fréquentes
+                    </p>
+                    <div className="text-xs text-gray-500">
+                      Dernière action: Réponse automatique - il y a 5min
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>

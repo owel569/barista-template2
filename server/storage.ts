@@ -189,7 +189,7 @@ export class DatabaseStorage implements IStorage {
   async updateUserLastLogin(id: number): Promise<User | undefined> {
     try {
       const [updatedUser] = await db.update(users)
-        .set({ lastLogin: new Date() })
+        .set({ lastLogin: new Date().toISOString() })
         .where(eq(users.id, id))
         .returning();
       return updatedUser || undefined;
@@ -206,9 +206,9 @@ export class DatabaseStorage implements IStorage {
           firstName: 'Admin',
           lastName: 'Barista',
           isActive: true,
-          lastLogin: new Date(),
-          createdAt: new Date(),
-          updatedAt: new Date()
+          lastLogin: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         };
       }
       return undefined;

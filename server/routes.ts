@@ -11,6 +11,10 @@ import { deliveryRouter } from './routes/delivery';
 import { onlineOrdersRouter } from './routes/online-orders';
 import { tablesRouter } from './routes/tables';
 import { userProfileRouter } from './routes/user-profile';
+import { analyticsRouter } from './routes/analytics';
+import { advancedFeaturesRouter } from './routes/advanced-features';
+import { loyaltyRouter } from './routes/loyalty-advanced';
+import { inventoryRouter } from './routes/inventory-management';
 import { validateBody, validateParams, validateQuery } from './middleware/validation';
 import { errorHandler, notFoundHandler, asyncHandler } from './middleware/error-handler';
 import { createLogger, validateRequestWithLogging } from './middleware/logging';
@@ -554,6 +558,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Routes pour le profil utilisateur
   app.use('/api/user/profile', authenticateToken, userProfileRouter);
+
+  // Routes avancées pour les nouvelles fonctionnalités
+  app.use('/api/admin/analytics', authenticateToken, analyticsRouter);
+  app.use('/api/admin/advanced', authenticateToken, advancedFeaturesRouter);
+  app.use('/api/admin/loyalty', authenticateToken, loyaltyRouter);
+  app.use('/api/admin/inventory', authenticateToken, inventoryRouter);
 
   app.put('/api/admin/messages/:id/status', authenticateToken, async (req, res) => {
     try {

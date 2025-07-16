@@ -7,7 +7,7 @@ import {
   Menu, X, Home, Calendar, ShoppingCart, Users, Coffee, MessageSquare,
   Settings, BarChart3, FileText, Shield, Package, Gift, DollarSign,
   Database, Calendar as CalendarIcon, Truck, Wrench, Bell, LogOut,
-  Sun, Moon, Wifi, WifiOff
+  Sun, Moon, Wifi, WifiOff, Brain
 } from 'lucide-react';
 import { usePermissions } from '@/hooks/usePermissions';
 import { cn } from '@/lib/utils';
@@ -44,6 +44,12 @@ import AdvancedPOS from '@/components/admin/advanced-pos';
 import StaffScheduling from '@/components/admin/staff-scheduling';
 import QualityControl from '@/components/admin/quality-control';
 import CustomerFeedback from '@/components/admin/customer-feedback';
+
+// Import nouveaux modules avancés
+import AnalyticsDashboardModule from '@/components/admin/modules/AnalyticsDashboard';
+import InventoryManagementModule from '@/components/admin/modules/InventoryManagement';
+import LoyaltyProgramModule from '@/components/admin/modules/LoyaltyProgram';
+import DashboardModule from '@/components/admin/modules/Dashboard';
 
 export default function AdminFinal() {
   const [, navigate] = useLocation();
@@ -213,10 +219,25 @@ export default function AdminFinal() {
       notification: notifications.lowStockItems
     },
     {
+      id: 'inventory-smart',
+      name: 'Gestion Stock IA',
+      icon: Package,
+      component: InventoryManagementModule,
+      adminOnly: true,
+      notification: notifications.lowStockItems
+    },
+    {
       id: 'loyalty',
       name: 'Fidélité',
       icon: Gift,
       component: LoyaltySystem
+    },
+    {
+      id: 'loyalty-advanced',
+      name: 'Programme Fidélité+',
+      icon: Gift,
+      component: LoyaltyProgramModule,
+      adminOnly: true
     },
     {
       id: 'permissions',
@@ -309,6 +330,13 @@ export default function AdminFinal() {
       component: AnalyticsDashboard
     },
     {
+      id: 'analytics-dashboard',
+      name: 'Tableau Analytics IA',
+      icon: BarChart3,
+      component: AnalyticsDashboardModule,
+      adminOnly: true
+    },
+    {
       id: 'pos',
       name: 'Point de Vente',
       icon: ShoppingCart,
@@ -338,6 +366,13 @@ export default function AdminFinal() {
       name: 'Événements & Promotions',
       icon: Calendar,
       component: EventsPromotions
+    },
+    {
+      id: 'dashboard-ai',
+      name: 'IA Dashboard',
+      icon: Brain,
+      component: DashboardModule,
+      adminOnly: true
     }
   ];
 
