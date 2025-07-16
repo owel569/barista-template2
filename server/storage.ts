@@ -954,10 +954,14 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
   // Work Shifts
   async getWorkShifts(): Promise<WorkShift[]> {
     try {
-      return await db.select().from(workShifts).orderBy(desc(workShifts.date), asc(workShifts.startTime));
+      const dbInstance = await import('./db').then(m => m.db);
+      if (!dbInstance) {
+        throw new Error('Base de données non disponible');
+      }
+      return await dbInstance.select().from(workShifts).orderBy(desc(workShifts.date), asc(workShifts.startTime));
     } catch (error) {
-      console.error('Erreur getWorkShifts:', error);
-      // Retourner des données par défaut
+      console.error('Erreur lors de la récupération des shifts:', error);
+      // Retourner des données par défaut robustes
       return [
         {
           id: 1,

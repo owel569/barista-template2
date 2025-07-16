@@ -29,23 +29,20 @@ async function initializeDatabase() {
       pool = new Pool({
         connectionString: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/barista_cafe',
         ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-        // Configuration stable pour Replit
-        max: 3, // 3 connexions max
-        min: 1, // 1 connexion minimum
-        idleTimeoutMillis: 60000, // 60 secondes
-        connectionTimeoutMillis: 15000, // 15 secondes
-        acquireTimeoutMillis: 15000, // 15 secondes
-        statement_timeout: 30000, // 30 secondes
-        // Améliorer la stabilité
+        // Configuration ultra-stable pour Replit
+        max: 5, // 5 connexions max
+        min: 2, // 2 connexions minimum maintenues
+        idleTimeoutMillis: 120000, // 2 minutes
+        connectionTimeoutMillis: 30000, // 30 secondes
+        acquireTimeoutMillis: 30000, // 30 secondes
+        statement_timeout: 60000, // 1 minute
+        // Stabilité renforcée
         keepAlive: true,
-        keepAliveInitialDelayMillis: 1000,
-        allowExitOnIdle: false, // Garder les connexions actives
-        // Retry automatique
-        reapIntervalMillis: 1000,
-        poolSize: 3,
-        // Optimisation mémoire
-        query_timeout: 30000,
-        application_name: 'barista_cafe_app'
+        keepAliveInitialDelayMillis: 10000,
+        allowExitOnIdle: false,
+        // Retry et reconnexion
+        reapIntervalMillis: 10000,
+        application_name: 'barista_cafe_stable'
       });
 
       // Initialiser Drizzle avec optimisations
