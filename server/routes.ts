@@ -1,8 +1,8 @@
-import { Express, Request, Response, NextFunction } from 'express';
+import { Express, Request, Response, NextFunction, Application, Router } from 'express';
 import { createServer, Server } from 'http';
 import { WebSocketServer } from 'ws';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { storage } from './storage';
 import { insertUserSchema } from '../shared/schema';
@@ -12,7 +12,7 @@ import { onlineOrdersRouter } from './routes/online-orders';
 import { tablesRouter } from './routes/tables';
 import { userProfileRouter } from './routes/user-profile';
 import { analyticsRouter } from './routes/analytics';
-import permissionsRouter from './routes/permissions';
+//import permissionsRouter from './routes/permissions'; // Removed as it will be handled differently
 import { loyaltyRouter } from './routes/loyalty-advanced';
 import { inventoryRouter } from './routes/inventory-management';
 import { validateBody, validateParams, validateQuery } from './middleware/validation';
@@ -20,6 +20,17 @@ import { errorHandler, notFoundHandler, asyncHandler } from './middleware/error-
 import { createLogger, validateRequestWithLogging } from './middleware/logging';
 import { cacheMiddleware, invalidateCache } from './middleware/cache';
 import { loginSchema, registerSchema, reservationSchema, customerSchema, employeeSchema, menuItemSchema } from './validation-schemas';
+import { db } from './db';
+import { users, reservations, menuItems, orders, categories, orderItems, events, loyaltyProgram, workSchedule, permissions, staff, suppliers, feedback, menuCategories, loyaltyCards, inventory } from '../shared/schema';
+import { eq, and, gte, lte, desc, sql, like, or } from 'drizzle-orm';
+
+// Import des modules de routes
+import aiRoutes from './routes/ai.routes';
+import analyticsRoutes from './routes/analytics.routes';
+import eventsRoutes from './routes/events.routes';
+import inventoryRoutes from './routes/inventory.routes';
+import feedbackRoutes from './routes/feedback.routes';
+import permissionsRoutes from './routes/permissions.routes';
 
 const logger = createLogger('ROUTES');
 
@@ -82,6 +93,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   };
 
+    const router = Router();
+
+    // Utilisation des modules de routes
+    router.use('/ai', aiRoutes);
+    router.use('/analytics', analyticsRoutes);
+    router.use('/events', eventsRoutes);
+    router.use('/inventory', inventoryRoutes);
+    router.use('/feedback', feedbackRoutes);
+    router.use('/permissions', permissionsRoutes);
+
+    // Validation schemas
+    const loginSchema = z.object({
+        email: z.string().email(),
+        password: z.string().min(6)
+    });
+
+    const registerSchema = z.object({
+        email: z.string().email(),
+        password: z.string().min(6),
+        name: z.string().min(2),
+        phone: z.string().optional(),
+        role: z.enum(['client', 'staff', 'manager', 'directeur']).optional()
+    });
+  
   // Routes d'authentification
   app.post('/api/auth/register', validateBody(registerSchema), asyncHandler(async (req: Request, res: Response) => {
     const { username, password, role } = req.body;
@@ -2245,10 +2280,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/delivery', deliveryRouter);
   app.use('/api/online-orders', onlineOrdersRouter);
   app.use('/api/tables', tablesRouter);
-  app.use('/api/permissions', permissionsRouter);
+  //app.use('/api/permissions', permissionsRouter); // Use modularized routes instead
   app.use('/api/inventory', inventoryRouter);
   app.use('/api/loyalty', loyaltyRouter);
   app.use('/api/images', imageRoutes);
+
+    //auth routes
+  app.use('/api', router);
 
   return server;
 }
