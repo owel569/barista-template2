@@ -111,30 +111,47 @@ interface CategoryRevenue {
   growth: number;
 }
 
-// Hook pour les données statistiques avec parallélisation
+// Hook pour les données statistiques avec parallélisation optimisée
 const useStatisticsData = (period: 'daily' | 'weekly' | 'monthly' | 'yearly') => {
   return useQuery({
-    queryKey: ['statistics', period],
+    queryKey: ['statistics-enhanced', period],
     queryFn: async () => {
-      // Appels API parallèles pour améliorer la performance
-      const [overview, revenue, customers, products, operations] = await Promise.all([
-        ApiClient.get('/admin/statistics/overview'),
-        ApiClient.get(`/admin/statistics/revenue?period=${period}`),
-        ApiClient.get('/admin/statistics/customers'),
-        ApiClient.get('/admin/statistics/products'),
-        ApiClient.get('/admin/statistics/operations')
-      ]);
+      try {
+        // Appels API parallèles pour améliorer la performance
+        const [overview, revenue, customers, products, operations, analytics] = await Promise.all([
+          ApiClient.get('/api/advanced-features/analytics/overview'),
+          ApiClient.get(`/api/advanced-features/analytics/revenue?period=${period}`),
+          ApiClient.get('/api/advanced-features/analytics/customer-behavior'),
+          ApiClient.get('/api/advanced-features/analytics/products'),
+          ApiClient.get('/api/advanced-features/analytics/operations'),
+          ApiClient.get('/api/advanced-features/kpis/realtime')
+        ]);
 
-      return {
-        overview,
-        revenue,
-        customers,
-        products,
-        operations
-      } as StatisticsData;
+        return {
+          overview: overview || { totalRevenue: 0, totalOrders: 0, totalCustomers: 0, averageOrderValue: 0, growthRate: 0 },
+          revenue: revenue || { daily: [], monthly: [], yearly: [], byCategory: [] },
+          customers: customers || { acquisition: [], retention: [], demographics: [], satisfaction: [] },
+          products: products || { bestsellers: [], categories: [], inventory: [], profitability: [] },
+          operations: operations || { peakHours: [], staffPerformance: [], efficiency: [] },
+          analytics: analytics || { revenue: { today: 0 }, orders: { today: 0 }, customers: { today: 0 } }
+        } as StatisticsData;
+      } catch (error) {
+        console.error('Erreur chargement statistiques:', error);
+        // Données par défaut en cas d'erreur
+        return {
+          overview: { totalRevenue: 0, totalOrders: 0, totalCustomers: 0, averageOrderValue: 0, growthRate: 0 },
+          revenue: { daily: [], monthly: [], yearly: [], byCategory: [] },
+          customers: { acquisition: [], retention: [], demographics: [], satisfaction: [] },
+          products: { bestsellers: [], categories: [], inventory: [], profitability: [] },
+          operations: { peakHours: [], staffPerformance: [], efficiency: [] },
+          analytics: { revenue: { today: 0 }, orders: { today: 0 }, customers: { today: 0 } }
+        };
+      }
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes de cache
-    refetchInterval: 10 * 60 * 1000, // Actualisation toutes les 10 minutes
+    staleTime: 2 * 60 * 1000, // 2 minutes de cache
+    refetchInterval: 5 * 60 * 1000, // Actualisation toutes les 5 minutes
+    retry: 3,
+    retryDelay: 1000
   });
 };
 

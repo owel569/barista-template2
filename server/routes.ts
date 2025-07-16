@@ -1502,8 +1502,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/admin/dashboard/revenue-chart', authenticateToken, async (req, res) => {
-    try {
+  app.get('/api/admin/dashboard/revenue-chart', authenticateToken, async (req, res) => {    try {
       const revenueData = [
         { date: '2024-07-01', revenue: 850.50 },
         { date: '2024-07-02', revenue: 920.75 },
@@ -2120,7 +2119,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(orders);
     } catch (error) {
       res.status(500).json([]);
-    }
+        }
   });
 
   // Routes pour analytics avancées
@@ -2240,6 +2239,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   } catch (error) {
     console.log('Routes avancées non disponibles:', error.message);
   }
+// Routes supplémentaires
+  app.use('/api/user-profile', userProfileRouter);
+  app.use('/api/analytics', analyticsRouter);
+  app.use('/api/delivery', deliveryRouter);
+  app.use('/api/online-orders', onlineOrdersRouter);
+  app.use('/api/tables', tablesRouter);
+  app.use('/api/permissions', permissionsRouter);
+  app.use('/api/inventory', inventoryRouter);
+  app.use('/api/loyalty', loyaltyRouter);
+  app.use('/api/images', imageRoutes);
+  app.use('/api/advanced-features', advancedFeaturesRoutes);
 
   return server;
 }
