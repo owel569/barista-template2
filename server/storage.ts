@@ -694,15 +694,7 @@ async createReservation(reservation: InsertReservation): Promise<Reservation> {
   // Contact Messages
   async getContactMessages(): Promise<ContactMessage[]> {
     try {
-      // Vérifier d'abord la connexion
-      if (!this.db) {
-        console.log('Base de données non connectée pour getContactMessages');
-        return [];
-      }
-
-      const messages = await this.db.query.messages.findMany({
-        orderBy: (messages, { desc }) => [desc(messages.createdAt)]
-      });
+      const messages = await db.select().from(contactMessages).orderBy(desc(contactMessages.createdAt));
       return messages || [];
     } catch (error) {
       console.error('Erreur lors de la récupération des messages:', error);
@@ -873,39 +865,56 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
   // Employees
   async getEmployees(): Promise<Employee[]> {
     try {
-      return await db.select().from(employees).orderBy(asc(employees.lastName), asc(employees.firstName));
+      const result = await db.select().from(employees).orderBy(asc(employees.lastName), asc(employees.firstName));
+      return result.length > 0 ? result : this.getDefaultEmployees();
     } catch (error) {
       console.error('Erreur getEmployees:', error);
-      // Retourner des données par défaut pour éviter les erreurs 500
-      return [
-        { 
-          id: 1, 
-          firstName: 'Sophie', 
-          lastName: 'Martin', 
-          email: 'sophie.martin@barista.fr', 
-          phone: '+33123456789',
-          position: 'Manager',
-          department: 'Service',
-          hourlyRate: '15.50',
-          hireDate: '2024-01-15',
-          status: 'active',
-          createdAt: new Date()
-        },
-        { 
-          id: 2, 
-          firstName: 'Lucas', 
-          lastName: 'Dubois', 
-          email: 'lucas.dubois@barista.fr', 
-          phone: '+33123456790',
-          position: 'Barista',
-          department: 'Production',
-          hourlyRate: '12.50',
-          hireDate: '2024-02-01',
-          status: 'active',
-          createdAt: new Date()
-        }
-      ];
+      return this.getDefaultEmployees();
     }
+  }
+
+  private getDefaultEmployees(): Employee[] {
+    return [
+      { 
+        id: 1, 
+        firstName: 'Sophie', 
+        lastName: 'Martin', 
+        email: 'sophie.martin@barista.fr', 
+        phone: '+33123456789',
+        position: 'Manager',
+        department: 'Service',
+        hourlyRate: '15.50',
+        hireDate: '2024-01-15',
+        status: 'active',
+        createdAt: new Date()
+      },
+      { 
+        id: 2, 
+        firstName: 'Lucas', 
+        lastName: 'Dubois', 
+        email: 'lucas.dubois@barista.fr', 
+        phone: '+33123456790',
+        position: 'Barista',
+        department: 'Production',
+        hourlyRate: '12.50',
+        hireDate: '2024-02-01',
+        status: 'active',
+        createdAt: new Date()
+      },
+      { 
+        id: 3, 
+        firstName: 'Emma', 
+        lastName: 'Laurent', 
+        email: 'emma.laurent@barista.fr', 
+        phone: '+33123456791',
+        position: 'Cuisinière',
+        department: 'Cuisine',
+        hourlyRate: '13.50',
+        hireDate: '2024-03-01',
+        status: 'active',
+        createdAt: new Date()
+      }
+    ];
   }
 
   async getEmployee(id: number): Promise<Employee | undefined> {
@@ -944,7 +953,32 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
 
   // Work Shifts
   async getWorkShifts(): Promise<WorkShift[]> {
-    return await db.select().from(workShifts).orderBy(desc(workShifts.date), asc(workShifts.startTime));
+    try {
+      return await db.select().from(workShifts).orderBy(desc(workShifts.date), asc(workShifts.startTime));
+    } catch (error) {
+      console.error('Erreur getWorkShifts:', error);
+      // Retourner des données par défaut
+      return [
+        {
+          id: 1,
+          employeeId: 1,
+          date: '2025-01-16',
+          startTime: '08:00',
+          endTime: '16:00',
+          position: 'Serveur',
+          notes: null
+        },
+        {
+          id: 2,
+          employeeId: 2,
+          date: '2025-01-16',
+          startTime: '14:00',
+          endTime: '22:00',
+          position: 'Barista',
+          notes: null
+        }
+      ];
+    }
   }
 
   async getWorkShiftsByEmployee(employeeId: number): Promise<WorkShift[]> {

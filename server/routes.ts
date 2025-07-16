@@ -414,18 +414,11 @@ app.post('/api/auth/login', async (req, res) => {
 
   app.get('/api/admin/stats/today-reservations', authenticateToken, async (req, res) => {
     try {
-      // Timeout pour éviter les connexions suspendues
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout')), 3000)
-      );
-      
-      const countPromise = storage.getTodayReservationCount();
-      const count = await Promise.race([countPromise, timeoutPromise]);
-      
+      const count = await storage.getTodayReservationCount();
       res.json({ count: count || 0 });
     } catch (error) {
       console.error('Erreur today-reservations:', error);
-      res.status(200).json({ count: 12 });
+      res.json({ count: 12 });
     }
   });
 
@@ -434,13 +427,13 @@ app.post('/api/auth/login', async (req, res) => {
       const timeoutPromise = new Promise((_, reject) => 
         setTimeout(() => reject(new Error('Timeout')), 3000)
       );
-      
+
       const currentMonth = new Date().getMonth() + 1;
       const currentYear = new Date().getFullYear();
       const statsPromise = storage.getMonthlyReservationStats(currentYear, currentMonth);
       const stats = await Promise.race([statsPromise, timeoutPromise]);
       const revenue = stats.reduce((total, stat) => total + (stat.count * 25), 0);
-      
+
       res.json({ revenue: revenue || 8750.00 });
     } catch (error) {
       console.error('Erreur monthly-revenue:', error);
@@ -453,11 +446,11 @@ app.post('/api/auth/login', async (req, res) => {
       const timeoutPromise = new Promise((_, reject) => 
         setTimeout(() => reject(new Error('Timeout')), 3000)
       );
-      
+
       const ordersPromise = storage.getOrders();
       const orders = await Promise.race([ordersPromise, timeoutPromise]);
       const activeOrders = orders.filter(order => order.status === 'en_preparation' || order.status === 'en_attente');
-      
+
       res.json({ count: activeOrders.length });
     } catch (error) {
       console.error('Erreur active-orders:', error);
@@ -470,10 +463,10 @@ app.post('/api/auth/login', async (req, res) => {
       const timeoutPromise = new Promise((_, reject) => 
         setTimeout(() => reject(new Error('Timeout')), 3000)
       );
-      
+
       const ratePromise = storage.getOccupancyRate(new Date().toISOString().split('T')[0]);
       const rate = await Promise.race([ratePromise, timeoutPromise]);
-      
+
       res.json({ rate: rate || 75.5 });
     } catch (error) {
       console.error('Erreur occupancy-rate:', error);
@@ -784,8 +777,7 @@ app.post('/api/auth/login', async (req, res) => {
       delete customerData.name;
     }
 
-    if (!customerData.loyaltyPoints) customerData.loyaltyPoints = 0;
-    if (!customerData.totalSpent) customerData.totalSpent = 0;
+    if (!customerData.loyaltyPoints) customerData.loyaltyPoints = 0;    if (!customerData.totalSpent) customerData.totalSpent = 0;
     if (!customerData.lastVisit) customerData.lastVisit = new Date().toISOString();
 
     const customer = await storage.createCustomer(customerData);
@@ -1293,7 +1285,7 @@ app.post('/api/auth/login', async (req, res) => {
           supplier: 'Café Equipment Pro',
           specifications: {
             capacity: '1.5kg',
-            speed: '1400rpm',
+            speed: '1400rpm',',
             burrs: 'Steel'
           },
           maintenanceHistory: [],
@@ -1518,7 +1510,7 @@ app.post('/api/auth/login', async (req, res) => {
       res.json(health);
     } catch (error) {
       res.status(500).json({ status: 'error', message: 'Erreur lors du contrôle santé' });
-    }
+        }
   });
 
   app.get('/api/admin/system/metrics', authenticateToken, requireRole('directeur'), async (req, res) => {

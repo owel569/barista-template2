@@ -25,22 +25,27 @@ async function initializeDatabase() {
     try {
       console.log('🗄️ Initialisation PostgreSQL optimisée...');
 
-      // Configuration PostgreSQL pool optimisée
+      // Configuration PostgreSQL pool optimisée pour Replit
       pool = new Pool({
-        connectionString: process.env.DATABASE_URL,
+        connectionString: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/barista_cafe',
         ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-        // Configuration optimisée pour Replit
-        max: 2, // Réduire à 2 connexions max pour éviter surcharge
-        min: 1, // Maintenir 1 connexion minimum
-        idleTimeoutMillis: 30000, // 30 secondes d'inactivité seulement
-        connectionTimeoutMillis: 10000, // 10 secondes pour se connecter
-        // Reconnexion automatique optimisée
+        // Configuration stable pour Replit
+        max: 3, // 3 connexions max
+        min: 1, // 1 connexion minimum
+        idleTimeoutMillis: 60000, // 60 secondes
+        connectionTimeoutMillis: 15000, // 15 secondes
+        acquireTimeoutMillis: 15000, // 15 secondes
+        statement_timeout: 30000, // 30 secondes
+        // Améliorer la stabilité
         keepAlive: true,
-        keepAliveInitialDelayMillis: 0,
-        acquireTimeoutMillis: 30000, // 30 secondes pour acquérir une connexion
-        statement_timeout: 20000, // 20 secondes timeout pour les requêtes
-        // Éviter les connexions suspendues
-        allowExitOnIdle: true,
+        keepAliveInitialDelayMillis: 1000,
+        allowExitOnIdle: false, // Garder les connexions actives
+        // Retry automatique
+        reapIntervalMillis: 1000,
+        poolSize: 3,
+        // Optimisation mémoire
+        query_timeout: 30000,
+        application_name: 'barista_cafe_app'
       });
 
       // Initialiser Drizzle avec optimisations
