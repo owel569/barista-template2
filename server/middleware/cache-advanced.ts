@@ -1,4 +1,3 @@
-
 import { Request, Response, NextFunction } from 'express';
 
 interface CacheEntry {
@@ -30,7 +29,7 @@ class AdvancedCache {
 
   get(key: string): any | null {
     const entry = this.cache.get(key);
-    
+
     if (!entry) {
       this.stats.misses++;
       return null;
@@ -149,7 +148,7 @@ export const advancedCacheMiddleware = (ttl?: number, condition?: (req: Request)
       if (res.statusCode === 200) {
         cache.set(key, data, ttl);
       }
-      
+
       res.setHeader('X-Cache', 'MISS');
       res.setHeader('X-Cache-Key', key);
       return originalJson.call(this, data);

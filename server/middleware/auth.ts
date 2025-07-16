@@ -9,17 +9,44 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
   const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) {
-    return res.status(401).json({ message: 'Token manquant' });
+    return res.status(401).json({ 
+      success: false,
+      message: 'Token manquant',
+      code: 'TOKEN_MISSING'
+    });
   }
 
-  jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
-    if (err) {
-      console.log('Token verification failed:', err.message);
-      return res.status(403).json({ message: 'Token invalide' });
-    }
-    (req as any).user = user;
-    next();
-  });
+  try {
+    jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
+      if (err) {
+        console.log('Token verification failed:', err.message);
+        return res.status(403).json({ 
+          success: false,
+          message: 'Token invalide',
+          code: 'TOKEN_INVALID'
+        });
+      }
+      
+      // Vérifier que l'utilisateur est toujours actif
+      if (user && user.id) {
+        (req as any).user = user;
+        return next();
+      } else {
+        return res.status(403).json({ 
+          success: false,
+          message: 'Utilisateur invalide',
+          code: 'USER_INVALID'
+        });
+      }
+    });
+  } catch (error) {
+    console.error('Erreur d\'authentification:', error);
+    return res.status(500).json({ 
+      success: false,
+      message: 'Erreur serveur d\'authentification',
+      code: 'AUTH_ERROR'
+    });
+  }
 };
 
 export const requireRole = (role: string) => {
