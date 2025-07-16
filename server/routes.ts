@@ -126,7 +126,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     const existingUser = await storage.getUserByUsername(username);
     if (existingUser) {
-      return res.status(400).json({ message: 'Nom d\'utilisateur déjà utilisé' });
+      return res.status(400).json({ message: "Nom d'utilisateur déjà utilisé" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -158,7 +158,7 @@ app.post('/api/auth/login', async (req, res) => {
     if (!username || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Nom d\'utilisateur et mot de passe requis'
+        message: "Nom d'utilisateur et mot de passe requis"
       });
     }
 
@@ -289,7 +289,7 @@ app.post('/api/auth/login', async (req, res) => {
       broadcast({ type: 'new_message', data: message });
       res.status(201).json(message);
     } catch (error) {
-      res.status(500).json({ error: 'Erreur lors de l\'envoi du message' });
+      res.status(500).json({ error: "Erreur lors de l'envoi du message" });
     }
   });
 
@@ -969,7 +969,7 @@ app.post('/api/auth/login', async (req, res) => {
       };
       res.json(item);
     } catch (error) {
-      res.status(500).json({ error: 'Erreur lors de l\'ajout de l\'article' });
+      res.status(500).json({ error: 'Erreur lors de l'ajout de l'article' });
     }
   });
 
@@ -981,7 +981,7 @@ app.post('/api/auth/login', async (req, res) => {
       };
       res.json(item);
     } catch (error) {
-      res.status(500).json({ error: 'Erreur lors de la modification de l\'article' });
+      res.status(500).json({ error: 'Erreur lors de la modification de l'article' });
     }
   });
 
@@ -1083,7 +1083,7 @@ app.post('/api/auth/login', async (req, res) => {
         {
           id: 1,
           title: 'Dégustation Café Premium',
-          description: 'Découvrez nos cafés d\'exception avec notre torréfacteur expert',
+          description: 'Découvrez nos cafés d'exception avec notre torréfacteur expert',
           type: 'tasting',
           date: '2024-07-15',
           startTime: '14:00',
@@ -1100,7 +1100,7 @@ app.post('/api/auth/login', async (req, res) => {
         {
           id: 2,
           title: 'Atelier Latte Art',
-          description: 'Apprenez l\'art du latte art avec nos baristas professionnels',
+          description: 'Apprenez l'art du latte art avec nos baristas professionnels',
           type: 'workshop',
           date: '2024-07-20',
           startTime: '10:00',
@@ -1134,7 +1134,7 @@ app.post('/api/auth/login', async (req, res) => {
       };
       res.json(event);
     } catch (error) {
-      res.status(500).json({ error: 'Erreur lors de la création de l\'événement' });
+      res.status(500).json({ error: 'Erreur lors de la création de l'événement' });
     }
   });
 
@@ -1147,7 +1147,7 @@ app.post('/api/auth/login', async (req, res) => {
       };
       res.json(event);
     } catch (error) {
-      res.status(500).json({ error: 'Erreur lors de la modification de l\'événement' });
+      res.status(500).json({ error: 'Erreur lors de la modification de l'événement' });
     }
   });
 
@@ -1407,7 +1407,7 @@ app.post('/api/auth/login', async (req, res) => {
       };
       res.json(equipment);
     } catch (error) {
-      res.status(500).json({ error: 'Erreur lors de l\'ajout de l\'équipement' });
+      res.status(500).json({ error: 'Erreur lors de l'ajout de l'équipement' });
     }
   });
 
@@ -1420,7 +1420,7 @@ app.post('/api/auth/login', async (req, res) => {
       };
       res.json(equipment);
     } catch (error) {
-      res.status(500).json({ error: 'Erreur lors de la modification de l\'équipement' });
+      res.status(500).json({ error: 'Erreur lors de la modification de l'équipement' });
     }
   });
 
@@ -2014,7 +2014,7 @@ app.post('/api/auth/login', async (req, res) => {
     try {
       const feedback = [
         { id: 1, customerName: 'Marie Dubois', rating: 5, comment: 'Excellent service et café délicieux!', date: new Date().toISOString(), category: 'service' },
-        { id: 2, customerName: 'Jean Martin', rating: 4, comment: 'Très bon mais un peu d\'attente', date: new Date().toISOString(), category: 'temps' },
+        { id: 2, customerName: 'Jean Martin', rating: 4, comment: 'Très bon mais un peu d'attente', date: new Date().toISOString(), category: 'temps' },
         { id: 3, customerName: 'Sophie Laurent', rating: 3, comment: 'Café correct mais ambiance bruyante', date: new Date().toISOString(), category: 'ambiance' }
       ];
       res.json(feedback);
@@ -2072,7 +2072,7 @@ app.post('/api/auth/login', async (req, res) => {
       await storage.deleteEmployee(Number(id));
       res.json({ message: 'Employé supprimé avec succès' });
     } catch (error) {
-      res.status(500).json({ error: 'Erreur lors de la suppression de l\'employé' });
+      res.status(500).json({ error: 'Erreur lors de la suppression de l'employé' });
     }
   });
 
@@ -2091,7 +2091,7 @@ app.post('/api/auth/login', async (req, res) => {
       const { id } = req.params;
       res.json({ message: 'Événement supprimé avec succès' });
     } catch (error) {
-      res.status(500).json({ error: 'Erreur lors de la suppression de l\'événement' });
+      res.status(500).json({ error: 'Erreur lors de la suppression de l'événement' });
     }
   });
 
@@ -2118,7 +2118,7 @@ app.post('/api/auth/login', async (req, res) => {
       const { id } = req.params;
       res.json({ message: 'Équipement supprimé avec succès' });
     } catch (error) {
-      res.status(500).json({ error: 'Erreur lors de la suppression de l\'équipement' });
+      res.status(500).json({ error: 'Erreur lors de la suppression de l'équipement' });
     }
   });
 
@@ -2399,7 +2399,7 @@ app.post('/api/auth/login', async (req, res) => {
 
       res.status(201).json(newUser);
     } catch (error) {
-      res.status(500).json({ error: 'Erreur lors de la création de l\'utilisateur' });
+      res.status(500).json({ error: 'Erreur lors de la création de l'utilisateur' });
     }
   });
 
