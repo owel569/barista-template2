@@ -3,7 +3,7 @@ import { storage } from '../storage';
 import { asyncHandler } from '../middleware/error-handler';
 import { createLogger } from '../middleware/logging';
 
-const router = Router();
+export const router = Router();
 const logger = createLogger('ANALYTICS');
 
 // Analytics avancées avec IA et prédictions

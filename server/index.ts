@@ -55,7 +55,7 @@ app.use((req, res, next) => {
       const { getDb } = await import("./db");
       await getDb();
       console.log("✅ PostgreSQL configuré automatiquement");
-      
+
       console.log("✅ Configuration automatique terminée");
     } catch (error) {
       console.log("⚠️  Base de données non disponible - le serveur continue de fonctionner");
@@ -64,9 +64,18 @@ app.use((req, res, next) => {
 
   // IMPORTANT: Enregistrer les routes API AVANT tout middleware Vite
   const server = await registerRoutes(app);
-  
+
   // Vérifier que les routes sont bien enregistrées
   console.log('🔗 Routes API enregistrées avant middleware Vite');
+
+  // Routes avancées
+  import { advancedFeaturesRouter } from './routes/advanced-features';
+  import { router as analyticsRouter } from './routes/analytics';
+  import { router as dashboardRouter } from './routes/advanced-dashboard';
+
+  app.use('/api/admin/advanced', advancedFeaturesRouter);
+  app.use('/api/admin/advanced', dashboardRouter);
+  app.use('/api/admin/analytics', analyticsRouter);
 
   // Configuration Vite APRÈS les routes API pour éviter les conflits
   if (app.get("env") === "development") {
@@ -87,7 +96,7 @@ app.use((req, res, next) => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = 5000;
-  
+
   server.listen(port, "0.0.0.0", () => {
       log(`serving on port ${port}`);
     });

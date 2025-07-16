@@ -114,6 +114,12 @@ export interface IStorage {
   getRevenueStats(startDate: string, endDate: string): Promise<{ date: string; revenue: number }[]>;
   getOrdersByStatus(): Promise<{ status: string; count: number }[]>;
   getTopCustomers(limit?: number): Promise<{ customer: Customer; totalSpent: number; totalOrders: number }[]>;
+
+  // Nouvelles méthodes pour Dashboard IA
+  getAIInsights(): Promise<any>;
+  getChatbotStats(): Promise<any>;
+  getAutomatedReports(): Promise<any>;
+  getAIAlerts(): Promise<any[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -933,6 +939,139 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
 
   async deleteMenuCategory(id: number): Promise<void> {
     await db.delete(menuCategories).where(eq(menuCategories.id, id));
+  }
+
+  async generateCustomReport(params: any) {
+    // Simulation de génération de rapport
+    return {
+      data: [],
+      alerts: [],
+      summary: {
+        totalRevenue: 0,
+        totalOrders: 0,
+        averageOrderValue: 0
+      }
+    };
+  }
+
+  async createIoTAlert(alert: any) {
+    // Simulation d'alerte IoT
+    return { id: this.generateId(), ...alert };
+  }
+
+  async createMarketingCampaign(campaign: any) {
+    // Simulation de campagne marketing
+    return { id: this.generateId(), ...campaign };
+  }
+
+  async getCustomerOrderHistory(customerId: number) {
+        return [];
+  }
+
+  // Nouvelles méthodes pour Dashboard IA
+  async getAIInsights() {
+    return {
+      insights: [
+        {
+          title: "Opportunité de vente",
+          type: "opportunity",
+          message: "Les ventes de cappuccino augmentent de 15% le weekend. Recommandation: Stock supplémentaire.",
+          confidence: 0.85,
+          action: "increase_stock"
+        },
+        {
+          title: "Alerte personnel",
+          type: "warning", 
+          message: "Pic d'affluence prévu à 15h30. Personnel supplémentaire recommandé.",
+          confidence: 0.92,
+          action: "schedule_staff"
+        },
+        {
+          title: "Performance optimale",
+          type: "info",
+          message: "Taux de satisfaction client: 4.8/5. Maintenir les standards actuels.",
+          confidence: 0.95,
+          action: "maintain"
+        }
+      ],
+      efficiency: 95,
+      recommendations: [
+        "Augmenter le stock de grains de café pour le weekend",
+        "Programmer un serveur supplémentaire à 15h30",
+        "Proposer une promotion sur les thés l'après-midi"
+      ]
+    };
+  }
+
+  async getChatbotStats() {
+    return {
+      totalInteractions: 1247,
+      successRate: 0.89,
+      topQueries: [
+        { query: "Horaires d'ouverture", count: 156 },
+        { query: "Menu du jour", count: 134 },
+        { query: "Réservation", count: 98 },
+        { query: "Prix", count: 87 }
+      ],
+      satisfactionScore: 4.2,
+      responseTime: 1.2 // secondes
+    };
+  }
+
+  async getAutomatedReports() {
+    return {
+      scheduled: [
+        {
+          name: "Rapport quotidien",
+          type: "daily",
+          lastRun: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+          nextRun: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+          status: "active"
+        },
+        {
+          name: "Analyse hebdomadaire",
+          type: "weekly", 
+          lastRun: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+          nextRun: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+          status: "active"
+        }
+      ],
+      generated: 24,
+      emailsSent: 18,
+      averageGenTime: 45 // secondes
+    };
+  }
+
+  async getAIAlerts() {
+    return [
+      {
+        id: 1,
+        type: "stock",
+        severity: "medium",
+        message: "Stock de lait faible (2 jours restants)",
+        timestamp: new Date().toISOString(),
+        action: "reorder",
+        resolved: false
+      },
+      {
+        id: 2,
+        type: "equipment",
+        severity: "high",
+        message: "Machine espresso #2 - maintenance préventive requise",
+        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        action: "schedule_maintenance",
+        resolved: false
+      },
+      {
+        id: 3,
+        type: "performance",
+        severity: "low",
+        message: "Temps d'attente moyen supérieur à la normale (8min vs 5min)",
+        timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+        action: "optimize_workflow",
+        resolved: true
+      }
+    ];
   }
 }
 
