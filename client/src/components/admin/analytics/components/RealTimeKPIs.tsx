@@ -13,13 +13,11 @@ import {
   Clock, 
   Target,
   Activity,
-  AlertCircle 
+  AlertCircle,
+  Star,
+  Zap
 } from 'lucide-react';
 import { ApiClient } from '@/lib/auth-utils';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Activity, Clock, Users, TrendingUp, Star, Zap } from 'lucide-react';
 
 interface RealTimeKPIsProps {
   data?: {

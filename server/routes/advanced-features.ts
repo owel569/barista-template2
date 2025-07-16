@@ -346,5 +346,90 @@ router.get('/ai-metrics', async (req, res) => {
   }
 });
 
+// Route pour les rapports complets
+router.get('/reports', async (req, res) => {
+  try {
+    const reports = [
+      {
+        id: 'sales-daily',
+        name: 'Rapport Ventes Quotidien',
+        description: 'Analyse détaillée des ventes du jour avec comparaisons',
+        type: 'predefined',
+        category: 'sales',
+        format: 'pdf',
+        status: 'ready',
+        lastGenerated: '2025-07-16T10:30:00Z',
+        size: '2.3 MB'
+      },
+      {
+        id: 'inventory-stock',
+        name: 'État des Stocks',
+        description: 'Inventaire complet avec alertes et recommandations',
+        type: 'predefined',
+        category: 'inventory',
+        format: 'excel',
+        status: 'ready',
+        lastGenerated: '2025-07-16T08:15:00Z',
+        size: '1.8 MB'
+      },
+      {
+        id: 'customer-analytics',
+        name: 'Analytics Clientèle',
+        description: 'Segmentation et comportement des clients',
+        type: 'predefined',
+        category: 'customers',
+        format: 'pdf',
+        status: 'generating',
+        lastGenerated: '2025-07-15T16:45:00Z',
+        size: '3.1 MB'
+      },
+      {
+        id: 'ai-insights-report',
+        name: 'Rapport Insights IA',
+        description: 'Compilation des recommandations IA du mois',
+        type: 'automated',
+        category: 'ai',
+        format: 'pdf',
+        status: 'ready',
+        lastGenerated: '2025-07-16T12:00:00Z',
+        size: '4.2 MB'
+      }
+    ];
+    
+    res.json({ reports });
+  } catch (error) {
+    console.error('Erreur récupération rapports:', error);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
+
+// Route pour générer un rapport
+router.post('/reports/:reportId/generate', async (req, res) => {
+  try {
+    const { reportId } = req.params;
+    
+    // Simulation génération de rapport
+    const reportData = {
+      id: reportId,
+      status: 'generating',
+      progress: 0,
+      estimatedTime: 30
+    };
+    
+    // Simuler le processus de génération
+    setTimeout(() => {
+      reportData.status = 'ready';
+      reportData.progress = 100;
+      reportData.downloadUrl = `/api/advanced/reports/${reportId}/download`;
+      reportData.filename = `rapport-${reportId}-${new Date().toISOString().split('T')[0]}.pdf`;
+    }, 2000);
+    
+    res.json(reportData);
+  } catch (error) {
+    console.error('Erreur génération rapport:', error);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
+
 export const advancedFeaturesRouter = router;
 export default router;
