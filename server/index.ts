@@ -72,10 +72,10 @@ app.use((req, res, next) => {
   try {
     const advancedModule = await import('./routes/advanced-features');
     const analyticsModule = await import('./routes/analytics');
-    
+
     app.use('/api/admin/advanced', advancedModule.advancedFeaturesRouter || advancedModule.default);
     app.use('/api/admin/analytics', analyticsModule.router || analyticsModule.analyticsRouter);
-    
+
     console.log('✅ Routes avancées chargées avec succès');
   } catch (error) {
     console.error('❌ Erreur lors du chargement des routes avancées:', error.message);

@@ -1,43 +1,23 @@
-import React, { useState, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  ComposedChart, 
-  Bar, 
-  Line, 
-  Area, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  BarChart,
-  LineChart,
-  AreaChart,
-  Legend
-} from 'recharts';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  DollarSign, 
-  Users, 
-  Package, 
-  Star,
-  Download,
-  Calendar,
-  Clock,
-  Target,
-  ArrowUpRight,
-  ArrowDownRight,
-  AlertCircle
+  TrendingUp, TrendingDown, Users, ShoppingCart, 
+  DollarSign, Calendar, Clock, BarChart3,
+  Download, RefreshCw, Filter, Eye
 } from 'lucide-react';
+
+// Import des composants optimisés
+import { MetricCard } from './components/MetricCard';
+import { RevenueChart } from './components/RevenueChart';
+import { CategoryPieChart } from './components/CategoryPieChart';
+import { TopProductsList } from './components/TopProductsList';
+import { ExportToExcelButton } from './components/ExportToExcelButton';
+import { useQuery } from '@tanstack/react-query';
+import { Package, Star, Target, ArrowUpRight, ArrowDownRight, AlertCircle } from 'lucide-react';
 import { formatCurrency } from '@/components/admin/work-schedule/utils/schedule.utils';
 import { ApiClient } from '@/lib/auth-utils';
 import * as XLSX from 'xlsx';
@@ -111,47 +91,30 @@ interface CategoryRevenue {
   growth: number;
 }
 
-// Hook pour les données statistiques avec parallélisation optimisée
+// Hook pour les données statistiques avec parallélisation
 const useStatisticsData = (period: 'daily' | 'weekly' | 'monthly' | 'yearly') => {
   return useQuery({
-    queryKey: ['statistics-enhanced', period],
+    queryKey: ['statistics', period],
     queryFn: async () => {
-      try {
-        // Appels API parallèles pour améliorer la performance
-        const [overview, revenue, customers, products, operations, analytics] = await Promise.all([
-          ApiClient.get('/api/advanced-features/analytics/overview'),
-          ApiClient.get(`/api/advanced-features/analytics/revenue?period=${period}`),
-          ApiClient.get('/api/advanced-features/analytics/customer-behavior'),
-          ApiClient.get('/api/advanced-features/analytics/products'),
-          ApiClient.get('/api/advanced-features/analytics/operations'),
-          ApiClient.get('/api/advanced-features/kpis/realtime')
-        ]);
+      // Appels API parallèles pour améliorer la performance
+      const [overview, revenue, customers, products, operations] = await Promise.all([
+        ApiClient.get('/admin/statistics/overview'),
+        ApiClient.get(`/admin/statistics/revenue?period=${period}`),
+        ApiClient.get('/admin/statistics/customers'),
+        ApiClient.get('/admin/statistics/products'),
+        ApiClient.get('/admin/statistics/operations')
+      ]);
 
-        return {
-          overview: overview || { totalRevenue: 0, totalOrders: 0, totalCustomers: 0, averageOrderValue: 0, growthRate: 0 },
-          revenue: revenue || { daily: [], monthly: [], yearly: [], byCategory: [] },
-          customers: customers || { acquisition: [], retention: [], demographics: [], satisfaction: [] },
-          products: products || { bestsellers: [], categories: [], inventory: [], profitability: [] },
-          operations: operations || { peakHours: [], staffPerformance: [], efficiency: [] },
-          analytics: analytics || { revenue: { today: 0 }, orders: { today: 0 }, customers: { today: 0 } }
-        } as StatisticsData;
-      } catch (error) {
-        console.error('Erreur chargement statistiques:', error);
-        // Données par défaut en cas d'erreur
-        return {
-          overview: { totalRevenue: 0, totalOrders: 0, totalCustomers: 0, averageOrderValue: 0, growthRate: 0 },
-          revenue: { daily: [], monthly: [], yearly: [], byCategory: [] },
-          customers: { acquisition: [], retention: [], demographics: [], satisfaction: [] },
-          products: { bestsellers: [], categories: [], inventory: [], profitability: [] },
-          operations: { peakHours: [], staffPerformance: [], efficiency: [] },
-          analytics: { revenue: { today: 0 }, orders: { today: 0 }, customers: { today: 0 } }
-        };
-      }
+      return {
+        overview,
+        revenue,
+        customers,
+        products,
+        operations
+      } as StatisticsData;
     },
-    staleTime: 2 * 60 * 1000, // 2 minutes de cache
-    refetchInterval: 5 * 60 * 1000, // Actualisation toutes les 5 minutes
-    retry: 3,
-    retryDelay: 1000
+    staleTime: 5 * 60 * 1000, // 5 minutes de cache
+    refetchInterval: 10 * 60 * 1000, // Actualisation toutes les 10 minutes
   });
 };
 
@@ -194,23 +157,23 @@ const StatisticsEnhanced: React.FC = () => {
     if (!stats) return;
 
     const wb = XLSX.utils.book_new();
-    
+
     // Feuille revenus
     const revenueSheet = XLSX.utils.json_to_sheet(stats.revenue.daily);
     XLSX.utils.book_append_sheet(wb, revenueSheet, 'Revenus');
-    
+
     // Feuille catégories
     const categoriesSheet = XLSX.utils.json_to_sheet(stats.revenue.byCategory);
     XLSX.utils.book_append_sheet(wb, categoriesSheet, 'Catégories');
-    
+
     // Feuille clients
     const customersSheet = XLSX.utils.json_to_sheet(stats.customers.acquisition);
     XLSX.utils.book_append_sheet(wb, customersSheet, 'Clients');
-    
+
     // Feuille produits populaires
     const productsSheet = XLSX.utils.json_to_sheet(stats.products.bestsellers);
     XLSX.utils.book_append_sheet(wb, productsSheet, 'Produits Populaires');
-    
+
     XLSX.writeFile(wb, `statistiques-${period}-${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 

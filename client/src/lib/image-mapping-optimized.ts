@@ -1,258 +1,140 @@
-/**
- * Système d'images optimisé pour Barista Café
- * Améliorations selon les suggestions utilisateur
- */
+export const IMAGE_CATEGORIES = {
+  COFFEE: 'coffee',
+  TEA: 'tea', 
+  PASTRIES: 'pastries',
+  SANDWICHES: 'sandwiches',
+  SALADS: 'salads',
+  DESSERTS: 'desserts',
+  BREAKFAST: 'breakfast',
+  LUNCH: 'lunch',
+  BEVERAGES: 'beverages'
+} as const;
 
-export interface ImageConfig {
-  url: string;
-  alt: string;
-  category: string;
-  priority: 'high' | 'medium' | 'low';
-  width?: number;
-  height?: number;
+export type ImageCategory = typeof IMAGE_CATEGORIES[keyof typeof IMAGE_CATEGORIES];
+
+interface ImageMapping {
+  [key: string]: {
+    url: string;
+    category: ImageCategory;
+    alt: string;
+    fallback?: string;
+  };
 }
 
-// Centralisation des URLs avec configuration avancée
-export const OPTIMIZED_IMAGE_MAPPING: Record<string, ImageConfig> = {
-  // Cafés - Images haute qualité Pexels
-  'espresso-classique': {
-    url: 'https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=800',
-    alt: 'Espresso italien traditionnel dans une tasse blanche',
-    category: 'cafes',
-    priority: 'high',
-    width: 800,
-    height: 600
+export const OPTIMIZED_IMAGE_MAPPING: ImageMapping = {
+  // Cafés et boissons chaudes
+  'espresso': {
+    url: 'https://images.pexels.com/photos/894695/pexels-photo-894695.jpeg?auto=compress&cs=tinysrgb&w=800',
+    category: IMAGE_CATEGORIES.COFFEE,
+    alt: 'Espresso dans une tasse en porcelaine blanche',
+    fallback: '/images/default-coffee.jpg'
   },
   'cappuccino': {
-    url: 'https://images.pexels.com/photos/1587927/pexels-photo-1587927.jpeg?auto=compress&cs=tinysrgb&w=800',
-    alt: 'Cappuccino crémeux avec mousse de lait artistique',
-    category: 'cafes',
-    priority: 'high',
-    width: 800,
-    height: 600
+    url: 'https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=800',
+    category: IMAGE_CATEGORIES.COFFEE,
+    alt: 'Cappuccino avec mousse de lait artistique',
+    fallback: '/images/default-coffee.jpg'
   },
-  'latte-macchiato': {
+  'latte': {
     url: 'https://images.pexels.com/photos/324028/pexels-photo-324028.jpeg?auto=compress&cs=tinysrgb&w=800',
-    alt: 'Latte macchiato avec couches de lait distinctes',
-    category: 'cafes',
-    priority: 'medium',
-    width: 800,
-    height: 600
+    category: IMAGE_CATEGORIES.COFFEE,
+    alt: 'Latte avec art en mousse de lait',
+    fallback: '/images/default-coffee.jpg'
   },
 
-  // Pâtisseries - Images appétissantes
-  'croissant-aux-amandes': {
-    url: 'https://images.pexels.com/photos/4099278/pexels-photo-4099278.jpeg?auto=compress&cs=tinysrgb&w=800',
-    alt: 'Croissant aux amandes doré et croustillant',
-    category: 'patisseries',
-    priority: 'high',
-    width: 800,
-    height: 600
-  },
-  'muffin-myrtilles': {
-    url: 'https://images.pexels.com/photos/761080/pexels-photo-761080.jpeg?auto=compress&cs=tinysrgb&w=800',
-    alt: 'Muffin aux myrtilles fraîches fait maison',
-    category: 'patisseries',
-    priority: 'high',
-    width: 800,
-    height: 600
-  },
-  'tarte-aux-pommes': {
-    url: 'https://images.pexels.com/photos/1070854/pexels-photo-1070854.jpeg?auto=compress&cs=tinysrgb&w=800',
-    alt: 'Tarte aux pommes traditionnelle avec pâte dorée',
-    category: 'patisseries',
-    priority: 'medium',
-    width: 800,
-    height: 600
-  },
-
-  // Boissons - Variété de choix
-  'the-earl-grey': {
+  // Thés
+  'green-tea': {
     url: 'https://images.pexels.com/photos/1638280/pexels-photo-1638280.jpeg?auto=compress&cs=tinysrgb&w=800',
-    alt: 'Thé Earl Grey dans une tasse en porcelaine élégante',
-    category: 'boissons',
-    priority: 'medium',
-    width: 800,
-    height: 600
+    category: IMAGE_CATEGORIES.TEA,
+    alt: 'Thé vert dans une tasse transparente',
+    fallback: '/images/default-tea.jpg'
   },
-  'smoothie-fruits-rouges': {
-    url: 'https://images.pexels.com/photos/1095550/pexels-photo-1095550.jpeg?auto=compress&cs=tinysrgb&w=800',
-    alt: 'Smoothie aux fruits rouges frais dans un verre transparent',
-    category: 'boissons',
-    priority: 'medium',
-    width: 800,
-    height: 600
-  },
-  'jus-orange-frais': {
-    url: 'https://images.pexels.com/photos/1332206/pexels-photo-1332206.jpeg?auto=compress&cs=tinysrgb&w=800',
-    alt: 'Jus d\'orange fraîchement pressé avec pulpe',
-    category: 'boissons',
-    priority: 'low',
-    width: 800,
-    height: 600
+  'earl-grey': {
+    url: 'https://images.pexels.com/photos/1417945/pexels-photo-1417945.jpeg?auto=compress&cs=tinysrgb&w=800',
+    category: IMAGE_CATEGORIES.TEA,
+    alt: 'Thé Earl Grey avec tranche de citron',
+    fallback: '/images/default-tea.jpg'
   },
 
-  // Petits Déjeuners - Images complètes
-  'petit-dejeuner-complet': {
-    url: 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=800',
-    alt: 'Petit déjeuner complet avec œufs, pain et confiture',
-    category: 'petits-dejeuners',
-    priority: 'high',
-    width: 800,
-    height: 600
+  // Pâtisseries
+  'croissant': {
+    url: 'https://images.pexels.com/photos/1099680/pexels-photo-1099680.jpeg?auto=compress&cs=tinysrgb&w=800',
+    category: IMAGE_CATEGORIES.PASTRIES,
+    alt: 'Croissants dorés fraîchement cuits',
+    fallback: '/images/default-pastry.jpg'
   },
+  'muffin': {
+    url: 'https://images.pexels.com/photos/2067396/pexels-photo-2067396.jpeg?auto=compress&cs=tinysrgb&w=800',
+    category: IMAGE_CATEGORIES.PASTRIES,
+    alt: 'Muffins aux myrtilles',
+    fallback: '/images/default-pastry.jpg'
+  },
+
+  // Sandwiches
   'avocado-toast': {
-    url: 'https://images.pexels.com/photos/1437267/pexels-photo-1437267.jpeg?auto=compress&cs=tinysrgb&w=800',
-    alt: 'Toast à l\'avocat avec graines et herbes fraîches',
-    category: 'petits-dejeuners',
-    priority: 'high',
-    width: 800,
-    height: 600
+    url: 'https://images.pexels.com/photos/1351238/pexels-photo-1351238.jpeg?auto=compress&cs=tinysrgb&w=800',
+    category: IMAGE_CATEGORIES.SANDWICHES,
+    alt: 'Toast à l\'avocat avec garnitures fraîches',
+    fallback: '/images/default-sandwich.jpg'
+  },
+  'club-sandwich': {
+    url: 'https://images.pexels.com/photos/1199957/pexels-photo-1199957.jpeg?auto=compress&cs=tinysrgb&w=800',
+    category: IMAGE_CATEGORIES.SANDWICHES,
+    alt: 'Club sandwich avec frites',
+    fallback: '/images/default-sandwich.jpg'
   }
 };
 
-// Fonction de normalisation des clés avec cache
-const keyCache = new Map<string, string>();
+export const DEFAULT_CATEGORY_IMAGES: Record<ImageCategory, string> = {
+  [IMAGE_CATEGORIES.COFFEE]: 'https://images.pexels.com/photos/894695/pexels-photo-894695.jpeg?auto=compress&cs=tinysrgb&w=400',
+  [IMAGE_CATEGORIES.TEA]: 'https://images.pexels.com/photos/1638280/pexels-photo-1638280.jpeg?auto=compress&cs=tinysrgb&w=400',
+  [IMAGE_CATEGORIES.PASTRIES]: 'https://images.pexels.com/photos/1099680/pexels-photo-1099680.jpeg?auto=compress&cs=tinysrgb&w=400',
+  [IMAGE_CATEGORIES.SANDWICHES]: 'https://images.pexels.com/photos/1351238/pexels-photo-1351238.jpeg?auto=compress&cs=tinysrgb&w=400',
+  [IMAGE_CATEGORIES.SALADS]: 'https://images.pexels.com/photos/1059905/pexels-photo-1059905.jpeg?auto=compress&cs=tinysrgb&w=400',
+  [IMAGE_CATEGORIES.DESSERTS]: 'https://images.pexels.com/photos/291528/pexels-photo-291528.jpeg?auto=compress&cs=tinysrgb&w=400',
+  [IMAGE_CATEGORIES.BREAKFAST]: 'https://images.pexels.com/photos/103124/pexels-photo-103124.jpeg?auto=compress&cs=tinysrgb&w=400',
+  [IMAGE_CATEGORIES.LUNCH]: 'https://images.pexels.com/photos/1640772/pexels-photo-1640772.jpeg?auto=compress&cs=tinysrgb&w=400',
+  [IMAGE_CATEGORIES.BEVERAGES]: 'https://images.pexels.com/photos/544961/pexels-photo-544961.jpeg?auto=compress&cs=tinysrgb&w=400'
+};
 
-export function normalizeImageKey(input: string): string {
-  if (keyCache.has(input)) {
-    return keyCache.get(input)!;
+export const getImageForItem = (itemName: string, category?: string): string => {
+  const normalizedName = itemName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+
+  // Recherche directe par nom
+  if (OPTIMIZED_IMAGE_MAPPING[normalizedName]) {
+    return OPTIMIZED_IMAGE_MAPPING[normalizedName].url;
   }
 
-  const normalized = input
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
-
-  keyCache.set(input, normalized);
-  return normalized;
-}
-
-// Fonction de recherche optimisée avec score de pertinence
-export function findBestImageMatch(searchTerm: string): ImageConfig | null {
-  const normalizedSearch = normalizeImageKey(searchTerm);
-  
-  // Recherche exacte
-  if (OPTIMIZED_IMAGE_MAPPING[normalizedSearch]) {
-    return OPTIMIZED_IMAGE_MAPPING[normalizedSearch];
-  }
-
-  // Recherche partielle avec score
-  const candidates = Object.entries(OPTIMIZED_IMAGE_MAPPING)
-    .map(([key, config]) => ({
-      key,
-      config,
-      score: calculateSimilarity(normalizedSearch, key)
-    }))
-    .filter(candidate => candidate.score > 0.6)
-    .sort((a, b) => b.score - a.score);
-
-  return candidates.length > 0 ? candidates[0].config : null;
-}
-
-// Calcul de similarité simple
-function calculateSimilarity(str1: string, str2: string): number {
-  const longer = str1.length > str2.length ? str1 : str2;
-  const shorter = str1.length > str2.length ? str2 : str1;
-  
-  if (longer.length === 0) return 1.0;
-  
-  const distance = levenshteinDistance(longer, shorter);
-  return (longer.length - distance) / longer.length;
-}
-
-// Distance de Levenshtein
-function levenshteinDistance(str1: string, str2: string): number {
-  const matrix = [];
-  
-  for (let i = 0; i <= str2.length; i++) {
-    matrix[i] = [i];
-  }
-  
-  for (let j = 0; j <= str1.length; j++) {
-    matrix[0][j] = j;
-  }
-  
-  for (let i = 1; i <= str2.length; i++) {
-    for (let j = 1; j <= str1.length; j++) {
-      if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
-        matrix[i][j] = matrix[i - 1][j - 1];
-      } else {
-        matrix[i][j] = Math.min(
-          matrix[i - 1][j - 1] + 1,
-          matrix[i][j - 1] + 1,
-          matrix[i - 1][j] + 1
-        );
-      }
-    }
-  }
-  
-  return matrix[str2.length][str1.length];
-}
-
-// Fonction de validation d'URL avec cache
-const urlValidationCache = new Map<string, boolean>();
-
-export async function validateImageUrl(url: string): Promise<boolean> {
-  if (urlValidationCache.has(url)) {
-    return urlValidationCache.get(url)!;
-  }
-
-  try {
-    const response = await fetch(url, { method: 'HEAD' });
-    const isValid = response.ok && response.headers.get('content-type')?.startsWith('image/');
-    urlValidationCache.set(url, isValid);
-    return isValid;
-  } catch (error) {
-    urlValidationCache.set(url, false);
-    return false;
-  }
-}
-
-// Fonction principale optimisée
-export async function getOptimizedImageUrl(
-  itemName: string, 
-  categorySlug?: string,
-  fallbackUrl?: string
-): Promise<string> {
-  // Recherche par nom d'item
-  const itemMatch = findBestImageMatch(itemName);
-  if (itemMatch) {
-    return itemMatch.url;
-  }
-
-  // Recherche par catégorie
-  if (categorySlug) {
-    const categoryMatch = findBestImageMatch(categorySlug);
-    if (categoryMatch) {
-      return categoryMatch.url;
+  // Recherche par mots-clés
+  const keywords = normalizedName.split('-');
+  for (const [key, mapping] of Object.entries(OPTIMIZED_IMAGE_MAPPING)) {
+    if (keywords.some(keyword => key.includes(keyword))) {
+      return mapping.url;
     }
   }
 
-  // Image par défaut optimisée
-  return fallbackUrl || 'https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg?auto=compress&cs=tinysrgb&w=800';
-}
+  // Image par défaut selon la catégorie
+  if (category && DEFAULT_CATEGORY_IMAGES[category as ImageCategory]) {
+    return DEFAULT_CATEGORY_IMAGES[category as ImageCategory];
+  }
 
-// Statistiques du mapping
-export function getImageMappingStats() {
-  const stats = {
-    totalImages: Object.keys(OPTIMIZED_IMAGE_MAPPING).length,
-    byCategory: {} as Record<string, number>,
-    byPriority: {} as Record<string, number>,
-    averageSize: 0,
-    cacheHitRate: keyCache.size > 0 ? (keyCache.size / (keyCache.size + 1)) * 100 : 0
-  };
+  // Image par défaut générale
+  return DEFAULT_CATEGORY_IMAGES[IMAGE_CATEGORIES.COFFEE];
+};
 
-  Object.values(OPTIMIZED_IMAGE_MAPPING).forEach(config => {
-    stats.byCategory[config.category] = (stats.byCategory[config.category] || 0) + 1;
-    stats.byPriority[config.priority] = (stats.byPriority[config.priority] || 0) + 1;
+export const preloadImages = async (imageUrls: string[]): Promise<void> => {
+  const promises = imageUrls.map(url => {
+    return new Promise<void>((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve();
+      img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
+      img.src = url;
+    });
   });
 
-  return stats;
-}
-
-// Export des clés pour faciliter les tests
-export const IMAGE_KEYS = Object.keys(OPTIMIZED_IMAGE_MAPPING);
+  try {
+    await Promise.allSettled(promises);
+  } catch (error) {
+    console.warn('Some images failed to preload:', error);
+  }
+};

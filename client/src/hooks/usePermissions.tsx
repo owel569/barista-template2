@@ -1,115 +1,136 @@
-import { useState, useEffect } from 'react';
 
-interface Permission {
-  module: string;
-  canView: boolean;
-  canCreate: boolean;
-  canEdit: boolean;
-  canDelete: boolean;
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useAuth } from '@/contexts/auth-context';
+import type { Permission, UserRole } from '@/types/admin';
+
+interface PermissionsCache {
+  [key: string]: {
+    permissions: Permission[];
+    timestamp: number;
+    ttl: number;
+  };
 }
 
-interface User {
-  id: number;
-  username: string;
-  role: 'directeur' | 'employe';
-}
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const permissionsCache: PermissionsCache = {};
 
-export function usePermissions(user: User | null) {
-  const [permissions, setPermissions] = useState<Record<string, Permission>>({});
+export const usePermissions = () => {
+  const { user, token } = useAuth();
+  const [permissions, setPermissions] = useState<Permission[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchPermissions = useCallback(async () => {
+    if (!user || !token) {
+      setPermissions([]);
+      setIsLoading(false);
+      return;
+    }
+
+    const cacheKey = `${user.id}_${user.role}`;
+    const cached = permissionsCache[cacheKey];
+    
+    // Vérifier le cache
+    if (cached && Date.now() - cached.timestamp < cached.ttl) {
+      setPermissions(cached.permissions);
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await fetch(`/api/admin/permissions/user/${user.id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors du chargement des permissions');
+      }
+
+      const data = await response.json();
+      
+      // Mettre en cache
+      permissionsCache[cacheKey] = {
+        permissions: data,
+        timestamp: Date.now(),
+        ttl: CACHE_TTL
+      };
+
+      setPermissions(data);
+    } catch (err) {
+      console.error('Erreur permissions:', err);
+      setError(err instanceof Error ? err.message : 'Erreur inconnue');
+      setPermissions([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user, token]);
 
   useEffect(() => {
-    if (!user) return;
+    fetchPermissions();
+  }, [fetchPermissions]);
 
-    // Définir les permissions selon le rôle
-    const defaultPermissions: Record<string, Permission> = {
-      dashboard: { module: 'dashboard', canView: true, canCreate: false, canEdit: false, canDelete: false },
-      reservations: { 
-        module: 'reservations', 
-        canView: true, 
-        canCreate: true, 
-        canEdit: true, 
-        canDelete: user.role === 'directeur' 
-      },
-      orders: { 
-        module: 'orders', 
-        canView: true, 
-        canCreate: true, 
-        canEdit: true, 
-        canDelete: user.role === 'directeur' 
-      },
-      customers: { 
-        module: 'customers', 
-        canView: true, 
-        canCreate: user.role === 'directeur', 
-        canEdit: user.role === 'directeur', 
-        canDelete: user.role === 'directeur' 
-      },
-      menu: { 
-        module: 'menu', 
-        canView: true, 
-        canCreate: true, 
-        canEdit: true, 
-        canDelete: user.role === 'directeur' 
-      },
-      messages: { 
-        module: 'messages', 
-        canView: true, 
-        canCreate: false, 
-        canEdit: true, 
-        canDelete: user.role === 'directeur' 
-      },
-      employees: { 
-        module: 'employees', 
-        canView: user.role === 'directeur', 
-        canCreate: user.role === 'directeur', 
-        canEdit: user.role === 'directeur', 
-        canDelete: user.role === 'directeur' 
-      },
-      settings: { 
-        module: 'settings', 
-        canView: user.role === 'directeur', 
-        canCreate: user.role === 'directeur', 
-        canEdit: user.role === 'directeur', 
-        canDelete: user.role === 'directeur' 
-      },
-      statistics: { 
-        module: 'statistics', 
-        canView: user.role === 'directeur', 
-        canCreate: false, 
-        canEdit: false, 
-        canDelete: false 
-      },
-      logs: { 
-        module: 'logs', 
-        canView: user.role === 'directeur', 
-        canCreate: false, 
-        canEdit: false, 
-        canDelete: false 
-      }
+  const hasPermission = useCallback((permission: string): boolean => {
+    if (!user) return false;
+    if (user.role === 'director') return true;
+    
+    return permissions.some(p => 
+      p.resource === permission && 
+      (p.action === 'all' || p.action === 'read')
+    );
+  }, [user, permissions]);
+
+  const hasWritePermission = useCallback((resource: string): boolean => {
+    if (!user) return false;
+    if (user.role === 'director') return true;
+    
+    return permissions.some(p => 
+      p.resource === resource && 
+      (p.action === 'all' || p.action === 'write')
+    );
+  }, [user, permissions]);
+
+  const canAccess = useCallback((module: string): boolean => {
+    const modulePermissions = {
+      'dashboard': 'dashboard',
+      'orders': 'orders',
+      'reservations': 'reservations',
+      'menu': 'menu',
+      'customers': 'customers',
+      'employees': 'employees',
+      'inventory': 'inventory',
+      'maintenance': 'maintenance',
+      'analytics': 'analytics',
+      'settings': 'settings'
     };
 
-    setPermissions(defaultPermissions);
-  }, [user]);
+    return hasPermission(modulePermissions[module as keyof typeof modulePermissions] || module);
+  }, [hasPermission]);
 
-  const hasPermission = (module: string, action: 'view' | 'create' | 'edit' | 'delete'): boolean => {
-    const permission = permissions[module];
-    if (!permission) return false;
+  const permissionsSummary = useMemo(() => {
+    return {
+      total: permissions.length,
+      readOnly: permissions.filter(p => p.action === 'read').length,
+      writeAccess: permissions.filter(p => p.action === 'write' || p.action === 'all').length,
+      fullAccess: permissions.filter(p => p.action === 'all').length
+    };
+  }, [permissions]);
 
-    switch (action) {
-      case 'view': return permission.canView;
-      case 'create': return permission.canCreate;
-      case 'edit': return permission.canEdit;
-      case 'delete': return permission.canDelete;
-      default: return false;
-    }
-  };
-
-  return { 
-    permissions, 
+  return {
+    permissions,
+    isLoading,
+    error,
     hasPermission,
-    canView: (module: string) => hasPermission(module, 'view'),
-    canCreate: (module: string) => hasPermission(module, 'create'),
-    canEdit: (module: string) => hasPermission(module, 'edit'),
-    canDelete: (module: string) => hasPermission(module, 'delete')
+    hasWritePermission,
+    canAccess,
+    permissionsSummary,
+    refreshPermissions: fetchPermissions
   };
-}
+};
+
+export default usePermissions;

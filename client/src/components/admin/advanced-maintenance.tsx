@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -115,10 +115,13 @@ const equipmentSchema = z.object({
 });
 
 export default function AdvancedMaintenance() {
-  const [tasks, setTasks] = useState<MaintenanceTask[]>([]);
-  const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [stats, setStats] = useState<MaintenanceStats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [equipment, setEquipment] = useState<Equipment[]>([]);
+  const [tasks, setTasks] = useState<MaintenanceTask[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isCreating, setIsCreating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [showTaskDialog, setShowTaskDialog] = useState(false);
   const [showEquipmentDialog, setShowEquipmentDialog] = useState(false);
   const [selectedTask, setSelectedTask] = useState<MaintenanceTask | null>(null);
@@ -167,7 +170,7 @@ export default function AdvancedMaintenance() {
   const fetchMaintenanceData = async () => {
     try {
       const token = localStorage.getItem('token');
-      
+
       const [tasksRes, equipmentRes, statsRes] = await Promise.all([
         fetch('/api/admin/maintenance/tasks', {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -186,14 +189,14 @@ export default function AdvancedMaintenance() {
           equipmentRes.json(),
           statsRes.json()
         ]);
-        
+
         setTasks(Array.isArray(tasksData) ? tasksData : []);
         setEquipment(Array.isArray(equipmentData) ? equipmentData : []);
         setStats(statsData);
       }
     } catch (error) {
       console.error('Erreur lors du chargement des données de maintenance:', error);
-      
+
       // Données d'exemple pour la démonstration
       const sampleTasks: MaintenanceTask[] = [
         {
