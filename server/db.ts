@@ -16,7 +16,8 @@ async function initializeDatabase() {
     console.log('🗄️ Initialisation SQLite optimisée...');
     
     // Configuration SQLite pour performance maximale
-    sqlite = new Database(process.env.DATABASE_URL?.replace('file:', '') || './barista_cafe.db');
+    const dbPath = './barista_cafe.db';
+    sqlite = new Database(dbPath);
     
     // Optimisations SQLite pour restaurant
     sqlite.pragma('journal_mode = WAL'); // Write-Ahead Logging
