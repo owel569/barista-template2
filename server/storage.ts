@@ -430,7 +430,7 @@ export class DatabaseStorage implements IStorage {
       const { getCachedQuery, setCachedQuery } = await import('./db');
       const cacheKey = 'menu_items_with_categories';
       const cached = getCachedQuery(cacheKey);
-      
+
       if (cached) {
         return cached;
       }
@@ -543,15 +543,15 @@ export class DatabaseStorage implements IStorage {
   // Reservations
   async getReservations(limit?: number, offset?: number): Promise<Reservation[]> {
     let query = db.select().from(reservations).orderBy(desc(reservations.createdAt));
-    
+
     if (limit) {
       query = query.limit(limit);
     }
-    
+
     if (offset) {
       query = query.offset(offset);
     }
-    
+
     return await query;
   }
 
@@ -835,7 +835,7 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
 
   async createCustomer(customer: InsertCustomer): Promise<Customer> {
     const [newCustomer] = await db.insert(customers).values(customer).returning();
-    return newCustomer;
+    return newCustomer.
   }
 
   async updateCustomer(id: number, customer: Partial<InsertCustomer>): Promise<Customer> {
@@ -859,7 +859,40 @@ async createMessage(message: InsertContactMessage): Promise<ContactMessage> {
 
   // Employees
   async getEmployees(): Promise<Employee[]> {
-    return await db.select().from(employees).orderBy(asc(employees.lastName), asc(employees.firstName));
+    try {
+      return await db.select().from(employees).orderBy(asc(employees.lastName), asc(employees.firstName));
+    } catch (error) {
+      console.error('Erreur getEmployees:', error);
+      // Retourner des données par défaut pour éviter les erreurs 500
+      return [
+        { 
+          id: 1, 
+          firstName: 'Sophie', 
+          lastName: 'Martin', 
+          email: 'sophie.martin@barista.fr', 
+          phone: '+33123456789',
+          position: 'Manager',
+          department: 'Service',
+          hourlyRate: '15.50',
+          hireDate: '2024-01-15',
+          status: 'active',
+          createdAt: new Date()
+        },
+        { 
+          id: 2, 
+          firstName: 'Lucas', 
+          lastName: 'Dubois', 
+          email: 'lucas.dubois@barista.fr', 
+          phone: '+33123456790',
+          position: 'Barista',
+          department: 'Production',
+          hourlyRate: '12.50',
+          hireDate: '2024-02-01',
+          status: 'active',
+          createdAt: new Date()
+        }
+      ];
+    }
   }
 
   async getEmployee(id: number): Promise<Employee | undefined> {

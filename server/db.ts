@@ -29,13 +29,15 @@ async function initializeDatabase() {
       pool = new Pool({
         connectionString: process.env.DATABASE_URL,
         ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-        // Configuration pour la stabilité des connexions
-        max: 20, // Maximum de connexions dans le pool
-        idleTimeoutMillis: 30000, // Timeout des connexions inactives
-        connectionTimeoutMillis: 2000, // Timeout de connexion
+        // Configuration stable pour Replit
+        max: 5, // Limiter à 5 connexions max
+        min: 1, // Maintenir 1 connexion minimum
+        idleTimeoutMillis: 120000, // 2 minutes d'inactivité
+        connectionTimeoutMillis: 10000, // 10 secondes pour se connecter
         // Reconnexion automatique
         keepAlive: true,
-        keepAliveInitialDelayMillis: 10000,
+        keepAliveInitialDelayMillis: 5000,
+        acquireTimeoutMillis: 60000, // 1 minute pour acquérir une connexion
       });
 
       // Initialiser Drizzle avec optimisations
@@ -230,4 +232,3 @@ pool.on('connect', () => {
     console.log('✅ Nouvelle connexion PostgreSQL établie');
   }
 });
-
