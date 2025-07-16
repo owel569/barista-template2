@@ -231,16 +231,3 @@ pool.on('connect', () => {
   }
 });
 
-// Test de connexion au démarrage
-export const testConnection = async () => {
-  try {
-    const client = await pool.connect();
-    await client.query('SELECT 1');
-    client.release();
-    console.log('✅ Test de connexion PostgreSQL réussi');
-    return true;
-  } catch (error) {
-    console.error('❌ Test de connexion PostgreSQL échoué:', error);
-    return false;
-  }
-};

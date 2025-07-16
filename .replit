@@ -21,7 +21,7 @@ externalPort = 3000
 exposeLocalhost = true
 
 [workflows]
-runButton = "Project"
+runButton = "Démarrer Café Barista"
 
 [[workflows.workflow]]
 name = "Project"
@@ -88,3 +88,16 @@ args = "npm run type-check"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run lint"
+
+[[workflows.workflow]]
+name = "Démarrer Café Barista"
+author = 45118323
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
