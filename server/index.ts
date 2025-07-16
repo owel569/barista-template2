@@ -97,6 +97,20 @@ app.use((req, res, next) => {
     }
   }, 1000); // Délai de 1 seconde après le démarrage
 
+  // Gestion d'erreurs globales avant les routes
+  process.on('uncaughtException', (error) => {
+    console.error('Erreur non capturée:', error);
+    // Ne pas arrêter le processus en développement
+    if (process.env.NODE_ENV === 'production') {
+      process.exit(1);
+    }
+  });
+
+  process.on('unhandledRejection', (reason, promise) => {
+    console.error('Promesse rejetée non gérée:', reason);
+    // Logging sans arrêter l'application
+  });
+
   // IMPORTANT: Enregistrer les routes API AVANT tout middleware Vite
   const server = await registerRoutes(app);
 

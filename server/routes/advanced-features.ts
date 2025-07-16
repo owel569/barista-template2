@@ -395,7 +395,7 @@ router.get('/reports', async (req, res) => {
         size: '4.2 MB'
       }
     ];
-    
+
     res.json({ reports });
   } catch (error) {
     console.error('Erreur récupération rapports:', error);
@@ -407,7 +407,7 @@ router.get('/reports', async (req, res) => {
 router.post('/reports/:reportId/generate', async (req, res) => {
   try {
     const { reportId } = req.params;
-    
+
     // Simulation génération de rapport
     const reportData = {
       id: reportId,
@@ -415,7 +415,7 @@ router.post('/reports/:reportId/generate', async (req, res) => {
       progress: 0,
       estimatedTime: 30
     };
-    
+
     // Simuler le processus de génération
     setTimeout(() => {
       reportData.status = 'ready';
@@ -423,7 +423,7 @@ router.post('/reports/:reportId/generate', async (req, res) => {
       reportData.downloadUrl = `/api/advanced/reports/${reportId}/download`;
       reportData.filename = `rapport-${reportId}-${new Date().toISOString().split('T')[0]}.pdf`;
     }, 2000);
-    
+
     res.json(reportData);
   } catch (error) {
     console.error('Erreur génération rapport:', error);
@@ -468,7 +468,7 @@ router.get('/modules', async (req, res) => {
         enabled: true,
         metrics: { accuracy: 96, controls: 892, performance: 91 }
       },
-      
+
       // Applications Mobiles
       {
         id: 'mobile-staff-app',
@@ -494,7 +494,7 @@ router.get('/modules', async (req, res) => {
         enabled: true,
         metrics: { managers: 3, reports: 124, performance: 89 }
       },
-      
+
       // Présence Digitale
       {
         id: 'digital-social-media',
@@ -520,7 +520,7 @@ router.get('/modules', async (req, res) => {
         enabled: true,
         metrics: { seoScore: 94, speed: 2.1, performance: 88 }
       },
-      
+
       // Paiements & Fintech
       {
         id: 'fintech-mobile-payments',
@@ -546,7 +546,7 @@ router.get('/modules', async (req, res) => {
         enabled: true,
         metrics: { tokens: 12456, clients: 789, performance: 85 }
       },
-      
+
       // Durabilité & RSE
       {
         id: 'sustainability-waste-tracking',
@@ -572,7 +572,7 @@ router.get('/modules', async (req, res) => {
         enabled: true,
         metrics: { localSuppliers: 78, distance: 45, performance: 90 }
       },
-      
+
       // Technologies Émergentes (IoT)
       {
         id: 'iot-sensors',
@@ -598,7 +598,7 @@ router.get('/modules', async (req, res) => {
         enabled: true,
         metrics: { savings: 23, cost: 456, performance: 89 }
       },
-      
+
       // Marketing & CRM Avancé
       {
         id: 'marketing-automation',
@@ -624,7 +624,7 @@ router.get('/modules', async (req, res) => {
         enabled: true,
         metrics: { players: 567, challenges: 1234, performance: 87 }
       },
-      
+
       // Sécurité & Conformité
       {
         id: 'security-gdpr-compliance',
@@ -650,7 +650,7 @@ router.get('/modules', async (req, res) => {
         enabled: true,
         metrics: { encrypted: 100, rotations: 24, performance: 99 }
       },
-      
+
       // Multi-établissements
       {
         id: 'multisite-central-management',
@@ -677,7 +677,7 @@ router.get('/modules', async (req, res) => {
         metrics: { transfers: 45, savings: 2340, performance: 88 }
       }
     ];
-    
+
     res.json({ modules });
   } catch (error) {
     console.error('Erreur récupération modules:', error);
@@ -689,10 +689,10 @@ router.get('/modules', async (req, res) => {
 router.post('/modules/:moduleId/activate', authenticateToken, async (req, res) => {
   try {
     const { moduleId } = req.params;
-    
+
     // Simulation activation module
     console.log(`Activation du module: ${moduleId}`);
-    
+
     res.json({ 
       success: true, 
       message: `Module ${moduleId} activé avec succès`,
@@ -708,10 +708,10 @@ router.post('/modules/:moduleId/activate', authenticateToken, async (req, res) =
 router.post('/modules/:moduleId/deactivate', authenticateToken, async (req, res) => {
   try {
     const { moduleId } = req.params;
-    
+
     // Simulation désactivation module
     console.log(`Désactivation du module: ${moduleId}`);
-    
+
     res.json({ 
       success: true, 
       message: `Module ${moduleId} désactivé avec succès`,
@@ -729,10 +729,10 @@ router.post('/modules/:moduleId/configure', authenticateToken, async (req, res) 
   try {
     const { moduleId } = req.params;
     const { config } = req.body;
-    
+
     // Simulation configuration module
     console.log(`Configuration du module: ${moduleId}`, config);
-    
+
     res.json({ 
       success: true, 
       message: `Module ${moduleId} configuré avec succès`,
@@ -756,11 +756,37 @@ router.get('/kpis', async (req, res) => {
       tableOccupancy: 78,
       staffEfficiency: 92
     };
-    
+
     res.json(kpis);
   } catch (error) {
     console.error('Erreur récupération KPIs:', error);
     res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
+
+// Routes pour les fonctionnalités avancées
+router.get('/modules-status', authenticateToken, async (req, res) => {
+  try {
+    // Simuler la récupération du statut des modules avec validation
+    const modulesStatus = await getModulesStatus();
+
+    // Validation des données avant envoi
+    if (!modulesStatus || typeof modulesStatus !== 'object') {
+      throw new Error('Données de modules invalides');
+    }
+
+    res.json({
+      success: true,
+      data: modulesStatus,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error: any) {
+    console.error('Erreur lors de la récupération du statut des modules:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Erreur lors de la récupération du statut des modules',
+      message: error.message || 'Erreur inconnue'
+    });
   }
 });
 
