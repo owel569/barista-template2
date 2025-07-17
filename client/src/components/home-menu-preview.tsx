@@ -8,12 +8,13 @@ import { getItemImageUrl } from "@/lib/image-mapping";
 export default function HomeMenuPreview() {
   const [, setLocation] = useLocation();
   
-  const { data: menuItems = [] } = useQuery<any[]>({
+  const { data: menuResponse } = useQuery({
     queryKey: ['/api/menu/items'],
   });
 
   // Sélectionner 3 articles populaires pour l'aperçu
-  const featuredItems = menuItems.slice(0, 3);
+  const menuItems = menuResponse?.items || [];
+  const featuredItems = Array.isArray(menuItems) ? menuItems.slice(0, 3) : [];
 
   return (
     <section className="py-20 bg-gradient-to-b from-coffee-light to-amber-50">

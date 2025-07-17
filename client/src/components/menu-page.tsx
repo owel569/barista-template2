@@ -11,11 +11,14 @@ interface MenuItem {
   id: number;
   name: string;
   description: string;
-  price: string;
-  categoryId: number;
-  category: string;
+  price: number;
   available: boolean;
   imageUrl?: string;
+  category: {
+    id: number;
+    name: string;
+    slug: string;
+  };
 }
 
 interface MenuCategory {
@@ -38,18 +41,21 @@ const categoryIcons = {
 export default function MenuPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
-  const { data: categories = [], isLoading: categoriesLoading } = useQuery<MenuCategory[]>({
+  const { data: categoriesResponse, isLoading: categoriesLoading } = useQuery({
     queryKey: ["/api/menu/categories"],
   });
 
-  const { data: menuItems = [], isLoading: itemsLoading } = useQuery<MenuItem[]>({
+  const { data: itemsResponse, isLoading: itemsLoading } = useQuery({
     queryKey: ["/api/menu/items"],
   });
+
+  const categories = categoriesResponse?.categories || [];
+  const menuItems = itemsResponse?.items || [];
 
   const filteredItems = selectedCategory === "all" 
     ? menuItems 
     : menuItems.filter(item => {
-        return item.categoryId?.toString() === selectedCategory;
+        return item.category?.id?.toString() === selectedCategory;
       });
 
   const getCategoryIcon = (categoryName: string) => {

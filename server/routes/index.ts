@@ -10,7 +10,7 @@ import {
   orders, orderItems, reservations, tables, workShifts,
   activityLogs, permissions, contactMessages, menuItemImages
 } from '../../shared/schema';
-import { authMiddleware } from '../middleware/auth';
+import { authenticateToken, requireRole, requireRoles, generateToken, comparePassword } from '../middleware/auth';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
@@ -140,7 +140,7 @@ router.post('/auth/login', validateBody(loginSchema), asyncHandler(async (req, r
 }));
 
 // Validation du token
-router.get('/auth/validate', authMiddleware, asyncHandler(async (req, res) => {
+router.get('/auth/validate', authenticateToken, asyncHandler(async (req, res) => {
   const db = await getDb();
   
   const user = await db.select({
@@ -172,7 +172,7 @@ router.get('/auth/validate', authMiddleware, asyncHandler(async (req, res) => {
 // =====================
 
 // Obtenir tous les utilisateurs
-router.get('/users', authMiddleware, asyncHandler(async (req, res) => {
+router.get('/users', authenticateToken, asyncHandler(async (req, res) => {
   const db = await getDb();
   
   const usersList = await db.select({
@@ -194,7 +194,7 @@ router.get('/users', authMiddleware, asyncHandler(async (req, res) => {
 }));
 
 // Créer un utilisateur
-router.post('/users', authMiddleware, validateBody(userSchema), asyncHandler(async (req, res) => {
+router.post('/users', authenticateToken, validateBody(userSchema), asyncHandler(async (req, res) => {
   const db = await getDb();
   const { username, password, role, firstName, lastName, email } = req.body;
 
@@ -225,7 +225,7 @@ router.post('/users', authMiddleware, validateBody(userSchema), asyncHandler(asy
 
   // Log de l'activité
   await db.insert(activityLogs).values({
-    userId: req.user.id,
+    userId: (req as any).user.id,
     action: 'create',
     entity: 'user',
     entityId: newUser[0].id,
@@ -251,7 +251,7 @@ router.post('/users', authMiddleware, validateBody(userSchema), asyncHandler(asy
 // =====================
 
 // Obtenir tous les clients
-router.get('/customers', authMiddleware, asyncHandler(async (req, res) => {
+router.get('/customers', authenticateToken, asyncHandler(async (req, res) => {
   const db = await getDb();
   
   const customersList = await db.select().from(customers)
@@ -264,7 +264,7 @@ router.get('/customers', authMiddleware, asyncHandler(async (req, res) => {
 }));
 
 // Créer un client
-router.post('/customers', authMiddleware, validateBody(customerSchema), asyncHandler(async (req, res) => {
+router.post('/customers', authenticateToken, validateBody(customerSchema), asyncHandler(async (req, res) => {
   const db = await getDb();
   
   const newCustomer = await db.insert(customers).values(req.body).returning();
@@ -330,14 +330,14 @@ router.get('/menu/items', asyncHandler(async (req, res) => {
 }));
 
 // Créer un article du menu
-router.post('/menu/items', authMiddleware, validateBody(menuItemSchema), asyncHandler(async (req, res) => {
+router.post('/menu/items', authenticateToken, validateBody(menuItemSchema), asyncHandler(async (req, res) => {
   const db = await getDb();
   
   const newItem = await db.insert(menuItems).values(req.body).returning();
 
   // Log de l'activité
   await db.insert(activityLogs).values({
-    userId: req.user.id,
+    userId: (req as any).user.id,
     action: 'create',
     entity: 'menu_item',
     entityId: newItem[0].id,
@@ -356,7 +356,7 @@ router.post('/menu/items', authMiddleware, validateBody(menuItemSchema), asyncHa
 // =====================
 
 // Obtenir toutes les commandes
-router.get('/orders', authMiddleware, asyncHandler(async (req, res) => {
+router.get('/orders', authenticateToken, asyncHandler(async (req, res) => {
   const db = await getDb();
   
   const ordersList = await db.select({
@@ -386,7 +386,7 @@ router.get('/orders', authMiddleware, asyncHandler(async (req, res) => {
 }));
 
 // Créer une commande
-router.post('/orders', authMiddleware, validateBody(orderSchema), asyncHandler(async (req, res) => {
+router.post('/orders', authenticateToken, validateBody(orderSchema), asyncHandler(async (req, res) => {
   const db = await getDb();
   const { customerId, tableId, items, totalAmount } = req.body;
 
@@ -437,7 +437,7 @@ router.post('/orders', authMiddleware, validateBody(orderSchema), asyncHandler(a
 // =====================
 
 // Obtenir toutes les réservations
-router.get('/reservations', authMiddleware, asyncHandler(async (req, res) => {
+router.get('/reservations', authenticateToken, asyncHandler(async (req, res) => {
   const db = await getDb();
   
   const reservationsList = await db.select({
@@ -472,7 +472,7 @@ router.get('/reservations', authMiddleware, asyncHandler(async (req, res) => {
 }));
 
 // Créer une réservation
-router.post('/reservations', authMiddleware, validateBody(reservationSchema), asyncHandler(async (req, res) => {
+router.post('/reservations', authenticateToken, validateBody(reservationSchema), asyncHandler(async (req, res) => {
   const db = await getDb();
   
   // Vérifier la disponibilité de la table
@@ -520,7 +520,7 @@ router.post('/reservations', authMiddleware, validateBody(reservationSchema), as
 // =====================
 
 // Obtenir les statistiques du dashboard
-router.get('/dashboard/stats', authMiddleware, asyncHandler(async (req, res) => {
+router.get('/dashboard/stats', authenticateToken, asyncHandler(async (req, res) => {
   const db = await getDb();
   
   const today = new Date().toISOString().split('T')[0];
@@ -568,7 +568,7 @@ router.get('/dashboard/stats', authMiddleware, asyncHandler(async (req, res) => 
 }));
 
 // Obtenir les ventes par catégorie
-router.get('/analytics/sales-by-category', authMiddleware, asyncHandler(async (req, res) => {
+router.get('/analytics/sales-by-category', authenticateToken, asyncHandler(async (req, res) => {
   const db = await getDb();
   
   const salesByCategory = await db.select({
@@ -609,7 +609,7 @@ router.get('/tables', asyncHandler(async (req, res) => {
 // =====================
 
 // Obtenir tous les employés
-router.get('/employees', authMiddleware, asyncHandler(async (req, res) => {
+router.get('/employees', authenticateToken, asyncHandler(async (req, res) => {
   const db = await getDb();
   
   const employeesList = await db.select({
@@ -640,7 +640,7 @@ router.get('/employees', authMiddleware, asyncHandler(async (req, res) => {
 // =====================
 
 // Obtenir les logs d'activité
-router.get('/activity-logs', authMiddleware, asyncHandler(async (req, res) => {
+router.get('/activity-logs', authenticateToken, asyncHandler(async (req, res) => {
   const db = await getDb();
   
   const logs = await db.select({
@@ -668,3 +668,8 @@ router.get('/activity-logs', authMiddleware, asyncHandler(async (req, res) => {
 }));
 
 export default router;
+
+// Export function for compatibility
+export const registerRoutes = (app: any) => {
+  app.use('/api', router);
+};

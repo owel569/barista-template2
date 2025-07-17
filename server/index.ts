@@ -54,7 +54,7 @@ app.use(express.static(path.join(__dirname, '../dist/public')));
 const startServer = async () => {
   try {
     // Configuration des routes principales
-    const server = await registerRoutes(app);
+    registerRoutes(app);
 
     // Routes spécialisées
     app.use('/api/ai', aiRoutes);
@@ -80,7 +80,7 @@ const startServer = async () => {
     app.use(errorResponseHandler);
     app.use(errorHandler);
 
-    server.listen(PORT, '0.0.0.0', () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Serveur Barista Café démarré sur le port ${PORT}`);
       console.log(`📊 Dashboard admin: http://localhost:${PORT}/admin`);
       console.log(`🤖 API IA disponible: http://localhost:${PORT}/api/ai`);
