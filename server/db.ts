@@ -11,22 +11,21 @@ async function initializeDatabase() {
   try {
     console.log('🐘 Initialisation PostgreSQL entreprise...');
     
-    // Configuration PostgreSQL optimisée pour production
+    // Configuration PostgreSQL avec variables d'environnement Replit
     const connectionConfig = {
-      connectionString: process.env.DATABASE_URL,
-      ssl: { rejectUnauthorized: false },
-      max: 20, // Pool plus large pour performance
-      min: 5, // Connexions minimum maintenues
-      idleTimeoutMillis: 300000, // 5 minutes - évite le recyclage fréquent
-      connectionTimeoutMillis: 8000,
-      acquireTimeoutMillis: 15000,
+      host: process.env.PGHOST || 'localhost',
+      port: parseInt(process.env.PGPORT || '5432'),
+      user: process.env.PGUSER,
+      password: process.env.PGPASSWORD,
+      database: process.env.PGDATABASE,
+      ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false,
+      max: 10,
+      min: 2,
+      idleTimeoutMillis: 60000,
+      connectionTimeoutMillis: 5000,
+      acquireTimeoutMillis: 10000,
       keepAlive: true,
-      keepAliveInitialDelayMillis: 10000,
-      application_name: 'BaristaCAFE_Production',
-      // Optimisations PostgreSQL
-      statement_timeout: 30000,
-      query_timeout: 25000,
-      lock_timeout: 15000,
+      application_name: 'BaristaCAFE_Replit',
     };
 
     pool = new Pool(connectionConfig);
