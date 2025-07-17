@@ -279,7 +279,8 @@ router.post('/generate-report', authenticateToken, requireRole('directeur'), asy
 
 // === FONCTIONS UTILITAIRES ===
 
-async function simulateSpeechToText(audioData: string, language: string): Promise<string> {
+function simulateSpeechToText(audioData: string, language: string): Promise<string> {
+  return new Promise((resolve) => {
   // Simulation de reconnaissance vocale (à remplacer par Google Speech-to-Text, Azure, etc.)
   const phrases = [
     'Je voudrais commander un cappuccino s\'il vous plaît',
@@ -292,9 +293,10 @@ async function simulateSpeechToText(audioData: string, language: string): Promis
   ];
   
   // Simulation d'un délai de traitement
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
-  return phrases[Math.floor(Math.random() * phrases.length)];
+    setTimeout(() => {
+      resolve(phrases[Math.floor(Math.random() * phrases.length)]);
+    }, 500);
+  });
 }
 
 async function checkTableAvailability(date: string, time: string, guests: number) {

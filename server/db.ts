@@ -3,6 +3,10 @@ import { drizzle } from 'drizzle-orm/better-sqlite3';
 import Database from 'better-sqlite3';
 import { sql } from 'drizzle-orm';
 import * as schema from '@shared/schema';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+
+const execAsync = promisify(exec);
 
 let sqlite: Database.Database;
 let db: ReturnType<typeof drizzle>;
@@ -12,7 +16,17 @@ async function initializeDatabase() {
     console.log('🗄️ Initialisation SQLite optimisée...');
     
     // Configuration SQLite pour performance maximale
-    sqlite = new Database(process.env.DATABASE_URL?.replace('file:', '') || './barista_cafe.db');
+    const dbPath = process.env.DATABASE_URL?.replace('file:', '') || './barista_cafe.db';
+    
+    // Créer le répertoire si nécessaire
+    const path = require('path');
+    const fs = require('fs');
+    const dbDir = path.dirname(dbPath);
+    if (!fs.existsSync(dbDir) && dbDir !== '.') {
+      fs.mkdirSync(dbDir, { recursive: true });
+    }
+    
+    sqlite = new Database(dbPath);
     
     // Optimisations SQLite pour restaurant
     sqlite.pragma('journal_mode = WAL'); // Write-Ahead Logging

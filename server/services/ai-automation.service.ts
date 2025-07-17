@@ -1,6 +1,5 @@
 
 import { z } from 'zod';
-import { storage } from '../storage';
 
 // Schémas de validation pour les services internes
 const ChatContextSchema = z.object({

@@ -1,4 +1,3 @@
-
 import { Express, Request, Response, NextFunction } from 'express';
 import { createServer, Server } from 'http';
 import { WebSocketServer } from 'ws';
@@ -121,7 +120,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const categories = await storage.getMenuCategories();
       const items = await storage.getMenuItems();
-      
+
       const menuWithCategories = categories.map(category => ({
         ...category,
         items: items.filter(item => item.categoryId === category.id)
@@ -260,7 +259,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Route d'initialisation (consolidée)
   app.post('/api/init', asyncHandler(async (req: Request, res: Response) => {
     console.log('🔄 Initialisation de la base de données...');
-    
+
     try {
       // Créer les catégories par défaut
       const categories = [
