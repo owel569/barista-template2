@@ -1,4 +1,3 @@
-
 import { Router } from 'express';
 import { authenticateToken, requireRole } from '../middleware/auth';
 import { validateBody, validateQuery } from '../middleware/validation';
@@ -44,7 +43,7 @@ router.post('/chat',
   asyncHandler(async (req, res) => {
     const { message, context, sessionId } = req.body;
     const userId = (req as any).user?.id?.toString();
-    
+
     try {
       const response = await aiService.processChatMessage({
         message,
@@ -52,7 +51,7 @@ router.post('/chat',
         sessionId: sessionId || userId,
         userId
       });
-      
+
       res.json({
         success: true,
         data: response,
@@ -76,18 +75,18 @@ router.post('/voice-command',
   asyncHandler(async (req, res) => {
     const { audioData, language } = req.body;
     const userId = (req as any).user?.id?.toString();
-    
+
     try {
       // Simulation de reconnaissance vocale (à remplacer par un vrai service)
       const transcript = await simulateSpeechToText(audioData, language);
-      
+
       // Traitement du transcript comme un message chat
       const chatResponse = await aiService.processChatMessage({
         message: transcript,
         userId,
         context: { source: 'voice', language }
       });
-      
+
       res.json({
         success: true,
         transcript,
@@ -111,11 +110,11 @@ router.post('/auto-reservation',
   asyncHandler(async (req, res) => {
     const { date, time, guests, preferences } = req.body;
     const userId = (req as any).user?.id?.toString();
-    
+
     try {
       // Vérification de disponibilité
       const availability = await checkTableAvailability(date, time, guests);
-      
+
       if (availability.available) {
         // Création de la réservation via le service IA
         const reservation = await createAIReservation({
@@ -123,7 +122,7 @@ router.post('/auto-reservation',
           userId,
           source: 'ai_assistant'
         });
-        
+
         res.json({
           success: true,
           reservation,
@@ -159,13 +158,13 @@ router.get('/predictions',
   validateQuery(PredictionQuerySchema),
   asyncHandler(async (req, res) => {
     const { timeframe, metrics } = req.query;
-    
+
     try {
       const predictions = await aiService.generatePredictiveAnalytics({
         timeframe: timeframe as any,
         metrics: metrics as string[]
       });
-      
+
       res.json({
         success: true,
         data: predictions,
@@ -192,7 +191,7 @@ router.get('/automation-suggestions',
   asyncHandler(async (req, res) => {
     try {
       const suggestions = await generateAutomationSuggestions();
-      
+
       res.json({
         success: true,
         data: suggestions,
@@ -227,7 +226,7 @@ router.get('/real-time-insights', authenticateToken, requireRole('directeur'), a
         'Optimiser la disposition des tables'
       ]
     };
-    
+
     res.json(insights);
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la récupération des insights' });
@@ -238,7 +237,7 @@ router.get('/real-time-insights', authenticateToken, requireRole('directeur'), a
 router.post('/generate-report', authenticateToken, requireRole('directeur'), asyncHandler(async (req, res) => {
   try {
     const { templateId, dateRange, fields, charts } = req.body;
-    
+
     // Simulation de génération de rapport avec données réalistes
     const reportData = {
       id: `report_${Date.now()}`,
@@ -269,7 +268,7 @@ router.post('/generate-report', authenticateToken, requireRole('directeur'), asy
         'Recommandation de réduire les portions de pâtisseries invendues'
       ]
     };
-    
+
     res.json(reportData);
   } catch (error) {
     console.error('Erreur génération de rapport:', error);
@@ -291,7 +290,7 @@ function simulateSpeechToText(audioData: string, language: string): Promise<stri
     'Où puis-je me garer ?',
     'Avez-vous le WiFi ?'
   ];
-  
+
   // Simulation d'un délai de traitement
     setTimeout(() => {
       resolve(phrases[Math.floor(Math.random() * phrases.length)]);
@@ -303,10 +302,10 @@ async function checkTableAvailability(date: string, time: string, guests: number
   // TODO: Intégrer avec le système de réservation existant
   const isWeekend = new Date(date).getDay() === 0 || new Date(date).getDay() === 6;
   const hour = parseInt(time.split(':')[0]);
-  
+
   // Simulation de logique de disponibilité
   const available = !isWeekend && (hour < 12 || hour > 14) && (hour < 19 || hour > 21);
-  
+
   return {
     available,
     reason: available ? null : 'Heure de pointe - toutes les tables occupées',

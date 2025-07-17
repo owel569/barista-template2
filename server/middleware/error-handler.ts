@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { ZodError } from 'zod';
 
 export const asyncHandler = (fn: Function) => {
   return (req: Request, res: Response, next: NextFunction) => {
@@ -6,31 +7,43 @@ export const asyncHandler = (fn: Function) => {
   };
 };
 
-export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error('Erreur:', err);
+export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction): void => {
+  console.error('Error:', err);
 
-  // Erreur de validation Zod
-  if (err.name === 'ZodError') {
-    return res.status(400).json({
+  // Erreur Zod (validation)
+  if (err instanceof ZodError) {
+    res.status(400).json({
       success: false,
       message: 'Données invalides',
-      errors: err.errors
+      errors: err.errors.map(error => ({
+        field: error.path.join('.'),
+        message: error.message
+      }))
     });
+    return;
   }
 
-  // Erreur de base de données
+  // Erreur base de données
   if (err.code === 'SQLITE_CONSTRAINT') {
-    return res.status(400).json({
+    res.status(409).json({
       success: false,
-      message: 'Violation de contrainte de base de données',
-      error: err.message
+      message: 'Conflit de données'
     });
+    return;
   }
 
-  // Erreur générique
+  // Erreur d'authentification
+  if (err.name === 'UnauthorizedError') {
+    res.status(401).json({
+      success: false,
+      message: 'Non autorisé'
+    });
+    return;
+  }
+
+  // Erreur par défaut
   res.status(500).json({
     success: false,
-    message: 'Erreur interne du serveur',
-    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    message: process.env.NODE_ENV === 'production' ? 'Erreur serveur' : err.message
   });
 };

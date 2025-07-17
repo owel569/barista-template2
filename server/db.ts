@@ -2,7 +2,11 @@ import 'dotenv/config';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import Database from 'better-sqlite3';
 import { sql } from 'drizzle-orm';
+import { promisify } from 'util';
+import { exec } from 'child_process';
 import * as schema from '@shared/schema';
+
+const execAsync = promisify(exec);
 
 let sqlite: Database.Database;
 let db: ReturnType<typeof drizzle>;

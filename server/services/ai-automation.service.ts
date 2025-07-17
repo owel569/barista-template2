@@ -1,4 +1,3 @@
-
 import { z } from 'zod';
 
 // Schémas de validation pour les services internes
@@ -48,6 +47,30 @@ const CAFE_KNOWLEDGE_BASE = {
   }
 };
 
+import { getDb } from '../db';
+import { customers, orders, menuItems, reservations } from '@shared/schema';
+import { eq, sql, desc, and, gte, lte } from 'drizzle-orm';
+
+interface ChatMessage {
+  message: string;
+  userId?: number;
+}
+
+interface PredictionRequest {
+  type: 'sales' | 'traffic' | 'inventory';
+  period: string;
+}
+
+interface VoiceRequest {
+  audioData: string;
+  userId?: number;
+}
+
+interface AnomalyRequest {
+  metric: string;
+  period: string;
+}
+
 /**
  * Service central d'Intelligence Artificielle pour Barista Café
  * Gère toute la logique métier IA : chat, prédictions, analyse comportementale
@@ -65,23 +88,23 @@ export class AIAutomationService {
   }
 
   // === CHAT & CONVERSATION ===
-  
+
   async processChatMessage(data: z.infer<typeof ChatContextSchema>) {
     const { message, userId, sessionId, context } = ChatContextSchema.parse(data);
-    
+
     try {
       // Récupération du contexte de session
       const session = this.getOrCreateSession(sessionId || userId || 'anonymous');
-      
+
       // Analyse d'intention avec IA
       const intent = await this.detectIntent(message, context);
-      
+
       // Génération de réponse contextuelle
       const response = await this.generateContextualResponse(message, intent, session, userId);
-      
+
       // Sauvegarde dans l'historique
       this.updateSession(sessionId || userId || 'anonymous', { message, response, intent });
-      
+
       return {
         response: response.text,
         actions: response.actions,
@@ -106,7 +129,7 @@ export class AIAutomationService {
   private async detectIntent(message: string, context?: any) {
     const lowerMessage = message.toLowerCase();
     const words = lowerMessage.split(' ');
-    
+
     // Scores d'intention
     const intentScores = {
       menu: this.calculateScore(words, ['menu', 'carte', 'plat', 'boisson', 'manger', 'boire', 'prix', 'coût']),
@@ -141,26 +164,26 @@ export class AIAutomationService {
 
   private async generateContextualResponse(message: string, intent: any, session: any[], userId?: string) {
     const { category, confidence } = intent;
-    
+
     switch (category) {
       case 'menu':
         return this.generateMenuResponse(message, session);
-      
+
       case 'reservation':
         return this.generateReservationResponse(message, session, userId);
-      
+
       case 'commande':
         return this.generateOrderResponse(message, session, userId);
-      
+
       case 'horaires':
         return this.generateHoursResponse();
-      
+
       case 'services':
         return this.generateServicesResponse(message);
-      
+
       case 'promotions':
         return this.generatePromotionsResponse();
-      
+
       default:
         return this.generateGeneralResponse(session);
     }
@@ -209,7 +232,7 @@ export class AIAutomationService {
     if (mentionedItems.length > 0) {
       const item = mentionedItems[0];
       const itemInfo = CAFE_KNOWLEDGE_BASE.menu[item];
-      
+
       return {
         text: `☕ **Excellent choix !**\n\n` +
               `${item.charAt(0).toUpperCase() + item.slice(1)} - ${itemInfo.price}€\n` +
@@ -250,7 +273,7 @@ export class AIAutomationService {
   private generateServicesResponse(message: string) {
     const lowerMessage = message.toLowerCase();
     let specificService = null;
-    
+
     if (lowerMessage.includes('wifi')) specificService = 'wifi';
     else if (lowerMessage.includes('parking')) specificService = 'parking';
     else if (lowerMessage.includes('groupe')) specificService = 'groupes';
@@ -314,7 +337,7 @@ export class AIAutomationService {
 
   async generatePredictiveAnalytics(context: z.infer<typeof PredictionContextSchema>) {
     const { timeframe, metrics } = PredictionContextSchema.parse(context);
-    
+
     try {
       const predictions = await this.calculatePredictions(timeframe);
       const customerFlow = await this.predictCustomerFlow(timeframe);
@@ -407,7 +430,7 @@ export class AIAutomationService {
       ...interaction,
       timestamp: new Date().toISOString()
     });
-    
+
     // Limiter l'historique à 50 interactions
     if (session.length > 50) {
       session.splice(0, session.length - 50);
@@ -476,6 +499,134 @@ export class AIAutomationService {
         confidence: 0.78
       }
     ];
+  }
+
+  async getChatResponse(data: ChatMessage): Promise<any> {
+    try {
+      const { message, userId } = data;
+
+      // Analyse de l'intention
+      const intention = this.analyzeIntention(message);
+
+      switch (intention.type) {
+        case 'reservation':
+          return await this.handleReservationIntent(message, userId);
+        case 'menu':
+          return await this.handleMenuIntent(message);
+        case 'order_status':
+          return await this.handleOrderStatusIntent(message, userId);
+        case 'recommendation':
+          return await this.handleRecommendationIntent(userId);
+        default:
+          return {
+            response: "Je ne suis pas sûr de comprendre. Puis-je vous aider avec une réservation, des informations sur le menu, ou autre chose ?",
+            actions: [],
+            confidence: 0.3
+          };
+      }
+    } catch (error) {
+      console.error('Erreur chat IA:', error);
+      return {
+        response: "Désolé, je rencontre un problème technique. Veuillez réessayer.",
+        actions: [],
+        confidence: 0
+      };
+    }
+  }
+
+  private analyzeIntention(message: string): any {
+    const lowercaseMessage = message.toLowerCase();
+
+    // Mots-clés pour différentes intentions
+    const reservationKeywords = ['réserver', 'réservation', 'table', 'réserver une table'];
+    const menuKeywords = ['menu', 'carte', 'plat', 'boisson', 'café'];
+    const orderKeywords = ['commande', 'livraison'];
+
+    let maxScore = 0;
+    let detectedIntent = 'general';
+
+    if (reservationKeywords.some(keyword => lowercaseMessage.includes(keyword))) {
+      detectedIntent = 'reservation';
+      maxScore = 0.8;
+    } else if (menuKeywords.some(keyword => lowercaseMessage.includes(keyword))) {
+      detectedIntent = 'menu';
+      maxScore = 0.7;
+    } else if (orderKeywords.some(keyword => lowercaseMessage.includes(keyword))) {
+      detectedIntent = 'order_status';
+      maxScore = 0.6;
+    }
+
+    return {
+      type: detectedIntent,
+      confidence: maxScore,
+      entities: this.extractEntities(message)
+    };
+  }
+
+  private async handleReservationIntent(message: string, userId?: number): Promise<any> {
+    // Logique de réservation basée sur l'IA
+    return {
+      response: "Je peux vous aider avec votre réservation. Combien de personnes serez-vous et pour quelle date ?",
+      actions: ['show_reservation_form'],
+      confidence: 0.9
+    };
+  }
+
+  private async handleMenuIntent(message: string): Promise<any> {
+    try {
+      const db = await getDb();
+      const items = await db.select().from(menuItems).limit(5);
+
+      return {
+        response: "Voici quelques suggestions de notre menu :",
+        data: items,
+        actions: ['show_menu'],
+        confidence: 0.8
+      };
+    } catch (error) {
+      return {
+        response: "Voici notre menu principal...",
+        actions: ['show_menu'],
+        confidence: 0.6
+      };
+    }
+  }
+
+  private async handleOrderStatusIntent(message: string, userId?: number): Promise<any> {
+    return {
+      response: "Laissez-moi vérifier le statut de votre commande...",
+      actions: ['check_order_status'],
+      confidence: 0.7
+    };
+  }
+
+  private async handleRecommendationIntent(userId?: number): Promise<any> {
+    return {
+      response: "Basé sur vos préférences, je recommande notre café signature...",
+      actions: ['show_recommendations'],
+      confidence: 0.8
+    };
+  }
+
+  private extractEntities(message: string): any[] {
+    // Extraction d'entités simple
+    const entities: any[] = [];
+
+    // Extraction de dates
+    const dateRegex = /(\d{1,2}\/\d{1,2}\/\d{4})/g;
+    const dates = message.match(dateRegex);
+    if (dates) {
+      entities.push({ type: 'date', value: dates[0] });
+    }
+
+    // Extraction de nombres (pour nombre de personnes)
+    const numberRegex = /(\d+)\s*(personne|gens|personnes)/g;
+    const numbers = message.match(numberRegex);
+    if (numbers) {
+      entities.push({ type: 'party_size', value: parseInt(numbers[0]) });
+    }
+
+    return entities;
   }
 }
 
