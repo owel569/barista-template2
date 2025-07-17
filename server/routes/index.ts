@@ -1,327 +1,670 @@
-import { Express, Request, Response, NextFunction } from 'express';
-import { createServer, Server } from 'http';
-import { WebSocketServer } from 'ws';
+
+import { Router } from 'express';
+import { eq, desc, asc, sql, and, or, gte, lte, like, count } from 'drizzle-orm';
+import { z } from 'zod';
+import { validateBody, validateParams, validateQuery } from '../middleware/validation';
+import { asyncHandler } from '../middleware/error-handler';
+import { getDb } from '../db';
+import { 
+  users, customers, employees, menuItems, menuCategories, 
+  orders, orderItems, reservations, tables, workShifts,
+  activityLogs, permissions, contactMessages, menuItemImages
+} from '../../shared/schema';
+import { authMiddleware } from '../middleware/auth';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import { z } from 'zod';
-import { storage } from '../storage';
-import { validateBody } from '../middleware/validation';
-import { errorHandler, asyncHandler } from '../middleware/error-handler';
-import { authenticateToken, requireRole } from '../middleware/auth';
-import { loginSchema, registerSchema, reservationSchema, menuItemSchema } from '../validation-schemas';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'barista-secret-key-ultra-secure-2025';
+const router = Router();
 
-export async function registerRoutes(app: Express): Promise<Server> {
-  const server = createServer(app);
+// =====================
+// SCHEMAS DE VALIDATION
+// =====================
 
-  // Configuration WebSocket
-  const wss = new WebSocketServer({ 
-    server,
-    path: '/api/ws'
+const loginSchema = z.object({
+  username: z.string().min(3, 'Le nom d\'utilisateur doit contenir au moins 3 caractères'),
+  password: z.string().min(6, 'Le mot de passe doit contenir au moins 6 caractères')
+});
+
+const userSchema = z.object({
+  username: z.string().min(3),
+  password: z.string().min(6),
+  role: z.enum(['admin', 'directeur', 'manager', 'employe']),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  email: z.string().email().optional()
+});
+
+const customerSchema = z.object({
+  firstName: z.string().min(2),
+  lastName: z.string().min(2),
+  email: z.string().email(),
+  phone: z.string().optional(),
+  loyaltyPoints: z.number().default(0)
+});
+
+const menuItemSchema = z.object({
+  name: z.string().min(2),
+  description: z.string().min(10),
+  price: z.number().positive(),
+  categoryId: z.number().positive(),
+  imageUrl: z.string().url().optional(),
+  available: z.boolean().default(true)
+});
+
+const orderSchema = z.object({
+  customerId: z.number().positive().optional(),
+  tableId: z.number().positive().optional(),
+  items: z.array(z.object({
+    menuItemId: z.number().positive(),
+    quantity: z.number().positive(),
+    specialInstructions: z.string().optional()
+  })),
+  totalAmount: z.number().positive()
+});
+
+const reservationSchema = z.object({
+  customerId: z.number().positive(),
+  tableId: z.number().positive(),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  time: z.string().regex(/^\d{2}:\d{2}$/),
+  partySize: z.number().min(1).max(20),
+  notes: z.string().optional()
+});
+
+// =====================
+// ROUTES D'AUTHENTIFICATION
+// =====================
+
+// Connexion utilisateur
+router.post('/auth/login', validateBody(loginSchema), asyncHandler(async (req, res) => {
+  const { username, password } = req.body;
+  const db = await getDb();
+
+  const user = await db.select().from(users)
+    .where(eq(users.username, username))
+    .limit(1);
+
+  if (!user.length) {
+    return res.status(401).json({
+      success: false,
+      message: 'Nom d\'utilisateur ou mot de passe incorrect'
+    });
+  }
+
+  const isValidPassword = await bcrypt.compare(password, user[0].password);
+  if (!isValidPassword) {
+    return res.status(401).json({
+      success: false,
+      message: 'Nom d\'utilisateur ou mot de passe incorrect'
+    });
+  }
+
+  // Mettre à jour la dernière connexion
+  await db.update(users)
+    .set({ lastLogin: new Date() })
+    .where(eq(users.id, user[0].id));
+
+  // Générer le token JWT
+  const token = jwt.sign(
+    { 
+      id: user[0].id, 
+      username: user[0].username, 
+      role: user[0].role 
+    },
+    process.env.JWT_SECRET || 'your-secret-key',
+    { expiresIn: '24h' }
+  );
+
+  // Log de l'activité
+  await db.insert(activityLogs).values({
+    userId: user[0].id,
+    action: 'login',
+    entity: 'user',
+    entityId: user[0].id,
+    details: `Connexion réussie depuis ${req.ip}`
   });
 
-  // Broadcast function for WebSocket
-  const broadcast = (data: any) => {
-    wss.clients.forEach((client) => {
-      if (client.readyState === client.OPEN) {
-        client.send(JSON.stringify(data));
-      }
-    });
-  };
-
-  // Routes d'authentification
-  app.post('/api/auth/register', validateBody(registerSchema), asyncHandler(async (req: Request, res: Response) => {
-    const { username, password, role } = req.body;
-
-    const existingUser = await storage.getUserByUsername(username);
-    if (existingUser) {
-      return res.status(400).json({ message: "Nom d'utilisateur déjà utilisé" });
+  res.json({
+    success: true,
+    message: 'Connexion réussie',
+    token,
+    user: {
+      id: user[0].id,
+      username: user[0].username,
+      role: user[0].role,
+      firstName: user[0].firstName,
+      lastName: user[0].lastName,
+      email: user[0].email
     }
+  });
+}));
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await storage.createUser({
-      username,
-      password: hashedPassword,
-      role: role || 'employe'
+// Validation du token
+router.get('/auth/validate', authMiddleware, asyncHandler(async (req, res) => {
+  const db = await getDb();
+  
+  const user = await db.select({
+    id: users.id,
+    username: users.username,
+    role: users.role,
+    firstName: users.firstName,
+    lastName: users.lastName,
+    email: users.email
+  }).from(users)
+    .where(eq(users.id, req.user.id))
+    .limit(1);
+
+  if (!user.length) {
+    return res.status(401).json({
+      success: false,
+      message: 'Token invalide'
     });
+  }
 
-    const token = jwt.sign(
-      { id: newUser.id, username: newUser.username, role: newUser.role },
-      JWT_SECRET,
-      { expiresIn: '24h' }
-    );
+  res.json({
+    success: true,
+    user: user[0]
+  });
+}));
 
-    res.status(201).json({
-      message: 'Utilisateur créé avec succès',
-      token,
-      user: { id: newUser.id, username: newUser.username, role: newUser.role }
+// =====================
+// ROUTES UTILISATEURS
+// =====================
+
+// Obtenir tous les utilisateurs
+router.get('/users', authMiddleware, asyncHandler(async (req, res) => {
+  const db = await getDb();
+  
+  const usersList = await db.select({
+    id: users.id,
+    username: users.username,
+    role: users.role,
+    firstName: users.firstName,
+    lastName: users.lastName,
+    email: users.email,
+    lastLogin: users.lastLogin,
+    createdAt: users.createdAt
+  }).from(users)
+    .orderBy(desc(users.createdAt));
+
+  res.json({
+    success: true,
+    users: usersList
+  });
+}));
+
+// Créer un utilisateur
+router.post('/users', authMiddleware, validateBody(userSchema), asyncHandler(async (req, res) => {
+  const db = await getDb();
+  const { username, password, role, firstName, lastName, email } = req.body;
+
+  // Vérifier si l'utilisateur existe déjà
+  const existingUser = await db.select().from(users)
+    .where(eq(users.username, username))
+    .limit(1);
+
+  if (existingUser.length) {
+    return res.status(400).json({
+      success: false,
+      message: 'Ce nom d\'utilisateur existe déjà'
     });
-  }));
+  }
 
-  app.post('/api/auth/login', asyncHandler(async (req: Request, res: Response) => {
-    const { username, password } = req.body;
+  // Hacher le mot de passe
+  const hashedPassword = await bcrypt.hash(password, 10);
 
-    if (!username || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "Nom d'utilisateur et mot de passe requis"
+  // Créer l'utilisateur
+  const newUser = await db.insert(users).values({
+    username,
+    password: hashedPassword,
+    role,
+    firstName,
+    lastName,
+    email
+  }).returning();
+
+  // Log de l'activité
+  await db.insert(activityLogs).values({
+    userId: req.user.id,
+    action: 'create',
+    entity: 'user',
+    entityId: newUser[0].id,
+    details: `Création de l'utilisateur ${username}`
+  });
+
+  res.status(201).json({
+    success: true,
+    message: 'Utilisateur créé avec succès',
+    user: {
+      id: newUser[0].id,
+      username: newUser[0].username,
+      role: newUser[0].role,
+      firstName: newUser[0].firstName,
+      lastName: newUser[0].lastName,
+      email: newUser[0].email
+    }
+  });
+}));
+
+// =====================
+// ROUTES CLIENTS
+// =====================
+
+// Obtenir tous les clients
+router.get('/customers', authMiddleware, asyncHandler(async (req, res) => {
+  const db = await getDb();
+  
+  const customersList = await db.select().from(customers)
+    .orderBy(desc(customers.createdAt));
+
+  res.json({
+    success: true,
+    customers: customersList
+  });
+}));
+
+// Créer un client
+router.post('/customers', authMiddleware, validateBody(customerSchema), asyncHandler(async (req, res) => {
+  const db = await getDb();
+  
+  const newCustomer = await db.insert(customers).values(req.body).returning();
+
+  // Log de l'activité
+  await db.insert(activityLogs).values({
+    userId: req.user.id,
+    action: 'create',
+    entity: 'customer',
+    entityId: newCustomer[0].id,
+    details: `Création du client ${req.body.firstName} ${req.body.lastName}`
+  });
+
+  res.status(201).json({
+    success: true,
+    message: 'Client créé avec succès',
+    customer: newCustomer[0]
+  });
+}));
+
+// =====================
+// ROUTES MENU
+// =====================
+
+// Obtenir toutes les catégories
+router.get('/menu/categories', asyncHandler(async (req, res) => {
+  const db = await getDb();
+  
+  const categories = await db.select().from(menuCategories)
+    .orderBy(asc(menuCategories.displayOrder));
+
+  res.json({
+    success: true,
+    categories
+  });
+}));
+
+// Obtenir tous les articles du menu
+router.get('/menu/items', asyncHandler(async (req, res) => {
+  const db = await getDb();
+  
+  const items = await db.select({
+    id: menuItems.id,
+    name: menuItems.name,
+    description: menuItems.description,
+    price: menuItems.price,
+    available: menuItems.available,
+    imageUrl: menuItems.imageUrl,
+    category: {
+      id: menuCategories.id,
+      name: menuCategories.name,
+      slug: menuCategories.slug
+    }
+  }).from(menuItems)
+    .innerJoin(menuCategories, eq(menuItems.categoryId, menuCategories.id))
+    .where(eq(menuItems.available, true))
+    .orderBy(asc(menuCategories.displayOrder), asc(menuItems.name));
+
+  res.json({
+    success: true,
+    items
+  });
+}));
+
+// Créer un article du menu
+router.post('/menu/items', authMiddleware, validateBody(menuItemSchema), asyncHandler(async (req, res) => {
+  const db = await getDb();
+  
+  const newItem = await db.insert(menuItems).values(req.body).returning();
+
+  // Log de l'activité
+  await db.insert(activityLogs).values({
+    userId: req.user.id,
+    action: 'create',
+    entity: 'menu_item',
+    entityId: newItem[0].id,
+    details: `Création de l'article ${req.body.name}`
+  });
+
+  res.status(201).json({
+    success: true,
+    message: 'Article créé avec succès',
+    item: newItem[0]
+  });
+}));
+
+// =====================
+// ROUTES COMMANDES
+// =====================
+
+// Obtenir toutes les commandes
+router.get('/orders', authMiddleware, asyncHandler(async (req, res) => {
+  const db = await getDb();
+  
+  const ordersList = await db.select({
+    id: orders.id,
+    totalAmount: orders.totalAmount,
+    status: orders.status,
+    createdAt: orders.createdAt,
+    customer: {
+      id: customers.id,
+      firstName: customers.firstName,
+      lastName: customers.lastName,
+      email: customers.email
+    },
+    table: {
+      id: tables.id,
+      number: tables.number
+    }
+  }).from(orders)
+    .leftJoin(customers, eq(orders.customerId, customers.id))
+    .leftJoin(tables, eq(orders.tableId, tables.id))
+    .orderBy(desc(orders.createdAt));
+
+  res.json({
+    success: true,
+    orders: ordersList
+  });
+}));
+
+// Créer une commande
+router.post('/orders', authMiddleware, validateBody(orderSchema), asyncHandler(async (req, res) => {
+  const db = await getDb();
+  const { customerId, tableId, items, totalAmount } = req.body;
+
+  // Créer la commande
+  const newOrder = await db.insert(orders).values({
+    customerId,
+    tableId,
+    totalAmount,
+    status: 'pending'
+  }).returning();
+
+  // Ajouter les articles de la commande
+  for (const item of items) {
+    const menuItem = await db.select().from(menuItems)
+      .where(eq(menuItems.id, item.menuItemId))
+      .limit(1);
+
+    if (menuItem.length) {
+      await db.insert(orderItems).values({
+        orderId: newOrder[0].id,
+        menuItemId: item.menuItemId,
+        quantity: item.quantity,
+        unitPrice: menuItem[0].price,
+        totalPrice: menuItem[0].price * item.quantity,
+        specialInstructions: item.specialInstructions
       });
     }
+  }
 
-    // Utilisateur admin par défaut
-    if (username === 'admin' && password === 'admin123') {
-      const token = jwt.sign(
-        { id: 1, username: 'admin', role: 'directeur' },
-        JWT_SECRET,
-        { expiresIn: '24h' }
-      );
+  // Log de l'activité
+  await db.insert(activityLogs).values({
+    userId: req.user.id,
+    action: 'create',
+    entity: 'order',
+    entityId: newOrder[0].id,
+    details: `Création de la commande #${newOrder[0].id} - ${totalAmount}€`
+  });
 
-      return res.json({
-        success: true,
-        message: 'Connexion admin réussie',
-        token,
-        user: { id: 1, username: 'admin', role: 'directeur' }
-      });
+  res.status(201).json({
+    success: true,
+    message: 'Commande créée avec succès',
+    order: newOrder[0]
+  });
+}));
+
+// =====================
+// ROUTES RÉSERVATIONS
+// =====================
+
+// Obtenir toutes les réservations
+router.get('/reservations', authMiddleware, asyncHandler(async (req, res) => {
+  const db = await getDb();
+  
+  const reservationsList = await db.select({
+    id: reservations.id,
+    date: reservations.date,
+    time: reservations.time,
+    partySize: reservations.partySize,
+    status: reservations.status,
+    notes: reservations.notes,
+    createdAt: reservations.createdAt,
+    customer: {
+      id: customers.id,
+      firstName: customers.firstName,
+      lastName: customers.lastName,
+      email: customers.email,
+      phone: customers.phone
+    },
+    table: {
+      id: tables.id,
+      number: tables.number,
+      capacity: tables.capacity
     }
+  }).from(reservations)
+    .innerJoin(customers, eq(reservations.customerId, customers.id))
+    .innerJoin(tables, eq(reservations.tableId, tables.id))
+    .orderBy(desc(reservations.createdAt));
 
-    const user = await storage.getUserByUsername(username);
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Identifiants invalides'
-      });
-    }
+  res.json({
+    success: true,
+    reservations: reservationsList
+  });
+}));
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({
-        success: false,
-        message: 'Identifiants invalides'
-      });
-    }
+// Créer une réservation
+router.post('/reservations', authMiddleware, validateBody(reservationSchema), asyncHandler(async (req, res) => {
+  const db = await getDb();
+  
+  // Vérifier la disponibilité de la table
+  const conflictingReservation = await db.select().from(reservations)
+    .where(
+      and(
+        eq(reservations.tableId, req.body.tableId),
+        eq(reservations.date, req.body.date),
+        eq(reservations.time, req.body.time),
+        eq(reservations.status, 'confirmed')
+      )
+    )
+    .limit(1);
 
-    const token = jwt.sign(
-      { id: user.id, username: user.username, role: user.role },
-      JWT_SECRET,
-      { expiresIn: '24h' }
-    );
-
-    res.json({
-      success: true,
-      message: 'Connexion réussie',
-      token,
-      user: { id: user.id, username: user.username, role: user.role }
+  if (conflictingReservation.length) {
+    return res.status(400).json({
+      success: false,
+      message: 'Cette table est déjà réservée pour cette date et heure'
     });
-  }));
+  }
 
-  // Routes API publiques
-  app.get('/api/menu', asyncHandler(async (req: Request, res: Response) => {
-    try {
-      const categories = await storage.getMenuCategories();
-      const items = await storage.getMenuItems();
+  const newReservation = await db.insert(reservations).values({
+    ...req.body,
+    status: 'pending'
+  }).returning();
 
-      const menuWithCategories = categories.map(category => ({
-        ...category,
-        items: items.filter(item => item.categoryId === category.id)
-      }));
+  // Log de l'activité
+  await db.insert(activityLogs).values({
+    userId: req.user.id,
+    action: 'create',
+    entity: 'reservation',
+    entityId: newReservation[0].id,
+    details: `Création de la réservation #${newReservation[0].id} - ${req.body.date} ${req.body.time}`
+  });
 
-      res.json(menuWithCategories);
-    } catch (error) {
-      console.error('Erreur menu:', error);
-      res.json([]);
+  res.status(201).json({
+    success: true,
+    message: 'Réservation créée avec succès',
+    reservation: newReservation[0]
+  });
+}));
+
+// =====================
+// ROUTES STATISTIQUES
+// =====================
+
+// Obtenir les statistiques du dashboard
+router.get('/dashboard/stats', authMiddleware, asyncHandler(async (req, res) => {
+  const db = await getDb();
+  
+  const today = new Date().toISOString().split('T')[0];
+  const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+
+  // Statistiques générales
+  const [
+    totalCustomers,
+    totalOrders,
+    totalReservations,
+    todayRevenue,
+    monthlyRevenue,
+    todayOrders,
+    pendingReservations
+  ] = await Promise.all([
+    db.select({ count: count() }).from(customers),
+    db.select({ count: count() }).from(orders),
+    db.select({ count: count() }).from(reservations),
+    db.select({ 
+      revenue: sql`COALESCE(SUM(${orders.totalAmount}), 0)` 
+    }).from(orders)
+      .where(sql`DATE(${orders.createdAt}) = ${today}`),
+    db.select({ 
+      revenue: sql`COALESCE(SUM(${orders.totalAmount}), 0)` 
+    }).from(orders)
+      .where(sql`DATE(${orders.createdAt}) >= ${startOfMonth}`),
+    db.select({ count: count() }).from(orders)
+      .where(sql`DATE(${orders.createdAt}) = ${today}`),
+    db.select({ count: count() }).from(reservations)
+      .where(eq(reservations.status, 'pending'))
+  ]);
+
+  res.json({
+    success: true,
+    stats: {
+      totalCustomers: totalCustomers[0].count,
+      totalOrders: totalOrders[0].count,
+      totalReservations: totalReservations[0].count,
+      todayRevenue: Number(todayRevenue[0].revenue) || 0,
+      monthlyRevenue: Number(monthlyRevenue[0].revenue) || 0,
+      todayOrders: todayOrders[0].count,
+      pendingReservations: pendingReservations[0].count
     }
-  }));
+  });
+}));
 
-  app.get('/api/menu/categories', asyncHandler(async (req: Request, res: Response) => {
-    try {
-      const categories = await storage.getMenuCategories();
-      res.json(categories);
-    } catch (error) {
-      console.error('Erreur catégories:', error);
-      res.json([]);
+// Obtenir les ventes par catégorie
+router.get('/analytics/sales-by-category', authMiddleware, asyncHandler(async (req, res) => {
+  const db = await getDb();
+  
+  const salesByCategory = await db.select({
+    categoryName: menuCategories.name,
+    totalSales: sql`COALESCE(SUM(${orderItems.totalPrice}), 0)`,
+    totalQuantity: sql`COALESCE(SUM(${orderItems.quantity}), 0)`
+  }).from(orderItems)
+    .innerJoin(menuItems, eq(orderItems.menuItemId, menuItems.id))
+    .innerJoin(menuCategories, eq(menuItems.categoryId, menuCategories.id))
+    .groupBy(menuCategories.id, menuCategories.name)
+    .orderBy(sql`SUM(${orderItems.totalPrice}) DESC`);
+
+  res.json({
+    success: true,
+    salesByCategory
+  });
+}));
+
+// =====================
+// ROUTES TABLES
+// =====================
+
+// Obtenir toutes les tables
+router.get('/tables', asyncHandler(async (req, res) => {
+  const db = await getDb();
+  
+  const tablesList = await db.select().from(tables)
+    .orderBy(asc(tables.number));
+
+  res.json({
+    success: true,
+    tables: tablesList
+  });
+}));
+
+// =====================
+// ROUTES EMPLOYÉS
+// =====================
+
+// Obtenir tous les employés
+router.get('/employees', authMiddleware, asyncHandler(async (req, res) => {
+  const db = await getDb();
+  
+  const employeesList = await db.select({
+    id: employees.id,
+    firstName: employees.firstName,
+    lastName: employees.lastName,
+    position: employees.position,
+    hourlyRate: employees.hourlyRate,
+    hireDate: employees.hireDate,
+    isActive: employees.isActive,
+    user: {
+      id: users.id,
+      username: users.username,
+      email: users.email
     }
-  }));
+  }).from(employees)
+    .innerJoin(users, eq(employees.userId, users.id))
+    .orderBy(asc(employees.firstName));
 
-  app.get('/api/menu/items', asyncHandler(async (req: Request, res: Response) => {
-    try {
-      const items = await storage.getMenuItems();
-      res.json(items);
-    } catch (error) {
-      console.error('Erreur items menu:', error);
-      res.json([]);
+  res.json({
+    success: true,
+    employees: employeesList
+  });
+}));
+
+// =====================
+// ROUTES LOGS D'ACTIVITÉ
+// =====================
+
+// Obtenir les logs d'activité
+router.get('/activity-logs', authMiddleware, asyncHandler(async (req, res) => {
+  const db = await getDb();
+  
+  const logs = await db.select({
+    id: activityLogs.id,
+    action: activityLogs.action,
+    entity: activityLogs.entity,
+    entityId: activityLogs.entityId,
+    details: activityLogs.details,
+    timestamp: activityLogs.timestamp,
+    user: {
+      id: users.id,
+      username: users.username,
+      firstName: users.firstName,
+      lastName: users.lastName
     }
-  }));
+  }).from(activityLogs)
+    .innerJoin(users, eq(activityLogs.userId, users.id))
+    .orderBy(desc(activityLogs.timestamp))
+    .limit(100);
 
-  app.get('/api/tables', asyncHandler(async (req: Request, res: Response) => {
-    try {
-      const tables = await storage.getTables();
-      res.json(tables);
-    } catch (error) {
-      console.error('Erreur tables:', error);
-      res.json([]);
-    }
-  }));
+  res.json({
+    success: true,
+    logs
+  });
+}));
 
-  app.post('/api/reservations', validateBody(reservationSchema), asyncHandler(async (req: Request, res: Response) => {
-    const reservationData = req.body;
-    const reservation = await storage.createReservation(reservationData);
-    broadcast({ type: 'new_reservation', data: reservation });
-    res.status(201).json(reservation);
-  }));
-
-  app.post('/api/contact', asyncHandler(async (req: Request, res: Response) => {
-    const messageData = req.body;
-    const message = await storage.createContactMessage(messageData);
-    broadcast({ type: 'new_message', data: message });
-    res.status(201).json(message);
-  }));
-
-  // Routes admin protégées
-  app.get('/api/admin/notifications/count', authenticateToken, asyncHandler(async (req: Request, res: Response) => {
-    try {
-      const [reservations, messages, orders] = await Promise.allSettled([
-        storage.getReservations(),
-        storage.getContactMessages(),
-        storage.getOrders()
-      ]);
-
-      const reservationsList = reservations.status === 'fulfilled' ? reservations.value : [];
-      const messagesList = messages.status === 'fulfilled' ? messages.value : [];
-      const ordersList = orders.status === 'fulfilled' ? orders.value : [];
-
-      const pendingReservations = reservationsList.filter(r => r.status === 'pending' || r.status === 'en_attente').length;
-      const newMessages = messagesList.filter(m => m.status === 'nouveau').length;
-      const pendingOrders = ordersList.filter(o => o.status === 'pending' || o.status === 'en_attente').length;
-
-      res.json({
-        pendingReservations,
-        newMessages,
-        pendingOrders,
-        total: pendingReservations + newMessages + pendingOrders
-      });
-    } catch (error) {
-      console.error('Erreur notifications:', error);
-      res.json({ pendingReservations: 0, newMessages: 0, pendingOrders: 0, total: 0 });
-    }
-  }));
-
-  app.get('/api/admin/reservations', authenticateToken, asyncHandler(async (req: Request, res: Response) => {
-    const reservations = await storage.getReservations();
-    res.json(reservations);
-  }));
-
-  app.get('/api/admin/menu/items', authenticateToken, asyncHandler(async (req: Request, res: Response) => {
-    const items = await storage.getMenuItems();
-    res.json(items);
-  }));
-
-  app.post('/api/admin/menu/items', authenticateToken, validateBody(menuItemSchema), asyncHandler(async (req: Request, res: Response) => {
-    const { name, description, price, categoryId, available, imageUrl } = req.body;
-
-    const newItem = await storage.createMenuItem({
-      name,
-      description,
-      price: Number(price),
-      categoryId: Number(categoryId),
-      available: Boolean(available),
-      imageUrl: imageUrl || null
-    });
-
-    broadcast({ type: 'menu_item_created', data: newItem });
-    res.status(201).json(newItem);
-  }));
-
-  app.put('/api/admin/menu/items/:id', authenticateToken, asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const { name, description, price, categoryId, available, imageUrl } = req.body;
-
-    const updatedItem = await storage.updateMenuItem(Number(id), {
-      name,
-      description,
-      price: Number(price),
-      categoryId: Number(categoryId),
-      available: Boolean(available),
-      imageUrl: imageUrl || null
-    });
-
-    broadcast({ type: 'menu_item_updated', data: updatedItem });
-    res.json(updatedItem);
-  }));
-
-  app.delete('/api/admin/menu/items/:id', authenticateToken, requireRole('directeur'), asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
-    await storage.deleteMenuItem(Number(id));
-    broadcast({ type: 'menu_item_deleted', data: { id: Number(id) } });
-    res.json({ message: 'Article supprimé avec succès' });
-  }));
-
-  // Route d'initialisation (consolidée)
-  app.post('/api/init', asyncHandler(async (req: Request, res: Response) => {
-    console.log('🔄 Initialisation de la base de données...');
-
-    try {
-      // Créer les catégories par défaut
-      const categories = [
-        { name: 'Cafés', slug: 'cafes', description: 'Nos cafés artisanaux' },
-        { name: 'Thés', slug: 'thes', description: 'Sélection de thés premium' },
-        { name: 'Pâtisseries', slug: 'patisseries', description: 'Pâtisseries fraîches du jour' },
-        { name: 'Boissons Froides', slug: 'boissons-froides', description: 'Boissons rafraîchissantes' }
-      ];
-
-      for (const category of categories) {
-        try {
-          await storage.createMenuCategory(category);
-        } catch (error) {
-          console.log('Catégorie existe déjà:', category.name);
-        }
-      }
-
-      // Créer des éléments de menu par défaut
-      const menuItems = [
-        { name: 'Espresso', description: 'Café italien traditionnel', price: 2.50, categoryId: 1, available: true },
-        { name: 'Cappuccino', description: 'Espresso avec mousse de lait', price: 3.50, categoryId: 1, available: true },
-        { name: 'Latte', description: 'Café au lait crémeux', price: 4.00, categoryId: 1, available: true },
-        { name: 'Thé Earl Grey', description: 'Thé noir aromatisé bergamote', price: 3.00, categoryId: 2, available: true },
-        { name: 'Croissant', description: 'Viennoiserie française', price: 2.00, categoryId: 3, available: true },
-        { name: 'Muffin Myrtille', description: 'Muffin aux myrtilles fraîches', price: 3.50, categoryId: 3, available: true },
-        { name: 'Smoothie Mangue', description: 'Smoothie à la mangue', price: 5.00, categoryId: 4, available: true },
-        { name: 'Limonade', description: 'Limonade artisanale', price: 3.50, categoryId: 4, available: true }
-      ];
-
-      for (const item of menuItems) {
-        try {
-          await storage.createMenuItem(item);
-        } catch (error) {
-          console.log('Élément existe déjà:', item.name);
-        }
-      }
-
-      // Créer des tables par défaut
-      const tables = [
-        { number: 1, capacity: 2, status: 'available', location: 'Terrasse' },
-        { number: 2, capacity: 4, status: 'available', location: 'Intérieur' },
-        { number: 3, capacity: 6, status: 'available', location: 'Salon' },
-        { number: 4, capacity: 2, status: 'available', location: 'Bar' }
-      ];
-
-      for (const table of tables) {
-        try {
-          await storage.createTable(table);
-        } catch (error) {
-          console.log('Table existe déjà:', table.number);
-        }
-      }
-
-      console.log('✅ Base de données initialisée avec succès');
-      res.json({ message: 'Base de données initialisée avec succès', status: 'success' });
-    } catch (error) {
-      console.error('Erreur initialisation:', error);
-      res.status(500).json({ message: 'Erreur lors de l\'initialisation', error: error.message });
-    }
-  }));
-
-  return server;
-}
-
-export default registerRoutes;
+export default router;

@@ -1,167 +1,304 @@
-import { Request, Response, NextFunction } from 'express';
 
+import { Request, Response, NextFunction } from 'express';
+import { createHash } from 'crypto';
+
+// Interface pour les entrées de cache
 interface CacheEntry {
   data: any;
   timestamp: number;
   ttl: number;
-  hits: number;
+  tags: string[];
+  accessCount: number;
+  lastAccessed: number;
 }
 
+// Classe de gestion du cache en mémoire
 class AdvancedCache {
-  private cache = new Map<string, CacheEntry>();
-  private stats = {
-    hits: 0,
-    misses: 0,
-    sets: 0,
-    evictions: 0
-  };
+  private cache: Map<string, CacheEntry> = new Map();
+  private readonly defaultTTL = 5 * 60 * 1000; // 5 minutes
+  private readonly maxSize = 1000;
+  private readonly cleanupInterval = 60 * 1000; // 1 minute
 
-  constructor(private maxSize = 1000, private defaultTtl = 300000) {
-    // Nettoyage automatique toutes les 5 minutes
-    setInterval(() => this.cleanup(), 300000);
+  constructor() {
+    // Nettoyage automatique du cache
+    setInterval(() => this.cleanup(), this.cleanupInterval);
   }
 
-  generateKey(req: Request): string {
-    const { method, originalUrl, user } = req;
-    const userId = (user as any)?.id || 'anonymous';
-    return `${method}:${originalUrl}:${userId}`;
+  // Générer une clé de cache
+  private generateKey(req: Request): string {
+    const keyData = {
+      method: req.method,
+      url: req.url,
+      query: req.query,
+      user: req.user?.id || 'anonymous'
+    };
+    return createHash('md5').update(JSON.stringify(keyData)).digest('hex');
   }
 
+  // Obtenir une entrée du cache
   get(key: string): any | null {
     const entry = this.cache.get(key);
+    if (!entry) return null;
 
-    if (!entry) {
-      this.stats.misses++;
-      return null;
-    }
-
+    // Vérifier si l'entrée a expiré
     if (Date.now() - entry.timestamp > entry.ttl) {
       this.cache.delete(key);
-      this.stats.misses++;
       return null;
     }
 
-    entry.hits++;
-    this.stats.hits++;
+    // Mettre à jour les statistiques d'accès
+    entry.accessCount++;
+    entry.lastAccessed = Date.now();
+
     return entry.data;
   }
 
-  set(key: string, data: any, ttl?: number): void {
-    // Éviction LRU si nécessaire
+  // Stocker une entrée dans le cache
+  set(key: string, data: any, ttl: number = this.defaultTTL, tags: string[] = []): void {
+    // Vérifier la taille du cache
     if (this.cache.size >= this.maxSize) {
-      this.evictLRU();
+      this.evictLeastUsed();
     }
 
-    this.cache.set(key, {
+    const entry: CacheEntry = {
       data,
       timestamp: Date.now(),
-      ttl: ttl || this.defaultTtl,
-      hits: 0
-    });
+      ttl,
+      tags,
+      accessCount: 0,
+      lastAccessed: Date.now()
+    };
 
-    this.stats.sets++;
+    this.cache.set(key, entry);
   }
 
-  private evictLRU(): void {
-    let oldestKey = '';
-    let oldestTime = Date.now();
+  // Supprimer une entrée du cache
+  delete(key: string): boolean {
+    return this.cache.delete(key);
+  }
 
+  // Invalider le cache par tags
+  invalidateByTags(tags: string[]): number {
+    let invalidatedCount = 0;
     for (const [key, entry] of this.cache.entries()) {
-      if (entry.timestamp < oldestTime) {
-        oldestTime = entry.timestamp;
-        oldestKey = key;
+      if (entry.tags.some(tag => tags.includes(tag))) {
+        this.cache.delete(key);
+        invalidatedCount++;
       }
     }
-
-    if (oldestKey) {
-      this.cache.delete(oldestKey);
-      this.stats.evictions++;
-    }
+    return invalidatedCount;
   }
 
+  // Invalider le cache par pattern
+  invalidateByPattern(pattern: RegExp): number {
+    let invalidatedCount = 0;
+    for (const key of this.cache.keys()) {
+      if (pattern.test(key)) {
+        this.cache.delete(key);
+        invalidatedCount++;
+      }
+    }
+    return invalidatedCount;
+  }
+
+  // Nettoyer les entrées expirées
   private cleanup(): void {
     const now = Date.now();
-    let cleaned = 0;
-
     for (const [key, entry] of this.cache.entries()) {
       if (now - entry.timestamp > entry.ttl) {
         this.cache.delete(key);
-        cleaned++;
       }
-    }
-
-    if (cleaned > 0) {
-      console.log(`🧹 Cache nettoyé: ${cleaned} entrées supprimées`);
     }
   }
 
-  invalidatePattern(pattern: string): number {
-    let invalidated = 0;
-    const regex = new RegExp(pattern);
+  // Éviction des entrées les moins utilisées
+  private evictLeastUsed(): void {
+    let leastUsedKey = '';
+    let leastUsedCount = Infinity;
+    let oldestAccess = Infinity;
 
-    for (const key of this.cache.keys()) {
-      if (regex.test(key)) {
-        this.cache.delete(key);
-        invalidated++;
+    for (const [key, entry] of this.cache.entries()) {
+      if (entry.accessCount < leastUsedCount || 
+          (entry.accessCount === leastUsedCount && entry.lastAccessed < oldestAccess)) {
+        leastUsedKey = key;
+        leastUsedCount = entry.accessCount;
+        oldestAccess = entry.lastAccessed;
       }
     }
 
-    return invalidated;
+    if (leastUsedKey) {
+      this.cache.delete(leastUsedKey);
+    }
   }
 
-  getStats() {
+  // Obtenir les statistiques du cache
+  getStats(): {
+    size: number;
+    maxSize: number;
+    hitRate: number;
+    totalAccesses: number;
+    averageAccessCount: number;
+  } {
+    const totalAccesses = Array.from(this.cache.values())
+      .reduce((sum, entry) => sum + entry.accessCount, 0);
+    
+    const averageAccessCount = this.cache.size > 0 ? totalAccesses / this.cache.size : 0;
+
     return {
-      ...this.stats,
       size: this.cache.size,
-      hitRate: this.stats.hits / (this.stats.hits + this.stats.misses) || 0
+      maxSize: this.maxSize,
+      hitRate: 0, // Calculé dynamiquement par le middleware
+      totalAccesses,
+      averageAccessCount
     };
+  }
+
+  // Vider le cache
+  clear(): void {
+    this.cache.clear();
   }
 }
 
+// Instance globale du cache
 const cache = new AdvancedCache();
 
-export const advancedCacheMiddleware = (ttl?: number, condition?: (req: Request) => boolean) => {
+// Statistiques des hits/misses
+let cacheHits = 0;
+let cacheMisses = 0;
+
+// Middleware de cache principal
+export const cacheMiddleware = (options: {
+  ttl?: number;
+  tags?: string[];
+  condition?: (req: Request) => boolean;
+  keyGenerator?: (req: Request) => string;
+  skipCache?: (req: Request) => boolean;
+} = {}) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    // Vérifier la condition si fournie
-    if (condition && !condition(req)) {
+    // Vérifier si le cache doit être ignoré
+    if (options.skipCache && options.skipCache(req)) {
       return next();
     }
 
-    // Ne pas cacher les requêtes non-GET
-    if (req.method !== 'GET') {
+    // Vérifier la condition
+    if (options.condition && !options.condition(req)) {
       return next();
     }
 
-    const key = cache.generateKey(req);
-    const cached = cache.get(key);
+    // Générer la clé de cache
+    const cacheKey = options.keyGenerator ? options.keyGenerator(req) : cache['generateKey'](req);
 
-    if (cached) {
+    // Essayer de récupérer depuis le cache
+    const cachedData = cache.get(cacheKey);
+    if (cachedData) {
+      cacheHits++;
       res.setHeader('X-Cache', 'HIT');
-      res.setHeader('X-Cache-Key', key);
-      return res.json(cached);
+      res.setHeader('X-Cache-Key', cacheKey);
+      return res.json(cachedData);
     }
 
-    // Intercepter la réponse
-    const originalJson = res.json;
-    res.json = function(data: any) {
-      // Mettre en cache seulement les réponses 200
-      if (res.statusCode === 200) {
-        cache.set(key, data, ttl);
-      }
+    cacheMisses++;
+    res.setHeader('X-Cache', 'MISS');
+    res.setHeader('X-Cache-Key', cacheKey);
 
-      res.setHeader('X-Cache', 'MISS');
-      res.setHeader('X-Cache-Key', key);
-      return originalJson.call(this, data);
+    // Intercepter la réponse pour la mettre en cache
+    const originalSend = res.json;
+    res.json = function(data: any) {
+      // Mettre en cache seulement les réponses réussies
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        cache.set(cacheKey, data, options.ttl, options.tags || []);
+      }
+      return originalSend.call(this, data);
     };
 
     next();
   };
 };
 
-export const invalidateCache = (pattern: string) => {
-  return cache.invalidatePattern(pattern);
+// Middleware spécialisé pour le cache du menu
+export const menuCacheMiddleware = cacheMiddleware({
+  ttl: 10 * 60 * 1000, // 10 minutes
+  tags: ['menu', 'categories'],
+  condition: (req) => req.method === 'GET'
+});
+
+// Middleware spécialisé pour le cache des statistiques
+export const statsCacheMiddleware = cacheMiddleware({
+  ttl: 2 * 60 * 1000, // 2 minutes
+  tags: ['stats', 'dashboard'],
+  condition: (req) => req.method === 'GET'
+});
+
+// Middleware spécialisé pour le cache des utilisateurs
+export const usersCacheMiddleware = cacheMiddleware({
+  ttl: 15 * 60 * 1000, // 15 minutes
+  tags: ['users', 'employees'],
+  condition: (req) => req.method === 'GET'
+});
+
+// Middleware d'invalidation du cache
+export const invalidateCache = (tags: string[] = []) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    // Invalider le cache après une modification réussie
+    const originalSend = res.json;
+    res.json = function(data: any) {
+      if (res.statusCode >= 200 && res.statusCode < 300 && tags.length > 0) {
+        const invalidatedCount = cache.invalidateByTags(tags);
+        res.setHeader('X-Cache-Invalidated', invalidatedCount.toString());
+      }
+      return originalSend.call(this, data);
+    };
+
+    next();
+  };
 };
 
-export const getCacheStats = () => {
-  return cache.getStats();
+// Route pour obtenir les statistiques du cache
+export const getCacheStats = (req: Request, res: Response) => {
+  const stats = cache.getStats();
+  const totalRequests = cacheHits + cacheMisses;
+  
+  res.json({
+    success: true,
+    stats: {
+      ...stats,
+      hitRate: totalRequests > 0 ? (cacheHits / totalRequests) * 100 : 0,
+      hits: cacheHits,
+      misses: cacheMisses,
+      totalRequests
+    }
+  });
 };
+
+// Route pour vider le cache
+export const clearCache = (req: Request, res: Response) => {
+  cache.clear();
+  cacheHits = 0;
+  cacheMisses = 0;
+  
+  res.json({
+    success: true,
+    message: 'Cache vidé avec succès'
+  });
+};
+
+// Route pour invalider le cache par tags
+export const invalidateCacheByTags = (req: Request, res: Response) => {
+  const { tags } = req.body;
+  if (!tags || !Array.isArray(tags)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Tags requis et doit être un tableau'
+    });
+  }
+
+  const invalidatedCount = cache.invalidateByTags(tags);
+  
+  res.json({
+    success: true,
+    message: `${invalidatedCount} entrées invalidées`,
+    invalidatedCount
+  });
+};
+
+export default cache;

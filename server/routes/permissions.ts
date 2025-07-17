@@ -1,110 +1,415 @@
+
 import { Router } from 'express';
-import { storage } from '../storage';
+import { eq, and, or, inArray } from 'drizzle-orm';
 import { z } from 'zod';
+import { validateBody, validateParams } from '../middleware/validation';
+import { asyncHandler } from '../middleware/error-handler';
+import { getDb } from '../db';
+import { permissions, users, activityLogs } from '../../shared/schema';
+import { authMiddleware } from '../middleware/auth';
 
 const router = Router();
 
-// Middleware d'authentification simple
-const authenticateToken = (req: any, res: any, next: any) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+// Modules disponibles dans le système
+const AVAILABLE_MODULES = [
+  'dashboard',
+  'users',
+  'customers',
+  'menu',
+  'orders',
+  'reservations',
+  'tables',
+  'employees',
+  'analytics',
+  'reports',
+  'settings',
+  'logs',
+  'inventory',
+  'payments',
+  'delivery',
+  'loyalty',
+  'feedback',
+  'maintenance',
+  'backup'
+] as const;
 
-  if (!token) {
-    return res.status(401).json({ error: 'Token manquant' });
-  }
+const permissionSchema = z.object({
+  userId: z.number().positive(),
+  module: z.enum(AVAILABLE_MODULES),
+  canView: z.boolean().default(true),
+  canCreate: z.boolean().default(false),
+  canUpdate: z.boolean().default(false),
+  canDelete: z.boolean().default(false)
+});
 
-  // Validation JWT simplifiée
-  try {
-    const jwt = require('jsonwebtoken');
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'barista-secret-key-ultra-secure-2025');
-    req.user = decoded;
-    next();
-  } catch (error) {
-    return res.status(403).json({ error: 'Token invalide' });
+const bulkPermissionSchema = z.object({
+  userId: z.number().positive(),
+  permissions: z.array(z.object({
+    module: z.enum(AVAILABLE_MODULES),
+    canView: z.boolean().default(true),
+    canCreate: z.boolean().default(false),
+    canUpdate: z.boolean().default(false),
+    canDelete: z.boolean().default(false)
+  }))
+});
+
+// Modèles de permissions prédéfinis
+const PERMISSION_TEMPLATES = {
+  admin: {
+    name: 'Administrateur',
+    permissions: AVAILABLE_MODULES.map(module => ({
+      module,
+      canView: true,
+      canCreate: true,
+      canUpdate: true,
+      canDelete: true
+    }))
+  },
+  manager: {
+    name: 'Manager',
+    permissions: [
+      { module: 'dashboard', canView: true, canCreate: false, canUpdate: false, canDelete: false },
+      { module: 'users', canView: true, canCreate: false, canUpdate: true, canDelete: false },
+      { module: 'customers', canView: true, canCreate: true, canUpdate: true, canDelete: false },
+      { module: 'menu', canView: true, canCreate: true, canUpdate: true, canDelete: true },
+      { module: 'orders', canView: true, canCreate: true, canUpdate: true, canDelete: false },
+      { module: 'reservations', canView: true, canCreate: true, canUpdate: true, canDelete: false },
+      { module: 'tables', canView: true, canCreate: true, canUpdate: true, canDelete: false },
+      { module: 'employees', canView: true, canCreate: false, canUpdate: true, canDelete: false },
+      { module: 'analytics', canView: true, canCreate: false, canUpdate: false, canDelete: false },
+      { module: 'reports', canView: true, canCreate: false, canUpdate: false, canDelete: false },
+      { module: 'settings', canView: true, canCreate: false, canUpdate: true, canDelete: false },
+      { module: 'logs', canView: true, canCreate: false, canUpdate: false, canDelete: false },
+      { module: 'inventory', canView: true, canCreate: true, canUpdate: true, canDelete: false },
+      { module: 'payments', canView: true, canCreate: false, canUpdate: false, canDelete: false },
+      { module: 'delivery', canView: true, canCreate: true, canUpdate: true, canDelete: false },
+      { module: 'loyalty', canView: true, canCreate: true, canUpdate: true, canDelete: false },
+      { module: 'feedback', canView: true, canCreate: false, canUpdate: true, canDelete: false },
+      { module: 'maintenance', canView: true, canCreate: true, canUpdate: true, canDelete: false },
+      { module: 'backup', canView: false, canCreate: false, canUpdate: false, canDelete: false }
+    ]
+  },
+  employee: {
+    name: 'Employé',
+    permissions: [
+      { module: 'dashboard', canView: true, canCreate: false, canUpdate: false, canDelete: false },
+      { module: 'users', canView: false, canCreate: false, canUpdate: false, canDelete: false },
+      { module: 'customers', canView: true, canCreate: true, canUpdate: true, canDelete: false },
+      { module: 'menu', canView: true, canCreate: false, canUpdate: false, canDelete: false },
+      { module: 'orders', canView: true, canCreate: true, canUpdate: true, canDelete: false },
+      { module: 'reservations', canView: true, canCreate: true, canUpdate: true, canDelete: false },
+      { module: 'tables', canView: true, canCreate: false, canUpdate: true, canDelete: false },
+      { module: 'employees', canView: false, canCreate: false, canUpdate: false, canDelete: false },
+      { module: 'analytics', canView: false, canCreate: false, canUpdate: false, canDelete: false },
+      { module: 'reports', canView: false, canCreate: false, canUpdate: false, canDelete: false },
+      { module: 'settings', canView: false, canCreate: false, canUpdate: false, canDelete: false },
+      { module: 'logs', canView: false, canCreate: false, canUpdate: false, canDelete: false },
+      { module: 'inventory', canView: true, canCreate: false, canUpdate: false, canDelete: false },
+      { module: 'payments', canView: true, canCreate: false, canUpdate: false, canDelete: false },
+      { module: 'delivery', canView: true, canCreate: false, canUpdate: true, canDelete: false },
+      { module: 'loyalty', canView: true, canCreate: false, canUpdate: false, canDelete: false },
+      { module: 'feedback', canView: true, canCreate: true, canUpdate: false, canDelete: false },
+      { module: 'maintenance', canView: false, canCreate: false, canUpdate: false, canDelete: false },
+      { module: 'backup', canView: false, canCreate: false, canUpdate: false, canDelete: false }
+    ]
+  },
+  viewer: {
+    name: 'Consultation seule',
+    permissions: AVAILABLE_MODULES.map(module => ({
+      module,
+      canView: ['dashboard', 'menu', 'orders', 'reservations', 'tables'].includes(module),
+      canCreate: false,
+      canUpdate: false,
+      canDelete: false
+    }))
   }
 };
 
-// Schema pour les permissions
-const permissionSchema = z.object({
-  module: z.string(),
-  actions: z.array(z.string())
-});
+// Obtenir toutes les permissions d'un utilisateur
+router.get('/user/:userId', authMiddleware, validateParams(z.object({ userId: z.coerce.number() })), asyncHandler(async (req, res) => {
+  const db = await getDb();
+  const { userId } = req.params;
 
-// Récupérer les permissions d'un utilisateur
-router.get('/users/:userId/permissions', authenticateToken, async (req, res) => {
-  try {
-    const userId = parseInt(req.params.userId);
+  const userPermissions = await db.select({
+    id: permissions.id,
+    module: permissions.module,
+    canView: permissions.canView,
+    canCreate: permissions.canCreate,
+    canUpdate: permissions.canUpdate,
+    canDelete: permissions.canDelete
+  }).from(permissions)
+    .where(eq(permissions.userId, Number(userId)));
 
-    // Si c'est un directeur, il a toutes les permissions
-    if (req.user?.role === 'directeur') {
-      return res.json({
-        role: 'directeur',
-        hasAllPermissions: true,
-        permissions: 'all'
-      });
-    }
-
-    // Pour les employés, retourner les permissions par défaut
-    const defaultPermissions = {
-      reservations: ['view', 'create', 'edit'],
-      customers: ['view', 'create', 'edit'],
-      menu: ['view'],
-      orders: ['view', 'create', 'edit'],
-      tables: ['view'],
-      statistics: ['view']
+  // Créer un objet avec tous les modules et leurs permissions
+  const permissionsMap = AVAILABLE_MODULES.reduce((acc, module) => {
+    const modulePermission = userPermissions.find(p => p.module === module);
+    acc[module] = modulePermission || {
+      module,
+      canView: false,
+      canCreate: false,
+      canUpdate: false,
+      canDelete: false
     };
+    return acc;
+  }, {} as Record<string, any>);
 
-    res.json(defaultPermissions);
-  } catch (error) {
-    console.error('Erreur permissions:', error);
-    res.status(500).json({ error: 'Erreur serveur' });
+  res.json({
+    success: true,
+    permissions: permissionsMap,
+    availableModules: AVAILABLE_MODULES
+  });
+}));
+
+// Obtenir les modèles de permissions
+router.get('/templates', authMiddleware, asyncHandler(async (req, res) => {
+  res.json({
+    success: true,
+    templates: PERMISSION_TEMPLATES
+  });
+}));
+
+// Créer ou mettre à jour une permission
+router.post('/permission', authMiddleware, validateBody(permissionSchema), asyncHandler(async (req, res) => {
+  const db = await getDb();
+  const { userId, module, canView, canCreate, canUpdate, canDelete } = req.body;
+
+  // Vérifier si la permission existe déjà
+  const existingPermission = await db.select()
+    .from(permissions)
+    .where(and(
+      eq(permissions.userId, userId),
+      eq(permissions.module, module)
+    ))
+    .limit(1);
+
+  let result;
+  if (existingPermission.length > 0) {
+    // Mettre à jour la permission existante
+    result = await db.update(permissions)
+      .set({ canView, canCreate, canUpdate, canDelete })
+      .where(eq(permissions.id, existingPermission[0].id))
+      .returning();
+  } else {
+    // Créer une nouvelle permission
+    result = await db.insert(permissions)
+      .values({ userId, module, canView, canCreate, canUpdate, canDelete })
+      .returning();
   }
-});
 
-// Mettre à jour les permissions
-router.put('/users/:userId/permissions', authenticateToken, async (req, res) => {
-  try {
-    const userId = parseInt(req.params.userId);
-    const { permissionId, granted, module, action } = req.body;
+  // Log de l'activité
+  await db.insert(activityLogs).values({
+    userId: req.user.id,
+    action: existingPermission.length > 0 ? 'update' : 'create',
+    entity: 'permission',
+    entityId: result[0].id,
+    details: `Permission ${module} pour l'utilisateur ${userId}`
+  });
 
-    // Vérifier que l'utilisateur est directeur
-    if (req.user?.role !== 'directeur') {
-      return res.status(403).json({ error: 'Accès refusé' });
+  res.json({
+    success: true,
+    message: 'Permission mise à jour avec succès',
+    permission: result[0]
+  });
+}));
+
+// Mettre à jour plusieurs permissions en une fois
+router.post('/bulk-update', authMiddleware, validateBody(bulkPermissionSchema), asyncHandler(async (req, res) => {
+  const db = await getDb();
+  const { userId, permissions: userPermissions } = req.body;
+
+  // Supprimer toutes les permissions existantes pour cet utilisateur
+  await db.delete(permissions).where(eq(permissions.userId, userId));
+
+  // Insérer les nouvelles permissions
+  const newPermissions = await db.insert(permissions)
+    .values(userPermissions.map(p => ({
+      userId,
+      module: p.module,
+      canView: p.canView,
+      canCreate: p.canCreate,
+      canUpdate: p.canUpdate,
+      canDelete: p.canDelete
+    })))
+    .returning();
+
+  // Log de l'activité
+  await db.insert(activityLogs).values({
+    userId: req.user.id,
+    action: 'bulk_update',
+    entity: 'permission',
+    entityId: userId,
+    details: `Mise à jour en masse des permissions pour l'utilisateur ${userId}`
+  });
+
+  res.json({
+    success: true,
+    message: 'Permissions mises à jour avec succès',
+    permissions: newPermissions
+  });
+}));
+
+// Appliquer un modèle de permissions
+router.post('/apply-template', authMiddleware, validateBody(z.object({
+  userId: z.number().positive(),
+  templateName: z.enum(['admin', 'manager', 'employee', 'viewer'])
+})), asyncHandler(async (req, res) => {
+  const db = await getDb();
+  const { userId, templateName } = req.body;
+
+  const template = PERMISSION_TEMPLATES[templateName];
+  if (!template) {
+    return res.status(400).json({
+      success: false,
+      message: 'Modèle de permissions non trouvé'
+    });
+  }
+
+  // Supprimer toutes les permissions existantes pour cet utilisateur
+  await db.delete(permissions).where(eq(permissions.userId, userId));
+
+  // Insérer les nouvelles permissions basées sur le modèle
+  const newPermissions = await db.insert(permissions)
+    .values(template.permissions.map(p => ({
+      userId,
+      module: p.module,
+      canView: p.canView,
+      canCreate: p.canCreate,
+      canUpdate: p.canUpdate,
+      canDelete: p.canDelete
+    })))
+    .returning();
+
+  // Log de l'activité
+  await db.insert(activityLogs).values({
+    userId: req.user.id,
+    action: 'apply_template',
+    entity: 'permission',
+    entityId: userId,
+    details: `Application du modèle ${template.name} pour l'utilisateur ${userId}`
+  });
+
+  res.json({
+    success: true,
+    message: `Modèle ${template.name} appliqué avec succès`,
+    permissions: newPermissions
+  });
+}));
+
+// Obtenir les permissions de tous les utilisateurs (vue d'ensemble)
+router.get('/overview', authMiddleware, asyncHandler(async (req, res) => {
+  const db = await getDb();
+
+  const usersWithPermissions = await db.select({
+    userId: users.id,
+    username: users.username,
+    firstName: users.firstName,
+    lastName: users.lastName,
+    role: users.role,
+    module: permissions.module,
+    canView: permissions.canView,
+    canCreate: permissions.canCreate,
+    canUpdate: permissions.canUpdate,
+    canDelete: permissions.canDelete
+  }).from(users)
+    .leftJoin(permissions, eq(users.id, permissions.userId))
+    .orderBy(users.username);
+
+  // Regrouper par utilisateur
+  const userPermissionsMap = usersWithPermissions.reduce((acc, row) => {
+    if (!acc[row.userId]) {
+      acc[row.userId] = {
+        id: row.userId,
+        username: row.username,
+        firstName: row.firstName,
+        lastName: row.lastName,
+        role: row.role,
+        permissions: {}
+      };
     }
 
-    // Simuler la mise à jour
-    console.log(`Permission ${granted ? 'accordée' : 'révoquée'} pour utilisateur ${userId} - Module: ${module}, Action: ${action}`);
+    if (row.module) {
+      acc[row.userId].permissions[row.module] = {
+        canView: row.canView,
+        canCreate: row.canCreate,
+        canUpdate: row.canUpdate,
+        canDelete: row.canDelete
+      };
+    }
 
-    res.json({ 
-      success: true, 
-      message: `Permission ${granted ? 'accordée' : 'révoquée'} avec succès`,
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    console.error('Erreur mise à jour permissions:', error);
-    res.status(500).json({ error: 'Erreur serveur' });
-  }
-});
+    return acc;
+  }, {} as Record<number, any>);
 
-// Récupérer toutes les permissions disponibles
-router.get('/available', authenticateToken, async (req, res) => {
-  try {
-    const permissions = [
-      { id: 1, name: 'Gérer les réservations', module: 'reservations', actions: ['view', 'create', 'edit', 'delete'] },
-      { id: 2, name: 'Gérer les clients', module: 'customers', actions: ['view', 'create', 'edit', 'delete'] },
-      { id: 3, name: 'Gérer les employés', module: 'employees', actions: ['view', 'create', 'edit', 'delete'] },
-      { id: 4, name: 'Gérer le menu', module: 'menu', actions: ['view', 'create', 'edit', 'delete'] },
-      { id: 5, name: 'Voir les statistiques', module: 'statistics', actions: ['view'] },
-      { id: 6, name: 'Gérer les paramètres', module: 'settings', actions: ['view', 'edit'] },
-      { id: 7, name: 'Gérer les commandes', module: 'orders', actions: ['view', 'create', 'edit', 'delete'] },
-      { id: 8, name: 'Gérer les tables', module: 'tables', actions: ['view', 'create', 'edit', 'delete'] },
-      { id: 9, name: 'Gérer l\'inventaire', module: 'inventory', actions: ['view', 'create', 'edit', 'delete'] },
-      { id: 10, name: 'Gérer la fidélité', module: 'loyalty', actions: ['view', 'create', 'edit', 'delete'] }
-    ];
-    res.json(permissions);
-  } catch (error) {
-    res.status(500).json([]);
+  res.json({
+    success: true,
+    users: Object.values(userPermissionsMap),
+    availableModules: AVAILABLE_MODULES
+  });
+}));
+
+// Vérifier une permission spécifique
+router.get('/check/:userId/:module/:action', authMiddleware, validateParams(z.object({
+  userId: z.coerce.number(),
+  module: z.enum(AVAILABLE_MODULES),
+  action: z.enum(['view', 'create', 'update', 'delete'])
+})), asyncHandler(async (req, res) => {
+  const db = await getDb();
+  const { userId, module, action } = req.params;
+
+  const permission = await db.select()
+    .from(permissions)
+    .where(and(
+      eq(permissions.userId, Number(userId)),
+      eq(permissions.module, module)
+    ))
+    .limit(1);
+
+  let hasPermission = false;
+  if (permission.length > 0) {
+    const p = permission[0];
+    switch (action) {
+      case 'view':
+        hasPermission = p.canView;
+        break;
+      case 'create':
+        hasPermission = p.canCreate;
+        break;
+      case 'update':
+        hasPermission = p.canUpdate;
+        break;
+      case 'delete':
+        hasPermission = p.canDelete;
+        break;
+    }
   }
-});
+
+  res.json({
+    success: true,
+    hasPermission,
+    module,
+    action
+  });
+}));
+
+// Supprimer toutes les permissions d'un utilisateur
+router.delete('/user/:userId', authMiddleware, validateParams(z.object({ userId: z.coerce.number() })), asyncHandler(async (req, res) => {
+  const db = await getDb();
+  const { userId } = req.params;
+
+  await db.delete(permissions).where(eq(permissions.userId, Number(userId)));
+
+  // Log de l'activité
+  await db.insert(activityLogs).values({
+    userId: req.user.id,
+    action: 'delete',
+    entity: 'permission',
+    entityId: Number(userId),
+    details: `Suppression de toutes les permissions pour l'utilisateur ${userId}`
+  });
+
+  res.json({
+    success: true,
+    message: 'Toutes les permissions ont été supprimées'
+  });
+}));
 
 export default router;
