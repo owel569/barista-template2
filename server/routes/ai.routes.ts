@@ -2,6 +2,7 @@
 import { Router } from 'express';
 import { authenticateToken, requireRole } from '../middleware/auth';
 import { AIAutomationModule } from '../modules/ai-automation';
+import { asyncHandler } from '../middleware/error-handler';
 
 const router = Router();
 
@@ -17,7 +18,7 @@ router.get('/predictions', authenticateToken, requireRole('directeur'), AIAutoma
 router.get('/automation-suggestions', authenticateToken, requireRole('directeur'), AIAutomationModule.getAutomationSuggestions);
 
 // Route pour les insights en temps réel
-router.get('/real-time-insights', authenticateToken, requireRole('directeur'), async (req, res) => {
+router.get('/real-time-insights', authenticateToken, requireRole('directeur'), asyncHandler(async (req, res) => {
   try {
     const insights = {
       currentCustomers: Math.floor(Math.random() * 50) + 10,
@@ -39,10 +40,10 @@ router.get('/real-time-insights', authenticateToken, requireRole('directeur'), a
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la récupération des insights' });
   }
-});
+}));
 
 // Route pour la génération de rapports IA
-router.post('/generate-report', authenticateToken, requireRole('directeur'), async (req, res) => {
+router.post('/generate-report', authenticateToken, requireRole('directeur'), asyncHandler(async (req, res) => {
   try {
     const { templateId, dateRange, fields, charts } = req.body;
     
@@ -82,6 +83,6 @@ router.post('/generate-report', authenticateToken, requireRole('directeur'), asy
     console.error('Erreur génération de rapport:', error);
     res.status(500).json({ error: 'Erreur lors de la génération du rapport' });
   }
-});
+}));
 
 export default router;

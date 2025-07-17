@@ -5,7 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 // Import des routes
-import routes from './routes';
+import { registerRoutes } from './routes';
 import aiRoutes from './routes/ai.routes';
 import analyticsRoutes from './routes/analytics.routes';
 
@@ -38,8 +38,8 @@ app.use(requestLogger);
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use(express.static(path.join(__dirname, '../client/dist')));
 
-// Routes API
-app.use('/api', routes);
+// Configuration des routes
+const server = await registerRoutes(app);
 app.use('/api/ai', aiRoutes);
 app.use('/api/analytics', analyticsRoutes);
 
@@ -61,18 +61,30 @@ app.get('*', (req, res) => {
 // Middleware de gestion d'erreurs
 app.use(errorHandler);
 
-// Démarrage du serveur
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Serveur Barista Café démarré sur le port ${PORT}`);
-  console.log(`📊 Dashboard admin: http://localhost:${PORT}/admin`);
-  console.log(`🤖 API IA disponible: http://localhost:${PORT}/api/ai`);
-  console.log(`📈 Analytics: http://localhost:${PORT}/api/analytics`);
+// Démarrage du serveur avec WebSocket
+const startServer = async () => {
+  try {
+    const server = await registerRoutes(app);
+    
+    server.listen(PORT, '0.0.0.0', () => {
+      console.log(`🚀 Serveur Barista Café démarré sur le port ${PORT}`);
+      console.log(`📊 Dashboard admin: http://localhost:${PORT}/admin`);
+      console.log(`🤖 API IA disponible: http://localhost:${PORT}/api/ai`);
+      console.log(`📈 Analytics: http://localhost:${PORT}/api/analytics`);
+      console.log(`🔌 WebSocket disponible: ws://localhost:${PORT}/api/ws`);
 
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`🔧 Mode développement activé`);
-    console.log(`📝 Logs détaillés activés`);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`🔧 Mode développement activé`);
+        console.log(`📝 Logs détaillés activés`);
+      }
+    });
+  } catch (error) {
+    console.error('❌ Erreur lors du démarrage du serveur:', error);
+    process.exit(1);
   }
-});
+};
+
+startServer();
 
 // Gestion propre de l'arrêt
 process.on('SIGTERM', () => {
