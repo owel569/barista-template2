@@ -153,3 +153,16 @@ args = "node fix-database.js"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run dev"
+
+[[workflows.workflow]]
+name = "Fix Frontend Errors"
+author = 45164854
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node fix-frontend-errors.js"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"

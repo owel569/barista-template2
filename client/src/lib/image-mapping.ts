@@ -19,20 +19,20 @@ export const MENU_ITEM_IMAGES: Record<string, string> = {
   'latte': 'https://images.pexels.com/photos/324028/pexels-photo-324028.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
   'americano': 'https://images.pexels.com/photos/1370692/pexels-photo-1370692.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
   'macchiato': 'https://images.pexels.com/photos/1233525/pexels-photo-1233525.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
-  
+
   // Boissons
   'the': 'https://images.pexels.com/photos/1417945/pexels-photo-1417945.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
   'chocolat': 'https://images.pexels.com/photos/1126359/pexels-photo-1126359.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
   'smoothie': 'https://images.pexels.com/photos/1346155/pexels-photo-1346155.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
   'jus': 'https://images.pexels.com/photos/1428348/pexels-photo-1428348.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
-  
+
   // Pâtisseries
   'croissant': 'https://images.pexels.com/photos/1775043/pexels-photo-1775043.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
   'muffin': 'https://images.pexels.com/photos/1055272/pexels-photo-1055272.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
   'macaron': 'https://images.pexels.com/photos/1070850/pexels-photo-1070850.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
   'eclair': 'https://images.pexels.com/photos/1126359/pexels-photo-1126359.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
   'tarte': 'https://images.pexels.com/photos/1854652/pexels-photo-1854652.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
-  
+
   // Plats
   'sandwich': 'https://images.pexels.com/photos/1565982/pexels-photo-1565982.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
   'salade': 'https://images.pexels.com/photos/1833349/pexels-photo-1833349.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
@@ -50,7 +50,7 @@ function normalizeString(str: string): string {
   if (!str || typeof str !== 'string') {
     return '';
   }
-  
+
   return str
     .toLowerCase()
     .normalize('NFD')
@@ -63,13 +63,13 @@ function normalizeString(str: string): string {
 // Fonction pour trouver une image par mots-clés
 function findByKeywords(normalizedName: string): string | null {
   const keywords = Object.keys(MENU_ITEM_IMAGES);
-  
+
   for (const keyword of keywords) {
     if (normalizedName.includes(keyword) || keyword.includes(normalizedName)) {
       return MENU_ITEM_IMAGES[keyword];
     }
   }
-  
+
   return null;
 }
 
@@ -90,29 +90,34 @@ export function getItemImageUrl(
   providedUrl?: string
 ): string {
   try {
+    // Vérifications de sécurité
+    if (!itemName || typeof itemName !== 'string') {
+      return DEFAULT_FALLBACK_IMAGE;
+    }
+
     // 1. Priorité à l'URL fournie si elle existe
     if (providedUrl && isValidUrl(providedUrl)) {
       return providedUrl;
     }
-    
+
     // 2. Recherche par nom d'article (normalisé)
     const normalizedName = normalizeString(itemName);
     const exactMatch = MENU_ITEM_IMAGES[normalizedName];
     if (exactMatch) {
       return exactMatch;
     }
-    
+
     // 3. Recherche par mots-clés dans le nom
     const keywordMatch = findByKeywords(normalizedName);
     if (keywordMatch) {
       return keywordMatch;
     }
-    
+
     // 4. Fallback vers l'image de catégorie
     if (categorySlug && DEFAULT_CATEGORY_IMAGES[categorySlug]) {
       return DEFAULT_CATEGORY_IMAGES[categorySlug];
     }
-    
+
     // 5. Image par défaut
     return DEFAULT_FALLBACK_IMAGE;
   } catch (error) {
@@ -137,7 +142,7 @@ export function preloadCriticalImages(): void {
     DEFAULT_FALLBACK_IMAGE,
     ...Object.values(DEFAULT_CATEGORY_IMAGES).slice(0, 4)
   ];
-  
+
   criticalImages.forEach(url => {
     const img = new Image();
     img.src = url;

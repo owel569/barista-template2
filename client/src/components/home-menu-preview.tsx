@@ -34,12 +34,12 @@ export default function HomeMenuPreview() {
               <CardContent className="p-0">
                 <div className="aspect-square overflow-hidden rounded-t-lg">
                   <img 
-                    src={getItemImageUrl(item.name, item.category?.slug)}
+                    src={getItemImageUrl(item.name, item.category?.slug || item.category?.name?.toLowerCase() || 'default')}
                     alt={item.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                     onError={(e) => {
                       try {
-                        (e.target as HTMLImageElement).src = getItemImageUrl('default', item.category?.slug);
+                        (e.target as HTMLImageElement).src = getItemImageUrl('default', 'default');
                       } catch (error) {
                         console.warn('Erreur lors du chargement de l\'image de fallback:', error);
                       }

@@ -149,7 +149,7 @@ export default function MenuPage() {
                 <div className="flex justify-between items-center">
                   <span className="text-2xl font-bold text-amber-600">{item.price}€</span>
                   <Badge variant="outline" className="text-xs">
-                    {item.category}
+                    {typeof item.category === 'object' ? item.category?.name : item.category || 'Non classé'}
                   </Badge>
                 </div>
                 {!item.available && (
