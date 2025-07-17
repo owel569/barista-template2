@@ -128,6 +128,47 @@ export const contactMessages = pgTable("contact_messages", {
   statusIdx: index("contact_messages_status_idx").on(table.status),
 }));
 
+// Images des éléments de menu
+export const menuItemImages = pgTable("menu_item_images", {
+  id: serial("id").primaryKey(),
+  menuItemId: integer("menu_item_id").notNull().references(() => menuItems.id, { onDelete: 'cascade' }),
+  imageUrl: text("image_url").notNull(),
+  altText: text("alt_text"),
+  isPrimary: boolean("is_primary").notNull().default(false),
+  uploadMethod: text("upload_method").notNull().default("url"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  menuItemIdx: index("menu_item_images_menu_item_idx").on(table.menuItemId),
+  primaryIdx: index("menu_item_images_primary_idx").on(table.isPrimary),
+}));
+
+// Journaux d'activité
+export const activityLogs = pgTable("activity_logs", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  action: text("action").notNull(),
+  entity: text("entity").notNull(),
+  entityId: integer("entity_id"),
+  details: text("details"),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("activity_logs_user_idx").on(table.userId),
+  timestampIdx: index("activity_logs_timestamp_idx").on(table.timestamp),
+}));
+
+// Permissions
+export const permissions = pgTable("permissions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  permission: text("permission").notNull(),
+  granted: boolean("granted").notNull().default(true),
+  grantedBy: integer("granted_by").references(() => users.id),
+  grantedAt: timestamp("granted_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("permissions_user_idx").on(table.userId),
+  permissionIdx: index("permissions_permission_idx").on(table.permission),
+}));
+
 // ==========================================
 // RELATIONS
 // ==========================================
@@ -142,6 +183,7 @@ export const menuItemsRelations = relations(menuItems, ({ one, many }) => ({
     references: [menuCategories.id],
   }),
   orderItems: many(orderItems),
+  images: many(menuItemImages),
 }));
 
 export const customersRelations = relations(customers, ({ many }) => ({
@@ -179,6 +221,38 @@ export const reservationsRelations = relations(reservations, ({ one }) => ({
   }),
 }));
 
+export const usersRelations = relations(users, ({ many }) => ({
+  activityLogs: many(activityLogs),
+  permissions: many(permissions),
+  grantedPermissions: many(permissions, { relationName: "grantedBy" }),
+}));
+
+export const menuItemImagesRelations = relations(menuItemImages, ({ one }) => ({
+  menuItem: one(menuItems, {
+    fields: [menuItemImages.menuItemId],
+    references: [menuItems.id],
+  }),
+}));
+
+export const activityLogsRelations = relations(activityLogs, ({ one }) => ({
+  user: one(users, {
+    fields: [activityLogs.userId],
+    references: [users.id],
+  }),
+}));
+
+export const permissionsRelations = relations(permissions, ({ one }) => ({
+  user: one(users, {
+    fields: [permissions.userId],
+    references: [users.id],
+  }),
+  grantedByUser: one(users, {
+    fields: [permissions.grantedBy],
+    references: [users.id],
+    relationName: "grantedBy",
+  }),
+}));
+
 // ==========================================
 // TYPES TYPESCRIPT
 // ==========================================
@@ -210,6 +284,15 @@ export type NewOrderItem = typeof orderItems.$inferInsert;
 export type ContactMessage = typeof contactMessages.$inferSelect;
 export type NewContactMessage = typeof contactMessages.$inferInsert;
 
+export type MenuItemImage = typeof menuItemImages.$inferSelect;
+export type NewMenuItemImage = typeof menuItemImages.$inferInsert;
+
+export type ActivityLog = typeof activityLogs.$inferSelect;
+export type NewActivityLog = typeof activityLogs.$inferInsert;
+
+export type Permission = typeof permissions.$inferSelect;
+export type NewPermission = typeof permissions.$inferInsert;
+
 // ==========================================
 // SCHÉMAS DE VALIDATION ZOD
 // ==========================================
@@ -223,3 +306,6 @@ export const insertReservationSchema = createInsertSchema(reservations);
 export const insertOrderSchema = createInsertSchema(orders);
 export const insertOrderItemSchema = createInsertSchema(orderItems);
 export const insertContactMessageSchema = createInsertSchema(contactMessages);
+export const insertMenuItemImageSchema = createInsertSchema(menuItemImages);
+export const insertActivityLogSchema = createInsertSchema(activityLogs);
+export const insertPermissionSchema = createInsertSchema(permissions);

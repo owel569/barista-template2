@@ -10,7 +10,7 @@ import {
   getImageWithAlt,
   getImageMappingStats,
   validateImageUrl 
-} from '../image-mapping';
+} from '../lib/image-mapping';
 
 describe('Image Mapping System', () => {
   describe('normalizeKey', () => {

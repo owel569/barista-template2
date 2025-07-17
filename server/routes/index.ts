@@ -6,7 +6,7 @@ import { asyncHandler } from '../middleware/error-handler';
 import { getDb } from '../db';
 import { 
   users, menuCategories, menuItems, tables, customers, reservations, orders, orderItems,
-  contactMessages
+  contactMessages, menuItemImages, activityLogs, permissions
 } from '../../shared/schema';
 import { authenticateToken, requireRole, requireRoles, generateToken, comparePassword } from '../middleware/auth';
 import jwt from 'jsonwebtoken';
