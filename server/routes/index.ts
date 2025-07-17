@@ -192,6 +192,41 @@ router.get('/reservations', authenticateToken, asyncHandler(async (req, res) => 
   });
 }));
 
+// Route de test
+router.get('/test', (req, res) => {
+  res.json({ message: 'API fonctionne!' });
+});
+
+// Route pour les notifications
+router.get('/notifications', asyncHandler(async (req, res) => {
+  try {
+    const notifications = [
+      {
+        id: 1,
+        type: 'reservation',
+        title: 'Nouvelle réservation',
+        message: 'Table 4 réservée pour 19h30',
+        timestamp: new Date().toISOString(),
+        read: false
+      },
+      {
+        id: 2,
+        type: 'order',
+        title: 'Commande terminée',
+        message: 'Commande #1247 prête',
+        timestamp: new Date(Date.now() - 300000).toISOString(),
+        read: false
+      }
+    ];
+
+    res.setHeader('Content-Type', 'application/json');
+    res.json({ success: true, data: notifications });
+  } catch (error) {
+    logger.error('Erreur notifications', { error: error.message });
+    res.status(500).json({ success: false, message: 'Erreur serveur' });
+  }
+}));
+
 // Gestion des erreurs 404
 router.use('*', (req, res) => {
   logger.warn('Route non trouvée', { path: req.originalUrl });

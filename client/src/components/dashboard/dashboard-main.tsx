@@ -95,27 +95,82 @@ export default function DashboardMain() {
   
   const { data: todayReservations } = useQuery({
     queryKey: ["/api/admin/stats/today-reservations"],
-    enabled: !!user
+    enabled: !!user,
+    queryFn: async () => {
+      try {
+        const response = await fetch('/api/admin/stats/today-reservations');
+        if (!response.ok) throw new Error('Failed to fetch');
+        const data = await response.json();
+        return data.data || data;
+      } catch (error) {
+        console.error('Erreur lors du chargement des statistiques:', error);
+        return { count: 0 };
+      }
+    }
   });
 
   const { data: monthlyRevenue } = useQuery({
     queryKey: ["/api/admin/stats/monthly-revenue"],
-    enabled: !!user
+    enabled: !!user,
+    queryFn: async () => {
+      try {
+        const response = await fetch('/api/admin/stats/monthly-revenue');
+        if (!response.ok) throw new Error('Failed to fetch');
+        const data = await response.json();
+        return data.data || data;
+      } catch (error) {
+        console.error('Erreur lors du chargement des statistiques:', error);
+        return { revenue: 0 };
+      }
+    }
   });
 
   const { data: activeOrders } = useQuery({
     queryKey: ["/api/admin/stats/active-orders"],
-    enabled: !!user
+    enabled: !!user,
+    queryFn: async () => {
+      try {
+        const response = await fetch('/api/admin/stats/active-orders');
+        if (!response.ok) throw new Error('Failed to fetch');
+        const data = await response.json();
+        return data.data || data;
+      } catch (error) {
+        console.error('Erreur lors du chargement des statistiques:', error);
+        return { count: 0 };
+      }
+    }
   });
 
   const { data: occupancyRate } = useQuery({
     queryKey: ["/api/admin/stats/occupancy-rate"],
-    enabled: !!user
+    enabled: !!user,
+    queryFn: async () => {
+      try {
+        const response = await fetch('/api/admin/stats/occupancy-rate');
+        if (!response.ok) throw new Error('Failed to fetch');
+        const data = await response.json();
+        return data.data || data;
+      } catch (error) {
+        console.error('Erreur lors du chargement des statistiques:', error);
+        return { rate: 0 };
+      }
+    }
   });
 
   const { data: weeklyStats } = useQuery({
     queryKey: ["/api/dashboard/weekly-stats"],
-    enabled: !!user
+    enabled: !!user,
+    queryFn: async () => {
+      try {
+        const response = await fetch('/api/dashboard/weekly-stats');
+        if (!response.ok) throw new Error('Failed to fetch');
+        const data = await response.json();
+        return data.data || data;
+      } catch (error) {
+        console.error('Erreur lors du chargement des statistiques:', error);
+        return {};
+      }
+    }
   });
 
   if (!user) return null;

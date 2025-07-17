@@ -4,6 +4,28 @@ import bcrypt from 'bcryptjs';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'barista-secret-key-ultra-secure-2025';
 
+export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  const token = req.header('Authorization')?.replace('Bearer ', '');
+  
+  if (!token) {
+    return res.status(401).json({ 
+      success: false, 
+      message: 'Token d\'accès requis' 
+    });
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: number; role: string };
+    req.user = decoded;
+    next();
+  } catch (error) {
+    res.status(401).json({ 
+      success: false, 
+      message: 'Token invalide' 
+    });
+  }
+};
+
 export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];

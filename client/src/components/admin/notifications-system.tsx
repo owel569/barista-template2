@@ -1,4 +1,3 @@
-
 /**
  * Système de notifications ultra-optimisé
  * Gestion complète des notifications en temps réel
@@ -227,15 +226,15 @@ export default function NotificationsSystem() {
   // Notifications filtrées et optimisées
   const filteredNotifications = useMemo(() => {
     if (!notifications) return [];
-    
+
     return notifications.filter((notification: Notification) => {
       const matchesSearch = !searchTerm || 
         notification.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         notification.message.toLowerCase().includes(searchTerm.toLowerCase());
-      
+
       const matchesType = filterType === 'all' || notification.type === filterType;
       const matchesStatus = filterStatus === 'all' || notification.status === filterStatus;
-      
+
       return matchesSearch && matchesType && matchesStatus;
     });
   }, [notifications, searchTerm, filterType, filterStatus]);
@@ -243,7 +242,7 @@ export default function NotificationsSystem() {
   // Statistiques
   const stats = useMemo(() => {
     if (!notifications) return { total: 0, unread: 0, urgent: 0 };
-    
+
     return {
       total: notifications.length,
       unread: notifications.filter((n: Notification) => n.status === 'unread').length,
@@ -290,7 +289,7 @@ export default function NotificationsSystem() {
         const data = JSON.parse(lastMessage.data);
         if (data.type === 'notification') {
           queryClient.invalidateQueries({ queryKey: ['/api/notifications'] });
-          
+
           // Notification système si activée
           if (settings?.desktop && 'Notification' in window) {
             new Notification(data.title, {
@@ -298,7 +297,7 @@ export default function NotificationsSystem() {
               icon: '/favicon.ico'
             });
           }
-          
+
           // Son si activé
           if (settings?.sound) {
             const audio = new Audio('/notification-sound.mp3');
@@ -333,7 +332,7 @@ export default function NotificationsSystem() {
 
   const handleBulkAction = useCallback((action: 'read' | 'archive' | 'delete') => {
     if (selectedNotifications.length === 0) return;
-    
+
     switch (action) {
       case 'read':
         handleMarkAsRead(selectedNotifications);
@@ -410,7 +409,7 @@ export default function NotificationsSystem() {
             </Badge>
           )}
         </div>
-        
+
         <div className="flex items-center space-x-2">
           <Badge variant={connectionStatus === 'Connected' ? 'default' : 'destructive'}>
             {connectionStatus === 'Connected' ? 'En ligne' : 'Hors ligne'}
@@ -497,7 +496,7 @@ export default function NotificationsSystem() {
                 />
               </div>
             </div>
-            
+
             <Select value={filterType} onValueChange={setFilterType}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Type" />
@@ -581,7 +580,7 @@ export default function NotificationsSystem() {
                           {getTypeIcon(notification.type)}
                           <div className={`w-2 h-2 rounded-full ${getPriorityColor(notification.priority)}`}></div>
                         </div>
-                        
+
                         <div className="flex-1 space-y-1">
                           <div className="flex items-center space-x-2">
                             <h3 className={`font-medium ${notification.status === 'unread' ? 'font-bold' : ''}`}>
@@ -591,11 +590,11 @@ export default function NotificationsSystem() {
                               {notification.category}
                             </Badge>
                           </div>
-                          
+
                           <p className="text-sm text-gray-600 line-clamp-2">
                             {notification.message}
                           </p>
-                          
+
                           <div className="flex items-center space-x-4 text-xs text-gray-500">
                             <span className="flex items-center space-x-1">
                               <Clock className="w-3 h-3" />
@@ -608,7 +607,7 @@ export default function NotificationsSystem() {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-center space-x-2">
                         {notification.status === 'unread' && (
                           <Button
@@ -634,7 +633,7 @@ export default function NotificationsSystem() {
                         </Button>
                       </div>
                     </div>
-                    
+
                     {/* Actions de la notification */}
                     {notification.actions && notification.actions.length > 0 && (
                       <div className="mt-3 flex items-center space-x-2">
@@ -658,7 +657,7 @@ export default function NotificationsSystem() {
                   </CardContent>
                 </Card>
               ))}
-              
+
               {filteredNotifications.length === 0 && (
                 <div className="text-center py-12">
                   <Bell className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -685,7 +684,7 @@ export default function NotificationsSystem() {
                     onChange={(e) => setNewNotification(prev => ({ ...prev, title: e.target.value }))}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="type">Type</Label>
                   <Select
@@ -704,7 +703,7 @@ export default function NotificationsSystem() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="priority">Priorité</Label>
                   <Select
@@ -722,7 +721,7 @@ export default function NotificationsSystem() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="category">Catégorie</Label>
                   <Select
@@ -744,7 +743,7 @@ export default function NotificationsSystem() {
                   </Select>
                 </div>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="message">Message</Label>
                 <Textarea
@@ -755,7 +754,7 @@ export default function NotificationsSystem() {
                   rows={4}
                 />
               </div>
-              
+
               <div className="flex justify-end space-x-2">
                 <Button
                   onClick={() => setIsCreating(false)}
@@ -845,7 +844,7 @@ export default function NotificationsSystem() {
                 {/* Paramètres généraux */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium">Général</h3>
-                  
+
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <Label>Notifications activées</Label>
@@ -860,7 +859,7 @@ export default function NotificationsSystem() {
                       }}
                     />
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <Label>Notifications sonores</Label>
@@ -875,7 +874,7 @@ export default function NotificationsSystem() {
                       }}
                     />
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <Label>Notifications bureau</Label>
@@ -926,8 +925,7 @@ export default function NotificationsSystem() {
                           checked={enabled}
                           onCheckedChange={(checked) => {
                             if (settings) {
-                              updateSettingsMutation.mutate({
-                                ...settings,
+                              updateSettingsMutation.mutate({                                ...settings,
                                 priorities: { ...settings.priorities, [priority]: checked }
                               });
                             }
@@ -941,7 +939,7 @@ export default function NotificationsSystem() {
                 {/* Heures silencieuses */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium">Heures silencieuses</h3>
-                  
+
                   <div className="flex items-center justify-between">
                     <Label>Activer les heures silencieuses</Label>
                     <Switch
@@ -956,7 +954,7 @@ export default function NotificationsSystem() {
                       }}
                     />
                   </div>
-                  
+
                   {settings?.quietHours?.enabled && (
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
