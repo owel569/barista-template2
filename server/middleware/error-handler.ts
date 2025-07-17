@@ -16,11 +16,10 @@ export const asyncHandler = (fn: RequestHandler): RequestHandler => {
 
 export const errorHandler = (
   err: any,
-
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): void => {
   // Timestamp uniforme
   const timestamp = new Date().toISOString();
 
@@ -112,7 +111,7 @@ export const errorHandler = (
 
   // Pour les pages HTML, redirection vers une page d'erreur ou réponse JSON simple
   // Si vous avez des pages HTML, remplacez par res.redirect('/error') ou un template
-  res.status(err.status || 500).json({
+  return res.status(err.status || 500).json({
     success: false,
     message: 'Une erreur s\'est produite',
     timestamp
