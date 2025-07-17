@@ -1,160 +1,65 @@
 import 'dotenv/config';
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/better-sqlite3';
+import Database from 'better-sqlite3';
 import { sql } from 'drizzle-orm';
 import * as schema from '@shared/schema';
-import { exec } from 'child_process';
-import { promisify } from 'util';
 
-const execAsync = promisify(exec);
-
-let pool: Pool;
+let sqlite: Database.Database;
 let db: ReturnType<typeof drizzle>;
-let isInitialized = false;
-let initPromise: Promise<ReturnType<typeof drizzle>> | null = null;
-
-// Cache des requêtes fréquentes
-const queryCache = new Map<string, { data: any; timestamp: number; ttl: number }>();
 
 async function initializeDatabase() {
-  if (isInitialized && db) return db;
-
-  if (initPromise) return initPromise;
-
-  initPromise = (async () => {
-    try {
-      console.log('🗄️ Initialisation PostgreSQL optimisée...');
-
-      // Configuration PostgreSQL pool optimisée pour Replit
-      pool = new Pool({
-        connectionString: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/barista_cafe',
-        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-        // Configuration ultra-stable pour Replit
-        max: 5, // 5 connexions max
-        min: 2, // 2 connexions minimum maintenues
-        idleTimeoutMillis: 120000, // 2 minutes
-        connectionTimeoutMillis: 30000, // 30 secondes
-        acquireTimeoutMillis: 30000, // 30 secondes
-        statement_timeout: 60000, // 1 minute
-        // Stabilité renforcée
-        keepAlive: true,
-        keepAliveInitialDelayMillis: 10000,
-        allowExitOnIdle: false,
-        // Retry et reconnexion
-        reapIntervalMillis: 10000,
-        application_name: 'barista_cafe_stable'
-      });
-
-      // Initialiser Drizzle avec optimisations
-      db = drizzle(pool, { 
-        schema,
-        logger: process.env.NODE_ENV === 'development'
-      });
-
-      // Test de connexion avec retry
-      await testConnection();
-
-      // Configuration des events du pool
-      setupPoolEvents();
-
-      // Configuration backup automatique
-      if (process.env.BACKUP_ENABLED === 'true') {
-        setupAutomaticBackup();
-      }
-
-      // Nettoyage périodique du cache
-      setupCacheCleanup();
-
-      isInitialized = true;
-      console.log('✅ PostgreSQL connecté et optimisé');
-
-      return db;
-    } catch (error) {
-      console.error('❌ Erreur PostgreSQL:', error);
-      initPromise = null;
-      throw error;
+  try {
+    console.log('🗄️ Initialisation SQLite optimisée...');
+    
+    // Configuration SQLite pour performance maximale
+    sqlite = new Database(process.env.DATABASE_URL?.replace('file:', '') || './barista_cafe.db');
+    
+    // Optimisations SQLite pour restaurant
+    sqlite.pragma('journal_mode = WAL'); // Write-Ahead Logging
+    sqlite.pragma('synchronous = NORMAL'); // Performance/sécurité équilibrée
+    sqlite.pragma('cache_size = 20000'); // Cache 20MB
+    sqlite.pragma('foreign_keys = ON'); // Intégrité référentielle
+    sqlite.pragma('temp_store = MEMORY'); // Stockage temporaire en mémoire
+    sqlite.pragma('mmap_size = 268435456'); // Memory mapping 256MB
+    
+    // Initialiser Drizzle
+    db = drizzle(sqlite, { schema });
+    
+    // Test de connexion
+    await db.execute(sql`SELECT 1`);
+    console.log('✅ SQLite connecté et optimisé');
+    
+    // Configuration backup automatique
+    if (process.env.BACKUP_ENABLED === 'true') {
+      setupAutomaticBackup();
     }
-  })();
-
-  return initPromise;
-}
-
-async function testConnection(retries = 3) {
-  for (let i = 0; i < retries; i++) {
-    try {
-      const client = await pool.connect();
-      try {
-        await client.query('SELECT NOW()');
-        client.release();
-        return;
-      } catch (error) {
-        client.release();
-        throw error;
-      }
-    } catch (error) {
-      if (i === retries - 1) throw error;
-      await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
-    }
+    
+    return db;
+  } catch (error) {
+    console.error('❌ Erreur SQLite:', error);
+    throw error;
   }
-}
-
-function setupPoolEvents() {
-  pool.on('connect', (client) => {
-    console.log('🔗 Nouvelle connexion PostgreSQL');
-  });
-
-  pool.on('error', (err, client) => {
-    console.error('❌ Erreur pool PostgreSQL:', err);
-  });
-
-  pool.on('remove', (client) => {
-    console.log('🔌 Connexion PostgreSQL fermée');
-  });
-}
-
-function setupCacheCleanup() {
-  setInterval(() => {
-    const now = Date.now();
-    for (const [key, value] of queryCache.entries()) {
-      if (now - value.timestamp > value.ttl) {
-        queryCache.delete(key);
-      }
-    }
-  }, 300000); // Nettoyage toutes les 5 minutes
-}
-
-// Fonction de cache intelligent
-export function getCachedQuery(key: string, ttl: number = 300000) {
-  const cached = queryCache.get(key);
-  if (cached && Date.now() - cached.timestamp < cached.ttl) {
-    return cached.data;
-  }
-  return null;
-}
-
-export function setCachedQuery(key: string, data: any, ttl: number = 300000) {
-  queryCache.set(key, { data, timestamp: Date.now(), ttl });
 }
 
 // Backup automatique pour éviter la perte de données
 function setupAutomaticBackup() {
   const backupInterval = parseInt(process.env.BACKUP_INTERVAL || '3600') * 1000;
-
+  
   setInterval(async () => {
     try {
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       const backupPath = `./backups/barista_cafe_${timestamp}.db`;
-
+      
       // Créer le répertoire de backup
       await execAsync('mkdir -p ./backups');
-
+      
       // Copier la base de données
       await execAsync(`cp ./barista_cafe.db "${backupPath}"`);
-
+      
       // Nettoyer les anciens backups
       const retention = parseInt(process.env.BACKUP_RETENTION || '7');
       await execAsync(`find ./backups -name "*.db" -type f -mtime +${retention} -delete`);
-
+      
       console.log(`✅ Backup automatique: ${backupPath}`);
     } catch (error) {
       console.error('❌ Erreur backup:', error);
@@ -173,11 +78,11 @@ export { db };
 
 export async function setupDatabase() {
   try {
-    const result = await pool.query('SELECT 1');
-    console.log('✅ Base de données PostgreSQL configurée');
+    await db.execute(sql`SELECT 1`);
+    console.log('✅ Base de données SQLite configurée');
     return true;
   } catch (error) {
-    console.error('❌ Erreur configuration PostgreSQL:', error);
+    console.error('❌ Erreur configuration SQLite:', error);
     return false;
   }
 }
@@ -185,26 +90,26 @@ export async function setupDatabase() {
 // Fonction de vérification de santé
 export async function checkDatabaseHealth() {
   try {
-    const result = await pool.query("SELECT now() as timestamp");
+    const result = await db.execute(sql`SELECT datetime('now') as timestamp`);
     return {
       healthy: true,
-      timestamp: result.rows[0]?.timestamp,
-      type: 'postgresql',
+      timestamp: result[0]?.timestamp,
+      type: 'sqlite',
       size: await getDatabaseSize()
     };
   } catch (error) {
     return {
       healthy: false,
       error: error.message,
-      type: 'postgresql'
+      type: 'sqlite'
     };
   }
 }
 
 async function getDatabaseSize() {
   try {
-    const result = await pool.query("SELECT pg_size_pretty(pg_database_size(current_database())) as size");
-    return result.rows[0]?.size || 'unknown';
+    const { size } = await execAsync('du -h ./barista_cafe.db');
+    return size.split('	')[0];
   } catch {
     return 'unknown';
   }
@@ -212,28 +117,17 @@ async function getDatabaseSize() {
 
 // Nettoyage gracieux
 process.on('SIGINT', () => {
-  if (pool) {
-    pool.end();
-    console.log('✅ PostgreSQL fermé proprement');
+  if (sqlite) {
+    sqlite.close();
+    console.log('✅ SQLite fermé proprement');
   }
   process.exit(0);
 });
 
 process.on('SIGTERM', () => {
-  if (pool) {
-    pool.end();
-    console.log('✅ PostgreSQL fermé proprement');
+  if (sqlite) {
+    sqlite.close();
+    console.log('✅ SQLite fermé proprement');
   }
   process.exit(0);
-});
-
-// Gestion des erreurs de connexion PostgreSQL
-pool.on('error', (err) => {
-  console.error('Erreur PostgreSQL:', err);
-});
-
-pool.on('connect', () => {
-  if (process.env.NODE_ENV === 'development') {
-    console.log('✅ Nouvelle connexion PostgreSQL établie');
-  }
 });
