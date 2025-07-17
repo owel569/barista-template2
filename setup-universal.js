@@ -541,8 +541,8 @@ export default defineConfig({
 async function updateDbConfig(config) {
   const dbConfig = config.dialect === 'sqlite' ? 
     `import 'dotenv/config';
-import { drizzle } from 'drizzle-orm/better-sqlite3';
-import Database from 'better-sqlite3';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
 import { sql } from 'drizzle-orm';
 import * as schema from '@shared/schema';
 

@@ -1,194 +1,291 @@
-#!/usr/bin/env tsx
-import 'dotenv/config';
-import bcrypt from 'bcrypt';
 import { getDb } from '../server/db';
-import { users, menuCategories, menuItems, tables, menuItemImages } from '../shared/schema';
+import { 
+  users, menuCategories, menuItems, tables, reservations, reservationItems, 
+  contactMessages, orders, orderItems, customers, employees, workShifts, 
+  activityLogs, permissions 
+} from '../shared/schema';
+import { hashPassword } from '../server/middleware/auth';
+import { sql } from 'drizzle-orm';
 
 async function initializeDatabase() {
-  console.log('🔧 Initialisation complète de la base de données...');
-  
   try {
+    console.log('🗄️ Initialisation de la base de données PostgreSQL...');
+    
     const db = await getDb();
+
+    // Créer les tables avec CASCADE pour éviter les problèmes d'ordre
+    console.log('📋 Création des tables...');
     
-    // 1. Créer l'utilisateur admin
-    console.log('👤 Création de l\'utilisateur admin...');
-    const hashedPassword = await bcrypt.hash('admin123', 10);
-    
-    await db.insert(users).values({
-      username: 'admin',
-      password: hashedPassword,
-      role: 'directeur',
-      firstName: 'Admin',
-      lastName: 'System',
-      email: 'admin@barista-cafe.com'
-    }).onConflictDoNothing();
-    
-    // 2. Créer les catégories de menu
-    console.log('📂 Création des catégories de menu...');
-    const categories = [
-      { name: 'Cafés', description: 'Nos délicieux cafés artisanaux', slug: 'cafes', displayOrder: 1 },
-      { name: 'Thés', description: 'Une sélection de thés premium', slug: 'thes', displayOrder: 2 },
-      { name: 'Pâtisseries', description: 'Pâtisseries fraîches maison', slug: 'patisseries', displayOrder: 3 },
-      { name: 'Boissons froides', description: 'Rafraîchissements et smoothies', slug: 'boissons-froides', displayOrder: 4 }
-    ];
-    
-    for (const category of categories) {
-      await db.insert(menuCategories).values(category).onConflictDoNothing();
-    }
-    
-    // 3. Créer les éléments de menu
-    console.log('☕ Création des éléments de menu...');
-    const menuItemsData = [
-      {
-        name: 'Espresso Classique',
-        description: 'Un espresso pur et intense, préparé avec nos grains arabica premium',
-        price: '2.50',
-        categoryId: 1,
-        available: true
-      },
-      {
-        name: 'Cappuccino',
-        description: 'Espresso onctueux avec mousse de lait veloutée et une pincée de cacao',
-        price: '3.50',
-        categoryId: 1,
-        available: true
-      },
-      {
-        name: 'Latte Macchiato',
-        description: 'Café doux avec lait chaud et mousse crémeuse, parfait pour commencer la journée',
-        price: '4.00',
-        categoryId: 1,
-        available: true
-      },
-      {
-        name: 'Thé Earl Grey',
-        description: 'Thé noir premium aux notes de bergamote, servi avec du lait et du sucre',
-        price: '3.00',
-        categoryId: 2,
-        available: true
-      },
-      {
-        name: 'Croissant au Beurre',
-        description: 'Croissant artisanal croustillant, feuilleté à souhait',
-        price: '2.00',
-        categoryId: 3,
-        available: true
-      },
-      {
-        name: 'Muffin Chocolat',
-        description: 'Muffin moelleux aux pépites de chocolat noir belge',
-        price: '3.50',
-        categoryId: 3,
-        available: true
-      },
-      {
-        name: 'Smoothie Fruits Rouges',
-        description: 'Mélange rafraîchissant de fruits rouges et yaourt grec',
-        price: '5.50',
-        categoryId: 4,
-        available: true
-      },
-      {
-        name: 'Chocolat Chaud',
-        description: 'Chocolat chaud onctueux avec chantilly maison',
-        price: '4.50',
-        categoryId: 4,
-        available: true
-      }
-    ];
-    
-    for (const item of menuItemsData) {
-      await db.insert(menuItems).values(item).onConflictDoNothing();
-    }
-    
-    // 4. Créer les tables
-    console.log('🪑 Création des tables...');
-    const tablesData = [
-      { number: 1, capacity: 2, location: 'Terrasse', available: true },
-      { number: 2, capacity: 4, location: 'Salle principale', available: true },
-      { number: 3, capacity: 6, location: 'Salon privé', available: true },
-      { number: 4, capacity: 2, location: 'Comptoir', available: true }
-    ];
-    
-    for (const table of tablesData) {
-      await db.insert(tables).values(table).onConflictDoNothing();
-    }
-    
-    // 5. Ajouter des images Pexels HD par défaut
-    console.log('🖼️ Ajout des images Pexels HD...');
-    const imageData = [
-      {
-        menuItemId: 1,
-        imageUrl: 'https://images.pexels.com/photos/28538132/pexels-photo-28538132.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop',
-        altText: 'Espresso Classique',
-        isPrimary: true,
-        uploadMethod: 'pexels' as const
-      },
-      {
-        menuItemId: 2,
-        imageUrl: 'https://images.pexels.com/photos/162947/pexels-photo-162947.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop',
-        altText: 'Cappuccino',
-        isPrimary: true,
-        uploadMethod: 'pexels' as const
-      },
-      {
-        menuItemId: 3,
-        imageUrl: 'https://images.pexels.com/photos/433145/pexels-photo-433145.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop',
-        altText: 'Latte Macchiato',
-        isPrimary: true,
-        uploadMethod: 'pexels' as const
-      },
-      {
-        menuItemId: 4,
-        imageUrl: 'https://images.pexels.com/photos/32754882/pexels-photo-32754882.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop',
-        altText: 'Thé Earl Grey',
-        isPrimary: true,
-        uploadMethod: 'pexels' as const
-      },
-      {
-        menuItemId: 5,
-        imageUrl: 'https://images.pexels.com/photos/10560686/pexels-photo-10560686.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop',
-        altText: 'Croissant au Beurre',
-        isPrimary: true,
-        uploadMethod: 'pexels' as const
-      },
-      {
-        menuItemId: 6,
-        imageUrl: 'https://images.pexels.com/photos/1126728/pexels-photo-1126728.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop',
-        altText: 'Muffin Chocolat',
-        isPrimary: true,
-        uploadMethod: 'pexels' as const
-      },
-      {
-        menuItemId: 7,
-        imageUrl: 'https://images.pexels.com/photos/11160116/pexels-photo-11160116.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop',
-        altText: 'Smoothie Fruits Rouges',
-        isPrimary: true,
-        uploadMethod: 'pexels' as const
-      },
-      {
-        menuItemId: 8,
-        imageUrl: 'https://images.pexels.com/photos/15529714/pexels-photo-15529714.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop',
-        altText: 'Chocolat Chaud',
-        isPrimary: true,
-        uploadMethod: 'pexels' as const
-      }
-    ];
-    
-    for (const image of imageData) {
-      await db.insert(menuItemImages).values(image).onConflictDoNothing();
-    }
-    
-    console.log('✅ Base de données initialisée avec succès !');
-    console.log('📝 Compte admin créé: admin / admin123');
-    console.log('🎯 Données de test ajoutées: 4 catégories, 8 éléments de menu, 4 tables');
-    
-    process.exit(0);
-    
+    // Créer les tables principales
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        username TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        role TEXT NOT NULL DEFAULT 'employe',
+        first_name TEXT,
+        last_name TEXT,
+        email TEXT UNIQUE,
+        last_login TIMESTAMP,
+        created_at TIMESTAMP DEFAULT NOW() NOT NULL,
+        updated_at TIMESTAMP DEFAULT NOW() NOT NULL
+      )
+    `);
+
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS menu_categories (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        slug TEXT UNIQUE NOT NULL,
+        display_order INTEGER NOT NULL DEFAULT 0
+      )
+    `);
+
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS menu_items (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT NOT NULL,
+        price REAL NOT NULL,
+        category_id INTEGER NOT NULL,
+        image_url TEXT,
+        available BOOLEAN NOT NULL DEFAULT true,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS tables (
+        id SERIAL PRIMARY KEY,
+        number INTEGER UNIQUE NOT NULL,
+        capacity INTEGER NOT NULL DEFAULT 4,
+        status TEXT NOT NULL DEFAULT 'libre',
+        location TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS reservations (
+        id SERIAL PRIMARY KEY,
+        customer_name TEXT NOT NULL,
+        customer_email TEXT,
+        customer_phone TEXT,
+        date DATE NOT NULL,
+        time TEXT NOT NULL,
+        guests INTEGER NOT NULL,
+        table_id INTEGER,
+        status TEXT NOT NULL DEFAULT 'en_attente',
+        special_requests TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS reservation_items (
+        id SERIAL PRIMARY KEY,
+        reservation_id INTEGER NOT NULL,
+        menu_item_id INTEGER NOT NULL,
+        quantity INTEGER NOT NULL DEFAULT 1,
+        price REAL NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS contact_messages (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        subject TEXT,
+        message TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'nouveau',
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS orders (
+        id SERIAL PRIMARY KEY,
+        customer_id INTEGER,
+        table_id INTEGER,
+        status TEXT NOT NULL DEFAULT 'en_attente',
+        total_amount REAL NOT NULL DEFAULT 0,
+        payment_method TEXT,
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS order_items (
+        id SERIAL PRIMARY KEY,
+        order_id INTEGER NOT NULL,
+        menu_item_id INTEGER NOT NULL,
+        quantity INTEGER NOT NULL DEFAULT 1,
+        price REAL NOT NULL,
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS customers (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        email TEXT UNIQUE,
+        phone TEXT,
+        address TEXT,
+        loyalty_points INTEGER DEFAULT 0,
+        total_visits INTEGER DEFAULT 0,
+        total_spent REAL DEFAULT 0,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS employees (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        email TEXT UNIQUE,
+        phone TEXT,
+        position TEXT,
+        hourly_rate REAL,
+        hire_date DATE,
+        is_active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS work_shifts (
+        id SERIAL PRIMARY KEY,
+        employee_id INTEGER NOT NULL,
+        start_time TIMESTAMP NOT NULL,
+        end_time TIMESTAMP,
+        break_duration INTEGER DEFAULT 0,
+        hourly_rate REAL,
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS activity_logs (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL,
+        action TEXT NOT NULL,
+        entity TEXT NOT NULL,
+        entity_id INTEGER,
+        details TEXT,
+        timestamp TIMESTAMP DEFAULT NOW() NOT NULL
+      )
+    `);
+
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS permissions (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL,
+        module TEXT NOT NULL,
+        can_view BOOLEAN NOT NULL DEFAULT true,
+        can_create BOOLEAN NOT NULL DEFAULT false,
+        can_update BOOLEAN NOT NULL DEFAULT false,
+        can_delete BOOLEAN NOT NULL DEFAULT false
+      )
+    `);
+
+    // Créer les index pour performance
+    await db.execute(sql`CREATE INDEX IF NOT EXISTS users_username_idx ON users(username)`);
+    await db.execute(sql`CREATE INDEX IF NOT EXISTS users_email_idx ON users(email)`);
+    await db.execute(sql`CREATE INDEX IF NOT EXISTS menu_items_category_idx ON menu_items(category_id)`);
+    await db.execute(sql`CREATE INDEX IF NOT EXISTS reservations_date_idx ON reservations(date)`);
+    await db.execute(sql`CREATE INDEX IF NOT EXISTS orders_created_at_idx ON orders(created_at)`);
+
+    console.log('✅ Tables créées avec succès');
+
+    // Insérer des données de test
+    console.log('📝 Insertion des données de test...');
+    await insertTestData(db);
+
+    console.log('🚀 Base de données initialisée avec succès');
+
   } catch (error) {
     console.error('❌ Erreur lors de l\'initialisation:', error);
-    process.exit(1);
+    throw error;
   }
 }
 
-initializeDatabase();
+async function insertTestData(db: any) {
+  // Vérifier s'il y a déjà des données
+  const existingUsers = await db.execute(sql`SELECT COUNT(*) as count FROM users`);
+  if (existingUsers.rows[0].count > 0) {
+    console.log('📊 Données déjà présentes, ignorer l\'insertion');
+    return;
+  }
+
+  // Créer l'utilisateur admin
+  const adminPassword = await hashPassword('admin123');
+  await db.execute(sql`
+    INSERT INTO users (username, password, role, first_name, last_name, email) 
+    VALUES ('admin', ${adminPassword}, 'directeur', 'Admin', 'Barista', 'admin@barista-cafe.com')
+  `);
+
+  // Créer un employé
+  const employeePassword = await hashPassword('employee123');
+  await db.execute(sql`
+    INSERT INTO users (username, password, role, first_name, last_name, email) 
+    VALUES ('employee', ${employeePassword}, 'employe', 'Employee', 'Barista', 'employee@barista-cafe.com')
+  `);
+
+  // Créer les catégories de menu
+  await db.execute(sql`
+    INSERT INTO menu_categories (name, description, slug, display_order) VALUES 
+    ('Cafés', 'Nos cafés artisanaux', 'cafes', 1),
+    ('Boissons chaudes', 'Thés et boissons chaudes', 'boissons-chaudes', 2),
+    ('Pâtisseries', 'Pâtisseries et desserts', 'patisseries', 3),
+    ('Sandwichs', 'Sandwichs et plats légers', 'sandwichs', 4)
+  `);
+
+  // Créer les éléments de menu
+  await db.execute(sql`
+    INSERT INTO menu_items (name, description, price, category_id, available) VALUES 
+    ('Espresso', 'Café espresso italien authentique', 2.50, 1, true),
+    ('Cappuccino', 'Espresso avec mousse de lait crémeuse', 3.80, 1, true),
+    ('Latte', 'Café au lait avec art latte', 4.20, 1, true),
+    ('Americano', 'Espresso allongé avec eau chaude', 3.00, 1, true),
+    ('Thé Earl Grey', 'Thé noir bergamote premium', 2.80, 2, true),
+    ('Chocolat chaud', 'Chocolat belge avec chantilly', 3.50, 2, true),
+    ('Croissant', 'Croissant artisanal au beurre', 2.20, 3, true),
+    ('Muffin myrtilles', 'Muffin fait maison aux myrtilles', 2.80, 3, true),
+    ('Sandwich jambon', 'Sandwich jambon fromage sur pain artisanal', 6.50, 4, true),
+    ('Croque-monsieur', 'Croque-monsieur traditionnel', 7.20, 4, true)
+  `);
+
+  // Créer les tables
+  await db.execute(sql`
+    INSERT INTO tables (number, capacity, status, location) VALUES 
+    (1, 2, 'libre', 'Terrasse'),
+    (2, 4, 'libre', 'Intérieur'),
+    (3, 6, 'libre', 'Salon'),
+    (4, 2, 'libre', 'Bar'),
+    (5, 8, 'libre', 'Salle privée')
+  `);
+
+  // Créer quelques clients
+  await db.execute(sql`
+    INSERT INTO customers (name, email, phone, loyalty_points, total_visits, total_spent) VALUES 
+    ('Jean Dupont', 'jean.dupont@email.com', '+33123456789', 120, 15, 158.50),
+    ('Marie Martin', 'marie.martin@email.com', '+33987654321', 85, 8, 95.20),
+    ('Pierre Bernard', 'pierre.bernard@email.com', '+33456789123', 200, 25, 312.80)
+  `);
+
+  console.log('✅ Données de test insérées');
+}
+
+// Exécuter si appelé directement
+if (import.meta.url === `file://${process.argv[1]}`) {
+  initializeDatabase().catch(console.error);
+}
+
+export { initializeDatabase };
