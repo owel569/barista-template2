@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 // import { PhoneInput } from "@/components/ui/phone-input"; // Commenté si non disponible
 import { apiRequest } from "@/lib/queryClient";
 import { z } from "zod";
-import { getItemImageUrl } from "@/lib/image-mapping";
+import { getItemImageUrl } from "@/lib/image-mapping-optimized";
 
 const reservationSchema = insertReservationSchema.extend({
   customerName: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),

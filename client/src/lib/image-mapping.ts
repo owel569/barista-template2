@@ -47,6 +47,10 @@ export const DEFAULT_CATEGORY_IMAGES: Record<string, string> = {
  * Supprime les accents, convertit en minuscules et normalise les espaces
  */
 export const normalizeKey = (str: string): string => {
+  if (!str || typeof str !== 'string') {
+    return '';
+  }
+  
   return str
     .trim()
     .toLowerCase()

@@ -83,6 +83,10 @@ export function getImageWithFallback(
 
 // Fonction pour normaliser les chaînes
 function normalizeString(str: string): string {
+  if (!str || typeof str !== 'string') {
+    return '';
+  }
+  
   return str
     .toLowerCase()
     .normalize('NFD')
@@ -137,6 +141,9 @@ export function getCategoryImage(categorySlug: string): string {
 export function getMenuItemImage(itemName: string, categorySlug?: string): string {
   return getImageWithFallback(itemName, categorySlug);
 }
+
+// Alias pour compatibilité
+export const getItemImageUrl = getImageWithFallback;
 
 // Export par défaut
 export default {
