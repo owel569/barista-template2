@@ -11,42 +11,9 @@ export const users = pgTable('users', {
   firstName: text('first_name'),
   lastName: text('last_name'),
   email: text('email').unique(),
-  lastLogin: timestamp('last_login'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull()
 }, (table) => ({
   usernameIdx: index('users_username_idx').on(table.username),
-  emailIdx: index('users_email_idx').on(table.email),
-  roleIdx: index('users_role_idx').on(table.role),
-}));
-
-// Activity logs
-export const activityLogs = pgTable("activity_logs", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
-  action: text("action").notNull(),
-  entity: text("entity").notNull(),
-  entityId: integer("entity_id"),
-  details: text("details"),
-  timestamp: timestamp("timestamp").defaultNow().notNull(),
-}, (table) => ({
-  userIdIdx: index("activity_logs_user_id_idx").on(table.userId),
-  entityIdx: index("activity_logs_entity_idx").on(table.entity),
-  timestampIdx: index("activity_logs_timestamp_idx").on(table.timestamp),
-}));
-
-// Permissions
-export const permissions = pgTable("permissions", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
-  module: text("module").notNull(),
-  canView: boolean("can_view").notNull().default(true),
-  canCreate: boolean("can_create").notNull().default(false),
-  canUpdate: boolean("can_update").notNull().default(false),
-  canDelete: boolean("can_delete").notNull().default(false),
-}, (table) => ({
-  userIdIdx: index("permissions_user_id_idx").on(table.userId),
-  moduleIdx: index("permissions_module_idx").on(table.module),
 }));
 
 // Menu categories
@@ -56,10 +23,7 @@ export const menuCategories = pgTable("menu_categories", {
   description: text("description"),
   slug: text("slug").notNull().unique(),
   displayOrder: integer("display_order").notNull().default(0),
-}, (table) => ({
-  slugIdx: index("menu_categories_slug_idx").on(table.slug),
-  orderIdx: index("menu_categories_order_idx").on(table.displayOrder),
-}));
+});
 
 // Menu items
 export const menuItems = pgTable("menu_items", {
@@ -72,25 +36,7 @@ export const menuItems = pgTable("menu_items", {
   available: boolean("available").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow(),
 }, (table) => ({
-  nameIdx: index("menu_items_name_idx").on(table.name),
   categoryIdx: index("menu_items_category_idx").on(table.categoryId),
-  availableIdx: index("menu_items_available_idx").on(table.available),
-  priceIdx: index("menu_items_price_idx").on(table.price),
-}));
-
-// Menu item images
-export const menuItemImages = pgTable("menu_item_images", {
-  id: serial("id").primaryKey(),
-  menuItemId: integer("menu_item_id").notNull().references(() => menuItems.id),
-  imageUrl: text("image_url").notNull(),
-  altText: text("alt_text"),
-  isPrimary: boolean("is_primary").notNull().default(true),
-  uploadMethod: text("upload_method").notNull().default("url"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-}, (table) => ({
-  menuItemIdx: index("menu_item_images_menu_item_id_idx").on(table.menuItemId),
-  primaryIdx: index("menu_item_images_primary_idx").on(table.menuItemId, table.isPrimary),
 }));
 
 // Tables (physical tables)
@@ -99,11 +45,7 @@ export const tables = pgTable("tables", {
   number: integer("number").notNull().unique(),
   capacity: integer("capacity").notNull(),
   available: boolean("available").notNull().default(true),
-}, (table) => ({
-  numberIdx: index("tables_number_idx").on(table.number),
-  capacityIdx: index("tables_capacity_idx").on(table.capacity),
-  availableIdx: index("tables_available_idx").on(table.available),
-}));
+});
 
 // Customers
 export const customers = pgTable("customers", {
@@ -114,63 +56,29 @@ export const customers = pgTable("customers", {
   phone: text("phone"),
   loyaltyPoints: integer("loyalty_points").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-}, (table) => ({
-  emailIdx: index("customers_email_idx").on(table.email),
-  phoneIdx: index("customers_phone_idx").on(table.phone),
-  loyaltyIdx: index("customers_loyalty_idx").on(table.loyaltyPoints),
-}));
-
-// Employees
-export const employees = pgTable("employees", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
-  firstName: text("first_name").notNull(),
-  lastName: text("last_name").notNull(),
-  position: text("position").notNull(),
-  hourlyRate: real("hourly_rate").notNull(),
-  hireDate: timestamp("hire_date").notNull(),
-  isActive: boolean("is_active").notNull().default(true),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-}, (table) => ({
-  userIdIdx: index("employees_user_id_idx").on(table.userId),
-  positionIdx: index("employees_position_idx").on(table.position),
-  activeIdx: index("employees_active_idx").on(table.isActive),
-}));
+});
 
 // Reservations
 export const reservations = pgTable("reservations", {
   id: serial("id").primaryKey(),
-  customerId: integer("customer_id").notNull().references(() => customers.id),
-  tableId: integer("table_id").notNull().references(() => tables.id),
+  customerId: integer("customer_id").references(() => customers.id),
+  tableId: integer("table_id").references(() => tables.id),
   date: text("date").notNull(),
   time: text("time").notNull(),
   partySize: integer("party_size").notNull(),
   status: text("status").notNull().default("pending"),
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-}, (table) => ({
-  customerIdx: index("reservations_customer_idx").on(table.customerId),
-  dateIdx: index("reservations_date_idx").on(table.date),
-  statusIdx: index("reservations_status_idx").on(table.status),
-  dateTimeIdx: index("reservations_date_time_idx").on(table.date, table.time, table.tableId),
-}));
+});
 
 // Orders
 export const orders = pgTable("orders", {
   id: serial("id").primaryKey(),
   customerId: integer("customer_id").references(() => customers.id),
-  tableId: integer("table_id").references(() => tables.id),
-  status: text("status").notNull().default("pending"),
   totalAmount: real("total_amount").notNull(),
+  status: text("status").notNull().default("pending"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-}, (table) => ({
-  customerIdx: index("orders_customer_idx").on(table.customerId),
-  statusIdx: index("orders_status_idx").on(table.status),
-  createdAtIdx: index("orders_created_at_idx").on(table.createdAt),
-  tableIdx: index("orders_table_idx").on(table.tableId),
-}));
+});
 
 // Order items
 export const orderItems = pgTable("order_items", {
@@ -180,42 +88,7 @@ export const orderItems = pgTable("order_items", {
   quantity: integer("quantity").notNull(),
   unitPrice: real("unit_price").notNull(),
   totalPrice: real("total_price").notNull(),
-  specialInstructions: text("special_instructions"),
-}, (table) => ({
-  orderIdx: index("order_items_order_idx").on(table.orderId),
-  menuItemIdx: index("order_items_menu_item_idx").on(table.menuItemId),
-}));
-
-// Work shifts
-export const workShifts = pgTable("work_shifts", {
-  id: serial("id").primaryKey(),
-  employeeId: integer("employee_id").notNull().references(() => employees.id),
-  date: text("date").notNull(),
-  startTime: text("start_time").notNull(),
-  endTime: text("end_time"),
-  hoursWorked: real("hours_worked"),
-  status: text("status").notNull().default("scheduled"),
-  notes: text("notes"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-}, (table) => ({
-  employeeIdx: index("work_shifts_employee_idx").on(table.employeeId),
-  dateIdx: index("work_shifts_date_idx").on(table.date),
-  statusIdx: index("work_shifts_status_idx").on(table.status),
-}));
-
-// Reservation items
-export const reservationItems = pgTable("reservation_items", {
-  id: serial("id").primaryKey(),
-  reservationId: integer("reservation_id").notNull().references(() => reservations.id),
-  menuItemId: integer("menu_item_id").notNull().references(() => menuItems.id),
-  quantity: integer("quantity").notNull(),
-  unitPrice: real("unit_price").notNull(),
-  totalPrice: real("total_price").notNull(),
-  specialInstructions: text("special_instructions"),
-}, (table) => ({
-  reservationIdx: index("reservation_items_reservation_idx").on(table.reservationId),
-  menuItemIdx: index("reservation_items_menu_item_idx").on(table.menuItemId),
-}));
+});
 
 // Contact messages
 export const contactMessages = pgTable("contact_messages", {
@@ -226,33 +99,9 @@ export const contactMessages = pgTable("contact_messages", {
   message: text("message").notNull(),
   status: text("status").notNull().default("new"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-}, (table) => ({
-  statusIdx: index("contact_messages_status_idx").on(table.status),
-  createdAtIdx: index("contact_messages_created_at_idx").on(table.createdAt),
-}));
+});
 
 // Relations
-
-export const usersRelations = relations(users, ({ many }) => ({
-  activityLogs: many(activityLogs),
-  permissions: many(permissions),
-  employees: many(employees),
-}));
-
-export const activityLogsRelations = relations(activityLogs, ({ one }) => ({
-  user: one(users, {
-    fields: [activityLogs.userId],
-    references: [users.id],
-  }),
-}));
-
-export const permissionsRelations = relations(permissions, ({ one }) => ({
-  user: one(users, {
-    fields: [permissions.userId],
-    references: [users.id],
-  }),
-}));
-
 export const menuCategoriesRelations = relations(menuCategories, ({ many }) => ({
   menuItems: many(menuItems),
 }));
@@ -262,21 +111,7 @@ export const menuItemsRelations = relations(menuItems, ({ one, many }) => ({
     fields: [menuItems.categoryId],
     references: [menuCategories.id],
   }),
-  images: many(menuItemImages),
   orderItems: many(orderItems),
-  reservationItems: many(reservationItems),
-}));
-
-export const menuItemImagesRelations = relations(menuItemImages, ({ one }) => ({
-  menuItem: one(menuItems, {
-    fields: [menuItemImages.menuItemId],
-    references: [menuItems.id],
-  }),
-}));
-
-export const tablesRelations = relations(tables, ({ many }) => ({
-  reservations: many(reservations),
-  orders: many(orders),
 }));
 
 export const customersRelations = relations(customers, ({ many }) => ({
@@ -284,34 +119,10 @@ export const customersRelations = relations(customers, ({ many }) => ({
   reservations: many(reservations),
 }));
 
-export const employeesRelations = relations(employees, ({ one, many }) => ({
-  user: one(users, {
-    fields: [employees.userId],
-    references: [users.id],
-  }),
-  workShifts: many(workShifts),
-}));
-
-export const reservationsRelations = relations(reservations, ({ one, many }) => ({
-  customer: one(customers, {
-    fields: [reservations.customerId],
-    references: [customers.id],
-  }),
-  table: one(tables, {
-    fields: [reservations.tableId],
-    references: [tables.id],
-  }),
-  items: many(reservationItems),
-}));
-
 export const ordersRelations = relations(orders, ({ one, many }) => ({
   customer: one(customers, {
     fields: [orders.customerId],
     references: [customers.id],
-  }),
-  table: one(tables, {
-    fields: [orders.tableId],
-    references: [tables.id],
   }),
   items: many(orderItems),
 }));
@@ -327,71 +138,23 @@ export const orderItemsRelations = relations(orderItems, ({ one }) => ({
   }),
 }));
 
-export const workShiftsRelations = relations(workShifts, ({ one }) => ({
-  employee: one(employees, {
-    fields: [workShifts.employeeId],
-    references: [employees.id],
-  }),
-}));
-
-export const reservationItemsRelations = relations(reservationItems, ({ one }) => ({
-  reservation: one(reservations, {
-    fields: [reservationItems.reservationId],
-    references: [reservations.id],
-  }),
-  menuItem: one(menuItems, {
-    fields: [reservationItems.menuItemId],
-    references: [menuItems.id],
-  }),
-}));
-
-// Types d'inférence
-
+// Type exports
 export type User = typeof users.$inferSelect;
-export type NewUser = typeof users.$inferInsert;
 export type MenuCategory = typeof menuCategories.$inferSelect;
-export type NewMenuCategory = typeof menuCategories.$inferInsert;
 export type MenuItem = typeof menuItems.$inferSelect;
-export type NewMenuItem = typeof menuItems.$inferInsert;
-export type MenuItemImage = typeof menuItemImages.$inferSelect;
-export type NewMenuItemImage = typeof menuItemImages.$inferInsert;
 export type Table = typeof tables.$inferSelect;
-export type NewTable = typeof tables.$inferInsert;
 export type Customer = typeof customers.$inferSelect;
-export type NewCustomer = typeof customers.$inferInsert;
-export type Employee = typeof employees.$inferSelect;
-export type NewEmployee = typeof employees.$inferInsert;
 export type Reservation = typeof reservations.$inferSelect;
-export type NewReservation = typeof reservations.$inferInsert;
-export type ReservationItem = typeof reservationItems.$inferSelect;
-export type NewReservationItem = typeof reservationItems.$inferInsert;
 export type Order = typeof orders.$inferSelect;
-export type NewOrder = typeof orders.$inferInsert;
 export type OrderItem = typeof orderItems.$inferSelect;
-export type NewOrderItem = typeof orderItems.$inferInsert;
-export type WorkShift = typeof workShifts.$inferSelect;
-export type NewWorkShift = typeof workShifts.$inferInsert;
-export type ActivityLog = typeof activityLogs.$inferSelect;
-export type NewActivityLog = typeof activityLogs.$inferInsert;
-export type Permission = typeof permissions.$inferSelect;
-export type NewPermission = typeof permissions.$inferInsert;
 export type ContactMessage = typeof contactMessages.$inferSelect;
-export type NewContactMessage = typeof contactMessages.$inferInsert;
 
-// Schemas Zod
-
+// Schemas
 export const insertUserSchema = createInsertSchema(users);
 export const insertMenuCategorySchema = createInsertSchema(menuCategories);
 export const insertMenuItemSchema = createInsertSchema(menuItems);
-export const insertMenuItemImageSchema = createInsertSchema(menuItemImages);
 export const insertTableSchema = createInsertSchema(tables);
 export const insertCustomerSchema = createInsertSchema(customers);
-export const insertEmployeeSchema = createInsertSchema(employees);
 export const insertReservationSchema = createInsertSchema(reservations);
-export const insertReservationItemSchema = createInsertSchema(reservationItems);
 export const insertOrderSchema = createInsertSchema(orders);
-export const insertOrderItemSchema = createInsertSchema(orderItems);
-export const insertWorkShiftSchema = createInsertSchema(workShifts);
-export const insertActivityLogSchema = createInsertSchema(activityLogs);
-export const insertPermissionSchema = createInsertSchema(permissions);
 export const insertContactMessageSchema = createInsertSchema(contactMessages);

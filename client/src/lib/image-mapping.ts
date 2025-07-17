@@ -149,37 +149,58 @@ export function preloadCriticalImages(): void {
   });
 }
 
-export function normalizeKey(key: string | undefined | null): string {
-  if (!key || typeof key !== 'string') {
-    return 'default';
-  }
-  return key.toLowerCase()
+// Mapping simplifié et sécurisé pour les images
+const CATEGORY_IMAGES: Record<string, string> = {
+  'cafes': 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop',
+  'boissons': 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&h=300&fit=crop',
+  'patisseries': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=300&fit=crop',
+  'plats': 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop'
+};
+
+const ITEM_IMAGES: Record<string, string> = {
+  'espresso': 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=400&h=300&fit=crop',
+  'cappuccino': 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400&h=300&fit=crop',
+  'latte': 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&h=300&fit=crop',
+  'croissant': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=300&fit=crop',
+  'cookies': 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400&h=300&fit=crop'
+};
+
+const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop';
+
+export function normalizeKey(key: any): string {
+  if (!key) return 'default';
+  
+  const str = String(key).toLowerCase();
+  return str
     .replace(/[àáâãäå]/g, 'a')
     .replace(/[èéêë]/g, 'e')
     .replace(/[ìíîï]/g, 'i')
     .replace(/[òóôõö]/g, 'o')
     .replace(/[ùúûü]/g, 'u')
     .replace(/[ç]/g, 'c')
-    .replace(/[ñ]/g, 'n')
     .replace(/[^a-z0-9]/g, '-')
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '');
 }
 
-export function getItemImageUrl(itemName: string | undefined, categorySlug: string | undefined): string {
-  const normalizedItemName = normalizeKey(itemName);
-  const normalizedCategorySlug = normalizeKey(categorySlug);
+export function getItemImageUrl(itemName: any, categorySlug: any = 'default'): string {
+  try {
+    const normalizedItem = normalizeKey(itemName);
+    const normalizedCategory = normalizeKey(categorySlug);
 
-  // Rechercher d'abord par nom exact
-  if (normalizedItemName && MENU_ITEM_IMAGES[normalizedItemName]) {
-    return MENU_ITEM_IMAGES[normalizedItemName];
+    // Recherche par nom d'item
+    if (normalizedItem && ITEM_IMAGES[normalizedItem]) {
+      return ITEM_IMAGES[normalizedItem];
+    }
+
+    // Recherche par catégorie
+    if (normalizedCategory && CATEGORY_IMAGES[normalizedCategory]) {
+      return CATEGORY_IMAGES[normalizedCategory];
+    }
+
+    return DEFAULT_IMAGE;
+  } catch (error) {
+    console.warn('Erreur dans getItemImageUrl:', error);
+    return DEFAULT_IMAGE;
   }
-
-  // Rechercher par catégorie
-  if (normalizedCategorySlug && DEFAULT_CATEGORY_IMAGES[normalizedCategorySlug]) {
-    return DEFAULT_CATEGORY_IMAGES[normalizedCategorySlug];
-  }
-
-  // Image par défaut
-  return DEFAULT_FALLBACK_IMAGE;
 }
