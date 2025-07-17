@@ -9,30 +9,33 @@ let db: ReturnType<typeof drizzle>;
 
 async function initializeDatabase() {
   try {
-    console.log('🐘 Initialisation PostgreSQL optimisée...');
+    console.log('🐘 Initialisation PostgreSQL entreprise...');
     
-    // Configuration PostgreSQL optimisée pour Replit
+    // Configuration PostgreSQL optimisée pour production
     const connectionConfig = {
       connectionString: process.env.DATABASE_URL,
       ssl: { rejectUnauthorized: false },
-      max: 10, // Connexions limitées pour éviter les timeouts
-      min: 2, // Connexions minimum gardées ouvertes
-      idleTimeoutMillis: 60000, // 60 secondes pour les connexions inactives
-      connectionTimeoutMillis: 10000, // 10 secondes pour nouvelles connexions
-      acquireTimeoutMillis: 60000, // 60 secondes pour acquérir une connexion
-      createTimeoutMillis: 30000, // 30 secondes pour créer une connexion
-      destroyTimeoutMillis: 5000, // 5 secondes pour détruire une connexion
-      reapIntervalMillis: 1000, // Vérification toutes les secondes
-      createRetryIntervalMillis: 200, // Retry toutes les 200ms
+      max: 20, // Pool plus large pour performance
+      min: 5, // Connexions minimum maintenues
+      idleTimeoutMillis: 300000, // 5 minutes - évite le recyclage fréquent
+      connectionTimeoutMillis: 8000,
+      acquireTimeoutMillis: 15000,
+      keepAlive: true,
+      keepAliveInitialDelayMillis: 10000,
+      application_name: 'BaristaCAFE_Production',
+      // Optimisations PostgreSQL
+      statement_timeout: 30000,
+      query_timeout: 25000,
+      lock_timeout: 15000,
     };
 
     pool = new Pool(connectionConfig);
     db = drizzle(pool, { schema });
     
-    // Test de connexion avec retry
+    // Test de connexion professionnel
     await testConnection();
     
-    console.log('✅ PostgreSQL connecté et optimisé');
+    console.log('✅ PostgreSQL entreprise configuré');
     return db;
   } catch (error) {
     console.error('❌ Erreur PostgreSQL:', error);
@@ -59,34 +62,50 @@ async function testConnection(retries = 3) {
   }
 }
 
-// Setup des événements du pool avec gestion robuste
+// Setup des événements du pool avec métriques professionnelles
 function setupPoolEvents() {
-  pool.on('connect', (client) => {
-    console.log('🔗 Nouvelle connexion PostgreSQL établie');
-    // Configuration de la connexion pour éviter les timeouts
-    client.query('SET statement_timeout = 30000'); // 30 secondes
-    client.query('SET lock_timeout = 10000'); // 10 secondes
-    client.query('SET idle_in_transaction_session_timeout = 60000'); // 60 secondes
-  });
+  let connectionCount = 0;
+  let lastPoolStatus = Date.now();
 
-  pool.on('error', (err, client) => {
-    console.error('❌ Erreur inattendue PostgreSQL:', err);
-    // Tentative de reconnexion automatique
-    if (err.code === 'ECONNRESET' || err.code === 'ETIMEDOUT') {
-      console.log('🔄 Tentative de reconnexion automatique...');
+  pool.on('connect', (client) => {
+    connectionCount++;
+    // Configuration de session optimisée
+    client.query('SET statement_timeout = 30000');
+    client.query('SET lock_timeout = 15000');
+    client.query('SET idle_in_transaction_session_timeout = 300000');
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`🔗 Connexion DB #${connectionCount} établie`);
     }
   });
 
+  pool.on('error', (err, client) => {
+    console.error('❌ [DB ERROR]', {
+      code: err.code,
+      message: err.message,
+      timestamp: new Date().toISOString()
+    });
+    
+    // Auto-reconnection pour erreurs réseau
+    if (err.code === 'ECONNRESET' || err.code === 'ETIMEDOUT') {
+      console.log('🔄 Reconnexion automatique en cours...');
+    }
+  });
+
+  // Log du statut du pool toutes les 5 minutes seulement
   pool.on('acquire', () => {
-    console.log('📥 Connexion acquise du pool');
+    const now = Date.now();
+    if (now - lastPoolStatus > 300000) { // 5 minutes
+      console.log(`📊 Pool Status: ${pool.totalCount} total, ${pool.idleCount} idle, ${pool.waitingCount} waiting`);
+      lastPoolStatus = now;
+    }
   });
 
-  pool.on('release', () => {
-    console.log('📤 Connexion retournée au pool');
-  });
-
+  // Logs simplifiés pour release/remove
   pool.on('remove', () => {
-    console.log('🗑️ Connexion supprimée du pool');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🗑️ Connexion fermée');
+    }
   });
 }
 

@@ -13,7 +13,8 @@ import databaseRoutes from './routes/database.routes';
 
 // Import des middlewares
 import { errorHandler } from './middleware/error-handler';
-import { requestLogger } from './middleware/logging';
+import { requestLogger, logger } from './middleware/logger';
+import { apiResponseValidator, errorResponseHandler } from './middleware/api-validator';
 
 // Configuration
 dotenv.config();
@@ -34,7 +35,10 @@ app.use(cors({
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Middlewares professionnels
 app.use(requestLogger);
+app.use(apiResponseValidator);
 
 // Middleware de base avec sécurité
 app.use(helmet({
@@ -72,7 +76,8 @@ const startServer = async () => {
       res.sendFile(path.join(__dirname, '../dist/public/index.html'));
     });
 
-    // Middleware de gestion d'erreurs (doit être en dernier)
+    // Middlewares de gestion d'erreurs (ordre important)
+    app.use(errorResponseHandler);
     app.use(errorHandler);
 
     server.listen(PORT, '0.0.0.0', () => {
