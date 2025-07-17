@@ -122,19 +122,7 @@ export class StorageManager {
   }
 }
 
-// Hooks pour localStorage avec React
-export function useLocalStorage<T>(key: StorageKey, defaultValue: T) {
-  const [value, setValue] = useState<T>(() => {
-    return StorageManager.get(key, defaultValue);
-  });
-  
-  const setStoredValue = (newValue: T) => {
-    setValue(newValue);
-    StorageManager.set(key, newValue);
-  };
-  
-  return [value, setStoredValue] as const;
-}
+// Hook supprimé - importer depuis React Hook Library si nécessaire
 
 // Validation des clés
 export function validateStorageKey(key: string): key is StorageKey {

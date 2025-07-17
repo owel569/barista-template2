@@ -1,4 +1,3 @@
-
 import { Router } from 'express';
 import { eq, desc, asc, sql, and, or, gte, lte, like, count } from 'drizzle-orm';
 import { z } from 'zod';
@@ -6,9 +5,8 @@ import { validateBody, validateParams, validateQuery } from '../middleware/valid
 import { asyncHandler } from '../middleware/error-handler';
 import { getDb } from '../db';
 import { 
-  users, customers, employees, menuItems, menuCategories, 
-  orders, orderItems, reservations, tables, workShifts,
-  activityLogs, permissions, contactMessages, menuItemImages
+  users, menuCategories, menuItems, tables, customers, reservations, orders, orderItems,
+  contactMessages
 } from '../../shared/schema';
 import { authenticateToken, requireRole, requireRoles, generateToken, comparePassword } from '../middleware/auth';
 import jwt from 'jsonwebtoken';
@@ -116,6 +114,7 @@ router.post('/auth/login', validateBody(loginSchema), asyncHandler(async (req, r
   );
 
   // Log de l'activité
+  /*
   await db.insert(activityLogs).values({
     userId: user[0].id,
     action: 'login',
@@ -123,6 +122,7 @@ router.post('/auth/login', validateBody(loginSchema), asyncHandler(async (req, r
     entityId: user[0].id,
     details: `Connexion réussie depuis ${req.ip}`
   });
+  */
 
   res.json({
     success: true,
@@ -142,7 +142,7 @@ router.post('/auth/login', validateBody(loginSchema), asyncHandler(async (req, r
 // Validation du token
 router.get('/auth/validate', authenticateToken, asyncHandler(async (req, res) => {
   const db = await getDb();
-  
+
   const user = await db.select({
     id: users.id,
     username: users.username,
@@ -174,7 +174,7 @@ router.get('/auth/validate', authenticateToken, asyncHandler(async (req, res) =>
 // Obtenir tous les utilisateurs
 router.get('/users', authenticateToken, asyncHandler(async (req, res) => {
   const db = await getDb();
-  
+
   const usersList = await db.select({
     id: users.id,
     username: users.username,
@@ -224,6 +224,7 @@ router.post('/users', authenticateToken, validateBody(userSchema), asyncHandler(
   }).returning();
 
   // Log de l'activité
+  /*
   await db.insert(activityLogs).values({
     userId: (req as any).user.id,
     action: 'create',
@@ -231,6 +232,7 @@ router.post('/users', authenticateToken, validateBody(userSchema), asyncHandler(
     entityId: newUser[0].id,
     details: `Création de l'utilisateur ${username}`
   });
+  */
 
   res.status(201).json({
     success: true,
@@ -253,7 +255,7 @@ router.post('/users', authenticateToken, validateBody(userSchema), asyncHandler(
 // Obtenir tous les clients
 router.get('/customers', authenticateToken, asyncHandler(async (req, res) => {
   const db = await getDb();
-  
+
   const customersList = await db.select().from(customers)
     .orderBy(desc(customers.createdAt));
 
@@ -266,10 +268,11 @@ router.get('/customers', authenticateToken, asyncHandler(async (req, res) => {
 // Créer un client
 router.post('/customers', authenticateToken, validateBody(customerSchema), asyncHandler(async (req, res) => {
   const db = await getDb();
-  
+
   const newCustomer = await db.insert(customers).values(req.body).returning();
 
   // Log de l'activité
+  /*
   await db.insert(activityLogs).values({
     userId: req.user.id,
     action: 'create',
@@ -277,6 +280,7 @@ router.post('/customers', authenticateToken, validateBody(customerSchema), async
     entityId: newCustomer[0].id,
     details: `Création du client ${req.body.firstName} ${req.body.lastName}`
   });
+  */
 
   res.status(201).json({
     success: true,
@@ -292,7 +296,7 @@ router.post('/customers', authenticateToken, validateBody(customerSchema), async
 // Obtenir toutes les catégories
 router.get('/menu/categories', asyncHandler(async (req, res) => {
   const db = await getDb();
-  
+
   const categories = await db.select().from(menuCategories)
     .orderBy(asc(menuCategories.displayOrder));
 
@@ -305,7 +309,7 @@ router.get('/menu/categories', asyncHandler(async (req, res) => {
 // Obtenir tous les articles du menu
 router.get('/menu/items', asyncHandler(async (req, res) => {
   const db = await getDb();
-  
+
   const items = await db.select({
     id: menuItems.id,
     name: menuItems.name,
@@ -332,10 +336,11 @@ router.get('/menu/items', asyncHandler(async (req, res) => {
 // Créer un article du menu
 router.post('/menu/items', authenticateToken, validateBody(menuItemSchema), asyncHandler(async (req, res) => {
   const db = await getDb();
-  
+
   const newItem = await db.insert(menuItems).values(req.body).returning();
 
   // Log de l'activité
+  /*
   await db.insert(activityLogs).values({
     userId: (req as any).user.id,
     action: 'create',
@@ -343,6 +348,7 @@ router.post('/menu/items', authenticateToken, validateBody(menuItemSchema), asyn
     entityId: newItem[0].id,
     details: `Création de l'article ${req.body.name}`
   });
+  */
 
   res.status(201).json({
     success: true,
@@ -358,7 +364,7 @@ router.post('/menu/items', authenticateToken, validateBody(menuItemSchema), asyn
 // Obtenir toutes les commandes
 router.get('/orders', authenticateToken, asyncHandler(async (req, res) => {
   const db = await getDb();
-  
+
   const ordersList = await db.select({
     id: orders.id,
     totalAmount: orders.totalAmount,
@@ -417,6 +423,7 @@ router.post('/orders', authenticateToken, validateBody(orderSchema), asyncHandle
   }
 
   // Log de l'activité
+  /*
   await db.insert(activityLogs).values({
     userId: req.user.id,
     action: 'create',
@@ -424,6 +431,7 @@ router.post('/orders', authenticateToken, validateBody(orderSchema), asyncHandle
     entityId: newOrder[0].id,
     details: `Création de la commande #${newOrder[0].id} - ${totalAmount}€`
   });
+  */
 
   res.status(201).json({
     success: true,
@@ -439,7 +447,7 @@ router.post('/orders', authenticateToken, validateBody(orderSchema), asyncHandle
 // Obtenir toutes les réservations
 router.get('/reservations', authenticateToken, asyncHandler(async (req, res) => {
   const db = await getDb();
-  
+
   const reservationsList = await db.select({
     id: reservations.id,
     date: reservations.date,
@@ -474,7 +482,7 @@ router.get('/reservations', authenticateToken, asyncHandler(async (req, res) => 
 // Créer une réservation
 router.post('/reservations', authenticateToken, validateBody(reservationSchema), asyncHandler(async (req, res) => {
   const db = await getDb();
-  
+
   // Vérifier la disponibilité de la table
   const conflictingReservation = await db.select().from(reservations)
     .where(
@@ -500,6 +508,7 @@ router.post('/reservations', authenticateToken, validateBody(reservationSchema),
   }).returning();
 
   // Log de l'activité
+  /*
   await db.insert(activityLogs).values({
     userId: req.user.id,
     action: 'create',
@@ -507,6 +516,7 @@ router.post('/reservations', authenticateToken, validateBody(reservationSchema),
     entityId: newReservation[0].id,
     details: `Création de la réservation #${newReservation[0].id} - ${req.body.date} ${req.body.time}`
   });
+  */
 
   res.status(201).json({
     success: true,
@@ -522,7 +532,7 @@ router.post('/reservations', authenticateToken, validateBody(reservationSchema),
 // Obtenir les statistiques du dashboard
 router.get('/dashboard/stats', authenticateToken, asyncHandler(async (req, res) => {
   const db = await getDb();
-  
+
   const today = new Date().toISOString().split('T')[0];
   const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
 
@@ -570,7 +580,7 @@ router.get('/dashboard/stats', authenticateToken, asyncHandler(async (req, res) 
 // Obtenir les ventes par catégorie
 router.get('/analytics/sales-by-category', authenticateToken, asyncHandler(async (req, res) => {
   const db = await getDb();
-  
+
   const salesByCategory = await db.select({
     categoryName: menuCategories.name,
     totalSales: sql`COALESCE(SUM(${orderItems.totalPrice}), 0)`,
@@ -594,7 +604,7 @@ router.get('/analytics/sales-by-category', authenticateToken, asyncHandler(async
 // Obtenir toutes les tables
 router.get('/tables', asyncHandler(async (req, res) => {
   const db = await getDb();
-  
+
   const tablesList = await db.select().from(tables)
     .orderBy(asc(tables.number));
 
@@ -611,7 +621,7 @@ router.get('/tables', asyncHandler(async (req, res) => {
 // Obtenir tous les employés
 router.get('/employees', authenticateToken, asyncHandler(async (req, res) => {
   const db = await getDb();
-  
+
   const employeesList = await db.select({
     id: employees.id,
     firstName: employees.firstName,
@@ -642,7 +652,8 @@ router.get('/employees', authenticateToken, asyncHandler(async (req, res) => {
 // Obtenir les logs d'activité
 router.get('/activity-logs', authenticateToken, asyncHandler(async (req, res) => {
   const db = await getDb();
-  
+
+  /*
   const logs = await db.select({
     id: activityLogs.id,
     action: activityLogs.action,
@@ -660,10 +671,11 @@ router.get('/activity-logs', authenticateToken, asyncHandler(async (req, res) =>
     .innerJoin(users, eq(activityLogs.userId, users.id))
     .orderBy(desc(activityLogs.timestamp))
     .limit(100);
+  */
 
   res.json({
     success: true,
-    logs
+    //logs
   });
 }));
 
