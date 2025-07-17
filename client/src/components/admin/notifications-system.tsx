@@ -45,12 +45,39 @@ export default function NotificationsSystem({ userRole }: NotificationsSystemPro
   const [soundEnabled, setSoundEnabled] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
+
   // Initialiser WebSocket pour les notifications temps réel
   useWebSocket();
 
-  const { data: notifications = [], isLoading } = useQuery<Notification[]>({
+  const { data: notifications = [], isLoading, refetch } = useQuery<Notification[]>({
     queryKey: ['/api/admin/notifications'],
+    queryFn: async () => {
+      try {
+        const token = localStorage.getItem('barista_auth_token');
+        const response = await fetch('/api/analytics/notifications', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+          return data.notifications || [];
+        } else {
+          console.warn('Notifications API a retourné success: false');
+          return [];
+        }
+      } catch (error) {
+        console.error('Erreur notifications:', error);
+        return [];
+      }
+    },
     retry: 3,
     retryDelay: 1000,
   });
@@ -79,6 +106,7 @@ export default function NotificationsSystem({ userRole }: NotificationsSystemPro
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/notifications'] });
+      refetch();
     },
   });
 
@@ -92,6 +120,7 @@ export default function NotificationsSystem({ userRole }: NotificationsSystemPro
         title: 'Succès',
         description: 'Toutes les notifications ont été marquées comme lues',
       });
+      refetch();
     },
   });
 
@@ -101,6 +130,7 @@ export default function NotificationsSystem({ userRole }: NotificationsSystemPro
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/notifications'] });
+      refetch();
     },
   });
 
@@ -148,7 +178,7 @@ export default function NotificationsSystem({ userRole }: NotificationsSystemPro
   // Calculer les statistiques
   const unreadCount = notifications.filter(n => !n.read).length;
   const highPriorityCount = notifications.filter(n => n.priority === 'high' && !n.read).length;
-  
+
   // Utiliser les données par défaut si les APIs ne fonctionnent pas
   const pendingReservationsCount = Array.isArray(pendingReservations) ? pendingReservations.length : 3;
   const newMessagesCount = Array.isArray(newMessages) ? newMessages.length : 2;

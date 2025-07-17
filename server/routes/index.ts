@@ -9,6 +9,7 @@ import {
   contactMessages, menuItemImages, activityLogs, permissions
 } from '../../shared/schema';
 import { authenticateToken, requireRole, requireRoles, generateToken, comparePassword } from '../middleware/auth';
+import analyticsRouter from './analytics';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
@@ -678,6 +679,9 @@ router.get('/activity-logs', authenticateToken, asyncHandler(async (req, res) =>
     //logs
   });
 }));
+
+// Monter les routes analytics
+router.use('/analytics', analyticsRouter);
 
 export default router;
 

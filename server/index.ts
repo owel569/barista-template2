@@ -33,6 +33,7 @@ app.use(cors({
   credentials: true
 }));
 
+// Middleware pour parser JSON
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -69,6 +70,22 @@ const startServer = async () => {
         version: '2.0.0',
         features: ['ai-automation', 'advanced-reports', 'real-time-analytics']
       });
+    });
+
+    // Middleware de gestion d'erreur globale
+    app.use((error: any, req: any, res: any, next: any) => {
+      console.error('Erreur serveur:', error);
+
+      // Ne pas envoyer d'erreur HTML pour les routes API
+      if (req.path.startsWith('/api')) {
+        return res.status(500).json({
+          success: false,
+          message: 'Erreur interne du serveur',
+          error: process.env.NODE_ENV === 'development' ? error.message : 'Une erreur est survenue'
+        });
+      }
+
+      next(error);
     });
 
     // Gestion des routes frontend (SPA)

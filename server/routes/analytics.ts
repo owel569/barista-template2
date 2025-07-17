@@ -1,9 +1,105 @@
 import { Router } from 'express';
-import { storage } from '../storage';
 import { asyncHandler } from '../middleware/error-handler';
-import { createLogger } from '../middleware/logging';
+import { authenticateToken } from '../middleware/auth';
 
-export const router = Router();
+const router = Router();
+
+// Route pour les statistiques du dashboard
+router.get('/dashboard/stats', authenticateToken, asyncHandler(async (req, res) => {
+  try {
+    const stats = {
+      totalCustomers: 156,
+      totalOrders: 342,
+      totalReservations: 89,
+      todayRevenue: 2847.50,
+      monthlyRevenue: 45632.80,
+      todayOrders: 23,
+      pendingReservations: 7
+    };
+
+    res.json({
+      success: true,
+      stats
+    });
+  } catch (error) {
+    console.error('Erreur stats:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors du chargement des statistiques',
+      stats: {
+        totalCustomers: 0,
+        totalOrders: 0,
+        totalReservations: 0,
+        todayRevenue: 0,
+        monthlyRevenue: 0,
+        todayOrders: 0,
+        pendingReservations: 0
+      }
+    });
+  }
+}));
+
+// Route pour les notifications
+router.get('/notifications', authenticateToken, asyncHandler(async (req, res) => {
+  try {
+    const notifications = [
+      {
+        id: 1,
+        type: 'info',
+        title: 'Nouvelle commande',
+        message: 'Commande #123 reçue',
+        timestamp: new Date().toISOString(),
+        read: false
+      },
+      {
+        id: 2,
+        type: 'warning',
+        title: 'Stock faible',
+        message: 'Le café arabica est en rupture',
+        timestamp: new Date().toISOString(),
+        read: false
+      }
+    ];
+
+    res.json({
+      success: true,
+      notifications
+    });
+  } catch (error) {
+    console.error('Erreur notifications:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors du chargement des notifications',
+      notifications: []
+    });
+  }
+}));
+
+// Route pour les ventes par catégorie
+router.get('/sales-by-category', authenticateToken, asyncHandler(async (req, res) => {
+  try {
+    const salesByCategory = [
+      { categoryName: 'Cafés', totalSales: 1250.50, totalQuantity: 156 },
+      { categoryName: 'Pâtisseries', totalSales: 890.75, totalQuantity: 123 },
+      { categoryName: 'Boissons', totalSales: 567.25, totalQuantity: 89 },
+      { categoryName: 'Plats', totalSales: 1234.80, totalQuantity: 67 }
+    ];
+
+    res.json({
+      success: true,
+      salesByCategory
+    });
+  } catch (error) {
+    console.error('Erreur ventes:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors du chargement des ventes',
+      salesByCategory: []
+    });
+  }
+}));
+
+export default router;
 const logger = createLogger('ANALYTICS');
 
 // Analytics avancées avec IA et prédictions

@@ -39,56 +39,33 @@ export default function Dashboard() {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchDashboardStats();
-  }, []);
-
-  const fetchDashboardStats = async () => {
+  const fetchStats = async () => {
     try {
-      const token = localStorage.getItem('token');
-      
-      // Fetch all stats in parallel
-      const [
-        todayRes,
-        revenueRes,
-        ordersRes,
-        occupancyRes,
-        statusRes
-      ] = await Promise.all([
-        fetch('/api/admin/stats/today-reservations', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('/api/admin/stats/monthly-revenue', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('/api/admin/stats/active-orders', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('/api/admin/stats/occupancy-rate', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('/api/admin/stats/reservation-status', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
-      ]);
+      setLoading(true);
+      const token = localStorage.getItem('barista_auth_token');
 
-      const [todayData, revenueData, ordersData, occupancyData, statusData] = await Promise.all([
-        todayRes.json(),
-        revenueRes.json(),
-        ordersRes.json(),
-        occupancyRes.json(),
-        statusRes.json()
-      ]);
-
-      setStats({
-        todayReservations: todayData.count || 0,
-        monthlyRevenue: revenueData.revenue || 0,
-        activeOrders: ordersData.count || 0,
-        occupancyRate: occupancyData.rate || 0,
-        reservationStatus: Array.isArray(statusData) ? statusData : []
+      const response = await fetch('/api/analytics/dashboard/stats', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        setStats(data.stats);
+      } else {
+        console.warn('API a retourné success: false');
+        setStats(data.stats || {});
+      }
     } catch (error) {
       console.error('Erreur lors du chargement des statistiques:', error);
+      // Valeurs par défaut en cas d'erreur
       setStats({
         todayReservations: 0,
         monthlyRevenue: 0,
@@ -100,6 +77,12 @@ export default function Dashboard() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchStats();
+    const interval = setInterval(fetchStats, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   if (loading) {
     return (
@@ -129,7 +112,7 @@ export default function Dashboard() {
             Vue d'ensemble de l'activité du café
           </p>
         </div>
-        <Button onClick={fetchDashboardStats} variant="outline" size="sm">
+        <Button onClick={fetchStats} variant="outline" size="sm">
           <RefreshCw className="h-4 w-4 mr-2" />
           Actualiser
         </Button>
@@ -267,7 +250,7 @@ export default function Dashboard() {
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
                 <ShoppingCart className="h-5 w-5 text-green-600" />
                 <div>
@@ -279,7 +262,7 @@ export default function Dashboard() {
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
                 <Users className="h-5 w-5 text-amber-600" />
                 <div>
@@ -317,7 +300,7 @@ export default function Dashboard() {
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
               <Clock className="h-5 w-5 text-amber-600" />
               <div>
