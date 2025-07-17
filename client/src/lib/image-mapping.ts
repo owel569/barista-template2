@@ -148,3 +148,38 @@ export function preloadCriticalImages(): void {
     img.src = url;
   });
 }
+
+export function normalizeKey(key: string | undefined | null): string {
+  if (!key || typeof key !== 'string') {
+    return 'default';
+  }
+  return key.toLowerCase()
+    .replace(/[àáâãäå]/g, 'a')
+    .replace(/[èéêë]/g, 'e')
+    .replace(/[ìíîï]/g, 'i')
+    .replace(/[òóôõö]/g, 'o')
+    .replace(/[ùúûü]/g, 'u')
+    .replace(/[ç]/g, 'c')
+    .replace(/[ñ]/g, 'n')
+    .replace(/[^a-z0-9]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+export function getItemImageUrl(itemName: string | undefined, categorySlug: string | undefined): string {
+  const normalizedItemName = normalizeKey(itemName);
+  const normalizedCategorySlug = normalizeKey(categorySlug);
+
+  // Rechercher d'abord par nom exact
+  if (normalizedItemName && MENU_ITEM_IMAGES[normalizedItemName]) {
+    return MENU_ITEM_IMAGES[normalizedItemName];
+  }
+
+  // Rechercher par catégorie
+  if (normalizedCategorySlug && DEFAULT_CATEGORY_IMAGES[normalizedCategorySlug]) {
+    return DEFAULT_CATEGORY_IMAGES[normalizedCategorySlug];
+  }
+
+  // Image par défaut
+  return DEFAULT_FALLBACK_IMAGE;
+}
