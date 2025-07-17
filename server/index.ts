@@ -1,130 +1,80 @@
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import helmet from 'helmet';
-
-// Import des routes
-import { registerRoutes } from './routes/index';
-import aiRoutes from './routes/ai.routes';
-import analyticsRoutes from './routes/analytics.routes';
-import databaseRoutes from './routes/database.routes';
-
-// Import des middlewares
+import { dirname } from 'path';
+import { createLogger } from './middleware/logging';
+import { requestLogger } from './middleware/logging';
 import { errorHandler } from './middleware/error-handler';
-import { requestLogger, logger } from './middleware/logger';
-import { apiResponseValidator, errorResponseHandler } from './middleware/api-validator';
 
-// Configuration
-dotenv.config();
+// Routes
+import apiRoutes from './routes/index';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const logger = createLogger('SERVER');
 
-// Middlewares globaux
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production'
-    ? ['https://your-domain.com']
+// Configuration CORS optimisée
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://your-domain.com'] 
     : ['http://localhost:3000', 'http://localhost:5173'],
-  credentials: true
-}));
-
-// Middleware pour parser JSON
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Middlewares professionnels
-app.use(requestLogger);
-app.use(apiResponseValidator);
-
-// Middleware de base avec sécurité
-app.use(helmet({
-  contentSecurityPolicy: false,
-  crossOriginEmbedderPolicy: false
-}));
-
-// Servir les fichiers statiques
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-app.use(express.static(path.join(__dirname, '../dist/public')));
-
-// Démarrage du serveur avec WebSocket
-const startServer = async () => {
-  try {
-    // Configuration des routes principales
-    registerRoutes(app);
-
-    // Routes spécialisées
-    app.use('/api/ai', aiRoutes);
-    app.use('/api/analytics', analyticsRoutes);
-    app.use('/api/database', databaseRoutes);
-
-    // Route de santé du serveur
-    app.get('/api/health', (req: express.Request, res: express.Response) => {
-      res.json({
-        status: 'ok',
-        timestamp: new Date().toISOString(),
-        version: '2.0.0',
-        features: ['ai-automation', 'advanced-reports', 'real-time-analytics']
-      });
-    });
-
-    // Middleware de gestion d'erreur globale
-    app.use((error: any, req: any, res: any, next: any) => {
-      console.error('Erreur serveur:', error);
-
-      // Ne pas envoyer d'erreur HTML pour les routes API
-      if (req.path.startsWith('/api')) {
-        return res.status(500).json({
-          success: false,
-          message: 'Erreur interne du serveur',
-          error: process.env.NODE_ENV === 'development' ? error.message : 'Une erreur est survenue'
-        });
-      }
-
-      next(error);
-    });
-
-    // Gestion des routes frontend (SPA)
-    app.get('*', (req: express.Request, res: express.Response) => {
-      res.sendFile(path.join(__dirname, '../dist/public/index.html'));
-    });
-
-    // Middlewares de gestion d'erreurs (ordre important)
-    app.use(errorResponseHandler);
-    app.use(errorHandler);
-
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`🚀 Serveur Barista Café démarré sur le port ${PORT}`);
-      console.log(`📊 Dashboard admin: http://localhost:${PORT}/admin`);
-      console.log(`🤖 API IA disponible: http://localhost:${PORT}/api/ai`);
-      console.log(`📈 Analytics: http://localhost:${PORT}/api/analytics`);
-      console.log(`🔌 WebSocket disponible: ws://localhost:${PORT}/api/ws`);
-
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`🔧 Mode développement activé`);
-        console.log(`📝 Logs détaillés activés`);
-      }
-    });
-  } catch (error) {
-    console.error('❌ Erreur lors du démarrage du serveur:', error);
-    process.exit(1);
-  }
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
 
-startServer();
+// Middlewares globaux
+app.use(cors(corsOptions));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(requestLogger);
 
-// Gestion propre de l'arrêt
+// Servir les fichiers statiques
+app.use('/images', express.static(path.join(__dirname, '../client/src/assets')));
+app.use(express.static(path.join(__dirname, '../client/dist')));
+
+// Routes API
+app.use('/api', apiRoutes);
+
+// Route pour servir l'app React
+app.get('*', (req, res) => {
+  const indexPath = path.join(__dirname, '../client/dist/index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      logger.error('Erreur lors du service du fichier index.html', { error: err.message });
+      res.status(500).send('Erreur serveur');
+    }
+  });
+});
+
+// Middleware de gestion d'erreurs (doit être en dernier)
+app.use(errorHandler);
+
+// Démarrage du serveur
+app.listen(PORT, '0.0.0.0', () => {
+  logger.info(`🚀 Serveur Barista Café démarré sur le port ${PORT}`);
+  logger.info(`📊 Dashboard admin: http://localhost:${PORT}/admin`);
+  logger.info(`🔌 API disponible: http://localhost:${PORT}/api`);
+  logger.info(`📈 Analytics: http://localhost:${PORT}/api/analytics`);
+  logger.info(`🔧 Mode ${process.env.NODE_ENV || 'development'} activé`);
+
+  if (process.env.NODE_ENV === 'development') {
+    logger.info('📝 Logs détaillés activés');
+  }
+});
+
+// Gestion gracieuse de l'arrêt
 process.on('SIGTERM', () => {
-  console.log('🛑 Arrêt du serveur en cours...');
+  logger.info('Signal SIGTERM reçu, arrêt du serveur...');
   process.exit(0);
 });
 
 process.on('SIGINT', () => {
-  console.log('🛑 Arrêt du serveur (Ctrl+C)...');
+  logger.info('Signal SIGINT reçu, arrêt du serveur...');
   process.exit(0);
 });
 

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { asyncHandler } from '../middleware/error-handler';
 import { authenticateToken } from '../middleware/auth';
+import { createLogger } from '../middleware/logging';
 
 const router = Router();
 
@@ -99,7 +100,6 @@ router.get('/sales-by-category', authenticateToken, asyncHandler(async (req, res
   }
 }));
 
-export default router;
 const logger = createLogger('ANALYTICS');
 
 // Analytics avancées avec IA et prédictions
@@ -341,4 +341,4 @@ router.post('/custom-report', asyncHandler(async (req, res) => {
   }
 }));
 
-export { router as analyticsRouter };
+export default router;
