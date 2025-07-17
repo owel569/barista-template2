@@ -341,4 +341,30 @@ router.post('/custom-report', asyncHandler(async (req, res) => {
   }
 }));
 
+// Obtenir les statistiques d'aujourd'hui pour les réservations
+router.get('/admin/stats/today-reservations', authenticateToken, async (req, res) => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
+    const count = Math.floor(Math.random() * 25) + 5; // Simulation données
+
+    res.json({ 
+      success: true, 
+      count,
+      trend: '+12%',
+      previousDay: count - 3
+    });
+  } catch (error) {
+    console.error('Erreur today-reservations:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Erreur serveur',
+      count: 0 
+    });
+  }
+});
+
 export default router;

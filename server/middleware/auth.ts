@@ -61,3 +61,6 @@ export const generateToken = (user: any): string => {
     { expiresIn: '24h' }
   );
 };
+
+// Alias pour compatibilité
+export const authMiddleware = authenticateToken;
