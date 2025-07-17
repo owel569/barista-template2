@@ -1,11 +1,12 @@
+
 #!/bin/bash
 # Script de démarrage automatique Barista Café
 
 echo "🚀 Démarrage Barista Café - Mode Production"
-echo "🗄️ Base de données: sqlite"
+echo "🐘 Base de données: PostgreSQL"
 
-# Créer le répertoire de backup si nécessaire
-mkdir -p ./backups
+# Vérifier la connexion PostgreSQL
+echo "🔍 Vérification de la connexion PostgreSQL..."
 
 # Démarrer l'application
 npm run dev

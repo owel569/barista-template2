@@ -1,65 +1,140 @@
 
 import { Router } from 'express';
-import { asyncHandler } from '../middleware/error-handler';
+import { getDb, checkDatabaseHealth } from '../db';
 import { authenticateToken, requireRole } from '../middleware/auth';
+import { asyncHandler } from '../middleware/error-handler';
+import { sql } from 'drizzle-orm';
 
 const router = Router();
 
-// Route pour forcer la création des tables manquantes
-router.post('/force-init', authenticateToken, requireRole('directeur'), asyncHandler(async (req, res) => {
+// Route de santé de la base de données
+router.get('/health', asyncHandler(async (req, res) => {
   try {
-    console.log('🔄 Initialisation forcée de la base de données...');
+    const health = await checkDatabaseHealth();
     
-    // Importation dynamique du module de base de données
-    const { getDb } = await import('../db');
-    const db = await getDb();
-    
-    // Vérification que les tables existent
-    const tables = await db.execute(`
-      SELECT table_name 
-      FROM information_schema.tables 
-      WHERE table_schema = 'public'
-    `);
-    
-    console.log('📋 Tables existantes:', tables.rows?.map(t => t.table_name) || []);
-    
-    res.json({ 
-      message: 'Vérification de la base de données terminée',
-      tables: tables.rows?.map(t => t.table_name) || [],
-      status: 'success'
-    });
-    
+    if (health.healthy) {
+      res.json({
+        status: 'healthy',
+        database: 'postgresql',
+        ...health
+      });
+    } else {
+      res.status(503).json({
+        status: 'unhealthy',
+        database: 'postgresql',
+        ...health
+      });
+    }
   } catch (error) {
-    console.error('❌ Erreur lors de l\'initialisation forcée:', error);
-    res.status(500).json({ 
-      message: 'Erreur lors de l\'initialisation', 
-      error: error.message,
-      status: 'error'
+    res.status(500).json({
+      status: 'error',
+      database: 'postgresql',
+      error: error.message
     });
   }
 }));
 
-// Route pour recréer les tables SQLite si nécessaire
-router.post('/recreate-tables', authenticateToken, requireRole('directeur'), asyncHandler(async (req, res) => {
+// Route d'informations sur la base de données
+router.get('/info', authenticateToken, requireRole('directeur'), asyncHandler(async (req, res) => {
   try {
-    console.log('🔄 Recréation des tables SQLite...');
+    const db = await getDb();
     
-    // Exécuter le script de setup universel
+    // Obtenir les informations sur les tables
+    const tablesResult = await db.execute(sql`
+      SELECT 
+        schemaname,
+        tablename,
+        tableowner
+      FROM pg_tables 
+      WHERE schemaname = 'public'
+      ORDER BY tablename;
+    `);
+    
+    // Obtenir les informations sur la base de données
+    const dbInfoResult = await db.execute(sql`
+      SELECT 
+        current_database() as database_name,
+        current_user as current_user,
+        version() as version;
+    `);
+    
+    res.json({
+      database: 'postgresql',
+      info: dbInfoResult.rows[0],
+      tables: tablesResult.rows,
+      status: 'connected'
+    });
+  } catch (error) {
+    console.error('❌ Erreur lors de la récupération des informations:', error);
+    res.status(500).json({
+      message: 'Erreur lors de la récupération des informations de la base de données',
+      error: error.message
+    });
+  }
+}));
+
+// Route pour vérifier les migrations
+router.get('/migrations', authenticateToken, requireRole('directeur'), asyncHandler(async (req, res) => {
+  try {
+    const db = await getDb();
+    
+    // Vérifier si les tables existent
+    const tablesCheck = await db.execute(sql`
+      SELECT table_name 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public'
+      AND table_type = 'BASE TABLE'
+      ORDER BY table_name;
+    `);
+    
+    const expectedTables = [
+      'users', 'menu_categories', 'menu_items', 'tables', 
+      'customers', 'employees', 'reservations', 'orders', 
+      'order_items', 'work_shifts', 'activity_logs', 'permissions'
+    ];
+    
+    const existingTables = tablesCheck.rows.map(row => row.table_name);
+    const missingTables = expectedTables.filter(table => !existingTables.includes(table));
+    
+    res.json({
+      database: 'postgresql',
+      expectedTables,
+      existingTables,
+      missingTables,
+      migrationNeeded: missingTables.length > 0
+    });
+  } catch (error) {
+    console.error('❌ Erreur lors de la vérification des migrations:', error);
+    res.status(500).json({
+      message: 'Erreur lors de la vérification des migrations',
+      error: error.message
+    });
+  }
+}));
+
+// Route pour appliquer les migrations
+router.post('/migrate', authenticateToken, requireRole('directeur'), asyncHandler(async (req, res) => {
+  try {
+    console.log('🔄 Application des migrations PostgreSQL...');
+    
+    // Exécuter les migrations Drizzle
     const { execSync } = await import('child_process');
-    const result = execSync('node setup-universal.js', { encoding: 'utf8' });
+    const result = execSync('npm run db:migrate', { encoding: 'utf8' });
     
-    console.log('✅ Tables recréées avec succès');
+    console.log('✅ Migrations appliquées avec succès');
     
-    res.json({ 
-      message: 'Tables recréées avec succès',
+    res.json({
+      message: 'Migrations appliquées avec succès',
+      database: 'postgresql',
       output: result,
       status: 'success'
     });
     
   } catch (error) {
-    console.error('❌ Erreur lors de la recréation des tables:', error);
-    res.status(500).json({ 
-      message: 'Erreur lors de la recréation des tables', 
+    console.error('❌ Erreur lors de l\'application des migrations:', error);
+    res.status(500).json({
+      message: 'Erreur lors de l\'application des migrations',
+      database: 'postgresql',
       error: error.message,
       status: 'error'
     });
