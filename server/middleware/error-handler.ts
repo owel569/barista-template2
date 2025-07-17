@@ -1,8 +1,15 @@
 
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { ZodError } from 'zod';
 
-export const asyncHandler = (fn: Function) => {
+// Utilitaire pour identifier les erreurs de base de données
+const isDatabaseError = (err: any): boolean => {
+  const dbCodes = ['ECONNREFUSED', 'ENOTFOUND', '23505', '23503', '23502', '42P01'];
+  return dbCodes.includes(err.code?.toString());
+};
+
+// Typage amélioré pour asyncHandler
+export const asyncHandler = (fn: RequestHandler): RequestHandler => {
   return (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
@@ -14,9 +21,12 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
+  // Timestamp uniforme
+  const timestamp = new Date().toISOString();
+
   // Log structuré pour monitoring
   const errorLog = {
-    timestamp: new Date().toISOString(),
+    timestamp,
     method: req.method,
     url: req.url,
     userAgent: req.get('user-agent'),
@@ -24,7 +34,7 @@ export const errorHandler = (
     error: {
       name: err.name,
       message: err.message,
-      code: err.code,
+      code: err.code?.toString(),
       status: err.status || err.statusCode
     }
   };
@@ -36,24 +46,24 @@ export const errorHandler = (
     res.setHeader('Content-Type', 'application/json');
 
     // Erreur de validation Zod
-    if (err.name === 'ZodError') {
+    if (err instanceof ZodError || err.name === 'ZodError') {
       return res.status(400).json({
         success: false,
         message: 'Données de requête invalides',
-        errors: err.errors.map((e: any) => ({
-          field: e.path.join('.'),
+        errors: err.errors?.map((e: any) => ({
+          field: e.path?.join('.') || 'unknown',
           message: e.message
-        })),
-        timestamp: new Date().toISOString()
+        })) || [],
+        timestamp
       });
     }
 
     // Erreur de base de données
-    if (err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND' || err.code === '23505') {
+    if (isDatabaseError(err)) {
       return res.status(503).json({
         success: false,
         message: 'Service temporairement indisponible',
-        timestamp: new Date().toISOString(),
+        timestamp,
         retryAfter: 30
       });
     }
@@ -63,7 +73,7 @@ export const errorHandler = (
       return res.status(401).json({
         success: false,
         message: 'Authentification requise',
-        timestamp: new Date().toISOString()
+        timestamp
       });
     }
 
@@ -72,7 +82,7 @@ export const errorHandler = (
       return res.status(403).json({
         success: false,
         message: 'Permissions insuffisantes',
-        timestamp: new Date().toISOString()
+        timestamp
       });
     }
 
@@ -81,7 +91,7 @@ export const errorHandler = (
       return res.status(429).json({
         success: false,
         message: 'Trop de requêtes, veuillez patienter',
-        timestamp: new Date().toISOString(),
+        timestamp,
         retryAfter: err.retryAfter || 60
       });
     }
@@ -92,7 +102,7 @@ export const errorHandler = (
       message: process.env.NODE_ENV === 'production' 
         ? 'Une erreur interne s\'est produite' 
         : err.message,
-      timestamp: new Date().toISOString(),
+      timestamp,
       ...(process.env.NODE_ENV === 'development' && { 
         stack: err.stack,
         details: err 
@@ -100,10 +110,11 @@ export const errorHandler = (
     });
   }
 
-  // Erreur par défaut pour pages HTML
+  // Pour les pages HTML, redirection vers une page d'erreur ou réponse JSON simple
+  // Si vous avez des pages HTML, remplacez par res.redirect('/error') ou un template
   res.status(err.status || 500).json({
     success: false,
     message: 'Une erreur s\'est produite',
-    timestamp: new Date().toISOString()
+    timestamp
   });
 };
