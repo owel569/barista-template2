@@ -44,7 +44,7 @@ app.use(helmet({
 
 // Servir les fichiers statiques
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-app.use(express.static(path.join(__dirname, '../client/dist')));
+app.use(express.static(path.join(__dirname, '../dist/public')));
 
 // Démarrage du serveur avec WebSocket
 const startServer = async () => {
@@ -69,7 +69,7 @@ const startServer = async () => {
 
     // Gestion des routes frontend (SPA)
     app.get('*', (req: express.Request, res: express.Response) => {
-      res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+      res.sendFile(path.join(__dirname, '../dist/public/index.html'));
     });
 
     // Middleware de gestion d'erreurs (doit être en dernier)
