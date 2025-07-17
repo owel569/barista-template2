@@ -1,45 +1,86 @@
 
 import { Router } from 'express';
 import { authenticateToken, requireRole } from '../middleware/auth';
+import { AIAutomationModule } from '../modules/ai-automation';
 
 const router = Router();
 
-// Routes IA
-router.get('/recommendations', authenticateToken, async (req, res) => {
+// Routes du chatbot IA
+router.post('/chat', authenticateToken, AIAutomationModule.processChatMessage);
+router.post('/voice-command', authenticateToken, AIAutomationModule.processVoiceCommand);
+
+// Routes de réservation automatique
+router.post('/auto-reservation', authenticateToken, AIAutomationModule.processAutomaticReservation);
+
+// Routes d'analyse prédictive (admin seulement)
+router.get('/predictions', authenticateToken, requireRole('directeur'), AIAutomationModule.getPredictiveAnalytics);
+router.get('/automation-suggestions', authenticateToken, requireRole('directeur'), AIAutomationModule.getAutomationSuggestions);
+
+// Route pour les insights en temps réel
+router.get('/real-time-insights', authenticateToken, requireRole('directeur'), async (req, res) => {
   try {
-    const recommendations = {
-      menu: [
-        { item: 'Latte Épicé', reason: 'Tendance saisonnière', confidence: 0.85 },
-        { item: 'Croissant Amande', reason: 'Forte demande matinale', confidence: 0.78 }
+    const insights = {
+      currentCustomers: Math.floor(Math.random() * 50) + 10,
+      waitTime: Math.floor(Math.random() * 15) + 5,
+      popularItem: 'Cappuccino',
+      revenue: (Math.random() * 1000 + 500).toFixed(2),
+      alerts: [
+        { type: 'stock', message: 'Stock de lait faible', severity: 'warning' },
+        { type: 'staff', message: 'Rush hour - personnel supplémentaire recommandé', severity: 'info' }
       ],
-      inventory: [
-        { product: 'Grains Arabica', action: 'Réapprovisionner', urgency: 'high' },
-        { product: 'Lait Bio', action: 'Stock optimal', urgency: 'low' }
-      ],
-      pricing: [
-        { item: 'Cappuccino', suggestion: 'Augmenter de 0.20€', impact: '+12% revenus' }
+      recommendations: [
+        'Proposer une promotion sur les pâtisseries',
+        'Préparer plus de cappuccinos',
+        'Optimiser la disposition des tables'
       ]
     };
-    res.json(recommendations);
+    
+    res.json(insights);
   } catch (error) {
-    res.status(500).json({ error: 'Erreur lors de la génération des recommandations IA' });
+    res.status(500).json({ error: 'Erreur lors de la récupération des insights' });
   }
 });
 
-router.post('/chat', authenticateToken, async (req, res) => {
+// Route pour la génération de rapports IA
+router.post('/generate-report', authenticateToken, requireRole('directeur'), async (req, res) => {
   try {
-    const { message } = req.body;
-    const response = {
-      message: `Assistant IA: J'ai bien reçu votre message "${message}". Comment puis-je vous aider avec votre café ?`,
-      suggestions: [
-        'Voir les statistiques de vente',
-        'Optimiser le menu',
-        'Gérer les stocks'
+    const { templateId, dateRange, fields, charts } = req.body;
+    
+    // Simulation de génération de rapport avec données réalistes
+    const reportData = {
+      id: `report_${Date.now()}`,
+      templateId,
+      generatedAt: new Date().toISOString(),
+      dateRange,
+      salesData: Array.from({ length: 30 }, (_, i) => ({
+        date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toLocaleDateString(),
+        revenue: Math.floor(Math.random() * 1000) + 500,
+        orders: Math.floor(Math.random() * 100) + 50,
+        customers: Math.floor(Math.random() * 80) + 40
+      })),
+      categoryData: [
+        { name: 'Cafés', value: 45 },
+        { name: 'Pâtisseries', value: 25 },
+        { name: 'Sandwichs', value: 20 },
+        { name: 'Boissons froides', value: 10 }
+      ],
+      metrics: {
+        revenue: '€12,450',
+        customers: '1,234',
+        orders: '856',
+        growth: '+15%'
+      },
+      aiInsights: [
+        'Hausse significative des ventes de café le matin',
+        'Opportunité d\'augmenter les prix des boissons froides',
+        'Recommandation de réduire les portions de pâtisseries invendues'
       ]
     };
-    res.json(response);
+    
+    res.json(reportData);
   } catch (error) {
-    res.status(500).json({ error: 'Erreur du chatbot IA' });
+    console.error('Erreur génération de rapport:', error);
+    res.status(500).json({ error: 'Erreur lors de la génération du rapport' });
   }
 });
 

@@ -1,152 +1,88 @@
+import express from 'express';
+import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Import des routes
+import routes from './routes';
+import aiRoutes from './routes/ai.routes';
+import analyticsRoutes from './routes/analytics.routes';
+
+// Import des middlewares
+import { errorHandler } from './middleware/error-handler';
+import { requestLogger } from './middleware/logging';
+
+// Configuration
 dotenv.config();
 
-// Gestionnaire d'erreurs globales pour éviter les promesses non gérées
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Promesse non gérée:', reason);
-});
-
-process.on('uncaughtException', (error) => {
-  console.error('Exception non gérée:', error);
-});
-
-import express, { type Request, Response, NextFunction } from "express";
-import compression from 'compression';
-import helmet from 'helmet';
-import cors from 'cors';
-import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
+const PORT = process.env.PORT || 5000;
 
-// Middleware de sécurité et performance
-app.use(helmet({
-  contentSecurityPolicy: false, // Désactivé pour Vite en développement
-  crossOriginEmbedderPolicy: false
-}));
-
+// Middlewares globaux
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? process.env.FRONTEND_URL 
-    : true,
+    ? ['https://your-domain.com'] 
+    : ['http://localhost:3000', 'http://localhost:5173'],
   credentials: true
 }));
 
-// Compression pour améliorer les performances
-app.use(compression({
-  filter: (req, res) => {
-    if (req.headers['x-no-compression']) {
-      return false;
-    }
-    return compression.filter(req, res);
-  },
-  threshold: 1024 // Compresser seulement si > 1KB
-}));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(requestLogger);
 
-// Parsing optimisé
-app.use(express.json({ 
-  limit: '10mb',
-  strict: true
-}));
-app.use(express.urlencoded({ 
-  extended: false,
-  limit: '10mb'
-}));
+// Servir les fichiers statiques
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use(express.static(path.join(__dirname, '../client/dist')));
 
-app.use((req, res, next) => {
-  const start = Date.now();
-  const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
+// Routes API
+app.use('/api', routes);
+app.use('/api/ai', aiRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
-
-  res.on("finish", () => {
-    const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
-      }
-
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
-      }
-
-      log(logLine);
-    }
+// Route de santé du serveur
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    version: '2.0.0',
+    features: ['ai-automation', 'advanced-reports', 'real-time-analytics']
   });
-
-  next();
 });
 
-(async () => {
-  // Configuration PostgreSQL automatique - en arrière-plan
-  setTimeout(async () => {
-    try {
-      const { getDb } = await import("./db");
-      await getDb();
-      console.log("✅ PostgreSQL configuré automatiquement");
+// Gestion des routes frontend (SPA)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+});
 
-      console.log("✅ Configuration automatique terminée");
-    } catch (error) {
-      console.log("⚠️  Base de données non disponible - le serveur continue de fonctionner");
-    }
-  }, 1000); // Délai de 1 seconde après le démarrage
+// Middleware de gestion d'erreurs
+app.use(errorHandler);
 
-  // Gestion d'erreurs globales avant les routes
-  process.on('uncaughtException', (error) => {
-    console.error('Erreur non capturée:', error);
-    // Ne pas arrêter le processus en développement
-    if (process.env.NODE_ENV === 'production') {
-      process.exit(1);
-    }
-  });
+// Démarrage du serveur
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Serveur Barista Café démarré sur le port ${PORT}`);
+  console.log(`📊 Dashboard admin: http://localhost:${PORT}/admin`);
+  console.log(`🤖 API IA disponible: http://localhost:${PORT}/api/ai`);
+  console.log(`📈 Analytics: http://localhost:${PORT}/api/analytics`);
 
-  process.on('unhandledRejection', (reason, promise) => {
-    console.error('Promesse rejetée non gérée:', reason);
-    // Logging sans arrêter l'application
-  });
-
-  // IMPORTANT: Enregistrer les routes API AVANT tout middleware Vite
-  const server = await registerRoutes(app);
-
-  // Vérifier que les routes sont bien enregistrées
-  console.log('🔗 Routes API enregistrées avant middleware Vite');
-
-  // Routes avancées - import synchrone pour éviter les conflits
-  try {
-    const { default: advancedRoutes } = await import('./routes/advanced-features');
-    app.use('/api/advanced', advancedRoutes);
-    console.log('✅ Routes avancées chargées');
-  } catch (error) {
-    console.warn('Routes avancées non disponibles:', error.message);
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`🔧 Mode développement activé`);
+    console.log(`📝 Logs détaillés activés`);
   }
+});
 
-  // Configuration Vite APRÈS les routes API pour éviter les conflits
-  if (app.get("env") === "development") {
-    await setupVite(app, server);
-  } else {
-    serveStatic(app);
-  }
+// Gestion propre de l'arrêt
+process.on('SIGTERM', () => {
+  console.log('🛑 Arrêt du serveur en cours...');
+  process.exit(0);
+});
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
+process.on('SIGINT', () => {
+  console.log('🛑 Arrêt du serveur (Ctrl+C)...');
+  process.exit(0);
+});
 
-    console.error('Erreur serveur:', err);
-    res.status(status).json({ message });
-  });
-
-  // ALWAYS serve the app on port 5000
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = 5000;
-
-  server.listen(port, "0.0.0.0", () => {
-      log(`serving on port ${port}`);
-    });
-})();
+export default app;

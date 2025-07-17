@@ -1,181 +1,369 @@
 
-export class AIAutomation {
-  
-  // Chatbot intelligent
-  static async processMessage(message: string, context: any = {}) {
+import { Request, Response } from 'express';
+import { z } from 'zod';
+
+// Schémas de validation
+const ChatMessageSchema = z.object({
+  message: z.string().min(1),
+  context: z.string().optional(),
+  userId: z.string().optional()
+});
+
+const VoiceCommandSchema = z.object({
+  audioData: z.string(),
+  language: z.string().default('fr-FR')
+});
+
+const ReservationRequestSchema = z.object({
+  date: z.string(),
+  time: z.string(),
+  guests: z.number().min(1).max(20),
+  preferences: z.string().optional()
+});
+
+// Base de connaissances du café
+const KNOWLEDGE_BASE = {
+  menu: {
+    'cappuccino': { price: 4.50, description: 'Café espresso avec mousse de lait onctueuse' },
+    'latte': { price: 5.00, description: 'Café au lait avec art latte' },
+    'americano': { price: 3.50, description: 'Espresso allongé à l\'eau chaude' },
+    'croissant': { price: 2.50, description: 'Viennoiserie française traditionnelle' },
+    'muffin': { price: 3.00, description: 'Muffin aux myrtilles fait maison' }
+  },
+  horaires: {
+    'lundi': '7h00 - 19h00',
+    'mardi': '7h00 - 19h00',
+    'mercredi': '7h00 - 19h00',
+    'jeudi': '7h00 - 19h00',
+    'vendredi': '7h00 - 20h00',
+    'samedi': '8h00 - 20h00',
+    'dimanche': '8h00 - 18h00'
+  },
+  faq: {
+    'wifi': 'Le WiFi gratuit est disponible - mot de passe: CafeBarista2024',
+    'parking': 'Parking gratuit disponible derrière le café',
+    'groupes': 'Nous acceptons les groupes jusqu\'à 15 personnes avec réservation',
+    'livraison': 'Livraison disponible dans un rayon de 5km'
+  }
+};
+
+export class AIAutomationModule {
+  // Chatbot IA conversationnel
+  static async processChatMessage(req: Request, res: Response) {
     try {
-      const lowerMessage = message.toLowerCase();
+      const { message, context, userId } = ChatMessageSchema.parse(req.body);
       
-      // Détection d'intention simple
-      if (lowerMessage.includes('réserver') || lowerMessage.includes('table')) {
-        return {
-          intent: 'reservation',
-          response: 'Je peux vous aider avec votre réservation. Pour combien de personnes et à quelle date?',
-          actions: ['show_reservation_form'],
-          confidence: 0.95
-        };
-      }
+      const response = await this.generateChatResponse(message, context);
       
-      if (lowerMessage.includes('menu') || lowerMessage.includes('carte')) {
-        return {
-          intent: 'menu',
-          response: 'Voici notre menu. Nous avons des cafés, pâtisseries et plats chauds. Que désirez-vous?',
-          actions: ['show_menu'],
-          confidence: 0.90
-        };
-      }
-      
-      if (lowerMessage.includes('horaire') || lowerMessage.includes('ouvert')) {
-        return {
-          intent: 'hours',
-          response: 'Nous sommes ouverts tous les jours de 7h à 22h. Puis-je vous aider avec autre chose?',
-          actions: [],
-          confidence: 0.95
-        };
-      }
-      
-      if (lowerMessage.includes('prix') || lowerMessage.includes('coût')) {
-        return {
-          intent: 'pricing',
-          response: 'Nos prix varient selon les produits. Un café coûte entre 2,50€ et 4€. Souhaitez-vous voir le menu complet?',
-          actions: ['show_menu'],
-          confidence: 0.88
-        };
-      }
-      
-      // Réponse par défaut
-      return {
-        intent: 'unknown',
-        response: 'Je suis désolé, je n\'ai pas bien compris. Pouvez-vous reformuler votre question?',
-        actions: ['show_help'],
-        confidence: 0.30
-      };
+      res.json({
+        response: response.text,
+        actions: response.actions,
+        confidence: response.confidence,
+        timestamp: new Date().toISOString(),
+        sessionId: userId || 'anonymous'
+      });
     } catch (error) {
-      console.error('Erreur traitement message:', error);
-      return {
-        intent: 'error',
-        response: 'Une erreur s\'est produite. Veuillez réessayer.',
-        actions: [],
-        confidence: 0.0
-      };
+      console.error('Erreur chatbot:', error);
+      res.status(500).json({ 
+        error: 'Erreur du chatbot',
+        response: 'Désolé, je rencontre des difficultés. Pouvez-vous reformuler votre question ?'
+      });
     }
   }
 
-  // Reconnaissance vocale
-  static async processVoiceCommand(audioData: any) {
+  // Reconnaissance vocale et traitement
+  static async processVoiceCommand(req: Request, res: Response) {
     try {
-      // Simulation de reconnaissance vocale
-      const commands = [
-        'Commande un cappuccino',
-        'Réserve une table pour deux',
-        'Montre-moi le menu',
-        'Quelle est l\'addition?'
-      ];
+      const { audioData, language } = VoiceCommandSchema.parse(req.body);
       
-      const recognizedCommand = commands[Math.floor(Math.random() * commands.length)];
+      // Simulation de reconnaissance vocale améliorée
+      const transcript = await this.speechToText(audioData, language);
+      const command = await this.parseVoiceCommand(transcript);
       
-      return {
-        transcript: recognizedCommand,
-        confidence: 0.85 + Math.random() * 0.15,
-        language: 'fr-FR',
-        timestamp: new Date().toISOString()
-      };
+      res.json({
+        transcript,
+        command: command.action,
+        parameters: command.parameters,
+        confidence: command.confidence,
+        executed: command.executed
+      });
     } catch (error) {
       console.error('Erreur reconnaissance vocale:', error);
-      return { transcript: '', confidence: 0, language: 'fr-FR' };
+      res.status(500).json({ error: 'Erreur de reconnaissance vocale' });
     }
   }
 
-  // Vision par ordinateur pour contrôle qualité
-  static async analyzeImage(imageData: any) {
+  // Réservations automatisées
+  static async processAutomaticReservation(req: Request, res: Response) {
     try {
-      // Simulation d'analyse d'image
-      const quality = Math.random();
-      const issues = [];
+      const { date, time, guests, preferences } = ReservationRequestSchema.parse(req.body);
       
-      if (quality < 0.7) {
-        issues.push('Présentation non optimale');
-      }
-      if (quality < 0.5) {
-        issues.push('Couleur inhabituelle');
-      }
-      if (quality < 0.3) {
-        issues.push('Forme irrégulière');
-      }
+      const availability = await this.checkAvailability(date, time, guests);
       
-      return {
-        quality: Math.round(quality * 100),
-        issues,
-        recommendations: issues.length > 0 ? ['Refaire la présentation', 'Vérifier la cuisson'] : [],
-        confidence: 0.92,
-        timestamp: new Date().toISOString()
-      };
+      if (availability.available) {
+        const reservation = await this.createReservation({
+          date,
+          time,
+          guests,
+          preferences,
+          source: 'ai_assistant',
+          status: 'confirmed'
+        });
+        
+        res.json({
+          success: true,
+          reservation,
+          message: `Réservation confirmée pour ${guests} personnes le ${date} à ${time}`,
+          confirmationNumber: reservation.id
+        });
+      } else {
+        const alternatives = await this.suggestAlternatives(date, time, guests);
+        res.json({
+          success: false,
+          message: 'Créneau non disponible',
+          alternatives
+        });
+      }
     } catch (error) {
-      console.error('Erreur analyse image:', error);
-      return { quality: 0, issues: [], recommendations: [], confidence: 0 };
+      console.error('Erreur réservation automatique:', error);
+      res.status(500).json({ error: 'Erreur lors de la réservation' });
     }
   }
 
-  // Prédiction de la demande
-  static async predictDemand(date: string, timeSlot: string) {
+  // Analyse prédictive
+  static async getPredictiveAnalytics(req: Request, res: Response) {
     try {
-      const basedemand = 25;
-      const dateObj = new Date(date);
-      const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
-      const hour = parseInt(timeSlot.split(':')[0]);
+      const predictions = await this.generatePredictions();
       
-      // Facteurs d'influence
-      const weekendFactor = isWeekend ? 1.4 : 1.0;
-      const timeFactor = hour >= 12 && hour <= 14 ? 1.8 : hour >= 7 && hour <= 9 ? 1.5 : 1.0;
-      const seasonalFactor = Math.sin((dateObj.getMonth() + 1) * Math.PI / 6) * 0.3 + 1;
-      
-      const predictedDemand = Math.round(basedemand * weekendFactor * timeFactor * seasonalFactor);
-      
-      return {
-        predictedCustomers: predictedDemand,
-        confidence: 0.78 + Math.random() * 0.15,
-        factors: {
-          weekend: weekendFactor,
-          timeOfDay: timeFactor,
-          seasonal: seasonalFactor
-        },
-        recommendations: {
-          staff: Math.ceil(predictedDemand / 8),
-          inventory: predictedDemand > 40 ? 'Augmenter les stocks' : 'Stocks normaux'
-        }
-      };
+      res.json({
+        revenue: predictions.revenue,
+        customerFlow: predictions.customerFlow,
+        popularItems: predictions.popularItems,
+        staffingNeeds: predictions.staffingNeeds,
+        inventoryAlerts: predictions.inventoryAlerts,
+        generatedAt: new Date().toISOString()
+      });
     } catch (error) {
-      console.error('Erreur prédiction demande:', error);
-      return { predictedCustomers: 0, confidence: 0, factors: {}, recommendations: {} };
+      console.error('Erreur analyse prédictive:', error);
+      res.status(500).json({ error: 'Erreur d\'analyse prédictive' });
     }
   }
 
-  // Optimisation automatique du personnel
-  static async optimizeStaffing(date: string) {
+  // Optimisation automatique
+  static async getAutomationSuggestions(req: Request, res: Response) {
     try {
-      const shifts = [
-        { time: '7:00-11:00', staff: 3, skills: ['barista', 'caisse'] },
-        { time: '11:00-15:00', staff: 5, skills: ['barista', 'caisse', 'cuisine'] },
-        { time: '15:00-19:00', staff: 4, skills: ['barista', 'caisse', 'service'] },
-        { time: '19:00-22:00', staff: 3, skills: ['barista', 'caisse'] }
-      ];
+      const suggestions = await this.generateAutomationSuggestions();
+      
+      res.json({
+        menuOptimization: suggestions.menu,
+        pricingAdjustments: suggestions.pricing,
+        staffScheduling: suggestions.scheduling,
+        inventoryManagement: suggestions.inventory,
+        customerRetention: suggestions.retention
+      });
+    } catch (error) {
+      console.error('Erreur suggestions automatisation:', error);
+      res.status(500).json({ error: 'Erreur de génération de suggestions' });
+    }
+  }
+
+  // Méthodes privées
+  private static async generateChatResponse(message: string, context?: string) {
+    const lowerMessage = message.toLowerCase();
+    
+    // Détection d'intention
+    let intent = 'general';
+    let confidence = 0.8;
+    let actions: any[] = [];
+    
+    if (lowerMessage.includes('menu') || lowerMessage.includes('carte')) {
+      intent = 'menu_inquiry';
+      const menuItems = Object.entries(KNOWLEDGE_BASE.menu).map(([name, info]) => 
+        `${name}: ${info.description} - ${info.price}€`
+      ).join('\n');
       
       return {
-        date,
-        shifts,
-        totalStaffHours: 60,
-        estimatedCost: 900,
-        efficiency: 0.85,
+        text: `Voici notre menu:\n${menuItems}\n\nQue souhaitez-vous commander ?`,
+        actions: [{ type: 'show_menu', data: KNOWLEDGE_BASE.menu }],
+        confidence
+      };
+    }
+    
+    if (lowerMessage.includes('réserver') || lowerMessage.includes('table')) {
+      intent = 'reservation';
+      return {
+        text: 'Je peux vous aider à réserver une table. Pour combien de personnes et à quelle date souhaitez-vous réserver ?',
+        actions: [{ type: 'open_reservation_form' }],
+        confidence
+      };
+    }
+    
+    if (lowerMessage.includes('horaires') || lowerMessage.includes('ouvert')) {
+      intent = 'hours_inquiry';
+      const hours = Object.entries(KNOWLEDGE_BASE.horaires).map(([day, hours]) => 
+        `${day}: ${hours}`
+      ).join('\n');
+      
+      return {
+        text: `Nos horaires d'ouverture:\n${hours}`,
+        actions: [],
+        confidence
+      };
+    }
+    
+    if (lowerMessage.includes('wifi') || lowerMessage.includes('internet')) {
+      return {
+        text: KNOWLEDGE_BASE.faq.wifi,
+        actions: [],
+        confidence
+      };
+    }
+    
+    // Réponse générale avec suggestions
+    return {
+      text: 'Bonjour ! Je suis votre assistant virtuel du Café Barista. Je peux vous aider avec:\n• Notre menu et prix\n• Les réservations\n• Nos horaires\n• Le WiFi et services\n\nQue puis-je faire pour vous ?',
+      actions: [
+        { type: 'suggest_action', label: 'Voir le menu', action: 'show_menu' },
+        { type: 'suggest_action', label: 'Réserver', action: 'open_reservation' },
+        { type: 'suggest_action', label: 'Nos horaires', action: 'show_hours' }
+      ],
+      confidence: 0.9
+    };
+  }
+
+  private static async speechToText(audioData: string, language: string) {
+    // Simulation de reconnaissance vocale
+    const phrases = [
+      'Je voudrais commander un cappuccino s\'il vous plaît',
+      'Avez-vous une table libre pour ce soir ?',
+      'Quel est le prix du latte ?',
+      'Je voudrais réserver pour quatre personnes',
+      'Quels sont vos horaires d\'ouverture ?',
+      'Où est le WiFi ?'
+    ];
+    
+    return phrases[Math.floor(Math.random() * phrases.length)];
+  }
+
+  private static async parseVoiceCommand(transcript: string) {
+    const lowerTranscript = transcript.toLowerCase();
+    
+    if (lowerTranscript.includes('commander') || lowerTranscript.includes('cappuccino') || lowerTranscript.includes('café')) {
+      return {
+        action: 'add_to_order',
+        parameters: { item: 'cappuccino', quantity: 1 },
+        confidence: 0.85,
+        executed: true
+      };
+    }
+    
+    if (lowerTranscript.includes('réserver') || lowerTranscript.includes('table')) {
+      return {
+        action: 'make_reservation',
+        parameters: { guests: 4 },
+        confidence: 0.9,
+        executed: false
+      };
+    }
+    
+    return {
+      action: 'unknown',
+      parameters: {},
+      confidence: 0.3,
+      executed: false
+    };
+  }
+
+  private static async checkAvailability(date: string, time: string, guests: number) {
+    // Simulation de vérification de disponibilité
+    const isWeekend = new Date(date).getDay() === 0 || new Date(date).getDay() === 6;
+    const hour = parseInt(time.split(':')[0]);
+    
+    // Plus de chances d'être disponible en semaine et hors heures de pointe
+    const availability = !isWeekend && (hour < 12 || hour > 14) && (hour < 19 || hour > 21);
+    
+    return {
+      available: availability,
+      alternativeSlots: availability ? [] : [
+        { date, time: '15:30', available: true },
+        { date, time: '16:00', available: true }
+      ]
+    };
+  }
+
+  private static async createReservation(data: any) {
+    return {
+      id: `RES-${Date.now()}`,
+      ...data,
+      createdAt: new Date().toISOString()
+    };
+  }
+
+  private static async suggestAlternatives(date: string, time: string, guests: number) {
+    return [
+      { date, time: '15:30', available: true },
+      { date, time: '16:00', available: true },
+      { date: new Date(new Date(date).getTime() + 86400000).toISOString().split('T')[0], time, available: true }
+    ];
+  }
+
+  private static async generatePredictions() {
+    const now = new Date();
+    const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    
+    return {
+      revenue: {
+        daily: 1200 + Math.random() * 400,
+        weekly: 8400 + Math.random() * 1600,
+        trend: Math.random() > 0.5 ? 'increasing' : 'stable'
+      },
+      customerFlow: {
+        peakHours: ['12:00-14:00', '18:00-20:00'],
+        expectedCustomers: Math.floor(80 + Math.random() * 40),
+        capacity: 95
+      },
+      popularItems: [
+        { name: 'Cappuccino', expectedSales: Math.floor(30 + Math.random() * 20) },
+        { name: 'Croissant', expectedSales: Math.floor(25 + Math.random() * 15) }
+      ],
+      staffingNeeds: {
+        optimal: 4,
+        minimum: 2,
+        recommendations: 'Ajouter 1 serveur pendant les heures de pointe'
+      },
+      inventoryAlerts: [
+        { item: 'Lait', level: 'low', action: 'Réapprovisionner avant demain' }
+      ]
+    };
+  }
+
+  private static async generateAutomationSuggestions() {
+    return {
+      menu: {
         recommendations: [
-          'Ajouter un barista supplémentaire à 12h-14h',
-          'Réduire le personnel après 20h en semaine'
+          'Ajouter des options véganes - demande en hausse de 25%',
+          'Créer un menu du jour avec rotation hebdomadaire'
+        ],
+        pricingAdjustments: [
+          { item: 'Cappuccino', currentPrice: 4.50, suggestedPrice: 4.80, reason: 'Alignement marché' }
         ]
-      };
-    } catch (error) {
-      console.error('Erreur optimisation personnel:', error);
-      return { shifts: [], totalStaffHours: 0, estimatedCost: 0, efficiency: 0, recommendations: [] };
-    }
+      },
+      pricing: {
+        dynamicPricing: 'Activer les prix dynamiques pour les heures creuses (-10%)',
+        promotions: 'Offre "Happy Hour" 15h-17h recommandée'
+      },
+      scheduling: {
+        optimization: 'Réduire les effectifs de 30% entre 15h-17h',
+        predictions: 'Pic d\'affluence prévu samedi - prévoir +2 employés'
+      },
+      inventory: {
+        autoReorder: 'Activer la commande automatique pour le lait et café',
+        wasteReduction: 'Réduire de 15% les commandes de pâtisseries le lundi'
+      },
+      retention: {
+        loyalty: 'Proposer une carte fidélité - ROI estimé +22%',
+        personalization: 'Envoyer des offres personnalisées basées sur l\'historique'
+      }
+    };
   }
 }
-
-export default AIAutomation;
