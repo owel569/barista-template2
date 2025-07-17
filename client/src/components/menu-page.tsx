@@ -122,20 +122,20 @@ export default function MenuPage() {
               {/* Image HD */}
               <div className="aspect-video bg-coffee-light/20 overflow-hidden">
                 <img 
-                  src={getItemImageUrl(item.name, item.category?.toLowerCase())}
-                  alt={item.name}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    try {
-                      const target = e.currentTarget as HTMLImageElement;
-                      target.src = getItemImageUrl('default', item.category?.toLowerCase());
-                    } catch (error) {
-                      console.warn('Erreur lors du chargement de l\'image de fallback:', error);
-                    }
-                  }}
-                />
+                    src={getItemImageUrl(item.name, item.category?.slug || item.category?.name?.toLowerCase() || 'default')}
+                    alt={item.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      try {
+                        const target = e.currentTarget as HTMLImageElement;
+                        target.src = getItemImageUrl('default', item.category?.slug || 'default');
+                      } catch (error) {
+                        console.warn('Erreur lors du chargement de l\'image de fallback:', error);
+                      }
+                    }}
+                  />
               </div>
-              
+
               <CardHeader className="pb-2">
                 <div className="flex justify-between items-start">
                   <CardTitle className="text-lg">{item.name}</CardTitle>

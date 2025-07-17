@@ -11,21 +11,22 @@ async function initializeDatabase() {
   try {
     console.log('🐘 Initialisation PostgreSQL entreprise...');
     
-    // Configuration PostgreSQL avec variables d'environnement Replit
+    // Configuration PostgreSQL optimisée pour Replit
     const connectionConfig = {
-      host: process.env.PGHOST || 'localhost',
-      port: parseInt(process.env.PGPORT || '5432'),
-      user: process.env.PGUSER,
-      password: process.env.PGPASSWORD,
-      database: process.env.PGDATABASE,
-      ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false,
-      max: 10,
-      min: 2,
-      idleTimeoutMillis: 60000,
-      connectionTimeoutMillis: 5000,
-      acquireTimeoutMillis: 10000,
+      connectionString: process.env.DATABASE_URL,
+      ssl: process.env.DATABASE_URL?.includes('localhost') ? false : { rejectUnauthorized: false },
+      max: 20,
+      min: 5,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 10000,
+      acquireTimeoutMillis: 15000,
       keepAlive: true,
+      keepAliveInitialDelayMillis: 10000,
       application_name: 'BaristaCAFE_Replit',
+      // Nouvelles options pour la stabilité
+      allowExitOnIdle: false,
+      statement_timeout: 30000,
+      query_timeout: 20000,
     };
 
     pool = new Pool(connectionConfig);
@@ -85,9 +86,20 @@ function setupPoolEvents() {
       timestamp: new Date().toISOString()
     });
     
-    // Auto-reconnection pour erreurs réseau
-    if (err.code === 'ECONNRESET' || err.code === 'ETIMEDOUT') {
+    // Auto-reconnection pour erreurs critiques
+    if (err.code === 'ECONNRESET' || err.code === 'ETIMEDOUT' || err.code === '57P01') {
       console.log('🔄 Reconnexion automatique en cours...');
+      
+      // Délai avant reconnexion
+      setTimeout(async () => {
+        try {
+          await pool.end();
+          await initializeDatabase();
+          console.log('✅ Reconnexion réussie');
+        } catch (reconnectError) {
+          console.error('❌ Échec de la reconnexion:', reconnectError);
+        }
+      }, 2000);
     }
   });
 
