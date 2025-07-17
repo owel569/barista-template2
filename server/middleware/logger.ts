@@ -1,15 +1,15 @@
 
 import { Request, Response, NextFunction } from 'express';
-
-type LogLevel = 'ERROR' | 'WARN' | 'INFO' | 'DEBUG';
+import fs from 'fs';
+import path from 'path';
 
 interface LogEntry {
   timestamp: string;
-  level: LogLevel;
+  level: 'INFO' | 'WARN' | 'ERROR' | 'DEBUG';
   method?: string;
   url?: string;
-  status?: number;
-  duration?: number;
+  statusCode?: number;
+  responseTime?: number;
   userAgent?: string;
   ip?: string;
   userId?: number;
@@ -18,94 +18,116 @@ interface LogEntry {
 }
 
 class Logger {
-  private log(level: LogLevel, message: string, metadata?: any) {
-    const entry: LogEntry = {
-      timestamp: new Date().toISOString(),
-      level,
-      message,
-      ...(metadata && { metadata })
-    };
+  private logDir = path.join(process.cwd(), 'logs');
 
-    const logMessage = `[${entry.level}] ${entry.timestamp} - ${message}`;
-    
-    switch (level) {
-      case 'ERROR':
-        console.error(logMessage, metadata);
-        break;
-      case 'WARN':
-        console.warn(logMessage, metadata);
-        break;
-      case 'INFO':
-        console.info(logMessage, metadata);
-        break;
-      case 'DEBUG':
-        if (process.env.NODE_ENV === 'development') {
-          console.debug(logMessage, metadata);
-        }
-        break;
+  constructor() {
+    this.ensureLogDirectory();
+  }
+
+  private ensureLogDirectory() {
+    if (!fs.existsSync(this.logDir)) {
+      fs.mkdirSync(this.logDir, { recursive: true });
     }
   }
 
-  error(message: string, metadata?: any) {
-    this.log('ERROR', message, metadata);
-  }
+  private writeLog(entry: LogEntry) {
+    const date = new Date().toISOString().split('T')[0];
+    const logFile = path.join(this.logDir, `${date}.log`);
+    const logLine = JSON.stringify(entry) + '\n';
 
-  warn(message: string, metadata?: any) {
-    this.log('WARN', message, metadata);
+    fs.appendFileSync(logFile, logLine);
   }
 
   info(message: string, metadata?: any) {
-    this.log('INFO', message, metadata);
+    const entry: LogEntry = {
+      timestamp: new Date().toISOString(),
+      level: 'INFO',
+      message,
+      metadata
+    };
+    
+    console.log(`ℹ️ [INFO] ${message}`, metadata || '');
+    this.writeLog(entry);
+  }
+
+  warn(message: string, metadata?: any) {
+    const entry: LogEntry = {
+      timestamp: new Date().toISOString(),
+      level: 'WARN',
+      message,
+      metadata
+    };
+    
+    console.warn(`⚠️ [WARN] ${message}`, metadata || '');
+    this.writeLog(entry);
+  }
+
+  error(message: string, error?: any, metadata?: any) {
+    const entry: LogEntry = {
+      timestamp: new Date().toISOString(),
+      level: 'ERROR',
+      message,
+      metadata: { error: error?.message || error, stack: error?.stack, ...metadata }
+    };
+    
+    console.error(`🚨 [ERROR] ${message}`, error || '');
+    this.writeLog(entry);
   }
 
   debug(message: string, metadata?: any) {
-    this.log('DEBUG', message, metadata);
+    if (process.env.NODE_ENV === 'development') {
+      const entry: LogEntry = {
+        timestamp: new Date().toISOString(),
+        level: 'DEBUG',
+        message,
+        metadata
+      };
+      
+      console.debug(`🔍 [DEBUG] ${message}`, metadata || '');
+      this.writeLog(entry);
+    }
   }
 }
 
-export const logger = new Logger();
+const logger = new Logger();
 
 export const requestLogger = (req: Request, res: Response, next: NextFunction) => {
-  const start = Date.now();
-  
-  // Log de la requête entrante
-  logger.info(`${req.method} ${req.url}`, {
-    ip: req.ip,
-    userAgent: req.get('user-agent'),
-    contentLength: req.get('content-length')
-  });
+  const startTime = Date.now();
+  const originalSend = res.send;
 
-  // Override de res.end pour capturer la durée
-  const originalEnd = res.end;
-  res.end = function(...args: any[]) {
-    const duration = Date.now() - start;
+  res.send = function(body) {
+    const responseTime = Date.now() - startTime;
     
-    // Log de la réponse
-    if (res.statusCode >= 400) {
-      logger.warn(`${req.method} ${req.url} ${res.statusCode} - ${duration}ms`, {
-        status: res.statusCode,
-        duration,
-        ip: req.ip
-      });
-    } else {
-      logger.info(`${req.method} ${req.url} ${res.statusCode} - ${duration}ms`, {
-        status: res.statusCode,
-        duration,
-        ip: req.ip
-      });
-    }
+    const logEntry: LogEntry = {
+      timestamp: new Date().toISOString(),
+      level: res.statusCode >= 400 ? 'ERROR' : 'INFO',
+      method: req.method,
+      url: req.originalUrl,
+      statusCode: res.statusCode,
+      responseTime,
+      userAgent: req.get('user-agent'),
+      ip: req.ip || req.connection.remoteAddress,
+      userId: (req as any).user?.id,
+      message: `${req.method} ${req.originalUrl} - ${res.statusCode} (${responseTime}ms)`,
+      metadata: {
+        requestSize: req.get('content-length') || 0,
+        responseSize: Buffer.byteLength(body || ''),
+        referer: req.get('referer')
+      }
+    };
 
-    return originalEnd.apply(this, args);
+    logger.writeLog(logEntry);
+    
+    // Console log pour développement
+    const statusColor = res.statusCode >= 400 ? '🔴' : res.statusCode >= 300 ? '🟡' : '🟢';
+    console.log(
+      `${statusColor} ${req.method} ${req.originalUrl} - ${res.statusCode} (${responseTime}ms)`
+    );
+
+    return originalSend.call(this, body);
   };
 
   next();
 };
 
-export const dbLogger = {
-  connection: () => logger.debug('🔗 Nouvelle connexion DB établie'),
-  query: (query: string, duration: number) => 
-    logger.debug(`📊 Requête DB (${duration}ms)`, { query: query.substring(0, 100) }),
-  error: (error: any) => logger.error('❌ Erreur DB', error),
-  poolStatus: (active: number, idle: number) => 
-    logger.debug(`🏊 Pool DB: ${active} actives, ${idle} inactives`)
-};
+export { logger };

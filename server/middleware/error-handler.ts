@@ -1,3 +1,4 @@
+
 import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
 
@@ -9,9 +10,9 @@ export const asyncHandler = (fn: Function) => {
 
 export const errorHandler = (
   err: any,
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
+  req: Request,
+  res: Response,
+  next: NextFunction
 ) => {
   // Log structuré pour monitoring
   const errorLog = {
@@ -102,3 +103,7 @@ export const errorHandler = (
   // Erreur par défaut pour pages HTML
   res.status(err.status || 500).json({
     success: false,
+    message: 'Une erreur s\'est produite',
+    timestamp: new Date().toISOString()
+  });
+};
