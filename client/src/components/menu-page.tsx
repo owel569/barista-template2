@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChefHat, Coffee, Pizza, Utensils, Beef, Clock } from "lucide-react";
-import { getItemImageUrl } from "@/lib/image-mapping-optimized";
+import { getItemImageUrl } from "@/lib/image-mapping";
 
 interface MenuItem {
   id: number;

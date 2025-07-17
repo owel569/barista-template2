@@ -50,7 +50,7 @@ import { Plus, Pencil, Trash2, Coffee, DollarSign, Package, Image, Upload, Link 
 import { useToast } from '@/hooks/use-toast';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { usePermissions } from '@/hooks/usePermissions';
-import { getItemImageUrl } from '@/lib/image-mapping-optimized';
+import { getItemImageUrl } from '@/lib/image-mapping';
 import { ImageManagement } from './image-management';
 
 const menuItemSchema = z.object({

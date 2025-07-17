@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Coffee } from "lucide-react";
 import { useLocation } from "wouter";
-import { getItemImageUrl } from "@/lib/image-mapping-optimized";
+import { getItemImageUrl } from "@/lib/image-mapping";
 
 export default function HomeMenuPreview() {
   const [, setLocation] = useLocation();

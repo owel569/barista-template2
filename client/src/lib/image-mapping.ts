@@ -1,197 +1,145 @@
-// Mapping principal des images avec clés normalisées
-export const IMAGE_MAPPING: Record<string, string> = {
-  "latte art": "https://images.pexels.com/photos/433145/pexels-photo-433145.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  "cappuccino premium": "https://images.pexels.com/photos/162947/pexels-photo-162947.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  "cappuccino": "https://images.pexels.com/photos/162947/pexels-photo-162947.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  "americano": "https://images.pexels.com/photos/4264049/pexels-photo-4264049.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  "cafe mocha": "https://images.pexels.com/photos/6895939/pexels-photo-6895939.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  "cafe frappe": "https://images.pexels.com/photos/11512983/pexels-photo-11512983.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  "latte macchiato": "https://images.pexels.com/photos/433145/pexels-photo-433145.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
+// Système d'images optimisé pour Barista Café
+// Avec fallback automatique et gestion d'erreurs
 
-  // Boissons - URLs Pexels spécifiées
-  "the vert premium": "https://images.pexels.com/photos/7565503/pexels-photo-7565503.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  "the vert": "https://images.pexels.com/photos/32754882/pexels-photo-32754882.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  "the earl grey": "https://images.pexels.com/photos/32754882/pexels-photo-32754882.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  "chocolat chaud": "https://images.pexels.com/photos/15529714/pexels-photo-15529714.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  "jus d orange presse": "https://images.pexels.com/photos/96974/pexels-photo-96974.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  "jus de citron vert": "https://images.pexels.com/photos/1546003/pexels-photo-1546003.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  "smoothie du jour": "https://images.pexels.com/photos/11160116/pexels-photo-11160116.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  "smoothie fruits rouges": "https://images.pexels.com/photos/11160116/pexels-photo-11160116.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-
-  // Pâtisseries - URLs Pexels spécifiées
-  "croissants artisanaux": "https://images.pexels.com/photos/10560686/pexels-photo-10560686.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  "croissant au beurre": "https://images.pexels.com/photos/10560686/pexels-photo-10560686.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  "macarons francais": "https://images.pexels.com/photos/11345217/pexels-photo-11345217.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  "eclair au chocolat": "https://images.pexels.com/photos/1414234/pexels-photo-1414234.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  "mille-feuille": "https://images.pexels.com/photos/8738018/pexels-photo-8738018.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  "gateaux au chocolat": "https://images.pexels.com/photos/1126728/pexels-photo-1126728.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  "muffin chocolat": "https://images.pexels.com/photos/1126728/pexels-photo-1126728.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-
-  // Plats - URLs Pexels spécifiées
-  "sandwich club": "https://images.pexels.com/photos/28681955/pexels-photo-28681955.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  "salade cesar": "https://images.pexels.com/photos/1059905/pexels-photo-1059905.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  "quiche lorraine": "https://images.pexels.com/photos/1267320/pexels-photo-1267320.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop"
-};
-
-// Images par défaut par catégorie
 export const DEFAULT_CATEGORY_IMAGES: Record<string, string> = {
-  "thes": "https://images.pexels.com/photos/1638280/pexels-photo-1638280.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  "boissons": "https://images.pexels.com/photos/1638280/pexels-photo-1638280.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  "patisseries": "https://images.pexels.com/photos/2067396/pexels-photo-2067396.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  "boissons-froides": "https://images.pexels.com/photos/1638280/pexels-photo-1638280.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-  "plats": "https://images.pexels.com/photos/4676406/pexels-photo-4676406.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop"
+  'cafes': 'https://images.pexels.com/photos/324028/pexels-photo-324028.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+  'boissons': 'https://images.pexels.com/photos/1766404/pexels-photo-1766404.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+  'patisseries': 'https://images.pexels.com/photos/1321944/pexels-photo-1321944.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+  'plats': 'https://images.pexels.com/photos/1565982/pexels-photo-1565982.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+  'salades': 'https://images.pexels.com/photos/1833349/pexels-photo-1833349.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+  'desserts': 'https://images.pexels.com/photos/1854652/pexels-photo-1854652.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+  'sandwichs': 'https://images.pexels.com/photos/1565982/pexels-photo-1565982.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+  'boissons-chaudes': 'https://images.pexels.com/photos/1766404/pexels-photo-1766404.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260'
 };
 
-/**
- * Normalise une chaîne pour la recherche d'images
- * Supprime les accents, convertit en minuscules et normalise les espaces
- */
-export const normalizeKey = (str: string): string => {
+export const MENU_ITEM_IMAGES: Record<string, string> = {
+  // Cafés
+  'espresso': 'https://images.pexels.com/photos/302896/pexels-photo-302896.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+  'cappuccino': 'https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+  'latte': 'https://images.pexels.com/photos/324028/pexels-photo-324028.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+  'americano': 'https://images.pexels.com/photos/1370692/pexels-photo-1370692.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+  'macchiato': 'https://images.pexels.com/photos/1233525/pexels-photo-1233525.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+  
+  // Boissons
+  'the': 'https://images.pexels.com/photos/1417945/pexels-photo-1417945.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+  'chocolat': 'https://images.pexels.com/photos/1126359/pexels-photo-1126359.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+  'smoothie': 'https://images.pexels.com/photos/1346155/pexels-photo-1346155.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+  'jus': 'https://images.pexels.com/photos/1428348/pexels-photo-1428348.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+  
+  // Pâtisseries
+  'croissant': 'https://images.pexels.com/photos/1775043/pexels-photo-1775043.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+  'muffin': 'https://images.pexels.com/photos/1055272/pexels-photo-1055272.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+  'macaron': 'https://images.pexels.com/photos/1070850/pexels-photo-1070850.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+  'eclair': 'https://images.pexels.com/photos/1126359/pexels-photo-1126359.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+  'tarte': 'https://images.pexels.com/photos/1854652/pexels-photo-1854652.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+  
+  // Plats
+  'sandwich': 'https://images.pexels.com/photos/1565982/pexels-photo-1565982.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+  'salade': 'https://images.pexels.com/photos/1833349/pexels-photo-1833349.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+  'quiche': 'https://images.pexels.com/photos/1437267/pexels-photo-1437267.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+  'burger': 'https://images.pexels.com/photos/1639557/pexels-photo-1639557.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+  'pizza': 'https://images.pexels.com/photos/315755/pexels-photo-315755.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+  'croque-monsieur': 'https://images.pexels.com/photos/1565982/pexels-photo-1565982.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260'
+};
+
+// Image par défaut en cas d'erreur
+export const DEFAULT_FALLBACK_IMAGE = 'https://images.pexels.com/photos/1126359/pexels-photo-1126359.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260';
+
+// Fonction pour normaliser les chaînes
+function normalizeString(str: string): string {
   if (!str || typeof str !== 'string') {
     return '';
   }
   
   return str
-    .trim()
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '') // Supprime les accents
-    .replace(/['']/g, '') // Supprime les apostrophes
-    .replace(/\s+/g, ' '); // Normalise les espaces
-};
+    .replace(/[^a-z0-9\s]/g, '') // Supprime la ponctuation
+    .trim()
+    .replace(/\s+/g, '_'); // Remplace les espaces par des underscores
+}
 
-/**
- * Obtient l'URL d'image pour un élément de menu avec système robuste de fallback
- * @param itemName - Nom de l'élément de menu
- * @param categorySlug - Slug de la catégorie pour l'image par défaut
- * @param fallbackUrl - URL de l'image par défaut si aucune correspondance
- * @param enableDebug - Active les logs de debug (défaut: false)
- * @returns URL de l'image
- */
+// Fonction pour trouver une image par mots-clés
+function findByKeywords(normalizedName: string): string | null {
+  const keywords = Object.keys(MENU_ITEM_IMAGES);
+  
+  for (const keyword of keywords) {
+    if (normalizedName.includes(keyword) || keyword.includes(normalizedName)) {
+      return MENU_ITEM_IMAGES[keyword];
+    }
+  }
+  
+  return null;
+}
+
+// Fonction pour valider une URL
+function isValidUrl(url: string): boolean {
+  try {
+    const urlObj = new URL(url);
+    return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+// Fonction pour obtenir une image avec fallback intelligent
 export function getItemImageUrl(
   itemName: string, 
   categorySlug?: string, 
-  fallbackUrl?: string,
-  enableDebug: boolean = false
+  providedUrl?: string
 ): string {
-  if (!itemName) {
-    if (enableDebug) console.warn('[IMAGE_MAPPING] Nom d\'élément vide fourni');
-    return getFallbackImage(categorySlug, fallbackUrl);
-  }
-
-  // 1. Essayer le mapping exact avec clé normalisée
-  const normalizedName = normalizeKey(itemName);
-  const directMatch = IMAGE_MAPPING[normalizedName];
-
-  if (directMatch) {
-    if (enableDebug) console.log(`[IMAGE_MAPPING] Image trouvée pour "${itemName}" -> ${directMatch}`);
-    return directMatch;
-  }
-
-  // 2. Recherche partielle dans les clés
-  const partialMatch = Object.keys(IMAGE_MAPPING).find(key => 
-    key.includes(normalizedName) || normalizedName.includes(key)
-  );
-
-  if (partialMatch) {
-    if (enableDebug) console.log(`[IMAGE_MAPPING] Correspondance partielle pour "${itemName}" -> ${IMAGE_MAPPING[partialMatch]}`);
-    return IMAGE_MAPPING[partialMatch];
-  }
-
-  // 3. Log de debug pour éléments non trouvés
-  if (enableDebug) {
-    console.warn(`[IMAGE_MAPPING] Aucune image trouvée pour: "${itemName}" (normalisé: "${normalizedName}")`);
-    console.warn('[IMAGE_MAPPING] Clés disponibles:', Object.keys(IMAGE_MAPPING));
-  }
-
-  // 4. Fallback vers l'image de catégorie ou générique
-  return getFallbackImage(categorySlug, fallbackUrl);
-}
-
-/**
- * Obtient l'image de fallback appropriée
- */
-function getFallbackImage(categorySlug?: string, fallbackUrl?: string): string {
-  // Utiliser l'image par défaut de la catégorie
-  if (categorySlug && DEFAULT_CATEGORY_IMAGES[categorySlug]) {
-    return DEFAULT_CATEGORY_IMAGES[categorySlug];
-  }
-
-  // Utiliser l'URL de fallback fournie
-  if (fallbackUrl) {
-    return fallbackUrl;
-  }
-
-  // Image par défaut générique
-  return "https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop";
-}
-
-// Alias pour compatibilité
-export const getImageUrlByName = getItemImageUrl;
-
-/**
- * Obtient l'image avec altText optimisé
- */
-export function getImageWithAlt(
-  itemName: string,
-  categorySlug?: string,
-  fallbackUrl?: string,
-  enableDebug: boolean = false
-): { url: string; alt: string } {
-  const url = getItemImageUrl(itemName, categorySlug, fallbackUrl, enableDebug);
-  const alt = itemName ? `Image de ${itemName}` : 'Image du menu';
-
-  return { url, alt };
-}
-
-/**
- * Valide si une URL d'image est accessible (pour tests futurs)
- */
-export function validateImageUrl(url: string): Promise<boolean> {
-  return new Promise((resolve) => {
-    if (typeof window === 'undefined') {
-      // Côté serveur, on assume que l'URL est valide
-      resolve(true);
-      return;
+  try {
+    // 1. Priorité à l'URL fournie si elle existe
+    if (providedUrl && isValidUrl(providedUrl)) {
+      return providedUrl;
     }
+    
+    // 2. Recherche par nom d'article (normalisé)
+    const normalizedName = normalizeString(itemName);
+    const exactMatch = MENU_ITEM_IMAGES[normalizedName];
+    if (exactMatch) {
+      return exactMatch;
+    }
+    
+    // 3. Recherche par mots-clés dans le nom
+    const keywordMatch = findByKeywords(normalizedName);
+    if (keywordMatch) {
+      return keywordMatch;
+    }
+    
+    // 4. Fallback vers l'image de catégorie
+    if (categorySlug && DEFAULT_CATEGORY_IMAGES[categorySlug]) {
+      return DEFAULT_CATEGORY_IMAGES[categorySlug];
+    }
+    
+    // 5. Image par défaut
+    return DEFAULT_FALLBACK_IMAGE;
+  } catch (error) {
+    console.warn('Erreur lors de la sélection d\'image:', error);
+    return DEFAULT_FALLBACK_IMAGE;
+  }
+}
 
+// Fonction pour obtenir une image de catégorie
+export function getCategoryImage(categorySlug: string): string {
+  return DEFAULT_CATEGORY_IMAGES[categorySlug] || DEFAULT_FALLBACK_IMAGE;
+}
+
+// Fonction pour obtenir une image d'article de menu
+export function getMenuItemImage(itemName: string, categorySlug?: string): string {
+  return getItemImageUrl(itemName, categorySlug);
+}
+
+// Fonction pour précharger les images critiques
+export function preloadCriticalImages(): void {
+  const criticalImages = [
+    DEFAULT_FALLBACK_IMAGE,
+    ...Object.values(DEFAULT_CATEGORY_IMAGES).slice(0, 4)
+  ];
+  
+  criticalImages.forEach(url => {
     const img = new Image();
-    img.onload = () => resolve(true);
-    img.onerror = () => resolve(false);
     img.src = url;
-
-    // Timeout après 5 secondes
-    setTimeout(() => resolve(false), 5000);
   });
 }
-
-/**
- * Obtient les statistiques du mapping d'images
- */
-export function getImageMappingStats(): {
-  totalImages: number;
-  categoriesWithImages: string[];
-  missingImages: string[];
-} {
-  const totalImages = Object.keys(IMAGE_MAPPING).length;
-  const categoriesWithImages = Object.keys(DEFAULT_CATEGORY_IMAGES);
-
-  return {
-    totalImages,
-    categoriesWithImages,
-    missingImages: [] // À implémenter si nécessaire
-  };
-}
-
-
-
-// Statistiques du mapping (pour debug/admin)
-export const getMappingStats = () => {
-  const totalMappings = Object.keys(IMAGE_MAPPING).length;
-  const categories = Object.keys(DEFAULT_CATEGORY_IMAGES).length;
-  return {
-    totalMappings,
-    categories,
-    lastUpdated: new Date().toISOString()
-  };
-};

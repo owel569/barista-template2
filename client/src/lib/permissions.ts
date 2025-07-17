@@ -1,166 +1,65 @@
-// Système de permissions pour les rôles utilisateur
-export type UserRole = "directeur" | "employe" | "admin";
+export interface Permission {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+}
 
-export type ModulePermission = {
-  module: string;
-  canView: boolean;
-  canCreate: boolean;
-  canUpdate: boolean;
-  canDelete: boolean;
-};
+export interface UserPermissions {
+  canView: (resource: string) => boolean;
+  canCreate: (resource: string) => boolean;
+  canEdit: (resource: string) => boolean;
+  canDelete: (resource: string) => boolean;
+  can: (permission: string) => boolean;
+}
 
-// Définition des permissions par rôle
-export const rolePermissions: Record<UserRole, Record<string, ModulePermission>> = {
-  directeur: {
-    dashboard: { module: "dashboard", canView: true, canCreate: true, canUpdate: true, canDelete: true },
-    reservations: { module: "reservations", canView: true, canCreate: true, canUpdate: true, canDelete: true },
-    orders: { module: "orders", canView: true, canCreate: true, canUpdate: true, canDelete: true },
-    customers: { module: "customers", canView: true, canCreate: true, canUpdate: true, canDelete: true },
-    menu: { module: "menu", canView: true, canCreate: true, canUpdate: true, canDelete: true },
-    messages: { module: "messages", canView: true, canCreate: true, canUpdate: true, canDelete: true },
-    employees: { module: "employees", canView: true, canCreate: true, canUpdate: true, canDelete: true },
-    settings: { module: "settings", canView: true, canCreate: true, canUpdate: true, canDelete: true },
-    reports: { module: "reports", canView: true, canCreate: true, canUpdate: true, canDelete: true },
-    logs: { module: "logs", canView: true, canCreate: false, canUpdate: false, canDelete: false },
-  },
-  admin: {
-    dashboard: { module: "dashboard", canView: true, canCreate: true, canUpdate: true, canDelete: true },
-    reservations: { module: "reservations", canView: true, canCreate: true, canUpdate: true, canDelete: true },
-    orders: { module: "orders", canView: true, canCreate: true, canUpdate: true, canDelete: true },
-    customers: { module: "customers", canView: true, canCreate: true, canUpdate: true, canDelete: true },
-    menu: { module: "menu", canView: true, canCreate: true, canUpdate: true, canDelete: true },
-    messages: { module: "messages", canView: true, canCreate: true, canUpdate: true, canDelete: true },
-    employees: { module: "employees", canView: true, canCreate: true, canUpdate: true, canDelete: true },
-    settings: { module: "settings", canView: true, canCreate: true, canUpdate: true, canDelete: true },
-    reports: { module: "reports", canView: true, canCreate: true, canUpdate: true, canDelete: true },
-    logs: { module: "logs", canView: true, canCreate: false, canUpdate: false, canDelete: false },
-  },
-  employe: {
-    dashboard: { module: "dashboard", canView: true, canCreate: false, canUpdate: false, canDelete: false },
-    reservations: { module: "reservations", canView: true, canCreate: true, canUpdate: true, canDelete: false },
-    orders: { module: "orders", canView: true, canCreate: false, canUpdate: true, canDelete: false },
-    customers: { module: "customers", canView: true, canCreate: false, canUpdate: false, canDelete: false },
-    menu: { module: "menu", canView: true, canCreate: true, canUpdate: true, canDelete: false },
-    messages: { module: "messages", canView: true, canCreate: true, canUpdate: true, canDelete: false },
-    employees: { module: "employees", canView: false, canCreate: false, canUpdate: false, canDelete: false },
-    settings: { module: "settings", canView: false, canCreate: false, canUpdate: false, canDelete: false },
-    reports: { module: "reports", canView: false, canCreate: false, canUpdate: false, canDelete: false },
-    logs: { module: "logs", canView: false, canCreate: false, canUpdate: false, canDelete: false },
-  },
-};
+export const PERMISSIONS = {
+  // Dashboard
+  DASHBOARD_VIEW: 'dashboard_view',
+  
+  // Menu management
+  MENU_VIEW: 'menu_view',
+  MENU_CREATE: 'menu_create',
+  MENU_EDIT: 'menu_edit',
+  MENU_DELETE: 'menu_delete',
+  
+  // User management
+  USER_VIEW: 'user_view',
+  USER_CREATE: 'user_create',
+  USER_EDIT: 'user_edit',
+  USER_DELETE: 'user_delete',
+  
+  // Reservations
+  RESERVATION_VIEW: 'reservation_view',
+  RESERVATION_CREATE: 'reservation_create',
+  RESERVATION_EDIT: 'reservation_edit',
+  RESERVATION_DELETE: 'reservation_delete',
+  
+  // Customers
+  CUSTOMER_VIEW: 'customer_view',
+  CUSTOMER_CREATE: 'customer_create',
+  CUSTOMER_EDIT: 'customer_edit',
+  CUSTOMER_DELETE: 'customer_delete',
+  
+  // Analytics
+  ANALYTICS_VIEW: 'analytics_view',
+  
+  // System
+  SYSTEM_CONFIG: 'system_config',
+} as const;
 
-// Modules disponibles selon le rôle
-export const getAccessibleModules = (role: UserRole): string[] => {
-  return Object.keys(rolePermissions[role]).filter(
-    module => rolePermissions[role][module].canView
-  );
-};
+export type PermissionKey = typeof PERMISSIONS[keyof typeof PERMISSIONS];
 
-// Vérification des permissions
-export const hasPermission = (
-  role: UserRole, 
-  module: string, 
-  action: "view" | "create" | "update" | "delete"
-): boolean => {
-  const permissions = rolePermissions[role][module];
-  if (!permissions) return false;
+export function hasPermission(userPermissions: string[], permission: PermissionKey): boolean {
+  return userPermissions.includes(permission);
+}
 
-  switch (action) {
-    case "view": return permissions.canView;
-    case "create": return permissions.canCreate;
-    case "update": return permissions.canUpdate;
-    case "delete": return permissions.canDelete;
-    default: return false;
-  }
-};
-
-// Configuration des routes d'accès par rôle
-export const getRoleBasedRoute = (role: UserRole): string => {
-  switch (role) {
-    case "directeur":
-    case "admin":
-      return "/admin";
-    case "employe":
-      return "/employe";
-    default:
-      return "/login";
-  }
-};
-
-// Modules de navigation par rôle
-export const getNavigationModules = (role: UserRole) => {
-  const baseModules = [
-    {
-      id: "dashboard",
-      label: "Tableau de bord",
-      icon: "BarChart3",
-      path: "/dashboard"
-    },
-    {
-      id: "reservations",
-      label: "Réservations",
-      icon: "Calendar",
-      path: "/reservations"
-    },
-    {
-      id: "orders",
-      label: "Commandes",
-      icon: "ShoppingCart",
-      path: "/orders"
-    },
-    {
-      id: "customers",
-      label: "Clients",
-      icon: "Users",
-      path: "/customers"
-    },
-    {
-      id: "menu",
-      label: "Menu",
-      icon: "Coffee",
-      path: "/menu"
-    },
-    {
-      id: "messages",
-      label: "Messages",
-      icon: "MessageSquare",
-      path: "/messages"
-    }
-  ];
-
-  const directorModules = [
-    {
-      id: "employees",
-      label: "Employés",
-      icon: "UserCheck",
-      path: "/employees"
-    },
-    {
-      id: "settings",
-      label: "Paramètres",
-      icon: "Settings",
-      path: "/settings"
-    },
-    {
-      id: "reports",
-      label: "Rapports",
-      icon: "TrendingUp",
-      path: "/reports"
-    },
-    {
-      id: "logs",
-      label: "Historique",
-      icon: "Clock",
-      path: "/logs"
-    }
-  ];
-
-  const accessibleModules = getAccessibleModules(role);
-  let modules = baseModules.filter(module => accessibleModules.includes(module.id));
-
-  if (role === "directeur" || role === "admin") {
-    modules = [...modules, ...directorModules.filter(module => accessibleModules.includes(module.id))];
-  }
-
-  return modules;
-};
+export function createPermissionChecker(userPermissions: string[]): UserPermissions {
+  return {
+    canView: (resource: string) => hasPermission(userPermissions, `${resource}_view` as PermissionKey),
+    canCreate: (resource: string) => hasPermission(userPermissions, `${resource}_create` as PermissionKey),
+    canEdit: (resource: string) => hasPermission(userPermissions, `${resource}_edit` as PermissionKey),
+    canDelete: (resource: string) => hasPermission(userPermissions, `${resource}_delete` as PermissionKey),
+    can: (permission: string) => hasPermission(userPermissions, permission as PermissionKey),
+  };
+}

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Coffee, GlassWater, Cookie, Utensils, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { getItemImageUrl } from "@/lib/image-mapping-optimized";
+import { getItemImageUrl } from "@/lib/image-mapping";
 
 interface MenuItem {
   id: number;
