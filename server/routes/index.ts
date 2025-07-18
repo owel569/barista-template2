@@ -10,6 +10,7 @@ import analyticsRouter from './analytics';
 import permissionsRouter from './permissions';
 import { userProfileRouter } from './user-profile';
 import { tablesRouter } from './tables';
+import databaseRouter from './database.routes';
 
 const router = Router();
 const logger = createLogger('MAIN_ROUTES');
@@ -430,6 +431,13 @@ router.get('/menu/items', asyncHandler(async (req, res) => {
     res.status(500).json({ success: false, message: 'Erreur serveur' });
   }
 }));
+
+// Montage des sous-routeurs
+router.use('/analytics', analyticsRouter);
+router.use('/permissions', permissionsRouter);
+router.use('/user-profile', userProfileRouter);
+router.use('/tables', tablesRouter);
+router.use('/database', databaseRouter);
 
 // Gestion des erreurs 404
 router.use('*', (req, res) => {
