@@ -55,7 +55,7 @@ app.get('*', (req, res) => {
 app.use(errorHandler);
 
 // Démarrage du serveur
-app.listen(PORT, '0.0.0.0', () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   logger.info(`🚀 Serveur Barista Café démarré sur le port ${PORT}`);
   logger.info(`📊 Dashboard admin: http://localhost:${PORT}/admin`);
   logger.info(`🔌 API disponible: http://localhost:${PORT}/api`);
@@ -66,6 +66,10 @@ app.listen(PORT, '0.0.0.0', () => {
     logger.info('📝 Logs détaillés activés');
   }
 });
+
+// Configuration WebSocket
+import { setupWebSocket } from './websocket-server.js';
+setupWebSocket(server);
 
 // Gestion gracieuse de l'arrêt
 process.on('SIGTERM', () => {

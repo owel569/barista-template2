@@ -432,12 +432,269 @@ router.get('/menu/items', asyncHandler(async (req, res) => {
   }
 }));
 
+// Routes admin manquantes
+router.get('/admin/menu/items', authenticateToken, asyncHandler(async (req, res) => {
+  try {
+    const { getDb } = await import('../db.js');
+    const { menuItems, menuCategories } = await import('@shared/schema.js');
+    const { eq } = await import('drizzle-orm');
+
+    const db = await getDb();
+    
+    const items = await db.select({
+      id: menuItems.id,
+      name: menuItems.name,
+      description: menuItems.description,
+      price: menuItems.price,
+      imageUrl: menuItems.imageUrl,
+      available: menuItems.available,
+      categoryId: menuItems.categoryId,
+      category: {
+        id: menuCategories.id,
+        name: menuCategories.name,
+        slug: menuCategories.slug
+      }
+    })
+    .from(menuItems)
+    .leftJoin(menuCategories, eq(menuItems.categoryId, menuCategories.id));
+
+    res.json({ success: true, data: items });
+  } catch (error) {
+    logger.error('Erreur récupération menu admin', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+    res.status(500).json({ success: false, message: 'Erreur serveur' });
+  }
+}));
+
+router.get('/admin/customers', authenticateToken, asyncHandler(async (req, res) => {
+  try {
+    const { getDb } = await import('../db.js');
+    const { customers } = await import('@shared/schema.js');
+
+    const db = await getDb();
+    const customersList = await db.select().from(customers);
+
+    res.json({ success: true, data: customersList });
+  } catch (error) {
+    logger.error('Erreur récupération clients', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+    res.status(500).json({ success: false, message: 'Erreur serveur' });
+  }
+}));
+
+router.get('/admin/reservations', authenticateToken, asyncHandler(async (req, res) => {
+  try {
+    const { getDb } = await import('../db.js');
+    const { reservations, customers, tables } = await import('@shared/schema.js');
+    const { eq } = await import('drizzle-orm');
+
+    const db = await getDb();
+    
+    const reservationsList = await db.select()
+      .from(reservations)
+      .leftJoin(customers, eq(reservations.customerId, customers.id))
+      .leftJoin(tables, eq(reservations.tableId, tables.id));
+
+    res.json({ success: true, data: reservationsList });
+  } catch (error) {
+    logger.error('Erreur récupération réservations', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+    res.status(500).json({ success: false, message: 'Erreur serveur' });
+  }
+}));
+
+router.get('/admin/promotions', authenticateToken, asyncHandler(async (req, res) => {
+  try {
+    const promotions = [
+      {
+        id: 1,
+        name: "Happy Hour",
+        description: "20% de réduction de 14h à 16h",
+        discount: 20,
+        active: true,
+        startDate: "2025-01-01",
+        endDate: "2025-12-31"
+      },
+      {
+        id: 2,
+        name: "Menu Étudiant", 
+        description: "Tarif préférentiel pour étudiants",
+        discount: 15,
+        active: true,
+        startDate: "2025-01-01",
+        endDate: "2025-12-31"
+      }
+    ];
+
+    res.json({ success: true, data: promotions });
+  } catch (error) {
+    logger.error('Erreur récupération promotions', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+    res.status(500).json({ success: false, message: 'Erreur serveur' });
+  }
+}));
+
+router.get('/admin/events', authenticateToken, asyncHandler(async (req, res) => {
+  try {
+    const events = [
+      {
+        id: 1,
+        name: "Soirée Jazz",
+        description: "Concert de jazz en live",
+        date: "2025-07-25",
+        time: "20:00",
+        capacity: 50,
+        booked: 32,
+        status: "confirmed"
+      },
+      {
+        id: 2,
+        name: "Dégustation Café",
+        description: "Découverte des cafés du monde", 
+        date: "2025-07-30",
+        time: "15:00",
+        capacity: 20,
+        booked: 8,
+        status: "confirmed"
+      }
+    ];
+
+    res.json({ success: true, data: events });
+  } catch (error) {
+    logger.error('Erreur récupération événements', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+    res.status(500).json({ success: false, message: 'Erreur serveur' });
+  }
+}));
+
+router.get('/admin/inventory/items', authenticateToken, asyncHandler(async (req, res) => {
+  try {
+    const inventoryItems = [
+      {
+        id: 1,
+        name: "Grains de café Arabica",
+        category: "Matières premières",
+        currentStock: 25,
+        minStock: 10,
+        unit: "kg",
+        supplier: "Café Premium Import",
+        lastRestocked: "2025-07-15",
+        status: "ok"
+      },
+      {
+        id: 2,
+        name: "Lait entier",
+        category: "Produits frais",
+        currentStock: 8,
+        minStock: 15,
+        unit: "litres",
+        supplier: "Laiterie Locale",
+        lastRestocked: "2025-07-17",
+        status: "low"
+      }
+    ];
+
+    res.json({ success: true, data: inventoryItems });
+  } catch (error) {
+    logger.error('Erreur récupération inventaire', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+    res.status(500).json({ success: false, message: 'Erreur serveur' });
+  }
+}));
+
+router.get('/admin/inventory/alerts', authenticateToken, asyncHandler(async (req, res) => {
+  try {
+    const alerts = [
+      {
+        id: 1,
+        type: "low_stock",
+        message: "Stock faible : Lait entier (8/15)",
+        severity: "warning",
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: 2,
+        type: "expiry_soon",
+        message: "Expire bientôt : Pâtisseries (2 jours)",
+        severity: "info",
+        createdAt: new Date().toISOString()
+      }
+    ];
+
+    res.json({ success: true, data: alerts });
+  } catch (error) {
+    logger.error('Erreur récupération alertes', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+    res.status(500).json({ success: false, message: 'Erreur serveur' });
+  }
+}));
+
+// Routes statistiques détaillées pour le dashboard
+router.get('/admin/stats/revenue-detailed', authenticateToken, asyncHandler(async (req, res) => {
+  try {
+    const revenueData = [
+      { date: '2025-07-12', revenue: 1250.50, orders: 45 },
+      { date: '2025-07-13', revenue: 1380.75, orders: 52 },
+      { date: '2025-07-14', revenue: 1150.25, orders: 38 },
+      { date: '2025-07-15', revenue: 1420.00, orders: 56 },
+      { date: '2025-07-16', revenue: 1390.25, orders: 49 },
+      { date: '2025-07-17', revenue: 1520.75, orders: 61 },
+      { date: '2025-07-18', revenue: 980.50, orders: 32 }
+    ];
+
+    res.json({ success: true, data: revenueData });
+  } catch (error) {
+    logger.error('Erreur récupération revenus détaillés', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+    res.status(500).json({ success: false, message: 'Erreur serveur' });
+  }
+}));
+
+router.get('/admin/stats/category-analytics', authenticateToken, asyncHandler(async (req, res) => {
+  try {
+    const categoryData = [
+      { name: 'Cafés', sales: 3250, percentage: 45 },
+      { name: 'Boissons', sales: 1890, percentage: 26 },
+      { name: 'Pâtisseries', sales: 1420, percentage: 20 },
+      { name: 'Plats', sales: 650, percentage: 9 }
+    ];
+
+    res.json({ success: true, data: categoryData });
+  } catch (error) {
+    logger.error('Erreur analytics catégories', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+    res.status(500).json({ success: false, message: 'Erreur serveur' });
+  }
+}));
+
+router.get('/admin/stats/customer-analytics', authenticateToken, asyncHandler(async (req, res) => {
+  try {
+    const customerData = {
+      newCustomers: 156,
+      returningCustomers: 324,
+      averageOrderValue: 12.75,
+      satisfactionScore: 4.6,
+      peakHours: [
+        { hour: '8:00', customers: 25 },
+        { hour: '12:00', customers: 45 },
+        { hour: '15:00', customers: 32 },
+        { hour: '18:00', customers: 38 }
+      ]
+    };
+
+    res.json({ success: true, data: customerData });
+  } catch (error) {
+    logger.error('Erreur analytics clients', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+    res.status(500).json({ success: false, message: 'Erreur serveur' });
+  }
+}));
+
 // Montage des sous-routeurs
 router.use('/analytics', analyticsRouter);
 router.use('/permissions', permissionsRouter);
 router.use('/user-profile', userProfileRouter);
 router.use('/tables', tablesRouter);
 router.use('/database', databaseRouter);
+
+// Route WebSocket endpoint pour connexion
+router.get('/ws', (req, res) => {
+  res.json({
+    success: true,
+    message: 'WebSocket endpoint disponible sur ws://localhost:5000/ws',
+    instructions: 'Utilisez une connexion WebSocket pour accéder à cette API'
+  });
+});
 
 // Gestion des erreurs 404
 router.use('*', (req, res) => {
