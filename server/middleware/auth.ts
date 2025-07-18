@@ -84,5 +84,4 @@ export const generateToken = (user: any): string => {
   );
 };
 
-// Alias pour compatibilité
-export const authMiddleware = authenticateToken;
+// Note: authMiddleware est défini en haut du fichier, pas besoin de redéclaration

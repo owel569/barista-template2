@@ -8,8 +8,8 @@ import { z } from 'zod';
 // Import des routes
 import analyticsRouter from './analytics';
 import permissionsRouter from './permissions';
-import userProfileRouter from './user-profile';
-import tablesRouter from './tables';
+import { userProfileRouter } from './user-profile';
+import { tablesRouter } from './tables';
 
 const router = Router();
 const logger = createLogger('MAIN_ROUTES');
