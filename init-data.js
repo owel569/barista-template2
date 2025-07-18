@@ -1,5 +1,5 @@
 
-const { Client } = require('pg');
+import { Client } from 'pg';
 
 // Configuration de la base de données
 const client = new Client({
@@ -75,18 +75,44 @@ async function initializeData() {
       ON CONFLICT (email) DO NOTHING;
     `);
     
-    // Créer des employés
+    // Créer des employés (table employees n'existe pas dans le schéma, on va créer des utilisateurs employés)
     await client.query(`
-      INSERT INTO employees (firstName, lastName, position, phone, email, hireDate, salary, createdAt, updatedAt)
+      INSERT INTO users (username, password, role, firstName, lastName, email, createdAt, updatedAt)
       VALUES 
-        ('Sophie', 'Dubois', 'Barista senior', '0123456789', 'sophie.dubois@barista-cafe.com', '2023-01-15', 2200, NOW(), NOW()),
-        ('Antoine', 'Rousseau', 'Serveur', '0123456790', 'antoine.rousseau@barista-cafe.com', '2023-03-22', 1800, NOW(), NOW()),
-        ('Clara', 'Moreau', 'Pâtissière', '0123456791', 'clara.moreau@barista-cafe.com', '2023-06-10', 2000, NOW(), NOW())
-      ON CONFLICT (email) DO NOTHING;
+        ('sophie.dubois', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'employe', 'Sophie', 'Dubois', 'sophie.dubois@barista-cafe.com', NOW(), NOW()),
+        ('antoine.rousseau', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'employe', 'Antoine', 'Rousseau', 'antoine.rousseau@barista-cafe.com', NOW(), NOW()),
+        ('clara.moreau', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'manager', 'Clara', 'Moreau', 'clara.moreau@barista-cafe.com', NOW(), NOW())
+      ON CONFLICT (username) DO NOTHING;
+    `);
+    
+    // Créer quelques commandes d'exemple
+    await client.query(`
+      INSERT INTO orders (customerId, totalAmount, status, createdAt, updatedAt)
+      VALUES 
+        (1, 15.50, 'completed', NOW() - INTERVAL '2 days', NOW() - INTERVAL '2 days'),
+        (2, 8.30, 'completed', NOW() - INTERVAL '1 day', NOW() - INTERVAL '1 day'),
+        (3, 22.75, 'pending', NOW(), NOW()),
+        (1, 12.20, 'completed', NOW() - INTERVAL '3 hours', NOW() - INTERVAL '3 hours')
+      ON CONFLICT DO NOTHING;
+    `);
+    
+    // Créer quelques réservations d'exemple
+    await client.query(`
+      INSERT INTO reservations (customerId, tableId, date, time, partySize, status, createdAt)
+      VALUES 
+        (1, 2, '2025-01-20', '19:00', 4, 'confirmed', NOW()),
+        (2, 1, '2025-01-21', '12:30', 2, 'pending', NOW()),
+        (3, 3, '2025-01-22', '20:00', 6, 'confirmed', NOW())
+      ON CONFLICT DO NOTHING;
     `);
     
     console.log('✅ Données initialisées avec succès !');
     console.log('🔐 Connexion admin : username=admin, password=admin123');
+    console.log('👥 Employés créés : sophie.dubois, antoine.rousseau, clara.moreau');
+    console.log('🍽️ Menu avec 8 articles dans 4 catégories');
+    console.log('🪑 5 tables créées');
+    console.log('👨‍👩‍👧‍👦 4 clients avec points de fidélité');
+    console.log('📦 Commandes et réservations d\'exemple ajoutées');
     
   } catch (error) {
     console.error('❌ Erreur lors de l\'initialisation:', error);
