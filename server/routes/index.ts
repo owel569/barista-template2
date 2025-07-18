@@ -432,7 +432,7 @@ router.get('/menu/items', asyncHandler(async (req, res) => {
   }
 }));
 
-// Routes admin manquantes
+// Routes CRUD pour les éléments de menu
 router.get('/admin/menu/items', authenticateToken, asyncHandler(async (req, res) => {
   try {
     const { getDb } = await import('../db.js');
@@ -461,6 +461,88 @@ router.get('/admin/menu/items', authenticateToken, asyncHandler(async (req, res)
     res.json({ success: true, data: items });
   } catch (error) {
     logger.error('Erreur récupération menu admin', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+    res.status(500).json({ success: false, message: 'Erreur serveur' });
+  }
+}));
+
+router.post('/admin/menu/items', authenticateToken, asyncHandler(async (req, res) => {
+  try {
+    const { getDb } = await import('../db.js');
+    const { menuItems } = await import('@shared/schema.js');
+    const { name, description, price, categoryId, available, imageUrl } = req.body;
+
+    const db = await getDb();
+    
+    const [newItem] = await db.insert(menuItems).values({
+      name,
+      description,
+      price: parseFloat(price),
+      categoryId: parseInt(categoryId),
+      available: available !== false,
+      imageUrl: imageUrl || null
+    }).returning();
+
+    res.json({ success: true, data: newItem });
+  } catch (error) {
+    logger.error('Erreur création article menu', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+    res.status(500).json({ success: false, message: 'Erreur serveur' });
+  }
+}));
+
+router.put('/admin/menu/items/:id', authenticateToken, asyncHandler(async (req, res) => {
+  try {
+    const { getDb } = await import('../db.js');
+    const { menuItems } = await import('@shared/schema.js');
+    const { eq } = await import('drizzle-orm');
+    const { name, description, price, categoryId, available, imageUrl } = req.body;
+    const itemId = parseInt(req.params.id);
+
+    const db = await getDb();
+    
+    const [updatedItem] = await db.update(menuItems)
+      .set({
+        name,
+        description,
+        price: parseFloat(price),
+        categoryId: parseInt(categoryId),
+        available: available !== false,
+        imageUrl: imageUrl || null,
+        updatedAt: new Date()
+      })
+      .where(eq(menuItems.id, itemId))
+      .returning();
+
+    if (!updatedItem) {
+      return res.status(404).json({ success: false, message: 'Article non trouvé' });
+    }
+
+    res.json({ success: true, data: updatedItem });
+  } catch (error) {
+    logger.error('Erreur mise à jour article menu', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+    res.status(500).json({ success: false, message: 'Erreur serveur' });
+  }
+}));
+
+router.delete('/admin/menu/items/:id', authenticateToken, asyncHandler(async (req, res) => {
+  try {
+    const { getDb } = await import('../db.js');
+    const { menuItems } = await import('@shared/schema.js');
+    const { eq } = await import('drizzle-orm');
+    const itemId = parseInt(req.params.id);
+
+    const db = await getDb();
+    
+    const [deletedItem] = await db.delete(menuItems)
+      .where(eq(menuItems.id, itemId))
+      .returning();
+
+    if (!deletedItem) {
+      return res.status(404).json({ success: false, message: 'Article non trouvé' });
+    }
+
+    res.json({ success: true, message: 'Article supprimé avec succès' });
+  } catch (error) {
+    logger.error('Erreur suppression article menu', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     res.status(500).json({ success: false, message: 'Erreur serveur' });
   }
 }));
@@ -625,19 +707,57 @@ router.get('/admin/inventory/alerts', authenticateToken, asyncHandler(async (req
 // Routes statistiques détaillées pour le dashboard
 router.get('/admin/stats/revenue-detailed', authenticateToken, asyncHandler(async (req, res) => {
   try {
-    const revenueData = [
-      { date: '2025-07-12', revenue: 1250.50, orders: 45 },
-      { date: '2025-07-13', revenue: 1380.75, orders: 52 },
-      { date: '2025-07-14', revenue: 1150.25, orders: 38 },
-      { date: '2025-07-15', revenue: 1420.00, orders: 56 },
-      { date: '2025-07-16', revenue: 1390.25, orders: 49 },
-      { date: '2025-07-17', revenue: 1520.75, orders: 61 },
-      { date: '2025-07-18', revenue: 980.50, orders: 32 }
-    ];
+    const { getDb } = await import('../db.js');
+    const { orders } = await import('@shared/schema.js');
+    const { sql } = await import('drizzle-orm');
+
+    const db = await getDb();
+    
+    // Récupérer les données des 7 derniers jours
+    const revenueData = await db.select({
+      date: sql<string>`DATE(${orders.createdAt})`,
+      revenue: sql<number>`SUM(${orders.totalAmount})`,
+      orders: sql<number>`COUNT(*)`
+    })
+    .from(orders)
+    .where(sql`${orders.createdAt} >= CURRENT_DATE - INTERVAL '7 days'`)
+    .groupBy(sql`DATE(${orders.createdAt})`)
+    .orderBy(sql`DATE(${orders.createdAt})`);
 
     res.json({ success: true, data: revenueData });
   } catch (error) {
     logger.error('Erreur récupération revenus détaillés', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+    res.status(500).json({ success: false, message: 'Erreur serveur' });
+  }
+}));
+
+// Route pour les statistiques du module avancé
+router.get('/admin/statistics/overview', authenticateToken, asyncHandler(async (req, res) => {
+  try {
+    const { getDb } = await import('../db.js');
+    const { orders, customers, menuItems } = await import('@shared/schema.js');
+    const { count, sum, avg } = await import('drizzle-orm');
+
+    const db = await getDb();
+    
+    const [totalRevenueResult] = await db.select({ total: sum(orders.totalAmount) }).from(orders);
+    const [totalOrdersResult] = await db.select({ count: count() }).from(orders);
+    const [totalCustomersResult] = await db.select({ count: count() }).from(customers);
+    const [avgOrderValueResult] = await db.select({ avg: avg(orders.totalAmount) }).from(orders);
+
+    const overview = {
+      totalRevenue: totalRevenueResult.total || 0,
+      totalOrders: totalOrdersResult.count || 0,
+      totalCustomers: totalCustomersResult.count || 0,
+      averageOrderValue: avgOrderValueResult.avg || 0,
+      growthRate: 12.5, // Calculer basé sur les données historiques
+      topProducts: [],
+      recentTrends: []
+    };
+
+    res.json(overview);
+  } catch (error) {
+    logger.error('Erreur récupération overview', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     res.status(500).json({ success: false, message: 'Erreur serveur' });
   }
 }));

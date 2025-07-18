@@ -51,6 +51,10 @@ import { useToast } from '@/hooks/use-toast';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { usePermissions } from '@/hooks/usePermissions';
 import { getItemImageUrl } from '@/lib/image-mapping';
+
+const getImageUrlByName = (name: string): string => {
+  return getItemImageUrl(name);
+};
 import { ImageManagement } from './image-management';
 
 const menuItemSchema = z.object({
