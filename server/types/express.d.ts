@@ -1,13 +1,18 @@
 import { Request as ExpressRequest } from 'express';
 
+interface AuthenticatedUser {
+  id: number;
+  username: string;
+  role: 'directeur' | 'employe' | 'admin';
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+}
+
 declare global {
   namespace Express {
     interface Request {
-      user?: {
-        id: number;
-        username: string;
-        role: string;
-      };
+      user?: AuthenticatedUser;
       requestId?: string;
     }
 
@@ -17,4 +22,4 @@ declare global {
   }
 }
 
-export {};
+export { AuthenticatedUser };

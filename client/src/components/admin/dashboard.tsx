@@ -19,12 +19,23 @@ import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, 
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 
+interface ReservationStatus {
+  status: string;
+  count: number;
+}
+
 interface DashboardStats {
   todayReservations: number;
   monthlyRevenue: number;
   activeOrders: number;
   occupancyRate: number;
-  reservationStatus: Array<{ status: string; count: number; }>;
+  reservationStatus: ReservationStatus[];
+}
+
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  message?: string;
 }
 
 const COLORS = ['#f59e0b', '#3b82f6', '#10b981', '#ef4444', '#8b5cf6'];
@@ -52,10 +63,15 @@ export default function Dashboard() {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const data = await response.json();
+      const data: ApiResponse<{
+        reservations: number;
+        revenue: number;
+        orders: number;
+        customers: number;
+      }> = await response.json();
 
       if (data.success) {
         setStats({

@@ -91,8 +91,9 @@ router.post('/auth/login', asyncHandler(async (req, res) => {
       },
       token
     });
-  } catch (error) {
-    logger.error('Erreur lors de la connexion', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+    logger.error('Erreur lors de la connexion', { error: errorMessage });
     return res.status(500).json({
       success: false,
       message: 'Erreur serveur'

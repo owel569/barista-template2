@@ -9,7 +9,17 @@ interface NotificationData {
   systemAlerts: number;
 }
 
-export const useWebSocket = () => {
+interface WebSocketMessage {
+  type: string;
+  data: NotificationData;
+}
+
+interface WebSocketHookReturn {
+  notifications: NotificationData;
+  isConnected: boolean;
+}
+
+export const useWebSocket = (): WebSocketHookReturn => {
   const [notifications, setNotifications] = useState<NotificationData>({
     pendingReservations: 0,
     pendingOrders: 0,
@@ -43,12 +53,12 @@ export const useWebSocket = () => {
         reconnectAttempts.current = 0;
       };
 
-      ws.current.onmessage = (event) => {
+      ws.current.onmessage = (event: MessageEvent) => {
         try {
-          const data = JSON.parse(event.data);
+          const message: WebSocketMessage = JSON.parse(event.data);
 
-          if (data.type === 'notifications') {
-            setNotifications(data.data);
+          if (message.type === 'notifications' && message.data) {
+            setNotifications(message.data);
           }
         } catch (error) {
           console.error('Erreur parsing WebSocket message:', error);

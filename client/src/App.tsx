@@ -89,3 +89,35 @@ function App() {
 }
 
 export default App;
+
+// Define the types
+interface DashboardStats {
+    totalRevenue: number;
+    reservationsCount: number;
+    menuItemsCount: number;
+    customersCount: number;
+}
+
+interface ApiResponse<T> {
+    success: boolean;
+    data: T;
+    message?: string;
+}
+
+const fetchStats = async (): Promise<void> => {
+    try {
+      const token = localStorage.getItem('token') || localStorage.getItem('auth_token') || localStorage.getItem('barista_auth_token');
+      const response = await fetch('/api/admin/dashboard/stats', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data: ApiResponse<DashboardStats> = await response.json();
+      }
+    } catch (error) {
+      console.error("Failed to fetch stats:", error);
+    }
+  };
