@@ -388,10 +388,12 @@ router.get('/menu/categories', asyncHandler(async (req, res) => {
   try {
     const { getDb } = await import('../db.js');
     const { menuCategories } = await import('@shared/schema.js');
+    const { withDatabaseRetry } = await import('../middleware/database-middleware.js');
 
-    const db = await getDb();
-    
-    const categories = await db.select().from(menuCategories);
+    const categories = await withDatabaseRetry(async () => {
+      const db = await getDb();
+      return await db.select().from(menuCategories);
+    });
 
     res.json({ success: true, categories });
   } catch (error) {
@@ -405,26 +407,28 @@ router.get('/menu/items', asyncHandler(async (req, res) => {
     const { getDb } = await import('../db.js');
     const { menuItems, menuCategories } = await import('@shared/schema.js');
     const { eq } = await import('drizzle-orm');
+    const { withDatabaseRetry } = await import('../middleware/database-middleware.js');
 
-    const db = await getDb();
-    
-    const items = await db
-      .select({
-        id: menuItems.id,
-        name: menuItems.name,
-        description: menuItems.description,
-        price: menuItems.price,
-        imageUrl: menuItems.imageUrl,
-        available: menuItems.available,
-        category: {
-          id: menuCategories.id,
-          name: menuCategories.name,
-          slug: menuCategories.slug
-        }
-      })
-      .from(menuItems)
-      .leftJoin(menuCategories, eq(menuItems.categoryId, menuCategories.id))
-      .where(eq(menuItems.available, true));
+    const items = await withDatabaseRetry(async () => {
+      const db = await getDb();
+      return await db
+        .select({
+          id: menuItems.id,
+          name: menuItems.name,
+          description: menuItems.description,
+          price: menuItems.price,
+          imageUrl: menuItems.imageUrl,
+          available: menuItems.available,
+          category: {
+            id: menuCategories.id,
+            name: menuCategories.name,
+            slug: menuCategories.slug
+          }
+        })
+        .from(menuItems)
+        .leftJoin(menuCategories, eq(menuItems.categoryId, menuCategories.id))
+        .where(eq(menuItems.available, true));
+    });
 
     res.json({ success: true, items });
   } catch (error) {
