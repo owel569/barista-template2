@@ -2,9 +2,9 @@ export interface UserPayload {
   id: number;
   username: string;
   role: string;
-  firstName?: string;
-  lastName?: string;
-  email?: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  email?: string | null;
 }
 
 export interface AuthenticatedUser extends UserPayload {

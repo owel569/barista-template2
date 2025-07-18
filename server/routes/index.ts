@@ -78,7 +78,7 @@ router.post('/auth/login', asyncHandler(async (req, res) => {
 
     logger.info('Connexion réussie', { userId: user.id, role: user.role });
 
-    res.json({
+    return res.json({
       success: true,
       user: {
         id: user.id,
@@ -91,8 +91,8 @@ router.post('/auth/login', asyncHandler(async (req, res) => {
       token
     });
   } catch (error) {
-    logger.error('Erreur lors de la connexion', { error: error.message });
-    res.status(500).json({
+    logger.error('Erreur lors de la connexion', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+    return res.status(500).json({
       success: false,
       message: 'Erreur serveur'
     });
@@ -164,7 +164,7 @@ router.get('/menu', asyncHandler(async (req, res) => {
       menu: items
     });
   } catch (error) {
-    logger.error('Erreur lors de la récupération du menu', { error: error.message });
+    logger.error('Erreur lors de la récupération du menu', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     res.status(500).json({
       success: false,
       message: 'Erreur serveur'
@@ -188,7 +188,7 @@ router.get('/tables', asyncHandler(async (req, res) => {
       tables: tablesList
     });
   } catch (error) {
-    logger.error('Erreur lors de la récupération des tables', { error: error.message });
+    logger.error('Erreur lors de la récupération des tables', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     res.status(500).json({
       success: false,
       message: 'Erreur serveur'
@@ -258,7 +258,7 @@ router.get('/admin/notifications', authenticateToken, asyncHandler(async (req, r
     res.setHeader('Content-Type', 'application/json');
     res.json({ success: true, data: notifications });
   } catch (error) {
-    logger.error('Erreur notifications', { error: error.message });
+    logger.error('Erreur notifications', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     res.status(500).json({ success: false, message: 'Erreur serveur' });
   }
 }));
@@ -268,7 +268,7 @@ router.get('/admin/notifications/count', authenticateToken, asyncHandler(async (
     const unreadCount = 2; // Nombre de notifications non lues
     res.json({ success: true, count: unreadCount });
   } catch (error) {
-    logger.error('Erreur compteur notifications', { error: error.message });
+    logger.error('Erreur compteur notifications', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     res.status(500).json({ success: false, message: 'Erreur serveur' });
   }
 }));
@@ -282,29 +282,29 @@ router.get('/admin/dashboard/stats', authenticateToken, asyncHandler(async (req,
     const db = await getDb();
     
     // Récupérer les statistiques
-    const [ordersCount] = await db.select({ count: count() }).from(orders);
-    const [reservationsCount] = await db.select({ count: count() }).from(reservations);
-    const [customersCount] = await db.select({ count: count() }).from(customers);
-    const [menuItemsCount] = await db.select({ count: count() }).from(menuItems);
+    const ordersCountResult = await db.select({ count: count() }).from(orders);
+    const reservationsCountResult = await db.select({ count: count() }).from(reservations);
+    const customersCountResult = await db.select({ count: count() }).from(customers);
+    const menuItemsCountResult = await db.select({ count: count() }).from(menuItems);
     
     // Revenus totaux (simulation)
-    const [totalRevenue] = await db.select({ 
+    const totalRevenueResult = await db.select({ 
       total: sum(orders.totalAmount) 
-    }).from(orders) || [{ total: 0 }];
+    }).from(orders);
 
     const stats = {
-      orders: ordersCount.count || 0,
-      reservations: reservationsCount.count || 0,
-      customers: customersCount.count || 0,
-      menuItems: menuItemsCount.count || 0,
-      revenue: totalRevenue.total || 0,
+      orders: ordersCountResult[0]?.count || 0,
+      reservations: reservationsCountResult[0]?.count || 0,
+      customers: customersCountResult[0]?.count || 0,
+      menuItems: menuItemsCountResult[0]?.count || 0,
+      revenue: totalRevenueResult[0]?.total || 0,
       todayOrders: 0, // À implémenter avec filtre date
       todayRevenue: 0, // À implémenter avec filtre date
     };
 
     res.json({ success: true, data: stats });
   } catch (error) {
-    logger.error('Erreur statistiques dashboard', { error: error.message });
+    logger.error('Erreur statistiques dashboard', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     res.status(500).json({ success: false, message: 'Erreur serveur' });
   }
 }));
@@ -328,7 +328,7 @@ router.get('/admin/users', authenticateToken, asyncHandler(async (req, res) => {
 
     res.json({ success: true, data: usersList });
   } catch (error) {
-    logger.error('Erreur récupération utilisateurs', { error: error.message });
+    logger.error('Erreur récupération utilisateurs', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     res.status(500).json({ success: false, message: 'Erreur serveur' });
   }
 }));
@@ -360,7 +360,7 @@ router.get('/admin/menu', authenticateToken, asyncHandler(async (req, res) => {
 
     res.json({ success: true, data: items });
   } catch (error) {
-    logger.error('Erreur récupération menu admin', { error: error.message });
+    logger.error('Erreur récupération menu admin', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     res.status(500).json({ success: false, message: 'Erreur serveur' });
   }
 }));
@@ -376,7 +376,7 @@ router.get('/admin/categories', authenticateToken, asyncHandler(async (req, res)
 
     res.json({ success: true, data: categories });
   } catch (error) {
-    logger.error('Erreur récupération catégories', { error: error.message });
+    logger.error('Erreur récupération catégories', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     res.status(500).json({ success: false, message: 'Erreur serveur' });
   }
 }));
@@ -393,7 +393,7 @@ router.get('/menu/categories', asyncHandler(async (req, res) => {
 
     res.json({ success: true, categories });
   } catch (error) {
-    logger.error('Erreur récupération catégories publiques', { error: error.message });
+    logger.error('Erreur récupération catégories publiques', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     res.status(500).json({ success: false, message: 'Erreur serveur' });
   }
 }));
@@ -426,7 +426,7 @@ router.get('/menu/items', asyncHandler(async (req, res) => {
 
     res.json({ success: true, items });
   } catch (error) {
-    logger.error('Erreur récupération articles publics', { error: error.message });
+    logger.error('Erreur récupération articles publics', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     res.status(500).json({ success: false, message: 'Erreur serveur' });
   }
 }));

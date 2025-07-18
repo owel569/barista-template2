@@ -9,14 +9,15 @@ if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
 }
 
 // Middleware d'authentification principal (remplace authMiddleware)
-export const authenticateUser = (req: Request, res: Response, next: NextFunction) => {
+export const authenticateUser = (req: Request, res: Response, next: NextFunction): void => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
   
   if (!token) {
-    return res.status(401).json({ 
+    res.status(401).json({ 
       success: false, 
       message: 'Token d\'accès requis' 
     });
+    return;
   }
 
   try {
@@ -24,10 +25,11 @@ export const authenticateUser = (req: Request, res: Response, next: NextFunction
     req.user = decoded;
     next();
   } catch (error) {
-    return res.status(401).json({ 
+    res.status(401).json({ 
       success: false, 
       message: 'Token invalide' 
     });
+    return;
   }
 };
 
@@ -35,20 +37,22 @@ export const authenticateUser = (req: Request, res: Response, next: NextFunction
 export const authenticateToken = authenticateUser;
 
 export const requireRole = (role: string) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     const user = req.user;
     if (!user || user.role !== role) {
-      return res.status(403).json({ message: 'Accès refusé - rôle insuffisant' });
+      res.status(403).json({ message: 'Accès refusé - rôle insuffisant' });
+      return;
     }
     next();
   };
 };
 
 export const requireRoles = (roles: string[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     const user = req.user;
     if (!user || !roles.includes(user.role)) {
-      return res.status(403).json({ message: 'Accès refusé - rôle insuffisant' });
+      res.status(403).json({ message: 'Accès refusé - rôle insuffisant' });
+      return;
     }
     next();
   };
