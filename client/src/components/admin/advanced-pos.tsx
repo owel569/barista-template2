@@ -16,7 +16,7 @@ import {
   Calculator,
   Smartphone,
   QrCode,
-  ContactlessIcon,
+  Zap,
   Printer,
   Check,
   X,
@@ -81,7 +81,7 @@ export default function AdvancedPOS() {
   const paymentMethods: PaymentMethod[] = [
     { id: 'cash', name: 'Espèces', icon: DollarSign, enabled: true },
     { id: 'card', name: 'Carte', icon: CreditCard, enabled: true, processingFee: 0.025 },
-    { id: 'contactless', name: 'Sans contact', icon: ContactlessIcon, enabled: true },
+    { id: 'contactless', name: 'Sans contact', icon: Zap, enabled: true },
     { id: 'mobile', name: 'Mobile', icon: Smartphone, enabled: true },
     { id: 'qr', name: 'QR Code', icon: QrCode, enabled: true }
   ];

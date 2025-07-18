@@ -35,14 +35,14 @@ app.use(requestLogger);
 
 // Servir les fichiers statiques
 app.use('/images', express.static(path.join(__dirname, '../client/src/assets')));
-app.use(express.static(path.join(__dirname, '../client/dist')));
+app.use(express.static(path.join(__dirname, '../dist/public')));
 
 // Routes API
 app.use('/api', apiRoutes);
 
 // Route pour servir l'app React
 app.get('*', (req, res) => {
-  const indexPath = path.join(__dirname, '../client/dist/index.html');
+  const indexPath = path.join(__dirname, '../dist/public/index.html');
   res.sendFile(indexPath, (err) => {
     if (err) {
       logger.error('Erreur lors du service du fichier index.html', { error: err.message });

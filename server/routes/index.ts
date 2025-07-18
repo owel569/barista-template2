@@ -38,34 +38,63 @@ router.get('/health', asyncHandler(async (req, res) => {
 }));
 
 // Routes d'authentification
-router.post('/auth/login', validateRequestWithLogging(loginSchema), asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+router.post('/auth/login', asyncHandler(async (req, res) => {
+  const { username, password } = req.body;
 
-  logger.info('Tentative de connexion', { email });
+  logger.info('Tentative de connexion', { username });
 
-  // Simulation d'authentification (à remplacer par vraie logique)
-  if (email === 'admin@barista.com' && password === 'admin123') {
-    const token = 'mock-jwt-token-' + Date.now();
-    const user = {
-      id: 1,
-      email,
-      firstName: 'Admin',
-      lastName: 'User',
-      role: 'admin'
-    };
+  try {
+    const { getDb } = await import('../db.js');
+    const { users } = await import('@shared/schema.js');
+    const { comparePassword, generateToken } = await import('../middleware/auth.js');
+    const { eq } = await import('drizzle-orm');
+
+    const db = await getDb();
+    
+    // Rechercher l'utilisateur
+    const [user] = await db.select().from(users).where(eq(users.username, username)).limit(1);
+    
+    if (!user) {
+      logger.warn('Utilisateur non trouvé', { username });
+      return res.status(401).json({
+        success: false,
+        message: 'Identifiants invalides'
+      });
+    }
+
+    // Vérifier le mot de passe
+    const isValidPassword = await comparePassword(password, user.password);
+    
+    if (!isValidPassword) {
+      logger.warn('Mot de passe incorrect', { username });
+      return res.status(401).json({
+        success: false,
+        message: 'Identifiants invalides'
+      });
+    }
+
+    // Générer le token JWT
+    const token = generateToken(user);
 
     logger.info('Connexion réussie', { userId: user.id, role: user.role });
 
     res.json({
       success: true,
-      user,
+      user: {
+        id: user.id,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        email: user.email
+      },
       token
     });
-  } else {
-    logger.warn('Échec de connexion', { email });
-    res.status(401).json({
+  } catch (error) {
+    logger.error('Erreur lors de la connexion', { error: error.message });
+    res.status(500).json({
       success: false,
-      message: 'Identifiants invalides'
+      message: 'Erreur serveur'
     });
   }
 }));
@@ -101,63 +130,70 @@ router.get('/auth/verify', authenticateToken, asyncHandler(async (req, res) => {
   });
 }));
 
-// Routes des modules
-router.use('/analytics', analyticsRouter);
-router.use('/permissions', permissionsRouter);
-router.use('/user-profile', userProfileRouter);
-router.use('/tables', tablesRouter);
+
 
 // Routes des données de base
 router.get('/menu', asyncHandler(async (req, res) => {
   logger.info('Récupération du menu');
 
-  const menu = [
-    {
-      id: 1,
-      name: 'Espresso',
-      price: 2.50,
-      category: 'Cafés',
-      image: '/images/espresso.jpg',
-      description: 'Café court et intense'
-    },
-    {
-      id: 2,
-      name: 'Cappuccino',
-      price: 3.50,
-      category: 'Cafés',
-      image: '/images/cappuccino.jpg',
-      description: 'Café avec mousse de lait'
-    },
-    {
-      id: 3,
-      name: 'Croissant',
-      price: 2.00,
-      category: 'Pâtisseries',
-      image: '/images/croissant.jpg',
-      description: 'Viennoiserie française'
-    }
-  ];
+  try {
+    const { getDb } = await import('../db.js');
+    const { menuItems, menuCategories } = await import('@shared/schema.js');
+    const { eq } = await import('drizzle-orm');
 
-  res.json({
-    success: true,
-    menu
-  });
+    const db = await getDb();
+    
+    // Récupérer tous les articles avec leurs catégories
+    const items = await db
+      .select({
+        id: menuItems.id,
+        name: menuItems.name,
+        description: menuItems.description,
+        price: menuItems.price,
+        imageUrl: menuItems.imageUrl,
+        available: menuItems.available,
+        category: menuCategories.name,
+        categorySlug: menuCategories.slug
+      })
+      .from(menuItems)
+      .leftJoin(menuCategories, eq(menuItems.categoryId, menuCategories.id))
+      .where(eq(menuItems.available, true));
+
+    res.json({
+      success: true,
+      menu: items
+    });
+  } catch (error) {
+    logger.error('Erreur lors de la récupération du menu', { error: error.message });
+    res.status(500).json({
+      success: false,
+      message: 'Erreur serveur'
+    });
+  }
 }));
 
 router.get('/tables', asyncHandler(async (req, res) => {
   logger.info('Récupération des tables');
 
-  const tables = [
-    { id: 1, number: 1, capacity: 2, status: 'available' },
-    { id: 2, number: 2, capacity: 4, status: 'occupied' },
-    { id: 3, number: 3, capacity: 6, status: 'reserved' },
-    { id: 4, number: 4, capacity: 2, status: 'available' }
-  ];
+  try {
+    const { getDb } = await import('../db.js');
+    const { tables } = await import('@shared/schema.js');
 
-  res.json({
-    success: true,
-    tables
-  });
+    const db = await getDb();
+    
+    const tablesList = await db.select().from(tables);
+
+    res.json({
+      success: true,
+      tables: tablesList
+    });
+  } catch (error) {
+    logger.error('Erreur lors de la récupération des tables', { error: error.message });
+    res.status(500).json({
+      success: false,
+      message: 'Erreur serveur'
+    });
+  }
 }));
 
 router.get('/reservations', authenticateToken, asyncHandler(async (req, res) => {
@@ -197,8 +233,8 @@ router.get('/test', (req, res) => {
   res.json({ message: 'API fonctionne!' });
 });
 
-// Route pour les notifications
-router.get('/notifications', asyncHandler(async (req, res) => {
+// Routes admin avec authentification
+router.get('/admin/notifications', authenticateToken, asyncHandler(async (req, res) => {
   try {
     const notifications = [
       {
@@ -223,6 +259,124 @@ router.get('/notifications', asyncHandler(async (req, res) => {
     res.json({ success: true, data: notifications });
   } catch (error) {
     logger.error('Erreur notifications', { error: error.message });
+    res.status(500).json({ success: false, message: 'Erreur serveur' });
+  }
+}));
+
+router.get('/admin/notifications/count', authenticateToken, asyncHandler(async (req, res) => {
+  try {
+    const unreadCount = 2; // Nombre de notifications non lues
+    res.json({ success: true, count: unreadCount });
+  } catch (error) {
+    logger.error('Erreur compteur notifications', { error: error.message });
+    res.status(500).json({ success: false, message: 'Erreur serveur' });
+  }
+}));
+
+router.get('/admin/dashboard/stats', authenticateToken, asyncHandler(async (req, res) => {
+  try {
+    const { getDb } = await import('../db.js');
+    const { orders, reservations, customers, menuItems } = await import('@shared/schema.js');
+    const { count, sum } = await import('drizzle-orm');
+
+    const db = await getDb();
+    
+    // Récupérer les statistiques
+    const [ordersCount] = await db.select({ count: count() }).from(orders);
+    const [reservationsCount] = await db.select({ count: count() }).from(reservations);
+    const [customersCount] = await db.select({ count: count() }).from(customers);
+    const [menuItemsCount] = await db.select({ count: count() }).from(menuItems);
+    
+    // Revenus totaux (simulation)
+    const [totalRevenue] = await db.select({ 
+      total: sum(orders.totalAmount) 
+    }).from(orders) || [{ total: 0 }];
+
+    const stats = {
+      orders: ordersCount.count || 0,
+      reservations: reservationsCount.count || 0,
+      customers: customersCount.count || 0,
+      menuItems: menuItemsCount.count || 0,
+      revenue: totalRevenue.total || 0,
+      todayOrders: 0, // À implémenter avec filtre date
+      todayRevenue: 0, // À implémenter avec filtre date
+    };
+
+    res.json({ success: true, data: stats });
+  } catch (error) {
+    logger.error('Erreur statistiques dashboard', { error: error.message });
+    res.status(500).json({ success: false, message: 'Erreur serveur' });
+  }
+}));
+
+router.get('/admin/users', authenticateToken, asyncHandler(async (req, res) => {
+  try {
+    const { getDb } = await import('../db.js');
+    const { users } = await import('@shared/schema.js');
+
+    const db = await getDb();
+    
+    const usersList = await db.select({
+      id: users.id,
+      username: users.username,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      email: users.email,
+      role: users.role,
+      createdAt: users.createdAt
+    }).from(users);
+
+    res.json({ success: true, data: usersList });
+  } catch (error) {
+    logger.error('Erreur récupération utilisateurs', { error: error.message });
+    res.status(500).json({ success: false, message: 'Erreur serveur' });
+  }
+}));
+
+router.get('/admin/menu', authenticateToken, asyncHandler(async (req, res) => {
+  try {
+    const { getDb } = await import('../db.js');
+    const { menuItems, menuCategories } = await import('@shared/schema.js');
+    const { eq } = await import('drizzle-orm');
+
+    const db = await getDb();
+    
+    const items = await db
+      .select({
+        id: menuItems.id,
+        name: menuItems.name,
+        description: menuItems.description,
+        price: menuItems.price,
+        imageUrl: menuItems.imageUrl,
+        available: menuItems.available,
+        categoryId: menuItems.categoryId,
+        category: menuCategories.name,
+        categorySlug: menuCategories.slug,
+        createdAt: menuItems.createdAt,
+        updatedAt: menuItems.updatedAt
+      })
+      .from(menuItems)
+      .leftJoin(menuCategories, eq(menuItems.categoryId, menuCategories.id));
+
+    res.json({ success: true, data: items });
+  } catch (error) {
+    logger.error('Erreur récupération menu admin', { error: error.message });
+    res.status(500).json({ success: false, message: 'Erreur serveur' });
+  }
+}));
+
+router.get('/admin/categories', authenticateToken, asyncHandler(async (req, res) => {
+  try {
+    const { getDb } = await import('../db.js');
+    const { menuCategories } = await import('@shared/schema.js');
+
+    const db = await getDb();
+    
+    const categories = await db.select().from(menuCategories);
+
+    res.json({ success: true, data: categories });
+  } catch (error) {
+    logger.error('Erreur récupération catégories', { error: error.message });
     res.status(500).json({ success: false, message: 'Erreur serveur' });
   }
 }));
