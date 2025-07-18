@@ -1,4 +1,3 @@
-
 import { Router } from 'express';
 import { eq, and, or, inArray } from 'drizzle-orm';
 import { z } from 'zod';
@@ -6,7 +5,7 @@ import { validateBody, validateParams } from '../middleware/validation';
 import { asyncHandler } from '../middleware/error-handler';
 import { getDb } from '../db';
 import { permissions, users, activityLogs } from '../../shared/schema';
-import { authMiddleware } from '../middleware/auth';
+import { authenticateUser } from '../middleware/auth';
 
 const router = Router();
 
@@ -126,7 +125,7 @@ const PERMISSION_TEMPLATES = {
 };
 
 // Obtenir toutes les permissions d'un utilisateur
-router.get('/user/:userId', authMiddleware, validateParams(z.object({ userId: z.coerce.number() })), asyncHandler(async (req, res) => {
+router.get('/user/:userId', authenticateUser, validateParams(z.object({ userId: z.coerce.number() })), asyncHandler(async (req, res) => {
   const db = await getDb();
   const { userId } = req.params;
 
@@ -161,7 +160,7 @@ router.get('/user/:userId', authMiddleware, validateParams(z.object({ userId: z.
 }));
 
 // Obtenir les modèles de permissions
-router.get('/templates', authMiddleware, asyncHandler(async (req, res) => {
+router.get('/templates', authenticateUser, asyncHandler(async (req, res) => {
   res.json({
     success: true,
     templates: PERMISSION_TEMPLATES
@@ -169,7 +168,7 @@ router.get('/templates', authMiddleware, asyncHandler(async (req, res) => {
 }));
 
 // Créer ou mettre à jour une permission
-router.post('/permission', authMiddleware, validateBody(permissionSchema), asyncHandler(async (req, res) => {
+router.post('/permission', authenticateUser, validateBody(permissionSchema), asyncHandler(async (req, res) => {
   const db = await getDb();
   const { userId, module, canView, canCreate, canUpdate, canDelete } = req.body;
 
@@ -213,7 +212,7 @@ router.post('/permission', authMiddleware, validateBody(permissionSchema), async
 }));
 
 // Mettre à jour plusieurs permissions en une fois
-router.post('/bulk-update', authMiddleware, validateBody(bulkPermissionSchema), asyncHandler(async (req, res) => {
+router.post('/bulk-update', authenticateUser, validateBody(bulkPermissionSchema), asyncHandler(async (req, res) => {
   const db = await getDb();
   const { userId, permissions: userPermissions } = req.body;
 
@@ -249,7 +248,7 @@ router.post('/bulk-update', authMiddleware, validateBody(bulkPermissionSchema), 
 }));
 
 // Appliquer un modèle de permissions
-router.post('/apply-template', authMiddleware, validateBody(z.object({
+router.post('/apply-template', authenticateUser, validateBody(z.object({
   userId: z.number().positive(),
   templateName: z.enum(['admin', 'manager', 'employee', 'viewer'])
 })), asyncHandler(async (req, res) => {
@@ -296,7 +295,7 @@ router.post('/apply-template', authMiddleware, validateBody(z.object({
 }));
 
 // Obtenir les permissions de tous les utilisateurs (vue d'ensemble)
-router.get('/overview', authMiddleware, asyncHandler(async (req, res) => {
+router.get('/overview', authenticateUser, asyncHandler(async (req, res) => {
   const db = await getDb();
 
   const usersWithPermissions = await db.select({
@@ -347,7 +346,7 @@ router.get('/overview', authMiddleware, asyncHandler(async (req, res) => {
 }));
 
 // Vérifier une permission spécifique
-router.get('/check/:userId/:module/:action', authMiddleware, validateParams(z.object({
+router.get('/check/:userId/:module/:action', authenticateUser, validateParams(z.object({
   userId: z.coerce.number(),
   module: z.enum(AVAILABLE_MODULES),
   action: z.enum(['view', 'create', 'update', 'delete'])
@@ -391,7 +390,7 @@ router.get('/check/:userId/:module/:action', authMiddleware, validateParams(z.ob
 }));
 
 // Supprimer toutes les permissions d'un utilisateur
-router.delete('/user/:userId', authMiddleware, validateParams(z.object({ userId: z.coerce.number() })), asyncHandler(async (req, res) => {
+router.delete('/user/:userId', authenticateUser, validateParams(z.object({ userId: z.coerce.number() })), asyncHandler(async (req, res) => {
   const db = await getDb();
   const { userId } = req.params;
 
