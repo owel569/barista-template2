@@ -95,7 +95,72 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    fetchStats();
+    const fetchStats = async () => {
+      try {
+        const token = localStorage.getItem('token') || localStorage.getItem('auth_token') || localStorage.getItem('barista_auth_token');
+        const response = await fetch('/api/admin/dashboard/stats', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data) {
+            setStats({
+              todayReservations: data.data.reservations || 0,
+              monthlyRevenue: data.data.revenue || 0,
+              activeOrders: data.data.orders || 0,
+              occupancyRate: Math.round((data.data.reservations / 50) * 100) || 0,
+              reservationStatus: [
+                { status: 'Confirmées', count: Math.floor(data.data.reservations * 0.7) },
+                { status: 'En attente', count: Math.floor(data.data.reservations * 0.2) },
+                { status: 'Annulées', count: Math.floor(data.data.reservations * 0.1) }
+              ]
+            });
+          } else {
+            console.warn('Données statistiques invalides:', data);
+            setStats({
+              todayReservations: 0,
+              monthlyRevenue: 0,
+              activeOrders: 0,
+              occupancyRate: 0,
+              reservationStatus: []
+            });
+          }
+        } else {
+          console.error('Erreur HTTP:', response.status, response.statusText);
+          setStats({
+            todayReservations: 0,
+            monthlyRevenue: 0,
+            activeOrders: 0,
+            occupancyRate: 0,
+            reservationStatus: []
+          });
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement des statistiques:', error);
+        setStats({
+          todayReservations: 0,
+          monthlyRevenue: 0,
+          activeOrders: 0,
+          occupancyRate: 0,
+          reservationStatus: []
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const token = localStorage.getItem('token') || localStorage.getItem('auth_token') || localStorage.getItem('barista_auth_token');
+
+    if (token) {
+      fetchStats();
+    } else {
+      setLoading(false);
+    }
+
     const interval = setInterval(fetchStats, 30000);
     return () => clearInterval(interval);
   }, []);

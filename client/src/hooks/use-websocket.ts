@@ -26,9 +26,15 @@ export const useWebSocket = () => {
 
   const connect = () => {
     try {
+      // Vérifier si WebSocket est supporté
+      if (typeof WebSocket === 'undefined') {
+        console.warn('WebSocket non supporté');
+        return;
+      }
+
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const wsUrl = `${protocol}//${window.location.host}/ws`;
-      
+
       ws.current = new WebSocket(wsUrl);
 
       ws.current.onopen = () => {
@@ -40,7 +46,7 @@ export const useWebSocket = () => {
       ws.current.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          
+
           if (data.type === 'notifications') {
             setNotifications(data.data);
           }
@@ -49,15 +55,15 @@ export const useWebSocket = () => {
         }
       };
 
-      ws.current.onclose = () => {
-        console.log('WebSocket déconnecté');
+      ws.current.onclose = (event) => {
+        console.log('WebSocket déconnecté', event.code, event.reason);
         setIsConnected(false);
-        
-        // Tentative de reconnexion
-        if (reconnectAttempts.current < maxReconnectAttempts) {
+
+        // Ne pas reconnecter automatiquement en cas de fermeture normale
+        if (event.code !== 1000 && reconnectAttempts.current < maxReconnectAttempts) {
           reconnectAttempts.current++;
           const delay = Math.min(1000 * Math.pow(2, reconnectAttempts.current), 30000);
-          
+
           reconnectTimeoutRef.current = setTimeout(() => {
             console.log(`Tentative de reconnexion ${reconnectAttempts.current}/${maxReconnectAttempts}`);
             connect();
@@ -84,7 +90,7 @@ export const useWebSocket = () => {
         clearTimeout(reconnectTimeoutRef.current);
       }
       if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-        ws.current.close();
+        ws.current.close(1000, 'Composant démonté');
       }
     };
   }, []);

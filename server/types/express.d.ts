@@ -8,6 +8,11 @@ declare global {
         username: string;
         role: string;
       };
+      requestId?: string;
+    }
+
+    interface Response {
+      success?: boolean;
     }
   }
 }

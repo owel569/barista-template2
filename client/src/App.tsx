@@ -64,7 +64,7 @@ function App() {
     };
 
     window.addEventListener('unhandledrejection', handleUnhandledRejection);
-    
+
     return () => {
       window.removeEventListener('unhandledrejection', handleUnhandledRejection);
     };

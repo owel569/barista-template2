@@ -83,7 +83,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
   const [imageManagementItem, setImageManagementItem] = useState<MenuItem | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
+
   // Initialiser WebSocket pour les notifications temps réel
   useWebSocket();
 
@@ -118,7 +118,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
         },
         body: JSON.stringify(data)
       });
-      
+
       if (!response.ok) {
         throw new Error('Erreur lors de la création');
       }
@@ -165,7 +165,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
         },
         body: JSON.stringify(data)
       });
-      
+
       if (!response.ok) {
         throw new Error('Erreur lors de la mise à jour');
       }
@@ -207,7 +207,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
           'Authorization': `Bearer ${token}`,
         }
       });
-      
+
       if (!response.ok) {
         throw new Error('Erreur lors de la suppression');
       }
@@ -232,17 +232,17 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
 
   const handleFileUpload = async (file: File | undefined) => {
     if (!file) return;
-    
+
     setUploading(true);
     try {
       // Créer une URL temporaire pour l'aperçu
       const fileUrl = URL.createObjectURL(file);
       setPreviewUrl(fileUrl);
-      
+
       // Ici, vous pourriez ajouter l'upload vers un service cloud
       // Pour l'instant, on utilise juste l'URL temporaire
       form.setValue('imageUrl', fileUrl);
-      
+
       toast({
         title: 'Image téléchargée',
         description: 'L\'image a été ajoutée avec succès',
@@ -264,7 +264,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
     if (!data.imageUrl || data.imageUrl.trim() === '') {
       data.imageUrl = getImageUrlByName(data.name);
     }
-    
+
     if (editingItem) {
       updateMutation.mutate({ id: editingItem.id, data });
     } else {
@@ -383,7 +383,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="description"
@@ -397,7 +397,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                     </FormItem>
                   )}
                 />
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
@@ -423,7 +423,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="categoryId"
@@ -449,7 +449,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                     )}
                   />
                 </div>
-                
+
                 <FormField
                   control={form.control}
                   name="imageUrl"
@@ -494,7 +494,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                     </FormItem>
                   )}
                 />
-                
+
                 <div className="flex justify-end space-x-2 pt-4">
                   <Button
                     type="button"
@@ -531,7 +531,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
             <div className="text-2xl font-bold">{totalItems}</div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Articles Disponibles</CardTitle>
@@ -541,7 +541,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
             <div className="text-2xl font-bold text-green-600">{availableItems}</div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Prix Moyen</CardTitle>
@@ -590,7 +590,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
               {filteredItems.map((item: any) => {
                 const category = categories.find((cat: any) => cat.id === item.categoryId);
                 const imageUrl = getImageUrlByName(item.name);
-                
+
                 return (
                   <TableRow key={item.id}>
                     <TableCell>
