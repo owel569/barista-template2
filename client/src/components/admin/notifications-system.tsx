@@ -1,3 +1,6 @@
+` tags.
+
+```
 /**
  * Système de notifications ultra-optimisé
  * Gestion complète des notifications en temps réel
@@ -112,6 +115,11 @@ interface NotificationTemplate {
 }
 
 export default function NotificationsSystem() {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [filter, setFilter] = useState<'all' | 'unread' | 'read'>('all');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const { user } = useUser();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('notifications');

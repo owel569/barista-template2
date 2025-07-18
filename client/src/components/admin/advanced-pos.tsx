@@ -1,429 +1,469 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  ShoppingCart, Plus, Minus, Trash2, CreditCard, Banknote, 
-  Smartphone, Receipt, User, Search, Calculator, Gift,
-  Clock, MapPin, Truck, Coffee, Star, Tag
-} from 'lucide-react';
 
-interface CartItem {
+import React, { useState, useEffect, useCallback } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  ShoppingCart, 
+  CreditCard, 
+  DollarSign, 
+  Plus, 
+  Minus, 
+  Trash2,
+  Receipt,
+  Calculator,
+  Smartphone,
+  QrCode,
+  ContactlessIcon,
+  Printer,
+  Check,
+  X,
+  Search,
+  Filter,
+  Clock,
+  User,
+  Star
+} from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
+
+interface MenuItem {
   id: number;
   name: string;
   price: number;
-  quantity: number;
-  modifications?: string[];
   category: string;
+  image?: string;
+  description?: string;
+  stock?: number;
 }
 
-interface Customer {
-  id: number;
+interface CartItem extends MenuItem {
+  quantity: number;
+  notes?: string;
+}
+
+interface Order {
+  id: string;
+  items: CartItem[];
+  total: number;
+  tax: number;
+  subtotal: number;
+  paymentMethod: string;
+  customerName?: string;
+  tableNumber?: number;
+  timestamp: Date;
+  status: 'pending' | 'completed' | 'cancelled';
+}
+
+interface PaymentMethod {
+  id: string;
   name: string;
-  phone?: string;
-  loyaltyPoints: number;
-  level: string;
+  icon: React.ComponentType<{ className?: string }>;
+  enabled: boolean;
+  processingFee?: number;
 }
 
 export default function AdvancedPOS() {
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [currentOrder, setCurrentOrder] = useState<Order | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState('card');
-  const [orderType, setOrderType] = useState('dine-in');
-  const [showPayment, setShowPayment] = useState(false);
-  const [discount, setDiscount] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [customerName, setCustomerName] = useState('');
+  const [tableNumber, setTableNumber] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('');
 
-  const [menuItems] = useState([
-    { id: 1, name: 'Cappuccino Premium', price: 4.20, category: 'café', available: true },
-    { id: 2, name: 'Latte Vanille', price: 4.50, category: 'café', available: true },
-    { id: 3, name: 'Americano', price: 3.20, category: 'café', available: true },
-    { id: 4, name: 'Croissant Beurre', price: 2.80, category: 'pâtisserie', available: true },
-    { id: 5, name: 'Pain au Chocolat', price: 3.00, category: 'pâtisserie', available: true },
-    { id: 6, name: 'Sandwich Club', price: 8.50, category: 'plat', available: true },
-    { id: 7, name: 'Salade César', price: 12.90, category: 'plat', available: true },
-    { id: 8, name: 'Thé Earl Grey', price: 3.50, category: 'boisson', available: true },
-    { id: 9, name: 'Chocolat Chaud', price: 4.20, category: 'boisson', available: true },
-    { id: 10, name: 'Macaron Framboise', price: 2.50, category: 'pâtisserie', available: true },
-  ]);
+  const TAX_RATE = 0.10; // 10% TVA
 
-  const [customers] = useState<Customer[]>([
-    { id: 1, name: 'Sophie Laurent', phone: '+33612345678', loyaltyPoints: 450, level: 'VIP' },
-    { id: 2, name: 'Jean Dupont', phone: '+33623456789', loyaltyPoints: 120, level: 'Fidèle' },
-    { id: 3, name: 'Marie Martin', phone: '+33634567890', loyaltyPoints: 75, level: 'Standard' },
-  ]);
-
-  const categories = [
-    { id: 'all', name: 'Tous', icon: Coffee },
-    { id: 'café', name: 'Cafés', icon: Coffee },
-    { id: 'boisson', name: 'Boissons', icon: Coffee },
-    { id: 'pâtisserie', name: 'Pâtisseries', icon: Coffee },
-    { id: 'plat', name: 'Plats', icon: Coffee },
+  const paymentMethods: PaymentMethod[] = [
+    { id: 'cash', name: 'Espèces', icon: DollarSign, enabled: true },
+    { id: 'card', name: 'Carte', icon: CreditCard, enabled: true, processingFee: 0.025 },
+    { id: 'contactless', name: 'Sans contact', icon: ContactlessIcon, enabled: true },
+    { id: 'mobile', name: 'Mobile', icon: Smartphone, enabled: true },
+    { id: 'qr', name: 'QR Code', icon: QrCode, enabled: true }
   ];
 
-  const filteredItems = menuItems.filter(item => {
-    const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
-    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch && item.available;
-  });
+  const categories = ['all', 'Cafés', 'Pâtisseries', 'Boissons', 'Plats'];
 
-  const addToCart = (item: any) => {
-    const existingItem = cart.find(cartItem => cartItem.id === item.id);
-    if (existingItem) {
-      setCart(cart.map(cartItem =>
-        cartItem.id === item.id
-          ? { ...cartItem, quantity: cartItem.quantity + 1 }
-          : cartItem
-      ));
-    } else {
-      setCart([...cart, { ...item, quantity: 1, modifications: [] }]);
-    }
-  };
+  useEffect(() => {
+    fetchMenuItems();
+  }, []);
 
-  const updateQuantity = (id: number, quantity: number) => {
-    if (quantity <= 0) {
-      setCart(cart.filter(item => item.id !== id));
-    } else {
-      setCart(cart.map(item =>
-        item.id === id ? { ...item, quantity } : item
-      ));
-    }
-  };
-
-  const removeFromCart = (id: number) => {
-    setCart(cart.filter(item => item.id !== id));
-  };
-
-  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const discountAmount = subtotal * (discount / 100);
-  const total = subtotal - discountAmount;
-
-  const processPayment = async () => {
+  const fetchMenuItems = async () => {
     try {
-      const orderData = {
-        items: cart,
-        customer: selectedCustomer,
+      const response = await fetch('/api/menu');
+      if (response.ok) {
+        const data = await response.json();
+        setMenuItems(data.menu || []);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement du menu:', error);
+      // Données par défaut
+      setMenuItems([
+        { id: 1, name: 'Espresso', price: 2.50, category: 'Cafés', stock: 50 },
+        { id: 2, name: 'Cappuccino', price: 3.50, category: 'Cafés', stock: 30 },
+        { id: 3, name: 'Croissant', price: 2.00, category: 'Pâtisseries', stock: 20 },
+        { id: 4, name: 'Sandwich Club', price: 8.50, category: 'Plats', stock: 15 }
+      ]);
+    }
+  };
+
+  const addToCart = useCallback((item: MenuItem) => {
+    setCart(prev => {
+      const existing = prev.find(cartItem => cartItem.id === item.id);
+      if (existing) {
+        return prev.map(cartItem =>
+          cartItem.id === item.id
+            ? { ...cartItem, quantity: cartItem.quantity + 1 }
+            : cartItem
+        );
+      }
+      return [...prev, { ...item, quantity: 1 }];
+    });
+    toast({
+      title: "Ajouté au panier",
+      description: `${item.name} ajouté avec succès`
+    });
+  }, []);
+
+  const removeFromCart = useCallback((itemId: number) => {
+    setCart(prev => prev.filter(item => item.id !== itemId));
+  }, []);
+
+  const updateQuantity = useCallback((itemId: number, newQuantity: number) => {
+    if (newQuantity <= 0) {
+      removeFromCart(itemId);
+      return;
+    }
+    setCart(prev =>
+      prev.map(item =>
+        item.id === itemId ? { ...item, quantity: newQuantity } : item
+      )
+    );
+  }, [removeFromCart]);
+
+  const calculateTotals = useCallback(() => {
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const tax = subtotal * TAX_RATE;
+    const total = subtotal + tax;
+    return { subtotal, tax, total };
+  }, [cart]);
+
+  const processPayment = async (paymentMethod: string) => {
+    setLoading(true);
+    try {
+      const totals = calculateTotals();
+      const selectedMethod = paymentMethods.find(m => m.id === paymentMethod);
+      const processingFee = selectedMethod?.processingFee ? totals.total * selectedMethod.processingFee : 0;
+      const finalTotal = totals.total + processingFee;
+
+      const order: Order = {
+        id: `ORD-${Date.now()}`,
+        items: [...cart],
+        total: finalTotal,
+        tax: totals.tax,
+        subtotal: totals.subtotal,
         paymentMethod,
-        orderType,
-        subtotal,
-        discount: discountAmount,
-        total,
-        timestamp: new Date().toISOString()
+        customerName: customerName || undefined,
+        tableNumber: tableNumber || undefined,
+        timestamp: new Date(),
+        status: 'completed'
       };
 
-      console.log('Traitement de la commande:', orderData);
-      
-      // Simuler le traitement de paiement
+      // Simulation du traitement
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Réinitialiser le panier
+
+      setCurrentOrder(order);
       setCart([]);
-      setSelectedCustomer(null);
-      setDiscount(0);
-      setShowPayment(false);
-      
-      alert('Commande traitée avec succès !');
+      setCustomerName('');
+      setTableNumber(null);
+      setPaymentModalOpen(false);
+
+      toast({
+        title: "Paiement réussi",
+        description: `Commande ${order.id} traitée avec succès`
+      });
+
+      // Auto-impression du reçu (simulation)
+      setTimeout(() => printReceipt(order), 500);
+
     } catch (error) {
-      console.error('Erreur traitement paiement:', error);
-      alert('Erreur lors du traitement de la commande');
+      toast({
+        title: "Erreur de paiement",
+        description: "Une erreur est survenue lors du traitement",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const applyLoyaltyDiscount = () => {
-    if (selectedCustomer && selectedCustomer.loyaltyPoints >= 100) {
-      const pointsToUse = Math.min(selectedCustomer.loyaltyPoints, Math.floor(subtotal * 10));
-      const discountFromPoints = pointsToUse / 10;
-      setDiscount(Math.min(50, (discountFromPoints / subtotal) * 100));
-    }
+  const printReceipt = (order: Order) => {
+    // Simulation de l'impression
+    console.log('Impression du reçu:', order);
+    toast({
+      title: "Reçu imprimé",
+      description: `Reçu pour la commande ${order.id}`
+    });
   };
+
+  const filteredItems = menuItems.filter(item => {
+    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const { subtotal, tax, total } = calculateTotals();
 
   return (
-    <div className="h-screen flex">
-      {/* Section Menu */}
-      <div className="flex-1 p-4 overflow-auto">
-        <div className="mb-4">
-          <h2 className="text-2xl font-bold mb-2">Point de Vente Avancé</h2>
-          <div className="flex gap-2 mb-4">
-            <div className="flex-1">
-              <Input
-                placeholder="Rechercher un produit..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full"
-              />
-            </div>
-            <Select value={orderType} onValueChange={setOrderType}>
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="dine-in">Sur place</SelectItem>
-                <SelectItem value="takeaway">À emporter</SelectItem>
-                <SelectItem value="delivery">Livraison</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {/* Catégories */}
-        <div className="flex gap-2 mb-4 overflow-x-auto">
-          {categories.map(category => (
-            <Button
-              key={category.id}
-              variant={selectedCategory === category.id ? "default" : "outline"}
-              onClick={() => setSelectedCategory(category.id)}
-              className="whitespace-nowrap"
-            >
-              <category.icon className="h-4 w-4 mr-2" />
-              {category.name}
-            </Button>
-          ))}
-        </div>
-
-        {/* Grille de produits */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {filteredItems.map(item => (
-            <Card key={item.id} className="cursor-pointer hover:shadow-md transition-shadow">
-              <CardContent className="p-4" onClick={() => addToCart(item)}>
-                <div className="aspect-square bg-gray-100 rounded-lg mb-2 flex items-center justify-center">
-                  <Coffee className="h-8 w-8 text-gray-400" />
-                </div>
-                <h3 className="font-semibold text-sm mb-1 line-clamp-2">{item.name}</h3>
-                <p className="text-lg font-bold text-primary">{item.price.toFixed(2)}€</p>
-                <Badge variant="secondary" className="text-xs mt-1">
-                  {item.category}
-                </Badge>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+    <div className="h-full flex flex-col bg-gray-50 dark:bg-gray-900">
+      <div className="p-4 bg-white dark:bg-gray-800 border-b">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center space-x-2">
+          <Calculator className="h-6 w-6" />
+          <span>Point de Vente Avancé</span>
+        </h1>
       </div>
 
-      {/* Section Panier */}
-      <div className="w-96 bg-gray-50 p-4 flex flex-col">
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold mb-2">Commande en cours</h3>
-          
-          {/* Sélection client */}
-          <div className="mb-4">
-            <Label>Client</Label>
-            <Select value={selectedCustomer?.id.toString()} onValueChange={(value) => {
-              const customer = customers.find(c => c.id.toString() === value);
-              setSelectedCustomer(customer || null);
-            }}>
-              <SelectTrigger>
-                <SelectValue placeholder="Sélectionner un client" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Client anonyme</SelectItem>
-                {customers.map(customer => (
-                  <SelectItem key={customer.id} value={customer.id.toString()}>
-                    {customer.name} ({customer.loyaltyPoints} pts)
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {selectedCustomer && (
-              <div className="text-xs text-muted-foreground mt-1">
-                <Badge variant={selectedCustomer.level === 'VIP' ? 'default' : 'secondary'}>
-                  {selectedCustomer.level}
-                </Badge>
-                <span className="ml-2">{selectedCustomer.loyaltyPoints} points</span>
+      <div className="flex-1 flex overflow-hidden">
+        {/* Menu Items */}
+        <div className="flex-1 p-4 overflow-y-auto">
+          <div className="mb-4 space-y-4">
+            <div className="flex space-x-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Rechercher un produit..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
               </div>
-            )}
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="px-3 py-2 border rounded-md"
+              >
+                {categories.map(category => (
+                  <option key={category} value={category}>
+                    {category === 'all' ? 'Toutes catégories' : category}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {filteredItems.map(item => (
+              <Card
+                key={item.id}
+                className="cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => addToCart(item)}
+              >
+                <CardContent className="p-4">
+                  <div className="aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg mb-3 flex items-center justify-center">
+                    {item.image ? (
+                      <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded-lg" />
+                    ) : (
+                      <div className="text-gray-400 text-2xl">🍽️</div>
+                    )}
+                  </div>
+                  <h3 className="font-semibold text-sm mb-1 truncate">{item.name}</h3>
+                  <p className="text-lg font-bold text-primary">{item.price.toFixed(2)}€</p>
+                  {item.stock !== undefined && (
+                    <p className="text-xs text-gray-500">Stock: {item.stock}</p>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
 
-        {/* Articles du panier */}
-        <div className="flex-1 overflow-auto mb-4">
-          {cart.length === 0 ? (
-            <div className="text-center text-gray-500 py-8">
-              <ShoppingCart className="h-12 w-12 mx-auto mb-2 opacity-50" />
-              <p>Panier vide</p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {cart.map(item => (
-                <Card key={item.id}>
-                  <CardContent className="p-3">
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-medium text-sm">{item.name}</h4>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeFromCart(item.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center space-x-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        >
-                          <Minus className="h-3 w-3" />
-                        </Button>
-                        <span className="w-8 text-center">{item.quantity}</span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        >
-                          <Plus className="h-3 w-3" />
-                        </Button>
-                      </div>
-                      <span className="font-semibold">
-                        {(item.price * item.quantity).toFixed(2)}€
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
+        {/* Cart */}
+        <div className="w-96 bg-white dark:bg-gray-800 border-l p-4 flex flex-col">
+          <div className="mb-4">
+            <h2 className="text-xl font-bold mb-4 flex items-center space-x-2">
+              <ShoppingCart className="h-5 w-5" />
+              <span>Panier ({cart.length})</span>
+            </h2>
 
-        {/* Résumé et paiement */}
-        {cart.length > 0 && (
-          <div className="space-y-3">
-            {/* Réduction */}
-            <div className="flex items-center space-x-2">
+            <div className="space-y-2 mb-4">
+              <Input
+                placeholder="Nom du client (optionnel)"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+              />
               <Input
                 type="number"
-                placeholder="Réduction %"
-                value={discount}
-                onChange={(e) => setDiscount(Number(e.target.value))}
-                className="flex-1"
+                placeholder="Numéro de table (optionnel)"
+                value={tableNumber || ''}
+                onChange={(e) => setTableNumber(e.target.value ? parseInt(e.target.value) : null)}
               />
-              {selectedCustomer && selectedCustomer.loyaltyPoints >= 100 && (
-                <Button variant="outline" size="sm" onClick={applyLoyaltyDiscount}>
-                  <Gift className="h-4 w-4" />
-                </Button>
-              )}
             </div>
+          </div>
 
-            {/* Totaux */}
-            <div className="space-y-1 text-sm">
+          <div className="flex-1 overflow-y-auto space-y-2">
+            {cart.length === 0 ? (
+              <p className="text-gray-500 text-center py-8">Panier vide</p>
+            ) : (
+              cart.map(item => (
+                <Card key={item.id} className="p-3">
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="font-medium text-sm">{item.name}</h4>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeFromCart(item.id)}
+                      className="h-6 w-6 p-0"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                      <span className="font-medium">{item.quantity}</span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <span className="font-bold">
+                      {(item.price * item.quantity).toFixed(2)}€
+                    </span>
+                  </div>
+                </Card>
+              ))
+            )}
+          </div>
+
+          {/* Totals */}
+          {cart.length > 0 && (
+            <div className="border-t pt-4 space-y-2">
               <div className="flex justify-between">
                 <span>Sous-total:</span>
                 <span>{subtotal.toFixed(2)}€</span>
               </div>
-              {discount > 0 && (
-                <div className="flex justify-between text-green-600">
-                  <span>Réduction ({discount}%):</span>
-                  <span>-{discountAmount.toFixed(2)}€</span>
-                </div>
-              )}
-              <div className="flex justify-between font-bold text-lg border-t pt-1">
+              <div className="flex justify-between">
+                <span>TVA (10%):</span>
+                <span>{tax.toFixed(2)}€</span>
+              </div>
+              <div className="flex justify-between font-bold text-lg">
                 <span>Total:</span>
                 <span>{total.toFixed(2)}€</span>
               </div>
-            </div>
 
-            {/* Méthodes de paiement */}
-            <div className="grid grid-cols-2 gap-2">
               <Button
-                variant={paymentMethod === 'card' ? 'default' : 'outline'}
-                onClick={() => setPaymentMethod('card')}
-                className="flex items-center space-x-1"
+                className="w-full mt-4"
+                size="lg"
+                onClick={() => setPaymentModalOpen(true)}
+                disabled={cart.length === 0}
               >
-                <CreditCard className="h-4 w-4" />
-                <span>Carte</span>
-              </Button>
-              <Button
-                variant={paymentMethod === 'cash' ? 'default' : 'outline'}
-                onClick={() => setPaymentMethod('cash')}
-                className="flex items-center space-x-1"
-              >
-                <Banknote className="h-4 w-4" />
-                <span>Espèces</span>
+                <CreditCard className="h-5 w-5 mr-2" />
+                Procéder au paiement
               </Button>
             </div>
-
-            <Button 
-              className="w-full" 
-              size="lg"
-              onClick={() => setShowPayment(true)}
-            >
-              <Receipt className="h-4 w-4 mr-2" />
-              Finaliser ({total.toFixed(2)}€)
-            </Button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
-      {/* Dialog de paiement */}
-      <Dialog open={showPayment} onOpenChange={setShowPayment}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Finaliser la commande</DialogTitle>
-            <DialogDescription>
-              Vérifiez les détails de la commande avant le paiement
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-semibold mb-2">Résumé de la commande</h4>
-              <div className="space-y-1 text-sm">
-                {cart.map(item => (
-                  <div key={item.id} className="flex justify-between">
-                    <span>{item.quantity}x {item.name}</span>
-                    <span>{(item.price * item.quantity).toFixed(2)}€</span>
-                  </div>
+      {/* Payment Modal */}
+      {paymentModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <Card className="w-96 max-w-full mx-4">
+            <CardHeader>
+              <CardTitle>Méthode de paiement</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="text-center mb-4">
+                <p className="text-2xl font-bold">{total.toFixed(2)}€</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                {paymentMethods.filter(m => m.enabled).map(method => (
+                  <Button
+                    key={method.id}
+                    variant={selectedPaymentMethod === method.id ? "default" : "outline"}
+                    className="h-16 flex flex-col items-center"
+                    onClick={() => setSelectedPaymentMethod(method.id)}
+                  >
+                    <method.icon className="h-6 w-6 mb-1" />
+                    <span className="text-xs">{method.name}</span>
+                  </Button>
                 ))}
-                <div className="border-t pt-1 mt-2 font-bold">
-                  <div className="flex justify-between">
-                    <span>Total:</span>
-                    <span>{total.toFixed(2)}€</span>
-                  </div>
-                </div>
               </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Méthode de paiement</Label>
-                <div className="mt-1 p-2 bg-gray-50 rounded">
-                  {paymentMethod === 'card' ? 'Carte bancaire' : 'Espèces'}
-                </div>
+              <div className="flex space-x-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setPaymentModalOpen(false)}
+                  className="flex-1"
+                >
+                  Annuler
+                </Button>
+                <Button
+                  onClick={() => processPayment(selectedPaymentMethod)}
+                  disabled={!selectedPaymentMethod || loading}
+                  className="flex-1"
+                >
+                  {loading ? 'Traitement...' : 'Confirmer'}
+                </Button>
               </div>
-              <div>
-                <Label>Type de commande</Label>
-                <div className="mt-1 p-2 bg-gray-50 rounded">
-                  {orderType === 'dine-in' ? 'Sur place' : 
-                   orderType === 'takeaway' ? 'À emporter' : 'Livraison'}
-                </div>
-              </div>
-            </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
-            {selectedCustomer && (
-              <div>
-                <Label>Client</Label>
-                <div className="mt-1 p-2 bg-gray-50 rounded">
-                  {selectedCustomer.name} - {selectedCustomer.loyaltyPoints} points
-                </div>
+      {/* Order Success */}
+      {currentOrder && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <Card className="w-96 max-w-full mx-4">
+            <CardHeader className="text-center">
+              <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                <Check className="h-8 w-8 text-green-600" />
               </div>
-            )}
-
-            <div className="flex space-x-2">
-              <Button variant="outline" onClick={() => setShowPayment(false)} className="flex-1">
-                Annuler
-              </Button>
-              <Button onClick={processPayment} className="flex-1">
-                Confirmer le paiement
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+              <CardTitle className="text-green-600">Paiement réussi !</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center space-y-4">
+              <p>Commande #{currentOrder.id}</p>
+              <p className="text-2xl font-bold">{currentOrder.total.toFixed(2)}€</p>
+              <p className="text-sm text-gray-500">
+                Payé par {paymentMethods.find(m => m.id === currentOrder.paymentMethod)?.name}
+              </p>
+              
+              <div className="flex space-x-2">
+                <Button
+                  variant="outline"
+                  onClick={() => printReceipt(currentOrder)}
+                  className="flex-1"
+                >
+                  <Printer className="h-4 w-4 mr-2" />
+                  Imprimer
+                </Button>
+                <Button
+                  onClick={() => setCurrentOrder(null)}
+                  className="flex-1"
+                >
+                  Nouvelle commande
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
