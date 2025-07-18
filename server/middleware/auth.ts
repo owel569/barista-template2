@@ -1,10 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import { UserPayload, AuthenticatedUser } from '../types/auth';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'barista-secret-key-ultra-secure-2025';
+if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required in production');
+}
 
-export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+// Middleware d'authentification principal (remplace authMiddleware)
+export const authenticateUser = (req: Request, res: Response, next: NextFunction) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
   
   if (!token) {
@@ -15,7 +20,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: number; role: string };
+    const decoded = jwt.verify(token, JWT_SECRET) as AuthenticatedUser;
     req.user = decoded;
     next();
   } catch (error) {
@@ -26,27 +31,12 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
   }
 };
 
-export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ message: 'Token manquant', success: false, code: 'TOKEN_MISSING' });
-  }
-
-  jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
-    if (err) {
-      console.log('Token verification failed:', err.message);
-      return res.status(403).json({ message: 'Token invalide', success: false, code: 'TOKEN_INVALID' });
-    }
-    (req as any).user = user;
-    next();
-  });
-};
+// Alias pour compatibilité (sera supprimé progressivement)
+export const authenticateToken = authenticateUser;
 
 export const requireRole = (role: string) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    const user = (req as any).user;
+    const user = req.user;
     if (!user || user.role !== role) {
       return res.status(403).json({ message: 'Accès refusé - rôle insuffisant' });
     }
@@ -56,7 +46,7 @@ export const requireRole = (role: string) => {
 
 export const requireRoles = (roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    const user = (req as any).user;
+    const user = req.user;
     if (!user || !roles.includes(user.role)) {
       return res.status(403).json({ message: 'Accès refusé - rôle insuffisant' });
     }
@@ -72,7 +62,7 @@ export const comparePassword = async (password: string, hash: string): Promise<b
   return await bcrypt.compare(password, hash);
 };
 
-export const generateToken = (user: any): string => {
+export const generateToken = (user: UserPayload): string => {
   return jwt.sign(
     { 
       id: user.id, 
