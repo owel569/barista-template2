@@ -1,4 +1,3 @@
-
 import { Client } from 'pg';
 
 // Configuration de la base de données
@@ -9,16 +8,16 @@ const client = new Client({
 async function initializeData() {
   try {
     console.log('🌱 Initialisation des données...');
-    
+
     await client.connect();
-    
+
     // Créer un utilisateur admin
     await client.query(`
       INSERT INTO users (username, password, role, firstName, lastName, email, createdAt, updatedAt)
       VALUES ('admin', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'directeur', 'Admin', 'Système', 'admin@barista.com', NOW(), NOW())
       ON CONFLICT (username) DO NOTHING;
     `);
-    
+
     // Créer des catégories de menu
     await client.query(`
       INSERT INTO menuCategories (name, description, slug, displayOrder, createdAt, updatedAt)
@@ -29,14 +28,14 @@ async function initializeData() {
         ('Sandwichs', 'Sandwichs et plats légers', 'sandwichs', 4, NOW(), NOW())
       ON CONFLICT (slug) DO NOTHING;
     `);
-    
+
     // Obtenir les IDs des catégories
     const categoriesResult = await client.query('SELECT id, slug FROM menuCategories');
     const categories = {};
     categoriesResult.rows.forEach(row => {
       categories[row.slug] = row.id;
     });
-    
+
     // Créer des éléments de menu
     await client.query(`
       INSERT INTO menuItems (name, description, price, categoryId, available, createdAt, updatedAt)
@@ -51,7 +50,7 @@ async function initializeData() {
         ('Sandwich jambon', 'Sandwich jambon fromage sur pain artisanal', 6.50, $4, true, NOW(), NOW())
       ON CONFLICT (name, categoryId) DO NOTHING;
     `, [categories['cafes'], categories['boissons-chaudes'], categories['patisseries'], categories['sandwichs']]);
-    
+
     // Créer des tables
     await client.query(`
       INSERT INTO tables (number, capacity, status, location, createdAt, updatedAt)
@@ -63,7 +62,7 @@ async function initializeData() {
         (5, 8, 'libre', 'Salle privée', NOW(), NOW())
       ON CONFLICT (number) DO NOTHING;
     `);
-    
+
     // Créer des clients
     await client.query(`
       INSERT INTO customers (firstName, lastName, email, phone, loyaltyPoints, createdAt, updatedAt)
@@ -74,7 +73,7 @@ async function initializeData() {
         ('Thomas', 'Garcia', 'thomas.garcia@email.com', '0123456792', 50, NOW(), NOW())
       ON CONFLICT (email) DO NOTHING;
     `);
-    
+
     // Créer des employés (table employees n'existe pas dans le schéma, on va créer des utilisateurs employés)
     await client.query(`
       INSERT INTO users (username, password, role, firstName, lastName, email, createdAt, updatedAt)
@@ -84,7 +83,7 @@ async function initializeData() {
         ('clara.moreau', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'manager', 'Clara', 'Moreau', 'clara.moreau@barista-cafe.com', NOW(), NOW())
       ON CONFLICT (username) DO NOTHING;
     `);
-    
+
     // Créer quelques commandes d'exemple
     await client.query(`
       INSERT INTO orders (customerId, totalAmount, status, createdAt, updatedAt)
@@ -95,7 +94,7 @@ async function initializeData() {
         (1, 12.20, 'completed', NOW() - INTERVAL '3 hours', NOW() - INTERVAL '3 hours')
       ON CONFLICT DO NOTHING;
     `);
-    
+
     // Créer quelques réservations d'exemple
     await client.query(`
       INSERT INTO reservations (customerId, tableId, date, time, partySize, status, createdAt)
@@ -105,7 +104,7 @@ async function initializeData() {
         (3, 3, '2025-01-22', '20:00', 6, 'confirmed', NOW())
       ON CONFLICT DO NOTHING;
     `);
-    
+
     console.log('✅ Données initialisées avec succès !');
     console.log('🔐 Connexion admin : username=admin, password=admin123');
     console.log('👥 Employés créés : sophie.dubois, antoine.rousseau, clara.moreau');
@@ -113,12 +112,19 @@ async function initializeData() {
     console.log('🪑 5 tables créées');
     console.log('👨‍👩‍👧‍👦 4 clients avec points de fidélité');
     console.log('📦 Commandes et réservations d\'exemple ajoutées');
-    
+
   } catch (error) {
     console.error('❌ Erreur lors de l\'initialisation:', error);
   } finally {
-    await client.end();
+    if (client) {
+      await client.end();
+    }
   }
 }
 
-initializeData();
+// Exécuter le script
+if (require.main === module) {
+  initializeData()
+    .then(() => process.exit(0))
+    .catch(() => process.exit(1));
+}

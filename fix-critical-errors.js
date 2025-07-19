@@ -1,4 +1,3 @@
-
 #!/usr/bin/env node
 
 console.log('🔧 Correction des erreurs critiques...');
@@ -15,13 +14,13 @@ function fileExists(filePath) {
 // Fonction pour corriger les imports TypeScript
 function fixTypeScriptImports() {
   console.log('🔍 Vérification des imports TypeScript...');
-  
+
   const filesToCheck = [
     'server/routes/permissions.ts',
     'server/middleware/auth.ts',
     'server/routes/analytics.ts'
   ];
-  
+
   filesToCheck.forEach(file => {
     if (fileExists(file)) {
       console.log(`✅ ${file} existe`);
@@ -34,14 +33,14 @@ function fixTypeScriptImports() {
 // Fonction pour nettoyer le cache
 function cleanCache() {
   console.log('🧹 Nettoyage du cache...');
-  
+
   try {
     // Nettoyer le cache Node.js
     execSync('rm -rf node_modules/.cache', { stdio: 'pipe' });
     execSync('rm -rf .next', { stdio: 'pipe' });
     execSync('rm -rf dist', { stdio: 'pipe' });
     execSync('rm -rf build', { stdio: 'pipe' });
-    
+
     console.log('✅ Cache nettoyé');
   } catch (error) {
     console.log('⚠️  Erreur lors du nettoyage du cache');
@@ -51,7 +50,7 @@ function cleanCache() {
 // Fonction pour vérifier les ports
 function checkPorts() {
   console.log('🔍 Vérification des ports...');
-  
+
   try {
     execSync('lsof -i :5000', { stdio: 'pipe' });
     console.log('⚠️  Port 5000 déjà utilisé');
@@ -64,14 +63,14 @@ function checkPorts() {
 async function main() {
   try {
     console.log('🚀 Début des corrections...\n');
-    
+
     fixTypeScriptImports();
     cleanCache();
     checkPorts();
-    
+
     console.log('\n🎉 Corrections terminées!');
     console.log('💡 Redémarrez avec le workflow "Start application"');
-    
+
   } catch (error) {
     console.error('❌ Erreur lors des corrections:', error.message);
     process.exit(1);

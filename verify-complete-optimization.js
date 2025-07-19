@@ -5,8 +5,68 @@ console.log('🎯 Vérification complète de l\'optimisation à 100%...\n');
 
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 // Vérifications critiques
+function checkCriticalFiles() {
+  console.log('📁 Vérification des fichiers critiques...');
+  
+  const criticalFiles = [
+    'server/index.ts',
+    'server/db.ts',
+    'shared/schema.ts',
+    'client/src/main.tsx'
+  ];
+  
+  criticalFiles.forEach(file => {
+    if (fs.existsSync(file)) {
+      console.log(`✅ ${file} existe`);
+    } else {
+      console.log(`❌ ${file} manquant`);
+    }
+  });
+}
+
+function checkDependencies() {
+  console.log('\n📦 Vérification des dépendances...');
+  
+  try {
+    execSync('npm list --depth=0', { stdio: 'pipe' });
+    console.log('✅ Toutes les dépendances sont installées');
+  } catch (error) {
+    console.log('⚠️  Problème avec les dépendances');
+  }
+}
+
+function checkTypeScript() {
+  console.log('\n🔍 Vérification TypeScript...');
+  
+  try {
+    execSync('npx tsc --noEmit', { stdio: 'pipe' });
+    console.log('✅ Aucune erreur TypeScript');
+  } catch (error) {
+    console.log('⚠️  Erreurs TypeScript détectées');
+  }
+}
+
+// Fonction principale
+async function main() {
+  try {
+    checkCriticalFiles();
+    checkDependencies();
+    checkTypeScript();
+    
+    console.log('\n🎉 Vérification terminée!');
+  } catch (error) {
+    console.error('❌ Erreur lors de la vérification:', error);
+  }
+}
+
+if (require.main === module) {
+  main()
+    .then(() => process.exit(0))
+    .catch(() => process.exit(1));
+}itiques
 const checks = [
   {
     name: 'Middleware auth exporté',
