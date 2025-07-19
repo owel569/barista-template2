@@ -34,7 +34,7 @@ export const InternationalPhoneInput = forwardRef<HTMLInputElement, Internationa
     // Extraire le code pays et le numéro du value actuel
     const getCountryFromValue = (phoneValue: string) => {
       if (!phoneValue) return countries[0]; // Maroc par défaut
-      
+
       const country = countries.find(c => phoneValue.startsWith(c.dialCode));
       return country || countries[0];
     };
@@ -52,7 +52,7 @@ export const InternationalPhoneInput = forwardRef<HTMLInputElement, Internationa
     const handleCountryChange = (countryCode: string) => {
       const country = countries.find(c => c.code === countryCode) || countries[0];
       setSelectedCountry(country);
-      
+
       // Reformater le numéro avec le nouveau code pays
       const fullNumber = phoneNumber ? `${country.dialCode}${phoneNumber}` : country.dialCode;
       onChange?.(fullNumber);
@@ -62,7 +62,7 @@ export const InternationalPhoneInput = forwardRef<HTMLInputElement, Internationa
       // Nettoyer le numéro (garder seulement les chiffres)
       const cleanNumber = number.replace(/[^0-9]/g, '');
       setPhoneNumber(cleanNumber);
-      
+
       // Créer le numéro complet avec indicatif
       const fullNumber = cleanNumber ? `${selectedCountry.dialCode}${cleanNumber}` : selectedCountry.dialCode;
       onChange?.(fullNumber);
@@ -70,7 +70,7 @@ export const InternationalPhoneInput = forwardRef<HTMLInputElement, Internationa
 
     const formatDisplayNumber = (number: string) => {
       if (!number) return '';
-      
+
       // Format simple pour l'affichage (ajouter des espaces)
       switch (selectedCountry.code) {
         case 'MA':
@@ -106,7 +106,7 @@ export const InternationalPhoneInput = forwardRef<HTMLInputElement, Internationa
             ))}
           </SelectContent>
         </Select>
-        
+
         <Input
           ref={ref}
           type="tel"

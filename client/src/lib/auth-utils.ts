@@ -49,7 +49,7 @@ export class AuthTokenManager {
   static getUser(): AuthUser | null {
     const userStr = localStorage.getItem(this.USER_KEY);
     if (!userStr) return null;
-    
+
     try {
       return JSON.parse(userStr);
     } catch {
@@ -76,7 +76,7 @@ export class ApiClient {
 
   static async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const token = AuthTokenManager.getToken();
-    
+
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       headers: {
         'Content-Type': 'application/json',
@@ -118,7 +118,7 @@ export class ApiClient {
 
 export function isTokenValid(token: string | null): boolean {
   if (!token) return false;
-  
+
   try {
     const decoded = jwtDecode<TokenPayload>(token);
     const currentTime = Date.now() / 1000;
@@ -130,7 +130,7 @@ export function isTokenValid(token: string | null): boolean {
 
 export function getTokenPayload(token: string | null): TokenPayload | null {
   if (!token) return null;
-  
+
   try {
     return jwtDecode<TokenPayload>(token);
   } catch (error) {
@@ -149,3 +149,10 @@ export function storeToken(token: string): void {
 export function clearToken(): void {
   localStorage.removeItem('token');
 }
+
+export const logOut = (): void => {
+  AuthTokenManager.removeToken();
+};
+
+// Export usePermissions hook
+export { usePermissions } from '../hooks/usePermissions';

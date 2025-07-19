@@ -1,4 +1,3 @@
-
 import { pgTable, serial, text, integer, boolean, timestamp, real, index } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
@@ -143,18 +142,29 @@ export const menuItemImages = pgTable("menu_item_images", {
 }));
 
 // Journaux d'activité
-export const activityLogs = pgTable("activity_logs", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id),
-  action: text("action").notNull(),
-  entity: text("entity").notNull(),
-  entityId: integer("entity_id"),
-  details: text("details"),
-  timestamp: timestamp("timestamp").defaultNow().notNull(),
+export const activityLogs = pgTable('activity_logs', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => users.id),
+  action: text('action').notNull(),
+  entity: text('entity').notNull(),
+  entityId: integer('entity_id'),
+  details: text('details'),
+  timestamp: timestamp('timestamp').defaultNow().notNull()
 }, (table) => ({
-  userIdx: index("activity_logs_user_idx").on(table.userId),
-  timestampIdx: index("activity_logs_timestamp_idx").on(table.timestamp),
+  userIdx: index('activity_logs_user_idx').on(table.userId),
+  timestampIdx: index('activity_logs_timestamp_idx').on(table.timestamp)
 }));
+
+// Table employees pour les scripts
+export const employees = pgTable('employees', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => users.id),
+  position: text('position').notNull(),
+  department: text('department').notNull(),
+  hireDate: timestamp('hire_date').defaultNow().notNull(),
+  salary: real('salary'),
+  status: text('status').default('active').notNull()
+});
 
 // Permissions
 export const permissions = pgTable("permissions", {
@@ -292,6 +302,9 @@ export type NewActivityLog = typeof activityLogs.$inferInsert;
 
 export type Permission = typeof permissions.$inferSelect;
 export type NewPermission = typeof permissions.$inferInsert;
+
+// Type Employee
+export type Employee = typeof employees.$inferSelect;
 
 // ==========================================
 // SCHÉMAS DE VALIDATION ZOD

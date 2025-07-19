@@ -46,15 +46,15 @@ try {
 
   lines.forEach(line => {
     if (line.includes('Property') && line.includes('missing')) {
-      errorsByCategory['Property missing'].push(line);
+      errorsByCategory['Property missing']?.push(line);
     } else if (line.includes('not assignable') || line.includes('mismatch')) {
-      errorsByCategory['Type mismatch'].push(line);
+      errorsByCategory['Type mismatch']?.push(line);
     } else if (line.includes('Parameter') || line.includes('Argument')) {
-      errorsByCategory['Parameter issues'].push(line);
+      errorsByCategory['Parameter issues']?.push(line);
     } else if (line.includes('Cannot find module') || line.includes('import')) {
-      errorsByCategory['Import/Export'].push(line);
+      errorsByCategory['Import/Export']?.push(line);
     } else if (line.includes('error TS')) {
-      errorsByCategory['Other'].push(line);
+      errorsByCategory['Other']?.push(line);
     }
   });
 
