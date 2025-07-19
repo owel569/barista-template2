@@ -1,0 +1,827 @@
+🔍 Vérification TypeScript stricte...
+
+ ❌ Erreurs TypeScript détectées :
+
+📂 Property missing (1 erreur) :
+  •   Property 'updatedAt' is missing in type '{ id: number; menuItemId: number; imageUrl: string; altText: string | null; isPrimary: boolean; uploadMethod: string; createdAt: Date; }' but required in type 'MenuItemImage'.
+
+📂 Type mismatch (248 erreurs) :
+  • client/src/components/admin/analytics/AdvancedAnalyticsDashboard.tsx(259,21): error TS2322: Type 'unknown' is not assignable to type '{ dailyRevenue: number; ordersCount: number; averageTicket: number; customerSatisfaction: number; tableOccupancy: number; staffEfficiency: number; } | undefined'.
+  • client/src/components/admin/analytics/AdvancedAnalyticsDashboard.tsx(358,33): error TS2322: Type 'unknown' is not assignable to type '{ segments: { vip: { count: number; percentage: number; avgSpent: number; }; regular: { count: number; percentage: number; avgSpent: number; }; occasional: { count: number; percentage: number; avgSpent: number; }; }; insights: string[]; actionItems: string[]; } | undefined'.
+  • client/src/components/admin/analytics/ExportUtils.ts(74,59): error TS2345: Argument of type 'SVGSVGElement | undefined' is not assignable to parameter of type 'Node'.
+  •   Type 'undefined' is not assignable to type 'Node'.
+  • client/src/components/admin/customers.tsx(31,44): error TS2345: Argument of type '"employe" | "directeur"' is not assignable to parameter of type 'User | null'.
+  •   Type 'string' is not assignable to type 'User'.
+  • client/src/components/admin/employees.tsx(90,7): error TS2322: Type 'string' is not assignable to type 'number'.
+  • client/src/components/admin/employees.tsx(296,49): error TS2345: Argument of type '(data: EmployeeFormData) => void' is not assignable to parameter of type 'SubmitHandler<TFieldValues>'.
+  •     Type 'TFieldValues' is not assignable to type '{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }'.
+  • client/src/components/admin/employees.tsx(299,21): error TS2322: Type 'Control<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, TFieldValues>' is not assignable to type 'Control<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, { ...; }>'.
+  •     Type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, TFieldValues> | undefined' is not assignable to type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, { ...; }> | undefined'.
+  •       Type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, TFieldValues>' is not assignable to type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, { ...; }>'.
+  •         Type 'TFieldValues' is not assignable to type '{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }'.
+  • client/src/components/admin/employees.tsx(312,21): error TS2322: Type 'Control<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, TFieldValues>' is not assignable to type 'Control<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, { ...; }>'.
+  •     Type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, TFieldValues> | undefined' is not assignable to type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, { ...; }> | undefined'.
+  •       Type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, TFieldValues>' is not assignable to type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, { ...; }>'.
+  •         Type 'TFieldValues' is not assignable to type '{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }'.
+  • client/src/components/admin/employees.tsx(327,19): error TS2322: Type 'Control<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, TFieldValues>' is not assignable to type 'Control<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, { ...; }>'.
+  •     Type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, TFieldValues> | undefined' is not assignable to type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, { ...; }> | undefined'.
+  •       Type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, TFieldValues>' is not assignable to type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, { ...; }>'.
+  •         Type 'TFieldValues' is not assignable to type '{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }'.
+  • client/src/components/admin/employees.tsx(341,19): error TS2322: Type 'Control<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, TFieldValues>' is not assignable to type 'Control<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, { ...; }>'.
+  •     Type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, TFieldValues> | undefined' is not assignable to type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, { ...; }> | undefined'.
+  •       Type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, TFieldValues>' is not assignable to type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, { ...; }>'.
+  •         Type 'TFieldValues' is not assignable to type '{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }'.
+  • client/src/components/admin/employees.tsx(355,19): error TS2322: Type 'Control<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, TFieldValues>' is not assignable to type 'Control<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, { ...; }>'.
+  •     Type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, TFieldValues> | undefined' is not assignable to type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, { ...; }> | undefined'.
+  •       Type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, TFieldValues>' is not assignable to type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, { ...; }>'.
+  •         Type 'TFieldValues' is not assignable to type '{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }'.
+  • client/src/components/admin/employees.tsx(369,19): error TS2322: Type 'Control<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, TFieldValues>' is not assignable to type 'Control<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, { ...; }>'.
+  •     Type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, TFieldValues> | undefined' is not assignable to type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, { ...; }> | undefined'.
+  •       Type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, TFieldValues>' is not assignable to type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, { ...; }>'.
+  •         Type 'TFieldValues' is not assignable to type '{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }'.
+  • client/src/components/admin/employees.tsx(388,21): error TS2322: Type 'Control<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, TFieldValues>' is not assignable to type 'Control<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, { ...; }>'.
+  •     Type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, TFieldValues> | undefined' is not assignable to type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, { ...; }> | undefined'.
+  •       Type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, TFieldValues>' is not assignable to type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, { ...; }>'.
+  •         Type 'TFieldValues' is not assignable to type '{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }'.
+  • client/src/components/admin/employees.tsx(401,21): error TS2322: Type 'Control<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, TFieldValues>' is not assignable to type 'Control<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, { ...; }>'.
+  •     Type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, TFieldValues> | undefined' is not assignable to type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, { ...; }> | undefined'.
+  •       Type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, TFieldValues>' is not assignable to type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, { ...; }>'.
+  •         Type 'TFieldValues' is not assignable to type '{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }'.
+  • client/src/components/admin/employees.tsx(427,19): error TS2322: Type 'Control<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, TFieldValues>' is not assignable to type 'Control<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, { ...; }>'.
+  •     Type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, TFieldValues> | undefined' is not assignable to type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, { ...; }> | undefined'.
+  •       Type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, TFieldValues>' is not assignable to type 'Resolver<{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }, any, { ...; }>'.
+  •         Type 'TFieldValues' is not assignable to type '{ firstName: string; lastName: string; email: string; phone: string; position: string; department: string; hireDate: string; salary: number; status?: "active" | "inactive" | undefined; }'.
+  • client/src/components/admin/menu-management.tsx(76,44): error TS2345: Argument of type '"employe" | "directeur"' is not assignable to parameter of type 'User | null'.
+  •   Type 'string' is not assignable to type 'User'.
+  • client/src/components/admin/messages.tsx(50,44): error TS2345: Argument of type '"employe" | "directeur"' is not assignable to parameter of type 'User | null'.
+  •   Type 'string' is not assignable to type 'User'.
+  • client/src/components/admin/modules/IoTDashboard.tsx(180,19): error TS2322: Type 'string' is not assignable to type '"default" | "destructive" | "outline" | "secondary" | null | undefined'.
+  • client/src/components/admin/notifications-system.tsx(910,27): error TS2322: Type 'unknown' is not assignable to type 'boolean | undefined'.
+  • client/src/components/admin/notifications-system.tsx(933,27): error TS2322: Type 'unknown' is not assignable to type 'boolean | undefined'.
+  • client/src/components/admin/online-ordering.tsx(231,9): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+  • client/src/components/admin/permissions-management-improved.tsx(500,40): error TS2322: Type 'Dispatch<SetStateAction<"all" | UserRole>>' is not assignable to type '(value: string) => void'.
+  •     Type 'string' is not assignable to type 'SetStateAction<"all" | UserRole>'.
+  • client/src/components/admin/permissions-management-improved.tsx(511,42): error TS2322: Type 'Dispatch<SetStateAction<"active" | "all" | "inactive">>' is not assignable to type '(value: string) => void'.
+  •     Type 'string' is not assignable to type 'SetStateAction<"active" | "all" | "inactive">'.
+  • client/src/components/admin/settings.tsx(88,44): error TS2345: Argument of type '"employe" | "directeur"' is not assignable to parameter of type 'User | null'.
+  •   Type 'string' is not assignable to type 'User'.
+  • client/src/components/admin/settings.tsx(145,19): error TS2345: Argument of type '{}' is not assignable to parameter of type 'SetStateAction<RestaurantSettings>'.
+  • client/src/components/admin/staff-scheduling.tsx(123,57): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • client/src/components/admin/staff-scheduling.tsx(136,52): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • client/src/components/admin/statistics.tsx(176,5): error TS2322: Type '{ date: string | undefined; revenue: number; orders: number; }[]' is not assignable to type 'RevenueData[]'.
+  •   Type '{ date: string | undefined; revenue: number; orders: number; }' is not assignable to type 'RevenueData'.
+  •       Type 'string | undefined' is not assignable to type 'string'.
+  •         Type 'undefined' is not assignable to type 'string'.
+  • client/src/components/admin/user-profile-enhanced.tsx(528,38): error TS2322: Type 'Dispatch<SetStateAction<"name" | "points" | "totalSpent" | "joinDate">>' is not assignable to type '(value: string) => void'.
+  •     Type 'string' is not assignable to type 'SetStateAction<"name" | "points" | "totalSpent" | "joinDate">'.
+  • client/src/components/admin/work-schedule/WorkSchedule.tsx(58,23): error TS2345: Argument of type '{ start: string | undefined; end: string | undefined; }' is not assignable to parameter of type '{ start: string; end: string; }'.
+  •     Type 'string | undefined' is not assignable to type 'string'.
+  •       Type 'undefined' is not assignable to type 'string'.
+  • client/src/components/admin/work-schedule/WorkSchedule.tsx(81,5): error TS2322: Type '{ start: string | undefined; end: string | undefined; }' is not assignable to type '{ start: string; end: string; }'.
+  •     Type 'string | undefined' is not assignable to type 'string'.
+  •       Type 'undefined' is not assignable to type 'string'.
+  • client/src/components/admin/work-schedule/WorkSchedule.tsx(121,33): error TS2322: Type '(mode: ViewMode) => void' is not assignable to type '(value: string) => void'.
+  •     Type 'string' is not assignable to type 'ViewMode'.
+  • client/src/components/admin/work-schedule/WorkSchedule.tsx(145,11): error TS2322: Type 'import("/home/runner/workspace/client/src/components/admin/work-schedule/utils/schedule.utils").Shift[]' is not assignable to type 'import("/home/runner/workspace/client/src/components/admin/work-schedule/types/schedule.types").Shift[]'.
+  • client/src/components/admin/work-schedule/WorkSchedule.tsx(157,11): error TS2322: Type 'import("/home/runner/workspace/client/src/components/admin/work-schedule/utils/schedule.utils").Shift[]' is not assignable to type 'import("/home/runner/workspace/client/src/components/admin/work-schedule/types/schedule.types").Shift[]'.
+  • client/src/components/admin/work-schedule/WorkSchedule.tsx(169,11): error TS2322: Type 'import("/home/runner/workspace/client/src/components/admin/work-schedule/utils/schedule.utils").Shift[]' is not assignable to type 'import("/home/runner/workspace/client/src/components/admin/work-schedule/types/schedule.types").Shift[]'.
+  • client/src/components/admin/work-schedule/components/CalendarView.tsx(38,29): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'Date | undefined'.
+  •   Type 'string' is not assignable to type 'Date'.
+  • client/src/components/admin/work-schedule/components/CalendarView.tsx(40,30): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'Date | undefined'.
+  •   Type 'string' is not assignable to type 'Date'.
+  • client/src/components/admin/work-schedule/components/CalendarView.tsx(44,29): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'Date | undefined'.
+  •   Type 'string' is not assignable to type 'Date'.
+  •     Argument of type 'string | undefined' is not assignable to parameter of type 'string | number | Date'.
+  •       Type 'undefined' is not assignable to type 'string | number | Date'.
+  •     Argument of type 'string | undefined' is not assignable to parameter of type 'string | number'.
+  •       Type 'undefined' is not assignable to type 'string | number'.
+  •     Argument of type 'string | undefined' is not assignable to parameter of type 'string | number | Date'.
+  •       Type 'undefined' is not assignable to type 'string | number | Date'.
+  •     Argument of type 'string | undefined' is not assignable to parameter of type 'string | number'.
+  •       Type 'undefined' is not assignable to type 'string | number'.
+  • client/src/components/admin/work-schedule/components/CalendarView.tsx(94,40): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'Date | undefined'.
+  •   Type 'string' is not assignable to type 'Date'.
+  •     Argument of type 'Date | undefined' is not assignable to parameter of type 'string | number | Date'.
+  •       Type 'undefined' is not assignable to type 'string | number | Date'.
+  •     Argument of type 'Date | undefined' is not assignable to parameter of type 'string | number'.
+  •       Type 'undefined' is not assignable to type 'string | number'.
+  •     Argument of type 'Date | undefined' is not assignable to parameter of type 'string | number | Date'.
+  •       Type 'undefined' is not assignable to type 'string | number | Date'.
+  •     Argument of type 'Date | undefined' is not assignable to parameter of type 'string | number'.
+         Type 'undefined' is not assignable to type 'string | number'.
+  • client/src/components/admin/work-schedule/components/CalendarView.tsx(233,64): error TS2345: Argument of type 'string' is not assignable to parameter of type 'Date & string'.
+  •   Type 'string' is not assignable to type 'Date'.
+  • client/src/components/admin/work-schedule/components/CalendarView.tsx(305,15): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • client/src/components/admin/work-schedule/components/CalendarView.tsx(318,17): error TS2322: Type 'string | Date | undefined' is not assignable to type 'Key | null | undefined'.
+  •   Type 'Date' is not assignable to type 'Key | null | undefined'.
+  • client/src/components/admin/work-schedule/components/CalendarView.tsx(319,17): error TS2322: Type 'string | Date | undefined' is not assignable to type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • client/src/components/admin/work-schedule/hooks/useScheduleData.ts(49,9): error TS2322: Type 'import("/home/runner/workspace/client/src/components/admin/work-schedule/utils/schedule.utils").ScheduleStats | null' is not assignable to type 'import("/home/runner/workspace/client/src/components/admin/work-schedule/types/schedule.types").ScheduleStats | null'.
+  • client/src/components/admin/work-schedule/hooks/useShiftManagement.ts(32,60): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string | (() => string)'.
+  •   Type 'undefined' is not assignable to type 'string | (() => string)'.
+  • client/src/components/admin/work-schedule/hooks/useShiftManagement.ts(43,5): error TS2322: Type '{ start: string | undefined; end: string | undefined; }' is not assignable to type '{ start: string; end: string; }'.
+  •     Type 'string | undefined' is not assignable to type 'string'.
+  •       Type 'undefined' is not assignable to type 'string'.
+  • client/src/components/admin/work-schedule/hooks/useShiftManagement.ts(63,33): error TS2345: Argument of type 'import("/home/runner/workspace/client/src/components/admin/work-schedule/types/schedule.types").Shift[]' is not assignable to parameter of type 'import("/home/runner/workspace/client/src/components/admin/work-schedule/utils/schedule.utils").Shift[]'.
+  • client/src/components/admin/work-schedule/hooks/useShiftManagement.ts(92,51): error TS2345: Argument of type 'import("/home/runner/workspace/client/src/components/admin/work-schedule/types/schedule.types").Employee[]' is not assignable to parameter of type 'import("/home/runner/workspace/client/src/components/admin/work-schedule/utils/schedule.utils").Employee[]'.
+  • client/src/components/admin/work-schedule/hooks/useShiftManagement.ts(97,35): error TS2345: Argument of type 'import("/home/runner/workspace/client/src/components/admin/work-schedule/types/schedule.types").Employee[]' is not assignable to parameter of type 'import("/home/runner/workspace/client/src/components/admin/work-schedule/utils/schedule.utils").Employee[]'.
+  • client/src/components/admin/work-schedule/hooks/useShiftManagement.ts(104,29): error TS2345: Argument of type 'string' is not assignable to parameter of type 'Date'.
+  • client/src/components/admin/work-schedule/hooks/useShiftManagement.ts(106,30): error TS2345: Argument of type 'string' is not assignable to parameter of type 'Date'.
+  • client/src/components/admin/work-schedule/hooks/useShiftManagement.ts(153,38): error TS2345: Argument of type 'string' is not assignable to parameter of type 'Date'.
+  • client/src/components/admin/work-schedule/hooks/useShiftManagement.ts(154,18): error TS2345: Argument of type '(prev: ScheduleFilter) => { dateRange: { start: Date | undefined; end: Date | undefined; }; departments: string[]; positions: string[]; employees: number[]; status: ShiftStatus[]; showConflicts: boolean; showOvertime: boolean; }' is not assignable to parameter of type 'SetStateAction<ScheduleFilter>'.
+  •   Type '(prev: ScheduleFilter) => { dateRange: { start: Date | undefined; end: Date | undefined; }; departments: string[]; positions: string[]; employees: number[]; status: ShiftStatus[]; showConflicts: boolean; showOvertime: boolean; }' is not assignable to type '(prevState: ScheduleFilter) => ScheduleFilter'.
+  •         Type 'Date | undefined' is not assignable to type 'string'.
+  •           Type 'undefined' is not assignable to type 'string'.
+  • client/src/components/admin/work-schedule/hooks/useShiftManagement.ts(162,40): error TS2345: Argument of type 'string' is not assignable to parameter of type 'Date'.
+  • client/src/components/admin/work-schedule/hooks/useShiftManagement.ts(163,18): error TS2345: Argument of type '(prev: ScheduleFilter) => { dateRange: { start: Date | undefined; end: Date | undefined; }; departments: string[]; positions: string[]; employees: number[]; status: ShiftStatus[]; showConflicts: boolean; showOvertime: boolean; }' is not assignable to parameter of type 'SetStateAction<ScheduleFilter>'.
+  •   Type '(prev: ScheduleFilter) => { dateRange: { start: Date | undefined; end: Date | undefined; }; departments: string[]; positions: string[]; employees: number[]; status: ShiftStatus[]; showConflicts: boolean; showOvertime: boolean; }' is not assignable to type '(prevState: ScheduleFilter) => ScheduleFilter'.
+  •         Type 'Date | undefined' is not assignable to type 'string'.
+  •           Type 'undefined' is not assignable to type 'string'.
+  • client/src/components/admin/work-schedule/hooks/useShiftManagement.ts(207,9): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • client/src/components/admin/work-schedule/hooks/useShiftManagement.ts(208,9): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • client/src/components/admin/work-schedule/hooks/useShiftManagement.ts(252,22): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • client/src/components/admin/work-schedule/hooks/useShiftManagement.ts(300,29): error TS2345: Argument of type 'import("/home/runner/workspace/client/src/components/admin/work-schedule/utils/schedule.utils").Shift' is not assignable to parameter of type 'import("/home/runner/workspace/client/src/components/admin/work-schedule/types/schedule.types").Shift'.
+  • client/src/components/admin/work-schedule/utils/schedule.utils.ts(204,46): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • client/src/components/admin/work-schedule/utils/schedule.utils.ts(528,5): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • client/src/components/interactive-reservation.tsx(349,51): error TS2345: Argument of type '(data: ReservationFormData) => void' is not assignable to parameter of type 'SubmitHandler<TFieldValues>'.
+  •     Type 'TFieldValues' is not assignable to type '{ date: string; time: string; partySize: number; guests: number; customerName: string; customerEmail: string; customerPhone: string; id?: number | undefined; createdAt?: Date | undefined; customerId?: number | ... 1 more ... | undefined; tableId?: number | ... 1 more ... | undefined; status?: string | undefined; not...'.
+  • client/src/components/interactive-reservation.tsx(447,43): error TS2345: Argument of type '"specialRequests"' is not assignable to parameter of type '"date" | "id" | "createdAt" | "customerId" | "tableId" | "time" | "partySize" | "status" | "notes" | "guests" | "customerName" | "customerEmail" | "customerPhone"'.
+  • client/src/components/reservation.tsx(115,42): error TS2345: Argument of type '(data: ReservationFormData) => void' is not assignable to parameter of type 'SubmitHandler<TFieldValues>'.
+  •     Type 'TFieldValues' is not assignable to type '{ date: string; time: string; partySize: number; id?: number | undefined; createdAt?: Date | undefined; customerId?: number | null | undefined; tableId?: number | null | undefined; status?: string | undefined; notes?: string | ... 1 more ... | undefined; }'.
+  • client/src/components/reservation.tsx(172,19): error TS2322: Type '"guests"' is not assignable to type '"date" | "id" | "createdAt" | "customerId" | "tableId" | "time" | "partySize" | "status" | "notes"'.
+  • client/src/components/reservation.tsx(201,34): error TS2345: Argument of type '"customerName"' is not assignable to parameter of type '"date" | "id" | "createdAt" | "customerId" | "tableId" | "time" | "partySize" | "status" | "notes"'.
+  • client/src/components/reservation.tsx(216,34): error TS2345: Argument of type '"customerEmail"' is not assignable to parameter of type '"date" | "id" | "createdAt" | "customerId" | "tableId" | "time" | "partySize" | "status" | "notes"'.
+  • client/src/components/reservation.tsx(233,32): error TS2345: Argument of type '"customerPhone"' is not assignable to parameter of type '"date" | "id" | "createdAt" | "customerId" | "tableId" | "time" | "partySize" | "status" | "notes"'.
+  • client/src/components/reservation.tsx(248,32): error TS2345: Argument of type '"specialRequests"' is not assignable to parameter of type '"date" | "id" | "createdAt" | "customerId" | "tableId" | "time" | "partySize" | "status" | "notes"'.
+  • client/src/components/table-management.tsx(372,40): error TS2345: Argument of type '{ number: string; capacity: number; location: string; shape: string; features: string[]; status: string; x: number; y: number; }' is not assignable to parameter of type 'Partial<Table>'.
+  •     Type 'string' is not assignable to type '"available" | "maintenance" | "occupied" | "reserved" | undefined'.
+  • client/src/components/table-management.tsx(443,42): error TS2345: Argument of type '{ id: number; number: string; capacity: number; location: string; shape: string; features: string[]; }' is not assignable to parameter of type 'Partial<Table> & { id: number; }'.
+  •   Type '{ id: number; number: string; capacity: number; location: string; shape: string; features: string[]; }' is not assignable to type 'Partial<Table>'.
+  •       Type 'string' is not assignable to type '"round" | "square" | "rectangular" | undefined'.
+  • client/src/components/ui/phone-input.tsx(74,67): error TS2345: Argument of type 'Country | undefined' is not assignable to parameter of type 'Country | (() => Country)'.
+  •   Type 'undefined' is not assignable to type 'Country | (() => Country)'.
+  • client/src/lib/image-mapping.ts(93,9): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  •     Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •       Type 'undefined' is not assignable to type 'string'.
+  •     Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •       Type 'undefined' is not assignable to type 'string'.
+  • client/src/pages/reservation-with-cart.tsx(345,46): error TS2345: Argument of type '(data: ReservationFormData) => void' is not assignable to parameter of type 'SubmitHandler<TFieldValues>'.
+  •     Type 'TFieldValues' is not assignable to type '{ date: string; time: string; partySize: number; id?: number | undefined; createdAt?: Date | undefined; customerId?: number | null | undefined; tableId?: number | null | undefined; status?: string | undefined; notes?: string | ... 1 more ... | undefined; }'.
+  • client/src/pages/reservation-with-cart.tsx(351,38): error TS2345: Argument of type '"customerName"' is not assignable to parameter of type '"date" | "id" | "createdAt" | "customerId" | "tableId" | "time" | "partySize" | "status" | "notes"'.
+  • client/src/pages/reservation-with-cart.tsx(366,38): error TS2345: Argument of type '"customerEmail"' is not assignable to parameter of type '"date" | "id" | "createdAt" | "customerId" | "tableId" | "time" | "partySize" | "status" | "notes"'.
+  • client/src/pages/reservation-with-cart.tsx(380,38): error TS2345: Argument of type '"customerPhone"' is not assignable to parameter of type '"date" | "id" | "createdAt" | "customerId" | "tableId" | "time" | "partySize" | "status" | "notes"'.
+  • client/src/pages/reservation-with-cart.tsx(437,38): error TS2345: Argument of type '"guests"' is not assignable to parameter of type '"date" | "id" | "createdAt" | "customerId" | "tableId" | "time" | "partySize" | "status" | "notes"'.
+  • client/src/pages/reservation-with-cart.tsx(451,38): error TS2345: Argument of type '"specialRequests"' is not assignable to parameter of type '"date" | "id" | "createdAt" | "customerId" | "tableId" | "time" | "partySize" | "status" | "notes"'.
+  •     Argument of type '({ customerId: number; tableId: number; date: Date; time: string; partySize: number; status: string; specialRequests: string; } | { customerId: number; tableId: number; date: Date; time: string; partySize: number; status: string; specialRequests: null; })[]' is not assignable to parameter of type '{ date: string | SQL<unknown> | Placeholder<string, any>; time: string | SQL<unknown> | Placeholder<string, any>; partySize: number | SQL<unknown> | Placeholder<string, any>; ... 5 more ...; notes?: string | ... 3 more ... | undefined; }'.
+  •     Argument of type '({ customerId: number; tableId: number; date: Date; time: string; partySize: number; status: string; specialRequests: string; } | { customerId: number; tableId: number; date: Date; time: string; partySize: number; status: string; specialRequests: null; })[]' is not assignable to parameter of type '{ date: string | SQL<unknown> | Placeholder<string, any>; time: string | SQL<unknown> | Placeholder<string, any>; partySize: number | SQL<unknown> | Placeholder<string, any>; ... 5 more ...; notes?: string | ... 3 more ... | undefined; }[]'.
+  •       Type '{ customerId: number; tableId: number; date: Date; time: string; partySize: number; status: string; specialRequests: string; } | { customerId: number; tableId: number; date: Date; time: string; partySize: number; status: string; specialRequests: null; }' is not assignable to type '{ date: string | SQL<unknown> | Placeholder<string, any>; time: string | SQL<unknown> | Placeholder<string, any>; partySize: number | SQL<unknown> | Placeholder<string, any>; ... 5 more ...; notes?: string | ... 3 more ... | undefined; }'.
+  •         Type '{ customerId: number; tableId: number; date: Date; time: string; partySize: number; status: string; specialRequests: string; }' is not assignable to type '{ date: string | SQL<unknown> | Placeholder<string, any>; time: string | SQL<unknown> | Placeholder<string, any>; partySize: number | SQL<unknown> | Placeholder<string, any>; ... 5 more ...; notes?: string | ... 3 more ... | undefined; }'.
+  •             Type 'Date' is not assignable to type 'string | SQL<unknown> | Placeholder<string, any>'.
+  • server/ImageManager.ts(31,36): error TS2322: Type '{ id: number; menuItemId: number; imageUrl: string; altText: string | null; isPrimary: boolean; uploadMethod: string; createdAt: Date; } | undefined' is not assignable to type 'MenuItemImage | null'.
+  •   Type 'undefined' is not assignable to type 'MenuItemImage | null'.
+  • server/ImageManager.ts(39,9): error TS2322: Type '{ id: number; menuItemId: number; imageUrl: string; altText: string | null; isPrimary: boolean; uploadMethod: string; createdAt: Date; }[]' is not assignable to type 'MenuItemImage[]'.
+  • server/ImageManager.ts(80,9): error TS2322: Type '{ id: number; createdAt: Date; imageUrl: string; menuItemId: number; altText: string | null; isPrimary: boolean; uploadMethod: string; } | undefined' is not assignable to type 'MenuItemImage'.
+  •   Type 'undefined' is not assignable to type 'MenuItemImage'.
+  • server/ImageManager.ts(111,36): error TS2322: Type '{ id: number; menuItemId: number; imageUrl: string; altText: string | null; isPrimary: boolean; uploadMethod: string; createdAt: Date; } | undefined' is not assignable to type 'MenuItemImage | null'.
+  •   Type 'undefined' is not assignable to type 'MenuItemImage | null'.
+  • server/ImageManager.ts(190,25): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  •     Argument of type 'string | 5000' is not assignable to parameter of type 'number'.
+  •       Type 'string' is not assignable to type 'number'.
+  •     Argument of type 'string | 5000' is not assignable to parameter of type 'number'.
+  •       Type 'string' is not assignable to type 'number'.
+  • server/modules/ai-automation.ts(81,52): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • server/modules/ai-automation.ts(280,27): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • server/routes/ai.routes.ts(296,15): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string | PromiseLike<string>'.
+  •   Type 'undefined' is not assignable to type 'string | PromiseLike<string>'.
+  • server/routes/ai.routes.ts(304,25): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • server/routes/analytics.routes.ts(328,7): error TS2322: Type 'string' is not assignable to type 'null'.
+  • server/routes/delivery.ts(122,59): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • server/routes/delivery.ts(149,59): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • server/routes/delivery.ts(185,59): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • server/routes/delivery.ts(197,61): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • server/routes/feedback.routes.ts(87,20): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • server/routes/index.ts(503,29): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • server/routes/index.ts(536,29): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • server/routes/kpis.routes.ts(125,27): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • server/routes/kpis.routes.ts(130,51): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • server/routes/loyalty-advanced.ts(263,61): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • server/routes/loyalty-advanced.ts(289,30): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'number'.
+  •   Type 'undefined' is not assignable to type 'number'.
+  • server/routes/online-orders.ts(138,58): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • server/routes/online-orders.ts(165,58): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • server/routes/online-orders.ts(186,58): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • server/routes/online-orders.ts(198,63): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • server/routes/permissions.routes.ts(142,24): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • server/routes/permissions.routes.ts(171,24): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • server/routes/tables.ts(134,52): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • server/routes/tables.ts(159,52): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • server/routes/tables.ts(187,52): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • server/routes/tables.ts(209,52): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • server/routes/tables.ts(221,57): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+  • server/services/ai-automation.service.ts(211,42): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  •   Type 'undefined' is not assignable to type 'string'.
+
+📂 Parameter issues (35 erreurs) :
+  • client/src/components/admin/analytics/components/PredictiveAnalyticsView.tsx(159,53): error TS7006: Parameter 'rec' implicitly has an 'any' type.
+  • client/src/components/admin/analytics/components/PredictiveAnalyticsView.tsx(159,58): error TS7006: Parameter 'index' implicitly has an 'any' type.
+  • client/src/components/admin/analytics/components/PredictiveAnalyticsView.tsx(232,53): error TS7006: Parameter 'opp' implicitly has an 'any' type.
+  • client/src/components/admin/analytics/components/PredictiveAnalyticsView.tsx(232,58): error TS7006: Parameter 'index' implicitly has an 'any' type.
+  • client/src/components/admin/analytics/components/PredictiveAnalyticsView.tsx(271,68): error TS7006: Parameter 'item' implicitly has an 'any' type.
+  • client/src/components/admin/analytics/components/PredictiveAnalyticsView.tsx(271,74): error TS7006: Parameter 'index' implicitly has an 'any' type.
+  • client/src/components/admin/analytics/components/PredictiveAnalyticsView.tsx(282,68): error TS7006: Parameter 'item' implicitly has an 'any' type.
+  • client/src/components/admin/analytics/components/PredictiveAnalyticsView.tsx(282,74): error TS7006: Parameter 'index' implicitly has an 'any' type.
+  • client/src/components/admin/analytics/components/PredictiveAnalyticsView.tsx(293,71): error TS7006: Parameter 'item' implicitly has an 'any' type.
+  • client/src/components/admin/analytics/components/PredictiveAnalyticsView.tsx(293,77): error TS7006: Parameter 'index' implicitly has an 'any' type.
+  • client/src/components/admin/statistics-enhanced.tsx(172,54): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+  • client/src/components/admin/statistics-enhanced.tsx(172,59): error TS7006: Parameter 'item' implicitly has an 'any' type.
+  • client/src/components/admin/statistics-enhanced.tsx(173,53): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+  • client/src/components/admin/statistics-enhanced.tsx(173,58): error TS7006: Parameter 'item' implicitly has an 'any' type.
+  • client/src/components/dashboard-main.tsx(209,120): error TS7006: Parameter 'entry' implicitly has an 'any' type.
+  • client/src/components/dashboard-main.tsx(209,127): error TS7006: Parameter 'index' implicitly has an 'any' type.
+  • client/src/components/dashboard-main.tsx(217,56): error TS7006: Parameter 'item' implicitly has an 'any' type.
+  • client/src/components/dashboard-main.tsx(217,62): error TS7006: Parameter 'index' implicitly has an 'any' type.
+  • client/src/components/menu-page.tsx(57,24): error TS7006: Parameter 'item' implicitly has an 'any' type.
+  • client/src/components/menu-page.tsx(101,30): error TS7006: Parameter 'category' implicitly has an 'any' type.
+  • client/src/components/menu-page.tsx(120,31): error TS7006: Parameter 'item' implicitly has an 'any' type.
+  • scripts/check-types.ts(30,43): error TS7006: Parameter 'line' implicitly has an 'any' type.
+  • scripts/check-types.ts(47,17): error TS7006: Parameter 'line' implicitly has an 'any' type.
+  • server/config/production.ts(54,17): error TS7006: Parameter 'req' implicitly has an 'any' type.
+  • server/config/production.ts(54,22): error TS7006: Parameter 'res' implicitly has an 'any' type.
+  • server/modules/advanced-analytics.ts(51,38): error TS7006: Parameter 'c' implicitly has an 'any' type.
+  • server/modules/advanced-analytics.ts(52,39): error TS7006: Parameter 'c' implicitly has an 'any' type.
+  • server/modules/advanced-analytics.ts(53,33): error TS7006: Parameter 'c' implicitly has an 'any' type.
+  • server/modules/advanced-analytics.ts(60,41): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+  • server/modules/advanced-analytics.ts(60,46): error TS7006: Parameter 'c' implicitly has an 'any' type.
+  • server/modules/advanced-analytics.ts(62,40): error TS7006: Parameter 'c' implicitly has an 'any' type.
+  • server/modules/advanced-analytics.ts(68,20): error TS7006: Parameter 'c' implicitly has an 'any' type.
+  • server/routes/permissions.ts(224,33): error TS7006: Parameter 'p' implicitly has an 'any' type.
+  • server/routes/permissions.ts(271,38): error TS7006: Parameter 'p' implicitly has an 'any' type.
+  • server/websocket.ts(18,22): error TS7006: Parameter 'info' implicitly has an 'any' type.
+
+📂 Import/Export (13 erreurs) :
+  • client/src/components/admin/activity-logs.tsx(3,29): error TS2307: Cannot find module '../../../types/admin' or its corresponding type declarations.
+  • client/src/components/admin/customers.tsx(13,32): error TS2307: Cannot find module '../../../types/admin' or its corresponding type declarations.
+  • client/src/components/admin/employees.tsx(4,37): error TS2307: Cannot find module '../../../types/admin' or its corresponding type declarations.
+  • client/src/components/admin/messages.tsx(4,32): error TS2307: Cannot find module '../../../types/admin' or its corresponding type declarations.
+  • client/src/components/admin/statistics-enhanced.tsx(49,103): error TS2307: Cannot find module '@/data/mocks' or its corresponding type declarations.
+  • client/src/components/hero.tsx(5,29): error TS2307: Cannot find module '@/assets/logo-barista-cafe.png' or its corresponding type declarations.
+  • client/src/components/navigation.tsx(5,29): error TS2307: Cannot find module '@/assets/logo-barista-cafe.png' or its corresponding type declarations.
+  • client/src/components/sidebar.tsx(7,29): error TS2307: Cannot find module '@/assets/logo-barista-cafe.png' or its corresponding type declarations.
+  • server/config/production.ts(4,23): error TS2307: Cannot find module 'express-rate-limit' or its corresponding type declarations.
+  • server/modules/advanced-analytics.ts(1,25): error TS2307: Cannot find module '../storage' or its corresponding type declarations.
+  • server/routes/advanced-features.ts(2,25): error TS2307: Cannot find module '../storage' or its corresponding type declarations.
+  • server/routes/inventory-management.ts(2,25): error TS2307: Cannot find module '../storage' or its corresponding type declarations.
+  • server/routes/loyalty-advanced.ts(2,25): error TS2307: Cannot find module '../storage' or its corresponding type declarations.
+
+📂 Other (510 erreurs) :
+  • client/src/components/admin/advanced-maintenance.tsx(303,7): error TS2304: Cannot find name 'setLoading'.
+  • client/src/components/admin/advanced-maintenance.tsx(414,7): error TS2304: Cannot find name 'loading'.
+  • client/src/components/admin/analytics/AdvancedAnalyticsDashboard.tsx(151,30): error TS18046: 'salesPrediction' is of type 'unknown'.
+  • client/src/components/admin/analytics/AdvancedAnalyticsDashboard.tsx(152,29): error TS18046: 'salesPrediction' is of type 'unknown'.
+  • client/src/components/admin/analytics/AdvancedAnalyticsDashboard.tsx(153,25): error TS18046: 'salesPrediction' is of type 'unknown'.
+  • client/src/components/admin/analytics/HourView.tsx(19,19): error TS18048: 'max' is possibly 'undefined'.
+  • client/src/components/admin/analytics/TrendsView.tsx(25,7): error TS18048: 'latestData' is possibly 'undefined'.
+  • client/src/components/admin/analytics/TrendsView.tsx(27,7): error TS18048: 'latestData' is possibly 'undefined'.
+  • client/src/components/admin/analytics/TrendsView.tsx(29,7): error TS18048: 'latestData' is possibly 'undefined'.
+  • client/src/components/admin/analytics/components/AIInsightsPanel.tsx(51,14): error TS18046: 'response' is of type 'unknown'.
+  • client/src/components/admin/analytics/components/AIInsightsPanel.tsx(61,14): error TS18046: 'response' is of type 'unknown'.
+  • client/src/components/admin/dashboard.tsx(78,30): error TS18048: 'data.data' is possibly 'undefined'.
+  • client/src/components/admin/dashboard.tsx(79,27): error TS18048: 'data.data' is possibly 'undefined'.
+  • client/src/components/admin/dashboard.tsx(80,25): error TS18048: 'data.data' is possibly 'undefined'.
+  • client/src/components/admin/dashboard.tsx(81,38): error TS18048: 'data.data' is possibly 'undefined'.
+  • client/src/components/admin/dashboard.tsx(83,55): error TS18048: 'data.data' is possibly 'undefined'.
+  • client/src/components/admin/dashboard.tsx(84,55): error TS18048: 'data.data' is possibly 'undefined'.
+  • client/src/components/admin/dashboard.tsx(85,53): error TS18048: 'data.data' is possibly 'undefined'.
+  • client/src/components/admin/dashboard/AdvancedModulesManager.tsx(266,11): error TS2304: Cannot find name 'setModulesData'.
+  • client/src/components/admin/dashboard/AdvancedModulesManager.tsx(270,11): error TS2304: Cannot find name 'setModulesData'.
+  • client/src/components/admin/dashboard/AdvancedModulesManager.tsx(276,9): error TS2304: Cannot find name 'setModulesData'.
+  • client/src/components/admin/dashboard/AdvancedModulesManager.tsx(281,7): error TS2304: Cannot find name 'setModulesData'.
+  • client/src/components/admin/delivery-tracking.tsx(124,86): error TS2353: Object literal may only specify known properties, and 'data' does not exist in type 'RequestInit'.
+  • client/src/components/admin/delivery-tracking.tsx(132,102): error TS2353: Object literal may only specify known properties, and 'data' does not exist in type 'RequestInit'.
+  • client/src/components/admin/delivery-tracking.tsx(157,30): error TS18046: 'deliveries' is of type 'unknown'.
+  • client/src/components/admin/delivery-tracking.tsx(210,28): error TS18046: 'orders' is of type 'unknown'.
+  • client/src/components/admin/delivery-tracking.tsx(235,28): error TS18046: 'drivers' is of type 'unknown'.
+  • client/src/components/admin/delivery-tracking.tsx(292,52): error TS18046: 'deliveries' is of type 'unknown'.
+  • client/src/components/admin/delivery-tracking.tsx(305,20): error TS18046: 'deliveries' is of type 'unknown'.
+  • client/src/components/admin/delivery-tracking.tsx(318,52): error TS18046: 'deliveries' is of type 'unknown'.
+  • client/src/components/admin/delivery-tracking.tsx(330,52): error TS18046: 'deliveries' is of type 'unknown'.
+  • client/src/components/admin/menu-management.tsx(4,10): error TS2305: Module '"@/types/admin"' has no exported member 'MenuItem'.
+  • client/src/components/admin/menu-management.tsx(4,20): error TS2305: Module '"@/types/admin"' has no exported member 'MenuCategory'.
+  • client/src/components/admin/modules/AnalyticsDashboard.tsx(62,41): error TS2339: Property 'realTime' does not exist on type '{}'.
+  • client/src/components/admin/modules/AnalyticsDashboard.tsx(63,39): error TS2339: Property 'popular' does not exist on type '{}'.
+  • client/src/components/admin/modules/AnalyticsDashboard.tsx(64,41): error TS2339: Property 'predictions' does not exist on type '{}'.
+  • client/src/components/admin/modules/AnalyticsDashboard.tsx(168,37): error TS2339: Property 'trends' does not exist on type '{}'.
+  • client/src/components/admin/modules/AnalyticsDashboard.tsx(172,79): error TS2339: Property 'trends' does not exist on type '{}'.
+  • client/src/components/admin/modules/AnalyticsDashboard.tsx(173,44): error TS2339: Property 'trends' does not exist on type '{}'.
+  • client/src/components/admin/modules/AnalyticsDashboard.tsx(174,53): error TS2339: Property 'trends' does not exist on type '{}'.
+  • client/src/components/admin/modules/AnalyticsDashboard.tsx(179,79): error TS2339: Property 'trends' does not exist on type '{}'.
+  • client/src/components/admin/modules/AnalyticsDashboard.tsx(180,44): error TS2339: Property 'trends' does not exist on type '{}'.
+  • client/src/components/admin/modules/AnalyticsDashboard.tsx(181,53): error TS2339: Property 'trends' does not exist on type '{}'.
+  • client/src/components/admin/modules/AnalyticsDashboard.tsx(186,79): error TS2339: Property 'trends' does not exist on type '{}'.
+  • client/src/components/admin/modules/AnalyticsDashboard.tsx(187,44): error TS2339: Property 'trends' does not exist on type '{}'.
+  • client/src/components/admin/modules/AnalyticsDashboard.tsx(188,53): error TS2339: Property 'trends' does not exist on type '{}'.
+  • client/src/components/admin/modules/AnalyticsDashboard.tsx(281,39): error TS2339: Property 'segments' does not exist on type '{}'.
+  • client/src/components/admin/modules/AnalyticsDashboard.tsx(281,84): error TS2339: Property 'segments' does not exist on type '{}'.
+  • client/src/components/admin/modules/Dashboard.tsx(52,29): error TS2339: Property 'aiInsights' does not exist on type '{}'.
+  • client/src/components/admin/modules/Dashboard.tsx(53,31): error TS2339: Property 'chatbot' does not exist on type '{}'.
+  • client/src/components/admin/modules/Dashboard.tsx(54,35): error TS2339: Property 'reports' does not exist on type '{}'.
+  • client/src/components/admin/modules/Dashboard.tsx(70,18): error TS2339: Property 'alerts' does not exist on type '{}'.
+  • client/src/components/admin/modules/Dashboard.tsx(70,37): error TS2339: Property 'alerts' does not exist on type '{}'.
+  • client/src/components/admin/modules/Dashboard.tsx(72,21): error TS2339: Property 'alerts' does not exist on type '{}'.
+  • client/src/components/admin/modules/Dashboard.tsx(271,29): error TS2339: Property 'upcoming' does not exist on type '{}'.
+  • client/src/components/admin/modules/InventoryManagement.tsx(86,34): error TS2339: Property 'alerts' does not exist on type '{}'.
+  • client/src/components/admin/modules/InventoryManagement.tsx(87,33): error TS2339: Property 'statistics' does not exist on type '{}'.
+  • client/src/components/admin/modules/InventoryManagement.tsx(218,25): error TS2339: Property 'categories' does not exist on type '{}'.
+  • client/src/components/admin/modules/InventoryManagement.tsx(301,31): error TS2339: Property 'items' does not exist on type '{}'.
+  • client/src/components/admin/modules/InventoryManagement.tsx(357,31): error TS2339: Property 'automaticOrders' does not exist on type '{}'.
+  • client/src/components/admin/modules/InventoryManagement.tsx(364,38): error TS2339: Property 'automaticOrders' does not exist on type '{}'.
+  • client/src/components/admin/modules/InventoryManagement.tsx(395,29): error TS2339: Property 'movements' does not exist on type '{}'.
+  • client/src/components/admin/modules/InventoryManagement.tsx(428,29): error TS2339: Property 'suppliers' does not exist on type '{}'.
+  • client/src/components/admin/modules/LoyaltyProgram.tsx(71,27): error TS2339: Property 'levels' does not exist on type '{}'.
+  • client/src/components/admin/modules/LoyaltyProgram.tsx(72,28): error TS2339: Property 'rewards' does not exist on type '{}'.
+  • client/src/components/admin/modules/LoyaltyProgram.tsx(73,26): error TS2339: Property 'statistics' does not exist on type '{}'.
+  • client/src/components/admin/modules/LoyaltyProgram.tsx(202,39): error TS2339: Property 'levels' does not exist on type '{}'.
+  • client/src/components/admin/modules/LoyaltyProgram.tsx(206,43): error TS2339: Property 'levels' does not exist on type '{}'.
+  • client/src/components/admin/modules/LoyaltyProgram.tsx(227,35): error TS2339: Property 'engagement' does not exist on type '{}'.
+  • client/src/components/admin/modules/LoyaltyProgram.tsx(233,35): error TS2339: Property 'engagement' does not exist on type '{}'.
+  • client/src/components/admin/modules/LoyaltyProgram.tsx(239,36): error TS2339: Property 'revenue' does not exist on type '{}'.
+  • client/src/components/admin/modules/LoyaltyProgram.tsx(245,35): error TS2339: Property 'revenue' does not exist on type '{}'.
+  • client/src/components/admin/modules/LoyaltyProgram.tsx(303,54): error TS2339: Property 'levels' does not exist on type '{}'.
+  • client/src/components/admin/modules/LoyaltyProgram.tsx(455,35): error TS2339: Property 'overview' does not exist on type '{}'.
+  • client/src/components/admin/modules/LoyaltyProgram.tsx(461,36): error TS2339: Property 'overview' does not exist on type '{}'.
+  • client/src/components/admin/modules/LoyaltyProgram.tsx(467,35): error TS2339: Property 'revenue' does not exist on type '{}'.
+  • client/src/components/admin/modules/LoyaltyProgram.tsx(473,36): error TS2339: Property 'revenue' does not exist on type '{}'.
+  • client/src/components/admin/notifications-system.tsx(1,1): error TS2349: This expression is not callable.
+  • client/src/components/admin/notifications-system.tsx(118,10): error TS2451: Cannot redeclare block-scoped variable 'notifications'.
+  • client/src/components/admin/notifications-system.tsx(141,37): error TS2339: Property 'connectionStatus' does not exist on type '{ isConnected: boolean; lastMessage: WebSocketMessage | null; sendMessage: (message: WebSocketMessage) => void; }'.
+  • client/src/components/admin/notifications-system.tsx(144,17): error TS2451: Cannot redeclare block-scoped variable 'notifications'.
+  • client/src/components/admin/notifications-system.tsx(149,16): error TS18046: 'response' is of type 'unknown'.
+  • client/src/components/admin/notifications-system.tsx(164,16): error TS18046: 'response' is of type 'unknown'.
+  • client/src/components/admin/notifications-system.tsx(176,16): error TS18046: 'response' is of type 'unknown'.
+  • client/src/components/admin/online-ordering.tsx(128,105): error TS2353: Object literal may only specify known properties, and 'data' does not exist in type 'RequestInit'.
+  • client/src/components/admin/online-ordering.tsx(136,100): error TS2353: Object literal may only specify known properties, and 'data' does not exist in type 'RequestInit'.
+  • client/src/components/admin/online-ordering.tsx(147,26): error TS18046: 'orders' is of type 'unknown'.
+  • client/src/components/admin/online-ordering.tsx(184,46): error TS2339: Property 'onlineOrderingEnabled' does not exist on type '{}'.
+  • client/src/components/admin/online-ordering.tsx(188,46): error TS2339: Property 'deliveryEnabled' does not exist on type '{}'.
+  • client/src/components/admin/online-ordering.tsx(192,46): error TS2339: Property 'pickupEnabled' does not exist on type '{}'.
+  • client/src/components/admin/online-ordering.tsx(196,46): error TS2339: Property 'onlinePaymentEnabled' does not exist on type '{}'.
+  • client/src/components/admin/online-ordering.tsx(203,64): error TS2339: Property 'minPrepTime' does not exist on type '{}'.
+  • client/src/components/admin/online-ordering.tsx(207,64): error TS2339: Property 'minDeliveryTime' does not exist on type '{}'.
+  • client/src/components/admin/online-ordering.tsx(213,74): error TS2339: Property 'deliveryFee' does not exist on type '{}'.
+  • client/src/components/admin/online-ordering.tsx(218,74): error TS2339: Property 'minDeliveryAmount' does not exist on type '{}'.
+  • client/src/components/admin/permissions-management-improved.tsx(204,9): error TS7053: Element implicitly has an 'any' type because expression of type 'keyof UserFormData' can't be used to index type 'FormErrors'.
+  • client/src/components/admin/real-time-updates.tsx(278,20): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ order: string[]; reservation: string[]; payment: string[]; customer: string[]; system: string[]; }'.
+  • client/src/components/admin/settings.tsx(107,31): error TS2339: Property 'reservationSettings' does not exist on type '{}'.
+  • client/src/components/admin/settings.tsx(111,31): error TS2339: Property 'notificationSettings' does not exist on type '{}'.
+  • client/src/components/admin/settings.tsx(115,31): error TS2339: Property 'openingHours' does not exist on type '{}'.
+  • client/src/components/admin/statistics-enhanced.tsx(132,28): error TS2339: Property 'ok' does not exist on type '{}'.
+  • client/src/components/admin/statistics-enhanced.tsx(133,44): error TS2339: Property 'json' does not exist on type '{}'.
+  • client/src/components/admin/statistics-enhanced.tsx(139,29): error TS2339: Property 'ok' does not exist on type '{}'.
+  • client/src/components/admin/statistics-enhanced.tsx(140,45): error TS2339: Property 'json' does not exist on type '{}'.
+  • client/src/components/admin/statistics-enhanced.tsx(146,29): error TS2339: Property 'ok' does not exist on type '{}'.
+  • client/src/components/admin/statistics-enhanced.tsx(147,45): error TS2339: Property 'json' does not exist on type '{}'.
+  • client/src/components/admin/statistics-enhanced.tsx(153,33): error TS2339: Property 'ok' does not exist on type '{}'.
+  • client/src/components/admin/statistics-enhanced.tsx(154,49): error TS2339: Property 'json' does not exist on type '{}'.
+  • client/src/components/admin/statistics-enhanced.tsx(160,27): error TS2339: Property 'ok' does not exist on type '{}'.
+  • client/src/components/admin/statistics-enhanced.tsx(161,43): error TS2339: Property 'json' does not exist on type '{}'.
+  • client/src/components/admin/statistics-enhanced.tsx(167,26): error TS2339: Property 'ok' does not exist on type '{}'.
+  • client/src/components/admin/statistics-enhanced.tsx(168,42): error TS2339: Property 'json' does not exist on type '{}'.
+  • client/src/components/admin/statistics/StatisticsEnhanced.tsx(60,18): error TS2304: Cannot find name 'CustomerAcquisition'.
+  • client/src/components/admin/statistics/StatisticsEnhanced.tsx(61,16): error TS2304: Cannot find name 'RetentionData'.
+  • client/src/components/admin/statistics/StatisticsEnhanced.tsx(62,19): error TS2304: Cannot find name 'Demographics'.
+  • client/src/components/admin/statistics/StatisticsEnhanced.tsx(63,19): error TS2304: Cannot find name 'SatisfactionData'.
+  • client/src/components/admin/statistics/StatisticsEnhanced.tsx(67,17): error TS2304: Cannot find name 'CategoryStats'.
+  • client/src/components/admin/statistics/StatisticsEnhanced.tsx(68,16): error TS2304: Cannot find name 'InventoryStats'.
+  • client/src/components/admin/statistics/StatisticsEnhanced.tsx(69,20): error TS2304: Cannot find name 'ProfitabilityData'.
+  • client/src/components/admin/statistics/StatisticsEnhanced.tsx(72,16): error TS2304: Cannot find name 'HourlyData'.
+  • client/src/components/admin/statistics/StatisticsEnhanced.tsx(73,23): error TS2552: Cannot find name 'StaffPerformance'. Did you mean 'Performance'?
+  • client/src/components/admin/statistics/StatisticsEnhanced.tsx(74,17): error TS2304: Cannot find name 'EfficiencyMetrics'.
+  • client/src/components/admin/statistics/StatisticsEnhanced.tsx(330,22): error TS2304: Cannot find name 'Legend'.
+  • client/src/components/admin/table-management.tsx(142,82): error TS2353: Object literal may only specify known properties, and 'data' does not exist in type 'RequestInit'.
+  • client/src/components/admin/table-management.tsx(150,98): error TS2353: Object literal may only specify known properties, and 'data' does not exist in type 'RequestInit'.
+  • client/src/components/admin/table-management.tsx(158,104): error TS2353: Object literal may only specify known properties, and 'data' does not exist in type 'RequestInit'.
+  • client/src/components/admin/table-management.tsx(185,26): error TS18046: 'tables' is of type 'unknown'.
+  • client/src/components/admin/table-management.tsx(372,20): error TS18046: 'tables' is of type 'unknown'.
+  • client/src/components/admin/table-management.tsx(386,20): error TS18046: 'tables' is of type 'unknown'.
+  • client/src/components/admin/table-management.tsx(400,20): error TS18046: 'tables' is of type 'unknown'.
+  • client/src/components/admin/table-management.tsx(413,68): error TS2339: Property 'rate' does not exist on type '{}'.
+  • client/src/components/admin/user-profile-enhanced.tsx(60,8): error TS1192: Module '"/home/runner/workspace/node_modules/qrcode.react/lib/index"' has no default export.
+  • client/src/components/admin/user-profile-enhanced.tsx(196,14): error TS18046: 'response' is of type 'unknown'.
+  • client/src/components/admin/user-profile-enhanced.tsx(242,14): error TS18046: 'response' is of type 'unknown'.
+  • client/src/components/admin/user-profile-enhanced.tsx(260,14): error TS18046: 'response' is of type 'unknown'.
+  • client/src/components/admin/user-profile-enhanced.tsx(278,14): error TS18046: 'response' is of type 'unknown'.
+  • client/src/components/admin/user-profile-enhanced.tsx(401,27): error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'Omit<Address, "id">'.
+  • client/src/components/admin/user-profile-enhanced.tsx(407,5): error TS2353: Object literal may only specify known properties, and 'content' does not exist in type 'UseReactToPrintOptions'.
+  • client/src/components/admin/user-profile.tsx(161,105): error TS2353: Object literal may only specify known properties, and 'data' does not exist in type 'RequestInit'.
+  • client/src/components/admin/user-profile.tsx(169,124): error TS2353: Object literal may only specify known properties, and 'data' does not exist in type 'RequestInit'.
+  • client/src/components/admin/user-profile.tsx(217,10): error TS18046: 'users' is of type 'unknown'.
+  • client/src/components/admin/user-profile/UserProfileEnhanced.tsx(201,23): error TS2554: Expected 1 arguments, but got 0.
+  • client/src/components/admin/user-profile/UserProfileEnhanced.tsx(275,11): error TS2339: Property 'success' does not exist on type '({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }'.
+  • client/src/components/admin/user-profile/UserProfileEnhanced.tsx(321,5): error TS2353: Object literal may only specify known properties, and 'content' does not exist in type 'UseReactToPrintOptions'.
+  • client/src/components/admin/user-profile/UserProfileEnhanced.tsx(398,12): error TS2774: This condition will always return true since this function is always defined. Did you mean to call it instead?
+  • client/src/components/admin/user-profile/UserProfileEnhanced.tsx(509,22): error TS2774: This condition will always return true since this function is always defined. Did you mean to call it instead?
+  • client/src/components/admin/work-schedule.tsx(6,11): error TS2339: Property 'userRole' does not exist on type '{ permissions: PermissionsMap; isLoading: boolean; hasPermission: (module: string, action: PermissionAction) => boolean; can: (module: string, action: PermissionAction) => boolean; ... 8 more ...; isEmployee: boolean; }'.
+  • client/src/components/admin/work-schedule.tsx(6,24): error TS2554: Expected 1 arguments, but got 0.
+  • client/src/components/admin/work-schedule/WorkSchedule.tsx(63,5): error TS2339: Property 'selectedEmployeeData' does not exist on type '{ selectedShift: Shift | null; selectedEmployee: Employee | null; selectedDate: string; viewMode: ViewMode; timePeriod: TimePeriod; filters: ScheduleFilter; ... 24 more ...; setIsEditingShift: Dispatch<...>; }'.
+  • client/src/components/admin/work-schedule/WorkSchedule.tsx(64,5): error TS2339: Property 'viewModeState' does not exist on type '{ selectedShift: Shift | null; selectedEmployee: Employee | null; selectedDate: string; viewMode: ViewMode; timePeriod: TimePeriod; filters: ScheduleFilter; ... 24 more ...; setIsEditingShift: Dispatch<...>; }'.
+  • client/src/components/admin/work-schedule/WorkSchedule.tsx(90,55): error TS2339: Property 'conflicts' does not exist on type '{ isValid: boolean; errors: string[]; } | { isValid: boolean; conflicts: never[]; warnings: string[]; suggestions: never[]; }'.
+  • client/src/components/admin/work-schedule/components/AnalyticsView.tsx(81,12): error TS18048: 'currentReport' is possibly 'undefined'.
+  • client/src/components/admin/work-schedule/components/CalendarView.tsx(56,7): error TS2532: Object is possibly 'undefined'.
+  • client/src/components/admin/work-schedule/components/CalendarView.tsx(64,30): error TS2769: No overload matches this call.
+  • client/src/components/admin/work-schedule/components/CalendarView.tsx(83,27): error TS2769: No overload matches this call.
+  • client/src/components/admin/work-schedule/components/CalendarView.tsx(95,36): error TS2769: No overload matches this call.
+  • client/src/components/admin/work-schedule/components/CalendarView.tsx(96,34): error TS2769: No overload matches this call.
+  • client/src/components/admin/work-schedule/components/CalendarView.tsx(108,25): error TS7053: Element implicitly has an 'any' type because expression of type 'ShiftStatus' can't be used to index type '{ readonly scheduled: "bg-blue-100 text-blue-800 border-blue-200"; readonly confirmed: "bg-green-100 text-green-800 border-green-200"; readonly in_progress: "bg-yellow-100 text-yellow-800 border-yellow-200"; readonly completed: "bg-gray-100 text-gray-800 border-gray-200"; readonly cancelled: "bg-red-100 text-red-800...'.
+  • client/src/components/admin/work-schedule/components/CalendarView.tsx(306,36): error TS2538: Type 'undefined' cannot be used as an index type.
+  • client/src/components/admin/work-schedule/components/CalendarView.tsx(320,38): error TS2538: Type 'Date' cannot be used as an index type.
+  • client/src/components/admin/work-schedule/components/CalendarView.tsx(320,38): error TS2538: Type 'undefined' cannot be used as an index type.
+  • client/src/components/admin/work-schedule/components/EmployeeOverview.tsx(75,48): error TS2339: Property 'id' does not exist on type '{ value: string; label: string; }'.
+  • client/src/components/admin/work-schedule/components/EmployeeOverview.tsx(76,44): error TS2339: Property 'id' does not exist on type '{ value: string; label: string; }'.
+  • client/src/components/admin/work-schedule/components/EmployeeOverview.tsx(106,36): error TS2339: Property 'name' does not exist on type '{ value: string; label: string; }'.
+  • client/src/components/admin/work-schedule/components/EmployeeOverview.tsx(146,55): error TS2339: Property 'color' does not exist on type '{ value: string; label: string; }'.
+  • client/src/components/admin/work-schedule/components/EmployeeOverview.tsx(148,34): error TS2339: Property 'name' does not exist on type '{ value: string; label: string; }'.
+  • client/src/components/admin/work-schedule/components/EmployeeOverview.tsx(278,14): error TS2304: Cannot find name 'Users'.
+  • client/src/components/admin/work-schedule/components/ShiftListView.tsx(143,48): error TS2339: Property 'id' does not exist on type '{ value: string; label: string; }'.
+  • client/src/components/admin/work-schedule/components/ShiftListView.tsx(144,44): error TS2339: Property 'id' does not exist on type '{ value: string; label: string; }'.
+  • client/src/components/admin/work-schedule/components/ShiftListView.tsx(196,36): error TS2339: Property 'name' does not exist on type '{ value: string; label: string; }'.
+  • client/src/components/admin/work-schedule/components/ShiftListView.tsx(205,59): error TS2339: Property 'color' does not exist on type '{ value: string; label: string; }'.
+  • client/src/components/admin/work-schedule/components/ShiftListView.tsx(207,38): error TS2339: Property 'name' does not exist on type '{ value: string; label: string; }'.
+  • client/src/components/admin/work-schedule/components/ShiftListView.tsx(345,60): error TS2339: Property 'id' does not exist on type '{ value: string; label: string; }'.
+  • client/src/components/admin/work-schedule/components/ShiftListView.tsx(346,56): error TS2339: Property 'id' does not exist on type '{ value: string; label: string; }'.
+  • client/src/components/admin/work-schedule/components/ShiftListView.tsx(384,42): error TS2339: Property 'name' does not exist on type '{ value: string; label: string; }'.
+  • client/src/components/admin/work-schedule/components/ShiftListView.tsx(392,65): error TS2339: Property 'color' does not exist on type '{ value: string; label: string; }'.
+  • client/src/components/admin/work-schedule/components/ShiftListView.tsx(394,44): error TS2339: Property 'name' does not exist on type '{ value: string; label: string; }'.
+  • client/src/components/admin/work-schedule/components/StatCard.tsx(84,12): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ blue: { bg: string; border: string; icon: string; value: string; }; green: { bg: string; border: string; icon: string; value: string; }; yellow: { bg: string; border: string; icon: string; value: string; }; red: { ...; }; purple: { ...; }; }'.
+  • client/src/components/admin/work-schedule/hooks/useScheduleData.ts(21,14): error TS18046: 'response' is of type 'unknown'.
+  • client/src/components/admin/work-schedule/hooks/useScheduleData.ts(35,14): error TS18046: 'response' is of type 'unknown'.
+  • client/src/components/admin/work-schedule/hooks/useScheduleData.ts(44,14): error TS18046: 'response' is of type 'unknown'.
+  • client/src/components/admin/work-schedule/hooks/useScheduleData.ts(52,53): error TS2554: Expected 2 arguments, but got 4.
+  • client/src/components/admin/work-schedule/hooks/useScheduleData.ts(62,14): error TS18046: 'response' is of type 'unknown'.
+  • client/src/components/admin/work-schedule/hooks/useScheduleData.ts(87,14): error TS18046: 'response' is of type 'unknown'.
+  • client/src/components/admin/work-schedule/hooks/useScheduleData.ts(111,14): error TS18046: 'response' is of type 'unknown'.
+  • client/src/components/admin/work-schedule/hooks/useScheduleData.ts(136,14): error TS18046: 'response' is of type 'unknown'.
+  • client/src/components/admin/work-schedule/hooks/useShiftManagement.ts(77,57): error TS2554: Expected 1-2 arguments, but got 3.
+  • client/src/components/admin/work-schedule/hooks/useShiftManagement.ts(84,50): error TS2339: Property 'overtimeHours' does not exist on type 'Shift'.
+  • client/src/components/admin/work-schedule/hooks/useShiftManagement.ts(87,48): error TS2554: Expected 1-2 arguments, but got 3.
+  • client/src/components/admin/work-schedule/hooks/useShiftManagement.ts(122,55): error TS2554: Expected 1-2 arguments, but got 3.
+  • client/src/components/admin/work-schedule/hooks/useShiftManagement.ts(124,41): error TS2339: Property 'conflicts' does not exist on type '{ isValid: boolean; errors: string[]; }'.
+  • client/src/components/admin/work-schedule/hooks/useShiftManagement.ts(233,45): error TS2554: Expected 1-2 arguments, but got 3.
+  • client/src/components/admin/work-schedule/hooks/useShiftManagement.ts(258,74): error TS2339: Property 'totalHours' does not exist on type 'Shift'.
+  • client/src/components/admin/work-schedule/hooks/useShiftManagement.ts(259,72): error TS2339: Property 'totalPay' does not exist on type 'Shift'.
+  • client/src/components/admin/work-schedule/hooks/useShiftManagement.ts(262,58): error TS2339: Property 'overtimeHours' does not exist on type 'Shift'.
+  • client/src/components/admin/work-schedule/hooks/useShiftManagement.ts(300,7): error TS2532: Object is possibly 'undefined'.
+  • client/src/components/admin/work-schedule/utils/schedule.utils.ts(250,23): error TS18048: 'employee' is possibly 'undefined'.
+  • client/src/components/admin/work-schedule/utils/schedule.utils.ts(251,28): error TS18048: 'employee' is possibly 'undefined'.
+  • client/src/components/admin/work-schedule/utils/schedule.utils.ts(251,50): error TS18048: 'employee' is possibly 'undefined'.
+  • client/src/components/admin/work-schedule/utils/schedule.utils.ts(255,21): error TS18048: 'employee' is possibly 'undefined'.
+  • client/src/components/admin/work-schedule/utils/schedule.utils.ts(256,23): error TS18048: 'employee' is possibly 'undefined'.
+  • client/src/components/admin/work-schedule/utils/schedule.utils.ts(308,10): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ service: string; kitchen: string; management: string; cleaning: string; security: string; }'.
+  • client/src/components/admin/work-schedule/utils/schedule.utils.ts(320,10): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ barista: string; server: string; chef: string; manager: string; cashier: string; cleaner: string; }'.
+  • client/src/components/advanced-loyalty.tsx(166,55): error TS2339: Property 'totalMembers' does not exist on type '{}'.
+  • client/src/components/advanced-loyalty.tsx(173,55): error TS2339: Property 'totalPointsAwarded' does not exist on type '{}'.
+  • client/src/components/advanced-loyalty.tsx(180,55): error TS2339: Property 'rewardsRedeemed' does not exist on type '{}'.
+  • client/src/components/advanced-loyalty.tsx(187,55): error TS2339: Property 'engagementRate' does not exist on type '{}'.
+  • client/src/components/auth/AuthProvider.tsx(42,45): error TS2339: Property 'isTokenExpiringSoon' does not exist on type 'typeof AuthTokenManager'.
+  • client/src/components/auth/AuthProvider.tsx(50,31): error TS2339: Property 'isTokenValid' does not exist on type 'typeof AuthTokenManager'.
+  • client/src/components/auth/AuthProvider.tsx(68,51): error TS2339: Property 'isTokenValid' does not exist on type 'typeof AuthTokenManager'.
+  • client/src/components/auth/AuthProvider.tsx(135,9): error TS2353: Object literal may only specify known properties, and 'error' does not exist in type 'LoginResponse'.
+  • client/src/components/dashboard-main.tsx(105,69): error TS2339: Property 'count' does not exist on type '{}'.
+  • client/src/components/dashboard-main.tsx(120,64): error TS2339: Property 'count' does not exist on type '{}'.
+  • client/src/components/dashboard-main.tsx(135,66): error TS2339: Property 'revenue' does not exist on type '{}'.
+  • client/src/components/dashboard-main.tsx(150,65): error TS2339: Property 'rate' does not exist on type '{}'.
+  • client/src/components/dashboard-main.tsx(170,26): error TS2740: Type '{}' is missing the following properties from type 'any[]': length, pop, push, concat, and 29 more.
+  • client/src/components/dashboard-main.tsx(199,19): error TS2740: Type '{}' is missing the following properties from type 'any[]': length, pop, push, concat, and 29 more.
+  • client/src/components/dashboard-main.tsx(199,36): error TS2339: Property 'length' does not exist on type '{}'.
+  • client/src/components/dashboard-main.tsx(209,32): error TS2339: Property 'length' does not exist on type '{}'.
+  • client/src/components/dashboard-main.tsx(209,115): error TS2339: Property 'map' does not exist on type '{}'.
+  • client/src/components/dashboard-main.tsx(217,27): error TS2339: Property 'length' does not exist on type '{}'.
+  • client/src/components/dashboard-main.tsx(217,51): error TS2339: Property 'map' does not exist on type '{}'.
+  • client/src/components/dashboard-stats.tsx(41,14): error TS18046: 'todayReservations' is of type 'unknown'.
+  • client/src/components/dashboard-stats.tsx(48,14): error TS18046: 'ordersByStatus' is of type 'unknown'.
+  • client/src/components/dashboard-stats.tsx(55,14): error TS18046: 'customers' is of type 'unknown'.
+  • client/src/components/dashboard-stats.tsx(62,28): error TS18046: 'occupancyRate' is of type 'unknown'.
+  • client/src/components/dashboard-stats.tsx(104,27): error TS2339: Property 'slice' does not exist on type '{}'.
+  • client/src/components/dashboard-stats.tsx(128,32): error TS2339: Property 'map' does not exist on type '{}'.
+  • client/src/components/delivery-tracking.tsx(111,10): error TS18046: 'deliveries' is of type 'unknown'.
+  • client/src/components/delivery-tracking.tsx(213,8): error TS18046: 'deliveries' is of type 'unknown'.
+  • client/src/components/home-menu-preview.tsx(16,35): error TS2339: Property 'items' does not exist on type '{}'.
+  • client/src/components/interactive-reservation.tsx(59,54): error TS2554: Expected 1-2 arguments, but got 3.
+  • client/src/components/interactive-reservation.tsx(88,7): error TS2353: Object literal may only specify known properties, and 'specialRequests' does not exist in type 'AsyncDefaultValues<{ date: string; time: string; partySize: number; guests: number; customerName: string; customerEmail: string; customerPhone: string; id?: number | undefined; createdAt?: Date | undefined; customerId?: number | ... 1 more ... | undefined; tableId?: number | ... 1 more ... | undefined; status?: stri...'.
+  • client/src/components/menu-page.tsx(52,42): error TS2339: Property 'categories' does not exist on type '{}'.
+  • client/src/components/menu-page.tsx(53,36): error TS2339: Property 'items' does not exist on type '{}'.
+  • client/src/components/online-ordering.tsx(131,7): error TS2532: Object is possibly 'undefined'.
+  • client/src/components/reservation-notifications.tsx(66,89): error TS2554: Expected 1-2 arguments, but got 3.
+  • client/src/components/reservation-notifications.tsx(75,9): error TS18046: 'newReservations' is of type 'unknown'.
+  • client/src/components/reservation-notifications.tsx(88,19): error TS18046: 'newReservations' is of type 'unknown'.
+  • client/src/components/reservation-notifications.tsx(92,7): error TS18046: 'newReservations' is of type 'unknown'.
+  • client/src/components/reservation-notifications.tsx(132,12): error TS18046: 'reservations' is of type 'unknown'.
+  • client/src/components/reservation-notifications.tsx(142,32): error TS18046: 'newReservations' is of type 'unknown'.
+  • client/src/components/reservation.tsx(53,7): error TS2353: Object literal may only specify known properties, and 'guests' does not exist in type 'AsyncDefaultValues<{ date: string; time: string; partySize: number; id?: number | undefined; createdAt?: Date | undefined; customerId?: number | null | undefined; tableId?: number | null | undefined; status?: string | undefined; notes?: string | ... 1 more ... | undefined; }> | { ...; }'.
+  • client/src/components/reservation.tsx(59,47): error TS2554: Expected 1-2 arguments, but got 3.
+  • client/src/components/reservation.tsx(189,25): error TS2339: Property 'guests' does not exist on type 'FieldErrors<{ date: string; time: string; partySize: number; id?: number | undefined; createdAt?: Date | undefined; customerId?: number | null | undefined; tableId?: number | null | undefined; status?: string | undefined; notes?: string | ... 1 more ... | undefined; }>'.
+  • client/src/components/reservation.tsx(190,68): error TS2339: Property 'guests' does not exist on type 'FieldErrors<{ date: string; time: string; partySize: number; id?: number | undefined; createdAt?: Date | undefined; customerId?: number | null | undefined; tableId?: number | null | undefined; status?: string | undefined; notes?: string | ... 1 more ... | undefined; }>'.
+  • client/src/components/reservation.tsx(205,27): error TS2339: Property 'customerName' does not exist on type 'FieldErrors<{ date: string; time: string; partySize: number; id?: number | undefined; createdAt?: Date | undefined; customerId?: number | null | undefined; tableId?: number | null | undefined; status?: string | undefined; notes?: string | ... 1 more ... | undefined; }>'.
+  • client/src/components/reservation.tsx(206,70): error TS2339: Property 'customerName' does not exist on type 'FieldErrors<{ date: string; time: string; partySize: number; id?: number | undefined; createdAt?: Date | undefined; customerId?: number | null | undefined; tableId?: number | null | undefined; status?: string | undefined; notes?: string | ... 1 more ... | undefined; }>'.
+  • client/src/components/reservation.tsx(220,27): error TS2551: Property 'customerEmail' does not exist on type 'FieldErrors<{ date: string; time: string; partySize: number; id?: number | undefined; createdAt?: Date | undefined; customerId?: number | null | undefined; tableId?: number | null | undefined; status?: string | undefined; notes?: string | ... 1 more ... | undefined; }>'. Did you mean 'customerId'?
+  • client/src/components/reservation.tsx(221,70): error TS2551: Property 'customerEmail' does not exist on type 'FieldErrors<{ date: string; time: string; partySize: number; id?: number | undefined; createdAt?: Date | undefined; customerId?: number | null | undefined; tableId?: number | null | undefined; status?: string | undefined; notes?: string | ... 1 more ... | undefined; }>'. Did you mean 'customerId'?
+  • client/src/components/reservation.tsx(237,25): error TS2339: Property 'customerPhone' does not exist on type 'FieldErrors<{ date: string; time: string; partySize: number; id?: number | undefined; createdAt?: Date | undefined; customerId?: number | null | undefined; tableId?: number | null | undefined; status?: string | undefined; notes?: string | ... 1 more ... | undefined; }>'.
+  • client/src/components/reservation.tsx(238,68): error TS2339: Property 'customerPhone' does not exist on type 'FieldErrors<{ date: string; time: string; partySize: number; id?: number | undefined; createdAt?: Date | undefined; customerId?: number | null | undefined; tableId?: number | null | undefined; status?: string | undefined; notes?: string | ... 1 more ... | undefined; }>'.
+  • client/src/components/ui/input-otp.tsx(36,11): error TS2339: Property 'char' does not exist on type 'SlotProps | undefined'.
+  • client/src/components/ui/input-otp.tsx(36,17): error TS2339: Property 'hasFakeCaret' does not exist on type 'SlotProps | undefined'.
+  • client/src/components/ui/input-otp.tsx(36,31): error TS2339: Property 'isActive' does not exist on type 'SlotProps | undefined'.
+  • client/src/components/ui/international-phone-input.tsx(57,43): error TS18048: 'country' is possibly 'undefined'.
+  • client/src/components/ui/international-phone-input.tsx(57,78): error TS18048: 'country' is possibly 'undefined'.
+  • client/src/components/ui/international-phone-input.tsx(67,43): error TS18048: 'selectedCountry' is possibly 'undefined'.
+  • client/src/components/ui/international-phone-input.tsx(67,86): error TS18048: 'selectedCountry' is possibly 'undefined'.
+  • client/src/components/ui/international-phone-input.tsx(75,15): error TS18048: 'selectedCountry' is possibly 'undefined'.
+  • client/src/components/ui/international-phone-input.tsx(88,24): error TS18048: 'selectedCountry' is possibly 'undefined'.
+  • client/src/components/ui/international-phone-input.tsx(92,24): error TS18048: 'selectedCountry' is possibly 'undefined'.
+  • client/src/components/ui/international-phone-input.tsx(93,44): error TS18048: 'selectedCountry' is possibly 'undefined'.
+  • client/src/components/ui/international-phone-input.tsx(115,39): error TS18048: 'selectedCountry' is possibly 'undefined'.
+  • client/src/hooks/useAuth.ts(28,53): error TS2339: Property 'isTokenValid' does not exist on type 'typeof AuthTokenManager'.
+  • client/src/hooks/useAuth.ts(56,33): error TS18046: 'response' is of type 'unknown'.
+  • client/src/hooks/useAuth.ts(57,51): error TS18046: 'response' is of type 'unknown'.
+  • client/src/hooks/useAuth.ts(60,16): error TS18046: 'response' is of type 'unknown'.
+  • client/src/hooks/useAuth.ts(61,15): error TS18046: 'response' is of type 'unknown'.
+  • client/src/hooks/useAuth.ts(66,37): error TS18046: 'response' is of type 'unknown'.
+  • client/src/hooks/usePermissionGuard.ts(28,36): error TS2352: Conversion of type 'null' to type 'ReactElement<any, string | JSXElementConstructor<any>>' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  • client/src/hooks/useUsers.ts(67,14): error TS18046: 'response' is of type 'unknown'.
+  • client/src/hooks/useUsers.ts(79,16): error TS18046: 'response' is of type 'unknown'.
+  • client/src/hooks/useUsers.ts(93,14): error TS18046: 'response' is of type 'unknown'.
+  • client/src/hooks/useUsers.ts(113,14): error TS18046: 'response' is of type 'unknown'.
+  • client/src/hooks/useUsers.ts(134,14): error TS18046: 'response' is of type 'unknown'.
+  • client/src/hooks/useUsers.ts(154,14): error TS18046: 'response' is of type 'unknown'.
+  • client/src/hooks/useUsers.ts(172,14): error TS18046: 'response' is of type 'unknown'.
+  • client/src/pages/AdminFinal.tsx(80,39): error TS2769: No overload matches this call.
+  • client/src/pages/AdminFinal.tsx(489,12): error TS2739: Type '{}' is missing the following properties from type 'CustomersProps': userRole, user
+  • client/src/pages/reservation-with-cart.tsx(77,7): error TS2353: Object literal may only specify known properties, and 'customerName' does not exist in type 'AsyncDefaultValues<{ date: string; time: string; partySize: number; id?: number | undefined; createdAt?: Date | undefined; customerId?: number | null | undefined; tableId?: number | null | undefined; status?: string | undefined; notes?: string | ... 1 more ... | undefined; }> | { ...; }'.
+  • client/src/pages/reservation-with-cart.tsx(91,38): error TS2559: Type '"/api/menu/categories"' has no properties in common with type 'RequestInit'.
+  • client/src/pages/reservation-with-cart.tsx(97,38): error TS2559: Type '"/api/menu/items"' has no properties in common with type 'RequestInit'.
+  • client/src/pages/reservation-with-cart.tsx(354,31): error TS2339: Property 'customerName' does not exist on type 'FieldErrors<{ date: string; time: string; partySize: number; id?: number | undefined; createdAt?: Date | undefined; customerId?: number | null | undefined; tableId?: number | null | undefined; status?: string | undefined; notes?: string | ... 1 more ... | undefined; }>'.
+  • client/src/pages/reservation-with-cart.tsx(356,35): error TS2339: Property 'customerName' does not exist on type 'FieldErrors<{ date: string; time: string; partySize: number; id?: number | undefined; createdAt?: Date | undefined; customerId?: number | null | undefined; tableId?: number | null | undefined; status?: string | undefined; notes?: string | ... 1 more ... | undefined; }>'.
+  • client/src/pages/reservation-with-cart.tsx(369,31): error TS2551: Property 'customerEmail' does not exist on type 'FieldErrors<{ date: string; time: string; partySize: number; id?: number | undefined; createdAt?: Date | undefined; customerId?: number | null | undefined; tableId?: number | null | undefined; status?: string | undefined; notes?: string | ... 1 more ... | undefined; }>'. Did you mean 'customerId'?
+  • client/src/pages/reservation-with-cart.tsx(371,35): error TS2551: Property 'customerEmail' does not exist on type 'FieldErrors<{ date: string; time: string; partySize: number; id?: number | undefined; createdAt?: Date | undefined; customerId?: number | null | undefined; tableId?: number | null | undefined; status?: string | undefined; notes?: string | ... 1 more ... | undefined; }>'. Did you mean 'customerId'?
+  • client/src/pages/reservation-with-cart.tsx(384,31): error TS2339: Property 'customerPhone' does not exist on type 'FieldErrors<{ date: string; time: string; partySize: number; id?: number | undefined; createdAt?: Date | undefined; customerId?: number | null | undefined; tableId?: number | null | undefined; status?: string | undefined; notes?: string | ... 1 more ... | undefined; }>'.
+  • client/src/pages/reservation-with-cart.tsx(386,35): error TS2339: Property 'customerPhone' does not exist on type 'FieldErrors<{ date: string; time: string; partySize: number; id?: number | undefined; createdAt?: Date | undefined; customerId?: number | null | undefined; tableId?: number | null | undefined; status?: string | undefined; notes?: string | ... 1 more ... | undefined; }>'.
+  • client/src/pages/reservation-with-cart.tsx(440,31): error TS2339: Property 'guests' does not exist on type 'FieldErrors<{ date: string; time: string; partySize: number; id?: number | undefined; createdAt?: Date | undefined; customerId?: number | null | undefined; tableId?: number | null | undefined; status?: string | undefined; notes?: string | ... 1 more ... | undefined; }>'.
+  • client/src/pages/reservation-with-cart.tsx(442,35): error TS2339: Property 'guests' does not exist on type 'FieldErrors<{ date: string; time: string; partySize: number; id?: number | undefined; createdAt?: Date | undefined; customerId?: number | null | undefined; tableId?: number | null | undefined; status?: string | undefined; notes?: string | ... 1 more ... | undefined; }>'.
+  • scripts/init-database.ts(51,105): error TS2532: Object is possibly 'undefined'.
+  • scripts/init-database.ts(52,110): error TS2532: Object is possibly 'undefined'.
+  • scripts/init-database.ts(53,95): error TS2532: Object is possibly 'undefined'.
+  • scripts/init-database.ts(54,94): error TS2532: Object is possibly 'undefined'.
+  • scripts/init-database.ts(57,102): error TS2532: Object is possibly 'undefined'.
+  • scripts/init-database.ts(58,101): error TS2532: Object is possibly 'undefined'.
+  • scripts/init-database.ts(59,104): error TS2532: Object is possibly 'undefined'.
+  • scripts/init-database.ts(62,113): error TS2532: Object is possibly 'undefined'.
+  • scripts/init-database.ts(63,108): error TS2532: Object is possibly 'undefined'.
+  • scripts/init-database.ts(64,108): error TS2532: Object is possibly 'undefined'.
+  • scripts/init-database.ts(67,105): error TS2532: Object is possibly 'undefined'.
+  • scripts/init-database.ts(68,103): error TS2532: Object is possibly 'undefined'.
+  • scripts/init-database.ts(83,16): error TS18048: 'admin' is possibly 'undefined'.
+  • scripts/migrate-images.ts(6,10): error TS2305: Module '"../client/src/lib/image-mapping"' has no exported member 'IMAGE_MAPPING'.
+  • scripts/populate-database.ts(62,21): error TS2532: Object is possibly 'undefined'.
+  • scripts/populate-database.ts(71,21): error TS2532: Object is possibly 'undefined'.
+  • scripts/populate-database.ts(80,21): error TS2532: Object is possibly 'undefined'.
+  • scripts/populate-database.ts(89,21): error TS2532: Object is possibly 'undefined'.
+  • scripts/populate-database.ts(99,71): error TS2769: No overload matches this call.
+  • scripts/populate-database.ts(106,21): error TS2532: Object is possibly 'undefined'.
+  • scripts/populate-database.ts(115,21): error TS2532: Object is possibly 'undefined'.
+  • scripts/populate-database.ts(124,21): error TS2532: Object is possibly 'undefined'.
+  • scripts/populate-database.ts(150,18): error TS2532: Object is possibly 'undefined'.
+  • scripts/populate-database.ts(151,18): error TS2532: Object is possibly 'undefined'.
+  • scripts/populate-database.ts(152,18): error TS2532: Object is possibly 'undefined'.
+  • scripts/populate-database.ts(155,18): error TS2532: Object is possibly 'undefined'.
+  • scripts/populate-database.ts(156,18): error TS2532: Object is possibly 'undefined'.
+  • scripts/populate-database.ts(159,18): error TS2532: Object is possibly 'undefined'.
+  • scripts/populate-database.ts(160,18): error TS2532: Object is possibly 'undefined'.
+  • scripts/populate-database.ts(161,18): error TS2532: Object is possibly 'undefined'.
+  • scripts/populate-database.ts(162,18): error TS2532: Object is possibly 'undefined'.
+  • scripts/populate-database.ts(165,18): error TS2532: Object is possibly 'undefined'.
+  • scripts/populate-database.ts(166,18): error TS2532: Object is possibly 'undefined'.
+  • scripts/populate-rich-menu.ts(158,25): error TS18048: 'insertedItem' is possibly 'undefined'.
+  • scripts/populate-rich-menu.ts(189,17): error TS2339: Property 'main' does not exist on type 'ImportMeta'.
+  • scripts/seed.ts(4,50): error TS2724: '"../shared/schema"' has no exported member named 'reservationItems'. Did you mean 'reservations'?
+  • scripts/seed.ts(158,47): error TS18046: 'error' is of type 'unknown'.
+  • scripts/seed.ts(209,43): error TS18046: 'error' is of type 'unknown'.
+  • scripts/seed.ts(268,46): error TS18046: 'error' is of type 'unknown'.
+  • scripts/seed.ts(297,45): error TS18046: 'error' is of type 'unknown'.
+  • scripts/seed.ts(352,51): error TS18046: 'error' is of type 'unknown'.
+  • scripts/seed.ts(382,41): error TS18046: 'error' is of type 'unknown'.
+  • scripts/seed.ts(434,42): error TS18046: 'error' is of type 'unknown'.
+  • scripts/seed.ts(445,21): error TS2532: Object is possibly 'undefined'.
+  • scripts/seed.ts(451,21): error TS2532: Object is possibly 'undefined'.
+  • scripts/seed.ts(457,21): error TS2532: Object is possibly 'undefined'.
+  • scripts/seed.ts(469,51): error TS2532: Object is possibly 'undefined'.
+  • scripts/seed.ts(469,88): error TS2532: Object is possibly 'undefined'.
+  • scripts/seed.ts(470,51): error TS2532: Object is possibly 'undefined'.
+  • scripts/seed.ts(470,88): error TS2532: Object is possibly 'undefined'.
+  • scripts/seed.ts(473,51): error TS2532: Object is possibly 'undefined'.
+  • scripts/seed.ts(473,88): error TS2532: Object is possibly 'undefined'.
+  • scripts/seed.ts(474,51): error TS2532: Object is possibly 'undefined'.
+  • scripts/seed.ts(474,89): error TS2532: Object is possibly 'undefined'.
+  • scripts/seed.ts(477,51): error TS2532: Object is possibly 'undefined'.
+  • scripts/seed.ts(477,88): error TS2532: Object is possibly 'undefined'.
+  • scripts/seed.ts(478,51): error TS2532: Object is possibly 'undefined'.
+  • scripts/seed.ts(478,89): error TS2532: Object is possibly 'undefined'.
+  • scripts/seed.ts(479,51): error TS2532: Object is possibly 'undefined'.
+  • scripts/seed.ts(479,89): error TS2532: Object is possibly 'undefined'.
+  • scripts/seed.ts(506,23): error TS2532: Object is possibly 'undefined'.
+  • scripts/seed.ts(506,54): error TS2532: Object is possibly 'undefined'.
+  • scripts/seed.ts(507,24): error TS2532: Object is possibly 'undefined'.
+  • scripts/seed.ts(508,24): error TS2532: Object is possibly 'undefined'.
+  • scripts/seed.ts(512,18): error TS2532: Object is possibly 'undefined'.
+  • scripts/seed.ts(517,23): error TS2532: Object is possibly 'undefined'.
+  • scripts/seed.ts(517,54): error TS2532: Object is possibly 'undefined'.
+  • scripts/seed.ts(518,24): error TS2532: Object is possibly 'undefined'.
+  • scripts/seed.ts(519,24): error TS2532: Object is possibly 'undefined'.
+  • scripts/seed.ts(523,18): error TS2532: Object is possibly 'undefined'.
+  • scripts/seed.ts(541,47): error TS18046: 'error' is of type 'unknown'.
+  • scripts/update-menu-descriptions.ts(42,28): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ Espresso: string; Cappuccino: string; Latte: string; Americano: string; 'Th\u00E9 Earl Grey': string; 'Chocolat chaud': string; 'Th\u00E9 vert Sencha': string; Croissant: string; Muffin: string; Éclair: string; Quiche: string; Sandwich: string; }'.
+  • scripts/update-menu-descriptions.ts(107,17): error TS2339: Property 'main' does not exist on type 'ImportMeta'.
+  • server/ImageManager.ts(60,57): error TS2532: Object is possibly 'undefined'.
+  • server/ImageManager.ts(101,58): error TS2532: Object is possibly 'undefined'.
+  • server/ImageManager.ts(107,32): error TS2353: Object literal may only specify known properties, and 'updatedAt' does not exist in type '{ imageUrl?: string | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined; menuItemId?: number | SQL<...> | PgColumn<...> | undefined; ... 4 more ...; uploadMethod?: string | ... 2 more ... | undefined; }'.
+  • server/ImageManager.ts(148,52): error TS2532: Object is possibly 'undefined'.
+  • server/config/production.ts(113,9): error TS18048: 'allowed' is possibly 'undefined'.
+  • server/config/production.ts(114,22): error TS18048: 'allowed' is possibly 'undefined'.
+  • server/db.ts(90,37): error TS18046: 'error' is of type 'unknown'.
+  • server/index.ts(58,27): error TS2769: No overload matches this call.
+  • server/middleware/api-validator.ts(49,37): error TS7030: Not all code paths return a value.
+  • server/middleware/auth-clean.ts(7,34): error TS7030: Not all code paths return a value.
+  • server/middleware/auth-clean.ts(31,10): error TS7030: Not all code paths return a value.
+  • server/middleware/auth-clean.ts(41,10): error TS7030: Not all code paths return a value.
+  • server/middleware/cache-advanced.ts(286,38): error TS7030: Not all code paths return a value.
+  • server/middleware/database-middleware.ts(26,57): error TS18046: 'error' is of type 'unknown'.
+  • server/middleware/logger.ts(119,12): error TS2341: Property 'writeLog' is private and only accessible within class 'Logger'.
+  • server/middleware/logging.ts(50,10): error TS7030: Not all code paths return a value.
+  • server/middleware/metrics.ts(36,11): error TS2564: Property 'metrics' has no initializer and is not definitely assigned in the constructor.
+  • server/middleware/validation.ts(6,10): error TS7030: Not all code paths return a value.
+  • server/middleware/validation.ts(28,10): error TS7030: Not all code paths return a value.
+  • server/middleware/validation.ts(50,10): error TS7030: Not all code paths return a value.
+  • server/routes/advanced-features.ts(423,18): error TS2339: Property 'downloadUrl' does not exist on type '{ id: string; status: string; progress: number; estimatedTime: number; }'.
+  • server/routes/advanced-features.ts(424,18): error TS2339: Property 'filename' does not exist on type '{ id: string; status: string; progress: number; estimatedTime: number; }'.
+  • server/routes/advanced-features.ts(771,33): error TS2304: Cannot find name 'getModulesStatus'.
+  • server/routes/ai.routes.ts(199,35): error TS2339: Property 'length' does not exist on type '{ menu: { recommendations: string[]; pricingAdjustments: { item: string; currentPrice: number; suggestedPrice: number; reason: string; }[]; }; operations: { staffOptimization: string; inventoryManagement: string; wasteReduction: string; }; marketing: { ...; }; }'.
+  • server/routes/analytics.routes.ts(211,3): error TS7030: Not all code paths return a value.
+  • server/routes/analytics.ts(119,7): error TS2304: Cannot find name 'storage'.
+  • server/routes/analytics.ts(120,7): error TS2304: Cannot find name 'storage'.
+  • server/routes/analytics.ts(121,7): error TS2304: Cannot find name 'storage'.
+  • server/routes/analytics.ts(122,7): error TS2304: Cannot find name 'storage'.
+  • server/routes/analytics.ts(123,7): error TS2304: Cannot find name 'storage'.
+  • server/routes/analytics.ts(124,7): error TS2304: Cannot find name 'storage'.
+  • server/routes/analytics.ts(136,26): error TS2304: Cannot find name 'storage'.
+  • server/routes/analytics.ts(157,53): error TS18046: 'error' is of type 'unknown'.
+  • server/routes/analytics.ts(167,24): error TS2304: Cannot find name 'storage'.
+  • server/routes/analytics.ts(199,59): error TS18046: 'error' is of type 'unknown'.
+  • server/routes/analytics.ts(208,34): error TS2304: Cannot find name 'storage'.
+  • server/routes/analytics.ts(224,29): error TS2304: Cannot find name 'storage'.
+  • server/routes/analytics.ts(248,59): error TS18046: 'error' is of type 'unknown'.
+  • server/routes/analytics.ts(256,29): error TS2304: Cannot find name 'storage'.
+  • server/routes/analytics.ts(289,56): error TS18046: 'error' is of type 'unknown'.
+  • server/routes/analytics.ts(305,30): error TS2304: Cannot find name 'storage'.
+  • server/routes/analytics.ts(339,51): error TS18046: 'error' is of type 'unknown'.
+  • server/routes/analytics.ts(383,50): error TS18046: 'error' is of type 'unknown'.
+  • server/routes/analytics.ts(395,56): error TS18046: 'error' is of type 'unknown'.
+  • server/routes/analytics.ts(406,53): error TS18046: 'error' is of type 'unknown'.
+  • server/routes/analytics.ts(417,51): error TS18046: 'error' is of type 'unknown'.
+  • server/routes/analytics.ts(428,52): error TS18046: 'error' is of type 'unknown'.
+  • server/routes/database.routes.ts(32,14): error TS18046: 'error' is of type 'unknown'.
+  • server/routes/database.routes.ts(71,14): error TS18046: 'error' is of type 'unknown'.
+  • server/routes/database.routes.ts(110,14): error TS18046: 'error' is of type 'unknown'.
+  • server/routes/database.routes.ts(138,14): error TS18046: 'error' is of type 'unknown'.
+  • server/routes/delivery.ts(121,102): error TS7030: Not all code paths return a value.
+  • server/routes/delivery.ts(145,145): error TS7030: Not all code paths return a value.
+  • server/routes/delivery.ts(183,132): error TS7030: Not all code paths return a value.
+  • server/routes/delivery.ts(195,105): error TS7030: Not all code paths return a value.
+  • server/routes/image-routes.ts(45,25): error TS7030: Not all code paths return a value.
+  • server/routes/image-routes.ts(63,28): error TS7030: Not all code paths return a value.
+  • server/routes/index.ts(497,69): error TS7030: Not all code paths return a value.
+  • server/routes/index.ts(531,72): error TS7030: Not all code paths return a value.
+  • server/routes/index.ts(754,21): error TS18048: 'totalRevenueResult' is possibly 'undefined'.
+  • server/routes/index.ts(755,20): error TS18048: 'totalOrdersResult' is possibly 'undefined'.
+  • server/routes/index.ts(756,23): error TS18048: 'totalCustomersResult' is possibly 'undefined'.
+  • server/routes/index.ts(757,26): error TS18048: 'avgOrderValueResult' is possibly 'undefined'.
+  • server/routes/inventory-management.ts(101,56): error TS18046: 'error' is of type 'unknown'.
+  • server/routes/inventory-management.ts(161,57): error TS18046: 'error' is of type 'unknown'.
+  • server/routes/inventory-management.ts(243,59): error TS18046: 'error' is of type 'unknown'.
+  • server/routes/inventory-management.ts(295,47): error TS18046: 'error' is of type 'unknown'.
+  • server/routes/inventory-management.ts(335,15): error TS2339: Property 'sentAt' does not exist on type '{ id: string; itemId: number; itemName: string; supplierId: number; supplierName: string; quantity: number; unitPrice: number; totalPrice: number; urgency: string; estimatedDelivery: string; generatedAt: string; status: string; justification: string; }'.
+  • server/routes/inventory-management.ts(354,58): error TS18046: 'error' is of type 'unknown'.
+  • server/routes/inventory-management.ts(406,53): error TS18046: 'error' is of type 'unknown'.
+  • server/routes/kpis.routes.ts(114,16): error TS18046: 'error' is of type 'unknown'.
+  • server/routes/kpis.routes.ts(120,50): error TS7030: Not all code paths return a value.
+  • server/routes/loyalty-advanced.ts(59,54): error TS18046: 'error' is of type 'unknown'.
+  • server/routes/loyalty-advanced.ts(65,41): error TS7030: Not all code paths return a value.
+  • server/routes/loyalty-advanced.ts(76,34): error TS18048: 'level' is possibly 'undefined'.
+  • server/routes/loyalty-advanced.ts(84,21): error TS18048: 'newLevel' is possibly 'undefined'.
+  • server/routes/loyalty-advanced.ts(84,39): error TS18048: 'level' is possibly 'undefined'.
+  • server/routes/loyalty-advanced.ts(91,42): error TS18048: 'newLevel' is possibly 'undefined'.
+  • server/routes/loyalty-advanced.ts(93,27): error TS18048: 'newLevel' is possibly 'undefined'.
+  • server/routes/loyalty-advanced.ts(93,52): error TS18048: 'newLevel' is possibly 'undefined'.
+  • server/routes/loyalty-advanced.ts(93,61): error TS2339: Property 'benefits' does not exist on type '{ name: string; minPoints: number; pointsRate: number; color: string; }'.
+  • server/routes/loyalty-advanced.ts(101,22): error TS18048: 'level' is possibly 'undefined'.
+  • server/routes/loyalty-advanced.ts(102,21): error TS18048: 'newLevel' is possibly 'undefined'.
+  • server/routes/loyalty-advanced.ts(107,50): error TS18046: 'error' is of type 'unknown'.
+  • server/routes/loyalty-advanced.ts(113,45): error TS7030: Not all code paths return a value.
+  • server/routes/loyalty-advanced.ts(160,55): error TS18046: 'error' is of type 'unknown'.
+  • server/routes/loyalty-advanced.ts(208,55): error TS18046: 'error' is of type 'unknown'.
+  • server/routes/loyalty-advanced.ts(253,55): error TS18046: 'error' is of type 'unknown'.
+  • server/routes/loyalty-advanced.ts(259,46): error TS7030: Not all code paths return a value.
+  • server/routes/loyalty-advanced.ts(269,36): error TS18048: 'level' is possibly 'undefined'.
+  • server/routes/loyalty-advanced.ts(285,52): error TS18048: 'level' is possibly 'undefined'.
+  • server/routes/loyalty-advanced.ts(285,94): error TS18048: 'level' is possibly 'undefined'.
+  • server/routes/loyalty-advanced.ts(295,52): error TS18046: 'error' is of type 'unknown'.
+  • server/routes/loyalty-advanced.ts(325,34): error TS2532: Object is possibly 'undefined'.
+  • server/routes/online-orders.ts(137,106): error TS7030: Not all code paths return a value.
+  • server/routes/online-orders.ts(161,149): error TS7030: Not all code paths return a value.
+  • server/routes/online-orders.ts(184,133): error TS7030: Not all code paths return a value.
+  • server/routes/online-orders.ts(196,109): error TS7030: Not all code paths return a value.
+  • server/routes/permissions.routes.ts(158,74): error TS7030: Not all code paths return a value.
+  • server/routes/permissions.ts(134,25): error TS2339: Property 'module' does not exist on type 'PgTableWithColumns<{ name: "permissions"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "permissions"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 4 more ...; grantedAt: PgC...'.
+  • server/routes/permissions.ts(135,26): error TS2339: Property 'canView' does not exist on type 'PgTableWithColumns<{ name: "permissions"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "permissions"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 4 more ...; grantedAt: PgC...'.
+  • server/routes/permissions.ts(136,28): error TS2339: Property 'canCreate' does not exist on type 'PgTableWithColumns<{ name: "permissions"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "permissions"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 4 more ...; grantedAt: PgC...'.
+  • server/routes/permissions.ts(137,28): error TS2339: Property 'canUpdate' does not exist on type 'PgTableWithColumns<{ name: "permissions"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "permissions"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 4 more ...; grantedAt: PgC...'.
+  • server/routes/permissions.ts(138,28): error TS2339: Property 'canDelete' does not exist on type 'PgTableWithColumns<{ name: "permissions"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "permissions"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 4 more ...; grantedAt: PgC...'.
+  • server/routes/permissions.ts(180,22): error TS2339: Property 'module' does not exist on type 'PgTableWithColumns<{ name: "permissions"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "permissions"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 4 more ...; grantedAt: PgC...'.
+  • server/routes/permissions.ts(188,14): error TS2353: Object literal may only specify known properties, and 'canView' does not exist in type '{ userId?: number | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined; permission?: string | SQL<...> | PgColumn<...> | undefined; id?: number | ... 2 more ... | undefined; granted?: boolean | ... 2 more ... | undefined; grantedBy?: number | ... 3 more ... | undefined; grantedAt?:...'.
+  • server/routes/permissions.ts(189,33): error TS2532: Object is possibly 'undefined'.
+  • server/routes/permissions.ts(194,8): error TS2769: No overload matches this call.
+  • server/routes/permissions.ts(200,13): error TS18048: 'req.user' is possibly 'undefined'.
+  • server/routes/permissions.ts(203,15): error TS2532: Object is possibly 'undefined'.
+  • server/routes/permissions.ts(236,13): error TS18048: 'req.user' is possibly 'undefined'.
+  • server/routes/permissions.ts(254,19): error TS7030: Not all code paths return a value.
+  • server/routes/permissions.ts(258,20): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ admin: { name: string; permissions: { module: "users" | "tables" | "customers" | "reservations" | "orders" | "employees" | "menu" | "loyalty" | "analytics" | "settings" | "inventory" | ... 7 more ... | "backup"; canView: boolean; canCreate: boolean; canUpdate: boolean; canDelete: boolean; }[]; }; manager: { ...; }...'.
+  • server/routes/permissions.ts(283,13): error TS18048: 'req.user' is possibly 'undefined'.
+  • server/routes/permissions.ts(307,25): error TS2339: Property 'module' does not exist on type 'PgTableWithColumns<{ name: "permissions"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "permissions"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 4 more ...; grantedAt: PgC...'.
+  • server/routes/permissions.ts(308,26): error TS2339: Property 'canView' does not exist on type 'PgTableWithColumns<{ name: "permissions"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "permissions"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 4 more ...; grantedAt: PgC...'.
+  • server/routes/permissions.ts(309,28): error TS2339: Property 'canCreate' does not exist on type 'PgTableWithColumns<{ name: "permissions"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "permissions"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 4 more ...; grantedAt: PgC...'.
+  • server/routes/permissions.ts(310,28): error TS2339: Property 'canUpdate' does not exist on type 'PgTableWithColumns<{ name: "permissions"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "permissions"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 4 more ...; grantedAt: PgC...'.
+  • server/routes/permissions.ts(311,28): error TS2339: Property 'canDelete' does not exist on type 'PgTableWithColumns<{ name: "permissions"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "permissions"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 4 more ...; grantedAt: PgC...'.
+  • server/routes/permissions.ts(361,22): error TS2339: Property 'module' does not exist on type 'PgTableWithColumns<{ name: "permissions"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "permissions"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 4 more ...; grantedAt: PgC...'.
+  • server/routes/permissions.ts(370,25): error TS18048: 'p' is possibly 'undefined'.
+  • server/routes/permissions.ts(370,27): error TS2339: Property 'canView' does not exist on type '{ id: number; userId: number; permission: string; granted: boolean; grantedBy: number | null; grantedAt: Date; }'.
+  • server/routes/permissions.ts(373,25): error TS18048: 'p' is possibly 'undefined'.
+  • server/routes/permissions.ts(373,27): error TS2339: Property 'canCreate' does not exist on type '{ id: number; userId: number; permission: string; granted: boolean; grantedBy: number | null; grantedAt: Date; }'.
+  • server/routes/permissions.ts(376,25): error TS18048: 'p' is possibly 'undefined'.
+  • server/routes/permissions.ts(376,27): error TS2339: Property 'canUpdate' does not exist on type '{ id: number; userId: number; permission: string; granted: boolean; grantedBy: number | null; grantedAt: Date; }'.
+  • server/routes/permissions.ts(379,25): error TS18048: 'p' is possibly 'undefined'.
+  • server/routes/permissions.ts(379,27): error TS2339: Property 'canDelete' does not exist on type '{ id: number; userId: number; permission: string; granted: boolean; grantedBy: number | null; grantedAt: Date; }'.
+  • server/routes/permissions.ts(401,13): error TS18048: 'req.user' is possibly 'undefined'.
+  • server/routes/tables.ts(133,100): error TS7030: Not all code paths return a value.
+  • server/routes/tables.ts(155,143): error TS7030: Not all code paths return a value.
+  • server/routes/tables.ts(185,142): error TS7030: Not all code paths return a value.
+  • server/routes/tables.ts(207,127): error TS7030: Not all code paths return a value.
+  • server/routes/tables.ts(219,103): error TS7030: Not all code paths return a value.
+  • server/routes/user-profile.ts(60,41): error TS7030: Not all code paths return a value.
+  • server/routes/user-profile.ts(71,70): error TS7030: Not all code paths return a value.
+  • server/services/ai-automation.service.ts(146,7): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ menu: number; reservation: number; commande: number; horaires: number; services: number; promotions: number; aide: number; }'.
+  • server/services/ai-automation.service.ts(146,25): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ menu: number; reservation: number; commande: number; horaires: number; services: number; promotions: number; aide: number; }'.
+  • server/services/ai-automation.service.ts(151,19): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ menu: number; reservation: number; commande: number; horaires: number; services: number; promotions: number; aide: number; }'.
+  • server/services/ai-automation.service.ts(153,30): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ menu: number; reservation: number; commande: number; horaires: number; services: number; promotions: number; aide: number; }'.
+  • server/services/ai-automation.service.ts(234,49): error TS2538: Type 'undefined' cannot be used as an index type.
+  • server/services/ai-automation.service.ts(238,18): error TS18048: 'item' is possibly 'undefined'.
+  • server/services/ai-automation.service.ts(238,49): error TS18048: 'item' is possibly 'undefined'.
+  • server/services/ai-automation.service.ts(285,98): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ wifi: string; parking: string; groupes: string; livraison: string; fidélité: string; }'.
+  • server/services/ai-automation.service.ts(415,12): error TS7053: Element implicitly has an 'any' type because expression of type 'number' can't be used to index type '{ 0: { customer: number; revenue: number; }; 1: { customer: number; revenue: number; }; 2: { customer: number; revenue: number; }; 3: { customer: number; revenue: number; }; 4: { customer: number; revenue: number; }; 5: { ...; }; 6: { ...; }; }'.
+  • server/vite.ts(96,16): error TS7030: Not all code paths return a value.
+
+💡 Suggestions :
+1. Vérifiez les types des objets complexes.
+2. Utilisez des types explicites au lieu de 'any'.
+3. Vérifiez que tous les modules et types sont bien importés.
+4. Activez l'autocomplétion dans votre IDE pour détecter les erreurs tôt.
+
