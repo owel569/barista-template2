@@ -47,7 +47,8 @@ interface MessagesProps {
 }
 
 export default function Messages({ userRole = 'directeur' }: MessagesProps) {
-  const { hasPermission } = usePermissions(userRole);
+  const { user } = useAuth();
+  const { hasPermission } = usePermissions(user);
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');

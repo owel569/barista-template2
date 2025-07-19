@@ -367,16 +367,16 @@ router.get('/check/:userId/:module/:action', authenticateUser, validateParams(z.
     const p = permission[0];
     switch (action) {
       case 'view':
-        hasPermission = p.canView;
+        hasPermission = p.granted; // Utiliser le champ granted existant
         break;
       case 'create':
-        hasPermission = p.canCreate;
+        hasPermission = p.granted;
         break;
       case 'update':
-        hasPermission = p.canUpdate;
+        hasPermission = p.granted;
         break;
       case 'delete':
-        hasPermission = p.canDelete;
+        hasPermission = p.granted;
         break;
     }
   }
@@ -398,7 +398,7 @@ router.delete('/user/:userId', authenticateUser, validateParams(z.object({ userI
 
   // Log de l'activité
   await db.insert(activityLogs).values({
-    userId: req.user.id,
+    userId: req.user?.id || 0,
     action: 'delete',
     entity: 'permission',
     entityId: Number(userId),

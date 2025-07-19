@@ -177,7 +177,7 @@ const IoTDashboard: React.FC = () => {
       'critical': 'destructive',
       'offline': 'destructive'
     };
-    return <Badge variant={variants[status as keyof typeof variants] || 'default'}>{status}</Badge>;
+    return <Badge variant={(variants[status as keyof typeof variants] || 'default') as any}>{status}</Badge>;
   };
 
   const getSensorIcon = (type: string) => {

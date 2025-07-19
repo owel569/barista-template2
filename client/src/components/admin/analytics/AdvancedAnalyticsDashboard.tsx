@@ -256,7 +256,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
       </div>
 
       {/* KPI temps réel */}
-      <RealTimeKPIs data={analyticsData?.realTimeKPIs} />
+      <RealTimeKPIs data={analyticsData?.realTimeKPIs as any} />
 
       {/* Panneau d'insights IA */}
       <AIInsightsPanel />
@@ -355,7 +355,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
         </TabsContent>
         
         <TabsContent value="customers" className="space-y-6">
-          <CustomerBehaviorView data={analyticsData?.customerBehavior} />
+          <CustomerBehaviorView data={analyticsData?.customerBehavior as any} />
         </TabsContent>
         
         <TabsContent value="predictions" className="space-y-6">

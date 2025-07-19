@@ -143,14 +143,14 @@ export class AIAutomationService {
 
     // Détermination de l'intention principale
     const maxIntent = Object.keys(intentScores).reduce((a, b) => 
-      intentScores[a] > intentScores[b] ? a : b
+      (intentScores as any)[a] > (intentScores as any)[b] ? a : b
     );
 
     return {
       category: maxIntent,
-      confidence: intentScores[maxIntent],
+      confidence: (intentScores as any)[maxIntent],
       subCategories: Object.keys(intentScores).filter(key => 
-        key !== maxIntent && intentScores[key] > 0.3
+        key !== maxIntent && (intentScores as any)[key] > 0.3
       )
     };
   }
@@ -231,16 +231,16 @@ export class AIAutomationService {
 
     if (mentionedItems.length > 0) {
       const item = mentionedItems[0];
-      const itemInfo = CAFE_KNOWLEDGE_BASE.menu[item];
+      const itemInfo = (CAFE_KNOWLEDGE_BASE.menu as any)[item];
 
       return {
         text: `☕ **Excellent choix !**\n\n` +
-              `${item.charAt(0).toUpperCase() + item.slice(1)} - ${itemInfo.price}€\n` +
-              `${itemInfo.description}\n\n` +
+              `${item.charAt(0).toUpperCase() + item.slice(1)} - ${itemInfo?.price || 0}€\n` +
+              `${itemInfo?.description || ''}\n\n` +
               `Voulez-vous l'ajouter à votre commande ?`,
         actions: [
-          { type: 'add_to_cart', data: { item, price: itemInfo.price, quantity: 1 } },
-          { type: 'show_similar_items', data: { category: itemInfo.category } }
+          { type: 'add_to_cart', data: { item, price: itemInfo?.price || 0, quantity: 1 } },
+          { type: 'show_similar_items', data: { category: itemInfo?.category || 'general' } }
         ],
         suggestions: ['Ajouter au panier', 'Voir d\'autres boissons', 'Finaliser la commande']
       };
@@ -282,7 +282,7 @@ export class AIAutomationService {
 
     if (specificService) {
       return {
-        text: `ℹ️ **${specificService.charAt(0).toUpperCase() + specificService.slice(1)}**\n\n${CAFE_KNOWLEDGE_BASE.services[specificService]}`,
+        text: `ℹ️ **${specificService.charAt(0).toUpperCase() + specificService.slice(1)}**\n\n${(CAFE_KNOWLEDGE_BASE.services as any)[specificService] || 'Information non disponible'}`,
         actions: [{ type: 'show_all_services' }],
         suggestions: ['Voir tous nos services', 'Réserver une table', 'Notre menu']
       };

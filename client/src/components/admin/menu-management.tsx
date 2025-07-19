@@ -55,7 +55,7 @@ import { getItemImageUrl } from '@/lib/image-mapping';
 const getImageUrlByName = (name: string): string => {
   return getItemImageUrl(name);
 };
-import { ImageManagement } from './image-management';
+
 
 const menuItemSchema = z.object({
   name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
@@ -73,7 +73,8 @@ interface MenuManagementProps {
 }
 
 export default function MenuManagement({ userRole = 'directeur' }: MenuManagementProps) {
-  const { hasPermission } = usePermissions(userRole);
+  const { user } = useAuth();
+  const { hasPermission } = usePermissions(user);
   const canDelete = hasPermission('menu', 'delete');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
@@ -662,10 +663,17 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
 
       {/* Modal de gestion d'images */}
       {imageManagementItem && (
-        <ImageManagement
-          menuItem={imageManagementItem}
-          onClose={() => setImageManagementItem(null)}
-        />
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Gestion des images - {imageManagementItem.name}</h2>
+              <Button variant="ghost" onClick={() => setImageManagementItem(null)}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <p className="text-muted-foreground">Fonctionnalité de gestion d'images en cours de développement</p>
+          </div>
+        </div>
       )}
     </div>
   );

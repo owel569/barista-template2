@@ -1,6 +1,3 @@
-` tags.
-
-```
 /**
  * Système de notifications ultra-optimisé
  * Gestion complète des notifications en temps réel
@@ -120,7 +117,7 @@ export default function NotificationsSystem() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
-  const { user } = useUser();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('notifications');
   const [filterType, setFilterType] = useState<string>('all');
@@ -138,15 +135,16 @@ export default function NotificationsSystem() {
   });
 
   // WebSocket pour notifications en temps réel
-  const { sendMessage, lastMessage, connectionStatus } = useWebSocket();
+  const { sendMessage, lastMessage, isConnected } = useWebSocket();
 
   // Requêtes optimisées
-  const { data: notifications = [], isLoading, refetch } = useQuery({
+  const { data: notificationData = [], isLoading, refetch } = useQuery({
     queryKey: ['/api/notifications'],
     queryFn: async () => {
       try {
-        const response = await ApiClient.get('/api/notifications');
-        return response.data || [];
+        const response = await fetch('/api/notifications');
+        const data = await response.json();
+        return data.notifications || [];
       } catch (error) {
         console.error('Erreur notifications:', error);
         return [];
@@ -160,8 +158,9 @@ export default function NotificationsSystem() {
     queryKey: ['/api/notifications/settings'],
     queryFn: async () => {
       try {
-        const response = await ApiClient.get('/api/notifications/settings');
-        return response.data || getDefaultSettings();
+        const response = await fetch('/api/notifications/settings');
+        const data = await response.json();
+        return data.settings || getDefaultSettings();
       } catch (error) {
         return getDefaultSettings();
       }
@@ -172,8 +171,9 @@ export default function NotificationsSystem() {
     queryKey: ['/api/notifications/templates'],
     queryFn: async () => {
       try {
-        const response = await ApiClient.get('/api/notifications/templates');
-        return response.data || [];
+        const response = await fetch('/api/notifications/templates');
+        const data = await response.json();
+        return data.templates || [];
       } catch (error) {
         return [];
       }
@@ -183,7 +183,11 @@ export default function NotificationsSystem() {
   // Mutations optimisées
   const markAsReadMutation = useMutation({
     mutationFn: async (notificationIds: string[]) => {
-      await ApiClient.post('/api/notifications/mark-read', { ids: notificationIds });
+      await fetch('/api/notifications/mark-read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: notificationIds })
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/notifications'] });
@@ -193,7 +197,11 @@ export default function NotificationsSystem() {
 
   const archiveNotificationsMutation = useMutation({
     mutationFn: async (notificationIds: string[]) => {
-      await ApiClient.post('/api/notifications/archive', { ids: notificationIds });
+      await fetch('/api/notifications/archive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: notificationIds })
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/notifications'] });
@@ -204,7 +212,11 @@ export default function NotificationsSystem() {
 
   const createNotificationMutation = useMutation({
     mutationFn: async (notification: Partial<Notification>) => {
-      await ApiClient.post('/api/notifications', notification);
+      await fetch('/api/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(notification)
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/notifications'] });
@@ -223,7 +235,11 @@ export default function NotificationsSystem() {
 
   const updateSettingsMutation = useMutation({
     mutationFn: async (newSettings: NotificationSettings) => {
-      await ApiClient.post('/api/notifications/settings', newSettings);
+      await fetch('/api/notifications/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newSettings)
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/notifications/settings'] });
@@ -233,9 +249,9 @@ export default function NotificationsSystem() {
 
   // Notifications filtrées et optimisées
   const filteredNotifications = useMemo(() => {
-    if (!notifications) return [];
+    if (!notificationData) return [];
 
-    return notifications.filter((notification: Notification) => {
+    return notificationData.filter((notification: Notification) => {
       const matchesSearch = !searchTerm || 
         notification.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         notification.message.toLowerCase().includes(searchTerm.toLowerCase());
@@ -245,18 +261,18 @@ export default function NotificationsSystem() {
 
       return matchesSearch && matchesType && matchesStatus;
     });
-  }, [notifications, searchTerm, filterType, filterStatus]);
+  }, [notificationData, searchTerm, filterType, filterStatus]);
 
   // Statistiques
   const stats = useMemo(() => {
-    if (!notifications) return { total: 0, unread: 0, urgent: 0 };
+    if (!notificationData) return { total: 0, unread: 0, urgent: 0 };
 
     return {
-      total: notifications.length,
-      unread: notifications.filter((n: Notification) => n.status === 'unread').length,
-      urgent: notifications.filter((n: Notification) => n.priority === 'urgent').length
+      total: notificationData.length,
+      unread: notificationData.filter((n: Notification) => n.status === 'unread').length,
+      urgent: notificationData.filter((n: Notification) => n.priority === 'urgent').length
     };
-  }, [notifications]);
+  }, [notificationData]);
 
   // Paramètres par défaut
   function getDefaultSettings(): NotificationSettings {
@@ -907,7 +923,7 @@ export default function NotificationsSystem() {
                       <div key={category} className="flex items-center justify-between">
                         <Label className="capitalize">{category}</Label>
                         <Switch
-                          checked={enabled}
+                          checked={enabled as boolean}
                           onCheckedChange={(checked) => {
                             if (settings) {
                               updateSettingsMutation.mutate({
@@ -930,10 +946,11 @@ export default function NotificationsSystem() {
                       <div key={priority} className="flex items-center justify-between">
                         <Label className="capitalize">{priority}</Label>
                         <Switch
-                          checked={enabled}
+                          checked={enabled as boolean}
                           onCheckedChange={(checked) => {
                             if (settings) {
-                              updateSettingsMutation.mutate({                                ...settings,
+                              updateSettingsMutation.mutate({
+                                ...settings,
                                 priorities: { ...settings.priorities, [priority]: checked }
                               });
                             }

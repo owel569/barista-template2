@@ -21,8 +21,9 @@ interface PermissionsCache {
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 const permissionsCache: PermissionsCache = {};
 
-export const usePermissions = () => {
-  const { user, token } = useAuth();
+export const usePermissions = (userParam?: any) => {
+  const { user: contextUser, token } = useAuth();
+  const user = userParam || contextUser;
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

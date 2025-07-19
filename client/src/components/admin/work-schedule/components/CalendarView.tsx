@@ -29,19 +29,19 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   selectedDate,
   viewMode
 }) => {
-  const [currentDate, setCurrentDate] = useState(selectedDate || new Date().toISOString().split('T')[0]);
+  const [currentDate, setCurrentDate] = useState(selectedDate || new Date().toISOString().split('T')[0]!);
 
   // Générer les dates selon le mode de vue
   const dates = useMemo(() => {
     switch (viewMode) {
       case 'week':
-        return getWeekDates(currentDate);
+        return getWeekDates(new Date(currentDate));
       case 'month':
-        return getMonthDates(currentDate);
+        return getMonthDates(new Date(currentDate));
       case 'day':
-        return [currentDate];
+        return [new Date(currentDate)];
       default:
-        return getWeekDates(currentDate);
+        return getWeekDates(new Date(currentDate));
     }
   }, [currentDate, viewMode]);
 
@@ -75,7 +75,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
         break;
     }
     
-    setCurrentDate(current.toISOString().split('T')[0]);
+    setCurrentDate(current.toISOString().split('T')[0]!);
   };
 
   // Formatage des titres

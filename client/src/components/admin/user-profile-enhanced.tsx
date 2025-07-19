@@ -525,7 +525,7 @@ export default function UserProfileEnhanced() {
                 </div>
               </div>
               
-              <Select value={sortBy} onValueChange={setSortBy}>
+              <Select value={sortBy} onValueChange={(value) => setSortBy(value as any)}>
                 <SelectTrigger className="w-48">
                   <SelectValue placeholder="Trier par" />
                 </SelectTrigger>

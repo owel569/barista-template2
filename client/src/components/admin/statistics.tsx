@@ -168,7 +168,7 @@ export default function Statistics({ userRole }: StatisticsProps) {
       const date = new Date(today);
       date.setDate(date.getDate() - i);
       data.push({
-        date: date.toISOString().split('T')[0],
+        date: date.toISOString().split('T')[0]!,
         revenue: Math.floor(Math.random() * 500) + 200,
         orders: Math.floor(Math.random() * 20) + 5
       });

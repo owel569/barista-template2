@@ -71,7 +71,9 @@ export const exportChart = (chartRef: React.RefObject<HTMLDivElement>, filename:
   const svgElements = chartElement.querySelectorAll('svg');
   
   if (svgElements.length > 0) {
-    const svgData = new XMLSerializer().serializeToString(svgElements[0]);
+    const svgElement = svgElements[0];
+    if (svgElement) {
+      const svgData = new XMLSerializer().serializeToString(svgElement);
     const img = new Image();
     
     img.onload = () => {
@@ -84,6 +86,7 @@ export const exportChart = (chartRef: React.RefObject<HTMLDivElement>, filename:
       link.click();
     };
     
-    img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+      img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+    }
   }
 };

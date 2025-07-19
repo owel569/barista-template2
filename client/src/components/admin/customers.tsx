@@ -28,7 +28,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   
-  const { hasPermission } = usePermissions(userRole);
+  const { hasPermission } = usePermissions(user);
   const [newCustomer, setNewCustomer] = useState({
     firstName: '',
     lastName: '',

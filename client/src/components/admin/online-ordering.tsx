@@ -125,7 +125,7 @@ export default function OnlineOrdering() {
   });
 
   const updateOrderMutation = useMutation({
-    mutationFn: ({ id, ...data }: any) => apiRequest(`/api/admin/online-orders/${id}`, { method: 'PUT', data }),
+    mutationFn: ({ id, ...data }: any) => apiRequest(`/api/admin/online-orders/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/online-orders'] });
       toast({ title: "Commande mise à jour" });
@@ -133,7 +133,7 @@ export default function OnlineOrdering() {
   });
 
   const updateSettingsMutation = useMutation({
-    mutationFn: (data: any) => apiRequest('/api/admin/online-ordering/settings', { method: 'POST', data }),
+    mutationFn: (data: any) => apiRequest('/api/admin/online-ordering/settings', { method: 'POST', body: JSON.stringify(data) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/online-ordering/settings'] });
       toast({ title: "Paramètres sauvegardés" });
@@ -144,7 +144,7 @@ export default function OnlineOrdering() {
     updateOrderMutation.mutate({ id, status });
   };
 
-  const filteredOrders = orders.filter((order: OnlineOrder) => {
+  const filteredOrders = (orders as OnlineOrder[]).filter((order: OnlineOrder) => {
     const statusMatch = statusFilter === 'all' || order.status === statusFilter;
     const platformMatch = platformFilter === 'all' || order.platform === platformFilter;
     return statusMatch && platformMatch;
@@ -181,36 +181,36 @@ export default function OnlineOrdering() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Commandes en ligne</label>
-                  <Switch checked={settings?.onlineOrderingEnabled} />
+                  <Switch checked={settings?.onlineOrderingEnabled || false} />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Livraison</label>
-                  <Switch checked={settings?.deliveryEnabled} />
+                  <Switch checked={settings?.deliveryEnabled || false} />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">À emporter</label>
-                  <Switch checked={settings?.pickupEnabled} />
+                  <Switch checked={settings?.pickupEnabled || false} />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Paiement en ligne</label>
-                  <Switch checked={settings?.onlinePaymentEnabled} />
+                  <Switch checked={settings?.onlinePaymentEnabled || false} />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Temps de préparation min.</label>
-                  <Input type="number" defaultValue={settings?.minPrepTime} placeholder="15" />
+                  <Input type="number" defaultValue={settings?.minPrepTime || 15} placeholder="15" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Temps de livraison min.</label>
-                  <Input type="number" defaultValue={settings?.minDeliveryTime} placeholder="30" />
+                  <Input type="number" defaultValue={settings?.minDeliveryTime || 30} placeholder="30" />
                 </div>
               </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Frais de livraison</label>
-                <Input type="number" step="0.01" defaultValue={settings?.deliveryFee} placeholder="5.00" />
+                <Input type="number" step="0.01" defaultValue={settings?.deliveryFee || 5.00} placeholder="5.00" />
               </div>
 
               <div className="space-y-2">
@@ -240,14 +240,14 @@ export default function OnlineOrdering() {
                       {platform === 'website' ? 'Site Web' : 
                        platform === 'mobile_app' ? 'App Mobile' : 'Téléphone'}
                     </p>
-                    <p className="text-2xl font-bold">{stats.orders}</p>
-                    <p className="text-sm text-gray-500">{stats.revenue}€ de revenus</p>
+                    <p className="text-2xl font-bold">{stats?.orders || 0}</p>
+                    <p className="text-sm text-gray-500">{stats?.revenue || 0}€ de revenus</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
           );
-        })}
+        }) as React.ReactNode}
       </div>
 
       {/* Filtres */}

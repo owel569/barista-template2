@@ -156,7 +156,7 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {priceOptimization.recommendations.map((rec, index) => (
+            {priceOptimization.recommendations.map((rec: any, index: number) => (
               <div key={index} className="p-4 border rounded-lg">
                 <div className="flex justify-between items-start mb-2">
                   <div>
@@ -229,7 +229,7 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {growthOpportunities.opportunities.map((opp, index) => (
+            {growthOpportunities.opportunities.map((opp: any, index: number) => (
               <div key={index} className="p-4 border rounded-lg">
                 <div className="flex justify-between items-start mb-2">
                   <div>
@@ -268,7 +268,7 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
             <div className="p-4 bg-green-50 rounded-lg">
               <h4 className="font-semibold text-green-800 mb-2">Gains Rapides</h4>
               <div className="space-y-2">
-                {growthOpportunities.priorityMatrix.quickWins.map((item, index) => (
+                {growthOpportunities.priorityMatrix.quickWins.map((item: any, index: number) => (
                   <div key={index} className="text-sm text-green-700">
                     • {item}
                   </div>
@@ -279,7 +279,7 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
             <div className="p-4 bg-blue-50 rounded-lg">
               <h4 className="font-semibold text-blue-800 mb-2">Stratégique</h4>
               <div className="space-y-2">
-                {growthOpportunities.priorityMatrix.strategic.map((item, index) => (
+                {growthOpportunities.priorityMatrix.strategic.map((item: any, index: number) => (
                   <div key={index} className="text-sm text-blue-700">
                     • {item}
                   </div>
@@ -290,7 +290,7 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
             <div className="p-4 bg-purple-50 rounded-lg">
               <h4 className="font-semibold text-purple-800 mb-2">Expérimental</h4>
               <div className="space-y-2">
-                {growthOpportunities.priorityMatrix.experimental.map((item, index) => (
+                {growthOpportunities.priorityMatrix.experimental.map((item: any, index: number) => (
                   <div key={index} className="text-sm text-purple-700">
                     • {item}
                   </div>

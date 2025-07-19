@@ -120,10 +120,11 @@ export default function StaffScheduling() {
 
   const getShiftsForDay = (date: Date) => {
     const dateStr = date.toISOString().split('T')[0];
-    return shifts.filter(shift => shift.date.startsWith(dateStr));
+    return shifts.filter(shift => shift.date?.startsWith(dateStr || ''));
   };
 
-  const calculateHours = (startTime: string, endTime: string) => {
+  const calculateHours = (startTime?: string, endTime?: string) => {
+    if (!startTime || !endTime) return 0;
     const start = new Date(`2000-01-01T${startTime}`);
     const end = new Date(`2000-01-01T${endTime}`);
     return (end.getTime() - start.getTime()) / (1000 * 60 * 60);
@@ -133,7 +134,7 @@ export default function StaffScheduling() {
     const weekDates = getWeekDates(selectedWeek);
     const employeeShifts = shifts.filter(shift => 
       shift.employeeId === employeeId &&
-      weekDates.some(date => shift.date.startsWith(date.toISOString().split('T')[0]))
+      weekDates.some(date => shift.date?.startsWith(date.toISOString().split('T')[0] || ''))
     );
     
     return employeeShifts.reduce((total, shift) => {

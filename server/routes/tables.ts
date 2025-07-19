@@ -135,7 +135,7 @@ tablesRouter.get('/:id', validateParams(z.object({ id: z.string().regex(/^\d+$/)
   if (!table) {
     return res.status(404).json({ message: 'Table non trouvée' });
   }
-  res.json(table);
+  return res.json(table);
 }));
 
 tablesRouter.post('/', validateBody(tableSchema), asyncHandler(async (req, res) => {
@@ -149,7 +149,7 @@ tablesRouter.post('/', validateBody(tableSchema), asyncHandler(async (req, res) 
   };
   
   tables.push(newTable);
-  res.status(201).json(newTable);
+  return res.status(201).json(newTable);
 }));
 
 tablesRouter.patch('/:id/status', validateParams(z.object({ id: z.string().regex(/^\d+$/) })), validateBody(statusUpdateSchema), asyncHandler(async (req, res) => {
@@ -163,6 +163,8 @@ tablesRouter.patch('/:id/status', validateParams(z.object({ id: z.string().regex
   
   table.status = status;
   table.updatedAt = new Date().toISOString();
+  
+  return res.json({ message: 'Statut mis à jour', table });
   
   // Gérer les réservations selon le statut
   if (status === 'available') {

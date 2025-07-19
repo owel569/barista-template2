@@ -85,7 +85,8 @@ const defaultSettings: RestaurantSettings = {
 };
 
 export default function Settings({ userRole }: SettingsProps) {
-  const { hasPermission } = usePermissions(userRole);
+  const { user } = useAuth();
+  const { hasPermission } = usePermissions(user);
   const [settings, setSettings] = useState<RestaurantSettings>(defaultSettings);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -142,7 +143,7 @@ export default function Settings({ userRole }: SettingsProps) {
 
   useEffect(() => {
     if (fetchedSettings) {
-      setSettings(fetchedSettings);
+      setSettings(prev => ({ ...prev, ...fetchedSettings }));
     }
   }, [fetchedSettings]);
 

@@ -497,7 +497,7 @@ export function PermissionsManagementImproved() {
               </div>
             </div>
             
-            <Select value={roleFilter} onValueChange={setRoleFilter}>
+            <Select value={roleFilter} onValueChange={(value) => setRoleFilter(value as any)}>
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Filtrer par rôle" />
               </SelectTrigger>
@@ -508,7 +508,7 @@ export function PermissionsManagementImproved() {
               </SelectContent>
             </Select>
             
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as any)}>
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Filtrer par statut" />
               </SelectTrigger>

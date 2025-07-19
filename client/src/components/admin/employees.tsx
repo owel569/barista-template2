@@ -87,7 +87,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
       department: '',
       phone: '',
       hireDate: new Date().toISOString().split('T')[0],
-      salary: '0',
+      salary: 0,
       status: 'active',
     },
   });
@@ -293,7 +293,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
               </DialogDescription>
             </DialogHeader>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <form onSubmit={form.handleSubmit((data: EmployeeFormData) => onSubmit(data))} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}

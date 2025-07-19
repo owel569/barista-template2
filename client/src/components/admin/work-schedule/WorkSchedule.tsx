@@ -37,8 +37,8 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
 }) => {
   // État local pour la période sélectionnée
   const [dateRange, setDateRange] = useState({
-    start: new Date().toISOString().split('T')[0],
-    end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    start: new Date().toISOString().split('T')[0]!,
+    end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]!
   });
 
   // Hooks de gestion des données
@@ -55,7 +55,10 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
     creatingShift,
     updatingShift,
     deletingShift
-  } = useScheduleData(dateRange);
+  } = useScheduleData({
+    start: dateRange.start || '',
+    end: dateRange.end || ''
+  });
 
   // Hook de gestion des shifts
   const {
@@ -118,7 +121,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
 
   // Composant de navigation des vues
   const ViewNavigation = () => (
-    <Tabs value={viewModeState} onValueChange={handleViewModeChange} className="w-full">
+    <Tabs value={viewModeState} onValueChange={(value) => handleViewModeChange(value as any)} className="w-full">
       <TabsList className="grid w-full grid-cols-4">
         <TabsTrigger value="calendar" className="flex items-center space-x-2">
           <Calendar className="h-4 w-4" />
@@ -142,7 +145,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
       
       <TabsContent value="calendar" className="space-y-4">
         <CalendarView
-          shifts={filteredShifts}
+          shifts={filteredShifts as any}
           employees={employees}
           onShiftClick={handleShiftSelect}
           onDateClick={handleDateSelect}
@@ -154,7 +157,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
       
       <TabsContent value="list" className="space-y-4">
         <ShiftListView
-          shifts={filteredShifts}
+          shifts={filteredShifts as any}
           employees={employees}
           onShiftEdit={handleShiftEdit}
           onShiftDelete={handleShiftDelete}
@@ -166,7 +169,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
       <TabsContent value="employee" className="space-y-4">
         <EmployeeOverview
           employees={employees}
-          shifts={filteredShifts}
+          shifts={filteredShifts as any}
           onEmployeeClick={handleEmployeeClick}
           selectedPeriod={timePeriod}
         />

@@ -71,6 +71,7 @@ const LoyaltyProgram = () => {
   const levels = program?.levels || [];
   const rewards = program?.rewards || [];
   const stats = program?.statistics || {};
+  const analytics = program?.analytics || {};
 
   return (
     <div className="p-6 space-y-6">

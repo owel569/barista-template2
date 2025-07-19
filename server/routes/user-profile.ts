@@ -65,7 +65,7 @@ userProfileRouter.get('/', asyncHandler(async (req, res) => {
     return res.status(404).json({ message: 'Profil non trouvé' });
   }
   
-  res.json(profile);
+  return res.json(profile);
 }));
 
 userProfileRouter.put('/', validateBody(profileSchema), asyncHandler(async (req, res) => {
@@ -83,7 +83,7 @@ userProfileRouter.put('/', validateBody(profileSchema), asyncHandler(async (req,
   };
   
   userProfiles.set(user.id, updatedProfile);
-  res.json(updatedProfile);
+  return res.json(updatedProfile);
 }));
 
 userProfileRouter.put('/password', validateBody(passwordSchema), asyncHandler(async (req, res) => {
