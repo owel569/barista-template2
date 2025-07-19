@@ -1,21 +1,21 @@
-
-!/usr/bin/env tsx
+#!/usr/bin/env tsx
 
 import { execSync } from 'child_process';
 
-console.log('🔍 Vérification TypeScript...\n');
+console.log('🔍 Vérification du projet TypeScript...\n');
 
 try {
-  // Vérification stricte
+  console.log('⏳ Vérification TypeScript avec --strict...');
   execSync('npx tsc --noEmit --strict', { stdio: 'inherit' });
-  console.log('✅ Aucune erreur TypeScript détectée');
-  
-  // Vérification des imports
+  console.log('✅ TypeScript compilé sans erreur avec --strict\n');
+
+  console.log('⏳ Vérification des imports avec --skipLibCheck...');
   execSync('npx tsc --noEmit --skipLibCheck', { stdio: 'inherit' });
-  console.log('✅ Tous les imports sont valides');
-  
+  console.log('✅ Vérification des imports terminée\n');
+
+  console.log('🎉 Tout est bon. Aucun problème détecté.');
   process.exit(0);
 } catch (error) {
-  console.error('❌ Erreurs TypeScript détectées');
+  console.error('\n❌ Erreurs détectées lors de la vérification TypeScript');
   process.exit(1);
 }
