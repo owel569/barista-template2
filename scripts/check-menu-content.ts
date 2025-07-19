@@ -1,5 +1,4 @@
 
-#!/usr/bin/env tsx
 import 'dotenv/config';
 import { getDb } from '../server/db';
 import { menuItems, menuCategories, menuItemImages } from '../shared/schema';
