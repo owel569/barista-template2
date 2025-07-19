@@ -1,5 +1,5 @@
 
-#!/usr/bin/env tsx
+!/usr/bin/env tsx
 
 import { execSync } from 'child_process';
 
