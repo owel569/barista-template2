@@ -73,7 +73,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
+
   // Initialiser WebSocket pour les notifications temps réel
   useWebSocket();
 
@@ -322,7 +322,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                     )}
                   />
                 </div>
-                
+
                 <FormField
                   control={form.control}
                   name="email"
@@ -336,7 +336,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="position"
@@ -350,7 +350,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="department"
@@ -364,7 +364,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="phone"
@@ -382,7 +382,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                     </FormItem>
                   )}
                 />
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
@@ -422,7 +422,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                     )}
                   />
                 </div>
-                
+
                 <FormField
                   control={form.control}
                   name="status"
@@ -444,7 +444,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                     </FormItem>
                   )}
                 />
-                
+
                 <div className="flex justify-end space-x-2 pt-4">
                   <Button
                     type="button"
@@ -481,7 +481,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
             <div className="text-2xl font-bold">{totalEmployees}</div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Employés Actifs</CardTitle>
@@ -491,7 +491,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
             <div className="text-2xl font-bold text-green-600">{activeEmployees}</div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Équipes Aujourd'hui</CardTitle>

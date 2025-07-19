@@ -128,18 +128,16 @@ export const contactMessages = pgTable("contact_messages", {
 }));
 
 // Images des éléments de menu
-export const menuItemImages = pgTable("menu_item_images", {
-  id: serial("id").primaryKey(),
-  menuItemId: integer("menu_item_id").notNull().references(() => menuItems.id, { onDelete: 'cascade' }),
-  imageUrl: text("image_url").notNull(),
-  altText: text("alt_text"),
-  isPrimary: boolean("is_primary").notNull().default(false),
-  uploadMethod: text("upload_method").notNull().default("url"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-}, (table) => ({
-  menuItemIdx: index("menu_item_images_menu_item_idx").on(table.menuItemId),
-  primaryIdx: index("menu_item_images_primary_idx").on(table.isPrimary),
-}));
+export const menuItemImages = pgTable('menu_item_images', {
+  id: serial('id').primaryKey(),
+  menuItemId: integer('menu_item_id').notNull().references(() => menuItems.id, { onDelete: 'cascade' }),
+  imageUrl: text('image_url').notNull(),
+  altText: text('alt_text'),
+  isPrimary: boolean('is_primary').notNull().default(false),
+  uploadMethod: text('upload_method').notNull().default('url'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
 
 // Journaux d'activité
 export const activityLogs = pgTable('activity_logs', {

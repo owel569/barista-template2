@@ -51,10 +51,10 @@ router.post('/auth/login', asyncHandler(async (req, res) => {
     const { eq } = await import('drizzle-orm');
 
     const db = await getDb();
-    
+
     // Rechercher l'utilisateur
     const [user] = await db.select().from(users).where(eq(users.username, username)).limit(1);
-    
+
     if (!user) {
       logger.warn('Utilisateur non trouvé', { username });
       return res.status(401).json({
@@ -65,7 +65,7 @@ router.post('/auth/login', asyncHandler(async (req, res) => {
 
     // Vérifier le mot de passe
     const isValidPassword = await comparePassword(password, user.password);
-    
+
     if (!isValidPassword) {
       logger.warn('Mot de passe incorrect', { username });
       return res.status(401).json({
@@ -144,7 +144,7 @@ router.get('/menu', asyncHandler(async (req, res) => {
     const { eq } = await import('drizzle-orm');
 
     const db = await getDb();
-    
+
     // Récupérer tous les articles avec leurs catégories
     const items = await db
       .select({
@@ -182,7 +182,7 @@ router.get('/tables', asyncHandler(async (req, res) => {
     const { tables } = await import('@shared/schema.js');
 
     const db = await getDb();
-    
+
     const tablesList = await db.select().from(tables);
 
     res.json({
@@ -282,13 +282,13 @@ router.get('/admin/dashboard/stats', authenticateToken, asyncHandler(async (req,
     const { count, sum } = await import('drizzle-orm');
 
     const db = await getDb();
-    
+
     // Récupérer les statistiques
     const ordersCountResult = await db.select({ count: count() }).from(orders);
     const reservationsCountResult = await db.select({ count: count() }).from(reservations);
     const customersCountResult = await db.select({ count: count() }).from(customers);
     const menuItemsCountResult = await db.select({ count: count() }).from(menuItems);
-    
+
     // Revenus totaux (simulation)
     const totalRevenueResult = await db.select({ 
       total: sum(orders.totalAmount) 
@@ -317,7 +317,7 @@ router.get('/admin/users', authenticateToken, asyncHandler(async (req, res) => {
     const { users } = await import('@shared/schema.js');
 
     const db = await getDb();
-    
+
     const usersList = await db.select({
       id: users.id,
       username: users.username,
@@ -342,7 +342,7 @@ router.get('/admin/menu', authenticateToken, asyncHandler(async (req, res) => {
     const { eq } = await import('drizzle-orm');
 
     const db = await getDb();
-    
+
     const items = await db
       .select({
         id: menuItems.id,
@@ -373,7 +373,7 @@ router.get('/admin/categories', authenticateToken, asyncHandler(async (req, res)
     const { menuCategories } = await import('@shared/schema.js');
 
     const db = await getDb();
-    
+
     const categories = await db.select().from(menuCategories);
 
     res.json({ success: true, data: categories });
@@ -445,7 +445,7 @@ router.get('/admin/menu/items', authenticateToken, asyncHandler(async (req, res)
     const { eq } = await import('drizzle-orm');
 
     const db = await getDb();
-    
+
     const items = await db.select({
       id: menuItems.id,
       name: menuItems.name,
@@ -477,7 +477,7 @@ router.post('/admin/menu/items', authenticateToken, asyncHandler(async (req, res
     const { name, description, price, categoryId, available, imageUrl } = req.body;
 
     const db = await getDb();
-    
+
     const [newItem] = await db.insert(menuItems).values({
       name,
       description,
@@ -503,7 +503,7 @@ router.put('/admin/menu/items/:id', authenticateToken, asyncHandler(async (req, 
     const itemId = parseInt(req.params.id);
 
     const db = await getDb();
-    
+
     const [updatedItem] = await db.update(menuItems)
       .set({
         name,
@@ -536,7 +536,7 @@ router.delete('/admin/menu/items/:id', authenticateToken, asyncHandler(async (re
     const itemId = parseInt(req.params.id);
 
     const db = await getDb();
-    
+
     const [deletedItem] = await db.delete(menuItems)
       .where(eq(menuItems.id, itemId))
       .returning();
@@ -574,7 +574,7 @@ router.get('/admin/reservations', authenticateToken, asyncHandler(async (req, re
     const { eq } = await import('drizzle-orm');
 
     const db = await getDb();
-    
+
     const reservationsList = await db.select()
       .from(reservations)
       .leftJoin(customers, eq(reservations.customerId, customers.id))
@@ -717,8 +717,9 @@ router.get('/admin/stats/revenue-detailed', authenticateToken, asyncHandler(asyn
     const { sql } = await import('drizzle-orm');
 
     const db = await getDb();
-    
+
     // Récupérer les données des 7 derniers jours
+    const dateParam = req.query.date?.toString() || new Date().toISOString().split('T')[0];
     const revenueData = await db.select({
       date: sql<string>`DATE(${orders.createdAt})`,
       revenue: sql<number>`SUM(${orders.totalAmount})`,
@@ -744,7 +745,7 @@ router.get('/admin/statistics/overview', authenticateToken, asyncHandler(async (
     const { count, sum, avg } = await import('drizzle-orm');
 
     const db = await getDb();
-    
+
     const [totalRevenueResult] = await db.select({ total: sum(orders.totalAmount) }).from(orders);
     const [totalOrdersResult] = await db.select({ count: count() }).from(orders);
     const [totalCustomersResult] = await db.select({ count: count() }).from(customers);

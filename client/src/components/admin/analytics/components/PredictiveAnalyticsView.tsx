@@ -275,7 +275,7 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
                 ))}
               </div>
             </div>
-            
+
             <div className="p-4 bg-blue-50 rounded-lg">
               <h4 className="font-semibold text-blue-800 mb-2">Stratégique</h4>
               <div className="space-y-2">
@@ -286,7 +286,7 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
                 ))}
               </div>
             </div>
-            
+
             <div className="p-4 bg-purple-50 rounded-lg">
               <h4 className="font-semibold text-purple-800 mb-2">Expérimental</h4>
               <div className="space-y-2">

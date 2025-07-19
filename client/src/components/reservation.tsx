@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertReservationSchema } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +33,18 @@ import {
 } from "lucide-react"; // Import des icônes nécessaires
 // Type Zod
 type ReservationFormData = z.infer<typeof insertReservationSchema>;
+
+const reservationSchema = z.object({
+  date: z.string().min(1, "La date est requise"),
+  time: z.string().min(1, "L'heure est requise"),
+  partySize: z.number().min(1, "Le nombre de personnes doit être au moins 1"),
+  guests: z.number().min(1, "Le nombre d'invités est requis"),
+  customerName: z.string().min(1, "Le nom est requis"),
+  customerEmail: z.string().email("Email invalide"),
+  customerPhone: z.string().min(1, "Le téléphone est requis"),
+  specialRequests: z.string().optional(),
+  notes: z.string().optional(),
+});
 
 export default function Reservation() {
   const { toast } = useToast();

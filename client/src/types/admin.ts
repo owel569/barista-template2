@@ -91,3 +91,68 @@ export const DEFAULT_EMPLOYE_PERMISSIONS: ModulePermissions = {
   loyalty: { view: true, create: false, update: false, delete: false },
   notifications: { view: true, create: false, update: false, delete: false }
 };
+export interface MenuItem {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  categoryId: number;
+  imageUrl?: string;
+  available: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface MenuCategory {
+  id: number;
+  name: string;
+  description?: string;
+  slug: string;
+  displayOrder: number;
+  createdAt: Date;
+}
+
+export interface Customer {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  loyaltyPoints: number;
+  createdAt: Date;
+}
+
+export interface User {
+  id: number;
+  username: string;
+  role: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  createdAt: Date;
+}
+
+export interface Employee {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  position: string;
+  department: string;
+  hireDate: string;
+  salary: number;
+  status: 'active' | 'inactive';
+}
+
+export interface EmployeeFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  position: string;
+  department: string;
+  hireDate: string;
+  salary: number;
+  status?: 'active' | 'inactive';
+}

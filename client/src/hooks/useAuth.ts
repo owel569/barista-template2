@@ -24,7 +24,7 @@ export const useAuth = () => {
       try {
         const token = AuthTokenManager.getToken();
         const storedUser = localStorage.getItem('user');
-        
+
         if (token && storedUser && AuthTokenManager.isTokenValid()) {
           const user = JSON.parse(storedUser);
           setAuthState({
@@ -51,18 +51,18 @@ export const useAuth = () => {
   const login = useCallback(async (username: string, password: string) => {
     try {
       const response = await ApiClient.post('/auth/login', { username, password });
-      
+
       // Stocker les données d'authentification
       AuthTokenManager.setToken(response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
-      
+
       setAuthState({
         token: response.token,
         user: response.user,
         isAuthenticated: true,
         isLoading: false
       });
-      
+
       return { success: true, user: response.user };
     } catch (error: any) {
       return { success: false, error: error.message || 'Erreur de connexion au serveur' };
@@ -85,7 +85,7 @@ export const useAuth = () => {
   // Vérifier si le token est valide
   const validateToken = useCallback(async () => {
     if (!authState.token) return false;
-    
+
     try {
       await ApiClient.get('/auth/validate');
       return true;

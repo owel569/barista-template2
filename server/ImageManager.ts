@@ -108,7 +108,7 @@ export class ImageManager {
             .where(eq(menuItemImages.id, imageId))
             .returning();
 
-        return result.length > 0 ? result[0] : null;
+        return result[0] || null;
     }
 
     /**
@@ -159,7 +159,7 @@ export class ImageManager {
         // 2. Fallback vers le nouveau système IMAGE_MAPPING Pexels
         const { getItemImageUrl } = await import('../client/src/lib/image-mapping');
         const imageUrl = getItemImageUrl(menuItemName, categorySlug);
-        
+
         return {
             url: imageUrl,
             alt: `Image de ${menuItemName}`

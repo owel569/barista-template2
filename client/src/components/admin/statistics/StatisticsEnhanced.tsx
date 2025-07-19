@@ -15,7 +15,8 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ComposedChart
+  ComposedChart,
+  Legend
 } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
