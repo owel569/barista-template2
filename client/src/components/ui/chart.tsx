@@ -256,6 +256,8 @@ const ChartTooltipContent = React.forwardRef<
 )
 ChartTooltipContent.displayName = "ChartTooltip"
 
+import * as RechartsPrimitive from "recharts"
+
 const ChartLegend = RechartsPrimitive.Legend
 
 const ChartLegendContent = React.forwardRef<

@@ -17,7 +17,11 @@
     "fix:auto": "tsx scripts/fix-critical-errors.js --fix --sync-db",
     "fix:report": "tsx scripts/fix-critical-errors.js --fix --sync-db --report --verbose",
     "lint": "eslint . --ext .ts,.tsx",
-    "lint:fix": "eslint . --ext .ts,.tsx --fix"
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "type-check": "tsc --noEmit --strict",
+    "type-check:watch": "tsc --noEmit --strict --watch",
+    "fix:any-types": "tsx scripts/fix-any-types.ts",
+    "fix:any-types:apply": "tsx scripts/fix-any-types.ts --apply"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

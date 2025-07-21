@@ -25,9 +25,10 @@ try {
   console.log(`${colors.green}🎉 Tout est parfaitement typé.${colors.reset}\n`);
   process.exit(0);
 
-} catch (error: any) {
-  const output = error.stdout || error.stderr || '';
-  const lines = output.split('\n').filter(line => line.trim());
+} catch (error: unknown) {
+  const output = (error && typeof error === 'object' && 'stdout' in error ? error.stdout : '') || 
+                (error && typeof error === 'object' && 'stderr' in error ? error.stderr : '') || '';
+  const lines = String(output).split('\n').filter(line => line.trim());
 
   if (lines.length === 0) {
     console.log(`${colors.green}✅ Aucune erreur TypeScript détectée !${colors.reset}`);

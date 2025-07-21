@@ -3,7 +3,7 @@ import { Server } from 'http';
 
 export interface WebSocketMessage {
   type: 'notification' | 'update' | 'refresh';
-  data: any;
+  data: Record<string, unknown> | string | number | boolean | null;
   timestamp: string;
 }
 
