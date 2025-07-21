@@ -1,9 +1,8 @@
-import React from 'react';
+
 "use client"
 
 import * as React from "react"
-import { TrendingUp } from "lucide-react"
-
+import * as RechartsPrimitive from "recharts"
 import { cn } from "@/lib/utils"
 
 // Types professionnels pour Chart.js
@@ -21,15 +20,8 @@ export interface ChartContainer extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ComponentProps<"div">["children"];
 }
 
-
-import * as RechartsPrimitive from "recharts"
-
-import { cn } from "@/lib/utils"
-
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const
-
-
 
 type ChartContextProps = {
   config: ChartConfig
@@ -37,7 +29,7 @@ type ChartContextProps = {
 
 const ChartContext = React.createContext<ChartContextProps | null>(null)
 
-function useChart() : JSX.Element {
+function useChart(): ChartContextProps {
   const context = React.useContext(ChartContext)
 
   if (!context) {
@@ -268,8 +260,6 @@ const ChartTooltipContent = React.forwardRef<
   }
 )
 ChartTooltipContent.displayName = "ChartTooltip"
-
-
 
 const ChartLegend = RechartsPrimitive.Legend
 
