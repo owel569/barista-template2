@@ -1,32 +1,61 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
 import {
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  AreaChart,
-  Area,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ComposedChart,
-  Legend
-} from 'recharts';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  TrendingUp, TrendingDown, Users, ShoppingCart, 
-  DollarSign, Calendar, Clock, BarChart3,
-  Download, RefreshCw, Filter, Eye
-} from 'lucide-react';
+  BarChart3,
+  TrendingUp,
+  TrendingDown,
+  Users,
+  ShoppingBag,
+  DollarSign,
+  Calendar,
+  Clock,
+  Star,
+  MapPin,
+  Phone,
+  Mail,
+  Download,
+  Filter,
+  Search,
+  RefreshCw,
+  ChevronRight,
+  Eye,
+  MoreHorizontal,
+  Award
+} from "lucide-react";
+
+// Types pour la sécurité TypeScript
+interface StatisticData {
+  id: string;
+  name: string;
+  value: number;
+  change: number;
+  trend: 'up' | 'down' | 'stable';
+}
+
+interface CustomerData {
+  id: string;
+  name: string;
+  email: string;
+  orders: number;
+  totalSpent: number;
+  lastVisit: string;
+  avatar?: string;
+}
+
+interface ProductData {
+  id: string;
+  name: string;
+  category: string;
+  sold: number;
+  revenue: number;
+  trend: number;
+}
 
 // Import des composants optimisés
 import { MetricCard } from './components/MetricCard';

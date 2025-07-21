@@ -72,7 +72,7 @@ async function main() {
     console.log('💡 Redémarrez avec le workflow "Start application"');
 
   } catch (error) {
-    console.error('❌ Erreur lors des corrections:', error.message);
+    console.error('❌ Erreur lors des corrections:', error);rror.message);
     process.exit(1);
   }
 }

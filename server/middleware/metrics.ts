@@ -1,6 +1,54 @@
 
 import { Request, Response, NextFunction } from 'express';
 
+interface MetricsData {
+  timestamp: number;
+  endpoint: string;
+  method: string;
+  statusCode: number;
+  responseTime: number;
+  userId?: string;
+}
+
+class MetricsCollector {
+  private metrics: MetricsData[] = [];
+
+  collect(data: MetricsData): void {
+    this.metrics.push(data);
+    // Garder seulement les 1000 dernières métriques
+    if (this.metrics.length > 1000) {
+      this.metrics = this.metrics.slice(-1000);
+    }
+  }
+
+  getMetrics(): MetricsData[] {
+    return [...this.metrics];
+  }
+}
+
+const metricsCollector = new MetricsCollector();
+
+export const metricsMiddleware = (req: Request, res: Response, next: NextFunction): void => {
+  const startTime = Date.now();
+
+  res.on('finish', () => {
+    const responseTime = Date.now() - startTime;
+    
+    metricsCollector.collect({
+      timestamp: Date.now(),
+      endpoint: req.path,
+      method: req.method,
+      statusCode: res.statusCode,
+      responseTime,
+      userId: req.user?.id
+    });
+  });
+
+  next();
+};
+
+export { metricsCollector };
+
 interface Metrics {
   requests: {
     total: number;

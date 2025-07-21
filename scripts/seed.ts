@@ -155,7 +155,7 @@ async function seedUsersWithTransaction(tx: any): Promise<SeedResult<User>> {
       success: false,
       data: [],
       count: 0,
-      error: `Erreur création utilisateurs: ${error.message}`
+      error: `Erreur création utilisateurs: ${error}rror.message}`
     };
   }
 }

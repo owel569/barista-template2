@@ -34,7 +34,7 @@ function checkDependencies() {
     execSync('npm list --depth=0', { stdio: 'pipe' });
     console.log('✅ Toutes les dépendances sont installées');
   } catch (error) {
-    console.log('⚠️  Problème avec les dépendances');
+    console.log('⚠️  Problème avec les dépendances'); avec les dépendances');
   }
 }
 
@@ -66,7 +66,9 @@ if (require.main === module) {
   main()
     .then(() => process.exit(0))
     .catch(() => process.exit(1));
-}itiques
+}
+
+// Vérifications critiques
 const checks = [
   {
     name: 'Middleware auth exporté',
@@ -104,7 +106,7 @@ const checks = [
   {
     name: 'Storage optimisé centralisé',
     check: () => {
-      return fs.existsSync('client/src/constants/storage-optimized.ts');
+      return fs.existsSync('client/src/constants/storage-optimized.ts');ants/storage-optimized.ts');
     }
   }
 ];
