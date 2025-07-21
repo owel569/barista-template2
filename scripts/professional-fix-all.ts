@@ -62,7 +62,7 @@ async function runProfessionalFixes(): Promise<void> {
         console.log(chalk.red(errorOutput.toString()));
         break;
       } else {
-        console.log(chalk.orange(`⚠️  ${step.name} - AVERTISSEMENT`));
+        console.log(chalk.yellow(`⚠️  ${step.name} - AVERTISSEMENT`));
         console.log(chalk.gray(errorOutput.toString()));
       }
     }

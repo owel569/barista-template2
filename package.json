@@ -24,7 +24,9 @@
     "fix:typescript": "tsx scripts/fix-typescript-errors.ts",
     "fix:complete": "tsx scripts/fix-complete-professional.ts",
     "fix:professional": "tsx scripts/professional-fix-all.ts",
-    "fix:any-types:apply": "tsx scripts/fix-any-types.ts --apply"
+    "fix:any-types:apply": "tsx scripts/fix-any-types.ts --apply",
+    "analyze:business": "tsx scripts/analyze-business-logic-any.ts",
+    "fix:business": "tsx scripts/fix-business-logic-types.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
