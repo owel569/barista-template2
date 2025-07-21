@@ -46,11 +46,11 @@ export default function InteractiveReservation() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: categories = [] } = useQuery<any[]>({
+  const { data: categories = [] } = useQuery<Array<{ id: number; name: string; slug: string }>>({
     queryKey: ['/api/menu/categories'],
   });
 
-  const { data: menuItems = [] } = useQuery<any[]>({
+  const { data: menuItems = [] } = useQuery<Array<{ id: number; name: string; price: string; description: string; categoryId: number }>>({
     queryKey: ['/api/menu/items'],
   });
 
@@ -67,7 +67,7 @@ export default function InteractiveReservation() {
       form.reset();
       setCart([]);
     },
-    onError: (error: unknown) => {
+    onError: (error: Error) => {
       toast({
         title: "Erreur",
         description: error.message || "Une erreur est survenue",

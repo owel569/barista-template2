@@ -45,7 +45,7 @@ export default function DashboardStats() {
     },
     {
       title: "Commandes en Cours",
-      value: ordersByStatus.find((o: any) => o.status === 'pending')?.count || 0,
+      value: ordersByStatus.find((o: { status: string; count: number }) => o.status === 'pending')?.count || 0,
       icon: Clock,
       color: "text-orange-600",
       bgColor: "bg-orange-50"

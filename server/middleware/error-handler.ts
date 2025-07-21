@@ -2,7 +2,7 @@ import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { ZodError } from 'zod';
 
 // Utilitaire pour identifier les erreurs de base de données
-const isDatabaseError = (err: any): boolean => {
+const isDatabaseError = (err: Error & { code?: string }): boolean => {
   const dbCodes = ['ECONNREFUSED', 'ENOTFOUND', '23505', '23503', '23502', '42P01'];
   return dbCodes.includes(err.code?.toString());
 };
@@ -15,7 +15,7 @@ export const asyncHandler = (fn: RequestHandler): RequestHandler => {
 };
 
 export const errorHandler = (
-  err: any,
+  err: Error & { status?: number; statusCode?: number; code?: string },
   req: Request,
   res: Response,
   next: NextFunction
@@ -49,7 +49,7 @@ export const errorHandler = (
       res.status(400).json({
         success: false,
         message: 'Données de requête invalides',
-        errors: err.errors?.map((e: any) => ({
+        errors: (err as ZodError).errors?.map((e: any) => ({
           field: e.path?.join('.') || 'unknown',
           message: e.message
         })) || [],

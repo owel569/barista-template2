@@ -8,7 +8,7 @@ export const apiResponseValidator = (req: Request, res: Response, next: NextFunc
     const originalSend = res.send;
     
     // Override res.json pour garantir le format JSON
-    res.json = function(body: any) {
+    res.json = function(body: Record<string, unknown> | string | number | boolean | null) {
       // Headers pour forcer le JSON
       this.setHeader('Content-Type', 'application/json');
       
@@ -30,7 +30,7 @@ export const apiResponseValidator = (req: Request, res: Response, next: NextFunc
     };
 
     // Override res.send pour intercepter les réponses HTML
-    res.send = function(body: any) {
+    res.send = function(body: string | Buffer) {
       if (typeof body === 'string' && body.includes('<!DOCTYPE')) {
         console.error('🚨 Tentative d\'envoi de HTML sur route API:', req.path);
         return originalJson.call(this, {
@@ -46,13 +46,13 @@ export const apiResponseValidator = (req: Request, res: Response, next: NextFunc
   next();
 };
 
-export const errorResponseHandler = (error: unknown, req: Request, res: Response, next: NextFunction) => {
+export const errorResponseHandler = (error: any, req: Request, res: Response, next: NextFunction) => {
   if (req.path.startsWith('/api/')) {
-    const statusCode = error.status || error.statusCode || 500;
+    const statusCode = (error as any).status || (error as any).statusCode || 500;
     
     return res.status(statusCode).json({
       success: false,
-      message: error.message || 'Erreur interne du serveur',
+      message: (error as Error).message || 'Erreur interne du serveur',
       error: process.env.NODE_ENV === 'development' ? {
         stack: error.stack,
         details: error

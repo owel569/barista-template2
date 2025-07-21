@@ -1,10 +1,18 @@
-import { Router } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 // import { storage } from '../storage'; // Non utilisé pour l'instant
+
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: number;
+    username: string;
+    role: string;
+  };
+}
 
 const router = Router();
 
 // Middleware d'authentification
-const authenticateToken = (req: any, res: any, next: any) => {
+const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
@@ -15,7 +23,7 @@ const authenticateToken = (req: any, res: any, next: any) => {
   try {
     const jwt = require('jsonwebtoken');
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'barista-secret-key-ultra-secure-2025');
-    req.user = decoded;
+    (req as AuthenticatedRequest).user = decoded as { id: number; username: string; role: string };
     next();
   } catch (error) {
     return res.status(403).json({ error: 'Token invalide' });

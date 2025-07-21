@@ -118,7 +118,7 @@ export default function DashboardCharts() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {revenueStats.reduce((sum: number, item: any) => sum + item.revenue, 0).toFixed(0)}€
+              {revenueStats.reduce((sum: number, item: RevenueData) => sum + item.revenue, 0).toFixed(0)}€
             </div>
             <p className="text-xs text-muted-foreground">
               Chiffre d'affaires mensuel
@@ -134,8 +134,8 @@ export default function DashboardCharts() {
           <CardContent>
             <div className="text-2xl font-bold">
               {ordersByStatus
-                .filter((item: any) => ['pending', 'preparing', 'ready'].includes(item.status))
-                .reduce((sum: number, item: any) => sum + item.count, 0)
+                .filter((item: StatusData) => ['pending', 'preparing', 'ready'].includes(item.status))
+                .reduce((sum: number, item: StatusData) => sum + item.count, 0)
               }
             </div>
             <p className="text-xs text-muted-foreground">

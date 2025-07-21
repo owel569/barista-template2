@@ -2,7 +2,9 @@ import { WebSocketServer } from 'ws';
 import { IncomingMessage } from 'http';
 import { Socket } from 'net';
 
-export function setupWebSocket(server: any) {
+import { Server } from 'http';
+
+export function setupWebSocket(server: Server) {
   const wss = new WebSocketServer({ 
     server,
     path: '/ws'

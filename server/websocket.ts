@@ -68,7 +68,7 @@ class WebSocketManager {
     console.log('🚀 Serveur WebSocket initialisé sur /ws');
   }
 
-  private handleMessage(ws: WebSocket, message: any) {
+  private handleMessage(ws: WebSocket, message: Record<string, unknown>) {
     // Traitement des messages entrants si nécessaire
     console.log('Message reçu:', message);
   }
@@ -87,7 +87,7 @@ class WebSocketManager {
   }
 
   // Envoyer une notification de nouvelle réservation
-  notifyNewReservation(reservation: any) {
+  notifyNewReservation(reservation: { customerName: string; date: string; [key: string]: unknown }) {
     this.broadcast({
       type: 'notification',
       data: {
@@ -101,7 +101,7 @@ class WebSocketManager {
   }
 
   // Envoyer une notification de nouvelle commande
-  notifyNewOrder(order: any) {
+  notifyNewOrder(order: { id: number; total: number; [key: string]: unknown }) {
     this.broadcast({
       type: 'notification',
       data: {
@@ -115,7 +115,7 @@ class WebSocketManager {
   }
 
   // Envoyer une notification de nouveau message
-  notifyNewMessage(message: any) {
+  notifyNewMessage(message: { name: string; [key: string]: unknown }) {
     this.broadcast({
       type: 'notification',
       data: {
@@ -129,7 +129,7 @@ class WebSocketManager {
   }
 
   // Notifier les mises à jour de données
-  notifyDataUpdate(type: string, data?: any) {
+  notifyDataUpdate(type: string, data?: Record<string, unknown>) {
     this.broadcast({
       type: 'update',
       data: {

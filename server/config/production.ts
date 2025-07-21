@@ -1,6 +1,7 @@
 
 import helmet from 'helmet';
 import compression from 'compression';
+import { Request as ExpressRequest, Response as ExpressResponse } from 'express';
 import rateLimit from 'express-rate-limit';
 
 export const productionConfig = {
@@ -31,7 +32,7 @@ export const productionConfig = {
   compression: compression({
     level: 6,
     threshold: 1024,
-    filter: (req: any, res: any) => {
+    filter: (req: ExpressRequest, res: ExpressResponse) => {
       if (req.headers['x-no-compression']) {
         return false;
       }

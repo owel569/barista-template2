@@ -3,13 +3,13 @@ import { z } from 'zod';
 
 // Configuration de logging centralisé
 export const createLogger = (module: string) => ({
-  info: (message: string, data?: any) => {
+  info: (message: string, data?: Record<string, unknown>) => {
     console.log(`[${new Date().toISOString()}] [${module}] INFO: ${message}`, data ? JSON.stringify(data) : '');
   },
-  error: (message: string, error?: any) => {
+  error: (message: string, error?: Error) => {
     console.error(`[${new Date().toISOString()}] [${module}] ERROR: ${message}`, error);
   },
-  warn: (message: string, data?: any) => {
+  warn: (message: string, data?: Record<string, unknown>) => {
     console.warn(`[${new Date().toISOString()}] [${module}] WARN: ${message}`, data ? JSON.stringify(data) : '');
   }
 });
@@ -18,7 +18,7 @@ export const createLogger = (module: string) => ({
 export const requestLogger = (req: Request, res: Response, next: NextFunction) => {
   const start = Date.now();
   const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
+  let capturedJsonResponse: Record<string, unknown> | undefined = undefined;
 
   const originalResJson = res.json;
   res.json = function (bodyJson, ...args) {

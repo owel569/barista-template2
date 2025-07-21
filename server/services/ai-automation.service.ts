@@ -5,7 +5,7 @@ const ChatContextSchema = z.object({
   message: z.string().min(1),
   userId: z.string().optional(),
   sessionId: z.string().optional(),
-  context: z.any().optional()
+  context: z.record(z.unknown()).optional()
 });
 
 const VoiceAnalysisSchema = z.object({
@@ -77,8 +77,8 @@ interface AnomalyRequest {
  */
 export class AIAutomationService {
   private static instance: AIAutomationService;
-  private chatSessions: Map<string, any[]> = new Map();
-  private userPreferences: Map<string, any> = new Map();
+  private chatSessions: Map<string, Array<Record<string, unknown>>> = new Map();
+  private userPreferences: Map<string, Record<string, unknown>> = new Map();
 
   static getInstance(): AIAutomationService {
     if (!AIAutomationService.instance) {
@@ -126,7 +126,7 @@ export class AIAutomationService {
     }
   }
 
-  private async detectIntent(message: string, context?: any) {
+  private async detectIntent(message: string, context?: Record<string, unknown>) {
     const lowerMessage = message.toLowerCase();
     const words = lowerMessage.split(' ');
 
@@ -143,14 +143,14 @@ export class AIAutomationService {
 
     // Détermination de l'intention principale
     const maxIntent = Object.keys(intentScores).reduce((a, b) => 
-      (intentScores as any)[a] > (intentScores as any)[b] ? a : b
+      intentScores[a as keyof typeof intentScores] > intentScores[b as keyof typeof intentScores] ? a : b
     );
 
     return {
       category: maxIntent,
-      confidence: (intentScores as any)[maxIntent],
+      confidence: intentScores[maxIntent as keyof typeof intentScores],
       subCategories: Object.keys(intentScores).filter(key => 
-        key !== maxIntent && (intentScores as any)[key] > 0.3
+        key !== maxIntent && intentScores[key as keyof typeof intentScores] > 0.3
       )
     };
   }
@@ -162,7 +162,7 @@ export class AIAutomationService {
     return Math.min(matches.length / keywords.length + (matches.length * 0.2), 1);
   }
 
-  private async generateContextualResponse(message: string, intent: any, session: unknown[], userId?: string) {
+  private async generateContextualResponse(message: string, intent: { category: string; confidence: number }, session: unknown[], userId?: string) {
     const { category, confidence } = intent;
 
     switch (category) {
@@ -231,7 +231,7 @@ export class AIAutomationService {
 
     if (mentionedItems.length > 0) {
       const item = mentionedItems[0];
-      const itemInfo = (CAFE_KNOWLEDGE_BASE.menu as Record<string, any>)[item];
+      const itemInfo = CAFE_KNOWLEDGE_BASE.menu[item as keyof typeof CAFE_KNOWLEDGE_BASE.menu];
 
       return {
         text: `☕ **Excellent choix !**\n\n` +

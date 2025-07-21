@@ -2,6 +2,20 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: number;
+    username: string;
+    role: string;
+  };
+}
+
+interface UserPayload {
+  id: number;
+  username: string;
+  role: string;
+}
+
 const JWT_SECRET = process.env.JWT_SECRET || 'barista-secret-key-ultra-secure-2025';
 
 export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
@@ -13,12 +27,12 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
   }
 
   try {
-    jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
+    jwt.verify(token, JWT_SECRET, (err: jwt.VerifyErrors | null, decoded: string | jwt.JwtPayload | undefined) => {
       if (err) {
         console.log('Token verification failed:', err.message);
         return res.status(403).json({ message: 'Token invalide', success: false, code: 'TOKEN_INVALID' });
       }
-      (req as any).user = user;
+      (req as AuthenticatedRequest).user = decoded as UserPayload;
       return next();
     });
   } catch (error){
@@ -29,7 +43,7 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
 
 export const requireRole = (role: string) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    const user = (req as any).user;
+    const user = (req as AuthenticatedRequest).user;
     if (!user || user.role !== role) {
       return res.status(403).json({ message: 'Accès refusé - rôle insuffisant' });
     }
@@ -39,7 +53,7 @@ export const requireRole = (role: string) => {
 
 export const requireRoles = (roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    const user = (req as any).user;
+    const user = (req as AuthenticatedRequest).user;
     if (!user || !roles.includes(user.role)) {
       return res.status(403).json({ message: 'Accès refusé - rôle insuffisant' });
     }
@@ -55,7 +69,7 @@ export const comparePassword = async (password: string, hash: string): Promise<b
   return await bcrypt.compare(password, hash);
 };
 
-export const generateToken = (user: any): string => {
+export const generateToken = (user: UserPayload): string => {
   return jwt.sign(
     { 
       id: user.id, 

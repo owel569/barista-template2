@@ -35,7 +35,7 @@ export class SecurityUtils {
     return strongPasswordRegex.test(password);
   }
 
-  static maskSensitiveData(data: Record<string, unknown>): any {
+  static maskSensitiveData(data: Record<string, unknown>): Record<string, unknown> {
     if (typeof data !== 'object' || data === null) {
       return data;
     }

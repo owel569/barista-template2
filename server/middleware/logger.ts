@@ -14,7 +14,7 @@ interface LogEntry {
   ip?: string;
   userId?: number;
   message: string;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 class Logger {
@@ -38,7 +38,7 @@ class Logger {
     fs.appendFileSync(logFile, logLine);
   }
 
-  info(message: string, metadata?: any) {
+  info(message: string, metadata?: Record<string, unknown>) {
     const entry: LogEntry = {
       timestamp: new Date().toISOString(),
       level: 'INFO',
@@ -50,7 +50,7 @@ class Logger {
     this.writeLog(entry);
   }
 
-  warn(message: string, metadata?: any) {
+  warn(message: string, metadata?: Record<string, unknown>) {
     const entry: LogEntry = {
       timestamp: new Date().toISOString(),
       level: 'WARN',
@@ -62,7 +62,7 @@ class Logger {
     this.writeLog(entry);
   }
 
-  error(message: string, error?: any, metadata?: any) {
+  error(message: string, error?: Error, metadata?: Record<string, unknown>) {
     const entry: LogEntry = {
       timestamp: new Date().toISOString(),
       level: 'ERROR',
