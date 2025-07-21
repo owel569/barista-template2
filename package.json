@@ -13,9 +13,9 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "start:universal": "bash start.sh",
-    "fix:critical": "tsx fix-critical-errors.js",
-    "fix:auto": "tsx fix-critical-errors.js --fix --sync-db",
-    "fix:report": "tsx fix-critical-errors.js --fix --sync-db --report --verbose",
+    "fix:critical": "tsx scripts/fix-critical-errors.js",
+    "fix:auto": "tsx scripts/fix-critical-errors.js --fix --sync-db",
+    "fix:report": "tsx scripts/fix-critical-errors.js --fix --sync-db --report --verbose",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix"
   },
