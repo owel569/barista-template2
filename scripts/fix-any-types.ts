@@ -1,6 +1,4 @@
 
-#!/usr/bin/env tsx
-
 import fs from 'fs';
 import path from 'path';
 import fg from 'fast-glob';
