@@ -21,6 +21,9 @@
     "type-check": "tsc --noEmit --strict",
     "type-check:watch": "tsc --noEmit --strict --watch",
     "fix:any-types": "tsx scripts/fix-any-types.ts",
+    "fix:typescript": "tsx scripts/fix-typescript-errors.ts",
+    "fix:complete": "tsx scripts/fix-complete-professional.ts",
+    "fix:professional": "tsx scripts/professional-fix-all.ts",
     "fix:any-types:apply": "tsx scripts/fix-any-types.ts --apply"
   },
   "dependencies": {

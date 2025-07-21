@@ -213,15 +213,7 @@ router.get('/detailed/:reportType',
       const { reportType } = req.params;
       const { startDate, endDate, period = 'month' } = req.query;
       
-      // Traitement basé sur reportType
-      res.json({ message: `Analytics détaillées pour ${reportType}`, period, startDate, endDate });
-    } catch (error) {
-      res.status(500).json({ error: 'Erreur lors de la génération du rapport' });
-    }
-  }
-);
-
-      let analyticsData;
+      let analyticsData: Record<string, unknown>;
       
       switch (reportType) {
         case 'sales':
@@ -292,54 +284,9 @@ router.get('/detailed/:reportType',
 
       res.json(analyticsData);
     } catch (error) {
-      res.status(500).json({ error: 'Erreur lors de la récupération des analytics' });
+      res.status(500).json({ error: 'Erreur lors de la génération du rapport' });
     }
   }
 );
-
-// Route pour métriques en temps réel
-router.get('/realtime', authenticateToken, async (req, res) => {
-  try {
-    const realtimeData = {
-      currentOrders: 12,
-      todayRevenue: 1250.75,
-      activeCustomers: 45,
-      averageWaitTime: 8.5,
-      kitchenLoad: 75,
-      tableOccupancy: 68,
-      lastUpdated: new Date().toISOString()
-    };
-    res.json(realtimeData);
-  } catch (error) {
-    res.status(500).json({ error: 'Erreur lors de la récupération des données temps réel' });
-  }
-});
-
-// Route pour export de données
-router.post('/export', authenticateToken, async (req, res) => {
-  try {
-    const { format, dataType, dateRange } = req.body;
-    
-    const exportData = {
-      exportId: Date.now(),
-      format,
-      dataType,
-      dateRange,
-      status: 'processing',
-      downloadUrl: null,
-      createdAt: new Date().toISOString()
-    };
-
-    // Simuler le traitement d'export
-    setTimeout(() => {
-      exportData.status = 'completed';
-      exportData.downloadUrl = `/api/downloads/export-${exportData.exportId}.${format}` as any;
-    }, 2000);
-
-    res.json(exportData);
-  } catch (error) {
-    res.status(500).json({ error: 'Erreur lors de l\'export des données' });
-  }
-});
 
 export default router;
