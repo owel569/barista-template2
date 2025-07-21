@@ -35,7 +35,7 @@ const LoyaltyProgram = () => {
   });
 
   // Récupérer les analytics du programme
-  const { data: analytics } = useQuery({
+  const { data: programAnalytics } = useQuery({
     queryKey: ['/api/admin/loyalty/analytics']
   });
 
@@ -71,7 +71,7 @@ const LoyaltyProgram = () => {
   const levels = program?.levels || [];
   const rewards = program?.rewards || [];
   const stats = program?.statistics || {};
-  const analytics = program?.analytics || {};
+  const analytics = programAnalytics || {};
 
   return (
     <div className="p-6 space-y-6">
