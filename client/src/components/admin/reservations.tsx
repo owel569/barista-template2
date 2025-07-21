@@ -53,7 +53,7 @@ interface Reservation {
   updatedAt?: string;
 }
 
-export default function ReservationsFixed() : void {
+export default function ReservationsFixed() : JSX.Element {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');

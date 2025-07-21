@@ -5,7 +5,7 @@ import { Coffee, Menu, X, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import logoBaristaCafe from "@/assets/logo-barista-cafe.png";
 
-export default function Navigation() : void {
+export default function Navigation() : JSX.Element {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [location] = useLocation();
 

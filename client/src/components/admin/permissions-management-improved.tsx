@@ -94,7 +94,7 @@ interface FormErrors {
   phone?: string;
 }
 
-export function PermissionsManagementImproved() : void {
+export function PermissionsManagementImproved() : JSX.Element {
   const { user: currentUser } = useAuth();
   const { 
     users, 

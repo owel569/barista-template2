@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Coffee, Eye, EyeOff } from 'lucide-react';
 
-export default function LoginSimple() : void {
+export default function LoginSimple() : JSX.Element {
   const [, navigate] = useLocation();
   const [formData, setFormData] = useState({
     username: '',

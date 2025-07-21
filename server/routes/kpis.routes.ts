@@ -111,7 +111,7 @@ router.get('/', authenticateToken, async (req, res) => {
     console.error('Erreur KPIs:', error);
     res.status(500).json({ 
       error: 'Erreur lors de la récupération des KPIs',
-      details: error.message 
+      details: (error as Error).message 
     });
   }
 });
@@ -122,15 +122,16 @@ router.get('/period/:period', authenticateToken, async (req, res) => {
     const { period } = req.params;
     const periods = ['day', 'week', 'month', 'quarter', 'year'];
 
-    if (!periods.includes(period)) {
+    if (!period || !periods.includes(period)) {
       return res.status(400).json({ error: 'Période invalide' });
     }
 
     // Génération de données historiques selon la période
-    const historicalData = generateHistoricalKPIs(period);
+    const historicalData = generateHistoricalKPIs(period as string);
     res.json(historicalData);
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la récupération des KPIs historiques' });
+    return;
   }
 });
 

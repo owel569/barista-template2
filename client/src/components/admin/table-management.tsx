@@ -117,7 +117,7 @@ const locationLabels = {
   bar: 'Bar',
 };
 
-export default function TableManagement() : void {
+export default function TableManagement() : JSX.Element {
   const [selectedTable, setSelectedTable] = useState<RestaurantTable | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'layout'>('list');
   const [locationFilter, setLocationFilter] = useState<string>('all');

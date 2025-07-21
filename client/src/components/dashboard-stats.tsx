@@ -13,7 +13,7 @@ import {
 import { useLanguage } from "@/contexts/LanguageContext";
 import DashboardCharts from "./dashboard-charts";
 
-export default function DashboardStats() : void {
+export default function DashboardStats() : JSX.Element {
   const { t } = useLanguage();
 
   const { data: todayReservations = { count: 0 } } = useQuery({

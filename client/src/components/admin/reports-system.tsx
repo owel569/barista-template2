@@ -26,7 +26,7 @@ interface ReportData {
   salesTrend: Array<{ date: string; amount: number }>;
 }
 
-export default function ReportsSystem() : void {
+export default function ReportsSystem() : JSX.Element {
   const [reportData, setReportData] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(true);
   const [generatingReport, setGeneratingReport] = useState<string | null>(null);

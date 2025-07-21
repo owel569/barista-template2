@@ -31,7 +31,7 @@ interface StockAlert {
   createdAt: string;
 }
 
-export default function InventoryManagement() : void {
+export default function InventoryManagement() : JSX.Element {
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [alerts, setAlerts] = useState<StockAlert[]>([]);
   const [loading, setLoading] = useState(true);

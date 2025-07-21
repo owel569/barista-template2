@@ -64,7 +64,7 @@ interface PaymentMethod {
   processingFee?: number;
 }
 
-export default function AdvancedPOS() : void {
+export default function AdvancedPOS() : JSX.Element {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [currentOrder, setCurrentOrder] = useState<Order | null>(null);

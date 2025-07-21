@@ -120,7 +120,7 @@ const defaultMenuItems = {
   ]
 };
 
-export default function Menu() : void {
+export default function Menu() : JSX.Element {
   const [activeTab, setActiveTab] = useState("cafes");
   const { toast } = useToast();
 

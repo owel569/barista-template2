@@ -5,7 +5,7 @@ import { useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import logoBaristaCafe from "@/assets/logo-barista-cafe.png";
 
-export default function Hero() : void {
+export default function Hero() : JSX.Element {
   const [, setLocation] = useLocation();
   const { t } = useLanguage();
   

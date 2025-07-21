@@ -1,9 +1,13 @@
 import { Router } from 'express';
-// import { storage } from '../storage';
-// Simulation temporaire pour le système de fidélité avancé
+// Simulation temporaire des données de fidélité
 const storage = {
+  getLoyaltyPrograms: async () => ({ programs: [] }),
+  getCustomerTiers: async () => ({ tiers: [] }),
+  getLoyaltyMetrics: async () => ({ metrics: { totalMembers: 0, activeMembers: 0, averageSpending: 0, retentionRate: 0 } }),
+  getPointsTransactions: async () => ({ transactions: [] }),
+  getRewardsInventory: async () => ({ rewards: [] }),
+  getCampaigns: async () => ({ campaigns: [] }),
   getCustomers: async () => [],
-  getLoyaltyPrograms: async () => [],
   getRewards: async () => [],
   getTiers: async () => []
 };

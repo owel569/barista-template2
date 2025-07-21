@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 
-export default function Register() : void {
+export default function Register() : JSX.Element {
   const { isAuthenticated } = useContext(AuthContext);
   const [, navigate] = useLocation();
   const [username, setUsername] = useState("");

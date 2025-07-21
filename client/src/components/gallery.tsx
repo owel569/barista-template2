@@ -62,7 +62,7 @@ const categories = [
   { id: "boissons", name: "Boissons", count: galleryImages.filter(img => img.category === "boissons").length }
 ];
 
-export default function Gallery() : void {
+export default function Gallery() : JSX.Element {
   const [selectedCategory, setSelectedCategory] = useState("all");
 
   const filteredImages = selectedCategory === "all" 

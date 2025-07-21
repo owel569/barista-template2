@@ -56,8 +56,8 @@ async function checkMenuContent() {
     console.log(`\n🖼️ Images: ${imagesCount.length} images associées`);
 
     // Statistiques
-    const availableItems = items.filter(item => (item as any).available).length;
-    const unavailableItems = items.filter(item => !(item as any).available).length;
+    const availableItems = items.filter((item: any) => item.available).length;
+    const unavailableItems = items.filter((item: any) => !item.available).length;
 
     console.log(`\n📊 Statistiques :`);
     console.log(`   • Articles disponibles: ${availableItems}`);

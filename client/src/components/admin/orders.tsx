@@ -33,7 +33,7 @@ interface Order {
   createdAt: string;
 }
 
-export default function Orders() : void {
+export default function Orders() : JSX.Element {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');

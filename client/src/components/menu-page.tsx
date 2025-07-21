@@ -39,7 +39,7 @@ const categoryIcons = {
   "Boissons": Coffee,
 };
 
-export default function MenuPage() : void {
+export default function MenuPage() : JSX.Element {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   const { data: categoriesResponse, isLoading: categoriesLoading } = useQuery({

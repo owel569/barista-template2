@@ -26,7 +26,7 @@ interface AccountingSummary {
   monthlyGrowth: number;
 }
 
-export default function AccountingSystem() : void {
+export default function AccountingSystem() : JSX.Element {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [summary, setSummary] = useState<AccountingSummary | null>(null);
   const [loading, setLoading] = useState(true);

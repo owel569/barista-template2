@@ -251,7 +251,7 @@ export function useRequireAuth(redirectTo: string = '/login') {
 }
 
 // Hook pour les permissions
-export function usePermissions() : void {
+export function usePermissions() : JSX.Element {
   const { user } = useAuth();
   
   const permissions = {
@@ -318,7 +318,7 @@ export function ProtectedRoute({ children, requiredRole, fallback }: ProtectedRo
 }
 
 // Composant d'indicateur de session
-export function SessionIndicator() : void {
+export function SessionIndicator() : JSX.Element {
   const { isTokenExpiring, refreshToken } = useAuth();
   
   if (!isTokenExpiring) return null;

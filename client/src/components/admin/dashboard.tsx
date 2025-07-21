@@ -41,7 +41,7 @@ interface ApiResponse<T> {
 
 const COLORS = ['#f59e0b', '#3b82f6', '#10b981', '#ef4444', '#8b5cf6'];
 
-export default function Dashboard() : void {
+export default function Dashboard() : JSX.Element {
   const [stats, setStats] = useState<DashboardStats>({
     todayReservations: 0,
     monthlyRevenue: 0,

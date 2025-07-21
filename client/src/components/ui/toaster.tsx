@@ -9,7 +9,7 @@ import {
   ToastViewport,
 } from "@/components/ui/toast"
 
-export function Toaster() : void {
+export function Toaster() : JSX.Element {
   const { toasts } = useToast()
 
   return (

@@ -47,7 +47,7 @@ const reservationSchema = z.object({
   notes: z.string().optional(),
 });
 
-export default function Reservation() : void {
+export default function Reservation() : JSX.Element {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 

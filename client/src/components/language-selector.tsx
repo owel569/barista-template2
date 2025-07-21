@@ -25,7 +25,7 @@ const languageFlags = {
   es: "🇪🇸"
 };
 
-export default function LanguageSelector() : void {
+export default function LanguageSelector() : JSX.Element {
   const { language, setLanguage, t } = useLanguage();
 
   return (

@@ -9,7 +9,7 @@ import { Coffee, ArrowLeft, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
 
-export default function LoginSimple() : void {
+export default function LoginSimple() : JSX.Element {
   const [, navigate] = useLocation();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");

@@ -167,7 +167,7 @@ interface OrderItem {
   price: number;
 }
 
-export default function UserProfileEnhanced() : void {
+export default function UserProfileEnhanced() : JSX.Element {
   const { apiRequest } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();

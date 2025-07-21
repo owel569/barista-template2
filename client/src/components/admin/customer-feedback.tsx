@@ -44,7 +44,7 @@ interface FeedbackStats {
   trendData: { date: string; rating: number; count: number }[];
 }
 
-export default function CustomerFeedback() : void {
+export default function CustomerFeedback() : JSX.Element {
   const [feedbacks, setFeedbacks] = useState<CustomerFeedback[]>([]);
   const [stats, setStats] = useState<FeedbackStats | null>(null);
   const [selectedCategory, setSelectedCategory] = useState('all');

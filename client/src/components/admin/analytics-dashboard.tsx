@@ -26,7 +26,7 @@ import {
 } from './analytics/dataGenerators';
 import { exportToJSON, exportToCSV, exportToExcel } from './analytics/ExportUtils';
 
-export default function AnalyticsDashboard() : void {
+export default function AnalyticsDashboard() : JSX.Element {
   const [timeRange, setTimeRange] = useState('7d');
   const [metrics, setMetrics] = useState(generateMetrics('7d'));
   const [revenueData, setRevenueData] = useState(generateRevenueData('7d'));

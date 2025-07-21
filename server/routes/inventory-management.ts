@@ -113,7 +113,7 @@ router.get('/overview', asyncHandler(async (req, res) => {
 
     res.json(inventory);
   } catch (error) {
-    logger.error('Erreur inventory overview', { error: error.message });
+    logger.error('Erreur inventory overview', { error: (error as Error).message });
     res.status(500).json({ message: 'Erreur serveur' });
   }
 }));
@@ -173,7 +173,7 @@ router.get('/movements', asyncHandler(async (req, res) => {
       }
     });
   } catch (error) {
-    logger.error('Erreur inventory movements', { error: error.message });
+    logger.error('Erreur inventory movements', { error: (error as Error).message });
     res.status(500).json({ message: 'Erreur serveur' });
   }
 }));
@@ -255,7 +255,7 @@ router.get('/predictions', asyncHandler(async (req, res) => {
 
     res.json(predictions);
   } catch (error) {
-    logger.error('Erreur inventory predictions', { error: error.message });
+    logger.error('Erreur inventory predictions', { error: (error as Error).message });
     res.status(500).json({ message: 'Erreur serveur' });
   }
 }));
@@ -307,7 +307,7 @@ router.get('/suppliers', asyncHandler(async (req, res) => {
       }
     });
   } catch (error) {
-    logger.error('Erreur suppliers', { error: error.message });
+    logger.error('Erreur suppliers', { error: (error as Error).message });
     res.status(500).json({ message: 'Erreur serveur' });
   }
 }));
@@ -366,7 +366,7 @@ router.post('/orders/generate', asyncHandler(async (req, res) => {
       estimatedSavings: analysisResults.estimatedSavings || 0
     });
   } catch (error) {
-    logger.error('Erreur génération commandes', { error: error.message });
+    logger.error('Erreur génération commandes', { error: (error as Error).message });
     res.status(500).json({ message: 'Erreur serveur' });
   }
 }));
@@ -418,7 +418,7 @@ router.get('/valuation', asyncHandler(async (req, res) => {
 
     res.json(valuation);
   } catch (error) {
-    logger.error('Erreur stock valuation', { error: error.message });
+    logger.error('Erreur stock valuation', { error: (error as Error).message });
     res.status(500).json({ message: 'Erreur serveur' });
   }
 }));

@@ -21,7 +21,7 @@ import About from "@/components/about";
 import Contact from "@/components/contact";
 import Gallery from "@/components/gallery";
 
-function Router() : void {
+function Router() : JSX.Element {
   const [location] = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const showSidebar = !['/login', '/register', '/admin', '/employe', '/admin-complete', '/admin-pro'].includes(location) && !location.startsWith('/admin/');
@@ -37,26 +37,26 @@ function Router() : void {
       )}
       <div className={`flex-1 ${showSidebar && sidebarOpen ? 'lg:ml-64' : ''} transition-all duration-300`}>
         <Switch>
-          <Route path="/" component={Home} />
-          <Route path="/menu" component={MenuPage} />
-          <Route path="/about" component={About} />
-          <Route path="/contact" component={Contact} />
-          <Route path="/gallery" component={Gallery} />
-          <Route path="/login" component={LoginSimple} />
-          <Route path="/register" component={Register} />
-          <Route path="/reservation" component={InteractiveReservation} />
-          <Route path="/admin/login" component={LoginSimple} />
-          <Route path="/admin" component={AdminFinal} />
-          <Route path="/employe" component={AdminFinal} />
+          <Route path="/" component={() => <Home />} />
+          <Route path="/menu" component={() => <MenuPage />} />
+          <Route path="/about" component={() => <About />} />
+          <Route path="/contact" component={() => <Contact />} />
+          <Route path="/gallery" component={() => <Gallery />} />
+          <Route path="/login" component={() => <LoginSimple />} />
+          <Route path="/register" component={() => <Register />} />
+          <Route path="/reservation" component={() => <InteractiveReservation />} />
+          <Route path="/admin/login" component={() => <LoginSimple />} />
+          <Route path="/admin" component={() => <AdminFinal />} />
+          <Route path="/employe" component={() => <AdminFinal />} />
 
-          <Route component={NotFound} />
+          <Route component={() => <NotFound />} />
         </Switch>
       </div>
     </div>
   );
 }
 
-function App() : void {
+function App() : JSX.Element {
   useEffect(() => {
     // Gestionnaire d'erreurs globales pour les promesses non gérées
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {

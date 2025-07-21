@@ -38,7 +38,7 @@ interface LoyaltyStats {
   levelDistribution: { [key: string]: number };
 }
 
-export default function LoyaltySystem() : void {
+export default function LoyaltySystem() : JSX.Element {
   const [customers, setCustomers] = useState<LoyaltyCustomer[]>([]);
   const [rewards, setRewards] = useState<LoyaltyReward[]>([]);
   const [stats, setStats] = useState<LoyaltyStats | null>(null);

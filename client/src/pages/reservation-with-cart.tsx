@@ -58,7 +58,7 @@ interface CartItem {
 
 type ReservationFormData = z.infer<typeof insertReservationSchema>;
 
-export default function ReservationWithCart() : void {
+export default function ReservationWithCart() : JSX.Element {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [showCart, setShowCart] = useState(false);

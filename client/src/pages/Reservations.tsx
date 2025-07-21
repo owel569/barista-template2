@@ -13,7 +13,7 @@ type Reservation = {
   // ajoute d'autres champs si besoin!
 };
 
-export default function ReservationsPage() : void {
+export default function ReservationsPage() : JSX.Element {
   const { reservations, addReservation, isLoading } = useReservations();
   const [form, setForm] = useState<ReservationForm>({
     name: "",

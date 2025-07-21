@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLanguage } from "@/contexts/LanguageContext";
 
-export default function About() : void {
+export default function About() : JSX.Element {
   const { t } = useLanguage();
   
   return (

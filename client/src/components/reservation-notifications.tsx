@@ -44,7 +44,7 @@ interface ReservationItem {
   notes?: string;
 }
 
-export default function ReservationNotifications() : void {
+export default function ReservationNotifications() : JSX.Element {
   const [showAll, setShowAll] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();

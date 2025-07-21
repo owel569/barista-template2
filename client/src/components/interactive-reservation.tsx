@@ -40,7 +40,7 @@ interface CartItem {
   notes?: string;
 }
 
-export default function InteractiveReservation() : void {
+export default function InteractiveReservation() : JSX.Element {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
   const [itemNotes, setItemNotes] = useState<{[key: number]: string}>({});

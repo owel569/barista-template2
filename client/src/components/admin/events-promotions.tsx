@@ -88,7 +88,7 @@ const promotionSchema = z.object({
   customerSegment: z.string().min(1, "Segment client requis"),
 });
 
-export default function EventsPromotions() : void {
+export default function EventsPromotions() : JSX.Element {
   const [events, setEvents] = useState<Event[]>([]);
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [loading, setLoading] = useState(true);

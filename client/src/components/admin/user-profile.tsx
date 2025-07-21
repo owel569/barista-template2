@@ -141,7 +141,7 @@ const addressSchema = z.object({
   isDefault: z.boolean().optional(),
 });
 
-export default function UserProfile() : void {
+export default function UserProfile() : JSX.Element {
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [activeTab, setActiveTab] = useState('profile');
   const { toast } = useToast();

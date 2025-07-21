@@ -21,7 +21,7 @@ type ContactFormData = {
   phone?: string;
 };
 
-export default function Contact() : void {
+export default function Contact() : JSX.Element {
   const { toast } = useToast();
   const { t } = useLanguage();
 

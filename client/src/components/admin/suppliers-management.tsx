@@ -32,7 +32,7 @@ interface SupplierStats {
   averageRating: number;
 }
 
-export default function SuppliersManagement() : void {
+export default function SuppliersManagement() : JSX.Element {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [stats, setStats] = useState<SupplierStats | null>(null);
   const [loading, setLoading] = useState(true);

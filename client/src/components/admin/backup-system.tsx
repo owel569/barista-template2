@@ -26,7 +26,7 @@ interface BackupSettings {
   compressionEnabled: boolean;
 }
 
-export default function BackupSystem() : void {
+export default function BackupSystem() : JSX.Element {
   const [backups, setBackups] = useState<Backup[]>([]);
   const [settings, setSettings] = useState<BackupSettings | null>(null);
   const [loading, setLoading] = useState(true);

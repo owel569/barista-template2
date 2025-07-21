@@ -6,7 +6,7 @@ import { ArrowRight, Coffee } from "lucide-react";
 import { useLocation } from "wouter";
 import { getItemImageUrl } from "@/lib/image-mapping";
 
-export default function HomeMenuPreview() : void {
+export default function HomeMenuPreview() : JSX.Element {
   const [, setLocation] = useLocation();
   
   const { data: menuResponse } = useQuery({

@@ -141,7 +141,7 @@ router.get('/user/:userId', authenticateUser, validateParams(z.object({ userId: 
 
   // Créer un objet avec tous les modules et leurs permissions
   const permissionsMap = AVAILABLE_MODULES.reduce((acc, module) => {
-    const modulePermission = userPermissions.find(p => p.module === module);
+    const modulePermission = userPermissions.find((p: any) => p.module === module);
     acc[module] = modulePermission || {
       module,
       canView: false,

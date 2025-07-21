@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, Star, MapPin, Phone, Clock } from "lucide-re
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
-export default function GreenBlackHome() : void {
+export default function GreenBlackHome() : JSX.Element {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const menuCategories = [

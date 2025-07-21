@@ -28,7 +28,7 @@ interface CalendarStats {
   maintenanceScheduled: number;
 }
 
-export default function CalendarManagement() : void {
+export default function CalendarManagement() : JSX.Element {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [stats, setStats] = useState<CalendarStats | null>(null);
   const [loading, setLoading] = useState(true);

@@ -41,7 +41,7 @@ interface MaintenanceStats {
   totalCost: number;
 }
 
-export default function MaintenanceManagement() : void {
+export default function MaintenanceManagement() : JSX.Element {
   const [tasks, setTasks] = useState<MaintenanceTask[]>([]);
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [stats, setStats] = useState<MaintenanceStats | null>(null);

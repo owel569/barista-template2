@@ -60,7 +60,7 @@ interface UserPermission {
   grantedAt: string;
 }
 
-export default function PermissionsManagement() : void {
+export default function PermissionsManagement() : JSX.Element {
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [userPermissions, setUserPermissions] = useState<UserPermission[]>([]);

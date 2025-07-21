@@ -31,7 +31,7 @@ type CarouselContextProps = {
 
 const CarouselContext = React.createContext<CarouselContextProps | null>(null)
 
-function useCarousel() : void {
+function useCarousel() : JSX.Element {
   const context = React.useContext(CarouselContext)
 
   if (!context) {
