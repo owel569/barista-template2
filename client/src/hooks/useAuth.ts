@@ -1,118 +1,230 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useLocation } from 'wouter';
-import { AuthTokenManager, ApiClient } from '@/lib/auth-utils';
 
-interface AuthState {
-  token: string | null;
-  user: unknown | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
+import { useState, useEffect, useCallback } from 'react';
+
+// Types professionnels pour l'authentification
+export interface User {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: 'admin' | 'manager' | 'staff' | 'customer';
+  permissions: string[];
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export const useAuth = () => {
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export interface RegisterData {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+}
+
+export interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  error: string | null;
+}
+
+export interface AuthContextType extends AuthState {
+  login: (credentials: LoginCredentials) => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
+  logout: () => Promise<void>;
+  updateUser: (userData: Partial<User>) => Promise<void>;
+  clearError: () => void;
+}
+
+export function useAuth(): AuthContextType {
   const [authState, setAuthState] = useState<AuthState>({
-    token: null,
     user: null,
     isAuthenticated: false,
-    isLoading: true
+    isLoading: true,
+    error: null
   });
-  const [, setLocation] = useLocation();
 
-  // Initialiser l'état d'authentification
+  // Vérification du token au démarrage
   useEffect(() => {
-    const initAuth = async () => {
+    const checkAuthStatus = async (): Promise<void> => {
       try {
-        const token = AuthTokenManager.getToken();
-        const storedUser = localStorage.getItem('user');
+        const token = localStorage.getItem('auth_token');
+        if (!token) {
+          setAuthState(prev => ({ ...prev, isLoading: false }));
+          return;
+        }
 
-        if (token && storedUser && AuthTokenManager.isTokenValid()) {
-          const user = JSON.parse(storedUser);
+        const response = await fetch('/api/auth/verify', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const userData = await response.json() as User;
           setAuthState({
-            token,
-            user,
+            user: userData,
             isAuthenticated: true,
-            isLoading: false
+            isLoading: false,
+            error: null
           });
         } else {
-          // Token invalide ou expiré
-          AuthTokenManager.removeToken();
+          localStorage.removeItem('auth_token');
           setAuthState(prev => ({ ...prev, isLoading: false }));
         }
       } catch (error) {
-        console.error('Erreur initialisation auth:', error);
-        setAuthState(prev => ({ ...prev, isLoading: false }));
+        console.error('Erreur vérification auth:', error);
+        setAuthState(prev => ({ 
+          ...prev, 
+          isLoading: false,
+          error: 'Erreur de connexion'
+        }));
       }
     };
 
-    initAuth();
+    checkAuthStatus();
   }, []);
 
-  // Fonction de login
-  const login = useCallback(async (username: string, password: string) => {
+  const login = useCallback(async (credentials: LoginCredentials): Promise<void> => {
+    setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
+    
     try {
-      const response = await ApiClient.post('/auth/login', { username, password });
-
-      // Stocker les données d'authentification
-      AuthTokenManager.setToken(response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
-
-      setAuthState({
-        token: response.token,
-        user: response.user,
-        isAuthenticated: true,
-        isLoading: false
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(credentials)
       });
 
-      return { success: true, user: response.user };
-    } catch (error: unknown) {
-      return { success: false, error: error.message || 'Erreur de connexion au serveur' };
+      const data = await response.json() as { user: User; token: string } | { error: string };
+
+      if (response.ok && 'user' in data) {
+        localStorage.setItem('auth_token', data.token);
+        setAuthState({
+          user: data.user,
+          isAuthenticated: true,
+          isLoading: false,
+          error: null
+        });
+      } else {
+        throw new Error('error' in data ? data.error : 'Erreur de connexion');
+      }
+    } catch (error) {
+      setAuthState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: error instanceof Error ? error.message : 'Erreur de connexion'
+      }));
+      throw error;
     }
   }, []);
 
-  // Fonction de logout
-  const logout = useCallback(() => {
-    AuthTokenManager.removeToken();
-    localStorage.removeItem('user');
-    setAuthState({
-      token: null,
-      user: null,
-      isAuthenticated: false,
-      isLoading: false
-    });
-    setLocation('/login');
-  }, [setLocation]);
-
-  // Vérifier si le token est valide
-  const validateToken = useCallback(async () => {
-    if (!authState.token) return false;
-
+  const register = useCallback(async (data: RegisterData): Promise<void> => {
+    setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
+    
     try {
-      await ApiClient.get('/auth/validate');
-      return true;
-    } catch (error) {
-      logout();
-      return false;
-    }
-  }, [authState.token, logout]);
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
 
-  // Intercepteur pour les requêtes API
-  const apiRequest = useCallback(async (url: string, options: RequestInit = {}) => {
-    try {
-      return await ApiClient.request(url, options);
-    } catch (error: unknown) {
-      // Gérer les erreurs d'authentification
-      if (error.message.includes('Session expirée')) {
-        logout();
+      const result = await response.json() as { user: User; token: string } | { error: string };
+
+      if (response.ok && 'user' in result) {
+        localStorage.setItem('auth_token', result.token);
+        setAuthState({
+          user: result.user,
+          isAuthenticated: true,
+          isLoading: false,
+          error: null
+        });
+      } else {
+        throw new Error('error' in result ? result.error : 'Erreur d\'inscription');
       }
+    } catch (error) {
+      setAuthState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: error instanceof Error ? error.message : 'Erreur d\'inscription'
+      }));
       throw error;
     }
-  }, [logout]);
+  }, []);
+
+  const logout = useCallback(async (): Promise<void> => {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+        }
+      });
+    } catch (error) {
+      console.error('Erreur lors de la déconnexion:', error);
+    } finally {
+      localStorage.removeItem('auth_token');
+      setAuthState({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        error: null
+      });
+    }
+  }, []);
+
+  const updateUser = useCallback(async (userData: Partial<User>): Promise<void> => {
+    if (!authState.user) throw new Error('Utilisateur non connecté');
+
+    try {
+      const response = await fetch('/api/auth/update', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+        },
+        body: JSON.stringify(userData)
+      });
+
+      const updatedUser = await response.json() as User;
+
+      if (response.ok) {
+        setAuthState(prev => ({
+          ...prev,
+          user: updatedUser
+        }));
+      } else {
+        throw new Error('Erreur de mise à jour');
+      }
+    } catch (error) {
+      setAuthState(prev => ({
+        ...prev,
+        error: error instanceof Error ? error.message : 'Erreur de mise à jour'
+      }));
+      throw error;
+    }
+  }, [authState.user]);
+
+  const clearError = useCallback((): void => {
+    setAuthState(prev => ({ ...prev, error: null }));
+  }, []);
 
   return {
     ...authState,
     login,
+    register,
     logout,
-    validateToken,
-    apiRequest
+    updateUser,
+    clearError
   };
-};
+}

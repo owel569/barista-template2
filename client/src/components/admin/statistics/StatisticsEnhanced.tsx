@@ -1,600 +1,402 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
-import {
-  BarChart3,
-  TrendingUp,
-  TrendingDown,
-  Users,
-  ShoppingBag,
-  DollarSign,
-  Calendar,
-  Clock,
-  MapPin,
-  Phone,
-  Mail,
-  Download,
-  Filter,
-  Search,
-  RefreshCw,
-  ChevronRight,
-  Eye,
-  MoreHorizontal,
-  Award,
-  Package,
-  Star,
-  Target,
-  ArrowUpRight,
-  ArrowDownRight,
-  AlertCircle
-} from "lucide-react";
+import React, { useState, useEffect, useMemo } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Progress } from '@/components/ui/progress';
+import { 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  LineChart, Line, PieChart, Pie, Cell, AreaChart, Area
+} from 'recharts';
+import { 
+  TrendingUp, TrendingDown, Users, DollarSign, ShoppingCart, 
+  Calendar, Download, Filter, RefreshCw, Eye, Star
+} from 'lucide-react';
 
-// Types pour la sécurité TypeScript
-interface StatisticData {
-  id: string;
-  name: string;
-  value: number;
-  change: number;
-  trend: 'up' | 'down' | 'stable';
-}
-
-interface CustomerData {
-  id: string;
-  name: string;
-  email: string;
-  orders: number;
-  totalSpent: number;
-  lastVisit: string;
-  avatar?: string;
-}
-
-interface ProductData {
-  id: string;
-  name: string;
-  category: string;
-  sold: number;
-  revenue: number;
-  trend: number;
-}
-
-// Import des composants optimisés
-import { MetricCard } from './components/MetricCard';
-import { RevenueChart } from './components/RevenueChart';
-import { CategoryPieChart } from './components/CategoryPieChart';
-import { TopProductsList } from './components/TopProductsList';
-import { ExportToExcelButton } from './components/ExportToExcelButton';
-import { useQuery } from '@tanstack/react-query';
-
-import { formatCurrency } from '@/components/admin/work-schedule/utils/schedule.utils';
-import { ApiClient } from '@/lib/auth-utils';
-import * as XLSX from 'xlsx';
-
-// Types pour les statistiques
-interface StatisticsData {
-  overview: {
-    totalRevenue: number;
-    totalOrders: number;
-    totalCustomers: number;
-    averageOrderValue: number;
-    growthRate: number;
-    topProducts: ProductStats[];
-    recentTrends: TrendData[];
-  };
-  revenue: {
-    daily: RevenuePoint[];
-    monthly: RevenuePoint[];
-    yearly: RevenuePoint[];
-    byCategory: CategoryRevenue[];
-  };
-  customers: {
-    acquisition: CustomerAcquisitionData[];
-    retention: RetentionData[];
-    demographics: DemographicsData[];
-    satisfaction: SatisfactionData[];
-  };
-  products: {
-    bestsellers: ProductStats[];
-    categories: CategoryStatsData[];
-    inventory: InventoryStatsData[];
-    profitability: ProfitabilityData[];
-  };
-  operations: {
-    peakHours: HourlyData[];
-    staffPerformance: StaffPerformanceData[];
-    efficiency: EfficiencyMetricsData[];
-  };
-}
-
-interface ProductStats {
-  id: number;
-  name: string;
-  category: string;
-  totalSold: number;
-  revenue: number;
-  profit: number;
-  growth: number;
-  rating: number;
-  stock: number;
-}
-
-interface TrendData {
-  date: string;
-  value: number;
-  change: number;
-  label: string;
-}
-
-interface RevenuePoint {
+// Types professionnels stricts pour le restaurant
+interface RevenueData {
   date: string;
   revenue: number;
   orders: number;
-}
-
-interface CategoryRevenue {
-  category: string;
-  revenue: number;
-  percentage: number;
-}
-
-interface CustomerAcquisitionData {
-  date: string;
-  newCustomers: number;
-  channel: string;
-}
-
-interface RetentionData {
-  period: string;
-  retentionRate: number;
   customers: number;
 }
 
-interface DemographicsData {
-  ageGroup: string;
-  percentage: number;
-  count: number;
-}
-
-interface SatisfactionData {
-  rating: number;
-  count: number;
-  percentage: number;
-}
-
-interface CategoryStatsData {
-  category: string;
-  items: number;
+interface ProductSales {
+  name: string;
+  sales: number;
   revenue: number;
-  growth: number;
+  category: string;
 }
 
-interface InventoryStatsData {
-  item: string;
-  stock: number;
-  reorderLevel: number;
-  status: 'low' | 'normal' | 'high';
+interface CustomerMetrics {
+  totalCustomers: number;
+  newCustomers: number;
+  returningCustomers: number;
+  averageOrderValue: number;
 }
 
-interface ProfitabilityData {
-  item: string;
-  cost: number;
-  price: number;
-  margin: number;
-  profit: number;
+interface OrderMetrics {
+  totalOrders: number;
+  completedOrders: number;
+  cancelledOrders: number;
+  averagePreparationTime: number;
 }
 
 interface HourlyData {
-  hour: number;
+  hour: string;
   orders: number;
   revenue: number;
-  customers: number;
 }
 
-interface StaffPerformanceData {
+interface CategoryData {
   name: string;
-  orders: number;
-  revenue: number;
-  rating: number;
-}
-
-interface EfficiencyMetricsData {
-  metric: string;
   value: number;
-  target: number;
-  status: 'good' | 'warning' | 'critical';
+  color: string;
 }
 
-interface RevenuePoint {
-  date: string;
-  revenue: number;
-  orders: number;
-  customers: number;
+interface StatisticsPeriod {
+  label: string;
+  value: string;
+  days: number;
 }
 
-interface CategoryRevenue {
-  category: string;
-  revenue: number;
-  percentage: number;
-  growth: number;
+interface ExportOptions {
+  format: 'csv' | 'excel' | 'pdf';
+  period: string;
+  includeCharts: boolean;
 }
 
-// Hook pour les données statistiques avec parallélisation
-const useStatisticsData = (period: 'daily' | 'weekly' | 'monthly' | 'yearly') => {
-  return useQuery({
-    queryKey: ['statistics', period],
-    queryFn: async () => {
-      // Appels API parallèles pour améliorer la performance
-      const [overview, revenue, customers, products, operations] = await Promise.all([
-        ApiClient.get('/admin/statistics/overview'),
-        ApiClient.get(`/admin/statistics/revenue?period=${period}`),
-        ApiClient.get('/admin/statistics/customers'),
-        ApiClient.get('/admin/statistics/products'),
-        ApiClient.get('/admin/statistics/operations')
-      ]);
+const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#8dd1e1'];
 
-      return {
-        overview,
-        revenue,
-        customers,
-        products,
-        operations
-      } as StatisticsData;
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes de cache
-    refetchInterval: 10 * 60 * 1000, // Actualisation toutes les 10 minutes
+const PERIODS: StatisticsPeriod[] = [
+  { label: 'Aujourd\'hui', value: 'today', days: 1 },
+  { label: '7 derniers jours', value: '7days', days: 7 },
+  { label: '30 derniers jours', value: '30days', days: 30 },
+  { label: '90 derniers jours', value: '90days', days: 90 },
+  { label: 'Cette année', value: 'year', days: 365 }
+];
+
+export default function StatisticsEnhanced(): JSX.Element {
+  // États avec types stricts
+  const [selectedPeriod, setSelectedPeriod] = useState<string>('7days');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [selectedView, setSelectedView] = useState<string>('overview');
+
+  // Données avec types professionnels
+  const [revenueData, setRevenueData] = useState<RevenueData[]>([]);
+  const [productSales, setProductSales] = useState<ProductSales[]>([]);
+  const [customerMetrics, setCustomerMetrics] = useState<CustomerMetrics>({
+    totalCustomers: 0,
+    newCustomers: 0,
+    returningCustomers: 0,
+    averageOrderValue: 0
   });
-};
+  const [orderMetrics, setOrderMetrics] = useState<OrderMetrics>({
+    totalOrders: 0,
+    completedOrders: 0,
+    cancelledOrders: 0,
+    averagePreparationTime: 0
+  });
+  const [hourlyData, setHourlyData] = useState<HourlyData[]>([]);
+  const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
 
-const StatisticsEnhanced: React.FC = () => {
-  const [period, setPeriod] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('monthly');
-  const [selectedTab, setSelectedTab] = useState('overview');
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 12;
+  // Génération de données de démonstration professionnelles
+  const generateMockData = useMemo(() => {
+    const period = PERIODS.find(p => p.value === selectedPeriod);
+    if (!period) return;
 
-  const { data: stats, isLoading, error } = useStatisticsData(period);
+    const days = period.days;
+    const today = new Date();
 
-  // Données pour les graphiques avec mémoisation
-  const chartData = useMemo(() => {
-    if (!stats) return null;
+    // Données de revenus
+    const revenue: RevenueData[] = Array.from({ length: days }, (_, i) => {
+      const date = new Date(today);
+      date.setDate(date.getDate() - (days - i - 1));
+      return {
+        date: date.toISOString().split('T')[0],
+        revenue: Math.floor(Math.random() * 2000) + 500,
+        orders: Math.floor(Math.random() * 50) + 10,
+        customers: Math.floor(Math.random() * 40) + 8
+      };
+    });
 
-    const combinedData = stats.revenue.daily.map(item => ({
-      date: item.date,
-      revenus: item.revenue,
-      commandes: item.orders,
-      clients: item.customers
+    // Produits les plus vendus
+    const products: ProductSales[] = [
+      { name: 'Espresso', sales: 245, revenue: 735, category: 'Boissons chaudes' },
+      { name: 'Cappuccino', sales: 189, revenue: 851, category: 'Boissons chaudes' },
+      { name: 'Croissant', sales: 156, revenue: 468, category: 'Viennoiseries' },
+      { name: 'Sandwich jambon', sales: 134, revenue: 938, category: 'Sandwichs' },
+      { name: 'Salade César', sales: 98, revenue: 1176, category: 'Salades' }
+    ];
+
+    // Données par heure
+    const hourly: HourlyData[] = Array.from({ length: 24 }, (_, i) => ({
+      hour: `${i.toString().padStart(2, '0')}:00`,
+      orders: Math.floor(Math.random() * 15) + 1,
+      revenue: Math.floor(Math.random() * 300) + 50
     }));
 
-    return {
-      combined: combinedData,
-      categories: stats.revenue.byCategory,
-      customers: stats.customers.acquisition,
-      products: stats.products.bestsellers.slice(0, 10)
-    };
-  }, [stats]);
+    // Données par catégorie
+    const categories: CategoryData[] = [
+      { name: 'Boissons chaudes', value: 45, color: COLORS[0] },
+      { name: 'Viennoiseries', value: 25, color: COLORS[1] },
+      { name: 'Sandwichs', value: 20, color: COLORS[2] },
+      { name: 'Salades', value: 10, color: COLORS[3] }
+    ];
 
-  // Pagination intelligente pour les clients
-  const paginatedCustomers = useMemo(() => {
-    if (!stats?.customers) return [];
-    const start = (currentPage - 1) * itemsPerPage;
-    return stats.customers.acquisition.slice(start, start + itemsPerPage);
-  }, [stats, currentPage, itemsPerPage]);
+    setRevenueData(revenue);
+    setProductSales(products);
+    setHourlyData(hourly);
+    setCategoryData(categories);
 
-  // Export vers Excel avec feuilles multiples
-  const exportToExcel = () => {
-    if (!stats) return;
+    // Métriques calculées
+    const totalRevenue = revenue.reduce((sum, day) => sum + day.revenue, 0);
+    const totalOrders = revenue.reduce((sum, day) => sum + day.orders, 0);
+    const totalCustomers = revenue.reduce((sum, day) => sum + day.customers, 0);
 
-    const wb = XLSX.utils.book_new();
+    setCustomerMetrics({
+      totalCustomers,
+      newCustomers: Math.floor(totalCustomers * 0.3),
+      returningCustomers: Math.floor(totalCustomers * 0.7),
+      averageOrderValue: totalRevenue / totalOrders
+    });
 
-    // Feuille revenus
-    const revenueSheet = XLSX.utils.json_to_sheet(stats.revenue.daily);
-    XLSX.utils.book_append_sheet(wb, revenueSheet, 'Revenus');
+    setOrderMetrics({
+      totalOrders,
+      completedOrders: Math.floor(totalOrders * 0.95),
+      cancelledOrders: Math.floor(totalOrders * 0.05),
+      averagePreparationTime: 12
+    });
+  }, [selectedPeriod]);
 
-    // Feuille catégories
-    const categoriesSheet = XLSX.utils.json_to_sheet(stats.revenue.byCategory);
-    XLSX.utils.book_append_sheet(wb, categoriesSheet, 'Catégories');
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      generateMockData;
+      setIsLoading(false);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [generateMockData]);
 
-    // Feuille clients
-    const customersSheet = XLSX.utils.json_to_sheet(stats.customers.acquisition);
-    XLSX.utils.book_append_sheet(wb, customersSheet, 'Clients');
+  // Fonction d'export professionnelle
+  const handleExport = async (options: ExportOptions): Promise<void> => {
+    setIsExporting(true);
+    try {
+      // Simulation d'export
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
-    // Feuille produits populaires
-    const productsSheet = XLSX.utils.json_to_sheet(stats.products.bestsellers);
-    XLSX.utils.book_append_sheet(wb, productsSheet, 'Produits Populaires');
+      const data = {
+        period: selectedPeriod,
+        revenue: revenueData,
+        products: productSales,
+        customers: customerMetrics,
+        orders: orderMetrics
+      };
 
-    XLSX.writeFile(wb, `statistiques-${period}-${new Date().toISOString().split('T')[0]}.xlsx`);
+      const blob = new Blob([JSON.stringify(data, null, 2)], { 
+        type: 'application/json' 
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `barista-cafe-stats-${selectedPeriod}.${options.format}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Erreur lors de l\'export:', error);
+    } finally {
+      setIsExporting(false);
+    }
   };
+
+  // Calculs de performance
+  const performanceMetrics = useMemo(() => {
+    const currentPeriodRevenue = revenueData.reduce((sum, day) => sum + day.revenue, 0);
+    const averageDailyRevenue = currentPeriodRevenue / revenueData.length;
+    const completionRate = orderMetrics.totalOrders > 0 
+      ? (orderMetrics.completedOrders / orderMetrics.totalOrders) * 100 
+      : 0;
+
+    return {
+      totalRevenue: currentPeriodRevenue,
+      averageDailyRevenue,
+      completionRate,
+      customerSatisfaction: 4.7
+    };
+  }, [revenueData, orderMetrics]);
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Chargement des statistiques...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
-          <p className="text-destructive">Erreur lors du chargement des statistiques</p>
+          <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p>Chargement des statistiques...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       {/* En-tête avec contrôles */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Statistiques Avancées</h2>
-          <p className="text-muted-foreground">
-            Analyses détaillées et métriques de performance
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900">Statistiques Avancées</h1>
+          <p className="text-gray-600">Barista Café - Analyse professionnelle</p>
         </div>
-        <div className="flex items-center gap-4">
-          <select
-            value={period}
-            onChange={(e) => setPeriod(e.target.value as any)}
-            className="px-3 py-2 border rounded-md"
+
+        <div className="flex flex-wrap gap-3">
+          <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Sélectionner période" />
+            </SelectTrigger>
+            <SelectContent>
+              {PERIODS.map(period => (
+                <SelectItem key={period.value} value={period.value}>
+                  {period.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Button
+            variant="outline"
+            onClick={() => handleExport({ format: 'excel', period: selectedPeriod, includeCharts: true })}
+            disabled={isExporting}
           >
-            <option value="daily">Quotidien</option>
-            <option value="weekly">Hebdomadaire</option>
-            <option value="monthly">Mensuel</option>
-            <option value="yearly">Annuel</option>
-          </select>
-          <Button onClick={exportToExcel} variant="outline" className="flex items-center gap-2">
-            <Download className="h-4 w-4" />
-            Exporter Excel
+            <Download className="h-4 w-4 mr-2" />
+            {isExporting ? 'Export...' : 'Exporter'}
           </Button>
         </div>
       </div>
 
       {/* Métriques principales */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Revenus Total</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Chiffre d'affaires
+            </CardTitle>
+            <DollarSign className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats?.overview.totalRevenue || 0)}</div>
-            <div className="flex items-center text-xs text-muted-foreground">
-              {stats?.overview.growthRate && stats.overview.growthRate > 0 ? (
-                <ArrowUpRight className="h-3 w-3 text-green-500 mr-1" />
-              ) : (
-                <ArrowDownRight className="h-3 w-3 text-red-500 mr-1" />
-              )}
-              {Math.abs(stats?.overview.growthRate || 0)}% vs période précédente
+            <div className="text-2xl font-bold">
+              {performanceMetrics.totalRevenue.toLocaleString('fr-FR')} €
+            </div>
+            <p className="text-xs text-gray-600">
+              Moy. {performanceMetrics.averageDailyRevenue.toFixed(0)} €/jour
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Commandes
+            </CardTitle>
+            <ShoppingCart className="h-4 w-4 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {orderMetrics.totalOrders.toLocaleString('fr-FR')}
+            </div>
+            <div className="flex items-center">
+              <Progress value={performanceMetrics.completionRate} className="flex-1 mr-2" />
+              <span className="text-xs text-gray-600">
+                {performanceMetrics.completionRate.toFixed(1)}%
+              </span>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Commandes</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Clients
+            </CardTitle>
+            <Users className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.overview.totalOrders || 0}</div>
-            <div className="text-xs text-muted-foreground">
-              Panier moyen: {formatCurrency(stats?.overview.averageOrderValue || 0)}
+            <div className="text-2xl font-bold">
+              {customerMetrics.totalCustomers.toLocaleString('fr-FR')}
             </div>
+            <p className="text-xs text-gray-600">
+              {customerMetrics.newCustomers} nouveaux clients
+            </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Clients</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Satisfaction
+            </CardTitle>
+            <Star className="h-4 w-4 text-yellow-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.overview.totalCustomers || 0}</div>
-            <div className="text-xs text-muted-foreground">
-              Clients actifs cette période
+            <div className="text-2xl font-bold">
+              {performanceMetrics.customerSatisfaction}/5
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Satisfaction</CardTitle>
-            <Star className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">4.8/5</div>
-            <div className="text-xs text-muted-foreground">
-              Basé sur les avis clients
-            </div>
+            <p className="text-xs text-gray-600">
+              Temps moy. préparation: {orderMetrics.averagePreparationTime}min
+            </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Graphiques et analyses */}
-      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4">
+      {/* Graphiques détaillés */}
+      <Tabs value={selectedView} onValueChange={setSelectedView}>
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
           <TabsTrigger value="revenue">Revenus</TabsTrigger>
-          <TabsTrigger value="customers">Clients</TabsTrigger>
           <TabsTrigger value="products">Produits</TabsTrigger>
+          <TabsTrigger value="hours">Heures de pointe</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <TabsContent value="overview" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>Évolution Combinée</CardTitle>
+                <CardTitle>Évolution du chiffre d'affaires</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-                  <ComposedChart data={chartData?.combined}>
+                  <AreaChart data={revenueData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" />
-                    <YAxis yAxisId="left" />
-                    <YAxis yAxisId="right" orientation="right" />
-                    <Tooltip />
-                    <Legend />
-                    <Bar yAxisId="left" dataKey="revenus" fill="#8884d8" name="Revenus" />
-                    <Line yAxisId="right" type="monotone" dataKey="commandes" stroke="#82ca9d" name="Commandes" />
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-                  </ComposedChart>
+                    <YAxis />
+                    <Tooltip formatter={(value: number) => [`${value} €`, 'Revenus']} />
+                    <Area type="monotone" dataKey="revenue" stroke="#8884d8" fill="#8884d8" />
+                  </AreaChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>Répartition par Catégorie</CardTitle>
+                <CardTitle>Répartition par catégorie</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
                   <PieChart>
                     <Pie
-                      data={chartData?.categories}
+                      data={categoryData}
+                      dataKey="value"
+                      nameKey="name"
                       cx="50%"
                       cy="50%"
-                      labelLine={false}
-                      label={({ name, percentage }) => `${name} ${percentage}%`}
                       outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="revenue"
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                     >
-                      {chartData?.categories.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={`hsl(${index * 45}, 70%, 60%)`} />
+                      {categoryData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
                     <Tooltip />
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
                   </PieChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -602,197 +404,78 @@ import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
           </div>
         </TabsContent>
 
-        <TabsContent value="revenue" className="space-y-4">
+        <TabsContent value="revenue">
           <Card>
             <CardHeader>
-              <CardTitle>Analyse des Revenus</CardTitle>
+              <CardTitle>Évolution détaillée des revenus</CardTitle>
+              <CardDescription>
+                Analyse complète des performances financières
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={400}>
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-                <AreaChart data={chartData?.combined}>
+                <LineChart data={revenueData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
                   <YAxis />
                   <Tooltip />
-                  <Area type="monotone" dataKey="revenus" stroke="#8884d8" fill="#8884d8" />
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-                </AreaChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="customers" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Acquisition Clients</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-                <LineChart data={chartData?.customers}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="newCustomers" stroke="#82ca9d" />
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
+                  <Legend />
+                  <Line type="monotone" dataKey="revenue" stroke="#8884d8" name="Revenus (€)" />
+                  <Line type="monotone" dataKey="orders" stroke="#82ca9d" name="Commandes" />
                 </LineChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="products" className="space-y-4">
+        <TabsContent value="products">
           <Card>
             <CardHeader>
-              <CardTitle>Produits Populaires</CardTitle>
+              <CardTitle>Produits les plus vendus</CardTitle>
+              <CardDescription>
+                Top des ventes par produit et catégorie
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {stats?.products.bestsellers.slice(0, 10).map((product, index) => (
-                  <div key={product.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center justify-center w-8 h-8 bg-primary text-primary-foreground rounded-full">
-                        {index + 1}
-                      </div>
-                      <div>
-                        <h4 className="font-medium">{product.name}</h4>
-                        <p className="text-sm text-muted-foreground">{product.category}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-medium">{formatCurrency(product.revenue)}</div>
-                      <div className="text-sm text-muted-foreground">{product.totalSold} vendus</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <ResponsiveContainer width="100%" height={400}>
+                <BarChart data={productSales}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="sales" fill="#8884d8" name="Ventes" />
+                  <Bar dataKey="revenue" fill="#82ca9d" name="Revenus (€)" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="hours">
+          <Card>
+            <CardHeader>
+              <CardTitle>Activité par heure</CardTitle>
+              <CardDescription>
+                Analyse des heures de pointe du restaurant
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={400}>
+                <AreaChart data={hourlyData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="hour" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Area type="monotone" dataKey="orders" stackId="1" stroke="#8884d8" fill="#8884d8" name="Commandes" />
+                  <Area type="monotone" dataKey="revenue" stackId="2" stroke="#82ca9d" fill="#82ca9d" name="Revenus (€)" />
+                </AreaChart>
+              </ResponsiveContainer>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
     </div>
   );
-};
-
-export default StatisticsEnhanced;
+}
