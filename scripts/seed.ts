@@ -1,4 +1,25 @@
 import { getDb } from '../server/db';
+import bcrypt from 'bcrypt';
+import { 
+  users, menuCategories, menuItems, tables, customers, employees, 
+  reservations, orders, orderItems, workShifts, activityLogs, permissions 
+} from '../shared/schema';
+
+interface UserInsert {
+  username: string;
+  email: string;
+  passwordHash: string;
+  role: 'directeur' | 'manager' | 'serveur' | 'cuisinier' | 'caissier';
+  fullName: string;
+  phone?: string;
+}
+
+interface MenuCategoryInsert {
+  name: string;
+  description: string;
+  displayOrder: number;
+  isActive: boolean;
+}
 import { 
   users, menuCategories, menuItems, tables, customers, employees,
   orders, orderItems, permissions, reservations, reservationItems
@@ -44,7 +65,7 @@ export async function seedDatabase(options: {
   includeOrders?: boolean;
   includeReservations?: boolean;
 } = {}): Promise<SeedStats> {
-  
+
   const stats: SeedStats = {
     users: 0, categories: 0, menuItems: 0, tables: 0,
     customers: 0, employees: 0, orders: 0, orderItems: 0,
@@ -56,56 +77,56 @@ export async function seedDatabase(options: {
   }
 
   console.log('🌱 Début du seeding de la base de données...');
-  
+
   try {
     const db = await getDb();
-    
+
     // Transaction globale pour garantir l'atomicité
     await db.transaction(async (tx: unknown) => {
       // 1. Utilisateurs et employés
       const usersResult = await seedUsersWithTransaction(tx);
       stats.users = usersResult.count;
-      
+
       const employeesResult = await seedEmployeesWithTransaction(tx);
       stats.employees = employeesResult.count;
-      
+
       // 2. Permissions
       const permissionsResult = await seedPermissionsWithTransaction(tx, usersResult.data);
       stats.permissions = permissionsResult.count;
-      
+
       // 3. Structure du menu
       const categoriesResult = await seedMenuCategoriesWithTransaction(tx);
       stats.categories = categoriesResult.count;
-      
+
       const menuItemsResult = await seedMenuItemsWithTransaction(tx, categoriesResult.data);
       stats.menuItems = menuItemsResult.count;
-      
+
       // 4. Tables
       const tablesResult = await seedTablesWithTransaction(tx);
       stats.tables = tablesResult.count;
-      
+
       // 5. Clients
       const customersResult = await seedCustomersWithTransaction(tx);
       stats.customers = customersResult.count;
-      
+
       // 6. Commandes (optionnel)
       if (options.includeOrders) {
         const ordersResult = await seedSampleOrdersWithTransaction(tx, customersResult.data, menuItemsResult.data);
         stats.orders = ordersResult.orders;
         stats.orderItems = ordersResult.orderItems;
       }
-      
+
       // 7. Réservations (optionnel)
       if (options.includeReservations) {
         const reservationsResult = await seedSampleReservationsWithTransaction(tx, customersResult.data, tablesResult.data);
         stats.reservations = reservationsResult.count;
       }
     });
-    
+
     console.log('✅ Seeding terminé avec succès');
     printSeedingStats(stats);
     return stats;
-    
+
   } catch (error) {
     console.error('❌ Erreur lors du seeding:', error);
     throw error;
@@ -115,7 +136,7 @@ export async function seedDatabase(options: {
 async function seedUsersWithTransaction(tx: any): Promise<SeedResult<User>> {
   try {
     console.log('👥 Création des utilisateurs...');
-    
+
     const userData = [
       {
         username: 'admin',
@@ -142,9 +163,9 @@ async function seedUsersWithTransaction(tx: any): Promise<SeedResult<User>> {
         email: 'employee@barista-cafe.com'
       }
     ];
-    
+
     const createdUsers = await tx.insert(users).values(userData).returning();
-    
+
     return {
       success: true,
       data: createdUsers,
@@ -163,7 +184,7 @@ async function seedUsersWithTransaction(tx: any): Promise<SeedResult<User>> {
 async function seedEmployeesWithTransaction(tx: any): Promise<SeedResult<Employee>> {
   try {
     console.log('👨‍💼 Création des employés...');
-    
+
     const employeeData = [
       {
         firstName: 'Sophie',
@@ -193,9 +214,9 @@ async function seedEmployeesWithTransaction(tx: any): Promise<SeedResult<Employe
         salary: 2000
       }
     ];
-    
+
     const createdEmployees = await tx.insert(employees).values(employeeData).returning();
-    
+
     return {
       success: true,
       data: createdEmployees,
@@ -214,17 +235,17 @@ async function seedEmployeesWithTransaction(tx: any): Promise<SeedResult<Employe
 async function seedPermissionsWithTransaction(tx: any, createdUsers: User[]): Promise<SeedResult<Permission>> {
   try {
     console.log('🔐 Création des permissions...');
-    
+
     const modules = ['menu', 'orders', 'customers', 'employees', 'analytics', 'settings'];
     const permissionData = [];
-    
+
     for (const user of createdUsers) {
       for (const module of modules) {
         let canView = true;
         let canCreate = false;
         let canUpdate = false;
         let canDelete = false;
-        
+
         // Permissions par rôle
         switch (user.role) {
           case 'directeur':
@@ -239,7 +260,7 @@ async function seedPermissionsWithTransaction(tx: any, createdUsers: User[]): Pr
             canCreate = canUpdate = module === 'orders';
             break;
         }
-        
+
         if (canView) {
           permissionData.push({
             userId: user.id,
@@ -252,9 +273,9 @@ async function seedPermissionsWithTransaction(tx: any, createdUsers: User[]): Pr
         }
       }
     }
-    
+
     const createdPermissions = await tx.insert(permissions).values(permissionData).returning();
-    
+
     return {
       success: true,
       data: createdPermissions,
@@ -273,7 +294,7 @@ async function seedPermissionsWithTransaction(tx: any, createdUsers: User[]): Pr
 async function seedMenuCategoriesWithTransaction(tx: any): Promise<SeedResult<MenuCategory>> {
   try {
     console.log('📂 Création des catégories de menu...');
-    
+
     const categoryData = [
       { name: 'Cafés', description: 'Nos cafés artisanaux', slug: 'cafes', displayOrder: 1 },
       { name: 'Boissons chaudes', description: 'Thés et boissons chaudes', slug: 'boissons-chaudes', displayOrder: 2 },
@@ -281,9 +302,9 @@ async function seedMenuCategoriesWithTransaction(tx: any): Promise<SeedResult<Me
       { name: 'Sandwichs', description: 'Sandwichs et plats légers', slug: 'sandwichs', displayOrder: 4 },
       { name: 'Boissons froides', description: 'Smoothies et boissons rafraîchissantes', slug: 'boissons-froides', displayOrder: 5 }
     ];
-    
+
     const createdCategories = await tx.insert(menuCategories).values(categoryData).returning();
-    
+
     return {
       success: true,
       data: createdCategories,
@@ -302,12 +323,12 @@ async function seedMenuCategoriesWithTransaction(tx: any): Promise<SeedResult<Me
 async function seedMenuItemsWithTransaction(tx: any, categories: MenuCategory[]): Promise<SeedResult<MenuItem>> {
   try {
     console.log('🍽️ Création des éléments de menu...');
-    
+
     const categoryMap = categories.reduce((acc, cat) => {
       acc[cat.slug] = cat.id;
       return acc;
     }, {} as Record<string, number>);
-    
+
     const menuItemData = [
       // Cafés
       { name: 'Espresso', description: 'Café espresso italien authentique', price: 2.5, categoryId: categoryMap['cafes'] },
@@ -315,30 +336,30 @@ async function seedMenuItemsWithTransaction(tx: any, categories: MenuCategory[])
       { name: 'Latte', description: 'Café au lait avec art latte', price: 4.2, categoryId: categoryMap['cafes'] },
       { name: 'Americano', description: 'Espresso allongé avec eau chaude', price: 3.0, categoryId: categoryMap['cafes'] },
       { name: 'Mocha', description: 'Café chocolaté avec crème fouettée', price: 4.5, categoryId: categoryMap['cafes'] },
-      
+
       // Boissons chaudes
       { name: 'Thé Earl Grey', description: 'Thé noir bergamote premium', price: 2.8, categoryId: categoryMap['boissons-chaudes'] },
       { name: 'Chocolat chaud', description: 'Chocolat belge avec chantilly', price: 3.5, categoryId: categoryMap['boissons-chaudes'] },
       { name: 'Thé vert Sencha', description: 'Thé vert japonais délicat', price: 3.0, categoryId: categoryMap['boissons-chaudes'] },
-      
+
       // Pâtisseries
       { name: 'Croissant', description: 'Croissant artisanal au beurre', price: 2.2, categoryId: categoryMap['patisseries'] },
       { name: 'Muffin myrtilles', description: 'Muffin fait maison aux myrtilles', price: 2.8, categoryId: categoryMap['patisseries'] },
       { name: 'Éclair au chocolat', description: 'Éclair traditionnel garni de crème chocolat', price: 3.2, categoryId: categoryMap['patisseries'] },
       { name: 'Tarte aux pommes', description: 'Tarte aux pommes maison', price: 3.8, categoryId: categoryMap['patisseries'] },
-      
+
       // Sandwichs
       { name: 'Sandwich jambon', description: 'Sandwich jambon fromage sur pain artisanal', price: 6.5, categoryId: categoryMap['sandwichs'] },
       { name: 'Croque-monsieur', description: 'Croque-monsieur traditionnel', price: 7.2, categoryId: categoryMap['sandwichs'] },
       { name: 'Wrap végétarien', description: 'Wrap aux légumes grillés et houmous', price: 6.8, categoryId: categoryMap['sandwichs'] },
-      
+
       // Boissons froides
       { name: 'Smoothie mangue', description: 'Smoothie mangue passion', price: 4.5, categoryId: categoryMap['boissons-froides'] },
       { name: 'Iced coffee', description: 'Café glacé avec glaçons', price: 3.5, categoryId: categoryMap['boissons-froides'] }
     ];
-    
+
     const createdMenuItems = await tx.insert(menuItems).values(menuItemData).returning();
-    
+
     return {
       success: true,
       data: createdMenuItems,
@@ -357,7 +378,7 @@ async function seedMenuItemsWithTransaction(tx: any, categories: MenuCategory[])
 async function seedTablesWithTransaction(tx: any): Promise<SeedResult<Table>> {
   try {
     console.log('🪑 Création des tables...');
-    
+
     const tableData = [
       { number: 1, capacity: 2, status: 'libre', location: 'Terrasse' },
       { number: 2, capacity: 4, status: 'libre', location: 'Salon principal' },
@@ -366,9 +387,9 @@ async function seedTablesWithTransaction(tx: any): Promise<SeedResult<Table>> {
       { number: 5, capacity: 8, status: 'libre', location: 'Salle privée' },
       { number: 6, capacity: 4, status: 'libre', location: 'Terrasse' }
     ];
-    
+
     const createdTables = await tx.insert(tables).values(tableData).returning();
-    
+
     return {
       success: true,
       data: createdTables,
@@ -387,7 +408,7 @@ async function seedTablesWithTransaction(tx: any): Promise<SeedResult<Table>> {
 async function seedCustomersWithTransaction(tx: any): Promise<SeedResult<Customer>> {
   try {
     console.log('👤 Création des clients...');
-    
+
     const customerData = [
       {
         firstName: 'Emma',
@@ -418,9 +439,9 @@ async function seedCustomersWithTransaction(tx: any): Promise<SeedResult<Custome
         loyaltyPoints: 50
       }
     ];
-    
+
     const createdCustomers = await tx.insert(customers).values(customerData).returning();
-    
+
     return {
       success: true,
       data: createdCustomers,
@@ -439,7 +460,7 @@ async function seedCustomersWithTransaction(tx: any): Promise<SeedResult<Custome
 async function seedSampleOrdersWithTransaction(tx: any, customers: Customer[], menuItems: MenuItem[]): Promise<{orders: number, orderItems: number}> {
   try {
     console.log('🛒 Création des commandes d\'exemple...');
-    
+
     const orderData = [
       {
         customerId: customers[0].id,
@@ -460,27 +481,27 @@ async function seedSampleOrdersWithTransaction(tx: any, customers: Customer[], m
         type: 'sur_place'
       }
     ];
-    
+
     const createdOrders = await tx.insert(orders).values(orderData).returning();
-    
+
     // Création des order items
     const orderItemData = [
       // Commande 1
       { orderId: createdOrders[0].id, menuItemId: menuItems[0].id, quantity: 2, price: menuItems[0].price },
       { orderId: createdOrders[0].id, menuItemId: menuItems[8].id, quantity: 1, price: menuItems[8].price },
-      
+
       // Commande 2  
       { orderId: createdOrders[1].id, menuItemId: menuItems[1].id, quantity: 1, price: menuItems[1].price },
       { orderId: createdOrders[1].id, menuItemId: menuItems[12].id, quantity: 1, price: menuItems[12].price },
-      
+
       // Commande 3
       { orderId: createdOrders[2].id, menuItemId: menuItems[2].id, quantity: 2, price: menuItems[2].price },
       { orderId: createdOrders[2].id, menuItemId: menuItems[10].id, quantity: 1, price: menuItems[10].price },
       { orderId: createdOrders[2].id, menuItemId: menuItems[15].id, quantity: 1, price: menuItems[15].price }
     ];
-    
+
     const createdOrderItems = await tx.insert(orderItems).values(orderItemData).returning();
-    
+
     return {
       orders: createdOrders.length,
       orderItems: createdOrderItems.length
@@ -494,13 +515,13 @@ async function seedSampleOrdersWithTransaction(tx: any, customers: Customer[], m
 async function seedSampleReservationsWithTransaction(tx: any, customers: Customer[], tables: Table[]): Promise<SeedResult<any>> {
   try {
     console.log('📅 Création des réservations d\'exemple...');
-    
+
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    
+
     const nextWeek = new Date();
     nextWeek.setDate(nextWeek.getDate() + 7);
-    
+
     const reservationData = [
       {
         customerName: customers[0].firstName + ' ' + customers[0].lastName,
@@ -525,9 +546,9 @@ async function seedSampleReservationsWithTransaction(tx: any, customers: Custome
         specialRequests: ''
       }
     ];
-    
+
     const createdReservations = await tx.insert(reservations).values(reservationData).returning();
-    
+
     return {
       success: true,
       data: createdReservations,

@@ -1,7 +1,22 @@
-import { Router } from 'express';
-import { createLogger } from '../middleware/logging';
+import { Router, Request, Response } from 'express';
+import { getDb } from '../db';
+import { users, menuCategories, menuItems, tables, customers, employees, 
+         reservations, orders, orderItems, workShifts, activityLogs, permissions } from '../../shared/schema';
+import { eq, and, desc, asc, sql, count, sum, avg, min, max, like, gte, lte, between, inArray } from 'drizzle-orm';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import { authenticateToken, requireRole } from '../middleware/auth';
 import { asyncHandler } from '../middleware/error-handler';
-import { authenticateToken } from '../middleware/auth';
+
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: number;
+    username: string;
+    role: string;
+    email: string;
+  };
+}
+import { createLogger } from '../middleware/logging';
 import { validateRequestWithLogging } from '../middleware/logging';
 import { z } from 'zod';
 
@@ -236,7 +251,7 @@ router.get('/test', (req, res) => {
 });
 
 // Routes admin avec authentification
-router.get('/admin/notifications', authenticateToken, asyncHandler(async (req, res) => {
+router.get('/admin/notifications', authenticateToken, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   try {
     const notifications = [
       {
@@ -265,7 +280,7 @@ router.get('/admin/notifications', authenticateToken, asyncHandler(async (req, r
   }
 }));
 
-router.get('/admin/notifications/count', authenticateToken, asyncHandler(async (req, res) => {
+router.get('/admin/notifications/count', authenticateToken, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   try {
     const unreadCount = 2; // Nombre de notifications non lues
     res.json({ success: true, count: unreadCount });
@@ -275,7 +290,7 @@ router.get('/admin/notifications/count', authenticateToken, asyncHandler(async (
   }
 }));
 
-router.get('/admin/dashboard/stats', authenticateToken, asyncHandler(async (req, res) => {
+router.get('/admin/dashboard/stats', authenticateToken, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { getDb } = await import('../db.js');
     const { orders, reservations, customers, menuItems } = await import('@shared/schema.js');
@@ -311,7 +326,7 @@ router.get('/admin/dashboard/stats', authenticateToken, asyncHandler(async (req,
   }
 }));
 
-router.get('/admin/users', authenticateToken, asyncHandler(async (req, res) => {
+router.get('/admin/users', authenticateToken, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { getDb } = await import('../db.js');
     const { users } = await import('@shared/schema.js');
@@ -335,7 +350,7 @@ router.get('/admin/users', authenticateToken, asyncHandler(async (req, res) => {
   }
 }));
 
-router.get('/admin/menu', authenticateToken, asyncHandler(async (req, res) => {
+router.get('/admin/menu', authenticateToken, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { getDb } = await import('../db.js');
     const { menuItems, menuCategories } = await import('@shared/schema.js');
@@ -367,7 +382,7 @@ router.get('/admin/menu', authenticateToken, asyncHandler(async (req, res) => {
   }
 }));
 
-router.get('/admin/categories', authenticateToken, asyncHandler(async (req, res) => {
+router.get('/admin/categories', authenticateToken, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { getDb } = await import('../db.js');
     const { menuCategories } = await import('@shared/schema.js');
@@ -438,7 +453,7 @@ router.get('/menu/items', asyncHandler(async (req, res) => {
 }));
 
 // Routes CRUD pour les éléments de menu
-router.get('/admin/menu/items', authenticateToken, asyncHandler(async (req, res) => {
+router.get('/admin/menu/items', authenticateToken, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { getDb } = await import('../db.js');
     const { menuItems, menuCategories } = await import('@shared/schema.js');
@@ -470,7 +485,7 @@ router.get('/admin/menu/items', authenticateToken, asyncHandler(async (req, res)
   }
 }));
 
-router.post('/admin/menu/items', authenticateToken, asyncHandler(async (req, res) => {
+router.post('/admin/menu/items', authenticateToken, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { getDb } = await import('../db.js');
     const { menuItems } = await import('@shared/schema.js');
@@ -494,7 +509,7 @@ router.post('/admin/menu/items', authenticateToken, asyncHandler(async (req, res
   }
 }));
 
-router.put('/admin/menu/items/:id', authenticateToken, asyncHandler(async (req, res) => {
+router.put('/admin/menu/items/:id', authenticateToken, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { getDb } = await import('../db.js');
     const { menuItems } = await import('@shared/schema.js');
@@ -528,7 +543,7 @@ router.put('/admin/menu/items/:id', authenticateToken, asyncHandler(async (req, 
   }
 }));
 
-router.delete('/admin/menu/items/:id', authenticateToken, asyncHandler(async (req, res) => {
+router.delete('/admin/menu/items/:id', authenticateToken, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { getDb } = await import('../db.js');
     const { menuItems } = await import('@shared/schema.js');
@@ -552,7 +567,7 @@ router.delete('/admin/menu/items/:id', authenticateToken, asyncHandler(async (re
   }
 }));
 
-router.get('/admin/customers', authenticateToken, asyncHandler(async (req, res) => {
+router.get('/admin/customers', authenticateToken, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { getDb } = await import('../db.js');
     const { customers } = await import('@shared/schema.js');
@@ -567,7 +582,7 @@ router.get('/admin/customers', authenticateToken, asyncHandler(async (req, res) 
   }
 }));
 
-router.get('/admin/reservations', authenticateToken, asyncHandler(async (req, res) => {
+router.get('/admin/reservations', authenticateToken, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { getDb } = await import('../db.js');
     const { reservations, customers, tables } = await import('@shared/schema.js');
@@ -587,7 +602,7 @@ router.get('/admin/reservations', authenticateToken, asyncHandler(async (req, re
   }
 }));
 
-router.get('/admin/promotions', authenticateToken, asyncHandler(async (req, res) => {
+router.get('/admin/promotions', authenticateToken, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   try {
     const promotions = [
       {
@@ -617,7 +632,7 @@ router.get('/admin/promotions', authenticateToken, asyncHandler(async (req, res)
   }
 }));
 
-router.get('/admin/events', authenticateToken, asyncHandler(async (req, res) => {
+router.get('/admin/events', authenticateToken, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   try {
     const events = [
       {
@@ -649,7 +664,7 @@ router.get('/admin/events', authenticateToken, asyncHandler(async (req, res) => 
   }
 }));
 
-router.get('/admin/inventory/items', authenticateToken, asyncHandler(async (req, res) => {
+router.get('/admin/inventory/items', authenticateToken, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   try {
     const inventoryItems = [
       {
@@ -683,7 +698,7 @@ router.get('/admin/inventory/items', authenticateToken, asyncHandler(async (req,
   }
 }));
 
-router.get('/admin/inventory/alerts', authenticateToken, asyncHandler(async (req, res) => {
+router.get('/admin/inventory/alerts', authenticateToken, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   try {
     const alerts = [
       {
@@ -710,7 +725,7 @@ router.get('/admin/inventory/alerts', authenticateToken, asyncHandler(async (req
 }));
 
 // Routes statistiques détaillées pour le dashboard
-router.get('/admin/stats/revenue-detailed', authenticateToken, asyncHandler(async (req, res) => {
+router.get('/admin/stats/revenue-detailed', authenticateToken, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { getDb } = await import('../db.js');
     const { orders } = await import('@shared/schema.js');
@@ -738,7 +753,7 @@ router.get('/admin/stats/revenue-detailed', authenticateToken, asyncHandler(asyn
 }));
 
 // Route pour les statistiques du module avancé
-router.get('/admin/statistics/overview', authenticateToken, asyncHandler(async (req, res) => {
+router.get('/admin/statistics/overview', authenticateToken, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { getDb } = await import('../db.js');
     const { orders, customers, menuItems } = await import('@shared/schema.js');
@@ -768,7 +783,7 @@ router.get('/admin/statistics/overview', authenticateToken, asyncHandler(async (
   }
 }));
 
-router.get('/admin/stats/category-analytics', authenticateToken, asyncHandler(async (req, res) => {
+router.get('/admin/stats/category-analytics', authenticateToken, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   try {
     const categoryData = [
       { name: 'Cafés', sales: 3250, percentage: 45 },
@@ -784,7 +799,7 @@ router.get('/admin/stats/category-analytics', authenticateToken, asyncHandler(as
   }
 }));
 
-router.get('/admin/stats/customer-analytics', authenticateToken, asyncHandler(async (req, res) => {
+router.get('/admin/stats/customer-analytics', authenticateToken, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   try {
     const customerData = {
       newCustomers: 156,

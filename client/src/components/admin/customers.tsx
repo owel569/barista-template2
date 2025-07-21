@@ -1,17 +1,48 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
-import { Users, Mail, Phone, Calendar, Euro, Eye, Edit, Trash2, UserPlus } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { 
+  Users, UserPlus, Search, Filter, Mail, Phone, Calendar, 
+  MapPin, Star, Gift, TrendingUp, Eye, Edit, Trash2, MessageSquare,
+  Heart, Award, Clock, DollarSign
+} from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
+
+interface Customer {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  address?: string;
+  dateOfBirth?: string;
+  preferredContactMethod: 'email' | 'phone' | 'sms';
+  dietaryRestrictions?: string;
+  allergies?: string;
+  notes?: string;
+  loyaltyPoints: number;
+  totalSpent: number;
+  visitCount: number;
+  lastVisit?: string;
+  status: 'active' | 'inactive' | 'vip';
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { usePermissions } from '@/hooks/usePermissions';
 // import { PhoneInput } from '@/components/ui/phone-input'; // Remplacé par Input standard
-import { Customer, User } from '@/types/admin';
+import { User } from '@/types/admin';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -28,7 +59,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  
+
   const { hasPermission } = usePermissions(user);
   const [newCustomer, setNewCustomer] = useState({
     firstName: '',
@@ -41,7 +72,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
     notes: ''
   });
   const { toast } = useToast();
-  
+
   // Initialiser WebSocket pour les notifications temps réel
   useWebSocket();
 
@@ -49,12 +80,12 @@ export default function Customers({ userRole, user }: CustomersProps) {
 
   useEffect(() => {
     fetchCustomers();
-    
+
     // Actualisation automatique toutes les 20 secondes
     const interval = setInterval(() => {
       fetchCustomers();
     }, 20000);
-    
+
     return () => clearInterval(interval);
   }, []);
 
@@ -68,7 +99,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
       const response = await fetch('/api/admin/customers', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setCustomers(data);
@@ -133,9 +164,9 @@ export default function Customers({ userRole, user }: CustomersProps) {
         dateOfBirth: newCustomer.dateOfBirth || undefined,
         notes: newCustomer.notes.trim() || undefined
       };
-      
+
       console.log('Données envoyées:', customerData);
-      
+
       const response = await fetch('/api/admin/customers', {
         method: 'POST',
         headers: {
@@ -412,7 +443,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                           {tier.name}
                         </Badge>
                       </div>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-gray-600 dark:text-gray-400 mb-3">
                         <div className="flex items-center gap-2">
                           <Mail className="h-4 w-4" />
@@ -433,7 +464,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                           <span>{customer.totalOrders} commande(s)</span>
                         </div>
                       </div>
-                      
+
                       <div className="text-sm text-gray-600 dark:text-gray-400">
                         {customer.lastVisit ? (
                           <>
@@ -450,14 +481,14 @@ export default function Customers({ userRole, user }: CustomersProps) {
                           {format(new Date(customer.createdAt), 'dd/MM/yyyy', { locale: fr })}
                         </span>
                       </div>
-                      
+
                       {customer.notes && (
                         <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-800 rounded text-sm">
                           <span className="font-medium">Note:</span> {customer.notes}
                         </div>
                       )}
                     </div>
-                    
+
                     <div className="flex flex-col gap-2 ml-4">
                       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                         <DialogTrigger asChild>
@@ -533,7 +564,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                           )}
                         </DialogContent>
                       </Dialog>
-                      
+
                       {!isReadOnly && (
                         <>
                           <Button
