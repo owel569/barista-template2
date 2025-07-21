@@ -6,7 +6,7 @@ interface User {
   role: 'directeur' | 'employe';
 }
 
-export function useUser() {
+export function useUser() : void {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 

@@ -1,7 +1,8 @@
+import React from 'react';
 import { Link } from "wouter";
 import { Coffee, Facebook, Instagram, Twitter, Mail, Phone, MapPin } from "lucide-react";
 
-export default function Footer() {
+export default function Footer() : void {
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {

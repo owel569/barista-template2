@@ -1,3 +1,4 @@
+import React from 'react';
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -214,7 +215,7 @@ export default function DashboardMain({ userRole = 'directeur' }: DashboardMainP
               </PieChart>
             </ResponsiveContainer>
             <div className="mt-4 flex flex-wrap gap-4">
-              {statusData.length > 0 ? statusData.map((item, index) => (
+              {statusData.length > 0 ? statusData.map((item, index: unknown) => (
                 <div key={index} className="flex items-center gap-2">
                   <div 
                     className="w-3 h-3 rounded-full" 

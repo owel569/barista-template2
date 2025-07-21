@@ -130,7 +130,7 @@ export function validateStorageKey(key: string): key is StorageKey {
 }
 
 // Migration des anciennes clés
-export function migrateOldStorageKeys() {
+export function migrateOldStorageKeys() : void {
   const oldToNewMapping: Record<string, StorageKey> = {
     'token': STORAGE_KEYS.AUTH_TOKEN,
     'user': STORAGE_KEYS.USER_DATA,

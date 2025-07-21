@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useCallback, useMemo } from 'react';
 import { useUsers } from '../../hooks/useUsers';
 import { useAuth } from '../../hooks/useAuth';
@@ -93,7 +94,7 @@ interface FormErrors {
   phone?: string;
 }
 
-export function PermissionsManagementImproved() {
+export function PermissionsManagementImproved() : void {
   const { user: currentUser } = useAuth();
   const { 
     users, 

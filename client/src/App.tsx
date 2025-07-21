@@ -1,3 +1,4 @@
+import React from 'react';
 import { Switch, Route, useLocation } from "wouter";
 import { useState, useEffect } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -20,7 +21,7 @@ import About from "@/components/about";
 import Contact from "@/components/contact";
 import Gallery from "@/components/gallery";
 
-function Router() {
+function Router() : void {
   const [location] = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const showSidebar = !['/login', '/register', '/admin', '/employe', '/admin-complete', '/admin-pro'].includes(location) && !location.startsWith('/admin/');
@@ -55,7 +56,7 @@ function Router() {
   );
 }
 
-function App() {
+function App() : void {
   useEffect(() => {
     // Gestionnaire d'erreurs globales pour les promesses non gérées
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {

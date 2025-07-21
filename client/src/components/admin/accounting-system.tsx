@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,7 +26,7 @@ interface AccountingSummary {
   monthlyGrowth: number;
 }
 
-export default function AccountingSystem() {
+export default function AccountingSystem() : void {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [summary, setSummary] = useState<AccountingSummary | null>(null);
   const [loading, setLoading] = useState(true);

@@ -7,7 +7,7 @@ import * as schema from '@shared/schema';
 let pool: Pool;
 let db: ReturnType<typeof drizzle>;
 
-export async function initializeDatabase() {
+export async function initializeDatabase() : void {
   try {
     console.log('🐘 Connexion à PostgreSQL...');
 
@@ -62,7 +62,7 @@ export async function initializeDatabase() {
   }
 }
 
-export async function getDb() {
+export async function getDb() : void {
   if (!db || !pool) {
     await initializeDatabase();
   }
@@ -78,7 +78,7 @@ export async function getDb() {
   return db;
 }
 
-export async function checkDatabaseHealth() {
+export async function checkDatabaseHealth() : void {
   try {
     if (!pool) {
       await initializeDatabase();

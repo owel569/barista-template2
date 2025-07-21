@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
@@ -57,7 +58,7 @@ interface CartItem {
 
 type ReservationFormData = z.infer<typeof insertReservationSchema>;
 
-export default function ReservationWithCart() {
+export default function ReservationWithCart() : void {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [showCart, setShowCart] = useState(false);

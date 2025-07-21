@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -37,7 +38,7 @@ interface LoyaltyStats {
   levelDistribution: { [key: string]: number };
 }
 
-export default function LoyaltySystem() {
+export default function LoyaltySystem() : void {
   const [customers, setCustomers] = useState<LoyaltyCustomer[]>([]);
   const [rewards, setRewards] = useState<LoyaltyReward[]>([]);
   const [stats, setStats] = useState<LoyaltyStats | null>(null);

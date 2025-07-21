@@ -51,7 +51,7 @@ import InventoryManagementModule from '@/components/admin/modules/InventoryManag
 import LoyaltyProgramModule from '@/components/admin/modules/LoyaltyProgram';
 import DashboardModule from '@/components/admin/modules/Dashboard';
 
-export default function AdminFinal() {
+export default function AdminFinal() : void {
   const [, navigate] = useLocation();
   const [activeModule, setActiveModule] = useState('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);

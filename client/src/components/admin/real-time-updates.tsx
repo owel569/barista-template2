@@ -51,7 +51,7 @@ interface LiveMetrics {
   errorRate: number;
 }
 
-export default function RealTimeUpdates() {
+export default function RealTimeUpdates() : void {
   const [events, setEvents] = useState<RealTimeEvent[]>([]);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>({
     connected: false,

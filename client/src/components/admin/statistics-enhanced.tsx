@@ -169,8 +169,8 @@ export default function StatisticsEnhanced({ userRole }: StatisticsEnhancedProps
         setTotalStats(data);
       } else {
         // Calculer les stats à partir des données mock
-        const totalRevenue = mockRevenueData.reduce((sum, item) => sum + item.revenue, 0);
-        const totalOrders = mockRevenueData.reduce((sum, item) => sum + item.orders, 0);
+        const totalRevenue = mockRevenueData.reduce((sum, item: unknown) => sum + item.revenue, 0);
+        const totalOrders = mockRevenueData.reduce((sum, item: unknown) => sum + item.orders, 0);
         setTotalStats({
           totalRevenue,
           totalOrders,

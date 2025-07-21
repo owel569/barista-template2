@@ -1,3 +1,4 @@
+import React from 'react';
 // Séparation des responsabilités - RevenueChart - Amélioration #2 des attached_assets
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

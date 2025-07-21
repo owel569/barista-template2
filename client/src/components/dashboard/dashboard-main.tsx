@@ -90,7 +90,7 @@ function StatsCard({ title, value, icon: Icon, trend, color }: StatsCardProps) {
   );
 }
 
-export default function DashboardMain() {
+export default function DashboardMain() : void {
   const { user } = useUser();
   
   const { data: todayReservations } = useQuery({

@@ -65,7 +65,7 @@ export class AdvancedAnalytics {
           churnRisk: Math.random() > 0.8 ? 'high' : Math.random() > 0.6 ? 'medium' : 'low',
           lastVisit: c.lastVisit,
           loyaltyPoints: c.loyaltyPoints
-        })).filter(c => c.churnRisk === 'high').slice(0, 5)
+        })).filter(c => c.churnRisk === 'high': unknown).slice(0, 5: unknown)
       };
 
       return analysis;

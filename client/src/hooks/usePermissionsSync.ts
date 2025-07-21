@@ -7,7 +7,7 @@ import { usePermissions } from './usePermissions';
  * Hook pour synchroniser les permissions en temps réel
  * Écoute les changements de permissions et met à jour automatiquement
  */
-export function usePermissionsSync() {
+export function usePermissionsSync() : void {
   const { user } = useContext(AuthContext);
   const { refreshPermissions, isDirector } = usePermissions(user);
 

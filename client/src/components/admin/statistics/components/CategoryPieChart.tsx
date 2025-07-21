@@ -1,3 +1,4 @@
+import React from 'react';
 // Séparation des responsabilités - CategoryPieChart - Amélioration #2 des attached_assets
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

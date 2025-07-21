@@ -1,3 +1,4 @@
+import React from 'react';
 import * as React from "react"
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
@@ -30,7 +31,7 @@ type CarouselContextProps = {
 
 const CarouselContext = React.createContext<CarouselContextProps | null>(null)
 
-function useCarousel() {
+function useCarousel() : void {
   const context = React.useContext(CarouselContext)
 
   if (!context) {

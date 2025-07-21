@@ -1,6 +1,7 @@
+import React from 'react';
 import { useLanguage } from "@/contexts/LanguageContext";
 
-export default function About() {
+export default function About() : void {
   const { t } = useLanguage();
   
   return (

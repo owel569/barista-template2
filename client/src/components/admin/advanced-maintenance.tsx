@@ -114,7 +114,7 @@ const equipmentSchema = z.object({
   manualUrl: z.string().optional(),
 });
 
-export default function AdvancedMaintenance() {
+export default function AdvancedMaintenance() : void {
   const [stats, setStats] = useState<MaintenanceStats | null>(null);
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [tasks, setTasks] = useState<MaintenanceTask[]>([]);

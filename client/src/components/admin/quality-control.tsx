@@ -46,7 +46,7 @@ interface QualityCriteria {
   excellent: string;
 }
 
-export default function QualityControl() {
+export default function QualityControl() : void {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [qualityChecks, setQualityChecks] = useState<QualityCheck[]>([]);
   const [standards, setStandards] = useState<QualityStandard[]>([]);

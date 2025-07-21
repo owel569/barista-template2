@@ -1,3 +1,4 @@
+import React from 'react';
 import { Link, useLocation } from "wouter";
 import { Coffee, Calendar, Settings, Home, Menu, X, Sparkles, Book, Info, MessageCircle, Image, Users, Utensils, ChefHat } from "lucide-react";
 import { cn } from "@/lib/utils";

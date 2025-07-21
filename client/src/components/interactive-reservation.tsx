@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
@@ -39,7 +40,7 @@ interface CartItem {
   notes?: string;
 }
 
-export default function InteractiveReservation() {
+export default function InteractiveReservation() : void {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
   const [itemNotes, setItemNotes] = useState<{[key: number]: string}>({});

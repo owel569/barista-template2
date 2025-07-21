@@ -111,7 +111,7 @@ interface NotificationTemplate {
   variables: string[];
 }
 
-export default function NotificationsSystem() {
+export default function NotificationsSystem() : void {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [filter, setFilter] = useState<'all' | 'unread' | 'read'>('all');
   const [loading, setLoading] = useState(true);

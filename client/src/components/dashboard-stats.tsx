@@ -1,3 +1,4 @@
+import React from 'react';
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -12,7 +13,7 @@ import {
 import { useLanguage } from "@/contexts/LanguageContext";
 import DashboardCharts from "./dashboard-charts";
 
-export default function DashboardStats() {
+export default function DashboardStats() : void {
   const { t } = useLanguage();
 
   const { data: todayReservations = { count: 0 } } = useQuery({

@@ -1,3 +1,4 @@
+import React from 'react';
 import { useReservations, ReservationForm } from "@/hooks/useReservations";
 import { useState } from "react";
 
@@ -12,7 +13,7 @@ type Reservation = {
   // ajoute d'autres champs si besoin!
 };
 
-export default function ReservationsPage() {
+export default function ReservationsPage() : void {
   const { reservations, addReservation, isLoading } = useReservations();
   const [form, setForm] = useState<ReservationForm>({
     name: "",

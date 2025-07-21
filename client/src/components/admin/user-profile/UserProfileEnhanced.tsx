@@ -187,7 +187,7 @@ const mockUserProfiles: UserProfile[] = [
 ];
 
 // Composant principal
-export default function UserProfileEnhanced() {
+export default function UserProfileEnhanced() : void {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterLevel, setFilterLevel] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');

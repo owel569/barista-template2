@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import { ContactMessage } from '../../../types/admin';
+import { ContactMessage } from '@/types/admin';
 import {
   Card,
   CardContent,

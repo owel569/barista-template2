@@ -340,7 +340,7 @@ async function generateAlternativeSlots(date: string, time: string, guests: numb
   ];
 }
 
-async function generateAutomationSuggestions() {
+async function generateAutomationSuggestions() : void {
   return {
     menu: {
       recommendations: [

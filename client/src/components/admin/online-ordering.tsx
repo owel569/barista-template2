@@ -104,7 +104,7 @@ const platformIcons = {
   phone: Tablet,
 };
 
-export default function OnlineOrdering() {
+export default function OnlineOrdering() : void {
   const [selectedOrder, setSelectedOrder] = useState<OnlineOrder | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [platformFilter, setPlatformFilter] = useState<string>('all');

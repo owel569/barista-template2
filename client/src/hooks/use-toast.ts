@@ -24,7 +24,7 @@ const actionTypes = {
 
 let count = 0
 
-function genId() {
+function genId() : void {
   count = (count + 1) % Number.MAX_SAFE_INTEGER
   return count.toString()
 }
@@ -168,7 +168,7 @@ function toast({ ...props }: Toast) {
   }
 }
 
-function useToast() {
+function useToast() : void {
   const [state, setState] = React.useState<State>(memoryState)
 
   React.useEffect(() => {

@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,7 +39,7 @@ const categoryIcons = {
   "Boissons": Coffee,
 };
 
-export default function MenuPage() {
+export default function MenuPage() : void {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   const { data: categoriesResponse, isLoading: categoriesLoading } = useQuery({
@@ -98,7 +99,7 @@ export default function MenuPage() {
             >
               Tout
             </Button>
-            {categories.map((category) => {
+            {categories.map((category: unknown) => {
               const IconComponent = getCategoryIcon(category.name);
               return (
                 <Button
@@ -117,7 +118,7 @@ export default function MenuPage() {
 
         {/* Menu Items Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredItems.map((item) => (
+          {filteredItems.map((item: unknown) => (
             <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
               {/* Image HD */}
               <div className="aspect-video bg-coffee-light/20 overflow-hidden">

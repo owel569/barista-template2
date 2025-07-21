@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,7 +28,7 @@ interface CalendarStats {
   maintenanceScheduled: number;
 }
 
-export default function CalendarManagement() {
+export default function CalendarManagement() : void {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [stats, setStats] = useState<CalendarStats | null>(null);
   const [loading, setLoading] = useState(true);

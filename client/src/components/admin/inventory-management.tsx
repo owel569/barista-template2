@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,7 +31,7 @@ interface StockAlert {
   createdAt: string;
 }
 
-export default function InventoryManagement() {
+export default function InventoryManagement() : void {
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [alerts, setAlerts] = useState<StockAlert[]>([]);
   const [loading, setLoading] = useState(true);

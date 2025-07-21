@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,7 +32,7 @@ interface SupplierStats {
   averageRating: number;
 }
 
-export default function SuppliersManagement() {
+export default function SuppliersManagement() : void {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [stats, setStats] = useState<SupplierStats | null>(null);
   const [loading, setLoading] = useState(true);

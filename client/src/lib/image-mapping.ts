@@ -156,7 +156,7 @@ export async function validateImageUrl(url: string): Promise<boolean> {
 /**
  * Statistiques du système d'images
  */
-export function getImageMappingStats() {
+export function getImageMappingStats() : void {
   return {
     totalImages: Object.keys(ITEM_IMAGES).length + Object.keys(CATEGORY_IMAGES).length,
     categoriesWithImages: Object.keys(CATEGORY_IMAGES),

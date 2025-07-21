@@ -1,10 +1,11 @@
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Calendar, Utensils } from "lucide-react";
 import { useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import logoBaristaCafe from "@/assets/logo-barista-cafe.png";
 
-export default function Hero() {
+export default function Hero() : void {
   const [, setLocation] = useLocation();
   const { t } = useLanguage();
   

@@ -33,7 +33,7 @@ interface OccupancyData {
   rate: number;
 }
 
-export default function DashboardCharts() {
+export default function DashboardCharts() : void {
   const { data: dailyReservations = [] } = useQuery<ReservationData[]>({
     queryKey: ["/api/stats/daily-reservations"],
   });

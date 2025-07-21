@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ActivityLog } from '../../../types/admin';
+import { ActivityLog } from '@/types/admin';
 import {
   Card,
   CardContent,

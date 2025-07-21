@@ -1,3 +1,4 @@
+import React from 'react';
 // Séparation des responsabilités - ExportToExcelButton - Amélioration #2 des attached_assets
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";

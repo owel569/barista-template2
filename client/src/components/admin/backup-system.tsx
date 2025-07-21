@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,7 +26,7 @@ interface BackupSettings {
   compressionEnabled: boolean;
 }
 
-export default function BackupSystem() {
+export default function BackupSystem() : void {
   const [backups, setBackups] = useState<Backup[]>([]);
   const [settings, setSettings] = useState<BackupSettings | null>(null);
   const [loading, setLoading] = useState(true);

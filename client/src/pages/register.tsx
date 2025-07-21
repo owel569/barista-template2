@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useContext } from "react";
 import { AuthContext } from "@/contexts/auth-context";
 import { useLocation } from "wouter";
@@ -10,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 
-export default function Register() {
+export default function Register() : void {
   const { isAuthenticated } = useContext(AuthContext);
   const [, navigate] = useLocation();
   const [username, setUsername] = useState("");

@@ -1,3 +1,4 @@
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -24,7 +25,7 @@ const languageFlags = {
   es: "🇪🇸"
 };
 
-export default function LanguageSelector() {
+export default function LanguageSelector() : void {
   const { language, setLanguage, t } = useLanguage();
 
   return (

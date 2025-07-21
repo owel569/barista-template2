@@ -101,7 +101,7 @@ const statusLabels = {
   failed: 'Échec',
 };
 
-export default function DeliveryTracking() {
+export default function DeliveryTracking() : void {
   const [selectedDelivery, setSelectedDelivery] = useState<Delivery | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const { toast } = useToast();

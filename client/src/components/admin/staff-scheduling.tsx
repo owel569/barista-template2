@@ -37,7 +37,7 @@ interface Shift {
   notes?: string;
 }
 
-export default function StaffScheduling() {
+export default function StaffScheduling() : void {
   const [selectedWeek, setSelectedWeek] = useState(new Date());
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);

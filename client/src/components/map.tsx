@@ -1,7 +1,8 @@
+import React from 'react';
 import { MapPin } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function Map() {
+export default function Map() : void {
   return (
     <section id="map" className="py-16 bg-gray-50">
       <div className="container mx-auto px-4">

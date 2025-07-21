@@ -282,7 +282,7 @@ const fetchModulesStatus = async () => {
     }
   };
 
-export default function AdvancedModulesManager() {
+export default function AdvancedModulesManager() : void {
   const [modulesData, setModulesData] = useState<ModulesData | null>(null);
   const [loading, setLoading] = useState(true);
 

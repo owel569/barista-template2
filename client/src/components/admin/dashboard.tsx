@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -40,7 +41,7 @@ interface ApiResponse<T> {
 
 const COLORS = ['#f59e0b', '#3b82f6', '#10b981', '#ef4444', '#8b5cf6'];
 
-export default function Dashboard() {
+export default function Dashboard() : void {
   const [stats, setStats] = useState<DashboardStats>({
     todayReservations: 0,
     monthlyRevenue: 0,

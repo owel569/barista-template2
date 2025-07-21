@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -119,7 +120,7 @@ const defaultMenuItems = {
   ]
 };
 
-export default function Menu() {
+export default function Menu() : void {
   const [activeTab, setActiveTab] = useState("cafes");
   const { toast } = useToast();
 

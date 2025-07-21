@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -43,7 +44,7 @@ interface ReservationItem {
   notes?: string;
 }
 
-export default function ReservationNotifications() {
+export default function ReservationNotifications() : void {
   const [showAll, setShowAll] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();

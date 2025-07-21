@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
@@ -20,7 +21,7 @@ type ContactFormData = {
   phone?: string;
 };
 
-export default function Contact() {
+export default function Contact() : void {
   const { toast } = useToast();
   const { t } = useLanguage();
 

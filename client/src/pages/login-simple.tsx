@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ import { Coffee, ArrowLeft, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
 
-export default function LoginSimple() {
+export default function LoginSimple() : void {
   const [, navigate] = useLocation();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");

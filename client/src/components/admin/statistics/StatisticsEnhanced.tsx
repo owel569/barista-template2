@@ -435,6 +435,7 @@ const StatisticsEnhanced: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
+import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
                   <ComposedChart data={chartData?.combined}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" />
@@ -444,6 +445,7 @@ const StatisticsEnhanced: React.FC = () => {
                     <Legend />
                     <Bar yAxisId="left" dataKey="revenus" fill="#8884d8" name="Revenus" />
                     <Line yAxisId="right" type="monotone" dataKey="commandes" stroke="#82ca9d" name="Commandes" />
+import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
                   </ComposedChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -455,6 +457,7 @@ const StatisticsEnhanced: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
+import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
                   <PieChart>
                     <Pie
                       data={chartData?.categories}
@@ -471,6 +474,7 @@ const StatisticsEnhanced: React.FC = () => {
                       ))}
                     </Pie>
                     <Tooltip />
+import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
                   </PieChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -485,12 +489,14 @@ const StatisticsEnhanced: React.FC = () => {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={400}>
+import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
                 <AreaChart data={chartData?.combined}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
                   <YAxis />
                   <Tooltip />
                   <Area type="monotone" dataKey="revenus" stroke="#8884d8" fill="#8884d8" />
+import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
                 </AreaChart>
               </ResponsiveContainer>
             </CardContent>
@@ -504,12 +510,14 @@ const StatisticsEnhanced: React.FC = () => {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
+import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
                 <LineChart data={chartData?.customers}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
                   <YAxis />
                   <Tooltip />
                   <Line type="monotone" dataKey="newCustomers" stroke="#82ca9d" />
+import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
                 </LineChart>
               </ResponsiveContainer>
             </CardContent>

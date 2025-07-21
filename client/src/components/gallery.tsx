@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -61,7 +62,7 @@ const categories = [
   { id: "boissons", name: "Boissons", count: galleryImages.filter(img => img.category === "boissons").length }
 ];
 
-export default function Gallery() {
+export default function Gallery() : void {
   const [selectedCategory, setSelectedCategory] = useState("all");
 
   const filteredImages = selectedCategory === "all" 

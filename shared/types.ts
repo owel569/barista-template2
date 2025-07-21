@@ -188,3 +188,52 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
     totalPages: number;
   };
 }
+
+// Interfaces manquantes ajoutées automatiquement
+export interface ChartConfiguration {
+  type: 'bar' | 'line' | 'pie' | 'doughnut';
+  data: ChartData;
+  options?: ChartOptions;
+}
+
+export interface ChartData {
+  labels: string[];
+  datasets: ChartDataset[];
+}
+
+export interface ChartDataset {
+  label: string;
+  data: number[];
+  backgroundColor?: string | string[];
+  borderColor?: string | string[];
+  borderWidth?: number;
+}
+
+export interface ChartOptions {
+  responsive?: boolean;
+  plugins?: {
+    legend?: {
+      position?: 'top' | 'bottom' | 'left' | 'right';
+    };
+    title?: {
+      display?: boolean;
+      text?: string;
+    };
+  };
+  scales?: Record<string, unknown>;
+}
+
+export interface RealTimeMetrics {
+  activeUsers: number;
+  pendingOrders: number;
+  revenue: number;
+  capacity: number;
+  lastUpdated: string;
+}
+
+export interface DatabaseStats {
+  totalRecords: number;
+  activeConnections: number;
+  queryTime: number;
+  cacheHitRate: number;
+}

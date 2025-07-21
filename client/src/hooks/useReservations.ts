@@ -19,7 +19,7 @@ export type ReservationForm = {
   tableId: number | null;
 };
 
-export function useReservations() {
+export function useReservations() : void {
   const queryClient = useQueryClient();
 
   const { data: reservations = [], isLoading } = useQuery<Reservation[]>({

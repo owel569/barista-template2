@@ -1,3 +1,4 @@
+import React from 'react';
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -5,7 +6,7 @@ import { ArrowRight, Coffee } from "lucide-react";
 import { useLocation } from "wouter";
 import { getItemImageUrl } from "@/lib/image-mapping";
 
-export default function HomeMenuPreview() {
+export default function HomeMenuPreview() : void {
   const [, setLocation] = useLocation();
   
   const { data: menuResponse } = useQuery({

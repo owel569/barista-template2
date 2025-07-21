@@ -1,3 +1,4 @@
+import React from 'react';
 // Séparation des responsabilités - Amélioration #2 des attached_assets
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LucideIcon } from "lucide-react";

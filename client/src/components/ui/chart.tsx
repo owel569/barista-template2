@@ -1,3 +1,4 @@
+import React from 'react';
 "use client"
 
 import * as React from "react"
@@ -24,7 +25,7 @@ type ChartContextProps = {
 
 const ChartContext = React.createContext<ChartContextProps | null>(null)
 
-function useChart() {
+function useChart() : void {
   const context = React.useContext(ChartContext)
 
   if (!context) {

@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -40,7 +41,7 @@ interface MaintenanceStats {
   totalCost: number;
 }
 
-export default function MaintenanceManagement() {
+export default function MaintenanceManagement() : void {
   const [tasks, setTasks] = useState<MaintenanceTask[]>([]);
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [stats, setStats] = useState<MaintenanceStats | null>(null);
