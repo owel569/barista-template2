@@ -557,7 +557,7 @@ export default function StaffScheduling() {
   );
 }
 
-const AddShiftForm = ({ onSubmit, employees }: { onSubmit: (data: any) => void, employees: Employee[] }) => {
+const AddShiftForm = ({ onSubmit, employees }: { onSubmit: (data: Record<string, unknown>) => void, employees: Employee[] }) => {
   const [formData, setFormData] = useState({
     employeeId: '',
     date: '',

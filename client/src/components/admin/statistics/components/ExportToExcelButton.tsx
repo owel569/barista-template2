@@ -5,7 +5,7 @@ import { Download, Loader2 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 interface ExportToExcelButtonProps {
-  data: any[];
+  data: unknown[];
   filename?: string;
   sheetName?: string;
   disabled?: boolean;

@@ -133,7 +133,7 @@ export default function OnlineOrdering() {
   });
 
   const updateSettingsMutation = useMutation({
-    mutationFn: (data: any) => apiRequest('/api/admin/online-ordering/settings', { method: 'POST', body: JSON.stringify(data) }),
+    mutationFn: (data: Record<string, unknown>) => apiRequest('/api/admin/online-ordering/settings', { method: 'POST', body: JSON.stringify(data) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/online-ordering/settings'] });
       toast({ title: "Paramètres sauvegardés" });

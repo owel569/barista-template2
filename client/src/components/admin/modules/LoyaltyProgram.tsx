@@ -41,7 +41,7 @@ const LoyaltyProgram = () => {
 
   // Mutation pour ajouter des points
   const addPointsMutation = useMutation({
-    mutationFn: async (params: any) => {
+    mutationFn: async (params: Record<string, unknown>) => {
       const response = await fetch('/api/admin/loyalty/points/add', {
         method: 'POST',
         headers: {

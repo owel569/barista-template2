@@ -196,7 +196,7 @@ router.get('/automation-suggestions',
         success: true,
         data: suggestions,
         appliedCount: 0,
-        pendingCount: suggestions.length
+        pendingCount: Array.isArray(suggestions) ? suggestions.length : 0
       });
     } catch (error) {
       console.error('Erreur suggestions automatisation:', error);
@@ -293,7 +293,7 @@ function simulateSpeechToText(audioData: string, language: string): Promise<stri
 
   // Simulation d'un délai de traitement
     setTimeout(() => {
-      resolve(phrases[Math.floor(Math.random() * phrases.length)]);
+      resolve(phrases?.[Math.floor(Math.random() * (phrases?.length || 1))] || 'Bonjour!');
     }, 500);
   });
 }
@@ -301,7 +301,7 @@ function simulateSpeechToText(audioData: string, language: string): Promise<stri
 async function checkTableAvailability(date: string, time: string, guests: number) {
   // TODO: Intégrer avec le système de réservation existant
   const isWeekend = new Date(date).getDay() === 0 || new Date(date).getDay() === 6;
-  const hour = parseInt(time.split(':')[0]);
+  const hour = parseInt(time?.split(':')[0] || '12');
 
   // Simulation de logique de disponibilité
   const available = !isWeekend && (hour < 12 || hour > 14) && (hour < 19 || hour > 21);
@@ -316,7 +316,7 @@ async function checkTableAvailability(date: string, time: string, guests: number
   };
 }
 
-async function createAIReservation(data: any) {
+async function createAIReservation(data: Record<string, unknown>) {
   // TODO: Intégrer avec le storage existant
   return {
     id: `AI-RES-${Date.now()}`,

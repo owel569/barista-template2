@@ -76,7 +76,7 @@ export default function Reservation() {
       reset();
       queryClient.invalidateQueries({ queryKey: ["/api/reservations"] });
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast({
         title: "Erreur de réservation",
         description:

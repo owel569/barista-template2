@@ -4,7 +4,7 @@ import { createLogger } from './logging';
 const logger = createLogger('CACHE');
 
 // Cache simple en mémoire pour les requêtes fréquentes
-const cache = new Map<string, { data: any; timestamp: number; ttl: number }>();
+const cache = new Map<string, { data: Record<string, unknown>; timestamp: number; ttl: number }>();
 
 // Middleware de cache pour les requêtes GET
 export const cacheMiddleware = (ttlSeconds: number = 300) => {

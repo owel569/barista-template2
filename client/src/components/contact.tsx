@@ -53,7 +53,7 @@ export default function Contact() {
       });
       reset();
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast({
         title: "Erreur d'envoi",
         description: error.message || "Une erreur est survenue lors de l'envoi du message.",

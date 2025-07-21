@@ -121,7 +121,7 @@ export default function DeliveryTracking() {
   });
 
   const createDeliveryMutation = useMutation({
-    mutationFn: (data: any) => apiRequest('/api/admin/deliveries', { method: 'POST', data }),
+    mutationFn: (data: Record<string, unknown>) => apiRequest('/api/admin/deliveries', { method: 'POST', data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/deliveries'] });
       toast({ title: "Livraison créée avec succès" });
@@ -146,7 +146,7 @@ export default function DeliveryTracking() {
     },
   });
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: Record<string, unknown>) => {
     createDeliveryMutation.mutate(data);
   };
 

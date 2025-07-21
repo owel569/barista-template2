@@ -120,7 +120,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         token: response.token,
         message: response.message,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erreur de connexion:', error);
       
       setAuthState(prev => ({

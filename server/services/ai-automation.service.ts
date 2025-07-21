@@ -162,7 +162,7 @@ export class AIAutomationService {
     return Math.min(matches.length / keywords.length + (matches.length * 0.2), 1);
   }
 
-  private async generateContextualResponse(message: string, intent: any, session: any[], userId?: string) {
+  private async generateContextualResponse(message: string, intent: any, session: unknown[], userId?: string) {
     const { category, confidence } = intent;
 
     switch (category) {
@@ -189,7 +189,7 @@ export class AIAutomationService {
     }
   }
 
-  private generateMenuResponse(message: string, session: any[]) {
+  private generateMenuResponse(message: string, session: unknown[]) {
     const menuItems = Object.entries(CAFE_KNOWLEDGE_BASE.menu);
     const menuText = menuItems.map(([name, info]) => 
       `• ${name.charAt(0).toUpperCase() + name.slice(1)}: ${info.description} - ${info.price}€`
@@ -205,7 +205,7 @@ export class AIAutomationService {
     };
   }
 
-  private generateReservationResponse(message: string, session: any[], userId?: string) {
+  private generateReservationResponse(message: string, session: unknown[], userId?: string) {
     // Extraction des informations de réservation du message
     const guestMatch = message.match(/(\d+)\s*(personne|gens|places)/i);
     const guests = guestMatch ? parseInt(guestMatch[1]) : null;
@@ -223,7 +223,7 @@ export class AIAutomationService {
     };
   }
 
-  private generateOrderResponse(message: string, session: any[], userId?: string) {
+  private generateOrderResponse(message: string, session: unknown[], userId?: string) {
     // Détection des items mentionnés
     const mentionedItems = Object.keys(CAFE_KNOWLEDGE_BASE.menu).filter(item =>
       message.toLowerCase().includes(item.toLowerCase())
@@ -314,7 +314,7 @@ export class AIAutomationService {
     };
   }
 
-  private generateGeneralResponse(session: any[]) {
+  private generateGeneralResponse(session: unknown[]) {
     return {
       text: `👋 **Bienvenue au Café Barista !**\n\n` +
             `Je suis votre assistant virtuel. Je peux vous aider avec :\n\n` +
@@ -417,7 +417,7 @@ export class AIAutomationService {
 
   // === GESTION DE SESSION ===
 
-  private getOrCreateSession(sessionId: string): any[] {
+  private getOrCreateSession(sessionId: string): unknown[] {
     if (!this.chatSessions.has(sessionId)) {
       this.chatSessions.set(sessionId, []);
     }
@@ -608,9 +608,9 @@ export class AIAutomationService {
     };
   }
 
-  private extractEntities(message: string): any[] {
+  private extractEntities(message: string): unknown[] {
     // Extraction d'entités simple
-    const entities: any[] = [];
+    const entities: unknown[] = [];
 
     // Extraction de dates
     const dateRegex = /(\d{1,2}\/\d{1,2}\/\d{4})/g;

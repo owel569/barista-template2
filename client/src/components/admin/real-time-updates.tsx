@@ -195,7 +195,7 @@ export default function RealTimeUpdates() {
     return () => clearInterval(pollInterval);
   }, []);
 
-  const handleWebSocketMessage = useCallback((data: any) => {
+  const handleWebSocketMessage = useCallback((data: Record<string, unknown>) => {
     switch (data.type) {
       case 'event':
         addNewEvent(data.event);

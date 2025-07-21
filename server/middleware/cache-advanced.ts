@@ -4,7 +4,7 @@ import { createHash } from 'crypto';
 
 // Interface pour les entrées de cache
 interface CacheEntry {
-  data: any;
+  data: Record<string, unknown>;
   timestamp: number;
   ttl: number;
   tags: string[];
@@ -36,7 +36,7 @@ class AdvancedCache {
   }
 
   // Obtenir une entrée du cache
-  get(key: string): any | null {
+  get(key: string): unknown | null {
     const entry = this.cache.get(key);
     if (!entry) return null;
 
@@ -54,7 +54,7 @@ class AdvancedCache {
   }
 
   // Stocker une entrée dans le cache
-  set(key: string, data: any, ttl: number = this.defaultTTL, tags: string[] = []): void {
+  set(key: string, data: Record<string, unknown>, ttl: number = this.defaultTTL, tags: string[] = []): void {
     // Vérifier la taille du cache
     if (this.cache.size >= this.maxSize) {
       this.evictLeastUsed();
@@ -203,7 +203,7 @@ export const cacheMiddleware = (options: {
 
     // Intercepter la réponse pour la mettre en cache
     const originalSend = res.json;
-    res.json = function(data: any) {
+    res.json = function(data: Record<string, unknown>) {
       // Mettre en cache seulement les réponses réussies
       if (res.statusCode >= 200 && res.statusCode < 300) {
         cache.set(cacheKey, data, options.ttl, options.tags || []);
@@ -241,7 +241,7 @@ export const invalidateCache = (tags: string[] = []) => {
   return (req: Request, res: Response, next: NextFunction) => {
     // Invalider le cache après une modification réussie
     const originalSend = res.json;
-    res.json = function(data: any) {
+    res.json = function(data: Record<string, unknown>) {
       if (res.statusCode >= 200 && res.statusCode < 300 && tags.length > 0) {
         const invalidatedCount = cache.invalidateByTags(tags);
         res.setHeader('X-Cache-Invalidated', invalidatedCount.toString());

@@ -139,7 +139,7 @@ export default function TableManagement() {
   });
 
   const createTableMutation = useMutation({
-    mutationFn: (data: any) => apiRequest('/api/admin/tables', { method: 'POST', data }),
+    mutationFn: (data: Record<string, unknown>) => apiRequest('/api/admin/tables', { method: 'POST', data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/tables'] });
       toast({ title: "Table créée avec succès" });
@@ -174,7 +174,7 @@ export default function TableManagement() {
     },
   });
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: Record<string, unknown>) => {
     createTableMutation.mutate(data);
   };
 

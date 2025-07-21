@@ -181,13 +181,13 @@ export default function UserProfile() {
     resolver: zodResolver(addressSchema),
   });
 
-  const onSubmitProfile = (data: any) => {
+  const onSubmitProfile = (data: Record<string, unknown>) => {
     if (selectedUser) {
       updateProfileMutation.mutate({ id: selectedUser.id, ...data });
     }
   };
 
-  const onSubmitAddress = (data: any) => {
+  const onSubmitAddress = (data: Record<string, unknown>) => {
     if (selectedUser) {
       addAddressMutation.mutate({ userId: selectedUser.id, ...data });
     }

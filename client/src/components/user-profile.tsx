@@ -82,7 +82,7 @@ const UserProfile: React.FC = () => {
   });
 
   const updateProfileMutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: Record<string, unknown>) => {
       const response = await fetch('/api/user/profile', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -98,7 +98,7 @@ const UserProfile: React.FC = () => {
   });
 
   const changePasswordMutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: Record<string, unknown>) => {
       const response = await fetch('/api/user/change-password', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },

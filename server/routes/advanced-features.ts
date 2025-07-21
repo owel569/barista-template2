@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { storage } from '../storage';
+// import { storage } from '../storage'; // Non utilisé pour l'instant
 
 const router = Router();
 
@@ -420,8 +420,8 @@ router.post('/reports/:reportId/generate', async (req, res) => {
     setTimeout(() => {
       reportData.status = 'ready';
       reportData.progress = 100;
-      reportData.downloadUrl = `/api/advanced/reports/${reportId}/download`;
-      reportData.filename = `rapport-${reportId}-${new Date().toISOString().split('T')[0]}.pdf`;
+      (reportData as any).downloadUrl = `/api/advanced/reports/${reportId}/download`;
+      (reportData as any).filename = `rapport-${reportId}-${new Date().toISOString().split('T')[0]}.pdf`;
     }, 2000);
 
     res.json(reportData);
@@ -768,6 +768,14 @@ router.get('/kpis', async (req, res) => {
 router.get('/modules-status', authenticateToken, async (req, res) => {
   try {
     // Simuler la récupération du statut des modules avec validation
+    // Fonction simulée pour le statut des modules
+    const getModulesStatus = async () => ({
+      inventory: { active: true, lastSync: new Date().toISOString() },
+      analytics: { active: true, lastUpdate: new Date().toISOString() },
+      loyalty: { active: true, members: 145 },
+      delivery: { active: false, reason: 'Configuration required' }
+    });
+    
     const modulesStatus = await getModulesStatus();
 
     // Validation des données avant envoi
@@ -780,12 +788,12 @@ router.get('/modules-status', authenticateToken, async (req, res) => {
       data: modulesStatus,
       timestamp: new Date().toISOString()
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Erreur lors de la récupération du statut des modules:', error);
     res.status(500).json({ 
       success: false,
       error: 'Erreur lors de la récupération du statut des modules',
-      message: error.message || 'Erreur inconnue'
+      message: (error as Error).message || 'Erreur inconnue'
     });
   }
 });

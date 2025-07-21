@@ -4,7 +4,7 @@ import { AuthTokenManager, ApiClient } from '@/lib/auth-utils';
 
 interface AuthState {
   token: string | null;
-  user: any | null;
+  user: unknown | null;
   isAuthenticated: boolean;
   isLoading: boolean;
 }
@@ -64,7 +64,7 @@ export const useAuth = () => {
       });
 
       return { success: true, user: response.user };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return { success: false, error: error.message || 'Erreur de connexion au serveur' };
     }
   }, []);
@@ -99,7 +99,7 @@ export const useAuth = () => {
   const apiRequest = useCallback(async (url: string, options: RequestInit = {}) => {
     try {
       return await ApiClient.request(url, options);
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Gérer les erreurs d'authentification
       if (error.message.includes('Session expirée')) {
         logout();

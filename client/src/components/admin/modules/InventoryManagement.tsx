@@ -56,7 +56,7 @@ const InventoryManagement = () => {
 
   // Mutation pour générer des commandes automatiques
   const generateOrdersMutation = useMutation({
-    mutationFn: async (params: any) => {
+    mutationFn: async (params: Record<string, unknown>) => {
       const response = await fetch('/api/admin/inventory/orders/generate', {
         method: 'POST',
         headers: {

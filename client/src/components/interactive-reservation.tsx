@@ -55,7 +55,7 @@ export default function InteractiveReservation() {
   });
 
   const reservationMutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: Record<string, unknown>) => {
       return apiRequest('POST', '/api/reservations', data);
     },
     onSuccess: () => {
@@ -67,7 +67,7 @@ export default function InteractiveReservation() {
       form.reset();
       setCart([]);
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast({
         title: "Erreur",
         description: error.message || "Une erreur est survenue",

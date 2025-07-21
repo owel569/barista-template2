@@ -46,7 +46,7 @@ export const apiResponseValidator = (req: Request, res: Response, next: NextFunc
   next();
 };
 
-export const errorResponseHandler = (error: any, req: Request, res: Response, next: NextFunction) => {
+export const errorResponseHandler = (error: unknown, req: Request, res: Response, next: NextFunction) => {
   if (req.path.startsWith('/api/')) {
     const statusCode = error.status || error.statusCode || 500;
     

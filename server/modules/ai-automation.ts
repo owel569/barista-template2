@@ -174,7 +174,7 @@ export class AIAutomationModule {
     // Détection d'intention
     let intent = 'general';
     let confidence = 0.8;
-    let actions: any[] = [];
+    let actions: unknown[] = [];
     
     if (lowerMessage.includes('menu') || lowerMessage.includes('carte')) {
       intent = 'menu_inquiry';
@@ -291,7 +291,7 @@ export class AIAutomationModule {
     };
   }
 
-  private static async createReservation(data: any) {
+  private static async createReservation(data: Record<string, unknown>) {
     return {
       id: `RES-${Date.now()}`,
       ...data,

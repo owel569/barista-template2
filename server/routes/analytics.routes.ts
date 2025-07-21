@@ -212,6 +212,14 @@ router.get('/detailed/:reportType',
     try {
       const { reportType } = req.params;
       const { startDate, endDate, period = 'month' } = req.query;
+      
+      // Traitement basé sur reportType
+      res.json({ message: `Analytics détaillées pour ${reportType}`, period, startDate, endDate });
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur lors de la génération du rapport' });
+    }
+  }
+);
 
       let analyticsData;
       
@@ -325,7 +333,7 @@ router.post('/export', authenticateToken, async (req, res) => {
     // Simuler le traitement d'export
     setTimeout(() => {
       exportData.status = 'completed';
-      exportData.downloadUrl = `/api/downloads/export-${exportData.exportId}.${format}`;
+      exportData.downloadUrl = `/api/downloads/export-${exportData.exportId}.${format}` as any;
     }, 2000);
 
     res.json(exportData);

@@ -1,4 +1,4 @@
-export const exportToJSON = (data: any, filename: string) => {
+export const exportToJSON = (data: Record<string, unknown>, filename: string) => {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -10,7 +10,7 @@ export const exportToJSON = (data: any, filename: string) => {
   URL.revokeObjectURL(url);
 };
 
-export const exportToCSV = (data: any[], filename: string) => {
+export const exportToCSV = (data: unknown[], filename: string) => {
   if (data.length === 0) return;
   
   const headers = Object.keys(data[0]);
@@ -30,7 +30,7 @@ export const exportToCSV = (data: any[], filename: string) => {
   URL.revokeObjectURL(url);
 };
 
-export const exportToExcel = async (data: any[], filename: string) => {
+export const exportToExcel = async (data: unknown[], filename: string) => {
   try {
     // Import dynamically to avoid bundle size increase
     const XLSX = await import('xlsx');
