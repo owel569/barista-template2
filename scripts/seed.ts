@@ -61,7 +61,7 @@ export async function seedDatabase(options: {
     const db = await getDb();
     
     // Transaction globale pour garantir l'atomicité
-    await db.transaction(async (tx) => {
+    await db.transaction(async (tx: unknown) => {
       // 1. Utilisateurs et employés
       const usersResult = await seedUsersWithTransaction(tx);
       stats.users = usersResult.count;

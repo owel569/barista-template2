@@ -201,7 +201,7 @@ export default function InteractiveReservation() : void {
                   >
                     Tout voir
                   </Button>
-                  {categories.map((category: any) => {
+                  {categories.map((category: MenuCategory) => {
                     const Icon = getCategoryIcon(category.name);
                     return (
                       <Button

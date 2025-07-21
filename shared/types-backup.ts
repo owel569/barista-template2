@@ -1,3 +1,4 @@
+
 // Types centralisés pour l'application restaurant
 export interface MenuItemData {
   id: number;
@@ -72,31 +73,6 @@ export interface EmployeeData {
   lastName: string;
   email: string;
   phone: string;
-  position: string;
-  department: string;
-  hireDate: string;
-  salary: number;
-  status: 'active' | 'inactive';
-  permissions: PermissionData[];
-}
-
-export interface PermissionData {
-  id: number;
-  userId: number;
-  module: string;
-  canView: boolean;
-  canCreate: boolean;
-  canUpdate: boolean;
-  canDelete: boolean;
-}
-
-export interface TableData {
-  id: number;
-  number: number;
-  capacity: number;
-  location: string;
-  available: boolean;
-  createdAt: string;
 }
 
 // Types pour l'inventaire professionnel
@@ -113,12 +89,6 @@ export interface InventoryStatistics {
   lowStock: number;
   outOfStock: number;
   totalValue: number;
-  lowStockItems: number;
-  pendingOrders: number;
-  monthlyConsumption: number;
-  lowStockItems: number;
-  pendingOrders: number;
-  monthlyConsumption: number;
 }
 
 export interface InventoryItem {
@@ -129,18 +99,6 @@ export interface InventoryItem {
   currentStock: number;
   unit: string;
   category: string;
-  minStock: number;
-  maxStock: number;
-  daysRemaining: number;
-  cost: number;
-  minStock: number;
-  maxStock: number;
-  daysRemaining: number;
-  cost: number;
-  minStock: number;
-  maxStock: number;
-  daysRemaining: number;
-  cost: number;
 }
 
 export interface InventoryCategory {
@@ -206,6 +164,34 @@ export interface ChurnPrediction {
   loyaltyPoints: number;
 }
 
+export interface ExtendedEmployeeData extends EmployeeData {
+  position: string;
+  department: string;
+  hireDate: string;
+  salary: number;
+  status: 'active' | 'inactive';
+  permissions: PermissionData[];
+}
+
+export interface PermissionData {
+  id: number;
+  userId: number;
+  module: string;
+  canView: boolean;
+  canCreate: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
+}
+
+export interface TableData {
+  id: number;
+  number: number;
+  capacity: number;
+  location: string;
+  available: boolean;
+  createdAt: string;
+}
+
 export interface InventoryItemData {
   id: number;
   name: string;
@@ -239,13 +225,62 @@ export interface WebSocketEventData {
 }
 
 export interface SystemNotification {
-  id: number;
-  type: 'info' | 'warning' | 'error' | 'success';
+  id: string;
   title: string;
   message: string;
-  timestamp: string;
-  read: boolean;
+  type: 'info' | 'warning' | 'error' | 'success';
+  userId?: number;
+  createdAt: Date;
 }
+
+// Types pour les formulaires
+export interface ReservationFormData {
+  customerName: string;
+  customerEmail: string;
+  customerPhone?: string;
+  date: string;
+  time: string;
+  partySize: number;
+  specialRequests?: string;
+}
+
+export interface MenuItemFormData {
+  name: string;
+  description: string;
+  price: number;
+  categoryId: number;
+  imageUrl?: string;
+  available: boolean;
+}
+
+export interface EmployeeFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  position: string;
+  department: string;
+  hireDate: string;
+  salary: number;
+}
+
+// Types pour les réponses API
+export interface ApiResponse<T = unknown> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: string;
+}
+
+export interface PaginatedResponse<T> extends ApiResponse<T[]> {
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
 // Interfaces manquantes ajoutées automatiquement
 export interface ChartConfiguration {
   type: 'bar' | 'line' | 'pie' | 'doughnut';

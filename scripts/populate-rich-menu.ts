@@ -115,7 +115,7 @@ async function populateRichMenu() {
     
     // Récupérer les catégories existantes
     const categories = await db.select().from(menuCategories);
-    const categoryMap = categories.reduce((acc, cat) => {
+    const categoryMap = categories.reduce((acc, cat: unknown) => {
       acc[cat.slug] = cat.id;
       return acc;
     }, {} as Record<string, number>);

@@ -93,7 +93,7 @@ router.get('/migrations', authenticateToken, requireRole('directeur'), asyncHand
       'order_items', 'work_shifts', 'activity_logs', 'permissions'
     ];
     
-    const existingTables = tablesCheck.rows.map(row => row.table_name);
+    const existingTables = tablesCheck.rows.map(row => row.table_name as string);
     const missingTables = expectedTables.filter(table => !existingTables.includes(table));
     
     res.json({

@@ -438,7 +438,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {categories.map((category: any) => (
+                            {categories.map((category: MenuCategory) => (
                               <SelectItem key={category.id} value={category.id.toString()}>
                                 {category.name}
                               </SelectItem>
@@ -565,7 +565,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Toutes les catégories</SelectItem>
-                {categories.map((category: any) => (
+                {categories.map((category: MenuCategory) => (
                   <SelectItem key={category.id} value={category.id.toString()}>
                     {category.name}
                   </SelectItem>

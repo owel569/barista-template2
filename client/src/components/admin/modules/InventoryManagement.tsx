@@ -24,6 +24,7 @@ import {
   DollarSign
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { InventoryData, InventoryAlert, InventoryItem } from '@shared/types';
 
 const InventoryManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -32,7 +33,7 @@ const InventoryManagement = () => {
   const queryClient = useQueryClient();
 
   // Récupérer l'aperçu du stock
-  const { data: inventory, isLoading } = useQuery({
+  const { data: inventory, isLoading } = useQuery<InventoryData>({
     queryKey: ['/api/admin/inventory/overview'],
     refetchInterval: 60000 // Actualisation chaque minute
   });
@@ -113,7 +114,7 @@ const InventoryManagement = () => {
       {/* Alertes critiques */}
       {stockAlerts.length > 0 && (
         <div className="space-y-2">
-          {stockAlerts.map((alert: any, index: number) => (
+          {stockAlerts.map((alert: InventoryAlert, index: number) => (
             <Alert key={index} variant={alert.priority === 'high' ? 'destructive' : 'default'}>
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
@@ -225,7 +226,7 @@ const InventoryManagement = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {category.items?.map((item: any, itemIndex: number) => (
+                    {category.items?.map((item: InventoryItem, itemIndex: number) => (
                       <div key={itemIndex} className="flex items-center justify-between p-3 border rounded-lg">
                         <div className="flex-1">
                           <div className="flex items-center gap-3">

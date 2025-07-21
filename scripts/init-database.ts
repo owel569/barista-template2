@@ -25,7 +25,7 @@ export async function initializeDatabase() {
     console.log('📝 Création des données initiales...');
 
     // Transaction pour assurer la cohérence
-    const result = await db.transaction(async (tx) => {
+    const result = await db.transaction(async (tx: unknown) => {
       // 1. Créer l'utilisateur admin
       const adminPassword = await hashPassword('admin123');
       const [admin] = await tx.insert(users).values({

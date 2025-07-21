@@ -107,7 +107,7 @@ export default function ReservationsPage() : void {
         <p>Chargement...</p>
       ) : (
         <ul>
-          {reservations.map((r) => (
+          {reservations.map((r: unknown) => (
             <li key={r.id}>
               {r.name} — {r.date} à {r.time} ({r.guests} pers.)
             </li>

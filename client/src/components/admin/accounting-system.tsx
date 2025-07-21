@@ -55,7 +55,7 @@ export default function AccountingSystem() : void {
         ]);
         
         // Traiter les données pour s'assurer que les montants sont des nombres
-        const processedTransactions = transactionsData.map((transaction: any) => ({
+        const processedTransactions = transactionsData.map((transaction: Transaction) => ({
           ...transaction,
           amount: Number(transaction.amount) || 0
         }));

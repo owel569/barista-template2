@@ -33,7 +33,7 @@ async function checkMenuContent() {
     console.log(`\n🍽️ Articles du menu (${items.length}) :`);
 
     // Grouper par catégorie
-    const itemsByCategory = items.reduce((acc, item) => {
+    const itemsByCategory = items.reduce((acc, item: unknown) => {
       const category = item.categoryName || 'Sans catégorie';
       if (!acc[category]) acc[category] = [];
       acc[category].push(item);
@@ -56,8 +56,8 @@ async function checkMenuContent() {
     console.log(`\n🖼️ Images: ${imagesCount.length} images associées`);
 
     // Statistiques
-    const availableItems = items.filter(item => item.available).length;
-    const unavailableItems = items.filter(item => !item.available).length;
+    const availableItems = items.filter(item => (item as any).available).length;
+    const unavailableItems = items.filter(item => !(item as any).available).length;
 
     console.log(`\n📊 Statistiques :`);
     console.log(`   • Articles disponibles: ${availableItems}`);

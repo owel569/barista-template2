@@ -45,7 +45,7 @@ app.get('*', (req, res) => {
   const indexPath = path.join(__dirname, '../dist/public/index.html');
   res.sendFile(indexPath, (err) => {
     if (err) {
-      logger.error('Erreur lors du service du fichier index.html', { error: err.message });
+      logger.error('Erreur lors du service du fichier index.html', { error: (err as Error).message });
       res.status(500).send('Erreur serveur');
     }
   });

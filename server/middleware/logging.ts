@@ -6,8 +6,12 @@ export const createLogger = (module: string) => ({
   info: (message: string, data?: Record<string, unknown>) => {
     console.log(`[${new Date().toISOString()}] [${module}] INFO: ${message}`, data ? JSON.stringify(data) : '');
   },
-  error: (message: string, error?: Error) => {
-    console.error(`[${new Date().toISOString()}] [${module}] ERROR: ${message}`, error);
+  error: (message: string, data?: Record<string, unknown> | Error) => {
+    if (data instanceof Error) {
+      console.error(`[${new Date().toISOString()}] [${module}] ERROR: ${message}`, data);
+    } else {
+      console.error(`[${new Date().toISOString()}] [${module}] ERROR: ${message}`, data ? JSON.stringify(data) : '');
+    }
   },
   warn: (message: string, data?: Record<string, unknown>) => {
     console.warn(`[${new Date().toISOString()}] [${module}] WARN: ${message}`, data ? JSON.stringify(data) : '');
@@ -47,7 +51,7 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction) =
 
 // Validation centralisée avec logging
 export const validateRequestWithLogging = (schema: z.ZodSchema, type: 'body' | 'params' | 'query' = 'body') => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     const logger = createLogger('VALIDATION');
     
     try {
@@ -63,11 +67,12 @@ export const validateRequestWithLogging = (schema: z.ZodSchema, type: 'body' | '
           data: dataToValidate
         });
         
-        return res.status(400).json({
+        res.status(400).json({
           success: false,
           message: 'Données invalides',
           errors: result.error.errors
         });
+        return;
       }
       
       // Remplacer les données par les données validées
@@ -77,11 +82,12 @@ export const validateRequestWithLogging = (schema: z.ZodSchema, type: 'body' | '
       
       next();
     } catch (error) {
-      logger.error(`Validation error for ${req.method} ${req.path}`, error);
+      logger.error(`Validation error for ${req.method} ${req.path}`, error as Error);
       res.status(500).json({
         success: false,
         message: 'Erreur de validation'
       });
+      return;
     }
   };
 };

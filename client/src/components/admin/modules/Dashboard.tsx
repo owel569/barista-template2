@@ -268,7 +268,7 @@ const DashboardModule = () => {
 
                 <div className="space-y-2">
                   <h4 className="font-medium">Prochains rapports</h4>
-                  {reports?.upcoming?.map((report: any, index: number) => (
+                  {reports?.upcoming?.map((report: ReportData, index: number) => (
                     <div key={index} className="flex justify-between items-center p-3 border rounded">
                       <div>
                         <span className="font-medium">{report.name}</span>

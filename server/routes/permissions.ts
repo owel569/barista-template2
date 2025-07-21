@@ -314,7 +314,7 @@ router.get('/overview', authenticateUser, asyncHandler(async (req, res) => {
     .orderBy(users.username);
 
   // Regrouper par utilisateur
-  const userPermissionsMap = usersWithPermissions.reduce((acc, row) => {
+  const userPermissionsMap = usersWithPermissions.reduce((acc, row: unknown) => {
     if (!acc[row.userId]) {
       acc[row.userId] = {
         id: row.userId,
