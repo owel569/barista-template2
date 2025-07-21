@@ -52,10 +52,12 @@ async function fixAllTypeScriptErrors(dryRun: boolean = false): Promise<void> {
       console.log(chalk.green('✅ Aucune erreur TypeScript détectée!'));
       return;
     } catch (error: unknown) {
-      output = (error && typeof error === 'object' && 'stdout' in error ? 
-                (error as { stdout: Buffer }).stdout?.toString() : '') ||
-               (error && typeof error === 'object' && 'stderr' in error ? 
-                (error as { stderr: Buffer }).stderr?.toString() : '') || '';
+      if (error && typeof error === 'object') {
+        const execError = error as { stdout?: Buffer; stderr?: Buffer };
+        output = execError.stdout?.toString() || execError.stderr?.toString() || '';
+      } else {
+        output = '';
+      }
     }
 
     const errors = parseTypeScriptErrors(output);
@@ -92,7 +94,7 @@ function parseTypeScriptErrors(output: string): FileError[] {
   
   for (const line of lines) {
     const match = line.match(/^(.+?)\((\d+),(\d+)\):\s+error\s+(TS\d+):\s+(.+)$/);
-    if (match) {
+    if (match && match[1] && match[2] && match[3] && match[4] && match[5]) {
       errors.push({
         file: match[1],
         line: parseInt(match[2]),
@@ -184,6 +186,7 @@ async function fixFileSpecificErrors(filePath: string, errors: FileError[], dryR
     const lineIndex = error.line - 1;
     if (lineIndex >= 0 && lineIndex < lines.length) {
       const originalLine = lines[lineIndex];
+      if (!originalLine) continue;
       let fixedLine = originalLine;
       
       // Corrections spécifiques selon le code d'erreur - améliorées
