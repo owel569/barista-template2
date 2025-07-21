@@ -1,4 +1,3 @@
-
 // Types de base pour l'authentification
 export interface User {
   id: string;

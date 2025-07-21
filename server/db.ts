@@ -8,4 +8,13 @@ import path from 'path';
 const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/barista_cafe_db';
 
 let connection: postgres.Sql<Record<string, unknown>>;
-let db: ReturnType<typeof drizzle<typeof schema>>;
+let db: ReturnType<typeof drizzle>;
+
+export async function getDb() {
+  if (!db) {
+    await initializeDatabase();
+  }
+  return db;
+}
+
+async function initializeDatabase() {

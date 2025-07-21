@@ -156,3 +156,21 @@ export interface EmployeeFormData {
   salary: number;
   status?: 'active' | 'inactive';
 }
+export interface DashboardProps {
+  className?: string;
+  user?: AuthenticatedUser;
+  children?: React.ReactNode;
+}
+
+// Types avec signatures d'index pour éviter les erreurs 'any'
+export interface IndexedObject {
+  [key: string]: unknown;
+}
+
+export interface StringIndexedObject {
+  [key: string]: string;
+}
+
+export interface NumberIndexedObject {
+  [key: string]: number;
+}

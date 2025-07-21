@@ -1,4 +1,3 @@
-
 import { z } from 'zod';
 import { VALIDATION_RULES } from './constants';
 
@@ -7,31 +6,31 @@ export const commonSchemas = {
   email: z.string()
     .email('Format d\'email invalide')
     .max(VALIDATION_RULES.EMAIL_MAX_LENGTH, 'Email trop long'),
-  
+
   password: z.string()
     .min(VALIDATION_RULES.PASSWORD_MIN_LENGTH, `Mot de passe minimum ${VALIDATION_RULES.PASSWORD_MIN_LENGTH} caractères`)
     .regex(VALIDATION_RULES.PASSWORD_PATTERN, 'Le mot de passe doit contenir au moins une majuscule, une minuscule et un chiffre'),
-  
+
   username: z.string()
     .min(VALIDATION_RULES.USERNAME_MIN_LENGTH, `Nom d'utilisateur minimum ${VALIDATION_RULES.USERNAME_MIN_LENGTH} caractères`)
     .max(VALIDATION_RULES.USERNAME_MAX_LENGTH, `Nom d'utilisateur maximum ${VALIDATION_RULES.USERNAME_MAX_LENGTH} caractères`)
     .regex(/^[a-zA-Z0-9_-]+$/, 'Nom d\'utilisateur invalide (lettres, chiffres, _ et - uniquement)'),
-  
+
   phone: z.string()
     .regex(VALIDATION_RULES.PHONE_PATTERN, 'Format de téléphone invalide')
     .optional(),
-  
+
   date: z.string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'Format de date invalide (YYYY-MM-DD)'),
-  
+
   time: z.string()
     .regex(/^\d{2}:\d{2}$/, 'Format d\'heure invalide (HH:MM)'),
-  
+
   pagination: z.object({
     page: z.coerce.number().int().min(1).default(1),
     limit: z.coerce.number().int().min(1).max(100).default(20)
   }),
-  
+
   sortOrder: z.enum(['asc', 'desc']).default('asc')
 };
 
@@ -77,3 +76,19 @@ export const validateQuantity = z.number()
   .int('La quantité doit être un nombre entier')
   .positive('La quantité doit être positive')
   .max(1000, 'Quantité maximum dépassée');
+
+export function validateRequired(value: unknown, fieldName: string): void {
+  if (!value || (typeof value === 'string' && value.trim() === '')) {
+    throw new Error(`${fieldName} est requis`);
+  }
+}
+
+export function validateEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+export function validatePhone(phone: string): boolean {
+  const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+  return phoneRegex.test(phone);
+}
