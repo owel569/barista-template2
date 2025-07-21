@@ -128,7 +128,7 @@ router.post('/auth/register', validateRequestWithLogging(registerSchema), asyncH
 router.get('/auth/verify', authenticateToken, asyncHandler(async (req, res) => {
   res.json({
     success: true,
-    user: (req as any).user
+    user: req.user
   });
 }));
 

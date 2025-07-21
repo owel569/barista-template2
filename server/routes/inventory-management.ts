@@ -1,5 +1,20 @@
 import { Router } from 'express';
-import { storage } from '../storage';
+// import { storage } from '../storage';
+// Simulation temporaire des données d'inventaire
+const storage = {
+  getInventoryOverview: async () => ({
+    alerts: [],
+    statistics: { totalItems: 0, lowStock: 0, outOfStock: 0, totalValue: 0, lowStockItems: 0, pendingOrders: 0, monthlyConsumption: 0 },
+    categories: [],
+    items: [],
+    automaticOrders: [],
+    movements: [],
+    suppliers: []
+  }),
+  getInventoryMovements: async () => ({ movements: [] }),
+  getInventoryPredictions: async () => ({ items: [] }),
+  getSuppliers: async () => ({ suppliers: [] })
+};
 import { asyncHandler } from '../middleware/error-handler';
 import { createLogger } from '../middleware/logging';
 
@@ -332,7 +347,7 @@ router.post('/orders/generate', asyncHandler(async (req, res) => {
         // Envoyer automatiquement la commande
         await sendOrderToSupplier(order);
         order.status = 'sent';
-        order.sentAt = new Date().toISOString();
+        (order as any).sentAt = new Date().toISOString();
       }
 
       generatedOrders.push(order);

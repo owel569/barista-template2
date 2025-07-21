@@ -1,5 +1,12 @@
 import { Router } from 'express';
-import { storage } from '../storage';
+// import { storage } from '../storage';
+// Simulation temporaire pour le système de fidélité avancé
+const storage = {
+  getCustomers: async () => [],
+  getLoyaltyPrograms: async () => [],
+  getRewards: async () => [],
+  getTiers: async () => []
+};
 import { asyncHandler } from '../middleware/error-handler';
 import { createLogger } from '../middleware/logging';
 

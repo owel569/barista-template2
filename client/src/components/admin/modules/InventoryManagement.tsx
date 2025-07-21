@@ -216,7 +216,7 @@ const InventoryManagement = () => {
 
           {/* Inventaire par catégorie */}
           <div className="space-y-6">
-            {inventory?.categories?.map((category: any, categoryIndex: number) => (
+            {inventory?.categories?.map((category, categoryIndex: number) => (
               <Card key={categoryIndex}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -299,7 +299,7 @@ const InventoryManagement = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {predictions?.items?.map((prediction: any, index: number) => (
+                {predictions?.items?.map((prediction, index: number) => (
                   <div key={index} className="border rounded-lg p-4">
                     <div className="flex justify-between items-start mb-4">
                       <div>
@@ -393,7 +393,7 @@ const InventoryManagement = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {movements?.movements?.map((movement: any, index: number) => (
+                {movements?.movements?.map((movement, index: number) => (
                   <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="flex items-center gap-3">
                       <Badge variant={
@@ -426,7 +426,7 @@ const InventoryManagement = () => {
 
         <TabsContent value="suppliers" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {suppliersData?.suppliers?.map((supplier: any, index: number) => (
+            {suppliersData?.suppliers?.map((supplier, index: number) => (
               <Card key={index}>
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">

@@ -116,9 +116,6 @@ export interface InventoryStatistics {
   lowStockItems: number;
   pendingOrders: number;
   monthlyConsumption: number;
-  lowStockItems: number;
-  pendingOrders: number;
-  monthlyConsumption: number;
 }
 
 export interface InventoryItem {
@@ -129,14 +126,6 @@ export interface InventoryItem {
   currentStock: number;
   unit: string;
   category: string;
-  minStock: number;
-  maxStock: number;
-  daysRemaining: number;
-  cost: number;
-  minStock: number;
-  maxStock: number;
-  daysRemaining: number;
-  cost: number;
   minStock: number;
   maxStock: number;
   daysRemaining: number;

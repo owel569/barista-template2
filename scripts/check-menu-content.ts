@@ -33,16 +33,16 @@ async function checkMenuContent() {
     console.log(`\n🍽️ Articles du menu (${items.length}) :`);
 
     // Grouper par catégorie
-    const itemsByCategory = items.reduce((acc, item: unknown) => {
+    const itemsByCategory = items.reduce((acc: Record<string, any[]>, item: any) => {
       const category = item.categoryName || 'Sans catégorie';
       if (!acc[category]) acc[category] = [];
       acc[category].push(item);
       return acc;
-    }, {} as Record<string, typeof items>);
+    }, {} as Record<string, any[]>);
 
     for (const [category, categoryItems] of Object.entries(itemsByCategory)) {
       console.log(`\n   📋 ${category} (${categoryItems.length} articles):`);
-      categoryItems.forEach(item => {
+      categoryItems.forEach((item: any) => {
         const status = item.available ? '✅' : '❌';
         console.log(`      ${status} ${item.name} - ${item.price}€`);
         if (item.description) {
@@ -62,9 +62,9 @@ async function checkMenuContent() {
     console.log(`\n📊 Statistiques :`);
     console.log(`   • Articles disponibles: ${availableItems}`);
     console.log(`   • Articles indisponibles: ${unavailableItems}`);
-    console.log(`   • Prix moyen: ${(items.reduce((sum, item) => sum + item.price, 0) / items.length).toFixed(2)}€`);
-    console.log(`   • Prix min: ${Math.min(...items.map(item => item.price))}€`);
-    console.log(`   • Prix max: ${Math.max(...items.map(item => item.price))}€`);
+    console.log(`   • Prix moyen: ${(items.reduce((sum: number, item: any) => sum + item.price, 0) / items.length).toFixed(2)}€`);
+    console.log(`   • Prix min: ${Math.min(...items.map((item: any) => item.price))}€`);
+    console.log(`   • Prix max: ${Math.max(...items.map((item: any) => item.price))}€`);
 
   } catch (error) {
     console.error('❌ Erreur lors de la vérification:', error);
