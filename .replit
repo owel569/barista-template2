@@ -222,3 +222,16 @@ args = "node fix-critical-errors.js"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run dev"
+
+[[workflows.workflow]]
+name = "Professional Fix & Start"
+author = 45315612
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run fix:auto"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"

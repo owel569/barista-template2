@@ -12,7 +12,12 @@
     "setup": "node setup-universal.js",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "start:universal": "bash start.sh"
+    "start:universal": "bash start.sh",
+    "fix:critical": "tsx fix-critical-errors.js",
+    "fix:auto": "tsx fix-critical-errors.js --fix --sync-db",
+    "fix:report": "tsx fix-critical-errors.js --fix --sync-db --report --verbose",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
