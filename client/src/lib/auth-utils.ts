@@ -93,7 +93,7 @@ export class ApiClient {
     return response.json();
   }
 
-  static async post<T>(endpoint: string, data?: any): Promise<T> {
+  static async post<T>(endpoint: string, data?: Record<string, unknown>): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'POST',
       body: data ? JSON.stringify(data) : undefined,

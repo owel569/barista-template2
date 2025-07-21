@@ -59,7 +59,7 @@ export default function StaffScheduling() : void {
       });
       if (response.ok) {
         const data = await response.json();
-        const enrichedEmployees = data.map((emp: any) => ({
+        const enrichedEmployees = data.map((emp: { id: number; firstName: string; lastName: string; position?: string; department?: string; maxHours?: number; availableDays?: string[]; skills?: string[] }) => ({
           ...emp,
           name: `${emp.firstName} ${emp.lastName}`,
           maxHours: emp.maxHours || 40,

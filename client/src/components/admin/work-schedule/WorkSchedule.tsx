@@ -104,7 +104,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
     }
   };
 
-  const handleEmployeeClick = (employee: any) => {
+  const handleEmployeeClick = (employee: { id: number; firstName: string; lastName: string; position: string; department: string; isActive: boolean }) => {
     handleEmployeeSelect(employee);
   };
 

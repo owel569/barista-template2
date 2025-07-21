@@ -207,7 +207,7 @@ export default function DeliveryTracking() : void {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {orders.map((order: any) => (
+                          {orders.map((order: { id: number; customerName: string; address: string; city: string; postalCode: string; driverName?: string; status: string; estimatedTime: string; totalAmount: number }) => (
                             <SelectItem key={order.id} value={order.id.toString()}>
                               Commande #{order.id} - {order.customerName}
                             </SelectItem>

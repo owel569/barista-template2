@@ -102,7 +102,7 @@ export default function DashboardStats() : void {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {menuItems?.slice(0, 5).map((item: any, index: number) => (
+              {menuItems?.slice(0, 5).map((item: { id: number; name: string; price: string; description: string; categoryId?: number; category_id?: number }, index: number) => (
                 <div key={item.id} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <span className="w-6 h-6 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center text-sm font-medium">
@@ -126,7 +126,7 @@ export default function DashboardStats() : void {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {ordersByStatus?.map((status: any) => (
+              {ordersByStatus?.map((status: { status: string; count: number }) => (
                 <div key={status.status} className="flex items-center justify-between">
                   <span className="capitalize font-medium">
                     {status.status === 'pending' ? 'En Attente' :

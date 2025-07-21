@@ -314,13 +314,13 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
 
   const filteredItems = selectedCategory === 'all' 
     ? menuItems 
-    : menuItems.filter((item: any) => item.categoryId === parseInt(selectedCategory));
+    : menuItems.filter((item: { id: number; name: string; price: string; description: string; categoryId: number; available: boolean }) => item.categoryId === parseInt(selectedCategory));
 
   // Calculer les statistiques
   const totalItems = menuItems.length;
-  const availableItems = menuItems.filter((item: any) => item.available).length;
+  const availableItems = menuItems.filter((item: { id: number; name: string; price: string; description: string; categoryId: number; available: boolean }) => item.available).length;
   const averagePrice = menuItems.length > 0 
-    ? menuItems.reduce((sum: number, item: any) => {
+    ? menuItems.reduce((sum: number, item: { id: number; name: string; price: string | number; description: string; categoryId: number; available: boolean }) => {
         const price = typeof item.price === 'string' ? parseFloat(item.price) : (item.price || 0);
         return sum + (isNaN(price) ? 0 : price);
       }, 0) / menuItems.length 

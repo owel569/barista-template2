@@ -201,7 +201,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
     }
   };
 
-  const handleEdit = (employee: any) => {
+  const handleEdit = (employee: { id: number; firstName: string; lastName: string; email: string; position: string; department?: string; phone?: string; hireDate?: string; salary?: number | string; status?: string }) => {
     setEditingEmployee(employee);
     form.reset({
       firstName: employee.firstName,
@@ -241,7 +241,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
 
   // Calculer les statistiques
   const totalEmployees = employees.length;
-  const activeEmployees = employees.filter((emp: any) => emp.status === 'active').length;
+  const activeEmployees = employees.filter((emp: { id: number; firstName: string; lastName: string; email: string; position: string; status: string }) => emp.status === 'active').length;
   const todayShifts = workShifts.filter((shift: any) => {
     const today = new Date().toISOString().split('T')[0];
     return shift.date === today;
@@ -521,7 +521,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {employees.map((employee: any) => (
+              {employees.map((employee: { id: number; firstName: string; lastName: string; email: string; position: string; hireDate?: string; status: string }) => (
                 <TableRow key={employee.id}>
                   <TableCell className="font-medium">
                     {employee.firstName} {employee.lastName}

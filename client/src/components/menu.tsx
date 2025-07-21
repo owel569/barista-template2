@@ -149,7 +149,7 @@ export default function Menu() : void {
       const categoryId = displayCategories.find(cat => cat.slug === categorySlug)?.id;
       if (!categoryId) return [];
       
-      return menuItems.filter((item: any) => item.categoryId === categoryId || item.category_id === categoryId);
+      return menuItems.filter((item: { id: number; name: string; price: string; description: string; categoryId?: number; category_id?: number; available?: boolean }) => item.categoryId === categoryId || item.category_id === categoryId);
     }
     
     // Utiliser les données par défaut uniquement si l'API n'a pas de données

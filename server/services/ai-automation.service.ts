@@ -471,7 +471,7 @@ export class AIAutomationService {
     };
   }
 
-  private async generateStaffingRecommendations(customerFlow: any) {
+  private async generateStaffingRecommendations(customerFlow: { peakPeriods: Array<{ time: string; expectedCustomers: number; confidence: number }>; quietPeriods: Array<{ time: string; expectedCustomers: number; confidence: number }> }) {
     return {
       optimal: 6,
       minimum: 4,

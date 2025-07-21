@@ -142,7 +142,7 @@ export default function InteractiveReservation() : void {
   };
 
   const filteredItems = activeCategory 
-    ? menuItems.filter((item: any) => item.categoryId === activeCategory || item.category_id === activeCategory)
+    ? menuItems.filter((item: { id: number; name: string; price: string; description: string; categoryId?: number; category_id?: number }) => item.categoryId === activeCategory || item.category_id === activeCategory)
     : menuItems;
 
   const onSubmit = (data: ReservationFormData) => {

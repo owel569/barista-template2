@@ -432,7 +432,7 @@ async function analyzeStockNeeds(itemIds: number[]) {
   };
 }
 
-async function sendOrderToSupplier(order: any) {
+async function sendOrderToSupplier(order: { id: string; itemName: string; quantity: number; supplierName: string; unitPrice: number; totalPrice: number; urgency: string; estimatedDelivery: string; generatedAt: string; status: string; sentAt?: string; justification: string }) {
   // Simulation d'envoi de commande au fournisseur
   logger.info('Commande envoyée', { 
     orderId: order.id, 

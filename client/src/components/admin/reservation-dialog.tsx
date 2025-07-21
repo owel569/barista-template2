@@ -12,8 +12,8 @@ import { Calendar, Clock, Users, Plus } from 'lucide-react';
 interface ReservationDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (reservation: any) => void;
-  reservation?: any;
+  onSave: (reservation: { customerName: string; email: string; phone: string; date: string; time: string; guests: number; notes: string; status: string }) => void;
+  reservation?: { customerName?: string; email?: string; phone?: string; date?: string; time?: string; guests?: number; notes?: string; status?: string };
   isEdit?: boolean;
 }
 

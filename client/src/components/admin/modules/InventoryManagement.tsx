@@ -361,7 +361,7 @@ const InventoryManagement = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-2">
-                        {predictions.automaticOrders.scheduled?.map((order: any, index: number) => (
+                        {predictions.automaticOrders.scheduled?.map((order: { item: string; date: string; quantity: number; supplier: string; estimated_cost: number; status: string }, index: number) => (
                           <div key={index} className="flex justify-between items-center p-2 bg-white rounded border">
                             <div>
                               <span className="font-medium">{order.item}</span>
