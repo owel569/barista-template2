@@ -231,7 +231,7 @@ export class AIAutomationService {
 
     if (mentionedItems.length > 0) {
       const item = mentionedItems[0];
-      const itemInfo = (CAFE_KNOWLEDGE_BASE.menu as any)[item];
+      const itemInfo = (CAFE_KNOWLEDGE_BASE.menu as Record<string, any>)[item];
 
       return {
         text: `☕ **Excellent choix !**\n\n` +
@@ -412,7 +412,7 @@ export class AIAutomationService {
       5: { customer: 1.30, revenue: 1.25 }, // Vendredi
       6: { customer: 1.40, revenue: 1.35 }  // Samedi
     };
-    return factors[day];
+    return factors[day as keyof typeof factors] || factors[0];
   }
 
   // === GESTION DE SESSION ===

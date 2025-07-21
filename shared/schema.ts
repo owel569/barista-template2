@@ -168,13 +168,16 @@ export const employees = pgTable('employees', {
 export const permissions = pgTable("permissions", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
-  permission: text("permission").notNull(),
-  granted: boolean("granted").notNull().default(true),
+  module: text("module").notNull(),
+  canView: boolean("can_view").notNull().default(true),
+  canCreate: boolean("can_create").notNull().default(false),
+  canUpdate: boolean("can_update").notNull().default(false),
+  canDelete: boolean("can_delete").notNull().default(false),
   grantedBy: integer("granted_by").references(() => users.id),
   grantedAt: timestamp("granted_at").defaultNow().notNull(),
 }, (table) => ({
   userIdx: index("permissions_user_idx").on(table.userId),
-  permissionIdx: index("permissions_permission_idx").on(table.permission),
+  moduleIdx: index("permissions_module_idx").on(table.module),
 }));
 
 // ==========================================

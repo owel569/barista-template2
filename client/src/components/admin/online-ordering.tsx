@@ -210,12 +210,12 @@ export default function OnlineOrdering() {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Frais de livraison</label>
-                <Input type="number" step="0.01" defaultValue={settings?.deliveryFee || 5.00} placeholder="5.00" />
+                <Input type="number" step="0.01" defaultValue={(settings as any)?.deliveryFee || 5.00} placeholder="5.00" />
               </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Montant minimum livraison</label>
-                <Input type="number" step="0.01" defaultValue={settings?.minDeliveryAmount} placeholder="25.00" />
+                <Input type="number" step="0.01" defaultValue={(settings as any)?.minDeliveryAmount} placeholder="25.00" />
               </div>
 
               <Button onClick={() => updateSettingsMutation.mutate(settings)} className="w-full">

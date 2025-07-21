@@ -15,7 +15,6 @@ import {
   DollarSign,
   Calendar,
   Clock,
-  Star,
   MapPin,
   Phone,
   Mail,
@@ -26,7 +25,13 @@ import {
   ChevronRight,
   Eye,
   MoreHorizontal,
-  Award
+  Award,
+  Package,
+  Star,
+  Target,
+  ArrowUpRight,
+  ArrowDownRight,
+  AlertCircle
 } from "lucide-react";
 
 // Types pour la sécurité TypeScript
@@ -64,7 +69,7 @@ import { CategoryPieChart } from './components/CategoryPieChart';
 import { TopProductsList } from './components/TopProductsList';
 import { ExportToExcelButton } from './components/ExportToExcelButton';
 import { useQuery } from '@tanstack/react-query';
-import { Package, Star, Target, ArrowUpRight, ArrowDownRight, AlertCircle } from 'lucide-react';
+
 import { formatCurrency } from '@/components/admin/work-schedule/utils/schedule.utils';
 import { ApiClient } from '@/lib/auth-utils';
 import * as XLSX from 'xlsx';
@@ -87,21 +92,21 @@ interface StatisticsData {
     byCategory: CategoryRevenue[];
   };
   customers: {
-    acquisition: CustomerAcquisition[];
+    acquisition: CustomerAcquisitionData[];
     retention: RetentionData[];
-    demographics: Demographics[];
+    demographics: DemographicsData[];
     satisfaction: SatisfactionData[];
   };
   products: {
     bestsellers: ProductStats[];
-    categories: CategoryStats[];
-    inventory: InventoryStats[];
+    categories: CategoryStatsData[];
+    inventory: InventoryStatsData[];
     profitability: ProfitabilityData[];
   };
   operations: {
     peakHours: HourlyData[];
-    staffPerformance: StaffPerformance[];
-    efficiency: EfficiencyMetrics[];
+    staffPerformance: StaffPerformanceData[];
+    efficiency: EfficiencyMetricsData[];
   };
 }
 
@@ -122,6 +127,85 @@ interface TrendData {
   value: number;
   change: number;
   label: string;
+}
+
+interface RevenuePoint {
+  date: string;
+  revenue: number;
+  orders: number;
+}
+
+interface CategoryRevenue {
+  category: string;
+  revenue: number;
+  percentage: number;
+}
+
+interface CustomerAcquisitionData {
+  date: string;
+  newCustomers: number;
+  channel: string;
+}
+
+interface RetentionData {
+  period: string;
+  retentionRate: number;
+  customers: number;
+}
+
+interface DemographicsData {
+  ageGroup: string;
+  percentage: number;
+  count: number;
+}
+
+interface SatisfactionData {
+  rating: number;
+  count: number;
+  percentage: number;
+}
+
+interface CategoryStatsData {
+  category: string;
+  items: number;
+  revenue: number;
+  growth: number;
+}
+
+interface InventoryStatsData {
+  item: string;
+  stock: number;
+  reorderLevel: number;
+  status: 'low' | 'normal' | 'high';
+}
+
+interface ProfitabilityData {
+  item: string;
+  cost: number;
+  price: number;
+  margin: number;
+  profit: number;
+}
+
+interface HourlyData {
+  hour: number;
+  orders: number;
+  revenue: number;
+  customers: number;
+}
+
+interface StaffPerformanceData {
+  name: string;
+  orders: number;
+  revenue: number;
+  rating: number;
+}
+
+interface EfficiencyMetricsData {
+  metric: string;
+  value: number;
+  target: number;
+  status: 'good' | 'warning' | 'critical';
 }
 
 interface RevenuePoint {

@@ -161,11 +161,6 @@ tablesRouter.patch('/:id/status', validateParams(z.object({ id: z.string().regex
     return res.status(404).json({ message: 'Table non trouvée' });
   }
   
-  table.status = status;
-  table.updatedAt = new Date().toISOString();
-  
-  return res.json({ message: 'Statut mis à jour', table });
-  
   // Gérer les réservations selon le statut
   if (status === 'available') {
     table.currentReservation = null;
@@ -180,8 +175,11 @@ tablesRouter.patch('/:id/status', validateParams(z.object({ id: z.string().regex
       date: new Date().toISOString().split('T')[0]
     };
   }
+
+  table.status = status;
+  table.updatedAt = new Date().toISOString();
   
-  res.json(table);
+  return res.json({ message: 'Statut mis à jour', table });
 }));
 
 tablesRouter.post('/:id/reserve', validateParams(z.object({ id: z.string().regex(/^\d+$/) })), validateBody(reservationSchema), asyncHandler(async (req, res) => {
@@ -203,7 +201,7 @@ tablesRouter.post('/:id/reserve', validateParams(z.object({ id: z.string().regex
   };
   table.updatedAt = new Date().toISOString();
   
-  res.json(table);
+  return res.json(table);
 }));
 
 tablesRouter.put('/:id', validateParams(z.object({ id: z.string().regex(/^\d+$/) })), validateBody(tableSchema), asyncHandler(async (req, res) => {
@@ -215,7 +213,7 @@ tablesRouter.put('/:id', validateParams(z.object({ id: z.string().regex(/^\d+$/)
   }
   
   Object.assign(table, req.body, { updatedAt: new Date().toISOString() });
-  res.json(table);
+  return res.json(table);
 }));
 
 tablesRouter.delete('/:id', validateParams(z.object({ id: z.string().regex(/^\d+$/) })), asyncHandler(async (req, res) => {
@@ -227,7 +225,7 @@ tablesRouter.delete('/:id', validateParams(z.object({ id: z.string().regex(/^\d+
   }
   
   tables.splice(index, 1);
-  res.json({ message: 'Table supprimée avec succès' });
+  return res.json({ message: 'Table supprimée avec succès' });
 }));
 
 export { tablesRouter };

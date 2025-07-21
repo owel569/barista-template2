@@ -17,6 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings as SettingsIcon, Clock, Mail, Phone, MapPin, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { usePermissions } from '@/hooks/usePermissions';
+import { useAuth } from '@/contexts/auth-context';
 
 interface SettingsProps {
   userRole: 'directeur' | 'employe';
