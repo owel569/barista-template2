@@ -1,0 +1,83 @@
+~/workspace$ npm run fix:critical
+
+> rest-express@1.0.0 fix:critical
+> tsx scripts/fix-critical-errors.js
+
+🔧 Outil professionnel de correction des erreurs critiques
+
+ℹ️  Analyse des fichiers TypeScript...
+✅ server/index.ts existe
+✅ server/db.ts existe
+✅ shared/schema.ts existe
+✅ client/src/main.tsx existe
+⚠️  server/websocket-server.ts contient 1 type(s) 'any'
+⚠️  server/websocket.ts contient 6 type(s) 'any'
+⚠️  server/config/production.ts contient 2 type(s) 'any'
+⚠️  server/modules/ai-automation.ts contient 1 type(s) 'any'
+⚠️  server/middleware/api-validator.ts contient 3 type(s) 'any'
+⚠️  server/middleware/auth-clean.ts contient 3 type(s) 'any'
+⚠️  server/middleware/cache-advanced.ts contient 5 type(s) 'any'
+⚠️  server/middleware/cache.ts contient 1 type(s) 'any'
+⚠️  server/middleware/error-handler.ts contient 3 type(s) 'any'
+⚠️  server/middleware/logger.ts contient 6 type(s) 'any'
+⚠️  server/middleware/logging.ts contient 3 type(s) 'any'
+⚠️  server/routes/advanced-features.ts contient 4 type(s) 'any'
+⚠️  server/routes/ai.routes.ts contient 1 type(s) 'any'
+⚠️  server/routes/inventory-management.ts contient 1 type(s) 'any'
+⚠️  server/services/ai-automation.service.ts contient 5 type(s) 'any'
+⚠️  server/utils/security.ts contient 2 type(s) 'any'
+⚠️  client/src/components/contact.tsx contient 1 type(s) 'any'
+⚠️  client/src/components/dashboard-charts.tsx contient 6 type(s) 'any'
+⚠️  client/src/components/dashboard-stats.tsx contient 3 type(s) 'any'
+⚠️  client/src/components/home-menu-preview.tsx contient 1 type(s) 'any'
+⚠️  client/src/components/interactive-reservation.tsx contient 6 type(s) 'any'
+⚠️  client/src/components/menu.tsx contient 3 type(s) 'any'
+⚠️  client/src/components/reservation.tsx contient 1 type(s) 'any'
+⚠️  client/src/components/user-profile.tsx contient 2 type(s) 'any'
+⚠️  client/src/hooks/usePermissions.tsx contient 1 type(s) 'any'
+⚠️  client/src/pages/LoginSimple.tsx contient 1 type(s) 'any'
+⚠️  client/src/components/auth/AuthProvider.tsx contient 1 type(s) 'any'
+⚠️  client/src/components/admin/ComprehensiveReportsManager.tsx contient 4 type(s) 'any'
+⚠️  client/src/components/admin/accounting-system.tsx contient 1 type(s) 'any'
+⚠️  client/src/components/admin/backup-system.tsx contient 1 type(s) 'any'
+⚠️  client/src/components/admin/delivery-tracking.tsx contient 4 type(s) 'any'
+⚠️  client/src/components/admin/employees.tsx contient 4 type(s) 'any'
+⚠️  client/src/components/admin/inventory-management.tsx contient 2 type(s) 'any'
+⚠️  client/src/components/admin/loyalty-system.tsx contient 1 type(s) 'any'
+⚠️  client/src/components/admin/menu-management.tsx contient 8 type(s) 'any'
+⚠️  client/src/components/admin/online-ordering.tsx contient 2 type(s) 'any'
+⚠️  client/src/components/admin/quality-control.tsx contient 1 type(s) 'any'
+⚠️  client/src/components/admin/real-time-updates.tsx contient 2 type(s) 'any'
+⚠️  client/src/components/admin/reports-system.tsx contient 1 type(s) 'any'
+⚠️  client/src/components/admin/reservation-dialog.tsx contient 3 type(s) 'any'
+⚠️  client/src/components/admin/staff-scheduling.tsx contient 4 type(s) 'any'
+⚠️  client/src/components/admin/table-management.tsx contient 4 type(s) 'any'
+⚠️  client/src/components/admin/user-profile.tsx contient 4 type(s) 'any'
+⚠️  client/src/components/ui/international-phone-input.tsx contient 1 type(s) 'any'
+⚠️  client/src/components/admin/modules/AnalyticsDashboard.tsx contient 2 type(s) 'any'
+⚠️  client/src/components/admin/modules/Dashboard.tsx contient 4 type(s) 'any'
+⚠️  client/src/components/admin/modules/InventoryManagement.tsx contient 8 type(s) 'any'
+⚠️  client/src/components/admin/modules/LoyaltyProgram.tsx contient 4 type(s) 'any'
+⚠️  client/src/components/admin/work-schedule/WorkSchedule.tsx contient 3 type(s) 'any'
+⚠️  client/src/components/admin/analytics/components/PredictiveAnalyticsView.tsx contient 6 type(s) 'any'
+⚠️  scripts/check-types.ts contient 1 type(s) 'any'
+⚠️  scripts/seed.ts contient 9 type(s) 'any'
+⚠️  scripts/update-menu-descriptions.ts contient 1 type(s) 'any'
+⚠️  Total: 158 types 'any' détectés dans le projet
+ℹ️  Vérification de la compilation TypeScript...
+❌ Erreurs de compilation TypeScript détectées
+ℹ️  Analyse ESLint...
+⚠️  Problèmes de style/qualité détectés par ESLint
+ℹ️  Vérification des dépendances...
+✅ Toutes les dépendances sont installées correctement
+✅ Aucun conflit de dépendances
+ℹ️  Nettoyage du cache...
+✅ Cache nettoyé
+ℹ️  Vérification des ports...
+✅ Port 5000 disponible
+✅ Port 3000 disponible
+✅ Port 8080 disponible
+
+🎉 Analyse terminée avec succès!
+💡 Redémarrez avec le workflow "Start application"
+~/workspace$ 
