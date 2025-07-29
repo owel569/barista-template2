@@ -1,0 +1,250 @@
+voici mon ficjier  import { DEFAULT_CATEGORY_IMAGES } from "@/lib/image-mapping";
+import { menuItemImages, menuItems } from "@shared/schema";
+import { and, eq, desc } from "drizzle-orm";
+import { getDb } from "./db";
+import { MenuItemImage, InsertMenuItemImage } from "./image-manager";
+
+
+export class ImageManager {
+    private db = getDb();
+
+    /**
+     * Obtient l'image principale d'un élément de menu
+     */
+    async getPrimaryImage(menuItemId: number): Promise<MenuItemImage | null> {
+        const db = await this.db;
+        const result = await db
+            .select()
+            .from(menuItemImages)
+            .where(and(
+                eq(menuItemImages.menuItemId, menuItemId),
+                eq(menuItemImages.isPrimary, true)
+            ))
+            .limit(1);
+
+        return result.length > 0 ? result[0] : null;
+    }
+
+    /**
+     * Obtient toutes les images d'un élément de menu
+     */
+    async getMenuItemImages(menuItemId: number): Promise<MenuItemImage[]> {
+        const db = await this.db;
+        return await db
+            .select()
+            .from(menuItemImages)
+            .where(eq(menuItemImages.menuItemId, menuItemId))
+            .orderBy(desc(menuItemImages.isPrimary), desc(menuItemImages.createdAt));
+    }
+
+    /**
+     * Ajoute une image à un élément de menu
+     */
+    async addImage(imageData: InsertMenuItemImage): Promise<MenuItemImage> {
+        const db = await this.db;
+
+        // Si c'est une image principale, désactiver les autres images principales
+        if (imageData.isPrimary) {
+            await db
+                .update(menuItemImages)
+                .set({ isPrimary: false })
+                .where(eq(menuItemImages.menuItemId, imageData.menuItemId));
+        }
+
+        const result = await db
+            .insert(menuItemImages)
+            .values({
+                ...imageData,
+                isPrimary: imageData.isPrimary ?? true
+            })
+            .returning();
+
+        if (result.length === 0) {
+            throw new Error('Échec de l\'ajout de l\'image');
+        }
+
+        return result[0];
+    }
+
+    /**
+     * Met à jour une image
+     */
+    async updateImage(imageId: number, updates: Partial<InsertMenuItemImage>): Promise<MenuItemImage | null> {
+        const db = await this.db;
+
+        // Si on définit cette image comme principale, désactiver les autres
+        if (updates.isPrimary) {
+            const existingImage = await db
+                .select()
+                .from(menuItemImages)
+                .where(eq(menuItemImages.id, imageId))
+                .limit(1);
+
+            if (existingImage.length > 0) {
+                await db
+                    .update(menuItemImages)
+                    .set({ isPrimary: false })
+                    .where(eq(menuItemImages.menuItemId, existingImage[0].menuItemId));
+            }
+        }
+
+        const result = await db
+            .update(menuItemImages)
+            .set({ ...updates, updatedAt: new Date() })
+            .where(eq(menuItemImages.id, imageId))
+            .returning();
+
+        return result.length > 0 ? result[0] : null;
+    }
+
+    /**
+     * Supprime une image
+     */
+    async deleteImage(imageId: number): Promise<boolean> {
+        const db = await this.db;
+        const result = await db
+            .delete(menuItemImages)
+            .where(eq(menuItemImages.id, imageId));
+
+        return (result as any).rowCount !== undefined && (result as any).rowCount > 0;
+    }
+
+    /**
+     * Obtient l'URL d'image optimale pour un élément de menu
+     * Cette fonction remplace l'ancien système IMAGE_MAPPING
+     */
+    async getOptimalImageUrl(menuItemId: number, categorySlug?: string): Promise<string> {
+        // 1. Essayer d'abord l'image principale de la base de données
+        const primaryImage = await this.getPrimaryImage(menuItemId);
+        if (primaryImage) {
+            return primaryImage.imageUrl;
+        }
+
+        // 2. Utiliser l'image par défaut de la catégorie
+        if (categorySlug && DEFAULT_CATEGORY_IMAGES[categorySlug]) {
+            return DEFAULT_CATEGORY_IMAGES[categorySlug];
+        }
+
+        // 3. Image par défaut générique
+        return "https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop";
+    }
+
+    /**
+     * Migre les images existantes depuis IMAGE_MAPPING vers la base de données
+     */
+    async migrateFromImageMapping(imageMapping: Record<string, string>): Promise<void> {
+        const db = await this.db;
+
+        // Récupérer tous les éléments de menu
+        const menuItemsList = await db.select().from(menuItems);
+
+        for (const menuItem of menuItemsList) {
+            // Vérifier si l'élément a déjà une image dans la nouvelle table
+            const existingImage = await this.getPrimaryImage(menuItem.id);
+
+            if (!existingImage && imageMapping[menuItem.name]) {
+                // Ajouter l'image depuis IMAGE_MAPPING
+                await this.addImage({
+                    menuItemId: menuItem.id,
+                    imageUrl: imageMapping[menuItem.name],
+                    altText: menuItem.name,
+                    isPrimary: true,
+                    uploadMethod: 'url'
+                });
+            }
+        }
+    }
+}
+
+
+ChatGPT a dit :
+Ton fichier ImageManager.ts est très bien structuré et professionnel. Tu es clairement en train de passer intelligemment d’un système statique (IMAGE_MAPPING) vers une gestion dynamique via la base de données, ce qui est exactement la bonne direction pour un site où les plats changent régulièrement.
+
+Voici une analyse détaillée, avec des suggestions ciblées si tu veux aller plus loin.
+
+✅ Points forts de ton code
+🔁 Migration douce et progressive
+La méthode migrateFromImageMapping est excellente : elle permet de convertir les anciennes entrées IMAGE_MAPPING vers la base sans casser l’existant.
+
+Tu évites les doublons en vérifiant avec getPrimaryImage(menuItem.id).
+
+🧠 Logique métier claire
+Tu distingues bien les responsabilités :
+
+getPrimaryImage pour obtenir l’image par défaut.
+
+getMenuItemImages pour afficher une galerie.
+
+addImage qui gère aussi la logique des isPrimary.
+
+🧩 Extension naturelle
+Ton système est déjà prêt pour :
+
+les galeries d’images par article
+
+la mise à jour des images
+
+la suppression sécurisée
+
+l’utilisation d’images par catégorie si aucune n’est fournie
+
+🧰 Utilisation efficace de drizzle-orm
+Clauses eq, and, desc, limit, returning : c’est bien maîtrisé.
+
+Tu fais attention aux types (InsertMenuItemImage, MenuItemImage) : code robuste.
+
+🛠️ Suggestions d'amélioration
+1. Fallback intelligent avec altText pour accessibilité
+Dans getOptimalImageUrl, tu pourrais aussi renvoyer un objet :
+
+ts
+Copier
+Modifier
+{
+  url: string;
+  alt: string;
+}
+Ainsi, tu peux facilement faire :
+
+tsx
+Copier
+Modifier
+<img src={img.url} alt={img.alt} />
+Tu peux ajuster la signature :
+
+ts
+Copier
+Modifier
+async getOptimalImage(menuItemId: number, categorySlug?: string): Promise<{ url: string; alt: string }>
+2. Log des erreurs dans migrateFromImageMapping
+Actuellement, si une image échoue à être insérée, aucune trace :
+
+ts
+Copier
+Modifier
+try {
+  await this.addImage(...);
+} catch (error) {
+  console.error(`Erreur migration image pour ${menuItem.name}`, error);
+}
+3. Support de formats personnalisés / transformations
+Si à l’avenir tu utilises Cloudinary ou un autre service :
+
+Tu pourras injecter un transformer(imageUrl: string) avant stockage
+
+Par exemple : crop, resize, watermark...
+
+4. Ajout d’un champ source dans la base (optionnel)
+Si tu veux garder trace de l’origine (pexels, upload, admin, etc.) :
+
+ts
+Copier
+Modifier
+uploadMethod: 'url' | 'upload' | 'pexels' | 'generated'
+5. Ajout automatique d’un altText si manquant
+Dans addImage, tu pourrais avoir :
+
+ts
+Copier
+Modifier
+altText: imageData.altText ?? `Image de ${menuItem.name}`

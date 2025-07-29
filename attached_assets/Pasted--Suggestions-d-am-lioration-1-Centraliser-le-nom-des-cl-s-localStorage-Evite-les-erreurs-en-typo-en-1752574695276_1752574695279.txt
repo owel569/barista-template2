@@ -1,0 +1,94 @@
+ Suggestions d'amélioration
+1. Centraliser le nom des clés localStorage
+Evite les erreurs en typo en centralisant :
+
+ts
+Copier
+Modifier
+const STORAGE_KEYS = {
+  token: 'auth_token',
+  user: 'auth_user'
+};
+Et utilise ensuite :
+
+ts
+Copier
+Modifier
+localStorage.getItem(STORAGE_KEYS.token);
+2. Sécuriser JSON.parse davantage
+En cas de donnée corrompue :
+
+ts
+Copier
+Modifier
+try {
+  const parsedUser = JSON.parse(savedUser);
+  if (!parsedUser || typeof parsedUser !== 'object') throw new Error('Invalid user object');
+  setUser(parsedUser);
+} catch (error) {
+  console.error('Erreur auth user JSON :', error);
+  localStorage.removeItem(STORAGE_KEYS.token);
+  localStorage.removeItem(STORAGE_KEYS.user);
+}
+3. Ajouter un loading dans le contexte (optionnel mais utile)
+Pour gérer le "pending state" (notamment dans des guards ou redirections) :
+
+ts
+Copier
+Modifier
+const [isLoading, setIsLoading] = useState(true);
+
+useEffect(() => {
+  // init...
+  setIsLoading(false);
+}, []);
+Et l’ajouter au type :
+
+ts
+Copier
+Modifier
+interface AuthContextType {
+  ...
+  isLoading: boolean;
+}
+4. Synchronisation permissions côté usePermissionsSync
+Tu l’importes, mais tu ne l’utilises pas dans ce contexte :
+
+ts
+Copier
+Modifier
+import { usePermissionsSync } from '@/hooks/usePermissionsSync';
+🔸 Si tu ne l’utilises pas ici, supprime l’import.
+🔸 Sinon, pense à le placer dans un useEffect après le login pour synchroniser les permissions avec le rôle du user.
+
+5. Expiration du token (si backend le permet)
+Si ton token a une durée de vie :
+
+Ajoute une vérification dans refreshUserData
+
+Ou installe un timer d’expiration automatique
+
+ts
+Copier
+Modifier
+// À déclencher dans useEffect ou login
+setTimeout(() => {
+  logout(); // ou refresh
+}, TOKEN_EXPIRATION_MS);
+6. Testabilité
+Tu peux séparer le contexte dans 2 fichiers :
+
+auth-context.tsx → uniquement le provider et context
+
+auth-logic.ts ou auth-service.ts → logique de login/logout/refresh
+
+Cela permet de faire des tests unitaires plus facilement.
+
+✅ Résumé
+Aspect	État
+🔧 Base fonctionnelle	✅ Excellente
+🧠 Logique de contexte claire	✅
+🔐 Persistance localStorage	✅
+⚠️ Gestion erreurs JSON/HTTP	✅ mais perfectible
+🧪 Préparation testabilité	⚠️ à améliorer
+🔁 Synchronisation permissions	❓ Import inutilisé ?

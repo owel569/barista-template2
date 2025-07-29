@@ -1,0 +1,469 @@
+import React, {"useState} from "react;"""
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query;""""
+import {apiRequest""} from @/lib/queryClient;
+import {
+  Card,"
+  CardContent,""
+  CardHeader,"""
+  CardTitle,""
+} from ""@/components/ui/card;""
+import {""Button} from "@/components/ui/button;""""
+import {Input""} from @/components/ui/input;""
+import {Badge""} from @/components/ui/badge;""""
+import { Tabs, TabsContent, TabsList, TabsTrigger } from @/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,"
+  TableHeader,"""
+  TableRow,"
+} from @/components/ui/table;
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,"
+  DialogTitle,"""
+  DialogTrigger,""
+  DialogDescription,"""
+} from "@/components/ui/dialog;"""
+import {"Switch} from ""@/components/ui/switch;""""
+import {Textarea"} from @/components/ui/textarea;
+import {
+  Select,
+  SelectContent,"
+  SelectItem,"""
+  SelectTrigger,""
+  SelectValue,"""
+} from "@/components/ui/select;
+import { 
+  Globe, ShoppingCart, Clock, Truck, CreditCard, Settings, "
+  Plus, Edit, Trash2, Eye, CheckCircle, AlertCircle,"""
+  Smartphone, Monitor, Tablet""
+} from lucide-react"";""
+import {""useToast} from @/hooks/use-toast";"""
+import {"useWebSocket} from ""@/hooks/useWebSocket;
+
+interface OnlineOrder  {
+  id: number;"
+  orderNumber: string;""
+  customerName: string;"""
+  customerEmail: string;""
+  customerPhone: string;"""
+  platform: website" | mobile_app | ""phone;""
+  orderType: ""pickup | 'delivery | "dine_in;"""
+  status: "pending | ""confirmed | "preparing | ""ready | "completed | ""cancelled;""
+  items: OrderItem[];"""
+  totalAmount: number;""
+  paymentStatus: pending"" | paid" | failed"" | refunded";"""
+  paymentMethod: "card | ""paypal | "cash | ""mobile;"
+  notes?: string;
+  estimatedTime?: string;
+  actualTime?: string;
+  createdAt: string;
+  updatedAt: string;
+
+}
+
+interface OrderItem  {
+  id: number;
+  menuItemId: number;
+  name: string;
+  quantity: number;
+  unitPrice: number;
+  customizations?: string[];
+  notes?: string;
+
+}
+
+interface PlatformStats  {
+  website: { orders: number; revenue: number 
+};
+  mobile_app: { orders: number; revenue: number };
+  phone: { orders: number; revenue: number };"
+}"""
+""
+const statusColors = {"""
+  pending : "bg-yellow-100 text-yellow-800,"""
+  confirmed: bg-blue-100 text-blue-800","
+  """
+  preparing: "bg-purple-100 text-purple-800,"""
+  ready: bg-green-100 text-green-800","
+  """
+  completed: bg-gray-100 text-gray-800","
+  """
+  cancelled: "bg-red-100 text-red-800""
+};;"
+""
+const statusLabels = {"""
+  pending: En attente","
+  """
+  confirmed: Confirmée","
+  """
+  preparing: En préparation","
+  """
+  ready: "Prête"","
+  ""
+  completed: ""Terminée,""""
+  cancelled: Annulée"
+};;
+
+const platformIcons = {
+  website: Monitor,
+  mobile_app: Smartphone,
+  phone: Tablet,
+};"
+"""
+export default export function OnlineOrdering(): JSX.Element  {""
+  const [selectedOrder, setSelectedOrder] = useState<unknown><unknown><unknown><OnlineOrder | null>(null);"""
+  const [statusFilter, setStatusFilter] = useState<unknown><unknown><unknown><string>(all");"""
+  const [platformFilter, setPlatformFilter] = useState<unknown><unknown><unknown><string>(all");"""
+  const {toast"} = useToast();
+  const queryClient: unknown = useQueryClient();"
+  useWebSocket();"""
+""
+  const { data: orders = [], isLoading } = useQuery({"""
+    queryKey: [/api/admin/online-orders"],"
+  });"""
+""
+  const { data: platformStats } = useQuery({""""
+    queryKey: [/api/admin/online-orders/stats""],
+  });"
+""
+  const { data: settings } = useQuery({"""
+    queryKey: [/api/admin/online-ordering/settings"],"""
+  });""
+"""
+  const updateOrderMutation = useMutation({""
+    mutationFn: ({ id, ...data }: unknown) => apiRequest(`/api/admin/online-orders/${id""}`, { method: PUT", body: JSON.stringify(data) }),"""
+    onSuccess: () => {""
+      queryClient.invalidateQueries({ queryKey: [/api/admin/online-orders""] });""
+      toast({ title: Commande mise à jour"" });
+    },"
+  });""
+"""
+  const updateSettingsMutation = useMutation({""""
+    mutationFn: (data: Record<string, unknown>) => apiRequest(/api/admin/online-ordering/settings, { method: "POST, body: JSON.stringify(data) }),"""
+    onSuccess: () => {""""
+      queryClient.invalidateQueries({ queryKey: [/api/admin/online-ordering/settings"] });"""
+      toast({ title: "Paramètres sauvegardés });
+    },
+  });
+"
+  const updateOrderStatus = (props: updateOrderStatusProps): JSX.Element  => {"""
+    updateOrderMutation.mutate({ id, status });""
+  };"""
+""
+  const filteredOrders = (orders as OnlineOrder[]).filter(((((order: OnlineOrder: unknown: unknown: unknown) => => => => {"""
+    const statusMatch = statusFilter === "all || order.status === statusFilter;"""
+    const platformMatch: unknown = platformFilter === "all || order.platform === platformFilter;
+    return statusMatch && platformMatch;
+  });"
+"""
+  const getPlatformIcon = (props: getPlatformIconProps): JSX.Element  => {""
+    const IconComponent = platformIcons[platform as keyof typeof platformIcons] || Monitor;"""
+    return <IconComponent className="h-4 w-4"" ></IconComponent>;'
+  };''"
+''"'""'"
+  if (isLoading && typeof isLoading !== ''undefined && typeof isLoading && typeof isLoading !== 'undefined !== ''undefined && typeof isLoading && typeof isLoading !== 'undefined && typeof isLoading && typeof isLoading !== ''undefined !== 'undefined !== ''undefined) {""
+    return <div className=""flex justify-center p-8>Chargement...</div>;""
+  }"""
+""
+  return ("""
+    <div className="space-y-6></div>"""
+      <div className=flex" justify-between items-center\></div>"""
+        <h2 className="text-2xl font-bold"">Commandes en Ligne</h2>""
+        <Dialog></Dialog>"""
+          <DialogTrigger asChild></DialogTrigger>""
+            <Button variant=outline""></Button>""
+              <Settings className=""h-4 w-4 mr-2\ ></Settings>"
+              Paramètres""
+            </Button>"""
+          </DialogTrigger>""
+          <DialogContent className=max-w-2xl""></DialogContent>
+            <DialogHeader></DialogHeader>
+              <DialogTitle>Paramètres Commandes en Ligne</DialogTitle>
+              <DialogDescription></DialogDescription>"
+                Configurez les options de commande en ligne pour votre restaurant.""
+              </DialogDescription>"""
+            </DialogHeader>""""
+            <div className=space-y-6"></div>"""
+              <div className="grid grid-cols-2 gap-4\></div>"""
+                <div className="space-y-2></div>"""
+                  <label className="text-sm font-medium"">Commandes en ligne</label>""
+                  <Switch checked={settings?.onlineOrderingEnabled || false} ></Switch>"""
+                </div>""""
+                <div className=space-y-2"\></div>"""
+                  <label className="text-sm font-medium"">Livraison</label>""
+                  <Switch checked={settings?.deliveryEnabled || false} ></Switch>"""
+                </div>""""
+                <div className=space-y-2"></div>"""
+                  <label className="text-sm font-medium\>À emporter</label>"""
+                  <Switch checked={settings?.pickupEnabled || false} ></Switch>""
+                </div>""""
+                <div className=space-y-2""></div>""
+                  <label className=""text-sm font-medium>Paiement en ligne</label>""
+                  <Switch checked={settings?.onlinePaymentEnabled || false} ></Switch>"""
+                </div>""
+              </div>"""
+""
+              <div className=""grid grid-cols-2 gap-4\></div>""
+                <div className=""space-y-2></div>""
+                  <label className=text-sm"" font-medium">Temps de préparation min.</label>"""
+                  <Input type="number\ defaultValue={settings?.minPrepTime || 15} placeholder=""15" /></Input>"""
+                </div>""
+                <div className=""space-y-2></div>""
+                  <label className=text-sm"" font-medium\>Temps de livraison min.</label>""
+                  <Input type=""number" defaultValue={settings?.minDeliveryTime || 30} placeholder=""30" /></Input>"
+                </div>"""
+              </div>""
+"""
+              <div className=space-y-2"\></div>"""
+                <label className="text-sm font-medium"">Frais de livraison</label>""
+                <Input type=""number step="0.01"" defaultValue={(settings as any)?.deliveryFee || 5.00} placeholder="5.00"" /></Input>""
+              </div>"""
+""
+              <div className=""space-y-2"></div>"""
+                <label className="text-sm font-medium\>Montant minimum livraison</label>"""
+                <Input type="number step=""0.01" defaultValue={(settings as any)?.minDeliveryAmount} placeholder=""25.00" /></Input>"""
+              </div>""
+"""
+              <Button onClick={() => updateSettingsMutation.mutate(settings)} className=w-full">
+                Sauvegarder les Paramètres
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>"
+      </div>"""
+""
+      {/* Statistiques par plateforme */}"""
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4></div>
+        {platformStats && Object.entries(platformStats).map((((([platform, stats]: [string, any]: unknown: unknown: unknown) => => => => {"
+          const IconComponent: unknown = platformIcons[platform as keyof typeof platformIcons] || Monitor;"""
+          return (""
+            <Card key={platform""}></Card>""
+              <CardContent className=""p-4\></CardContent>""
+                <div className=""flex items-center space-x-2></div>""""
+                  <IconComponent className=h-5" w-5 text-blue-500"" ></IconComponent>""
+                  <div></div>"""
+                    <p className="text-sm text-gray-600 capitalize\></p>"""
+                      {platform === "website ? ""Site Web : "platform === mobile_app"" ? App Mobile" : Téléphone""}""
+                    </p>"""
+                    <p className="text-2xl font-bold\>{stats?.orders || 0}</p>"""
+                    <p className=text-sm" text-gray-500>{stats?.revenue || 0}€ de revenus</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        }) as React.ReactNode}
+      </div>
+
+      {/* Filtres */}
+      <Card></Card>"
+        <CardHeader></CardHeader>"""
+          <CardTitle>Filtres</CardTitle>""
+        </CardHeader>"""
+        <CardContent></CardContent>""
+          <div className=""flex flex-wrap gap-4></div>""
+            <div className=""space-y-2\></div>""
+              <label className=""text-sm font-medium">Statut</label>"""
+              <Select value={statusFilter"}"" onValueChange={setStatusFilter"}></Select>"""
+                <SelectTrigger className="w-40""></SelectTrigger>""
+                  <SelectValue /></SelectValue>"""
+                </SelectTrigger>""
+                <SelectContent></SelectContent>"""
+                  <SelectItem value="all>Tous</SelectItem>"""
+                  {Object.entries(statusLabels).map((((([status, label]: unknown: unknown: unknown) => => => => (""
+                    <SelectItem key={status""} value="{status""}>{label"}</SelectItem>
+                  ))}"
+                </SelectContent>"""
+              </Select>""
+            </div>"""
+""
+            <div className=""space-y-2></div>""
+              <label className=text-sm"" font-medium>Plateforme</label>""
+              <Select value=""{"platformFilter} onValueChange={""setPlatformFilter}></Select>""
+                <SelectTrigger className=w-40""\></SelectTrigger>"
+                  <SelectValue /></SelectValue>""
+                </SelectTrigger>"""
+                <SelectContent></SelectContent>""""
+                  <SelectItem value="all"">Toutes</SelectItem>""
+                  <SelectItem value=""website>Site Web</SelectItem>""""
+                  <SelectItem value="mobile_app"">App Mobile</SelectItem>""
+                  <SelectItem value=""phone">Téléphone</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Tableau des commandes */}
+      <Card></Card>
+        <CardHeader></CardHeader>
+          <CardTitle>Commandes en Cours</CardTitle>
+        </CardHeader>
+        <CardContent></CardContent>
+          <Table></Table>
+            <TableHeader></TableHeader>
+              <TableRow></TableRow>
+                <TableHead>N° Commande</TableHead>
+                <TableHead>Client</TableHead>
+                <TableHead>Plateforme</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Statut</TableHead>
+                <TableHead>Montant</TableHead>
+                <TableHead>Paiement</TableHead>
+                <TableHead>Actions</TableHead>"
+              </TableRow>"""
+            </TableHeader>""
+            <TableBody></TableBody>"""
+              {filteredOrders.map(((((order: OnlineOrder: unknown: unknown: unknown) => => => => (""
+                <TableRow key={order.id}></TableRow>"""
+                  <TableCell className="font-medium""></TableCell>"
+                    #{order.orderNumber}""
+                  </TableCell>"""
+                  <TableCell></TableCell>""
+                    <div></div>"""
+                      <p className="font-medium\>{order.customerName}</p>"""
+                      <p className=text-sm" text-gray-500>{order.customerPhone}</p>"""
+                    </div>""
+                  </TableCell>"""
+                  <TableCell></TableCell>""
+                    <div className=""flex items-center space-x-2></div>""
+                      {getPlatformIcon(order.platform)}"""
+                      <span className="capitalize\></span>"""
+                        {order.platform === website" ? Site Web"" : order.platform === "mobile_app ? ""App Mobile : "Téléphone}
+                      </span>"
+                    </div>"""
+                  </TableCell>""
+                  <TableCell></TableCell>"""
+                    <Badge variant="outline\></Badge>"""
+                      {order.orderType === pickup" ? À emporter"" : order.orderType === "delivery ? ""Livraison : "Sur place}
+                    </Badge>
+                  </TableCell>
+                  <TableCell></TableCell>
+                    <Badge className={statusColors[order.status]}></Badge>
+                      {statusLabels[order.status]}"
+                    </Badge>"""
+                  </TableCell>""
+                  <TableCell>{(order.totalAmount || 0).toFixed(2)}€</TableCell>"""
+                  <TableCell></TableCell>""
+                    <Badge variant={order.paymentStatus === ""paid ? "default : ""secondary}></Badge>""
+                      {order.paymentStatus === paid"" ? Payé" : order.paymentStatus === ""pending ? "En attente : ""Échec}"
+                    </Badge>""
+                  </TableCell>"""
+                  <TableCell></TableCell>""""
+                    <div className=flex" space-x-2></div>"""
+                      <Button""""
+                        size=sm""
+                        variant=outline"""
+                        onClick={() => setSelectedOrder(order)}""
+                      >""""
+                        <Eye className=h-4"" w-4" ></Eye>"""
+                      </Button>""
+                      {order.status === pending"" && (""
+                        <Button"""
+                          size=sm""
+                          onClick={() => updateOrderStatus(order.id, ""confirmed)}""
+                        >"""
+                          Confirmer""
+                        </Button>"""
+                      )}""
+                      {order.status === ""confirmed && (""
+                        <Button"""
+                          size="sm"""
+                          onClick={() => updateOrderStatus(order.id, preparing")}'
+                        >''
+                          Préparer'''"
+                        </Button>'""'''"
+                      )}'"''""''"
+                      {order.status === ''preparing && (""
+                        <Button"""
+                          size="sm""
+                          onClick={() => updateOrderStatus(order.id, ready)}"
+                        >""
+                          Prête"""
+                        </Button>""
+                      )}"""
+                      {order.status === "ready && ("""
+                        <Button""
+                          size=""sm"
+                          onClick={() => updateOrderStatus(order.id, completed)}
+                        >
+                          Terminée
+                        </Button>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>"
+"""
+      {/* Dialog détails commande */}""
+      {selectedOrder && ("""
+        <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>""
+          <DialogContent className=""max-w-2xl></DialogContent>"
+            <DialogHeader></DialogHeader>""
+              <DialogTitle>Détails Commande #{selectedOrder.orderNumber}</DialogTitle>"""
+            </DialogHeader>""
+            <div className=space-y-4""></div>""
+              <div className=""grid grid-cols-2 gap-4"></div>"""
+                <div></div>""
+                  <p className=""font-medium>Client</p>""
+                  <p>{selectedOrder.customerName}</p>"""
+                  <p className="text-sm text-gray-500>{selectedOrder.customerEmail}</p>"""
+                  <p className=text-sm" text-gray-500>{selectedOrder.customerPhone}</p>"""
+                </div>""
+                <div></div>"""
+                  <p className="font-medium>Commande</p>
+                  <p>Type: {selectedOrder.orderType}</p>
+                  <p>Plateforme: {selectedOrder.platform}</p>
+                  <p>Statut: {statusLabels[selectedOrder.status]}</p>
+                </div>"
+              </div>"""
+""
+              <div></div>"""
+                <p className=font-medium" mb-2"">Articles commandés</p>""
+                <div className=""space-y-2"></div>"""
+                  {selectedOrder.items.map(((((item: OrderItem: unknown: unknown: unknown) => => => => (""
+                    <div key={item.id} className=""flex justify-between p-2 bg-gray-50 rounded></div>""
+                      <div></div>"""
+                        <p className="font-medium>{item.name}</p>"""
+                        <p className=text-sm" text-gray-500>Quantité: {item.quantity}</p>"""
+                        {item.customizations && (""
+                          <p className=text-sm"" text-blue-600></p>""
+                            Personnalisations: {item.customizations.join(, "")}"
+                          </p>""
+                        )}"""
+                      </div>""
+                      <p className=font-medium"">{(item.quantity * item.unitPrice).toFixed(2)}€</p>
+                    </div>"
+                  ))}""
+                </div>"""
+              </div>""
+"""
+              <div className="flex justify-between items-center pt-4 border-t></div>"""
+                <p className="text-lg font-bold>Total: {(selectedOrder.totalAmount || 0).toFixed(2)}€</p>
+                <Badge className={statusColors[selectedOrder.status]}></Badge>
+                  {statusLabels[selectedOrder.status]}
+                </Badge>
+              </div>"
+"""
+              {selectedOrder.notes && (""
+                <div></div>"""
+                  <p className="font-medium"">Notes</p>""
+                  <p className=""text-sm text-gray-600>{selectedOrder.notes}</p>
+                </div>
+              )}
+            </div>
+          </DialogContent>"
+        </Dialog>""
+      )}""'"
+    </div>"''"
+  );''""''"
+}''"'""''"''"'"

@@ -1,0 +1,82 @@
+por mon fichier scripts/init-database.ts tu peux l'ameliorer
+. Fichier db.ts →
+Tu as une base solide. On a déjà :
+
+Gestion sécurisée du pool,
+
+Test de connexion avec retry,
+
+getDb() pour usage async fiable,
+
+checkDatabaseHealth() pour supervision,
+
+Fermeture propre avec SIGINT/SIGTERM.
+
+🔧 2. schema.ts → à améliorer
+Tu dois :
+
+Ajouter toutes les clés étrangères avec foreignKey(...) dans chaque table concernée (ex: orders, orderItems, reservations, employees, etc.).
+
+Assurer la cohérence entre les relations (ex: customerId, menuItemId, etc.).
+
+✅ Je peux le faire si tu m’envoies ton fichier schema.ts.
+
+🌱 3. Fichier seed.ts → à créer
+Il servira à :
+
+Peupler ta BDD avec des données réalistes si tu es en NODE_ENV=development.
+
+Éviter tout seed en production (protection).
+
+✅ Je te génère ce fichier dès que j’ai accès au schema.
+
+🔄 4. Mise à jour des routes
+Objectif :
+
+Remplacer import { db } par const db = await getDb() dans toutes les routes ou middlewares,
+
+Pour garantir que le drizzle() est bien prêt, surtout sur Replit ou Docker.
+
+RG
+
+guimbetiowel
+Assistant
+15 minutes ago
+Je vais améliorer votre fichier scripts/init-database.ts en suivant vos recommandations. Voici une version complètement refactorisée qui utilise le système getDb() et qui est plus robuste :
+
+scripts/init-database.ts
+Maintenant, créons un fichier de seed séparé pour une meilleure organisation :
+
+scripts/seed.ts
+Créons aussi un script utilitaire pour les opérations de base de données :
+
+scripts/db-utils.ts
+Les améliorations apportées :
+
+🔧 init-database.ts amélioré :
+Utilisation de getDb() : Plus de connexion directe, tout passe par votre système robuste
+Clés étrangères complètes : Toutes les références avec ON DELETE CASCADE/RESTRICT
+Gestion d'environnement : Différenciation dev/prod/test
+Vérification d'intégrité : Tests automatiques après création
+Options flexibles : Reset forcé, skip test data, etc.
+🌱 seed.ts séparé :
+Données réalistes : Plus de variété dans les menus et clients
+Protection production : Impossible de seed en prod
+Images et réservations : Données optionnelles pour tests
+Gestion des relations : Création ordonnée respectant les FK
+🛠️ db-utils.ts :
+Reset sécurisé : Suppression ordonnée des tables
+Statistiques : Comptage par table + santé DB
+Validation d'intégrité : Détection des orphelins et incohérences
+Interface CLI : Commandes pratiques pour administration
+Vous pouvez maintenant utiliser :
+
+# Initialisation complète
+node scripts/init-database.ts
+# Avec options
+node scripts/init-database.ts --reset --skip-test-data
+# Seeding séparé
+node scripts/seed.ts
+# Utilitaires
+node scripts/db-utils.ts stats
+node scripts/db-utils.ts validate

@@ -1,0 +1,93 @@
+1. Utilisation deuseToast
+Property 'toast' does not exist on type 'void'.
+Fichiers concernés :
+ComprehensiveReportsManager.tsx
+advanced-maintenance.tsx
+customers.tsx
+delivery-tracking.tsx
+events-promotions.tsx
+image-management.tsx
+menu-management.tsx
+reservation.tsx
+user-profile-enhanced.tsx
+work-schedule.tsx
+advanced-loyalty.tsx
+notifications-system.tsx
+online-ordering.tsx
+permissions-management-improved.tsx
+permissions-management.tsx
+sidebar.tsx
+2. Propriétés manquantes dansActivityLog
+Property 'createdAt' does not exist on type 'ActivityLog'.
+Property 'ipAddress' does not exist on type 'ActivityLog'.
+Fichiers concernés :
+activity-logs.tsx
+3. Propriétés manquantes dansCustomer
+Property 'firstName' does not exist on type 'Customer'.
+Property 'lastName' does not exist on type 'Customer'.
+Property 'totalOrders' does not exist on type 'Customer'.
+Fichiers concernés :
+customers.tsx
+4. Propriétés manquantes dansMenuItem
+Property 'price' is not assignable to type 'string'.
+Property 'categoryId' does not exist on type 'MenuItem'.
+Fichiers concernés :
+menu-management.tsx
+5. Types inconnus
+Type 'unknown' is not assignable to parameter of type 'Record<string, unknown>'.
+Types of parameters are incompatible.
+Fichiers concernés :
+ExportUtils.ts
+AdvancedAnalyticsDashboard.tsx
+InventoryManagement.tsx
+6. Propriétés manquantes dansReservation
+Property 'customerName' does not exist on type 'ReservationFormData'.
+Property 'specialRequests' does not exist on type 'ReservationFormData'.
+Fichiers concernés :
+reservation-with-cart.tsx
+7. Propriétés manquantes dansShift
+Property 'overtimeHours' does not exist on type 'Shift'.
+Property 'totalHours' does not exist on type 'Shift'.
+Fichiers concernés :
+WorkSchedule.tsx
+useShiftManagement.ts
+8. Types d'index manquants
+Element implicitly has an 'any' type because expression of type 'string' can't be used to index type...
+Fichiers concernés :
+schedule.utils.ts
+9. Propriétés manquantes dansUser
+Type '{ id: number; username: string; role: string; }' is not assignable to type 'AuthenticatedUser'.
+Fichiers concernés :
+AuthProvider.tsx
+permissions.routes.ts
+10. Types de retour manquants
+Not all code paths return a value.
+Fichiers concernés :
+delivery.ts
+online-orders.ts
+validation.ts
+11. Propriétés manquantes dansInventoryItem
+Property 'status' does not exist on type 'InventoryItem'.
+Property 'minStock' does not exist on type 'InventoryItem'.
+Fichiers concernés :
+InventoryManagement.tsx
+12. Propriétés manquantes dansDashboard
+Property 'user' does not exist on type 'Element'.
+Property 'getDb' does not exist on type 'typeof import...'
+Fichiers concernés :
+dashboard-main.tsx
+index.ts
+13. Propriétés manquantes dansRealTimeUpdates
+Property 'addNewEvent' does not exist on type...
+Fichiers concernés :
+real-time-updates.tsx
+14. Modules manquants
+Cannot find module 'postgres' or its corresponding type declarations.
+Fichiers concernés :
+db.ts
+15. Erreurs de déclaration de type
+Subsequent property declarations must have the same type...
+Element implicitly has an 'any' type because...
+Fichiers concernés :
+admin.ts
+express.d.ts

@@ -1,0 +1,75 @@
+⚠️ Points à améliorer ou surveiller
+1. 🔥 #!/usr/bin/env tsx
+Problème actuel :
+
+Cette ligne fait planter tsc avec npm run type-check.
+
+💡 Recommandé :
+
+Commente la ligne :
+
+ts
+Copier
+Modifier
+// #!/usr/bin/env tsx
+Ou bien place-la dans un petit wrapper fix-all, puis importe ce fichier TypeScript dedans.
+
+2. 📁 Méthode find . -path ...
+Problème :
+
+ts
+Copier
+Modifier
+execSync(`find . -path "${pattern}" -type f`, { encoding: 'utf8' })
+Cela ne fonctionne pas sur Windows (find est une commande Unix).
+
+Même sur Linux, -path avec "**/*.ts" ne matche pas bien les glob patterns TypeScript classiques.
+
+✅ Suggestion :
+Utilise fast-glob à la place, comme tu fais dans ton autre script :
+
+ts
+Copier
+Modifier
+import fg from 'fast-glob';
+
+const files = await fg([
+  'client/src/**/*.tsx',
+  'client/src/**/*.ts',
+  'server/**/*.ts',
+  'scripts/**/*.ts',
+  'shared/**/*.ts'
+], {
+  ignore: ['**/node_modules/**', '**/dist/**', '**/build/**']
+});
+3. 🔒 Robustesse regex
+Certaines regex sont un peu trop larges ou risquent d’introduire des faux positifs. Exemples :
+
+ts
+Copier
+Modifier
+{ from: /function\s+(\w+)\s*\([^)]*\)\s*{/g, to: 'function $1(): void {' },
+Cela pourrait briser des fonctions valides avec des paramètres. Tu peux vérifier si les paramètres sont déjà typés.
+
+➡️ Option : Ajouter une vérification conditionnelle ou améliorer la regex avec lookaheads.
+
+4. 📂 Détection des fichiers
+Dans applyAutomaticFixes, tu pourrais filtrer uniquement les fichiers .ts existants une seule fois avant de lancer le for, pour éviter des appels fs.existsSync() multiples.
+
+5. 📦 Types manquants / globaux
+Tu ajoutes dynamiquement des types dans shared/types.ts si ComponentProps n’existe pas. Très bien, mais attention aux conflits avec des définitions existantes.
+
+✅ Vérifie que le fichier est bien importé là où nécessaire (ou exporté depuis un types/index.ts).
+
+🚀 Pour aller plus loin (optionnel)
+🧪 Ajouter un mode --dry-run
+Utile pour voir ce qui serait modifié sans réellement écrire.
+
+Peut se faire via un argument CLI : process.argv.includes('--dry-run')
+
+📊 Générer un rapport Markdown ou JSON
+Liste des fichiers modifiés
+
+Nombre d’erreurs corrigées
+
+Résumé par code d’erreur

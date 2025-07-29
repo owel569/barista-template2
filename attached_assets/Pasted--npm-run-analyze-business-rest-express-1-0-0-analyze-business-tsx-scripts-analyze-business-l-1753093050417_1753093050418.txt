@@ -1,0 +1,88 @@
+ npm run analyze:business
+
+> rest-express@1.0.0 analyze:business
+> tsx scripts/analyze-business-logic-any.ts
+
+🔍 ANALYSE DES TYPES "ANY" DANS LA LOGIQUE MÉTIER
+
+🍽️  Restaurant Barista Café - Analyse spécialisée
+════════════════════════════════════════════════════════════
+📁 Analyse de 252 fichiers...
+
+🚨 CRITIQUE (13): Types any dans fonctions essentielles
+   server/routes/inventory-management.ts:435
+      async function sendOrderToSupplier(order: any) {
+      💡 Remplacer par: Order | OrderItem[]
+
+   client/src/components/dashboard-stats.tsx:105
+      {menuItems?.slice(0, 5).map((item: any, index: number) => (
+      💡 Remplacer par: MenuItem | MenuCategory
+
+   client/src/components/dashboard-stats.tsx:129
+      {ordersByStatus?.map((status: any) => (
+      💡 Remplacer par: Order | OrderItem[]
+
+   client/src/components/interactive-reservation.tsx:145
+      ? menuItems.filter((item: any) => item.categoryId === activeCategory || item.category_id === activeCategory)
+      💡 Remplacer par: MenuItem | MenuCategory
+
+   client/src/components/menu.tsx:152
+      return menuItems.filter((item: any) => item.categoryId === categoryId || item.category_id === categoryId);
+      💡 Remplacer par: MenuItem | MenuCategory
+
+   client/src/lib/auth-utils.ts:96
+      static async post<T>(endpoint: string, data?: any): Promise<T> {
+      💡 Remplacer par: POSTransaction | SaleData
+
+   client/src/components/admin/delivery-tracking.tsx:210
+      {orders.map((order: any) => (
+      💡 Remplacer par: Order | OrderItem[]
+
+   client/src/components/admin/menu-management.tsx:317
+      : menuItems.filter((item: any) => item.categoryId === parseInt(selectedCategory));
+      💡 Remplacer par: MenuItem | MenuCategory
+
+   client/src/components/admin/menu-management.tsx:321
+      const availableItems = menuItems.filter((item: any) => item.available).length;
+      💡 Remplacer par: MenuItem | MenuCategory
+
+   client/src/components/admin/menu-management.tsx:323
+      ? menuItems.reduce((sum: number, item: any) => {
+      💡 Remplacer par: MenuItem | MenuCategory
+
+   client/src/components/admin/reservation-dialog.tsx:15
+      onSave: (reservation: any) => void;
+      💡 Remplacer par: Reservation | BookingDetails
+
+   client/src/components/admin/reservation-dialog.tsx:16
+      reservation?: any;
+      💡 Remplacer par: Reservation | BookingDetails
+
+   client/src/components/admin/modules/InventoryManagement.tsx:364
+      {predictions.automaticOrders.scheduled?.map((order: any, index: number) => (
+      💡 Remplacer par: Order | OrderItem[]
+
+⚠️  ÉLEVÉ (8): Types any dans données importantes
+   server/services/ai-automation.service.ts:474
+      private async generateStaffingRecommendations(customerFlow: any) {
+      💡 Remplacer par: Customer | CustomerProfile
+
+   client/src/components/admin/employees.tsx:204
+      const handleEdit = (employee: any) => {
+      💡 Remplacer par: Employee | StaffMember
+
+   client/src/components/admin/employees.tsx:244
+      const activeEmployees = employees.filter((emp: any) => emp.status === 'active').length;
+      💡 Remplacer par: Employee | StaffMember
+
+   client/src/components/admin/employees.tsx:524
+      {employees.map((employee: any) => (
+      💡 Remplacer par: Employee | StaffMember
+
+   client/src/components/admin/loyalty-system.tsx:76
+      const processedCustomers = (customersData || []).map((customer: any) => ({
+      💡 Remplacer par: Customer | CustomerProfile
+
+   client/src/components/admin/staff-scheduling.tsx:62
+      const enrichedEmployees = data.map((emp: any) => ({
+      💡 Remplacer par: Employee | StaffMember

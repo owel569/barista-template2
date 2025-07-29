@@ -1,0 +1,75 @@
+🛠️ Améliorations possibles
+1. Refactorisation du composant
+Le composant est long (~800 lignes). Tu pourrais :
+
+Extraire MetricCard dans un fichier séparé MetricCard.tsx
+
+Extraire chaque TabsContent dans un fichier individuel :
+RevenueView.tsx, ProductView.tsx, HourView.tsx, TrendsView.tsx
+
+Cela permettrait :
+
+De faciliter les tests
+
+De réduire le code du fichier principal AnalyticsDashboard.tsx
+
+D'encourager la réutilisation ailleurs (ex: dans un dashboard mobile/tablette)
+
+2. Dynamiser les données
+Pour l’instant, tout est statique. Tu peux améliorer :
+
+useEffect(() => {}, [timeRange]) pour charger dynamiquement des données simulées selon la période choisie.
+
+Utiliser faker.js, date-fns, ou une API backend si dispo.
+
+Exemple rapide :
+
+ts
+Copier
+Modifier
+useEffect(() => {
+  if (timeRange === '30d') {
+    setSalesData(generateDataFor30Days());
+  }
+}, [timeRange]);
+3. Accessibilité et responsive
+Vérifie les textes dans les graphiques : dans certains cas (ex: PieChart), les labels peuvent être petits sur mobile.
+
+Tu peux ajouter des aria-label, title, ou sr-only pour l’accessibilité si besoin.
+
+4. Export des données
+Ton bouton "Exporter" est là, mais tu pourrais le rendre fonctionnel :
+
+ts
+Copier
+Modifier
+const handleExport = () => {
+  const blob = new Blob([JSON.stringify(salesData)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `dashboard-${timeRange}.json`;
+  link.click();
+};
+5. Code style
+Tu pourrais typer MetricCard :
+
+ts
+Copier
+Modifier
+type MetricCardProps = {
+  title: string;
+  value: number;
+  previousValue: number;
+  growth: number;
+  icon: LucideIcon;
+  format?: 'number' | 'currency' | 'percentage';
+};
+
+const MetricCard: React.FC<MetricCardProps> = ({ ... }) => { ... }
+🚀 Résumé
+Aspect	Évaluation
+UI/UX	⭐⭐⭐⭐⭐ (très pro, fluide, esthétique)
+Structure React	⭐⭐⭐⭐☆ (manque juste un peu de découpage)
+Données	⭐⭐⭐⭐☆ (parfaites pour MVP, mais encore statiques)
+Clarté du code	⭐⭐⭐⭐☆ (lisible malgré sa longueur)

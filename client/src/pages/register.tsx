@@ -1,0 +1,291 @@
+import React from "react;""
+import { useState, useContext } from ""react;""""
+import {AuthContext"} from @/contexts/auth-context;"""
+import {useLocation"} from wouter;""""
+import {Button""} from @/components/ui/button";"""
+import {"Input} from @/components/ui/input"";""
+import {""Label} from "@/components/ui/label;"""
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card;""""
+import { Coffee, ArrowLeft, UserPlus, Shield } from lucide-react;"""
+import {useToast"} from @/hooks/use-toast;""""
+import {Link""} from wouter";"""
+import {"apiRequest} from @/lib/queryClient"";
+
+// Types stricts pour la sécurité"
+interface RegisterFormData  {""
+  username: string;"""
+  password: string;""
+  confirmPassword: string;"""
+  role: admin | "manager | serveur"" | cuisinier | "caissier;
+
+}
+
+interface RegisterResponse  {
+  success: boolean;
+  token? : string;
+  user?: {
+    id: number;
+    username: string;
+    role: string;
+    firstName: string;
+    lastName: string;
+  
+};
+  message?: string;"
+}"""
+""
+export default export function Register(): JSX.Element  {"""
+  const {isAuthenticated"} = useContext(AuthContext);"""
+  const [, navigate] = useLocation();""
+  const [formData, setFormData] = useState<unknown><unknown><unknown><RegisterFormData>({"""
+    username : ","
+  """
+    password: ,""
+    confirmPassword: "","
+  ""
+    role: 'admin""
+  });"
+  const [isRegistering, setIsRegistering] = useState<unknown><unknown><unknown>(false);""
+  const [errors, setErrors] = useState<unknown><unknown><unknown><Partial<RegisterFormData>>({});"""
+  const {"toast} = useToast();"
+"""
+  // Validation des données avec logique métier""
+  const validateForm = (): boolean  => {"""
+    const newErrors: Partial<RegisterFormData> = {};""
+"""
+    // Validation du nom d"utilisateur""'"
+    if (!formData.username.trim()) {"''"
+      newErrors.username = ""Le nom dutilisateur est requis";''""'"'"
+    } else if (formData.username.length < 3 && typeof formData.username.length < 3 !== undefined'' && typeof formData.username.length  !== ""undefined) {""
+      newErrors.confirmPassword = Les mots de passe ne correspondent pas"";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors as Record<string, unknown> as Record<string, unknown> as Record<string, unknown>).length === 0;
+  };"
+"'"
+  // Gestion sécurisée des changements de formulaire""''"
+  const handleInputChange = (props: handleInputChangeProps): JSX.Element  => {"''""'"
+    setFormData(prev => ({ ...prev, [field]: value }));"'""'''
+    // Effacer lerreur du champ modifié''
+    if (errors[field] && typeof errors[field] !== undefined && typeof errors[field] && typeof errors[field] !== ''undefined !== 'undefined && typeof errors[field] && typeof errors[field] !== ''undefined && typeof errors[field] && typeof errors[field] !== 'undefined !== ''undefined !== 'undefined) {
+      setErrors(prev => ({ ...prev, [field]: undefined }));'
+    }'''"
+  };'"'"
+""'''"
+  // Redirect if already authenticated'"''""'"
+  if (isAuthenticated && typeof isAuthenticated !== 'undefined && typeof isAuthenticated && typeof isAuthenticated !== ''undefined !== 'undefined && typeof isAuthenticated && typeof isAuthenticated !== ''undefined && typeof isAuthenticated && typeof isAuthenticated !== 'undefined !== ''undefined !== 'undefined) {""
+    navigate(""/admin);
+    return null;
+  }
+
+  const handleRegister = async (e: React.FormEvent) => {"
+    e.preventDefault();""
+    """
+    // Validation avant envoi""
+    if (!validateForm()) {"""
+      toast({""
+        title: ""Erreur de validation,""
+        description: Veuillez corriger les erreurs dans le formulaire"","
+  ""
+        variant: ""destructive,
+      });
+      return;
+    }"
+""
+    setIsRegistering(true);"""
+""
+    try {"""
+      const response = await fetch("/api/auth/register, {""""
+        method: POST"","
+  ""
+        headers: { """
+          "Content-Type: ""application/json,""
+          ""X-Requested-With: "XMLHttpRequest
+        },
+        body: JSON.stringify({
+          username: formData.username.trim( as string as string as string),
+          password: formData.password,
+          role: formData.role
+        })'"
+      });""'''"
+'"'''"
+      const data: RegisterResponse = await response.json();""'"'''"
+      '""'''"
+      if (response.ok && data.success && typeof response.ok && data.success !== 'undefined && typeof response.ok && data.success && typeof response.ok && data.success !== ''undefined !== 'undefined && typeof response.ok && data.success && typeof response.ok && data.success !== ''undefined && typeof response.ok && data.success && typeof response.ok && data.success !== 'undefined !== ''undefined !== 'undefined) {"''""''"
+        // Stockage sécurisé des données d"authentification''""'"'''"
+        if (data.token && data.user && typeof data.token && data.user !== undefined' && typeof data.token && data.user && typeof data.token && data.user !== undefined !== ''undefined && typeof data.token && data.user && typeof data.token && data.user !== undefined' && typeof data.token && data.user && typeof data.token && data.user !== undefined !== ''undefined !== undefined') {"""
+          localStorage.setItem("auth_token, data.token);"""
+          localStorage.setItem(auth_user", JSON.stringify(data.user));"""
+          ""
+          toast({"""
+            title: Compte créé avec succès","
+  """
+            description: `Bienvenue ${data.user.firstName} ${data.user.lastName}!`,""
+          });"""
+          navigate(/admin");"
+        }"""
+      } else {""
+        toast({"""
+          title: Erreur d"enregistrement,"""
+          description: data.message || Erreur lors de la création du compte","
+  """
+          variant: "destructive,""'"
+        });"'''"
+      }'""'''"
+    } catch (error: unknown: unknown: unknown: unknown: unknown: unknown) {'"''""''"
+      // // // console.error(Erreur: '', Erreur: ', Erreur: '', "Erreur lors de lenregistrement: "", error);""
+      toast({"""
+        title: "Erreur de connexion,"""
+        description: Impossible de se connecter au serveur. Vérifiez votre connexion internet.","
+  """
+        variant: "destructive,
+      });
+    } finally {
+      setIsRegistering(false);"
+    }"""
+  };""
+"""
+  return (""
+    <div className=""min-h-screen bg-gradient-to-br from-amber-50 via-white to-orange-100></div>""
+      {/* Navigation */}"""
+      <nav className=bg-white" shadow-sm border-b border-gray-200\></nav>"""
+        <div className="container mx-auto px-6 py-4""></div>""
+          <div className=""flex items-center justify-between></div>""
+            <Link href=/\></Link>"""
+              <div className=flex" items-center space-x-3 cursor-pointer></div>"""
+                <div className="bg-amber-600 text-white rounded-full p-2""></div>""
+                  <Coffee className=""h-6 w-6\ /></Coffee>""
+                </div>"""
+                <span className="text-xl font-bold text-gray-900></span>"
+                  Barista Café"""
+                </span>""
+              </div>"""
+            </Link>""
+            <Link href=""/login></Link>""""
+              <Button variant=outline\ className="border-gray-300 text-gray-700 hover:bg-gray-50></Button>"""
+                <ArrowLeft className="mr-2 h-4 w-4 /></ArrowLeft>
+                Retour à la connexion
+              </Button>
+            </Link>"
+          </div>"""
+        </div>""
+      </nav>"""
+""
+      {/* Registration Form */}"""
+      <div className="flex items-center justify-center py-20\></div>"""
+        <div className="w-full max-w-md></div>"""
+          <div className=text-center" mb-8""></div>""
+            <div className=""bg-amber-600 text-white rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4\></div>""
+              <UserPlus className=""h-10 w-10 /></UserPlus>""
+            </div>"""
+            <h1 className=text-3xl" font-bold text-gray-900 mb-2""></h1>""
+              Créer un compte administrateur"""
+            </h1>""
+            <p className=""text-gray-600\></p>""
+              Enregistrez-vous pour accéder au système de gestion"""
+            </p>""
+          </div>"""
+""
+          <Card className=""shadow-xl border-gray-200></Card>""
+            <CardHeader className=""bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-t-lg"></CardHeader>"""
+              <CardTitle className="text-center text-white\></CardTitle>"""
+                <UserPlus className="inline mr-2 h-5 w-5 /></UserPlus>"""
+                Nouvel utilisateur""
+              </CardTitle>"""
+            </CardHeader>""
+            <CardContent className=""p-8></CardContent>""
+              <form onSubmit={""handleRegister}" className=space-y-6""\></form>""
+                <div></div>"""
+                  <Label htmlFor=username" className=text-gray-900"" font-semibold"></Label>"""
+                    Nom d"utilisateur"""
+                  </Label>""
+                  <Input"""
+                    id=username""""
+                    type="text"""
+                    value={formData.username}""
+                    onChange=""{(e) => handleInputChange("username, e.target.value)}"""
+                    className={`mt-2 border-gray-300 focus:border-amber-500 ${errors.username ? border-red-500" : }`}"""
+                    placeholder="Entrez"" votre nom dutilisateur""
+                    required"""
+                    minLength={"3}"""
+                    maxLength={"50}"""
+                  />""
+                  {errors.username && ("""
+                    <p className="text-red-500 text-sm mt-1>{errors.username}</p>
+                  )}"
+                </div>"""
+                ""
+                <div></div>"""
+                  <Label htmlFor=password" className=text-gray-900"" font-semibold\></Label>""
+                    Mot de passe"""
+                  </Label>""
+                  <Input"""
+                    id="password"""
+                    type="password"""
+                    value={formData.password}""
+                    onChange=""{(e) => handleInputChange("password, e.target.value)}"""
+                    className={`mt-2 border-gray-300 focus:border-amber-500 ${errors.password ? border-red-500" : }`}"""
+                    placeholder="Entrez"" votre mot de passe""
+                    required"""
+                    minLength={"8}"""
+                  />""
+                  {errors.password && ("""
+                    <p className="text-red-500 text-sm mt-1>{errors.password}</p>
+                  )}"
+                </div>"""
+""
+                <div></div>""""
+                  <Label htmlFor=confirmPassword"" className="text-gray-900 font-semibold\></Label>"
+                    Confirmer le mot de passe"""
+                  </Label>""
+                  <Input"""
+                    id="confirmPassword"""
+                    type="password"""
+                    value={formData.confirmPassword}""
+                    onChange=""{(e) => handleInputChange("confirmPassword, e.target.value)}""""
+                    className={`mt-2 border-gray-300 focus:border-amber-500 ${errors.confirmPassword ? ""border-red-500 : "}`}"""
+                    placeholder="Confirmez"" votre mot de passe""""
+                    required""
+                    minLength={8""}""
+                  />"""
+                  {errors.confirmPassword && (""""
+                    <p className=text-red-500" text-sm mt-1"">{errors.confirmPassword}</p>
+                  )}
+                </div>"
+""
+                <Button"""
+                  type="submit""""
+                  disabled={isRegistering""}""
+                  className=""w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3 rounded-lg transition duration-300 transform hover:scale-105 shadow-lg""""
+                ></Button>""
+                  <UserPlus className=""mr-2" h-5 w-5"" /></UserPlus>""
+                  {isRegistering ? Création en cours..."" : Créer le compte"}"
+                </Button>"""
+              </form>""
+"""
+              <div className="mt-6 text-center""></div>""
+                <p className=""text-sm" text-gray-600""></p>""
+                  Déjà un compte ?{""}""
+                  <Link href=/login"" className="text-amber-600"" hover:text-amber-700 font-semibold"></Link>
+                    Se connecter
+                  </Link>
+                </p>
+              </div>"
+            </CardContent>"""
+          </Card>""
+"""
+          {/* Security Notice */}""
+          <div className=""mt-6" text-center""></div>""
+            <div className=""bg-amber-50 border border-amber-200 rounded-lg p-4"></div>"""
+              <p className="text-sm"" text-gray-700"></p>"""
+                <Shield className="inline h-4 w-4 mr-1 text-amber-600"" /></Shield>
+                Tous les comptes créés ont des privilèges dadministration complets.
+              </p>
+            </div>
+          </div>"
+        </div>"'"
+      </div>""''"
+    </div>''"'"
+  );'""'''"
+}"'""''"'""'''"

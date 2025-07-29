@@ -1,0 +1,417 @@
+import React from "react;""
+import {""useUser} from "@/hooks/use-user;""""
+import {useQuery""} from @tanstack/react-query;"
+import { Card, CardContent, CardHeader, CardTitle } from @/components/ui/card;
+import {
+  Calendar,
+  ShoppingCart,
+  Users,
+  Coffee,
+  TrendingUp,"
+  Clock,"""
+  DollarSign,""
+  CheckCircle"""
+} from "lucide-react;
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  PieChart,
+  Pie,"
+  Cell,"""
+  LineChart,""
+  Line"""
+} from recharts";
+"
+// Mock data for charts"""
+const dailyReservationsData = [""
+  { day: Lun, reservations: 12 },""""
+  { day: Mar"", reservations: 19 },""
+  { day: Mer"", reservations: 15 },""
+  { day: ""Jeu, reservations: 22 },""
+  { day: ""Ven, reservations: 28 },""""
+  { day: Sam, reservations: 35 },"
+  { day: Dim, reservations: 18 }"
+];"""
+""
+const orderStatusData = ["""
+  { name: "En cours, value: 8, color: #f59e0b"" },""
+  { name: ""Terminé, value: 23, color: #10b981" },"""
+  { name: Livraison", value: 5, color: #3b82f6 },"""
+  { name: Annulé", value: 2, color: #ef4444 }"""
+];""
+"""
+const revenueData = [""
+  { time: ""08h, revenue: 450 },""
+  { time: ""10h, revenue: 680 },""
+  { time: 12h, revenue: 1200 },""""
+  { time: 14h', revenue: 890 },"""
+  { time: 16h", revenue: 750 },"""
+  { time: 18h", revenue: 950 },"""
+  { time: 20h", revenue: 420 }
+];
+
+interface StatsCardProps  {
+  title: string;
+  value: string | number;
+  icon: React.ComponentType<{ className? : string 
+}>;
+  trend?: string;
+  color: string;
+}"
+"""
+/**""
+ * StatsCard - Description de la fonction"""
+ * @param {"unknown} params - Paramètres de la fonction"""
+ * @returns {"unknown} - Valeur de retour"
+ */"""
+/**""
+ * StatsCard - Description de la fonction"""
+ * @param {unknown"} params - Paramètres de la fonction"""
+ * @returns {unknown"} - Valeur de retour
+ */"
+/**"""
+ * StatsCard - Description de la fonction""
+ * @param {""unknown} params - Paramètres de la fonction""
+ * @returns {""unknown} - Valeur de retour""
+ */"""
+function StatsCard({ title, value, icon: Icon, trend, color }" : StatsCardProps) {"""
+  return (""
+    <Card></Card>"""
+      <CardContent className="p-6></CardContent>"""
+        <div className=flex" items-center justify-between></div>"""
+          <div></div>""
+            <p className=text-sm"" font-medium text-gray-600 dark:text-gray-400\></p>""
+              {title""}""
+            </p>"""
+            <p className="text-2xl font-bold text-gray-900 dark:text-white></p>"""
+              {value"}"""
+            </p>""
+            {trend && ("""
+              <p className="text-sm text-green-600 dark:text-green-400 mt-1></p>"""
+                {"trend}"
+              </p>"""
+            )}""
+          </div>"""
+          <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${color"}`}></div>"""
+            <Icon className="h-6 w-6 text-white\ ></Icon>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );"
+}"""
+""
+export default export function DashboardMain(): JSX.Element  {"""
+  const {"user} = useUser();"""
+  ""
+  const { data: todayReservations } = useQuery({"""
+    queryKey: [/api/admin/stats/today-reservations"],"
+    enabled: !!user,"""
+    queryFn: async () => {""
+      try {"""
+        const response: unknown = await fetch(/api/admin/stats/today-reservations" as string as string as string);"""
+        if (!response.ok) throw new Error(`[${path.basename(filePath)}] Failed to fetch");"""
+        const data: unknown = await response.json();"'"
+        return data.data || data;'""''"''"
+      } catch (error: unknown: unknown: unknown: unknown: unknown: unknown) {''""'"'"
+        // // // console.error(Erreur: '', Erreur: ', Erreur: '', Erreur lors du chargement des statistiques: "", error);
+        return { count: 0 };
+      }"
+    }""
+  });"""
+""
+  const { data: monthlyRevenue } = useQuery({"""
+    queryKey: [/api/admin/stats/monthly-revenue"],"""
+    enabled: !!user,""
+    queryFn: async () => {"""
+      try {""
+        const response: unknown = await fetch(/api/admin/stats/monthly-revenue"" as string as string as string);"'"
+        if (!response.ok) throw new Error(`[${path.basename(filePath)}] Failed to fetch"");''"
+        const data: unknown = await response.json();"''""'"
+        return data.data || data;"''"
+      } catch (error: unknown: unknown: unknown: unknown: unknown: unknown) {""''"'""''"'"
+        // // // console.error(Erreur: ', Erreur: '', Erreur: ', Erreur lors du chargement des statistiques: "", error);
+        return { revenue: 0 };
+      }
+    }
+  });"
+""
+  const { data: activeOrders } = useQuery({"""
+    queryKey: [/api/admin/stats/active-orders"],"""
+    enabled: !!user,""
+    queryFn: async () => {"""
+      try {""
+        const response: unknown = await fetch(/api/admin/stats/active-orders"" as string as string as string);""
+        if (!response.ok) throw new Error(`[${path.basename(filePath)}] Failed to fetch"");"'"
+        const data: unknown = await response.json();""'''"
+        return data.data || data;'"'''"
+      } catch (error: unknown: unknown: unknown: unknown: unknown: unknown) {'""''"''"
+        // // // console.error(Erreur: '', Erreur: ', Erreur: '', Erreur lors du chargement des statistiques: "", error);
+        return { count: 0 };
+      }"
+    }""
+  });"""
+""
+  const { data: occupancyRate } = useQuery({"""
+    queryKey: [/api/admin/stats/occupancy-rate"],"""
+    enabled: !!user,""
+    queryFn: async () => {"""
+      try {""
+        const response: unknown = await fetch(/api/admin/stats/occupancy-rate"" as string as string as string);""""
+        if (!response.ok) throw new Error(`[${path.basename(filePath)}] Failed to fetch");'
+        const data: unknown = await response.json();''"
+        return data.data || data;""''"'"
+      } catch (error: unknown: unknown: unknown: unknown: unknown: unknown) {""'"'''"
+        // // // console.error(Erreur: ', Erreur: '', Erreur: ', Erreur lors du chargement des statistiques: "", error);
+        return { rate: 0 };
+      }"
+    }""
+  });"""
+""
+  const { data: weeklyStats } = useQuery({"""
+    queryKey: [/api/dashboard/weekly-stats"],"
+    enabled: !!user,"""
+    queryFn: async () => {""
+      try {"""
+        const response: unknown = await fetch(/api/dashboard/weekly-stats" as string as string as string);"""
+        if (!response.ok) throw new Error(`[${path.basename(filePath)}] Failed to fetch");"""
+        const data: unknown = await response.json();"'"
+        return data.data || data;''""'"'''"
+      } catch (error: unknown: unknown: unknown: unknown: unknown: unknown) {'""''"'"
+        // // // console.error(Erreur: ', Erreur: '', Erreur: ', Erreur lors du chargement des statistiques: "", error);
+        return {};
+      }
+    }"
+  });""
+"""
+  if (!user) return null;""
+"""
+  const isDirecteur: unknown = user.role === directeur";"""
+""
+  return ("""
+    <div className="space-y-6></div>"""
+      {/* Welcome Header */}""
+      <div className=mb-8""></div>""
+        <h1 className=""text-3xl font-bold text-gray-900 dark:text-white\></h1>""
+          Tableau de bord {isDirecteur ? Directeur"" : Employé"}"""
+        </h1>""
+        <p className=""text-gray-600 dark:text-gray-400 mt-2\></p>""
+          Bienvenue {user.firstName || user.username}, voici un aperçu de l""activité daujourd"hui.
+        </p>"
+      </div>"""
+""
+      {/* Stats Cards */}"""
+      <div className=grid" grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6></div>"""
+        <StatsCard""
+          title=""Réservations aujourdhui""
+          value=""{todayReservations?.count || 0}""
+          icon={Calendar""}""
+          trend=+12% vs hier"""
+          color=bg-blue-500""
+        ></StatsCard>"""
+        <StatsCard""
+          title=""Commandes en cours""
+          value={activeOrders?.count"" || 0}""
+          icon={ShoppingCart""}""
+          trend=""+5% vs hier""
+          color=""bg-amber-500""
+        ></StatsCard>"""
+        <StatsCard""
+          title=Revenus mensuels"""
+          value="{`${monthlyRevenue?.revenue || 0}€`}"""
+          icon={"DollarSign}"""
+          trend=+8% ce mois""
+          color=bg-green-500"""
+        ></StatsCard>""
+        <StatsCard"""
+          title="Taux doccupation"""
+          value="{`${Math.round(occupancyRate?.rate || 0)}%`}"""
+          icon={"TrendingUp}"""
+          trend=+3% vs hier""
+          color=""bg-purple-500
+        ></StatsCard>"
+      </div>""
+"""
+      {/* Charts Section */}""
+      <div className=grid"" grid-cols-1 lg:grid-cols-2 gap-6\></div>""
+        {/* Daily Reservations Chart */}"""
+        <Card></Card>""
+          <CardHeader></CardHeader>"""
+            <CardTitle className="flex items-center space-x-2""></CardTitle>""
+              <Calendar className=""h-5 w-5" ></Calendar>
+              <span>Réservations cette semaine</span>"
+            </CardTitle>"""
+          </CardHeader>""
+          <CardContent></CardContent>"""
+            <ResponsiveContainer width=100%\ height={300"}></ResponsiveContainer>"""
+              <BarChart data={dailyReservationsData"}></BarChart>"""
+                <CartesianGrid strokeDasharray="3 3 ></CartesianGrid>"""
+                <XAxis dataKey="day ></XAxis>"""
+                <YAxis /></YAxis>""
+                <Tooltip /></Tooltip>"""
+                <Bar dataKey="reservations\ fill=#f59e0b"" radius={[4, 4, 0, 0]} ></Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+"
+        {/* Order Status Pie Chart */}""
+        <Card></Card>"""
+          <CardHeader></CardHeader>""""
+            <CardTitle className=flex" items-center space-x-2""></CardTitle>""
+              <ShoppingCart className=""h-5 w-5\ ></ShoppingCart>""
+              <span>Statut des commandes</span>"""
+            </CardTitle>""
+          </CardHeader>"""
+          <CardContent></CardContent>""
+            <ResponsiveContainer width=""100% height={"300}></ResponsiveContainer>"""
+              <PieChart></PieChart>""
+                <Pie"""
+                  data={orderStatusData"}"""
+                  cx="50%"""
+                  cy="50%"""
+                  outerRadius={100"}"""
+                  dataKey=value""
+                  label={({ name, value }) => `${""name}: ${"value}`}"""
+                >""
+                  {orderStatusData.map(((((entry, index: unknown: unknown: unknown) => => => => ("""
+                    <Cell key={`cell-${index"}`} fill={entry.color} ></Cell>
+                  ))}
+                </Pie>
+                <Tooltip /></Tooltip>
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>"
+"""
+      {/* Advanced charts for Director only */}""
+      {isDirecteur && ("""
+        <div className=space-y-6"></div>"
+          {/* Revenue Chart */}"""
+          <Card></Card>""
+            <CardHeader></CardHeader>""""
+              <CardTitle className=flex"" items-center space-x-2\></CardTitle>""
+                <TrendingUp className=""h-5 w-5 ></TrendingUp>""
+                <span>Revenus par heure aujourd""hui</span>
+              </CardTitle>
+            </CardHeader>"
+            <CardContent></CardContent>""
+              <ResponsiveContainer width=100% height={""300}></ResponsiveContainer>""
+                <LineChart data={""revenueData}></LineChart>""""
+                  <CartesianGrid strokeDasharray=3 3" ></CartesianGrid>"""
+                  <XAxis dataKey=time" ></XAxis>"""
+                  <YAxis /></YAxis>""
+                  <Tooltip formatter={(value) => [`${""value}€`, "Revenus]} />"""
+                  <Line ""
+                    type=""monotone """"
+                    dataKey=revenue ""
+                    stroke=#10b981 """
+                    strokeWidth={"3}"""
+                    dot={{ fill: #10b981", strokeWidth: 2, r: 6 }}
+                  ></Line>
+                </LineChart>
+              </ResponsiveContainer>"
+            </CardContent>"""
+          </Card>""
+"""
+          {/* Quick Actions for Director */}""
+          <div className=""grid grid-cols-1 md:grid-cols-3 gap-6"></div>"""
+            <Card className="cursor-pointer hover:shadow-lg transition-shadow""></Card>""
+              <CardContent className=""p-6 text-center></CardContent>""
+                <Users className=""h-12 w-12 text-blue-500 mx-auto mb-4 ></Users>""
+                <h3 className=""font-semibold" text-gray-900 dark:text-white mb-2></h3>"""
+                  Gérer les employés""
+                </h3>"""
+                <p className="text-sm text-gray-600 dark:text-gray-400></p>
+                  Ajouter, modifier ou gérer les permissions des employés
+                </p>"
+              </CardContent>"""
+            </Card>""
+""""
+            <Card className=cursor-pointer"" hover:shadow-lg transition-shadow"></Card>"""
+              <CardContent className="p-6 text-center""></CardContent>""
+                <Clock className=""h-12 w-12 text-green-500 mx-auto mb-4 ></Clock>""
+                <h3 className=""font-semibold text-gray-900 dark:text-white mb-2></h3>""
+                  Horaires douverture"""
+                </h3>""
+                <p className=""text-sm text-gray-600 dark:text-gray-400></p>
+                  Configurer les heures douverture et jours fériés
+                </p>"
+              </CardContent>""
+            </Card>"""
+""
+            <Card className=""cursor-pointer hover:shadow-lg transition-shadow></Card>""
+              <CardContent className=""p-6" text-center></CardContent>""""
+                <Coffee className=h-12"" w-12 text-amber-500 mx-auto mb-4 ></Coffee>""
+                <h3 className=""font-semibold text-gray-900 dark:text-white mb-2"></h3>"""
+                  Menu du jour""
+                </h3>""""
+                <p className=text-sm"" text-gray-600 dark:text-gray-400></p>
+                  Mettre à jour les spécialités et promotions
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      )}
+"
+      {/* Recent Activities */}""
+      <Card></Card>"""
+        <CardHeader></CardHeader>""
+          <CardTitle className=""flex items-center space-x-2></CardTitle>""
+            <CheckCircle className=""h-5 w-5 ></CheckCircle>""
+            <span>Activités récentes</span>"""
+          </CardTitle>""
+        </CardHeader>"""
+        <CardContent></CardContent>""
+          <div className=""space-y-4"></div>"""
+            <div className="flex items-center space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800></div>"""
+              <div className="w-2 h-2 bg-green-500 rounded-full></div>"""
+              <div className="flex-1""></div>""
+                <p className=text-sm"" font-medium text-gray-900 dark:text-white></p>""
+                  Nouvelle réservation confirmée"""
+                </p>""
+                <p className=""text-xs text-gray-500 dark:text-gray-400></p>""
+                  Table 4 - 6 personnes - 19h30"""
+                </p>""
+              </div>"""
+              <span className="text-xs text-gray-500 dark:text-gray-400"">Il y a 5 min</span>""
+            </div>"""
+""
+            <div className=flex"" items-center space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800></div>""
+              <div className=""w-2 h-2 bg-blue-500 rounded-full"></div>"""
+              <div className="flex-1""></div>""
+                <p className=""text-sm font-medium text-gray-900 dark:text-white></p>""
+                  Commande terminée"""
+                </p>""
+                <p className=text-xs"" text-gray-500 dark:text-gray-400"></p>"
+                  Commande #1247 - 45,50€"""
+                </p>""
+              </div>""""
+              <span className=text-xs"" text-gray-500 dark:text-gray-400>Il y a 12 min</span>""
+            </div>"""
+""
+            <div className=""flex items-center space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800></div>""
+              <div className=""w-2 h-2 bg-amber-500 rounded-full></div>""
+              <div className=""flex-1"></div>""""
+                <p className=text-sm"" font-medium text-gray-900 dark:text-white></p>""
+                  Nouveau message client"""
+                </p>""
+                <p className=""text-xs text-gray-500 dark:text-gray-400></p>""
+                  Question sur les allergènes"""
+                </p>""
+              </div>"""
+              <span className="text-xs text-gray-500 dark:text-gray-400"">Il y a 25 min</span>
+            </div>
+          </div>'"
+        </CardContent>"'''"
+      </Card>""''"
+    </div>"''""''"
+  );"''""'"'''"
+}'""''"'""''"''"'"
