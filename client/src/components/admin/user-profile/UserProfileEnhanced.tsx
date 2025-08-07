@@ -206,7 +206,7 @@ export default function UserProfileEnhanced() : JSX.Element {
   // Requête pour récupérer les profils utilisateur
   const { data: profiles = [,], isLoading, error } = useQuery({
     queryKey: ['user-profiles',],
-    queryFn: async (})}) => {
+    queryFn: async (}) => {
       // Remplacer par un appel API réel
       return mockUserProfiles;
     },
@@ -318,7 +318,7 @@ export default function UserProfileEnhanced() : JSX.Element {
   ));
 
   const handlePrint = useReactToPrint({
-    content: (})}) => document.getElementById('printable-profile'),
+    content: (}) => document.getElementById('printable-profile'),
     documentTitle: `Profil-${selectedProfile?.firstName}-${selectedProfile?.lastName}`,
   });
 
@@ -510,7 +510,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={()}) => {
+                        onClick={() => {
                           setSelectedProfile(profile);
                           setShowEditDialog(true);
                         }}

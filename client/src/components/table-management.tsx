@@ -59,7 +59,7 @@ const TableManagement: React.FC = () => {
   });
 
   const createTableMutation = useMutation({
-    mutationFn: async (tableData: Partial<Table>})}) => {
+    mutationFn: async (tableData: Partial<Table>}) => {
       const response = await fetch('/api/tables', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' )},
@@ -110,7 +110,7 @@ const TableManagement: React.FC = () => {
   });
 
   const deleteTableMutation = useMutation({
-    mutationFn: async (id: number})}) => {
+    mutationFn: async (id: number}) => {
       const response = await fetch(`/api/tables/${id)}`, {
         method: 'DELETE',
       });
@@ -429,7 +429,7 @@ const TableManagement: React.FC = () => {
           </DialogHeader>
 
           {selectedTable && (
-            <form onSubmit={(e)}) => {
+            <form onSubmit={(e) => {
               e.preventDefault();
               const formData = new FormData(e.currentTarget);
               const tableData = {

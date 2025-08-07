@@ -125,7 +125,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number})}) => apiRequest(`/api/admin/messages/${id}`, {
+    mutationFn: (id: number}) => apiRequest(`/api/admin/messages/${id}`, {
       method: 'DELETE',
     }),
     onSuccess: () => {

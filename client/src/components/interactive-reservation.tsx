@@ -56,7 +56,7 @@ export default function InteractiveReservation() : JSX.Element {
   });
 
   const reservationMutation = useMutation({
-    mutationFn: async (data: Record<string, unknown>})}) => {
+    mutationFn: async (data: Record<string, unknown>}) => {
       return apiRequest('POST', '/api/reservations', data);
     },
     onSuccess: () => {

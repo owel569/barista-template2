@@ -121,7 +121,7 @@ export default function DeliveryTracking() : JSX.Element {
   });
 
   const createDeliveryMutation = useMutation({
-    mutationFn: (data: Record<string, unknown>})}) => apiRequest('/api/admin/deliveries', { method: 'POST', data }),
+    mutationFn: (data: Record<string, unknown>}) => apiRequest('/api/admin/deliveries', { method: 'POST', data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/deliveries'] )});
       toast({ title: "Livraison créée avec succès" });
@@ -197,7 +197,7 @@ export default function DeliveryTracking() : JSX.Element {
                 <FormField
                   control={form.control}
                   name="orderId"
-                  render={({ field )}) => (
+                  render={({ field ) => (
                     <FormItem>
                       <FormLabel>Commande</FormLabel>
                       <Select onValueChange={(value) => field.onChange(parseInt(value))}>
@@ -207,7 +207,7 @@ export default function DeliveryTracking() : JSX.Element {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {orders.map((order: { id: number; customerName: string; address: string; city: string; postalCode: string; driverName?: string; status: string; estimatedTime: string; totalAmount: number )}) => (
+                          {orders.map((order: { id: number; customerName: string; address: string; city: string; postalCode: string; driverName?: string; status: string; estimatedTime: string; totalAmount: number ) => (
                             <SelectItem key={order.id} value={order.id.toString()}>
                               Commande #{order.id} - {order.customerName}
                             </SelectItem>
@@ -222,7 +222,7 @@ export default function DeliveryTracking() : JSX.Element {
                 <FormField
                   control={form.control}
                   name="driverId"
-                  render={({ field )}) => (
+                  render={({ field ) => (
                     <FormItem>
                       <FormLabel>Livreur (optionnel)</FormLabel>
                       <Select onValueChange={(value) => field.onChange(parseInt(value))}>
@@ -247,7 +247,7 @@ export default function DeliveryTracking() : JSX.Element {
                 <FormField
                   control={form.control}
                   name="estimatedTime"
-                  render={({ field )}) => (
+                  render={({ field ) => (
                     <FormItem>
                       <FormLabel>Temps estimé (minutes)</FormLabel>
                       <FormControl>
@@ -261,7 +261,7 @@ export default function DeliveryTracking() : JSX.Element {
                 <FormField
                   control={form.control}
                   name="notes"
-                  render={({ field )}) => (
+                  render={({ field ) => (
                     <FormItem>
                       <FormLabel>Notes</FormLabel>
                       <FormControl>

@@ -46,7 +46,7 @@ export default function DashboardStats() : JSX.Element {
     },
     {
       title: "Commandes en Cours",
-      value: ordersByStatus.find((o: { status: string; count: number )}) => o.status === 'pending')?.count || 0,
+      value: ordersByStatus.find((o: { status: string; count: number ) => o.status === 'pending')?.count || 0,
       icon: Clock,
       color: "text-orange-600",
       bgColor: "bg-orange-50"
@@ -126,7 +126,7 @@ export default function DashboardStats() : JSX.Element {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {ordersByStatus?.map((status: { status: string; count: number )}) => (
+              {ordersByStatus?.map((status: { status: string; count: number ) => (
                 <div key={status.status} className="flex items-center justify-between">
                   <span className="capitalize font-medium">
                     {status.status === 'pending' ? 'En Attente' :

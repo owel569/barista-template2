@@ -121,7 +121,7 @@ export default function Settings({ userRole }: SettingsProps) {
   }, [fetchedSettings]);
 
   const saveMutation = useMutation({
-    mutationFn: (settings: RestaurantSettings})}) =>
+    mutationFn: (settings: RestaurantSettings}) =>
       apiRequest('/api/admin/settings', {
         method: 'PUT',
         body: JSON.stringify(settings)}),

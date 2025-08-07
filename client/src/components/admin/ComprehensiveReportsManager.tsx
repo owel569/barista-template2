@@ -137,7 +137,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
   const [selectedFields, setSelectedFields] = useState<string[]>([]);
   const [selectedCharts, setSelectedCharts] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState({
-    startDate: new Date(Date.now(}) - 30 * 24 * 60 * 60 * 1000),
+    startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
     endDate: new Date()
   });
   const [reportData, setReportData] = useState<any>(null);
@@ -148,13 +148,13 @@ export const ComprehensiveReportsManager: React.FC = () => {
 
   // Récupérer les rapports existants
   const { data: existingReports, isLoading } = useQuery({
-    queryKey: ['/api/admin/reports',],
-    queryFn: (})}) => apiRequest('/api/admin/reports')
+    queryKey: ['/api/admin/reports'],
+    queryFn: () => apiRequest('/api/admin/reports')
   });
 
   // Génération de rapport
   const generateReportMutation = useMutation({
-    mutationFn: async (reportConfig: unknown})}) => {
+    mutationFn: async (reportConfig: unknown) => {
       setIsGenerating(true);
       
       // Simuler la génération avec IA
@@ -187,7 +187,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
 
   // Planification automatique
   const scheduleReportMutation = useMutation({
-    mutationFn: (scheduleConfig: unknown})}) => 
+    mutationFn: (scheduleConfig: unknown) => 
       apiRequest('/api/admin/reports/schedule', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -197,7 +197,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
       toast({
         title: "Rapport planifié",
         description: "Le rapport sera généré automatiquement",
-      )});
+      });
     }
   });
 
@@ -223,7 +223,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
       templateId: selectedTemplate,
       frequency,
       recipients,
-      nextRun: new Date(Date.now()}) + 24 * 60 * 60 * 1000).toISOString()
+      nextRun: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
     });
   };
 

@@ -360,7 +360,7 @@ export default function Statistics({ userRole }: StatisticsProps) {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ category, value )}) => `${category}: ${value}€`}
+                      label={({ category, value ) => `${category}: ${value}€`}
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"

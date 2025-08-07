@@ -89,7 +89,7 @@ const AdvancedLoyalty: React.FC = () => {
   });
 
   const createRewardMutation = useMutation({
-    mutationFn: async (rewardData: Partial<LoyaltyReward>})}) => {
+    mutationFn: async (rewardData: Partial<LoyaltyReward>}) => {
       const response = await fetch('/api/loyalty/rewards', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' )},

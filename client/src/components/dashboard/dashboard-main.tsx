@@ -96,7 +96,7 @@ export default function DashboardMain() : JSX.Element {
   const { data: todayReservations } = useQuery({
     queryKey: ["/api/admin/stats/today-reservations",],
     enabled: !!user,
-    queryFn: async (})}) => {
+    queryFn: async (}) => {
       try {
         const response = await fetch('/api/admin/stats/today-reservations');
         if (!response.ok) throw new Error('Failed to fetch');
@@ -112,7 +112,7 @@ export default function DashboardMain() : JSX.Element {
   const { data: monthlyRevenue } = useQuery({
     queryKey: ["/api/admin/stats/monthly-revenue",],
     enabled: !!user,
-    queryFn: async (})}) => {
+    queryFn: async (}) => {
       try {
         const response = await fetch('/api/admin/stats/monthly-revenue');
         if (!response.ok) throw new Error('Failed to fetch');
@@ -128,7 +128,7 @@ export default function DashboardMain() : JSX.Element {
   const { data: activeOrders } = useQuery({
     queryKey: ["/api/admin/stats/active-orders",],
     enabled: !!user,
-    queryFn: async (})}) => {
+    queryFn: async (}) => {
       try {
         const response = await fetch('/api/admin/stats/active-orders');
         if (!response.ok) throw new Error('Failed to fetch');
@@ -144,7 +144,7 @@ export default function DashboardMain() : JSX.Element {
   const { data: occupancyRate } = useQuery({
     queryKey: ["/api/admin/stats/occupancy-rate",],
     enabled: !!user,
-    queryFn: async (})}) => {
+    queryFn: async (}) => {
       try {
         const response = await fetch('/api/admin/stats/occupancy-rate');
         if (!response.ok) throw new Error('Failed to fetch');
@@ -160,7 +160,7 @@ export default function DashboardMain() : JSX.Element {
   const { data: weeklyStats } = useQuery({
     queryKey: ["/api/dashboard/weekly-stats",],
     enabled: !!user,
-    queryFn: async (})}) => {
+    queryFn: async (}) => {
       try {
         const response = await fetch('/api/dashboard/weekly-stats');
         if (!response.ok) throw new Error('Failed to fetch');
@@ -261,7 +261,7 @@ export default function DashboardMain() : JSX.Element {
                   cy="50%"
                   outerRadius={100}
                   dataKey="value"
-                  label={({ name, value )}) => `${name}: ${value}`}
+                  label={({ name, value ) => `${name}: ${value}`}
                 >
                   {orderStatusData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />

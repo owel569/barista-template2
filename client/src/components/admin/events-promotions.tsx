@@ -376,7 +376,7 @@ export default function EventsPromotions() : JSX.Element {
                     <FormField
                       control={eventForm.control}
                       name="title"
-                      render={({ field )}) => (
+                      render={({ field ) => (
                         <FormItem>
                           <FormLabel>Titre</FormLabel>
                           <FormControl>
@@ -389,7 +389,7 @@ export default function EventsPromotions() : JSX.Element {
                     <FormField
                       control={eventForm.control}
                       name="type"
-                      render={({ field )}) => (
+                      render={({ field ) => (
                         <FormItem>
                           <FormLabel>Type</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -415,7 +415,7 @@ export default function EventsPromotions() : JSX.Element {
                   <FormField
                     control={eventForm.control}
                     name="description"
-                    render={({ field )}) => (
+                    render={({ field ) => (
                       <FormItem>
                         <FormLabel>Description</FormLabel>
                         <FormControl>
@@ -429,7 +429,7 @@ export default function EventsPromotions() : JSX.Element {
                     <FormField
                       control={eventForm.control}
                       name="date"
-                      render={({ field )}) => (
+                      render={({ field ) => (
                         <FormItem>
                           <FormLabel>Date</FormLabel>
                           <FormControl>
@@ -442,7 +442,7 @@ export default function EventsPromotions() : JSX.Element {
                     <FormField
                       control={eventForm.control}
                       name="startTime"
-                      render={({ field )}) => (
+                      render={({ field ) => (
                         <FormItem>
                           <FormLabel>Heure de début</FormLabel>
                           <FormControl>
@@ -455,7 +455,7 @@ export default function EventsPromotions() : JSX.Element {
                     <FormField
                       control={eventForm.control}
                       name="endTime"
-                      render={({ field )}) => (
+                      render={({ field ) => (
                         <FormItem>
                           <FormLabel>Heure de fin</FormLabel>
                           <FormControl>
@@ -470,7 +470,7 @@ export default function EventsPromotions() : JSX.Element {
                     <FormField
                       control={eventForm.control}
                       name="location"
-                      render={({ field )}) => (
+                      render={({ field ) => (
                         <FormItem>
                           <FormLabel>Lieu</FormLabel>
                           <FormControl>
@@ -483,7 +483,7 @@ export default function EventsPromotions() : JSX.Element {
                     <FormField
                       control={eventForm.control}
                       name="maxAttendees"
-                      render={({ field )}) => (
+                      render={({ field ) => (
                         <FormItem>
                           <FormLabel>Nombre maximum de participants</FormLabel>
                           <FormControl>
@@ -501,7 +501,7 @@ export default function EventsPromotions() : JSX.Element {
                   <FormField
                     control={eventForm.control}
                     name="price"
-                    render={({ field )}) => (
+                    render={({ field ) => (
                       <FormItem>
                         <FormLabel>Prix (€)</FormLabel>
                         <FormControl>
@@ -550,7 +550,7 @@ export default function EventsPromotions() : JSX.Element {
                     <FormField
                       control={promotionForm.control}
                       name="name"
-                      render={({ field )}) => (
+                      render={({ field ) => (
                         <FormItem>
                           <FormLabel>Nom</FormLabel>
                           <FormControl>
@@ -563,7 +563,7 @@ export default function EventsPromotions() : JSX.Element {
                     <FormField
                       control={promotionForm.control}
                       name="type"
-                      render={({ field )}) => (
+                      render={({ field ) => (
                         <FormItem>
                           <FormLabel>Type</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -588,7 +588,7 @@ export default function EventsPromotions() : JSX.Element {
                   <FormField
                     control={promotionForm.control}
                     name="description"
-                    render={({ field )}) => (
+                    render={({ field ) => (
                       <FormItem>
                         <FormLabel>Description</FormLabel>
                         <FormControl>
@@ -602,7 +602,7 @@ export default function EventsPromotions() : JSX.Element {
                     <FormField
                       control={promotionForm.control}
                       name="discountValue"
-                      render={({ field )}) => (
+                      render={({ field ) => (
                         <FormItem>
                           <FormLabel>Valeur de réduction</FormLabel>
                           <FormControl>
@@ -620,7 +620,7 @@ export default function EventsPromotions() : JSX.Element {
                     <FormField
                       control={promotionForm.control}
                       name="customerSegment"
-                      render={({ field )}) => (
+                      render={({ field ) => (
                         <FormItem>
                           <FormLabel>Segment client</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -645,7 +645,7 @@ export default function EventsPromotions() : JSX.Element {
                     <FormField
                       control={promotionForm.control}
                       name="startDate"
-                      render={({ field )}) => (
+                      render={({ field ) => (
                         <FormItem>
                           <FormLabel>Date de début</FormLabel>
                           <FormControl>
@@ -658,7 +658,7 @@ export default function EventsPromotions() : JSX.Element {
                     <FormField
                       control={promotionForm.control}
                       name="endDate"
-                      render={({ field )}) => (
+                      render={({ field ) => (
                         <FormItem>
                           <FormLabel>Date de fin</FormLabel>
                           <FormControl>

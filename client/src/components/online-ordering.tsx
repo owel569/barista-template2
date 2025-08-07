@@ -84,7 +84,7 @@ const OnlineOrdering: React.FC = () => {
   });
 
   const createOrderMutation = useMutation({
-    mutationFn: async (orderData: Partial<OnlineOrder>})}) => {
+    mutationFn: async (orderData: Partial<OnlineOrder>}) => {
       const response = await fetch('/api/orders/online', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' )},

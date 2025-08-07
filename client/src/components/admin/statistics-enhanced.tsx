@@ -460,7 +460,7 @@ export default function StatisticsEnhanced({ userRole }: StatisticsEnhancedProps
                         cy="50%"
                         outerRadius={80}
                         dataKey="value"
-                        label={({ category, value )}) => `${category}: ${value}%`}
+                        label={({ category, value ) => `${category}: ${value}%`}
                       >
                         {categoryData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

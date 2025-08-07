@@ -2,20 +2,20 @@ import { z } from 'zod';
 
 // Schémas de validation pour les services internes
 const ChatContextSchema = z.object({
-  message: z.string()}).min(1),
+  message: z.string().min(1),
   userId: z.string().optional(),
   sessionId: z.string().optional(),
   context: z.record(z.unknown()).optional()
 });
 
 const VoiceAnalysisSchema = z.object({
-  audioData: z.string()}),
+  audioData: z.string(),
   language: z.string().default('fr-FR'),
   userId: z.string().optional()
 });
 
 const PredictionContextSchema = z.object({
-  timeframe: z.enum(['daily', 'weekly', 'monthly'])}).default('daily'),
+  timeframe: z.enum(['daily', 'weekly', 'monthly']).default('daily'),
   metrics: z.array(z.string()).optional()
 });
 
@@ -525,10 +525,10 @@ export class AIAutomationService {
           };
       }
     } catch (error) {
-      logger.error('Erreur chat IA:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      logger.error('Erreur chat IA:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       return {
         response: "Désolé, je rencontre un problème technique. Veuillez réessayer.",
-        actions: [,],
+        actions: [],
         confidence: 0
       };
     }
@@ -613,17 +613,17 @@ export class AIAutomationService {
     const entities: unknown[] = [];
 
     // Extraction de dates
-    const dateRegex = /(\d{1,2)}\/\d{1,2}\/\d{4})/g;
+    const dateRegex = /(\d{1,2}\/\d{1,2}\/\d{4})/g;
     const dates = message.match(dateRegex);
     if (dates) {
-      entities.push({ type: 'date', value: dates[0] )});
+      entities.push({ type: 'date', value: dates[0] });
     }
 
     // Extraction de nombres (pour nombre de personnes)
     const numberRegex = /(\d+)\s*(personne|gens|personnes)/g;
     const numbers = message.match(numberRegex);
     if (numbers) {
-      entities.push({ type: 'party_size', value: parseInt(numbers[0])}) });
+      entities.push({ type: 'party_size', value: parseInt(numbers[0]) });
     }
 
     return entities;

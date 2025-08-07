@@ -139,7 +139,7 @@ export default function TableManagement() : JSX.Element {
   });
 
   const createTableMutation = useMutation({
-    mutationFn: (data: Record<string, unknown>})}) => apiRequest('/api/admin/tables', { method: 'POST', data }),
+    mutationFn: (data: Record<string, unknown>}) => apiRequest('/api/admin/tables', { method: 'POST', data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/tables'] )});
       toast({ title: "Table créée avec succès" });
@@ -240,7 +240,7 @@ export default function TableManagement() : JSX.Element {
                     <FormField
                       control={form.control}
                       name="number"
-                      render={({ field )}) => (
+                      render={({ field ) => (
                         <FormItem>
                           <FormLabel>Numéro de table</FormLabel>
                           <FormControl>
@@ -258,7 +258,7 @@ export default function TableManagement() : JSX.Element {
                     <FormField
                       control={form.control}
                       name="capacity"
-                      render={({ field )}) => (
+                      render={({ field ) => (
                         <FormItem>
                           <FormLabel>Capacité</FormLabel>
                           <FormControl>
@@ -278,7 +278,7 @@ export default function TableManagement() : JSX.Element {
                     <FormField
                       control={form.control}
                       name="location"
-                      render={({ field )}) => (
+                      render={({ field ) => (
                         <FormItem>
                           <FormLabel>Emplacement</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -302,7 +302,7 @@ export default function TableManagement() : JSX.Element {
                     <FormField
                       control={form.control}
                       name="shape"
-                      render={({ field )}) => (
+                      render={({ field ) => (
                         <FormItem>
                           <FormLabel>Forme</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -326,7 +326,7 @@ export default function TableManagement() : JSX.Element {
                   <FormField
                     control={form.control}
                     name="isVip"
-                    render={({ field )}) => (
+                    render={({ field ) => (
                       <FormItem className="flex items-center space-x-2">
                         <FormControl>
                           <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -339,7 +339,7 @@ export default function TableManagement() : JSX.Element {
                   <FormField
                     control={form.control}
                     name="notes"
-                    render={({ field )}) => (
+                    render={({ field ) => (
                       <FormItem>
                         <FormLabel>Notes</FormLabel>
                         <FormControl>

@@ -105,7 +105,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: EmployeeFormData})}) => apiRequest('/api/admin/employees', {
+    mutationFn: (data: EmployeeFormData}) => apiRequest('/api/admin/employees', {
       method: 'POST',
       body: JSON.stringify(data)}),
     }),
@@ -298,7 +298,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                   <FormField
                     control={form.control}
                     name="firstName"
-                    render={({ field )}) => (
+                    render={({ field ) => (
                       <FormItem>
                         <FormLabel>Prénom</FormLabel>
                         <FormControl>
@@ -311,7 +311,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                   <FormField
                     control={form.control}
                     name="lastName"
-                    render={({ field )}) => (
+                    render={({ field ) => (
                       <FormItem>
                         <FormLabel>Nom</FormLabel>
                         <FormControl>
@@ -326,7 +326,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                 <FormField
                   control={form.control}
                   name="email"
-                  render={({ field )}) => (
+                  render={({ field ) => (
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
@@ -340,7 +340,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                 <FormField
                   control={form.control}
                   name="position"
-                  render={({ field )}) => (
+                  render={({ field ) => (
                     <FormItem>
                       <FormLabel>Poste</FormLabel>
                       <FormControl>
@@ -354,7 +354,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                 <FormField
                   control={form.control}
                   name="department"
-                  render={({ field )}) => (
+                  render={({ field ) => (
                     <FormItem>
                       <FormLabel>Département</FormLabel>
                       <FormControl>
@@ -368,7 +368,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                 <FormField
                   control={form.control}
                   name="phone"
-                  render={({ field )}) => (
+                  render={({ field ) => (
                     <FormItem>
                       <FormLabel>Téléphone</FormLabel>
                       <FormControl>
@@ -387,7 +387,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                   <FormField
                     control={form.control}
                     name="hireDate"
-                    render={({ field )}) => (
+                    render={({ field ) => (
                       <FormItem>
                         <FormLabel>Date d'embauche</FormLabel>
                         <FormControl>
@@ -400,7 +400,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                   <FormField
                     control={form.control}
                     name="salary"
-                    render={({ field )}) => (
+                    render={({ field ) => (
                       <FormItem>
                         <FormLabel>Salaire (DH)</FormLabel>
                         <FormControl>
@@ -426,7 +426,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                 <FormField
                   control={form.control}
                   name="status"
-                  render={({ field )}) => (
+                  render={({ field ) => (
                     <FormItem>
                       <FormLabel>Statut</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -521,7 +521,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {employees.map((employee: { id: number; firstName: string; lastName: string; email: string; position: string; hireDate?: string; status: string )}) => (
+              {employees.map((employee: { id: number; firstName: string; lastName: string; email: string; position: string; hireDate?: string; status: string ) => (
                 <TableRow key={employee.id}>
                   <TableCell className="font-medium">
                     {employee.firstName} {employee.lastName}

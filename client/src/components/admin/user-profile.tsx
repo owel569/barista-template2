@@ -283,7 +283,7 @@ export default function UserProfile() : JSX.Element {
                           <FormField
                             control={form.control}
                             name="firstName"
-                            render={({ field )}) => (
+                            render={({ field ) => (
                               <FormItem>
                                 <FormLabel>Prénom</FormLabel>
                                 <FormControl>
@@ -297,7 +297,7 @@ export default function UserProfile() : JSX.Element {
                           <FormField
                             control={form.control}
                             name="lastName"
-                            render={({ field )}) => (
+                            render={({ field ) => (
                               <FormItem>
                                 <FormLabel>Nom</FormLabel>
                                 <FormControl>
@@ -313,7 +313,7 @@ export default function UserProfile() : JSX.Element {
                           <FormField
                             control={form.control}
                             name="email"
-                            render={({ field )}) => (
+                            render={({ field ) => (
                               <FormItem>
                                 <FormLabel>Email</FormLabel>
                                 <FormControl>
@@ -327,7 +327,7 @@ export default function UserProfile() : JSX.Element {
                           <FormField
                             control={form.control}
                             name="phone"
-                            render={({ field )}) => (
+                            render={({ field ) => (
                               <FormItem>
                                 <FormLabel>Téléphone</FormLabel>
                                 <FormControl>
@@ -342,7 +342,7 @@ export default function UserProfile() : JSX.Element {
                         <FormField
                           control={form.control}
                           name="address"
-                          render={({ field )}) => (
+                          render={({ field ) => (
                             <FormItem>
                               <FormLabel>Adresse</FormLabel>
                               <FormControl>
@@ -357,7 +357,7 @@ export default function UserProfile() : JSX.Element {
                           <FormField
                             control={form.control}
                             name="city"
-                            render={({ field )}) => (
+                            render={({ field ) => (
                               <FormItem>
                                 <FormLabel>Ville</FormLabel>
                                 <FormControl>
@@ -371,7 +371,7 @@ export default function UserProfile() : JSX.Element {
                           <FormField
                             control={form.control}
                             name="postalCode"
-                            render={({ field )}) => (
+                            render={({ field ) => (
                               <FormItem>
                                 <FormLabel>Code postal</FormLabel>
                                 <FormControl>
@@ -573,7 +573,7 @@ export default function UserProfile() : JSX.Element {
                               <FormField
                                 control={addressForm.control}
                                 name="name"
-                                render={({ field )}) => (
+                                render={({ field ) => (
                                   <FormItem>
                                     <FormLabel>Nom de l'adresse</FormLabel>
                                     <FormControl>
@@ -586,7 +586,7 @@ export default function UserProfile() : JSX.Element {
                               <FormField
                                 control={addressForm.control}
                                 name="street"
-                                render={({ field )}) => (
+                                render={({ field ) => (
                                   <FormItem>
                                     <FormLabel>Rue</FormLabel>
                                     <FormControl>
@@ -600,7 +600,7 @@ export default function UserProfile() : JSX.Element {
                                 <FormField
                                   control={addressForm.control}
                                   name="city"
-                                  render={({ field )}) => (
+                                  render={({ field ) => (
                                     <FormItem>
                                       <FormLabel>Ville</FormLabel>
                                       <FormControl>
@@ -613,7 +613,7 @@ export default function UserProfile() : JSX.Element {
                                 <FormField
                                   control={addressForm.control}
                                   name="postalCode"
-                                  render={({ field )}) => (
+                                  render={({ field ) => (
                                     <FormItem>
                                       <FormLabel>Code postal</FormLabel>
                                       <FormControl>
@@ -627,7 +627,7 @@ export default function UserProfile() : JSX.Element {
                               <FormField
                                 control={addressForm.control}
                                 name="isDefault"
-                                render={({ field )}) => (
+                                render={({ field ) => (
                                   <FormItem className="flex items-center space-x-2">
                                     <FormControl>
                                       <Switch checked={field.value} onCheckedChange={field.onChange} />

@@ -67,7 +67,7 @@ export default function Reservation() : JSX.Element {
   });
 
   const reservationMutation = useMutation({
-    mutationFn: (data: ReservationFormData})}) =>
+    mutationFn: (data: ReservationFormData}) =>
       apiRequest("POST", "/api/reservations", data),
     onSuccess: () => {
       toast({
@@ -149,7 +149,7 @@ export default function Reservation() : JSX.Element {
                   <Controller
                     name="time"
                     control={control}
-                    render={({ field )}) => (
+                    render={({ field ) => (
                       <Select value={field.value || ""} onValueChange={field.onChange}>
                         <SelectTrigger className="focus:border-coffee-accent">
                           <SelectValue placeholder="Choisir l'heure" />
@@ -183,7 +183,7 @@ export default function Reservation() : JSX.Element {
                 <Controller
                   name="guests"
                   control={control}
-                  render={({ field )}) => (
+                  render={({ field ) => (
                     <Select value={field.value?.toString() || ""} onValueChange={(val) => field.onChange(parseInt(val))}>
                       <SelectTrigger className="focus:border-coffee-accent">
                         <SelectValue placeholder="Choisir le nombre de personnes" />

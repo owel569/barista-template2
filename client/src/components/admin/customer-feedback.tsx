@@ -514,7 +514,7 @@ export default function CustomerFeedback() : JSX.Element {
                         {!feedback.response && (
                           <Button
                             size="sm"
-                            onClick={()}) => {
+                            onClick={() => {
                               setSelectedFeedback(feedback);
                               setShowResponseDialog(true);
                             }}

@@ -191,7 +191,7 @@ export default function UserProfileEnhanced() : JSX.Element {
   // Récupération des utilisateurs
   const { data: users = [,], isLoading, error } = useQuery<UserProfile[]>({
     queryKey: ['user-profiles',],
-    queryFn: async ()}) => {
+    queryFn: async () => {
       const response = await apiRequest('/api/admin/user-profiles');
       return response.json();
     },
@@ -234,7 +234,7 @@ export default function UserProfileEnhanced() : JSX.Element {
 
   // Mutations pour les opérations CRUD
   const updateUserMutation = useMutation({
-    mutationFn: async (data: { id: number; updates: Partial<UserProfile> })}) => {
+    mutationFn: async (data: { id: number; updates: Partial<UserProfile> }) => {
       const response = await apiRequest(`/api/admin/user-profiles/${data.id)}`, {
         method: 'PUT',
         body: JSON.stringify(data.updates),
@@ -252,7 +252,7 @@ export default function UserProfileEnhanced() : JSX.Element {
   });
 
   const addAddressMutation = useMutation({
-    mutationFn: async (data: { userId: number; address: Omit<Address, 'id'> })}) => {
+    mutationFn: async (data: { userId: number; address: Omit<Address, 'id'> }) => {
       const response = await apiRequest(`/api/admin/user-profiles/${data.userId)}/addresses`, {
         method: 'POST',
         body: JSON.stringify(data.address),
@@ -271,7 +271,7 @@ export default function UserProfileEnhanced() : JSX.Element {
   });
 
   const deleteAddressMutation = useMutation({
-    mutationFn: async (addressId: number})}) => {
+    mutationFn: async (addressId: number}) => {
       const response = await apiRequest(`/api/admin/addresses/${addressId)}`, {
         method: 'DELETE',
       });
@@ -404,7 +404,7 @@ export default function UserProfileEnhanced() : JSX.Element {
 
   // Fonctions d'impression et export
   const handlePrint = useReactToPrint({
-    content: (})}) => printRef.current,
+    content: (}) => printRef.current,
     documentTitle: `Profil-${selectedUser?.firstName}-${selectedUser?.lastName}`,
   });
 
@@ -907,7 +907,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                 <FormField
                   control={profileForm.control}
                   name="firstName"
-                  render={({ field )}) => (
+                  render={({ field ) => (
                     <FormItem>
                       <FormLabel>Prénom</FormLabel>
                       <FormControl>
@@ -920,7 +920,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                 <FormField
                   control={profileForm.control}
                   name="lastName"
-                  render={({ field )}) => (
+                  render={({ field ) => (
                     <FormItem>
                       <FormLabel>Nom</FormLabel>
                       <FormControl>
@@ -936,7 +936,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                 <FormField
                   control={profileForm.control}
                   name="email"
-                  render={({ field )}) => (
+                  render={({ field ) => (
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
@@ -949,7 +949,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                 <FormField
                   control={profileForm.control}
                   name="phone"
-                  render={({ field )}) => (
+                  render={({ field ) => (
                     <FormItem>
                       <FormLabel>Téléphone</FormLabel>
                       <FormControl>
@@ -964,7 +964,7 @@ export default function UserProfileEnhanced() : JSX.Element {
               <FormField
                 control={profileForm.control}
                 name="birthDate"
-                render={({ field )}) => (
+                render={({ field ) => (
                   <FormItem>
                     <FormLabel>Date de naissance</FormLabel>
                     <FormControl>
@@ -981,7 +981,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                   <FormField
                     control={profileForm.control}
                     name="preferences.emailNotifications"
-                    render={({ field )}) => (
+                    render={({ field ) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                         <div className="space-y-0.5">
                           <FormLabel>Notifications email</FormLabel>
@@ -998,7 +998,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                   <FormField
                     control={profileForm.control}
                     name="preferences.smsNotifications"
-                    render={({ field )}) => (
+                    render={({ field ) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                         <div className="space-y-0.5">
                           <FormLabel>Notifications SMS</FormLabel>
@@ -1043,7 +1043,7 @@ export default function UserProfileEnhanced() : JSX.Element {
               <FormField
                 control={addressForm.control}
                 name="street"
-                render={({ field )}) => (
+                render={({ field ) => (
                   <FormItem>
                     <FormLabel>Adresse</FormLabel>
                     <FormControl>
@@ -1058,7 +1058,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                 <FormField
                   control={addressForm.control}
                   name="city"
-                  render={({ field )}) => (
+                  render={({ field ) => (
                     <FormItem>
                       <FormLabel>Ville</FormLabel>
                       <FormControl>
@@ -1071,7 +1071,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                 <FormField
                   control={addressForm.control}
                   name="postalCode"
-                  render={({ field )}) => (
+                  render={({ field ) => (
                     <FormItem>
                       <FormLabel>Code postal</FormLabel>
                       <FormControl>
@@ -1087,7 +1087,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                 <FormField
                   control={addressForm.control}
                   name="country"
-                  render={({ field )}) => (
+                  render={({ field ) => (
                     <FormItem>
                       <FormLabel>Pays</FormLabel>
                       <FormControl>
@@ -1100,7 +1100,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                 <FormField
                   control={addressForm.control}
                   name="type"
-                  render={({ field )}) => (
+                  render={({ field ) => (
                     <FormItem>
                       <FormLabel>Type</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>

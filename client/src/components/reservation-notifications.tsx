@@ -63,7 +63,7 @@ export default function ReservationNotifications() : JSX.Element {
 
   // Mutation pour marquer les notifications comme envoyées
   const markNotificationSentMutation = useMutation({
-    mutationFn: (reservationId: number})}) => 
+    mutationFn: (reservationId: number}) => 
       apiRequest("PATCH", `/api/admin/reservations/${reservationId}/notification-sent`, {}),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/reservations"] )});

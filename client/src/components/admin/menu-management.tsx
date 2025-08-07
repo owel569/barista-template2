@@ -109,7 +109,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
   });
 
   const createMutation = useMutation({
-    mutationFn: async (data: MenuItemFormData})}) => {
+    mutationFn: async (data: MenuItemFormData}) => {
       const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
       const response = await fetch('/api/admin/menu/items', {
         method: 'POST',
@@ -200,7 +200,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (id: number})}) => {
+    mutationFn: async (id: number}) => {
       const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
       const response = await fetch(`/api/admin/menu/items/${id}`, {
         method: 'DELETE',
@@ -374,7 +374,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                 <FormField
                   control={form.control}
                   name="name"
-                  render={({ field )}) => (
+                  render={({ field ) => (
                     <FormItem>
                       <FormLabel>Nom de l'article</FormLabel>
                       <FormControl>
@@ -388,7 +388,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                 <FormField
                   control={form.control}
                   name="description"
-                  render={({ field )}) => (
+                  render={({ field ) => (
                     <FormItem>
                       <FormLabel>Description</FormLabel>
                       <FormControl>
@@ -403,7 +403,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                   <FormField
                     control={form.control}
                     name="price"
-                    render={({ field )}) => (
+                    render={({ field ) => (
                       <FormItem>
                         <FormLabel>Prix (DH)</FormLabel>
                         <FormControl>
@@ -428,7 +428,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                   <FormField
                     control={form.control}
                     name="categoryId"
-                    render={({ field )}) => (
+                    render={({ field ) => (
                       <FormItem>
                         <FormLabel>Catégorie</FormLabel>
                         <Select onValueChange={(value) => field.onChange(Number(value))} defaultValue={field.value?.toString()}>
@@ -454,7 +454,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                 <FormField
                   control={form.control}
                   name="imageUrl"
-                  render={({ field )}) => (
+                  render={({ field ) => (
                     <FormItem>
                       <FormLabel>Image du produit</FormLabel>
                       <FormControl>

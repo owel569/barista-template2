@@ -89,13 +89,13 @@ export default function ReservationWithCart() : JSX.Element {
   // Récupération des catégories de menu
   const { data: categories = [] } = useQuery({
     queryKey: ["/api/menu/categories",],
-    queryFn: (})}) => apiRequest("GET", "/api/menu/categories").then(res => res.json()),
+    queryFn: (}) => apiRequest("GET", "/api/menu/categories").then(res => res.json()),
   });
 
   // Récupération des articles du menu
   const { data: menuItems = [] } = useQuery({
     queryKey: ["/api/menu/items",],
-    queryFn: (})}) => apiRequest("GET", "/api/menu/items").then(res => res.json()),
+    queryFn: (}) => apiRequest("GET", "/api/menu/items").then(res => res.json()),
   });
 
   // Sélectionner la première catégorie par défaut
@@ -107,7 +107,7 @@ export default function ReservationWithCart() : JSX.Element {
 
   // Mutation pour créer la réservation
   const createReservationMutation = useMutation({
-    mutationFn: (data: ReservationFormData & { cartItems: CartItem[] })}) => 
+    mutationFn: (data: ReservationFormData & { cartItems: CartItem[] }) => 
       apiRequest("/api/reservations", {
         method: "POST",
         body: JSON.stringify(data)}),

@@ -38,7 +38,7 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
   // Récupérer les images existantes
   const { data: images = [,], isLoading } = useQuery({
     queryKey: ['menu-item-images', menuItem.id],
-    queryFn: async (})}) => {
+    queryFn: async (}) => {
       const response = await fetch(`/api/admin/images/${menuItem.id)}`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
@@ -55,7 +55,7 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
       altText: string;
       isPrimary: boolean;
       uploadMethod: 'url' | 'upload' | 'generated';
-    })}) => {
+    }) => {
       const response = await fetch('/api/admin/images', {
         method: 'POST',
         headers: {
@@ -83,7 +83,7 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
 
   // Supprimer une image
   const deleteImageMutation = useMutation({
-    mutationFn: async (imageId: number})}) => {
+    mutationFn: async (imageId: number}) => {
       const response = await fetch(`/api/admin/images/${imageId)}`, {
         method: 'DELETE',
         headers: {

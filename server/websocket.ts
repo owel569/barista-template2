@@ -15,7 +15,7 @@ class WebSocketManager {
     this.wss = new WebSocketServer({ 
       server, 
       path: '/ws',
-      verifyClient: (info}) => {
+      verifyClient: (info) => {
         // Vérification simple pour l'authentification
         return true;
       }
@@ -37,7 +37,7 @@ class WebSocketManager {
           const data = JSON.parse(message.toString());
           this.handleMessage(ws, data);
         } catch (error) {
-          logger.error('Erreur parsing message WebSocket:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+          logger.error('Erreur parsing message WebSocket:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
         }
       });
 
@@ -48,7 +48,7 @@ class WebSocketManager {
       });
 
       ws.on('error', (error) => {
-        logger.error('Erreur WebSocket:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+        logger.error('Erreur WebSocket:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
         this.clients.delete(ws);
         clearInterval(heartbeat);
       });
@@ -57,11 +57,11 @@ class WebSocketManager {
       try {
         this.sendToClient(ws, {
           type: 'notification',
-          data: { message: 'Connexion établie' )},
+          data: { message: 'Connexion établie' },
           timestamp: new Date().toISOString()
         });
       } catch (error) {
-        logger.error('Erreur envoi message de bienvenue:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+        logger.error('Erreur envoi message de bienvenue:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       }
     });
 
@@ -93,7 +93,7 @@ class WebSocketManager {
       data: {
         type: 'new_reservation',
         title: 'Nouvelle réservation',
-        message: `Réservation pour ${reservation.customerName)} le ${reservation.date}`,
+        message: `Réservation pour ${reservation.customerName} le ${reservation.date}`,
         reservation
       },
       timestamp: new Date().toISOString()
@@ -107,7 +107,7 @@ class WebSocketManager {
       data: {
         type: 'new_order',
         title: 'Nouvelle commande',
-        message: `Commande #${order.id)} de ${order.total}€`,
+        message: `Commande #${order.id} de ${order.total}€`,
         order
       },
       timestamp: new Date().toISOString()
@@ -121,7 +121,7 @@ class WebSocketManager {
       data: {
         type: 'new_message',
         title: 'Nouveau message',
-        message: `Message de ${message.name)}`,
+        message: `Message de ${message.name}`,
         contactMessage: message
       },
       timestamp: new Date().toISOString()

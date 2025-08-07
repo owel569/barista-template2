@@ -140,7 +140,7 @@ export default function NotificationsSystem() : JSX.Element {
   // Requêtes optimisées
   const { data: notificationData = [,], isLoading, refetch } = useQuery({
     queryKey: ['/api/notifications',],
-    queryFn: async (})}) => {
+    queryFn: async (}) => {
       try {
         const response = await fetch('/api/notifications');
         const data = await response.json();
@@ -156,7 +156,7 @@ export default function NotificationsSystem() : JSX.Element {
 
   const { data: settings, isLoading: settingsLoading } = useQuery({
     queryKey: ['/api/notifications/settings',],
-    queryFn: async (})}) => {
+    queryFn: async (}) => {
       try {
         const response = await fetch('/api/notifications/settings');
         const data = await response.json();
@@ -169,7 +169,7 @@ export default function NotificationsSystem() : JSX.Element {
 
   const { data: templates = [] } = useQuery({
     queryKey: ['/api/notifications/templates',],
-    queryFn: async (})}) => {
+    queryFn: async (}) => {
       try {
         const response = await fetch('/api/notifications/templates');
         const data = await response.json();
@@ -182,7 +182,7 @@ export default function NotificationsSystem() : JSX.Element {
 
   // Mutations optimisées
   const markAsReadMutation = useMutation({
-    mutationFn: async (notificationIds: string[]})}) => {
+    mutationFn: async (notificationIds: string[]}) => {
       await fetch('/api/notifications/mark-read', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' )},
@@ -196,7 +196,7 @@ export default function NotificationsSystem() : JSX.Element {
   });
 
   const archiveNotificationsMutation = useMutation({
-    mutationFn: async (notificationIds: string[]})}) => {
+    mutationFn: async (notificationIds: string[]}) => {
       await fetch('/api/notifications/archive', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' )},
@@ -211,7 +211,7 @@ export default function NotificationsSystem() : JSX.Element {
   });
 
   const createNotificationMutation = useMutation({
-    mutationFn: async (notification: Partial<Notification>})}) => {
+    mutationFn: async (notification: Partial<Notification>}) => {
       await fetch('/api/notifications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' )},
@@ -234,7 +234,7 @@ export default function NotificationsSystem() : JSX.Element {
   });
 
   const updateSettingsMutation = useMutation({
-    mutationFn: async (newSettings: NotificationSettings})}) => {
+    mutationFn: async (newSettings: NotificationSettings}) => {
       await fetch('/api/notifications/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' )},
@@ -635,7 +635,7 @@ export default function NotificationsSystem() : JSX.Element {
                       <div className="flex items-center space-x-2">
                         {notification.status === 'unread' && (
                           <Button
-                            onClick={(e)}) => {
+                            onClick={(e) => {
                               e.stopPropagation();
                               handleMarkAsRead([notification.id]);
                             }}

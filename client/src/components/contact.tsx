@@ -42,7 +42,7 @@ export default function Contact() : JSX.Element {
   });
 
   const contactMutation = useMutation({
-    mutationFn: (data: ContactFormData})}) => 
+    mutationFn: (data: ContactFormData}) => 
       apiRequest("/api/contact", {
         method: "POST",
         body: JSON.stringify(data)})

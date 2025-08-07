@@ -41,7 +41,7 @@ class Logger {
     
     if (entry.context || entry.requestId || entry.userId) {
       const metadata = {
-        ...(entry.requestId && { requestId: entry.requestId )}),
+        ...(entry.requestId && { requestId: entry.requestId }),
         ...(entry.userId && { userId: entry.userId }),
         ...(entry.ip && { ip: entry.ip }),
         ...(entry.userAgent && { userAgent: entry.userAgent }),
