@@ -24,7 +24,7 @@ import {
   DollarSign
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { InventoryData, InventoryAlert, InventoryItem } from '@shared/types';
+import { InventoryData, InventoryAlert, InventoryItem } from '@/shared/types';
 
 const InventoryManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -34,13 +34,13 @@ const InventoryManagement = () => {
 
   // Récupérer l'aperçu du stock
   const { data: inventory, isLoading } = useQuery<InventoryData>({
-    queryKey: ['/api/admin/inventory/overview',],
+    queryKey: ['/api/admin/inventory/overview'],
     refetchInterval: 60000 // Actualisation chaque minute
   });
 
   // Récupérer les prédictions de stock
   const { data: predictions } = useQuery({
-    queryKey: ['/api/admin/inventory/predictions',],
+    queryKey: ['/api/admin/inventory/predictions'],
     refetchInterval: 300000 // Actualisation toutes les 5 minutes
   });
 
@@ -51,7 +51,7 @@ const InventoryManagement = () => {
 
   // Récupérer les mouvements de stock
   const { data: movements } = useQuery({
-    queryKey: ['/api/admin/inventory/movements',],
+    queryKey: ['/api/admin/inventory/movements'],
     refetchInterval: 30000
   });
 

@@ -513,3 +513,72 @@ export interface ChartOptions {
   scales?: Record<string, unknown>;
   elements?: Record<string, unknown>;
 }
+
+// Types pour l'inventaire avancé
+export interface InventoryData {
+  alerts: InventoryAlert[];
+  statistics: InventoryStatistics;
+  categories: InventoryCategory[];
+  items: InventoryItem[];
+  automaticOrders: Array<Record<string, unknown>>;
+  movements: InventoryMovement[];
+  suppliers: InventorySupplier[];
+}
+
+export interface InventoryAlert {
+  id: string;
+  item: string;
+  message: string;
+  priority: 'low' | 'medium' | 'high';
+  type: 'stock_low' | 'expiring' | 'out_of_stock';
+  createdAt: string;
+}
+
+export interface InventoryStatistics {
+  totalValue: number;
+  lowStockItems: number;
+  pendingOrders: number;
+  monthlyConsumption: number;
+  totalItems?: number;
+  categories?: number;
+}
+
+export interface InventoryCategory {
+  id: string;
+  name: string;
+  items: InventoryItem[];
+}
+
+export interface InventoryMovement {
+  id: string;
+  item: string;
+  type: 'in' | 'out' | 'adjustment';
+  quantity: number;
+  unit: string;
+  reason: string;
+  user: string;
+  date: string;
+}
+
+export interface InventorySupplier {
+  id: string;
+  name: string;
+  categories: string[];
+  deliveryTime: string;
+  minimumOrder: number;
+  reliability: number;
+  rating: number;
+  lastOrder: string;
+}
+
+// Extension de InventoryItem pour l'UI
+declare module './types' {
+  interface InventoryItem {
+    status?: 'ok' | 'warning' | 'critical';
+    daysRemaining?: number;
+    cost?: number;
+    maxStock?: number;
+    minStock?: number;
+    supplier?: string;
+  }
+}

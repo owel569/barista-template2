@@ -24,10 +24,12 @@ export interface ActivityLog {
   id: number;
   userId: number;
   action: string;
-  entity: string;
+  entity?: string;
   entityId?: number;
-  timestamp: Date;
+  timestamp?: Date;
+  createdAt?: string;
   details?: string;
+  ipAddress?: string;
   user?: User;
 }
 

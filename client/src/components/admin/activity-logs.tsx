@@ -38,15 +38,15 @@ export default function ActivityLogs({ userRole }: ActivityLogsProps) {
   const [actionFilter, setActionFilter] = useState<string>('all');
   const [userFilter, setUserFilter] = useState<string>('all');
 
-  const { data: logs = [,], isLoading } = useQuery<ActivityLog[]>({
-    queryKey: ['/api/admin/activity-logs',],
+  const { data: logs = [], isLoading } = useQuery<ActivityLog[]>({
+    queryKey: ['/api/admin/activity-logs'],
     retry: 3,
     retryDelay: 1000,
   });
 
   const filteredLogs = logs.filter(log => {
     const matchesSearch = !searchTerm || 
-      log.action.toLowerCase()}).includes(searchTerm.toLowerCase()) ||
+      log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
       log.details?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       log.userId.toString().includes(searchTerm);
     
