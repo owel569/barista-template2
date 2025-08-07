@@ -123,7 +123,7 @@ interface Review {
 }
 
 const profileSchema = z.object({
-  firstName: z.string().min(1, "Prénom requis"),
+  firstName: z.string()}).min(1, "Prénom requis"),
   lastName: z.string().min(1, "Nom requis"),
   email: z.string().email("Email invalide"),
   phone: z.string().min(8, "Téléphone requis"),
@@ -134,7 +134,7 @@ const profileSchema = z.object({
 });
 
 const addressSchema = z.object({
-  name: z.string().min(1, "Nom requis"),
+  name: z.string()}).min(1, "Nom requis"),
   street: z.string().min(1, "Rue requise"),
   city: z.string().min(1, "Ville requise"),
   postalCode: z.string().min(1, "Code postal requis"),
@@ -148,8 +148,8 @@ export default function UserProfile() : JSX.Element {
   const queryClient = useQueryClient();
   useWebSocket();
 
-  const { data: users = [], isLoading } = useQuery({
-    queryKey: ['/api/admin/user-profiles'],
+  const { data: users = [,], isLoading } = useQuery({
+    queryKey: ['/api/admin/user-profiles',],
   });
 
   const { data: selectedProfile } = useQuery({
@@ -158,27 +158,27 @@ export default function UserProfile() : JSX.Element {
   });
 
   const updateProfileMutation = useMutation({
-    mutationFn: ({ id, ...data }: any) => apiRequest(`/api/admin/user-profiles/${id}`, { method: 'PUT', data }),
+    mutationFn: ({ id, ...data })}: unknown) => apiRequest(`/api/admin/user-profiles/${id}`, { method: 'PUT', data }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/user-profiles'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/user-profiles'] )});
       toast({ title: "Profil mis à jour" });
     },
   });
 
   const addAddressMutation = useMutation({
-    mutationFn: ({ userId, ...data }: any) => apiRequest(`/api/admin/user-profiles/${userId}/addresses`, { method: 'POST', data }),
+    mutationFn: ({ userId, ...data })}: unknown) => apiRequest(`/api/admin/user-profiles/${userId}/addresses`, { method: 'POST', data }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/user-profiles'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/user-profiles'] )});
       toast({ title: "Adresse ajoutée" });
     },
   });
 
   const form = useForm({
-    resolver: zodResolver(profileSchema),
+    resolver: zodResolver(profileSchema})}),
   });
 
   const addressForm = useForm({
-    resolver: zodResolver(addressSchema),
+    resolver: zodResolver(addressSchema})}),
   });
 
   const onSubmitProfile = (data: Record<string, unknown>) => {
@@ -243,7 +243,7 @@ export default function UserProfile() : JSX.Element {
 
       {/* Dialog profil utilisateur */}
       {selectedUser && (
-        <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
+        <Dialog open={!!selectedUser)} onOpenChange={() => setSelectedUser(null)}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="flex items-center space-x-3">
@@ -283,7 +283,7 @@ export default function UserProfile() : JSX.Element {
                           <FormField
                             control={form.control}
                             name="firstName"
-                            render={({ field }) => (
+                            render={({ field )}) => (
                               <FormItem>
                                 <FormLabel>Prénom</FormLabel>
                                 <FormControl>
@@ -297,7 +297,7 @@ export default function UserProfile() : JSX.Element {
                           <FormField
                             control={form.control}
                             name="lastName"
-                            render={({ field }) => (
+                            render={({ field )}) => (
                               <FormItem>
                                 <FormLabel>Nom</FormLabel>
                                 <FormControl>
@@ -313,7 +313,7 @@ export default function UserProfile() : JSX.Element {
                           <FormField
                             control={form.control}
                             name="email"
-                            render={({ field }) => (
+                            render={({ field )}) => (
                               <FormItem>
                                 <FormLabel>Email</FormLabel>
                                 <FormControl>
@@ -327,7 +327,7 @@ export default function UserProfile() : JSX.Element {
                           <FormField
                             control={form.control}
                             name="phone"
-                            render={({ field }) => (
+                            render={({ field )}) => (
                               <FormItem>
                                 <FormLabel>Téléphone</FormLabel>
                                 <FormControl>
@@ -342,7 +342,7 @@ export default function UserProfile() : JSX.Element {
                         <FormField
                           control={form.control}
                           name="address"
-                          render={({ field }) => (
+                          render={({ field )}) => (
                             <FormItem>
                               <FormLabel>Adresse</FormLabel>
                               <FormControl>
@@ -357,7 +357,7 @@ export default function UserProfile() : JSX.Element {
                           <FormField
                             control={form.control}
                             name="city"
-                            render={({ field }) => (
+                            render={({ field )}) => (
                               <FormItem>
                                 <FormLabel>Ville</FormLabel>
                                 <FormControl>
@@ -371,7 +371,7 @@ export default function UserProfile() : JSX.Element {
                           <FormField
                             control={form.control}
                             name="postalCode"
-                            render={({ field }) => (
+                            render={({ field )}) => (
                               <FormItem>
                                 <FormLabel>Code postal</FormLabel>
                                 <FormControl>
@@ -573,7 +573,7 @@ export default function UserProfile() : JSX.Element {
                               <FormField
                                 control={addressForm.control}
                                 name="name"
-                                render={({ field }) => (
+                                render={({ field )}) => (
                                   <FormItem>
                                     <FormLabel>Nom de l'adresse</FormLabel>
                                     <FormControl>
@@ -586,7 +586,7 @@ export default function UserProfile() : JSX.Element {
                               <FormField
                                 control={addressForm.control}
                                 name="street"
-                                render={({ field }) => (
+                                render={({ field )}) => (
                                   <FormItem>
                                     <FormLabel>Rue</FormLabel>
                                     <FormControl>
@@ -600,7 +600,7 @@ export default function UserProfile() : JSX.Element {
                                 <FormField
                                   control={addressForm.control}
                                   name="city"
-                                  render={({ field }) => (
+                                  render={({ field )}) => (
                                     <FormItem>
                                       <FormLabel>Ville</FormLabel>
                                       <FormControl>
@@ -613,7 +613,7 @@ export default function UserProfile() : JSX.Element {
                                 <FormField
                                   control={addressForm.control}
                                   name="postalCode"
-                                  render={({ field }) => (
+                                  render={({ field )}) => (
                                     <FormItem>
                                       <FormLabel>Code postal</FormLabel>
                                       <FormControl>
@@ -627,7 +627,7 @@ export default function UserProfile() : JSX.Element {
                               <FormField
                                 control={addressForm.control}
                                 name="isDefault"
-                                render={({ field }) => (
+                                render={({ field )}) => (
                                   <FormItem className="flex items-center space-x-2">
                                     <FormControl>
                                       <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -703,7 +703,7 @@ export default function UserProfile() : JSX.Element {
                           <p className="text-gray-700 mb-2">{review.comment}</p>
                           {review.response && (
                             <div className="bg-blue-50 p-3 rounded border-l-4 border-blue-500">
-                              <p className="text-sm"><strong>Réponse:</strong> {review.response}</p>
+                              <p className="text-sm"><strong>Réponse:</strong> {review.response)}</p>
                             </div>
                           )}
                         </div>

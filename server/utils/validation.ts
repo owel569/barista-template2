@@ -27,7 +27,7 @@ export const commonSchemas = {
     .regex(/^\d{2}:\d{2}$/, 'Format d\'heure invalide (HH:MM)'),
 
   pagination: z.object({
-    page: z.coerce.number().int().min(1).default(1),
+    page: z.coerce.number()}).int().min(1).default(1),
     limit: z.coerce.number().int().min(1).max(100).default(20)
   }),
 
@@ -38,14 +38,14 @@ export const createPaginationSchema = (sortFields: string[]) => {
   return z.object({
     page: commonSchemas.pagination.shape.page,
     limit: commonSchemas.pagination.shape.limit,
-    sortBy: z.enum(sortFields as [string, ...string[]]).optional(),
+    sortBy: z.enum(sortFields as [string, ...string[]])}).optional(),
     sortOrder: commonSchemas.sortOrder
   });
 };
 
 export const createSearchSchema = (searchFields: string[]) => {
   return z.object({
-    q: z.string().min(1, 'Terme de recherche requis'),
+    q: z.string()}).min(1, 'Terme de recherche requis'),
     fields: z.array(z.enum(searchFields as [string, ...string[]])).optional()
   });
 };
@@ -56,7 +56,7 @@ export const validateEnum = <T extends Record<string, string>>(
 ) => {
   const values = Object.values(enumObject) as [string, ...string[]];
   return z.enum(values, {
-    errorMap: () => ({ message: message || `Valeur doit être l'une de: ${values.join(', ')}` })
+    errorMap: (}) => ({ message: message || `Valeur doit être l'une de: ${values.join(', ')}` })
   });
 };
 

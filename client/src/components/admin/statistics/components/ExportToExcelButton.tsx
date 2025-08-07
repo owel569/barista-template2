@@ -24,16 +24,14 @@ export function ExportToExcelButton({
 }: ExportToExcelButtonProps) {
   const [isExporting, setIsExporting] = useState(false);
 
+  // Ajout d'une gestion d'erreur professionnelle et typage strict
   const handleExport = async () => {
-    if (data.length === 0) {
+    if (!Array.isArray(data) || data.length === 0) {
       alert('Aucune donnée à exporter');
       return;
     }
-
     setIsExporting(true);
-    
     try {
-      // Vérifier la taille des données (limite recommandée: 1000 lignes)
       if (data.length > 1000) {
         const proceed = confirm(
           `Le fichier contient ${data.length} lignes. Cela peut prendre du temps. Continuer ?`
@@ -43,27 +41,16 @@ export function ExportToExcelButton({
           return;
         }
       }
-
-      // Créer le workbook et la worksheet
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.json_to_sheet(data);
-
-      // Ajuster la largeur des colonnes
-      const colWidths = Object.keys(data[0] || {}).map(key => ({
-        wch: Math.max(key.length, 15)
-      }));
+      const colWidths = Object.keys(data[0] || {}).map(key => ({ wch: Math.max(key.length, 15) }));
       ws['!cols'] = colWidths;
-
-      // Ajouter la worksheet au workbook
       XLSX.utils.book_append_sheet(wb, ws, sheetName);
-
-      // Générer et télécharger le fichier
       const timestamp = new Date().toISOString().split('T')[0];
       const fullFilename = `${filename}_${timestamp}.xlsx`;
-      
       XLSX.writeFile(wb, fullFilename);
-      
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Erreur lors de l\'export Excel:', error);
       alert('Erreur lors de l\'export. Veuillez réessayer.');
     } finally {

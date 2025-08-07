@@ -88,14 +88,14 @@ export default function ReservationWithCart() : JSX.Element {
 
   // Récupération des catégories de menu
   const { data: categories = [] } = useQuery({
-    queryKey: ["/api/menu/categories"],
-    queryFn: () => apiRequest("GET", "/api/menu/categories").then(res => res.json()),
+    queryKey: ["/api/menu/categories",],
+    queryFn: (})}) => apiRequest("GET", "/api/menu/categories").then(res => res.json()),
   });
 
   // Récupération des articles du menu
   const { data: menuItems = [] } = useQuery({
-    queryKey: ["/api/menu/items"],
-    queryFn: () => apiRequest("GET", "/api/menu/items").then(res => res.json()),
+    queryKey: ["/api/menu/items",],
+    queryFn: (})}) => apiRequest("GET", "/api/menu/items").then(res => res.json()),
   });
 
   // Sélectionner la première catégorie par défaut
@@ -107,16 +107,16 @@ export default function ReservationWithCart() : JSX.Element {
 
   // Mutation pour créer la réservation
   const createReservationMutation = useMutation({
-    mutationFn: (data: ReservationFormData & { cartItems: CartItem[] }) => 
+    mutationFn: (data: ReservationFormData & { cartItems: CartItem[] })}) => 
       apiRequest("/api/reservations", {
         method: "POST",
-        body: JSON.stringify(data),
+        body: JSON.stringify(data)}),
       }),
     onSuccess: () => {
       toast({
         title: "Réservation confirmée!",
         description: "Votre réservation a été enregistrée avec succès.",
-      });
+      )});
       reset();
       setCart([]);
       queryClient.invalidateQueries({ queryKey: ["/api/reservations"] });
@@ -126,21 +126,21 @@ export default function ReservationWithCart() : JSX.Element {
         title: "Erreur",
         description: "Impossible de créer la réservation. Veuillez réessayer.",
         variant: "destructive",
-      });
+      )});
     },
   });
 
   const addToCart = (menuItem: MenuItem) => {
     setCart(prev => {
-      const existing = prev.find(item => item.menuItem.id === menuItem.id);
+      const existing = prev.find(item => item.menuItem.id === menuItem.id)});
       if (existing) {
         return prev.map(item =>
           item.menuItem.id === menuItem.id
-            ? { ...item, quantity: item.quantity + 1 }
+            ? { ...item, quantity: item.quantity + 1 )}
             : item
         );
       }
-      return [...prev, { menuItem, quantity: 1 }];
+      return [...prev, { menuItem, quantity: 1 });
     });
     
     toast({
@@ -354,7 +354,7 @@ export default function ReservationWithCart() : JSX.Element {
                       />
                       {errors.customerName && (
                         <p className="text-red-500 text-sm mt-1">
-                          {errors.customerName.message}
+                          {errors.customerName.message)}
                         </p>
                       )}
                     </div>
@@ -369,7 +369,7 @@ export default function ReservationWithCart() : JSX.Element {
                       />
                       {errors.customerEmail && (
                         <p className="text-red-500 text-sm mt-1">
-                          {errors.customerEmail.message}
+                          {errors.customerEmail.message)}
                         </p>
                       )}
                     </div>
@@ -384,7 +384,7 @@ export default function ReservationWithCart() : JSX.Element {
                       />
                       {errors.customerPhone && (
                         <p className="text-red-500 text-sm mt-1">
-                          {errors.customerPhone.message}
+                          {errors.customerPhone.message)}
                         </p>
                       )}
                     </div>
@@ -401,7 +401,7 @@ export default function ReservationWithCart() : JSX.Element {
                         />
                         {errors.date && (
                           <p className="text-red-500 text-sm mt-1">
-                            {errors.date.message}
+                            {errors.date.message)}
                           </p>
                         )}
                       </div>
@@ -422,7 +422,7 @@ export default function ReservationWithCart() : JSX.Element {
                         </select>
                         {errors.time && (
                           <p className="text-red-500 text-sm mt-1">
-                            {errors.time.message}
+                            {errors.time.message)}
                           </p>
                         )}
                       </div>
@@ -435,12 +435,12 @@ export default function ReservationWithCart() : JSX.Element {
                         type="number"
                         min="1"
                         max="8"
-                        {...register("guests", { valueAsNumber: true })}
+                        {...register("guests", { valueAsNumber: true )})}
                         className="border-coffee-secondary focus:border-coffee-accent"
                       />
                       {errors.guests && (
                         <p className="text-red-500 text-sm mt-1">
-                          {errors.guests.message}
+                          {errors.guests.message)}
                         </p>
                       )}
                     </div>

@@ -58,7 +58,7 @@ const getImageUrlByName = (name: string): string => {
 
 
 const menuItemSchema = z.object({
-  name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
+  name: z.string()}).min(2, 'Le nom doit contenir au moins 2 caractères'),
   description: z.string().min(10, 'La description doit contenir au moins 10 caractères'),
   price: z.coerce.number().positive('Le prix doit être supérieur à 0').min(0.01, 'Prix minimum : 0,01€').max(999.99, 'Prix maximum : 999,99€'),
   categoryId: z.coerce.number().min(1, 'Veuillez sélectionner une catégorie'),
@@ -100,16 +100,16 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
     },
   });
 
-  const { data: menuItems = [], isLoading } = useQuery<MenuItem[]>({
-    queryKey: ['/api/menu/items'],
+  const { data: menuItems = [,], isLoading } = useQuery<MenuItem[]>({
+    queryKey: ['/api/menu/items',],
   });
 
   const { data: categories = [] } = useQuery<MenuCategory[]>({
-    queryKey: ['/api/menu/categories'],
+    queryKey: ['/api/menu/categories',],
   });
 
   const createMutation = useMutation({
-    mutationFn: async (data: MenuItemFormData) => {
+    mutationFn: async (data: MenuItemFormData})}) => {
       const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
       const response = await fetch('/api/admin/menu/items', {
         method: 'POST',
@@ -127,7 +127,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
     },
     onSuccess: () => {
       // Forcer le rechargement immédiat des données
-      queryClient.invalidateQueries({ queryKey: ['/api/menu/items'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/menu/items'] )});
       queryClient.invalidateQueries({ queryKey: ['/api/menu/categories'] });
       queryClient.refetchQueries({ queryKey: ['/api/menu/items'] });
       setIsDialogOpen(false);
@@ -151,12 +151,12 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
         title: 'Erreur',
         description: 'Erreur lors de la création de l\'article',
         variant: 'destructive',
-      });
+      )});
     },
   });
 
   const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: MenuItemFormData }) => {
+    mutationFn: async ({ id, data })}: { id: number; data: MenuItemFormData }) => {
       const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
       const response = await fetch(`/api/admin/menu/items/${id}`, {
         method: 'PUT',
@@ -173,7 +173,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/menu/items'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/menu/items'] )});
       queryClient.refetchQueries({ queryKey: ['/api/menu/items'] });
       setIsDialogOpen(false);
       setEditingItem(null);
@@ -195,12 +195,12 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
         title: 'Erreur',
         description: 'Erreur lors de la mise à jour de l\'article',
         variant: 'destructive',
-      });
+      )});
     },
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: number})}) => {
       const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
       const response = await fetch(`/api/admin/menu/items/${id}`, {
         method: 'DELETE',
@@ -215,7 +215,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/menu/items'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/menu/items'] )});
       queryClient.refetchQueries({ queryKey: ['/api/menu/items'] });
       toast({
         title: 'Succès',
@@ -227,7 +227,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
         title: 'Erreur',
         description: 'Erreur lors de la suppression de l\'article',
         variant: 'destructive',
-      });
+      )});
     },
   });
 
@@ -253,7 +253,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
         title: 'Erreur',
         description: 'Erreur lors du téléchargement de l\'image',
         variant: 'destructive',
-      });
+      )});
     } finally {
       setUploading(false);
     }
@@ -267,20 +267,20 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
     }
 
     if (editingItem) {
-      updateMutation.mutate({ id: editingItem.id, data });
+      updateMutation.mutate({ id: editingItem.id, data )});
     } else {
       createMutation.mutate(data);
     }
   };
 
-  const handleEdit = (item: any) => {
+  const handleEdit = (item: unknown) => {
     setEditingItem(item);
     const imageUrl = (item as any).imageUrl || getImageUrlByName(item.name);
     setPreviewUrl(imageUrl);
     form.reset({
       name: item.name,
       description: item.description,
-      price: item.price ? parseFloat(item.price) : 0,
+      price: item.price ? parseFloat(item.price}) : 0,
       categoryId: item.categoryId,
       available: item.available,
       imageUrl: imageUrl,
@@ -374,7 +374,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                 <FormField
                   control={form.control}
                   name="name"
-                  render={({ field }) => (
+                  render={({ field )}) => (
                     <FormItem>
                       <FormLabel>Nom de l'article</FormLabel>
                       <FormControl>
@@ -388,7 +388,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                 <FormField
                   control={form.control}
                   name="description"
-                  render={({ field }) => (
+                  render={({ field )}) => (
                     <FormItem>
                       <FormLabel>Description</FormLabel>
                       <FormControl>
@@ -403,7 +403,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                   <FormField
                     control={form.control}
                     name="price"
-                    render={({ field }) => (
+                    render={({ field )}) => (
                       <FormItem>
                         <FormLabel>Prix (DH)</FormLabel>
                         <FormControl>
@@ -428,7 +428,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                   <FormField
                     control={form.control}
                     name="categoryId"
-                    render={({ field }) => (
+                    render={({ field )}) => (
                       <FormItem>
                         <FormLabel>Catégorie</FormLabel>
                         <Select onValueChange={(value) => field.onChange(Number(value))} defaultValue={field.value?.toString()}>
@@ -454,7 +454,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                 <FormField
                   control={form.control}
                   name="imageUrl"
-                  render={({ field }) => (
+                  render={({ field )}) => (
                     <FormItem>
                       <FormLabel>Image du produit</FormLabel>
                       <FormControl>
@@ -482,7 +482,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                           {previewUrl && (
                             <div className="mt-2">
                               <img 
-                                src={previewUrl} 
+                                src={previewUrl)} 
                                 alt="Aperçu" 
                                 className="w-20 h-20 object-cover rounded-lg border"
                                 onError={() => setPreviewUrl('')}
@@ -588,8 +588,8 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredItems.map((item: any) => {
-                const category = categories.find((cat: any) => cat.id === item.categoryId);
+              {filteredItems.map((item: unknown) => {
+                const category = categories.find((cat: unknown) => cat.id === item.categoryId);
                 const imageUrl = getImageUrlByName(item.name);
 
                 return (
@@ -651,7 +651,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
               })}
               {filteredItems.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground">
+                  <TableCell colSpan={7)} className="text-center text-muted-foreground">
                     Aucun article trouvé
                   </TableCell>
                 </TableRow>
@@ -666,7 +666,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Gestion des images - {imageManagementItem.name}</h2>
+              <h2 className="text-xl font-semibold">Gestion des images - {imageManagementItem.name)}</h2>
               <Button variant="ghost" onClick={() => setImageManagementItem(null)}>
                 <X className="h-4 w-4" />
               </Button>

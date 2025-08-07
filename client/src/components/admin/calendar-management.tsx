@@ -44,7 +44,7 @@ export default function CalendarManagement() : JSX.Element {
       const token = localStorage.getItem('token');
       
       const [eventsRes, statsRes] = await Promise.all([
-        fetch(`/api/admin/calendar/events?date=${currentDate.toISOString()}`, {
+        fetch(`/api/admin/calendar/events?date=${currentDate.toISOString()]})}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
         fetch('/api/admin/calendar/stats', {
@@ -54,7 +54,7 @@ export default function CalendarManagement() : JSX.Element {
 
       if (eventsRes.ok && statsRes.ok) {
         const [eventsData, statsData] = await Promise.all([
-          eventsRes.json(),
+          eventsRes.json()]),
           statsRes.json()
         ]);
         
@@ -170,13 +170,13 @@ export default function CalendarManagement() : JSX.Element {
     
     // Jours du mois actuel
     for (let day = 1; day <= daysInMonth; day++) {
-      days.push({ date: new Date(year, month, day), isCurrentMonth: true });
+      days.push({ date: new Date(year, month, day)}), isCurrentMonth: true });
     }
     
     // Jours du mois suivant pour compléter la grille
     const remainingDays = 42 - days.length; // 6 semaines * 7 jours
     for (let day = 1; day <= remainingDays; day++) {
-      days.push({ date: new Date(year, month + 1, day), isCurrentMonth: false });
+      days.push({ date: new Date(year, month + 1, day)}), isCurrentMonth: false });
     }
     
     return days;
@@ -184,7 +184,7 @@ export default function CalendarManagement() : JSX.Element {
 
   const getDayEvents = (date: Date) => {
     return events.filter(event => {
-      const eventDate = new Date(event.date);
+      const eventDate = new Date(event.date)});
       return eventDate.toDateString() === date.toDateString();
     });
   };
@@ -260,7 +260,7 @@ export default function CalendarManagement() : JSX.Element {
                     Total Événements
                   </p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {stats.totalEvents}
+                    {stats.totalEvents)}
                   </p>
                 </div>
                 <Calendar className="h-8 w-8 text-blue-500" />
@@ -338,7 +338,7 @@ export default function CalendarManagement() : JSX.Element {
                   {currentDate.toLocaleDateString('fr-FR', { 
                     month: 'long', 
                     year: 'numeric' 
-                  })}
+                  )})}
                 </h3>
                 <Button variant="outline" onClick={() => navigateDate('next')}>
                   <ChevronRight className="h-4 w-4" />
@@ -391,7 +391,7 @@ export default function CalendarManagement() : JSX.Element {
                         ))}
                         {dayEvents.length > 3 && (
                           <div className="text-xs text-gray-500 dark:text-gray-400">
-                            +{dayEvents.length - 3} autres
+                            +{dayEvents.length - 3)} autres
                           </div>
                         )}
                       </div>

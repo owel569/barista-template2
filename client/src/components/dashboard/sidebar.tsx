@@ -129,7 +129,7 @@ export default function Sidebar({ userRole, onLogout, collapsed = false, onToggl
                   Barista Café
                 </h1>
                 <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
-                  {userRole === "directeur" ? "Directeur" : "Employé"}
+                  {userRole === "directeur" ? "Directeur" : "Employé")}
                 </p>
               </div>
             </div>

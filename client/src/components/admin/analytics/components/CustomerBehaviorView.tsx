@@ -21,30 +21,72 @@ import {
 } from 'recharts';
 import { Users, Star, TrendingUp, Target } from 'lucide-react';
 
-interface CustomerBehaviorViewProps {
-  data?: {
+// Types sécurisés pour les données
+interface CustomerSegment {
+  count: number;
+  percentage: number;
+  avgSpent: number;
+}
+
+interface CustomerBehaviorData {
     segments: {
-      vip: { count: number; percentage: number; avgSpent: number };
-      regular: { count: number; percentage: number; avgSpent: number };
-      occasional: { count: number; percentage: number; avgSpent: number };
+    vip: CustomerSegment;
+    regular: CustomerSegment;
+    occasional: CustomerSegment;
     };
     insights: string[];
     actionItems: string[];
-  };
+}
+
+interface CustomerBehaviorViewProps {
+  data?: CustomerBehaviorData;
+}
+
+interface SegmentDataItem {
+  name: string;
+  count: number;
+  percentage: number;
+  avgSpent: number;
+  color: string;
+}
+
+interface SatisfactionDataItem {
+  category: string;
+  score: number;
+  target: number;
 }
 
 export const CustomerBehaviorView: React.FC<CustomerBehaviorViewProps> = ({ data }) => {
-  const segmentData = data ? [
-    { name: 'VIP', count: data.segments.vip.count, percentage: data.segments.vip.percentage, avgSpent: data.segments.vip.avgSpent, color: '#8B5CF6' },
-    { name: 'Réguliers', count: data.segments.regular.count, percentage: data.segments.regular.percentage, avgSpent: data.segments.regular.avgSpent, color: '#3B82F6' },
-    { name: 'Occasionnels', count: data.segments.occasional.count, percentage: data.segments.occasional.percentage, avgSpent: data.segments.occasional.avgSpent, color: '#10B981' }
+  // Données sécurisées avec validation
+  const segmentData: SegmentDataItem[] = data ? [
+    { 
+      name: 'VIP', 
+      count: data.segments.vip.count, 
+      percentage: data.segments.vip.percentage, 
+      avgSpent: data.segments.vip.avgSpent, 
+      color: '#8B5CF6' 
+    },
+    { 
+      name: 'Réguliers', 
+      count: data.segments.regular.count, 
+      percentage: data.segments.regular.percentage, 
+      avgSpent: data.segments.regular.avgSpent, 
+      color: '#3B82F6' 
+    },
+    { 
+      name: 'Occasionnels', 
+      count: data.segments.occasional.count, 
+      percentage: data.segments.occasional.percentage, 
+      avgSpent: data.segments.occasional.avgSpent, 
+      color: '#10B981' 
+    }
   ] : [
     { name: 'VIP', count: 45, percentage: 15, avgSpent: 85.50, color: '#8B5CF6' },
     { name: 'Réguliers', count: 180, percentage: 60, avgSpent: 42.30, color: '#3B82F6' },
     { name: 'Occasionnels', count: 75, percentage: 25, avgSpent: 18.90, color: '#10B981' }
   ];
 
-  const satisfactionData = [
+  const satisfactionData: SatisfactionDataItem[] = [
     { category: 'Nourriture', score: 4.5, target: 4.0 },
     { category: 'Service', score: 4.2, target: 4.0 },
     { category: 'Ambiance', score: 4.3, target: 4.0 },
@@ -64,6 +106,11 @@ export const CustomerBehaviorView: React.FC<CustomerBehaviorViewProps> = ({ data
     "Améliorer la signalétique pour les nouveaux clients",
     "Développer les offres petit-déjeuner"
   ];
+
+  // Fonction de validation sécurisée pour les chaînes de caractères
+  const isValidString = (item: unknown): item is string => {
+    return typeof item === 'string';
+  };
 
   return (
     <div className="space-y-6">
@@ -131,7 +178,7 @@ export const CustomerBehaviorView: React.FC<CustomerBehaviorViewProps> = ({ data
         <CardContent>
           <div className="space-y-4">
             {satisfactionData.map((item, index) => (
-              <div key={index} className="space-y-2">
+              <div key={`satisfaction-${index}`} className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium">{item.category}</span>
                   <div className="flex items-center gap-2">
@@ -167,8 +214,10 @@ export const CustomerBehaviorView: React.FC<CustomerBehaviorViewProps> = ({ data
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {insights.map((insight, index) => (
-                <div key={index} className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
+              {insights
+                .filter(isValidString)
+                .map((insight, index) => (
+                <div key={`insight-${index}`} className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
                   <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
                   <span className="text-sm text-blue-900">{insight}</span>
                 </div>
@@ -186,8 +235,10 @@ export const CustomerBehaviorView: React.FC<CustomerBehaviorViewProps> = ({ data
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {actionItems.map((action, index) => (
-                <div key={index} className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
+              {actionItems
+                .filter(isValidString)
+                .map((action, index) => (
+                <div key={`action-${index}`} className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
                   <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
                   <span className="text-sm text-green-900">{action}</span>
                 </div>

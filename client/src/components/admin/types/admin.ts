@@ -16,7 +16,7 @@ export interface Permission {
 }
 
 export interface MenuItem {
-  icon: any;
+  icon: unknown;
   label: string;
   section: string;
   readonly?: boolean;

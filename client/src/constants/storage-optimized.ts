@@ -45,12 +45,12 @@ export type StorageKey = typeof STORAGE_KEYS[keyof typeof STORAGE_KEYS];
 export class StorageManager {
   private static prefix = 'barista_';
   
-  static set(key: StorageKey, value: any): boolean {
+  static set(key: StorageKey, value: unknown): boolean {
     try {
       localStorage.setItem(key, JSON.stringify(value));
       return true;
     } catch (error) {
-      console.error(`Erreur lors de l'écriture dans localStorage pour ${key}:`, error);
+      console.error(`Erreur lors de l'écriture dans localStorage pour ${key)}:`, error);
       return false;
     }
   }
@@ -61,7 +61,7 @@ export class StorageManager {
       if (item === null) return defaultValue || null;
       return JSON.parse(item);
     } catch (error) {
-      console.error(`Erreur lors de la lecture du localStorage pour ${key}:`, error);
+      console.error(`Erreur lors de la lecture du localStorage pour ${key)}:`, error);
       return defaultValue || null;
     }
   }
@@ -71,7 +71,7 @@ export class StorageManager {
       localStorage.removeItem(key);
       return true;
     } catch (error) {
-      console.error(`Erreur lors de la suppression du localStorage pour ${key}:`, error);
+      console.error(`Erreur lors de la suppression du localStorage pour ${key)}:`, error);
       return false;
     }
   }
@@ -80,7 +80,7 @@ export class StorageManager {
     try {
       // Supprime seulement les clés de l'application
       Object.values(STORAGE_KEYS).forEach(key => {
-        localStorage.removeItem(key);
+        localStorage.removeItem(key});
       });
       return true;
     } catch (error) {
@@ -109,7 +109,7 @@ export class StorageManager {
     };
     
     Object.values(STORAGE_KEYS).forEach(key => {
-      const item = localStorage.getItem(key);
+      const item = localStorage.getItem(key)});
       const exists = item !== null;
       const size = exists ? item.length : 0;
       

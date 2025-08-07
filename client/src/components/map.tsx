@@ -16,7 +16,7 @@ export default function Map() : JSX.Element {
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
-          {/* Map */}
+          {/* Map */)}
           <Card className="shadow-lg">
             <CardContent className="p-0">
               <div className="w-full h-96 bg-gray-200 rounded-lg overflow-hidden">

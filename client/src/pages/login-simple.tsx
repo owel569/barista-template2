@@ -34,7 +34,7 @@ export default function LoginSimple() : JSX.Element {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-        },
+        )},
         body: JSON.stringify({
           username: username.trim(),
           password: password.trim(),
@@ -65,7 +65,7 @@ export default function LoginSimple() : JSX.Element {
         title: "Erreur de connexion",
         description: "Impossible de se connecter au serveur",
         variant: "destructive",
-      });
+      )});
     } finally {
       setIsLogging(false);
     }

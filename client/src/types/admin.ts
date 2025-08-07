@@ -38,7 +38,7 @@ export interface NotificationData {
   message: string;
   read: boolean;
   timestamp: Date;
-  data?: any;
+  data?: unknown;
 }
 
 export interface DashboardStats {

@@ -21,11 +21,11 @@ const TrendsView: React.FC<TrendViewProps> = ({ data, timeRange }) => {
   const latestData = data[data.length - 1];
   const previousData = data[data.length - 2];
   
-  const customerGrowth = previousData ? 
+  const customerGrowth = previousData && latestData ? 
     ((latestData.customers - previousData.customers) / previousData.customers) * 100 : 0;
-  const orderGrowth = previousData ? 
+  const orderGrowth = previousData && latestData ? 
     ((latestData.orders - previousData.orders) / previousData.orders) * 100 : 0;
-  const revenueGrowth = previousData ? 
+  const revenueGrowth = previousData && latestData ? 
     ((latestData.revenue - previousData.revenue) / previousData.revenue) * 100 : 0;
 
   const avgSatisfaction = data.reduce((sum, item) => sum + item.satisfaction, 0) / data.length;

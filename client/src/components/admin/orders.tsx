@@ -111,7 +111,7 @@ export default function Orders() : JSX.Element {
   };
 
   const filteredOrders = orders.filter(order => {
-    if (filter === 'all') return true;
+    if (filter === 'all')}) return true;
     return order.status === filter;
   });
 

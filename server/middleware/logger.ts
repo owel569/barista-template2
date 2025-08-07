@@ -70,11 +70,11 @@ class Logger {
       metadata: { error: error?.message || error, stack: error?.stack, ...metadata }
     };
     
-    console.error(`🚨 [ERROR] ${message}`, error || '');
+    logger.error(`🚨 [ERROR] ${message}`, error || '');
     this.writeLog(entry);
   }
 
-  debug(message: string, metadata?: any) {
+  debug(message: string, metadata?: unknown) {
     if (process.env.NODE_ENV === 'development') {
       const entry: LogEntry = {
         timestamp: new Date().toISOString(),

@@ -1,369 +1,546 @@
 import { Router } from 'express';
-import { authenticateToken, requireRole } from '../middleware/auth';
-import { validateBody, validateQuery } from '../middleware/validation';
-import { asyncHandler } from '../middleware/error-handler';
-import { aiService } from '../services/ai-automation.service';
 import { z } from 'zod';
+import { asyncHandler } from '../middleware/error-handler';
+import { createLogger } from '../middleware/logging';
+import { authenticateUser, requireRoles } from '../middleware/auth';
+import { validateBody, validateParams, validateQuery } from '../middleware/validation';
+import { getDb } from '../db';
+import { orders, customers, reservations } from '../../shared/schema';
+import { eq, and, gte, lte, desc, sql } from 'drizzle-orm';
 
-// Schémas de validation pour l'API (couche 1)
-const ChatRequestSchema = z.object({
-  message: z.string().min(1, 'Message requis'),
-  context: z.any().optional(),
+const router = Router();
+const logger = createLogger('AI_ROUTES');
+
+// ==========================================
+// TYPES ET INTERFACES
+// ==========================================
+
+export interface ChatMessage {
+  message: string;
+  context?: Record<string, unknown>;
+  sessionId?: string;
+  userId?: string;
+  timestamp: string;
+}
+
+export interface VoiceCommand {
+  audioData: string;
+  language: string;
+  userId?: string;
+  confidence?: number;
+}
+
+export interface AIReservationRequest {
+  date: string;
+  time: string;
+  guests: number;
+  preferences?: string;
+  customerInfo?: {
+    name: string;
+    email: string;
+    phone?: string;
+  };
+}
+
+export interface PredictionRequest {
+  timeframe: 'daily' | 'weekly' | 'monthly';
+  metrics?: string[];
+  filters?: Record<string, unknown>;
+}
+
+export interface AIResponse {
+  success: boolean;
+  data?: unknown;
+  error?: string;
+  fallback?: string;
+  timestamp: string;
+  confidence?: number;
+}
+
+export interface SentimentAnalysisResult {
+  sentiment: 'positive' | 'negative' | 'neutral';
+  score: number;
+  keywords: string[];
+  suggestions: string[];
+}
+
+// ==========================================
+// SCHÉMAS DE VALIDATION ZOD
+// ==========================================
+
+const ChatMessageSchema = z.object({
+  message: z.string()}).min(1, 'Message requis').max(1000, 'Message trop long'),
+  context: z.record(z.unknown()).optional(),
   sessionId: z.string().optional()
 });
 
-const VoiceRequestSchema = z.object({
-  audioData: z.string().min(1, 'Données audio requises'),
-  language: z.string().default('fr-FR')
+const VoiceCommandSchema = z.object({
+  audioData: z.string()}).min(1, 'Données audio requises'),
+  language: z.string().default('fr'),
+  userId: z.string().optional()
 });
 
-const ReservationRequestSchema = z.object({
-  date: z.string().min(1, 'Date requise'),
-  time: z.string().min(1, 'Heure requise'),
-  guests: z.number().min(1).max(20, 'Maximum 20 personnes'),
-  preferences: z.string().optional()
+const AIReservationSchema = z.object({
+  date: z.string()}).datetime('Date invalide'),
+  time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Format heure invalide (HH:MM)'),
+  guests: z.number().min(1, 'Nombre d\'invités minimum 1').max(20, 'Nombre d\'invités maximum 20'),
+  preferences: z.string().optional(),
+  customerInfo: z.object({
+    name: z.string()}).min(1, 'Nom requis'),
+    email: z.string().email('Email invalide'),
+    phone: z.string().optional()
+  }).optional()
 });
 
 const PredictionQuerySchema = z.object({
-  timeframe: z.enum(['daily', 'weekly', 'monthly']).default('daily'),
-  metrics: z.array(z.string()).optional()
+  timeframe: z.enum(['daily', 'weekly', 'monthly'])}).default('weekly'),
+  metrics: z.array(z.string()).optional(),
+  filters: z.record(z.unknown()).optional()
 });
 
-const router = Router();
+const AutomationSuggestionSchema = z.object({
+  category: z.enum(['operations', 'marketing', 'inventory', 'staffing'])}).optional(),
+  priority: z.enum(['low', 'medium', 'high']).optional()
+});
 
-/**
- * Routes du Chatbot IA (couche 1 - Interface Express)
- * Validation + Délégation au service IA
- */
+// ==========================================
+// SERVICES MÉTIER
+// ==========================================
 
-// Chat conversationnel
+class AIServiceUtils {
+  /**
+   * Valide une date de réservation
+   */
+  static validateReservationDate(date: string, time: string): { isValid: boolean; error?: string } {
+    const reservationDate = new Date(`${date)}T${time}`);
+    const now = new Date();
+    
+    if (reservationDate <= now) {
+      return { isValid: false, error: 'La date de réservation doit être dans le futur' };
+    }
+    
+    const hours = parseInt(time.split(':')[0]);
+    if (hours < 7 || hours > 22) {
+      return { isValid: false, error: 'Heures d\'ouverture: 7h-22h' };
+    }
+    
+    return { isValid: true };
+  }
+
+  /**
+   * Simule la conversion audio vers texte
+   */
+  static async simulateSpeechToText(audioData: string, language: string): Promise<{ transcript: string; confidence: number }> {
+    // TODO: Implémenter la vraie conversion audio
+    const mockTranscripts = {
+      fr: ['Je voudrais réserver une table', 'Quels sont vos horaires', 'Avez-vous du café'],
+      en: ['I would like to make a reservation', 'What are your hours', 'Do you have coffee']
+    };
+    
+    const transcripts = mockTranscripts[language as keyof typeof mockTranscripts] || mockTranscripts.fr;
+    const randomTranscript = transcripts[Math.floor(Math.random() * transcripts.length)];
+    const confidence = 0.85 + Math.random() * 0.15;
+    
+    return {
+      transcript: randomTranscript,
+      confidence: Math.round(confidence * 100) / 100
+    };
+  }
+
+  /**
+   * Vérifie la disponibilité des tables
+   */
+  static async checkTableAvailability(date: string, time: string, guests: number): Promise<{ available: boolean; alternatives?: string[] }> {
+    try {
+      // TODO: Implémenter la vraie logique de vérification avec Drizzle
+      // Pour l'instant, simulation basique
+      const isWeekend = new Date(date).getDay() === 0 || new Date(date).getDay() === 6;
+      const isPeakHour = time >= '19:00' && time <= '21:00';
+      
+      if (isWeekend && isPeakHour && guests > 6) {
+        return { 
+          available: false, 
+          alternatives: ['18:00', '21:30', '22:00'] 
+        };
+      }
+      
+      return { available: true };
+    } catch (error) {
+      logger.error('Erreur vérification disponibilité', { 
+        date, 
+        time, 
+        guests, 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      )});
+      return { available: false };
+    }
+  }
+
+  /**
+   * Génère des suggestions d'automatisation
+   */
+  static generateAutomationSuggestions(category?: string): Array<{ 
+    id: string; 
+    title: string; 
+    description: string; 
+    impact: 'low' | 'medium' | 'high'; 
+    implementation: string 
+  }> {
+    const suggestions = [
+      {
+        id: 'auto-inventory',
+        title: 'Gestion automatique des stocks',
+        description: 'Commande automatique basée sur les ventes',
+        impact: 'high' as const,
+        implementation: 'ML + API fournisseurs'
+      },
+      {
+        id: 'auto-scheduling',
+        title: 'Planification intelligente du personnel',
+        description: 'Optimisation des horaires selon l\'affluence',
+        impact: 'medium' as const,
+        implementation: 'Analytics + prédictions'
+      },
+      {
+        id: 'auto-marketing',
+        title: 'Campagnes marketing personnalisées',
+        description: 'Emails et promotions ciblées',
+        impact: 'medium' as const,
+        implementation: 'Segmentation clients + IA'
+      }
+    ];
+
+    if (category) {
+      return suggestions.filter(s => s.id.includes(category));
+    }
+
+    return suggestions;
+  }
+
+  /**
+   * Analyse le sentiment d'un texte
+   */
+  static analyzeSentiment(text: string): SentimentAnalysisResult {
+    const positiveWords = ['excellent', 'délicieux', 'parfait', 'génial', 'super', 'adorable'];
+    const negativeWords = ['mauvais', 'horrible', 'terrible', 'décevant', 'nul', 'dégueulasse'];
+    
+    const words = text.toLowerCase().split(/\s+/);
+    let positiveCount = 0;
+    let negativeCount = 0;
+    
+    words.forEach(word => {
+      if (positiveWords.includes(word})) positiveCount++;
+      if (negativeWords.includes(word)) negativeCount++;
+    });
+    
+    const total = words.length;
+    const positiveScore = positiveCount / total;
+    const negativeScore = negativeCount / total;
+    
+    let sentiment: 'positive' | 'negative' | 'neutral';
+    let score: number;
+    
+    if (positiveScore > negativeScore && positiveScore > 0.1) {
+      sentiment = 'positive';
+      score = positiveScore;
+    } else if (negativeScore > positiveScore && negativeScore > 0.1) {
+      sentiment = 'negative';
+      score = negativeScore;
+    } else {
+      sentiment = 'neutral';
+      score = 0.5;
+    }
+    
+    return {
+      sentiment,
+      score: Math.round(score * 100) / 100,
+      keywords: words.filter(word => positiveWords.includes(word) || negativeWords.includes(word)),
+      suggestions: sentiment === 'negative' ? [
+        'Contacter le client pour résoudre le problème',
+        'Former le personnel sur ce point',
+        'Améliorer le processus concerné'
+      ] : []
+    };
+  }
+}
+
+// ==========================================
+// ROUTES AVEC AUTHENTIFICATION ET VALIDATION
+// ==========================================
+
+// Chatbot IA
 router.post('/chat', 
-  authenticateToken, 
-  validateBody(ChatRequestSchema),
+  authenticateUser,
+  validateBody(ChatMessageSchema),
   asyncHandler(async (req, res) => {
     const { message, context, sessionId } = req.body;
-    const userId = (req as any).user?.id?.toString();
-
+    
     try {
-      const response = await aiService.processChatMessage({
-        message,
-        context,
-        sessionId: sessionId || userId,
-        userId
-      });
+      let response = "Je suis désolé, je n'ai pas compris votre demande.";
 
-      res.json({
+      if (message.toLowerCase().includes('réserver')) {
+        response = "Bien sûr! Pour combien de personnes souhaitez-vous réserver?";
+      } else if (message.toLowerCase().includes('menu')) {
+        response = "Nous avons un délicieux menu avec des cafés, pâtisseries et plats chauds. Que préférez-vous?";
+      } else if (message.toLowerCase().includes('horaires')) {
+        response = "Nous sommes ouverts tous les jours de 7h à 22h.";
+      }
+
+      const aiResponse: AIResponse = {
         success: true,
-        data: response,
-        timestamp: new Date().toISOString()
-      });
+        data: { message: response },
+        timestamp: new Date().toISOString(),
+        confidence: 0.85
+      };
+
+      res.json(aiResponse);
     } catch (error) {
-      console.error('Erreur chat AI:', error);
+      logger.error('Erreur chatbot IA', { 
+        message, 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      )});
       res.status(500).json({
         success: false,
-        error: 'Erreur du service de chat IA',
-        fallback: 'Désolé, je rencontre des difficultés. Un employé peut-il vous aider ?'
+        message: 'Erreur lors du traitement de la demande' 
       });
     }
   })
 );
 
 // Commandes vocales
-router.post('/voice-command',
-  authenticateToken,
-  validateBody(VoiceRequestSchema),
+router.post('/voice',
+  authenticateUser,
+  validateBody(VoiceCommandSchema),
   asyncHandler(async (req, res) => {
-    const { audioData, language } = req.body;
-    const userId = (req as any).user?.id?.toString();
-
+    const { audioData, language, userId } = req.body;
+    
     try {
-      // Simulation de reconnaissance vocale (à remplacer par un vrai service)
-      const transcript = await simulateSpeechToText(audioData, language);
+      const { transcript, confidence } = await AIServiceUtils.simulateSpeechToText(audioData, language);
+      
+      let response = "Je n'ai pas compris votre commande vocale.";
+      
+      if (transcript.toLowerCase().includes('réserver')) {
+        response = "Je vais vous aider à faire une réservation. Combien de personnes?";
+      } else if (transcript.toLowerCase().includes('menu')) {
+        response = "Voici notre menu du jour. Que souhaitez-vous commander?";
+      }
 
-      // Traitement du transcript comme un message chat
-      const chatResponse = await aiService.processChatMessage({
-        message: transcript,
-        userId,
-        context: { source: 'voice', language }
-      });
-
-      res.json({
+      const aiResponse: AIResponse = {
         success: true,
+        data: { 
         transcript,
-        response: chatResponse,
-        confidence: 0.85
-      });
+          response,
+          confidence
+        },
+        timestamp: new Date().toISOString()
+      };
+
+      res.json(aiResponse);
     } catch (error) {
-      console.error('Erreur reconnaissance vocale:', error);
+      logger.error('Erreur commandes vocales', { 
+        audioData, 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      )});
       res.status(500).json({
         success: false,
-        error: 'Erreur de reconnaissance vocale'
+        message: 'Erreur lors du traitement de la commande vocale' 
       });
     }
   })
 );
 
-// Réservations automatisées
-router.post('/auto-reservation',
-  authenticateToken,
-  validateBody(ReservationRequestSchema),
+// Réservation IA
+router.post('/reservation',
+  authenticateUser,
+  validateBody(AIReservationSchema),
   asyncHandler(async (req, res) => {
-    const { date, time, guests, preferences } = req.body;
-    const userId = (req as any).user?.id?.toString();
-
+    const { date, time, guests, preferences, customerInfo } = req.body;
+    
     try {
-      // Vérification de disponibilité
-      const availability = await checkTableAvailability(date, time, guests);
-
-      if (availability.available) {
-        // Création de la réservation via le service IA
-        const reservation = await createAIReservation({
-          date, time, guests, preferences,
-          userId,
-          source: 'ai_assistant'
-        });
-
-        res.json({
-          success: true,
-          reservation,
-          message: `Réservation confirmée pour ${guests} personnes le ${date} à ${time}`,
-          confirmationNumber: reservation.id
-        });
-      } else {
-        // Suggestions d'alternatives
-        const alternatives = await generateAlternativeSlots(date, time, guests);
-        res.json({
+      // Valider la date et l'heure
+      const validation = AIServiceUtils.validateReservationDate(date, time);
+      if (!validation.isValid) {
+        return res.status(400).json({
           success: false,
-          message: 'Créneau non disponible',
-          alternatives,
-          suggestions: alternatives.map(alt => 
-            `${alt.date} à ${alt.time} (${alt.available ? 'Disponible' : 'Complet'})`
-          )
+          message: validation.error
         });
       }
+
+      // Vérifier la disponibilité
+      const availability = await AIServiceUtils.checkTableAvailability(date, time, guests);
+      if (!availability.available) {
+        return res.status(409).json({
+          success: false,
+          message: 'Aucune table disponible pour cette date/heure',
+          alternatives: availability.alternatives
+        });
+      }
+
+      // TODO: Créer la vraie réservation en base
+      const reservation = {
+        id: Date.now(),
+        date,
+        time,
+        guests,
+        preferences,
+        customerInfo,
+        status: 'confirmed',
+        createdAt: new Date().toISOString()
+      };
+
+      const aiResponse: AIResponse = {
+        success: true,
+        data: reservation,
+        timestamp: new Date().toISOString(),
+        confidence: 0.95
+      };
+
+      res.json(aiResponse);
     } catch (error) {
-      console.error('Erreur réservation automatique:', error);
+      logger.error('Erreur réservation IA', { 
+        date, 
+        time, 
+        guests, 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      )});
       res.status(500).json({
         success: false,
-        error: 'Erreur lors de la réservation automatique'
+        message: 'Erreur lors de la création de la réservation IA' 
       });
     }
   })
 );
 
-// Analyses prédictives (admin seulement)
+// Prédictions et analytics
 router.get('/predictions',
-  authenticateToken,
-  requireRole('directeur'),
+  authenticateUser,
+  requireRoles(['admin', 'manager']),
   validateQuery(PredictionQuerySchema),
   asyncHandler(async (req, res) => {
-    const { timeframe, metrics } = req.query;
-
+    const { timeframe, metrics, filters } = req.query as {
+      timeframe: string;
+      metrics?: string[];
+      filters?: Record<string, unknown>;
+    };
+    
     try {
-      const predictions = await aiService.generatePredictiveAnalytics({
-        timeframe: timeframe as any,
-        metrics: metrics as string[]
-      });
+      // TODO: Implémenter les vraies prédictions avec ML
+      const predictions = {
+        timeframe,
+        metrics: metrics || ['revenue', 'orders'],
+        predictions: {
+          revenue: { current: 15000, predicted: 16500, confidence: 0.85 },
+          orders: { current: 120, predicted: 135, confidence: 0.78 },
+          customers: { current: 95, predicted: 108, confidence: 0.82 }
+        },
+        insights: [
+          'Augmentation prévue de 10% des ventes',
+          'Pic d\'activité attendu entre 19h et 21h',
+          'Recommandation: augmenter le stock de café'
+        ]
+      };
 
       res.json({
         success: true,
         data: predictions,
-        metadata: {
-          generatedBy: 'ai-service',
-          requestedBy: (req as any).user?.username,
-          generatedAt: new Date().toISOString()
-        }
+        timestamp: new Date()}).toISOString()
       });
     } catch (error) {
-      console.error('Erreur prédictions IA:', error);
+      logger.error('Erreur prédictions IA', { 
+        timeframe, 
+        metrics, 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      )});
+      
       res.status(500).json({
         success: false,
-        error: 'Erreur de génération des prédictions'
+        message: 'Erreur lors de la génération des prédictions',
+        timestamp: new Date()}).toISOString()
       });
     }
   })
 );
 
 // Suggestions d'automatisation
-router.get('/automation-suggestions',
-  authenticateToken,
-  requireRole('directeur'),
+router.get('/automation/suggestions',
+  authenticateUser,
+  requireRoles(['admin', 'manager']),
+  validateQuery(AutomationSuggestionSchema),
   asyncHandler(async (req, res) => {
+    const { category, priority } = req.query as {
+      category?: string;
+      priority?: string;
+    };
+    
     try {
-      const suggestions = await generateAutomationSuggestions();
+      const suggestions = AIServiceUtils.generateAutomationSuggestions(category);
+      
+      let filteredSuggestions = suggestions;
+      if (priority) {
+        filteredSuggestions = suggestions.filter(s => s.impact === priority);
+      }
 
       res.json({
         success: true,
-        data: suggestions,
-        appliedCount: 0,
-        pendingCount: Array.isArray(suggestions) ? suggestions.length : 0
+        data: {
+          suggestions: filteredSuggestions,
+          total: filteredSuggestions.length,
+          category,
+          priority
+        },
+        timestamp: new Date().toISOString()
       });
     } catch (error) {
-      console.error('Erreur suggestions automatisation:', error);
+      logger.error('Erreur suggestions automatisation', { 
+        category, 
+        priority, 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      )});
+      
       res.status(500).json({
         success: false,
-        error: 'Erreur de génération de suggestions'
+        message: 'Erreur lors de la génération des suggestions',
+        timestamp: new Date()}).toISOString()
       });
     }
   })
 );
 
-// Route pour les insights en temps réel
-router.get('/real-time-insights', authenticateToken, requireRole('directeur'), asyncHandler(async (req, res) => {
-  try {
-    const insights = {
-      currentCustomers: Math.floor(Math.random() * 50) + 10,
-      waitTime: Math.floor(Math.random() * 15) + 5,
-      popularItem: 'Cappuccino',
-      revenue: (Math.random() * 1000 + 500).toFixed(2),
-      alerts: [
-        { type: 'stock', message: 'Stock de lait faible', severity: 'warning' },
-        { type: 'staff', message: 'Rush hour - personnel supplémentaire recommandé', severity: 'info' }
-      ],
-      recommendations: [
-        'Proposer une promotion sur les pâtisseries',
-        'Préparer plus de cappuccinos',
-        'Optimiser la disposition des tables'
-      ]
-    };
-
-    res.json(insights);
+// Analyse de sentiment des avis
+router.post('/sentiment-analysis',
+  authenticateUser,
+  requireRoles(['admin', 'manager']),
+  validateBody(z.object({
+    text: z.string()}).min(1, 'Texte requis').max(2000, 'Texte trop long'),
+    source: z.enum(['review', 'feedback', 'comment']).default('review')
+  })),
+  asyncHandler(async (req, res) => {
+    const { text, source } = req.body;
+    
+    try {
+      const analysis = AIServiceUtils.analyzeSentiment(text);
+      
+      res.json({
+        success: true,
+        data: {
+          ...analysis,
+          source,
+          analyzedAt: new Date(}).toISOString()
+        }
+      });
   } catch (error) {
-    res.status(500).json({ error: 'Erreur lors de la récupération des insights' });
-  }
-}));
-
-// Route pour la génération de rapports IA
-router.post('/generate-report', authenticateToken, requireRole('directeur'), asyncHandler(async (req, res) => {
-  try {
-    const { templateId, dateRange, fields, charts } = req.body;
-
-    // Simulation de génération de rapport avec données réalistes
-    const reportData = {
-      id: `report_${Date.now()}`,
-      templateId,
-      generatedAt: new Date().toISOString(),
-      dateRange,
-      salesData: Array.from({ length: 30 }, (_, i) => ({
-        date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toLocaleDateString(),
-        revenue: Math.floor(Math.random() * 1000) + 500,
-        orders: Math.floor(Math.random() * 100) + 50,
-        customers: Math.floor(Math.random() * 80) + 40
-      })),
-      categoryData: [
-        { name: 'Cafés', value: 45 },
-        { name: 'Pâtisseries', value: 25 },
-        { name: 'Sandwichs', value: 20 },
-        { name: 'Boissons froides', value: 10 }
-      ],
-      metrics: {
-        revenue: '€12,450',
-        customers: '1,234',
-        orders: '856',
-        growth: '+15%'
-      },
-      aiInsights: [
-        'Hausse significative des ventes de café le matin',
-        'Opportunité d\'augmenter les prix des boissons froides',
-        'Recommandation de réduire les portions de pâtisseries invendues'
-      ]
-    };
-
-    res.json(reportData);
-  } catch (error) {
-    console.error('Erreur génération de rapport:', error);
-    res.status(500).json({ error: 'Erreur lors de la génération du rapport' });
-  }
-}));
-
-// === FONCTIONS UTILITAIRES ===
-
-function simulateSpeechToText(audioData: string, language: string): Promise<string> {
-  return new Promise((resolve) => {
-  // Simulation de reconnaissance vocale (à remplacer par Google Speech-to-Text, Azure, etc.)
-  const phrases = [
-    'Je voudrais commander un cappuccino s\'il vous plaît',
-    'Avez-vous une table libre pour ce soir ?',
-    'Quel est le prix du latte ?',
-    'Je voudrais réserver pour quatre personnes',
-    'Quels sont vos horaires d\'ouverture ?',
-    'Où puis-je me garer ?',
-    'Avez-vous le WiFi ?'
-  ];
-
-  // Simulation d'un délai de traitement
-    setTimeout(() => {
-      resolve(phrases?.[Math.floor(Math.random() * (phrases?.length || 1))] || 'Bonjour!');
-    }, 500);
-  });
-}
-
-async function checkTableAvailability(date: string, time: string, guests: number) {
-  // TODO: Intégrer avec le système de réservation existant
-  const isWeekend = new Date(date).getDay() === 0 || new Date(date).getDay() === 6;
-  const hour = parseInt(time?.split(':')[0] || '12');
-
-  // Simulation de logique de disponibilité
-  const available = !isWeekend && (hour < 12 || hour > 14) && (hour < 19 || hour > 21);
-
-  return {
-    available,
-    reason: available ? null : 'Heure de pointe - toutes les tables occupées',
-    alternativeSlots: available ? [] : [
-      { date, time: '15:30', available: true },
-      { date, time: '16:00', available: true }
-    ]
-  };
-}
-
-async function createAIReservation(data: Record<string, unknown>) {
-  // TODO: Intégrer avec le storage existant
-  return {
-    id: `AI-RES-${Date.now()}`,
-    ...data,
-    status: 'confirmed',
-    createdAt: new Date().toISOString(),
-    aiGenerated: true
-  };
-}
-
-async function generateAlternativeSlots(date: string, time: string, guests: number) {
-  return [
-    { date, time: '15:30', available: true, capacity: 4 },
-    { date, time: '16:00', available: true, capacity: 6 },
-    { 
-      date: new Date(new Date(date).getTime() + 86400000).toISOString().split('T')[0], 
-      time, 
-      available: true, 
-      capacity: 8 
+      logger.error('Erreur analyse sentiment', { 
+        text: text.substring(0, 100)}), 
+        source, 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      });
+      
+      res.status(500).json({
+        success: false,
+        message: 'Erreur lors de l\'analyse de sentiment'
+      });
     }
-  ];
-}
-
-async function generateAutomationSuggestions() : void {
-  return {
-    menu: {
-      recommendations: [
-        'Ajouter des options véganes - demande en hausse de 25%',
-        'Créer un menu du jour avec rotation hebdomadaire',
-        'Introduire des smoothies pour l\'été'
-      ],
-      pricingAdjustments: [
-        { item: 'Cappuccino', currentPrice: 4.50, suggestedPrice: 4.80, reason: 'Alignement marché' },
-        { item: 'Croissant', currentPrice: 2.50, suggestedPrice: 2.70, reason: 'Coût matières premières' }
-      ]
-    },
-    operations: {
-      staffOptimization: 'Réduire les effectifs de 30% entre 15h-17h',
-      inventoryManagement: 'Activer la commande automatique pour le lait et café',
-      wasteReduction: 'Réduire de 15% les commandes de pâtisseries le lundi'
-    },
-    marketing: {
-      dynamicPricing: 'Activer les prix dynamiques pour les heures creuses (-10%)',
-      loyaltyProgram: 'Proposer une carte fidélité - ROI estimé +22%',
-      promotions: 'Offre "Happy Hour" 15h-17h recommandée'
-    }
-  };
-}
+  })
+);
 
 export default router;

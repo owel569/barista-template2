@@ -50,7 +50,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     const grouped: Record<string, Shift[]> = {};
     
     shifts.forEach(shift => {
-      if (!grouped[shift.date]) {
+      if (!grouped[shift.date])}) {
         grouped[shift.date] = [];
       }
       grouped[shift.date].push(shift);
@@ -94,7 +94,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
         const weekDates = getWeekDates(currentDate);
         const startDate = new Date(weekDates[0]);
         const endDate = new Date(weekDates[weekDates.length - 1]);
-        return `${startDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} - ${endDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+        return `${startDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' )})} - ${endDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' )})}`;
       case 'month':
         return date.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long' });
       default:
@@ -174,7 +174,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
         <div className="flex items-center justify-between mb-3">
           <div className="text-center">
             <div className="text-xs text-gray-500 dark:text-gray-400">
-              {dayDate.toLocaleDateString('fr-FR', { weekday: 'short' })}
+              {dayDate.toLocaleDateString('fr-FR', { weekday: 'short' )})}
             </div>
             <div className={`
               text-lg font-semibold 
@@ -212,7 +212,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
         <div className="space-y-2">
           {dayShifts.map(shift => (
             <ShiftItem 
-              key={shift.id} 
+              key={shift.id)} 
               shift={shift} 
               compact={viewMode === 'month'} 
             />
@@ -302,7 +302,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
           // Vue journalière détaillée
           <div className="space-y-4">
             <DayColumn 
-              date={currentDate} 
+              date={currentDate)} 
               shifts={shiftsByDate[currentDate] || []} 
             />
           </div>
@@ -315,7 +315,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
           `}>
             {dates.map(date => (
               <DayColumn 
-                key={date} 
+                key={date)} 
                 date={date} 
                 shifts={shiftsByDate[date] || []} 
               />

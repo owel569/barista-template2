@@ -1,4 +1,9 @@
-import React, { useState, useEffect } from 'react';
+/**
+ * Dashboard Analytics Avancées - Logique métier professionnelle et sécurisée
+ * Optimisé pour la longévité du système
+ */
+
+import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -21,18 +26,60 @@ import {
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 
-const AnalyticsDashboard = () => {
+// Types sécurisés pour les données
+interface DashboardStats {
+  realTime?: {
+    dailyRevenue?: number;
+    currentOrders?: number;
+    occupancyRate?: number;
+    averageOrderValue?: number;
+  };
+  popular?: {
+    dishes?: Array<{
+      name: string;
+      orders: number;
+    }>;
+    topDish?: string;
+  };
+  predictions?: {
+    nextHourOrders?: number;
+    peakTime?: string;
+    recommendedStaffing?: number;
+    stockAlerts?: Array<{
+      item: string;
+      level: string;
+    }>;
+  };
+}
+
+interface PerformanceData {
+  trends?: {
+    revenueChange?: number;
+    revenuePercent?: number;
+    ordersChange?: number;
+    customersChange?: number;
+  };
+}
+
+interface CustomerAnalytics {
+  segments?: Record<string, {
+    count: number;
+    percentage: number;
+  }>;
+}
+
+const AnalyticsDashboard: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('day');
   const [selectedMetrics, setSelectedMetrics] = useState('all');
 
   // Récupérer les statistiques du dashboard
-  const { data: dashboardStats, isLoading } = useQuery({
+  const { data: dashboardStats, isLoading } = useQuery<DashboardStats>({
     queryKey: ['/api/admin/analytics/dashboard-stats'],
     refetchInterval: 30000 // Actualisation toutes les 30 secondes
   });
 
   // Récupérer les analytics de performance
-  const { data: performanceData } = useQuery({
+  const { data: performanceData } = useQuery<PerformanceData>({
     queryKey: ['/api/admin/analytics/performance', selectedPeriod],
     enabled: !!selectedPeriod
   });
@@ -44,7 +91,7 @@ const AnalyticsDashboard = () => {
   });
 
   // Récupérer les analytics client
-  const { data: customerAnalytics } = useQuery({
+  const { data: customerAnalytics } = useQuery<CustomerAnalytics>({
     queryKey: ['/api/admin/analytics/customer-analytics']
   });
 
@@ -59,9 +106,9 @@ const AnalyticsDashboard = () => {
     );
   }
 
-  const realTimeStats = dashboardStats?.realTime || {};
-  const popularData = dashboardStats?.popular || {};
-  const aiPredictions = dashboardStats?.predictions || {};
+  const realTimeStats = (dashboardStats as DashboardStats)?.realTime || {};
+  const popularData = (dashboardStats as DashboardStats)?.popular || {};
+  const aiPredictions = (dashboardStats as DashboardStats)?.predictions || {};
 
   return (
     <div className="p-6 space-y-6">
@@ -169,22 +216,22 @@ const AnalyticsDashboard = () => {
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span>Revenus</span>
-                        <span className={`flex items-center ${performanceData.trends.revenueChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          {performanceData.trends.revenueChange >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+                        <span className={`flex items-center ${(performanceData.trends.revenueChange || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {(performanceData.trends.revenueChange || 0) >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
                           {Math.abs(performanceData.trends.revenuePercent || 0)}%
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span>Commandes</span>
-                        <span className={`flex items-center ${performanceData.trends.ordersChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          {performanceData.trends.ordersChange >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+                        <span className={`flex items-center ${(performanceData.trends.ordersChange || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {(performanceData.trends.ordersChange || 0) >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
                           {Math.abs(performanceData.trends.ordersChange || 0)}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span>Nouveaux clients</span>
-                        <span className={`flex items-center ${performanceData.trends.customersChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          {performanceData.trends.customersChange >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+                        <span className={`flex items-center ${(performanceData.trends.customersChange || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {(performanceData.trends.customersChange || 0) >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
                           {Math.abs(performanceData.trends.customersChange || 0)}
                         </span>
                       </div>
@@ -203,11 +250,11 @@ const AnalyticsDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {popularData.dishes?.slice(0, 4).map((dish: any, index: number) => (
+                  {popularData.dishes?.slice(0, 4).map((dish, index) => (
                     <div key={index} className="flex justify-between items-center">
                       <span className="text-sm">{dish.name}</span>
                       <div className="flex items-center gap-2">
-                        <Progress value={(dish.orders / (popularData.dishes[0]?.orders || 1)) * 100} className="w-16" />
+                        <Progress value={(dish.orders / (popularData.dishes?.[0]?.orders || 1)) * 100} className="w-16" />
                         <span className="text-xs text-muted-foreground">{dish.orders}</span>
                       </div>
                     </div>
@@ -254,7 +301,7 @@ const AnalyticsDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {aiPredictions.stockAlerts?.slice(0, 3).map((alert: any, index: number) => (
+                  {aiPredictions.stockAlerts?.slice(0, 3).map((alert, index) => (
                     <div key={index} className="flex items-center justify-between p-2 border rounded">
                       <span className="text-sm">{alert.item}</span>
                       <Badge variant={alert.level === 'critical' ? 'destructive' : 'secondary'}>
@@ -278,7 +325,7 @@ const AnalyticsDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {customerAnalytics?.segments && Object.entries(customerAnalytics.segments).map(([key, segment]: [string, any]) => (
+                  {customerAnalytics?.segments && Object.entries(customerAnalytics.segments).map(([key, segment]) => (
                     <div key={key} className="space-y-1">
                       <div className="flex justify-between">
                         <span className="capitalize">{key}</span>

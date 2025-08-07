@@ -4,7 +4,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { createLogger } from './middleware/logging';
-import { requestLogger } from './middleware/logging';
 import { errorHandler } from './middleware/error-handler';
 
 // Routes
@@ -31,7 +30,6 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-app.use(requestLogger);
 
 // Servir les fichiers statiques
 app.use('/images', express.static(path.join(__dirname, '../client/src/assets')));

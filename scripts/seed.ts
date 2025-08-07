@@ -128,12 +128,12 @@ export async function seedDatabase(options: {
     return stats;
 
   } catch (error) {
-    console.error('❌ Erreur lors du seeding:', error);
+    logger.error('❌ Erreur lors du seeding:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
     throw error;
   }
 }
 
-async function seedUsersWithTransaction(tx: any): Promise<SeedResult<User>> {
+async function seedUsersWithTransaction(tx: unknown): Promise<SeedResult<User>> {
   try {
     console.log('👥 Création des utilisateurs...');
 
@@ -174,14 +174,14 @@ async function seedUsersWithTransaction(tx: any): Promise<SeedResult<User>> {
   } catch (error) {
     return {
       success: false,
-      data: [],
+      data: [,],
       count: 0,
       error: `Erreur création utilisateurs: ${error}rror.message}`
     };
   }
 }
 
-async function seedEmployeesWithTransaction(tx: any): Promise<SeedResult<Employee>> {
+async function seedEmployeesWithTransaction(tx: unknown): Promise<SeedResult<Employee>> {
   try {
     console.log('👨‍💼 Création des employés...');
 
@@ -192,7 +192,7 @@ async function seedEmployeesWithTransaction(tx: any): Promise<SeedResult<Employe
         position: 'Barista senior',
         phone: '0123456789',
         email: 'sophie.dubois@barista-cafe.com',
-        hireDate: hireDates[0],
+        hireDate: hireDates[0,],
         salary: 2200
       },
       {
@@ -201,7 +201,7 @@ async function seedEmployeesWithTransaction(tx: any): Promise<SeedResult<Employe
         position: 'Serveur',
         phone: '0123456790',
         email: 'antoine.rousseau@barista-cafe.com',
-        hireDate: hireDates[1],
+        hireDate: hireDates[1,],
         salary: 1800
       },
       {
@@ -210,7 +210,7 @@ async function seedEmployeesWithTransaction(tx: any): Promise<SeedResult<Employe
         position: 'Pâtissière',
         phone: '0123456791',
         email: 'clara.moreau@barista-cafe.com',
-        hireDate: hireDates[2],
+        hireDate: hireDates[2,],
         salary: 2000
       }
     ];
@@ -225,14 +225,14 @@ async function seedEmployeesWithTransaction(tx: any): Promise<SeedResult<Employe
   } catch (error) {
     return {
       success: false,
-      data: [],
+      data: [,],
       count: 0,
       error: `Erreur création employés: ${error.message}`
     };
   }
 }
 
-async function seedPermissionsWithTransaction(tx: any, createdUsers: User[]): Promise<SeedResult<Permission>> {
+async function seedPermissionsWithTransaction(tx: unknown, createdUsers: User[]): Promise<SeedResult<Permission>> {
   try {
     console.log('🔐 Création des permissions...');
 
@@ -269,7 +269,7 @@ async function seedPermissionsWithTransaction(tx: any, createdUsers: User[]): Pr
             canCreate,
             canUpdate,
             canDelete
-          });
+          )});
         }
       }
     }
@@ -284,14 +284,14 @@ async function seedPermissionsWithTransaction(tx: any, createdUsers: User[]): Pr
   } catch (error) {
     return {
       success: false,
-      data: [],
+      data: [,],
       count: 0,
       error: `Erreur création permissions: ${error.message}`
     };
   }
 }
 
-async function seedMenuCategoriesWithTransaction(tx: any): Promise<SeedResult<MenuCategory>> {
+async function seedMenuCategoriesWithTransaction(tx: unknown): Promise<SeedResult<MenuCategory>> {
   try {
     console.log('📂 Création des catégories de menu...');
 
@@ -313,14 +313,14 @@ async function seedMenuCategoriesWithTransaction(tx: any): Promise<SeedResult<Me
   } catch (error) {
     return {
       success: false,
-      data: [],
+      data: [,],
       count: 0,
       error: `Erreur création catégories: ${error.message}`
     };
   }
 }
 
-async function seedMenuItemsWithTransaction(tx: any, categories: MenuCategory[]): Promise<SeedResult<MenuItem>> {
+async function seedMenuItemsWithTransaction(tx: unknown, categories: MenuCategory[]): Promise<SeedResult<MenuItem>> {
   try {
     console.log('🍽️ Création des éléments de menu...');
 
@@ -368,14 +368,14 @@ async function seedMenuItemsWithTransaction(tx: any, categories: MenuCategory[])
   } catch (error) {
     return {
       success: false,
-      data: [],
+      data: [,],
       count: 0,
       error: `Erreur création éléments de menu: ${error.message}`
     };
   }
 }
 
-async function seedTablesWithTransaction(tx: any): Promise<SeedResult<Table>> {
+async function seedTablesWithTransaction(tx: unknown): Promise<SeedResult<Table>> {
   try {
     console.log('🪑 Création des tables...');
 
@@ -398,14 +398,14 @@ async function seedTablesWithTransaction(tx: any): Promise<SeedResult<Table>> {
   } catch (error) {
     return {
       success: false,
-      data: [],
+      data: [,],
       count: 0,
       error: `Erreur création tables: ${error.message}`
     };
   }
 }
 
-async function seedCustomersWithTransaction(tx: any): Promise<SeedResult<Customer>> {
+async function seedCustomersWithTransaction(tx: unknown): Promise<SeedResult<Customer>> {
   try {
     console.log('👤 Création des clients...');
 
@@ -450,14 +450,14 @@ async function seedCustomersWithTransaction(tx: any): Promise<SeedResult<Custome
   } catch (error) {
     return {
       success: false,
-      data: [],
+      data: [,],
       count: 0,
       error: `Erreur création clients: ${error.message}`
     };
   }
 }
 
-async function seedSampleOrdersWithTransaction(tx: any, customers: Customer[], menuItems: MenuItem[]): Promise<{orders: number, orderItems: number}> {
+async function seedSampleOrdersWithTransaction(tx: unknown, customers: Customer[,], menuItems: MenuItem[]): Promise<{orders: number, orderItems: number}> {
   try {
     console.log('🛒 Création des commandes d\'exemple...');
 
@@ -507,12 +507,12 @@ async function seedSampleOrdersWithTransaction(tx: any, customers: Customer[], m
       orderItems: createdOrderItems.length
     };
   } catch (error) {
-    console.error('Erreur création commandes:', error);
+    logger.error('Erreur création commandes:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
     return { orders: 0, orderItems: 0 };
   }
 }
 
-async function seedSampleReservationsWithTransaction(tx: any, customers: Customer[], tables: Table[]): Promise<SeedResult<any>> {
+async function seedSampleReservationsWithTransaction(tx: unknown, customers: Customer[,], tables: Table[]): Promise<SeedResult<any>> {
   try {
     console.log('📅 Création des réservations d\'exemple...');
 
@@ -557,7 +557,7 @@ async function seedSampleReservationsWithTransaction(tx: any, customers: Custome
   } catch (error) {
     return {
       success: false,
-      data: [],
+      data: [,],
       count: 0,
       error: `Erreur création réservations: ${error.message}`
     };
@@ -575,11 +575,11 @@ function printSeedingStats(stats: SeedStats): void {
   console.log(`🪑 Tables: ${stats.tables}`);
   console.log(`👤 Clients: ${stats.customers}`);
   if (stats.orders > 0) {
-    console.log(`🛒 Commandes: ${stats.orders}`);
+    console.log(`🛒 Commandes: ${stats.orders)}`);
     console.log(`📦 Articles commandés: ${stats.orderItems}`);
   }
   if (stats.reservations > 0) {
-    console.log(`📅 Réservations: ${stats.reservations}`);
+    console.log(`📅 Réservations: ${stats.reservations)}`);
   }
   console.log('========================\n');
 }
@@ -593,11 +593,11 @@ if (process.argv[1] === __filename) {
   seedDatabase({
     includeOrders: true,
     includeReservations: true
-  }).then(() => {
+  )}).then(() => {
     console.log('✅ Seeding terminé avec succès');
     process.exit(0);
   }).catch((error) => {
-    console.error('❌ Erreur lors du seeding:', error);
+    logger.error('❌ Erreur lors du seeding:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
     process.exit(1);
   });
 }

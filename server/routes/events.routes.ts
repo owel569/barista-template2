@@ -1,11 +1,11 @@
 
 import { Router } from 'express';
-import { authenticateToken, requireRole } from '../middleware/auth';
+import { authenticateUser, requireRoles } from '../middleware/auth';
 
 const router = Router();
 
 // Routes événements et promotions
-router.get('/', authenticateToken, async (req, res) => {
+router.get('/', authenticateUser, async (req, res) => {
   try {
     const events = [
       {
@@ -27,13 +27,16 @@ router.get('/', authenticateToken, async (req, res) => {
         status: 'planned'
       }
     ];
-    res.json(events);
+    res.json({
+        success: true,
+        data: events
+      });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la récupération des événements' });
   }
 });
 
-router.post('/', authenticateToken, requireRole('manager'), async (req, res) => {
+router.post('/', authenticateUser, requireRoles(['manager']), async (req, res) => {
   try {
     const { title, description, startDate, endDate, type } = req.body;
     const newEvent = {

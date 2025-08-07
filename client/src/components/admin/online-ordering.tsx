@@ -112,36 +112,36 @@ export default function OnlineOrdering() : JSX.Element {
   const queryClient = useQueryClient();
   useWebSocket();
 
-  const { data: orders = [], isLoading } = useQuery({
-    queryKey: ['/api/admin/online-orders'],
+  const { data: orders = [,], isLoading } = useQuery({
+    queryKey: ['/api/admin/online-orders',],
   });
 
   const { data: platformStats } = useQuery({
-    queryKey: ['/api/admin/online-orders/stats'],
+    queryKey: ['/api/admin/online-orders/stats',],
   });
 
   const { data: settings } = useQuery({
-    queryKey: ['/api/admin/online-ordering/settings'],
+    queryKey: ['/api/admin/online-ordering/settings',],
   });
 
   const updateOrderMutation = useMutation({
-    mutationFn: ({ id, ...data }: any) => apiRequest(`/api/admin/online-orders/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    mutationFn: ({ id, ...data })}: unknown) => apiRequest(`/api/admin/online-orders/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/online-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/online-orders'] )});
       toast({ title: "Commande mise à jour" });
     },
   });
 
   const updateSettingsMutation = useMutation({
-    mutationFn: (data: Record<string, unknown>) => apiRequest('/api/admin/online-ordering/settings', { method: 'POST', body: JSON.stringify(data) }),
+    mutationFn: (data: Record<string, unknown>})}) => apiRequest('/api/admin/online-ordering/settings', { method: 'POST', body: JSON.stringify(data)}) }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/online-ordering/settings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/online-ordering/settings'] )});
       toast({ title: "Paramètres sauvegardés" });
     },
   });
 
   const updateOrderStatus = (id: number, status: string) => {
-    updateOrderMutation.mutate({ id, status });
+    updateOrderMutation.mutate({ id, status )});
   };
 
   const filteredOrders = (orders as OnlineOrder[]).filter((order: OnlineOrder) => {
@@ -400,7 +400,7 @@ export default function OnlineOrdering() : JSX.Element {
 
       {/* Dialog détails commande */}
       {selectedOrder && (
-        <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
+        <Dialog open={!!selectedOrder)} onOpenChange={() => setSelectedOrder(null)}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Détails Commande #{selectedOrder.orderNumber}</DialogTitle>
@@ -417,7 +417,7 @@ export default function OnlineOrdering() : JSX.Element {
                   <p className="font-medium">Commande</p>
                   <p>Type: {selectedOrder.orderType}</p>
                   <p>Plateforme: {selectedOrder.platform}</p>
-                  <p>Statut: {statusLabels[selectedOrder.status]}</p>
+                  <p>Statut: {statusLabels[selectedOrder.status,]}</p>
                 </div>
               </div>
 
@@ -451,7 +451,7 @@ export default function OnlineOrdering() : JSX.Element {
               {selectedOrder.notes && (
                 <div>
                   <p className="font-medium">Notes</p>
-                  <p className="text-sm text-gray-600">{selectedOrder.notes}</p>
+                  <p className="text-sm text-gray-600">{selectedOrder.notes)}</p>
                 </div>
               )}
             </div>

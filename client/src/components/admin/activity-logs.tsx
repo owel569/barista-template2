@@ -38,15 +38,15 @@ export default function ActivityLogs({ userRole }: ActivityLogsProps) {
   const [actionFilter, setActionFilter] = useState<string>('all');
   const [userFilter, setUserFilter] = useState<string>('all');
 
-  const { data: logs = [], isLoading } = useQuery<ActivityLog[]>({
-    queryKey: ['/api/admin/activity-logs'],
+  const { data: logs = [,], isLoading } = useQuery<ActivityLog[]>({
+    queryKey: ['/api/admin/activity-logs',],
     retry: 3,
     retryDelay: 1000,
   });
 
   const filteredLogs = logs.filter(log => {
     const matchesSearch = !searchTerm || 
-      log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.action.toLowerCase()}).includes(searchTerm.toLowerCase()) ||
       log.details?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       log.userId.toString().includes(searchTerm);
     
@@ -60,7 +60,7 @@ export default function ActivityLogs({ userRole }: ActivityLogsProps) {
     const csvContent = [
       ['Date', 'Utilisateur', 'Action', 'Détails', 'IP'].join(','),
       ...filteredLogs.map(log => [
-        format(new Date(log.createdAt), 'dd/MM/yyyy HH:mm:ss'),
+        format(new Date(log.createdAt)]), 'dd/MM/yyyy HH:mm:ss'),
         log.userId,
         log.action,
         log.details || '',
@@ -102,7 +102,7 @@ export default function ActivityLogs({ userRole }: ActivityLogsProps) {
   // Statistiques
   const totalLogs = logs.length;
   const todayLogs = logs.filter(log => {
-    if (!log.createdAt) return false;
+    if (!log.createdAt)}) return false;
     const today = new Date().toDateString();
     const logDate = new Date(log.createdAt);
     return !isNaN(logDate.getTime()) && logDate.toDateString() === today;
@@ -262,7 +262,7 @@ export default function ActivityLogs({ userRole }: ActivityLogsProps) {
               ))}
               {filteredLogs.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={5)} className="text-center py-8 text-muted-foreground">
                     Aucun log d'activité trouvé
                   </TableCell>
                 </TableRow>

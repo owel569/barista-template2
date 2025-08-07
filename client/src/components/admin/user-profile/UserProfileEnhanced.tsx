@@ -135,7 +135,7 @@ const mockUserProfiles: UserProfile[] = [
       smsNotifications: false,
       emailNotifications: true,
       favoriteCategories: ['Cafés', 'Pâtisseries'],
-      dietaryRestrictions: ['Végétarien'],
+      dietaryRestrictions: ['Végétarien',],
       language: 'fr',
       currency: 'EUR',
     },
@@ -204,9 +204,9 @@ export default function UserProfileEnhanced() : JSX.Element {
   const itemsPerPage = 12;
 
   // Requête pour récupérer les profils utilisateur
-  const { data: profiles = [], isLoading, error } = useQuery({
-    queryKey: ['user-profiles'],
-    queryFn: async () => {
+  const { data: profiles = [,], isLoading, error } = useQuery({
+    queryKey: ['user-profiles',],
+    queryFn: async (})}) => {
       // Remplacer par un appel API réel
       return mockUserProfiles;
     },
@@ -217,7 +217,7 @@ export default function UserProfileEnhanced() : JSX.Element {
   const filteredProfiles = useMemo(() => {
     return profiles.filter(profile => {
       const matchesSearch = 
-        profile.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        profile.firstName.toLowerCase()}).includes(searchTerm.toLowerCase()) ||
         profile.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         profile.email.toLowerCase().includes(searchTerm.toLowerCase());
       
@@ -260,18 +260,18 @@ export default function UserProfileEnhanced() : JSX.Element {
       'Téléphone': profile.phone,
       'Niveau Fidélité': profile.loyaltyLevel,
       'Points Fidélité': profile.loyaltyPoints,
-      'Total Dépensé (€)': profile.totalSpent,
+      'Total Dépensé (€)})': profile.totalSpent,
       'Commandes': profile.totalOrders,
       'Panier Moyen (€)': profile.averageOrderValue,
       'Dernière Visite': profile.lastVisit,
       'Date d\'Inscription': profile.joinDate,
       'Statut': profile.isActive ? 'Actif' : 'Inactif',
-    }));
+    });
 
     const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Profils Utilisateurs');
-    XLSX.writeFile(wb, `profils-utilisateurs-${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
+    XLSX.writeFile(wb, `profils-utilisateurs-${format(new Date()}), 'yyyy-MM-dd')}.xlsx`);
     toast.success('Export Excel généré avec succès');
   }, [filteredProfiles]);
 
@@ -318,7 +318,7 @@ export default function UserProfileEnhanced() : JSX.Element {
   ));
 
   const handlePrint = useReactToPrint({
-    content: () => document.getElementById('printable-profile'),
+    content: (})}) => document.getElementById('printable-profile'),
     documentTitle: `Profil-${selectedProfile?.firstName}-${selectedProfile?.lastName}`,
   });
 
@@ -458,7 +458,7 @@ export default function UserProfileEnhanced() : JSX.Element {
       {/* Grille des profils */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {paginatedProfiles.map(profile => (
-          <Card key={profile.id} className="hover:shadow-lg transition-shadow">
+          <Card key={profile.id)} className="hover:shadow-lg transition-shadow">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
@@ -510,7 +510,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => {
+                        onClick={()}) => {
                           setSelectedProfile(profile);
                           setShowEditDialog(true);
                         }}
@@ -554,7 +554,7 @@ export default function UserProfileEnhanced() : JSX.Element {
 
       {/* Dialog de détail du profil */}
       {selectedProfile && (
-        <Dialog open={!!selectedProfile} onOpenChange={() => setSelectedProfile(null)}>
+        <Dialog open={!!selectedProfile)} onOpenChange={() => setSelectedProfile(null)}>
           <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
@@ -603,7 +603,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                         {selectedProfile.address && (
                           <div className="flex items-center gap-2">
                             <MapPin className="w-4 h-4 text-gray-500" />
-                            <span>{selectedProfile.address.street}, {selectedProfile.address.city}</span>
+                            <span>{selectedProfile.address.street)}, {selectedProfile.address.city}</span>
                           </div>
                         )}
                       </CardContent>
@@ -652,7 +652,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                       <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           {selectedProfile.achievements.map(achievement => (
-                            <div key={achievement.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                            <div key={achievement.id)} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                               <Award className="w-6 h-6 text-yellow-500" />
                               <div>
                                 <h4 className="font-medium text-sm">{achievement.title}</h4>
@@ -684,7 +684,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                         </TableHeader>
                         <TableBody>
                           {selectedProfile.orderHistory.map(order => (
-                            <TableRow key={order.id}>
+                            <TableRow key={order.id)}>
                               <TableCell>{format(new Date(order.date), 'dd/MM/yyyy', { locale: fr })}</TableCell>
                               <TableCell>€{order.amount.toFixed(2)}</TableCell>
                               <TableCell>{order.itemCount}</TableCell>
@@ -751,7 +751,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                         <h4 className="font-medium mb-2">Catégories Favorites</h4>
                         <div className="flex flex-wrap gap-2">
                           {selectedProfile.preferences.favoriteCategories.map(category => (
-                            <Badge key={category} variant="outline">{category}</Badge>
+                            <Badge key={category)} variant="outline">{category}</Badge>
                           ))}
                         </div>
                       </div>
@@ -761,7 +761,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                           <h4 className="font-medium mb-2">Restrictions Alimentaires</h4>
                           <div className="flex flex-wrap gap-2">
                             {selectedProfile.preferences.dietaryRestrictions.map(restriction => (
-                              <Badge key={restriction} variant="outline">{restriction}</Badge>
+                              <Badge key={restriction)} variant="outline">{restriction}</Badge>
                             ))}
                           </div>
                         </div>
@@ -836,7 +836,7 @@ export default function UserProfileEnhanced() : JSX.Element {
 
       {/* Profil imprimable caché */}
       {selectedProfile && (
-        <div style={{ display: 'none' }}>
+        <div style={{ display: 'none' )}}>
           <PrintableProfile ref={null} profile={selectedProfile} />
         </div>
       )}

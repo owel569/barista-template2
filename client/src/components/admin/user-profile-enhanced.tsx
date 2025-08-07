@@ -63,7 +63,7 @@ import * as XLSX from 'xlsx';
 
 // Schéma de validation amélioré
 const userProfileSchema = z.object({
-  firstName: z.string().min(2, "Le prénom doit contenir au moins 2 caractères"),
+  firstName: z.string()}).min(2, "Le prénom doit contenir au moins 2 caractères"),
   lastName: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
   email: z.string().email("Email invalide").optional().or(z.literal("")),
   phone: z.string().regex(/^(\+?\d{8,15})$/, "Numéro de téléphone invalide").optional().or(z.literal("")),
@@ -78,7 +78,7 @@ const userProfileSchema = z.object({
     return age >= 0 && age <= 120;
   }, "Date de naissance invalide"),
   preferences: z.object({
-    emailNotifications: z.boolean(),
+    emailNotifications: z.boolean()}),
     smsNotifications: z.boolean(),
     promotionalEmails: z.boolean(),
     favoriteTable: z.number().optional(),
@@ -90,7 +90,7 @@ const userProfileSchema = z.object({
 });
 
 const addressSchema = z.object({
-  street: z.string().min(1, "L'adresse est requise"),
+  street: z.string()}).min(1, "L'adresse est requise"),
   city: z.string().min(1, "La ville est requise"),
   postalCode: z.string().min(1, "Le code postal est requis"),
   country: z.string().min(1, "Le pays est requis"),
@@ -189,9 +189,9 @@ export default function UserProfileEnhanced() : JSX.Element {
   const usersPerPage = 12;
 
   // Récupération des utilisateurs
-  const { data: users = [], isLoading, error } = useQuery<UserProfile[]>({
-    queryKey: ['user-profiles'],
-    queryFn: async () => {
+  const { data: users = [,], isLoading, error } = useQuery<UserProfile[]>({
+    queryKey: ['user-profiles',],
+    queryFn: async ()}) => {
       const response = await apiRequest('/api/admin/user-profiles');
       return response.json();
     },
@@ -213,8 +213,8 @@ export default function UserProfileEnhanced() : JSX.Element {
         emailNotifications: true,
         smsNotifications: false,
         promotionalEmails: true,
-        dietaryRestrictions: [],
-        allergens: [],
+        dietaryRestrictions: [,],
+        allergens: [,],
         language: 'fr',
         currency: 'EUR',
       },
@@ -234,15 +234,15 @@ export default function UserProfileEnhanced() : JSX.Element {
 
   // Mutations pour les opérations CRUD
   const updateUserMutation = useMutation({
-    mutationFn: async (data: { id: number; updates: Partial<UserProfile> }) => {
-      const response = await apiRequest(`/api/admin/user-profiles/${data.id}`, {
+    mutationFn: async (data: { id: number; updates: Partial<UserProfile> })}) => {
+      const response = await apiRequest(`/api/admin/user-profiles/${data.id)}`, {
         method: 'PUT',
         body: JSON.stringify(data.updates),
       });
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-profiles'] });
+      queryClient.invalidateQueries({ queryKey: ['user-profiles'] )});
       toast({
         title: "Profil mis à jour",
         description: "Le profil utilisateur a été mis à jour avec succès",
@@ -252,15 +252,15 @@ export default function UserProfileEnhanced() : JSX.Element {
   });
 
   const addAddressMutation = useMutation({
-    mutationFn: async (data: { userId: number; address: Omit<Address, 'id'> }) => {
-      const response = await apiRequest(`/api/admin/user-profiles/${data.userId}/addresses`, {
+    mutationFn: async (data: { userId: number; address: Omit<Address, 'id'> })}) => {
+      const response = await apiRequest(`/api/admin/user-profiles/${data.userId)}/addresses`, {
         method: 'POST',
         body: JSON.stringify(data.address),
       });
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-profiles'] });
+      queryClient.invalidateQueries({ queryKey: ['user-profiles'] )});
       toast({
         title: "Adresse ajoutée",
         description: "L'adresse a été ajoutée avec succès",
@@ -271,14 +271,14 @@ export default function UserProfileEnhanced() : JSX.Element {
   });
 
   const deleteAddressMutation = useMutation({
-    mutationFn: async (addressId: number) => {
-      const response = await apiRequest(`/api/admin/addresses/${addressId}`, {
+    mutationFn: async (addressId: number})}) => {
+      const response = await apiRequest(`/api/admin/addresses/${addressId)}`, {
         method: 'DELETE',
       });
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-profiles'] });
+      queryClient.invalidateQueries({ queryKey: ['user-profiles'] )});
       toast({
         title: "Adresse supprimée",
         description: "L'adresse a été supprimée avec succès",
@@ -291,7 +291,7 @@ export default function UserProfileEnhanced() : JSX.Element {
   const filteredAndSortedUsers = useMemo(() => {
     let filtered = users.filter(user => {
       const matchesSearch = !searchTerm || 
-        user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.firstName.toLowerCase()}).includes(searchTerm.toLowerCase()) ||
         user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email.toLowerCase().includes(searchTerm.toLowerCase());
       
@@ -364,7 +364,7 @@ export default function UserProfileEnhanced() : JSX.Element {
     return new Intl.NumberFormat('fr-FR', {
       style: 'currency',
       currency: 'EUR',
-    }).format(amount);
+    )}).format(amount);
   };
 
   // Gestion des formulaires
@@ -404,7 +404,7 @@ export default function UserProfileEnhanced() : JSX.Element {
 
   // Fonctions d'impression et export
   const handlePrint = useReactToPrint({
-    content: () => printRef.current,
+    content: (})}) => printRef.current,
     documentTitle: `Profil-${selectedUser?.firstName}-${selectedUser?.lastName}`,
   });
 
@@ -431,11 +431,11 @@ export default function UserProfileEnhanced() : JSX.Element {
           'Nombre de visites': selectedUser.loyalty.visitsCount,
         },
         'Historique des commandes': selectedUser.orderHistory.map(order => ({
-          'Date': new Date(order.date).toLocaleDateString('fr-FR'),
+          'Date': new Date(order.date)}).toLocaleDateString('fr-FR'),
           'Montant': formatCurrency(order.amount),
           'Statut': order.status,
           'Articles': order.items.map(item => `${item.name} (${item.quantity})`).join(', '),
-        })),
+        });
       };
 
       const wb = XLSX.utils.book_new();
@@ -464,7 +464,7 @@ export default function UserProfileEnhanced() : JSX.Element {
         title: "Erreur d'export",
         description: "Impossible d'exporter le profil",
         variant: "destructive",
-      });
+      )});
     } finally {
       setExporting(false);
     }
@@ -555,12 +555,12 @@ export default function UserProfileEnhanced() : JSX.Element {
       {/* Grille des utilisateurs */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {paginatedUsers.map((user) => (
-          <Card key={user.id} className="cursor-pointer hover:shadow-md transition-shadow">
+          <Card key={user.id} className="cursor-pointer hover: shadow-md transition-shadow">
             <CardContent className="p-4">
               <div className="flex items-center space-x-3 mb-3">
                 <Avatar className="h-12 w-12">
                   <AvatarFallback className="bg-blue-100 text-blue-600">
-                    {user.firstName[0]}{user.lastName[0]}
+                    {user.firstName[0,]}{user.lastName[0]}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
@@ -652,7 +652,7 @@ export default function UserProfileEnhanced() : JSX.Element {
           </DialogHeader>
           
           {selectedUser && (
-            <div ref={printRef} className="space-y-4">
+            <div ref={printRef)} className="space-y-4">
               {/* Actions */}
               <div className="flex flex-wrap gap-2">
                 <Button
@@ -819,7 +819,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                       ))}
                       {selectedUser.orderHistory.length > 5 && (
                         <p className="text-sm text-gray-600 text-center">
-                          ... et {selectedUser.orderHistory.length - 5} autres commandes
+                          ... et {selectedUser.orderHistory.length - 5)} autres commandes
                         </p>
                       )}
                     </div>
@@ -907,7 +907,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                 <FormField
                   control={profileForm.control}
                   name="firstName"
-                  render={({ field }) => (
+                  render={({ field )}) => (
                     <FormItem>
                       <FormLabel>Prénom</FormLabel>
                       <FormControl>
@@ -920,7 +920,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                 <FormField
                   control={profileForm.control}
                   name="lastName"
-                  render={({ field }) => (
+                  render={({ field )}) => (
                     <FormItem>
                       <FormLabel>Nom</FormLabel>
                       <FormControl>
@@ -936,7 +936,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                 <FormField
                   control={profileForm.control}
                   name="email"
-                  render={({ field }) => (
+                  render={({ field )}) => (
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
@@ -949,7 +949,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                 <FormField
                   control={profileForm.control}
                   name="phone"
-                  render={({ field }) => (
+                  render={({ field )}) => (
                     <FormItem>
                       <FormLabel>Téléphone</FormLabel>
                       <FormControl>
@@ -964,7 +964,7 @@ export default function UserProfileEnhanced() : JSX.Element {
               <FormField
                 control={profileForm.control}
                 name="birthDate"
-                render={({ field }) => (
+                render={({ field )}) => (
                   <FormItem>
                     <FormLabel>Date de naissance</FormLabel>
                     <FormControl>
@@ -981,7 +981,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                   <FormField
                     control={profileForm.control}
                     name="preferences.emailNotifications"
-                    render={({ field }) => (
+                    render={({ field )}) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                         <div className="space-y-0.5">
                           <FormLabel>Notifications email</FormLabel>
@@ -998,7 +998,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                   <FormField
                     control={profileForm.control}
                     name="preferences.smsNotifications"
-                    render={({ field }) => (
+                    render={({ field )}) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                         <div className="space-y-0.5">
                           <FormLabel>Notifications SMS</FormLabel>
@@ -1043,7 +1043,7 @@ export default function UserProfileEnhanced() : JSX.Element {
               <FormField
                 control={addressForm.control}
                 name="street"
-                render={({ field }) => (
+                render={({ field )}) => (
                   <FormItem>
                     <FormLabel>Adresse</FormLabel>
                     <FormControl>
@@ -1058,7 +1058,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                 <FormField
                   control={addressForm.control}
                   name="city"
-                  render={({ field }) => (
+                  render={({ field )}) => (
                     <FormItem>
                       <FormLabel>Ville</FormLabel>
                       <FormControl>
@@ -1071,7 +1071,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                 <FormField
                   control={addressForm.control}
                   name="postalCode"
-                  render={({ field }) => (
+                  render={({ field )}) => (
                     <FormItem>
                       <FormLabel>Code postal</FormLabel>
                       <FormControl>
@@ -1087,7 +1087,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                 <FormField
                   control={addressForm.control}
                   name="country"
-                  render={({ field }) => (
+                  render={({ field )}) => (
                     <FormItem>
                       <FormLabel>Pays</FormLabel>
                       <FormControl>
@@ -1100,7 +1100,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                 <FormField
                   control={addressForm.control}
                   name="type"
-                  render={({ field }) => (
+                  render={({ field )}) => (
                     <FormItem>
                       <FormLabel>Type</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>

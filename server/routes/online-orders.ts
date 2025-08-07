@@ -1,79 +1,122 @@
-
 import { Router } from 'express';
 import { z } from 'zod';
-import { validateBody, validateParams } from '../middleware/validation';
 import { asyncHandler } from '../middleware/error-handler';
+import { createLogger } from '../middleware/logging';
+import { authenticateUser, requireRoles } from '../middleware/auth';
+import { validateBody, validateParams, validateQuery } from '../middleware/validation';
 
 const onlineOrdersRouter = Router();
+const logger = createLogger('ONLINE_ORDERS');
 
-// Données simulées pour les commandes en ligne
-const onlineOrders = [
+// ==========================================
+// TYPES ET INTERFACES
+// ==========================================
+
+export interface OnlineOrder {
+  id: number;
+  orderNumber: string;
+  customerName: string;
+  customerPhone: string;
+  customerEmail: string;
+  platform: string;
+  items: OrderItem[];
+  subtotal: number;
+  deliveryFee: number;
+  serviceFee: number;
+  total: number;
+  orderType: 'delivery' | 'pickup';
+  deliveryAddress?: string;
+  paymentMethod: 'card' | 'cash' | 'paypal';
+  status: 'new' | 'accepted' | 'preparing' | 'ready' | 'dispatched' | 'delivered' | 'cancelled';
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+  estimatedTime?: string;
+}
+
+export interface OrderItem {
+  name: string;
+  quantity: number;
+  price: number;
+  options?: string[];
+}
+
+export interface Platform {
+  name: string;
+  icon: string;
+  color: string;
+  orderCount: number;
+}
+
+// ==========================================
+// DONNÉES DE TEST
+// ==========================================
+
+const onlineOrders: OnlineOrder[] = [
   {
     id: 1,
     orderNumber: 'OL-001',
+    customerName: 'Marie Dubois',
+    customerPhone: '+33 6 12 34 56 78',
+    customerEmail: 'marie.dubois@email.com',
     platform: 'Uber Eats',
-    customerName: 'Alice Martin',
-    customerPhone: '+33123456789',
-    customerEmail: 'alice.martin@email.com',
     items: [
-      { name: 'Cappuccino', quantity: 2, price: 7.00, options: ['Lait d\'amande'] },
-      { name: 'Croissant', quantity: 1, price: 2.80, options: [] }
+      { name: 'Cappuccino', quantity: 2, price: 4.50 },
+      { name: 'Croissant', quantity: 1, price: 2.80 }
     ],
-    subtotal: 9.80,
+    subtotal: 11.80,
     deliveryFee: 2.50,
-    serviceFee: 1.20,
-    total: 13.50,
-    status: 'new',
+    serviceFee: 1.18,
+    total: 15.48,
     orderType: 'delivery',
-    deliveryAddress: '15 Rue de la Paix, 75001 Paris',
-    estimatedTime: '25 min',
+    deliveryAddress: '123 Rue de la Paix, Paris',
     paymentMethod: 'card',
-    paymentStatus: 'paid',
-    notes: 'Sonnette au nom de Martin',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    status: 'new',
+    createdAt: '2025-01-16T10:30:00Z',
+    updatedAt: '2025-01-16T10:30:00Z'
   },
   {
     id: 2,
     orderNumber: 'OL-002',
+    customerName: 'Pierre Martin',
+    customerPhone: '+33 6 98 76 54 32',
+    customerEmail: 'pierre.martin@email.com',
     platform: 'Deliveroo',
-    customerName: 'Marc Dubois',
-    customerPhone: '+33987654321',
-    customerEmail: 'marc.dubois@email.com',
     items: [
-      { name: 'Latte', quantity: 1, price: 4.50, options: ['Sirop vanille'] },
-      { name: 'Sandwich Club', quantity: 1, price: 8.50, options: ['Sans tomate'] }
+      { name: 'Espresso', quantity: 1, price: 2.50 },
+      { name: 'Pain au chocolat', quantity: 2, price: 2.20 }
     ],
-    subtotal: 13.00,
+    subtotal: 6.90,
     deliveryFee: 2.00,
-    serviceFee: 1.00,
-    total: 16.00,
-    status: 'preparing',
-    orderType: 'delivery',
-    deliveryAddress: '42 Avenue des Champs, 75008 Paris',
-    estimatedTime: '20 min',
-    paymentMethod: 'card',
-    paymentStatus: 'paid',
-    notes: '',
-    createdAt: new Date(Date.now() - 1800000).toISOString(),
-    updatedAt: new Date().toISOString()
+    serviceFee: 0.69,
+    total: 9.59,
+    orderType: 'pickup',
+    paymentMethod: 'cash',
+    status: 'accepted',
+    createdAt: '2025-01-16T11:15:00Z',
+    updatedAt: '2025-01-16T11:20:00Z',
+    estimatedTime: '2025-01-16T11:45:00Z'
   }
 ];
 
-const platforms = [
-  { id: 1, name: 'Uber Eats', isActive: true, commissionRate: 0.25 },
-  { id: 2, name: 'Deliveroo', isActive: true, commissionRate: 0.22 },
-  { id: 3, name: 'Just Eat', isActive: false, commissionRate: 0.20 }
+const platforms: Platform[] = [
+  { name: 'Uber Eats', icon: '🍔', color: '#000000', orderCount: 45 },
+  { name: 'Deliveroo', icon: '🛵', color: '#00C300', orderCount: 32 },
+  { name: 'Just Eat', icon: '🍕', color: '#FF6600', orderCount: 28 },
+  { name: 'Site Web', icon: '🌐', color: '#0066CC', orderCount: 15 }
 ];
 
-// Schémas de validation
+// ==========================================
+// SCHÉMAS DE VALIDATION ZOD
+// ==========================================
+
 const orderSchema = z.object({
-  platform: z.string().min(1, 'Plateforme requise'),
-  customerName: z.string().min(1, 'Nom du client requis'),
-  customerPhone: z.string().min(8, 'Téléphone du client requis'),
+  customerName: z.string()}).min(1, 'Nom client requis'),
+  customerPhone: z.string().min(1, 'Téléphone requis'),
   customerEmail: z.string().email('Email invalide'),
+  platform: z.string().min(1, 'Plateforme requise'),
   items: z.array(z.object({
-    name: z.string().min(1, 'Nom de l\'article requis'),
+    name: z.string()}).min(1, 'Nom de l\'article requis'),
     quantity: z.number().min(1, 'Quantité requise'),
     price: z.number().min(0, 'Prix requis'),
     options: z.array(z.string()).optional()
@@ -89,120 +132,225 @@ const orderSchema = z.object({
 });
 
 const statusUpdateSchema = z.object({
-  status: z.enum(['new', 'accepted', 'preparing', 'ready', 'dispatched', 'delivered', 'cancelled']),
+  status: z.enum(['new', 'accepted', 'preparing', 'ready', 'dispatched', 'delivered', 'cancelled'])}),
   estimatedTime: z.string().optional(),
   notes: z.string().optional()
 });
 
-// Routes
-onlineOrdersRouter.get('/', asyncHandler(async (req, res) => {
-  const { status, platform } = req.query;
-  let filteredOrders = onlineOrders;
-  
-  if (status) {
-    filteredOrders = filteredOrders.filter(order => order.status === status);
-  }
-  
-  if (platform) {
-    filteredOrders = filteredOrders.filter(order => order.platform === platform);
-  }
-  
-  res.json(filteredOrders);
-}));
+// ==========================================
+// ROUTES AVEC AUTHENTIFICATION ET VALIDATION
+// ==========================================
 
-onlineOrdersRouter.get('/platforms', asyncHandler(async (req, res) => {
-  res.json(platforms);
-}));
+// Récupérer toutes les commandes en ligne
+onlineOrdersRouter.get('/', 
+  authenticateUser,
+  requireRoles(['admin', 'manager', 'staff']),
+  asyncHandler(async (req, res) => {
+    const { status, platform } = req.query;
+    
+    try {
+      let filteredOrders = onlineOrders;
+      
+      if (status) {
+        filteredOrders = filteredOrders.filter(order => order.status === status);
+      }
+      
+      if (platform) {
+        filteredOrders = filteredOrders.filter(order => order.platform === platform);
+      }
+      
+      res.json({
+        success: true,
+        data: filteredOrders
+      });
+    } catch (error) {
+      logger.error('Erreur récupération commandes', { 
+        status, 
+        platform, 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      )});
+      res.status(500).json({ 
+        success: false,
+        message: 'Erreur lors de la récupération des commandes' 
+      });
+    }
+  })
+);
 
-onlineOrdersRouter.get('/stats', asyncHandler(async (req, res) => {
-  const stats = {
-    totalOrders: onlineOrders.length,
-    newOrders: onlineOrders.filter(o => o.status === 'new').length,
-    acceptedOrders: onlineOrders.filter(o => o.status === 'accepted').length,
-    preparingOrders: onlineOrders.filter(o => o.status === 'preparing').length,
-    readyOrders: onlineOrders.filter(o => o.status === 'ready').length,
-    deliveredOrders: onlineOrders.filter(o => o.status === 'delivered').length,
-    cancelledOrders: onlineOrders.filter(o => o.status === 'cancelled').length,
-    totalRevenue: onlineOrders.reduce((sum, order) => sum + order.total, 0),
-    averageOrderValue: onlineOrders.length > 0 ? onlineOrders.reduce((sum, order) => sum + order.total, 0) / onlineOrders.length : 0,
-    platformBreakdown: platforms.map(platform => ({
-      platform: platform.name,
-      orders: onlineOrders.filter(o => o.platform === platform.name).length,
-      revenue: onlineOrders.filter(o => o.platform === platform.name).reduce((sum, order) => sum + order.total, 0)
-    }))
-  };
-  res.json(stats);
-}));
+// Récupérer les plateformes
+onlineOrdersRouter.get('/platforms', 
+  authenticateUser,
+  requireRoles(['admin', 'manager']),
+  asyncHandler(async (req, res) => {
+    try {
+      res.json({
+        success: true,
+        data: platforms
+      )});
+    } catch (error) {
+      logger.error('Erreur récupération plateformes', { 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      )});
+      res.status(500).json({ 
+        success: false,
+        message: 'Erreur lors de la récupération des plateformes' 
+      });
+    }
+  })
+);
 
-onlineOrdersRouter.get('/:id', validateParams(z.object({ id: z.string().regex(/^\d+$/) })), asyncHandler(async (req, res) => {
-  const order = onlineOrders.find(o => o.id === parseInt(req.params.id));
-  if (!order) {
-    return res.status(404).json({ message: 'Commande non trouvée' });
-  }
-  res.json(order);
-}));
+// Statistiques des commandes
+onlineOrdersRouter.get('/stats', 
+  authenticateUser,
+  requireRoles(['admin', 'manager']),
+  asyncHandler(async (req, res) => {
+    try {
+      const stats = {
+        totalOrders: onlineOrders.length,
+        newOrders: onlineOrders.filter(o => o.status === 'new').length,
+        acceptedOrders: onlineOrders.filter(o => o.status === 'accepted').length,
+        preparingOrders: onlineOrders.filter(o => o.status === 'preparing').length,
+        readyOrders: onlineOrders.filter(o => o.status === 'ready').length,
+        deliveredOrders: onlineOrders.filter(o => o.status === 'delivered').length,
+        cancelledOrders: onlineOrders.filter(o => o.status === 'cancelled').length,
+        totalRevenue: onlineOrders.reduce((sum, order) => sum + order.total, 0),
+        averageOrderValue: onlineOrders.length > 0 ? onlineOrders.reduce((sum, order) => sum + order.total, 0) / onlineOrders.length : 0,
+        platformBreakdown: platforms.map(platform => ({
+          platform: platform.name,
+          orders: onlineOrders.filter(o => o.platform === platform.name}).length,
+          revenue: onlineOrders.filter(o => o.platform === platform.name).reduce((sum, order) => sum + order.total, 0)
+        }))
+      };
+      
+      res.json({
+        success: true,
+        data: stats
+      });
+    } catch (error) {
+      logger.error('Erreur statistiques commandes', { 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      )});
+      res.status(500).json({ 
+        success: false,
+        message: 'Erreur lors de la récupération des statistiques' 
+      });
+    }
+  })
+);
 
-onlineOrdersRouter.post('/', validateBody(orderSchema), asyncHandler(async (req, res) => {
-  const newOrder = {
-    id: onlineOrders.length + 1,
-    orderNumber: `OL-${(onlineOrders.length + 1).toString().padStart(3, '0')}`,
-    ...req.body,
-    status: 'new',
-    paymentStatus: 'pending',
-    estimatedTime: '25 min',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  };
-  
-  onlineOrders.push(newOrder);
-  res.status(201).json(newOrder);
-}));
+// Récupérer une commande par ID
+onlineOrdersRouter.get('/:id', 
+  authenticateUser,
+  requireRoles(['admin', 'manager', 'staff']),
+  validateParams(z.object({ id: z.string()}).regex(/^\d+$/) })),
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    
+    try {
+      const order = onlineOrders.find(o => o.id === parseInt(id));
+      
+      if (!order) {
+        return res.status(404).json({ 
+          success: false,
+          message: 'Commande non trouvée' 
+        });
+      }
+      
+      res.json({
+        success: true,
+        data: order
+      });
+    } catch (error) {
+      logger.error('Erreur récupération commande', { 
+        id, 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      )});
+      res.status(500).json({ 
+        success: false,
+        message: 'Erreur lors de la récupération de la commande' 
+      });
+    }
+  })
+);
 
-onlineOrdersRouter.patch('/:id/status', validateParams(z.object({ id: z.string().regex(/^\d+$/) })), validateBody(statusUpdateSchema), asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const { status, estimatedTime, notes } = req.body;
-  
-  const order = onlineOrders.find(o => o.id === parseInt(id));
-  if (!order) {
-    return res.status(404).json({ message: 'Commande non trouvée' });
-  }
-  
-  order.status = status;
-  order.updatedAt = new Date().toISOString();
-  
-  if (estimatedTime) {
-    order.estimatedTime = estimatedTime;
-  }
-  
-  if (notes) {
-    order.notes = notes;
-  }
-  
-  res.json(order);
-}));
+// Créer une nouvelle commande
+onlineOrdersRouter.post('/', 
+  authenticateUser,
+  requireRoles(['admin', 'manager', 'staff']),
+  validateBody(orderSchema),
+  asyncHandler(async (req, res) => {
+    try {
+      const newOrder: OnlineOrder = {
+        id: onlineOrders.length + 1,
+        orderNumber: `OL-${(onlineOrders.length + 1).toString().padStart(3, '0')}`,
+        ...req.body,
+        status: 'new',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      onlineOrders.push(newOrder);
+      
+      res.status(201).json({
+        success: true,
+        data: newOrder
+      });
+    } catch (error) {
+      logger.error('Erreur création commande', { 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      )});
+      res.status(500).json({ 
+        success: false,
+        message: 'Erreur lors de la création de la commande' 
+      });
+    }
+  })
+);
 
-onlineOrdersRouter.put('/:id', validateParams(z.object({ id: z.string().regex(/^\d+$/) })), validateBody(orderSchema), asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const order = onlineOrders.find(o => o.id === parseInt(id));
-  
-  if (!order) {
-    return res.status(404).json({ message: 'Commande non trouvée' });
-  }
-  
-  Object.assign(order, req.body, { updatedAt: new Date().toISOString() });
-  res.json(order);
-}));
+// Mettre à jour le statut d'une commande
+onlineOrdersRouter.patch('/:id/status', 
+  authenticateUser,
+  requireRoles(['admin', 'manager', 'staff']),
+  validateParams(z.object({ id: z.string()}).regex(/^\d+$/) })),
+  validateBody(statusUpdateSchema),
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { status, estimatedTime, notes } = req.body;
+    
+    try {
+      const orderIndex = onlineOrders.findIndex(o => o.id === parseInt(id));
+      
+      if (orderIndex === -1) {
+        return res.status(404).json({ 
+          success: false,
+          message: 'Commande non trouvée' 
+        });
+      }
+      
+      onlineOrders[orderIndex] = {
+        ...onlineOrders[orderIndex],
+        status,
+        estimatedTime,
+        notes,
+        updatedAt: new Date().toISOString()
+      };
+      
+      res.json({
+        success: true,
+        data: onlineOrders[orderIndex]
+      });
+    } catch (error) {
+      logger.error('Erreur mise à jour statut', { 
+        id, 
+        status, 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      )});
+      res.status(500).json({ 
+        success: false,
+        message: 'Erreur lors de la mise à jour du statut' 
+      });
+    }
+  })
+);
 
-onlineOrdersRouter.delete('/:id', validateParams(z.object({ id: z.string().regex(/^\d+$/) })), asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const index = onlineOrders.findIndex(o => o.id === parseInt(id));
-  
-  if (index === -1) {
-    return res.status(404).json({ message: 'Commande non trouvée' });
-  }
-  
-  onlineOrders.splice(index, 1);
-  res.json({ message: 'Commande supprimée avec succès' });
-}));
-
-export { onlineOrdersRouter };
+export default onlineOrdersRouter;

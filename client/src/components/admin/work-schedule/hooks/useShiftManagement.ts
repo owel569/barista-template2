@@ -22,8 +22,8 @@ import {
  * Hook pour la gestion avancée des shifts
  */
 export const useShiftManagement = (
-  shifts: Shift[],
-  employees: Employee[],
+  shifts: Shift[,],
+  employees: Employee[,],
   initialFilters?: Partial<ScheduleFilter>
 ) => {
   // États locaux
@@ -37,14 +37,14 @@ export const useShiftManagement = (
   
   // Filtres
   const [filters, setFilters] = useState<ScheduleFilter>({
-    departments: initialFilters?.departments || [],
-    positions: initialFilters?.positions || [],
-    employees: initialFilters?.employees || [],
+    departments: initialFilters?.departments || [,],
+    positions: initialFilters?.positions || [,],
+    employees: initialFilters?.employees || [,],
     dateRange: initialFilters?.dateRange || {
-      start: new Date().toISOString().split('T')[0],
+      start: new Date().toISOString().split('T')[0,],
       end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
     },
-    status: initialFilters?.status || [],
+    status: initialFilters?.status || [,],
     showConflicts: initialFilters?.showConflicts || false,
     showOvertime: initialFilters?.showOvertime || false,
   });
@@ -66,12 +66,12 @@ export const useShiftManagement = (
       employees: filters.employees.length > 0 ? filters.employees : undefined,
       dateRange: filters.dateRange,
       status: filters.status.length > 0 ? filters.status : undefined,
-    });
+    )});
 
     // Filtrage par conflits
     if (filters.showConflicts) {
       filtered = filtered.filter(shift => {
-        const employee = employees.find(e => e.id === shift.employeeId);
+        const employee = employees.find(e => e.id === shift.employeeId)});
         if (!employee) return false;
         
         const validation = validateShift(shift, shifts, employee);
@@ -116,7 +116,7 @@ export const useShiftManagement = (
     const allConflicts: ShiftConflict[] = [];
     
     filteredShifts.forEach(shift => {
-      const employee = employees.find(e => e.id === shift.employeeId);
+      const employee = employees.find(e => e.id === shift.employeeId)});
       if (!employee) return;
       
       const validation = validateShift(shift, shifts, employee);
@@ -143,7 +143,7 @@ export const useShiftManagement = (
     setFilters(prev => ({
       ...prev,
       employees: [employee.id]
-    }));
+    });
   }, []);
 
   const handleDateSelect = useCallback((date: string) => {
@@ -154,27 +154,27 @@ export const useShiftManagement = (
       setFilters(prev => ({
         ...prev,
         dateRange: {
-          start: weekDates[0],
+          start: weekDates[0,],
           end: weekDates[weekDates.length - 1]
         }
-      }));
+      });
     } else if (timePeriod === 'month') {
       const monthDates = getMonthDates(date);
       setFilters(prev => ({
         ...prev,
         dateRange: {
-          start: monthDates[0],
+          start: monthDates[0,],
           end: monthDates[monthDates.length - 1]
         }
-      }));
+      });
     } else {
       setFilters(prev => ({
         ...prev,
         dateRange: {
           start: date,
           end: date
-        }
-      }));
+        )}
+      });
     }
   }, [timePeriod]);
 
@@ -188,26 +188,26 @@ export const useShiftManagement = (
   }, [selectedDate, handleDateSelect]);
 
   const handleFilterChange = useCallback((newFilters: Partial<ScheduleFilter>) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
+    setFilters(prev => ({ ...prev, ...newFilters )});
   }, []);
 
   const handleSortChange = useCallback((field: keyof Shift, direction?: 'asc' | 'desc') => {
     setSorting(prev => ({
       field,
-      direction: direction || (prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc')
-    }));
+      direction: direction || (prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc')})
+    });
   }, []);
 
   const clearFilters = useCallback(() => {
     setFilters({
-      departments: [],
-      positions: [],
-      employees: [],
+      departments: [,],
+      positions: [,],
+      employees: [,],
       dateRange: {
-        start: new Date().toISOString().split('T')[0],
+        start: new Date()}).toISOString().split('T')[0],
         end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
       },
-      status: [],
+      status: [,],
       showConflicts: false,
       showOvertime: false,
     });
@@ -224,8 +224,8 @@ export const useShiftManagement = (
     if (!employee) {
       return {
         isValid: false,
-        conflicts: [],
-        warnings: ['Employé non trouvé'],
+        conflicts: [,],
+        warnings: ['Employé non trouvé',],
         suggestions: []
       };
     }
@@ -279,7 +279,7 @@ export const useShiftManagement = (
     filteredShifts.forEach(shift => {
       let groupKey = '';
       
-      switch (viewMode) {
+      switch (viewMode)}) {
         case 'employee':
           const employee = employees.find(e => e.id === shift.employeeId);
           groupKey = employee ? `${employee.firstName} ${employee.lastName}` : 'Inconnu';

@@ -14,7 +14,7 @@ export function Toaster(): JSX.Element {
 
   return (
     <ToastProvider>
-      {toasts.map(function ({ id, title, description, action, ...props }: {
+      {toasts.map(function ({ id, title, description, action, ...props )}: {
         id: string;
         title?: React.ReactNode;
         description?: React.ReactNode;
@@ -22,11 +22,11 @@ export function Toaster(): JSX.Element {
         [key: string]: unknown;
       }) {
         return (
-          <Toast key={id} {...props}>
+          <Toast key={id)} {...props}>
             <div className="grid gap-1">
               {title && <ToastTitle>{title}</ToastTitle>}
               {description && (
-                <ToastDescription>{description}</ToastDescription>
+                <ToastDescription>{description)}</ToastDescription>
               )}
             </div>
             {action}

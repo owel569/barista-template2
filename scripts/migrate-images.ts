@@ -38,15 +38,15 @@ async function migrateImagesToDatabase() {
         console.log(`✅ Image migrée pour: ${menuItem.name} (clé: ${normalizedName})`);
         migratedCount++;
       } else {
-        console.log(`⚠️ Aucune image trouvée pour: ${menuItem.name} (clé normalisée: ${normalizedName})`);
-        console.log(`🔍 Clés disponibles: ${Object.keys(IMAGE_MAPPING).join(', ')}`);
+        console.log(`⚠️ Aucune image trouvée pour: ${menuItem.name)} (clé normalisée: ${normalizedName})`);
+        console.log(`🔍 Clés disponibles: ${Object.keys(IMAGE_MAPPING)}).join(', ')}`);
       }
     }
     
     console.log(`🎉 Migration terminée ! ${migratedCount} images migrées`);
     
   } catch (error) {
-    console.error('❌ Erreur lors de la migration:', error);
+    logger.error('❌ Erreur lors de la migration:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
     process.exit(1);
   }
   

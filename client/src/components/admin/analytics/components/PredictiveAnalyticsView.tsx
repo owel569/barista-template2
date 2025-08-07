@@ -22,12 +22,63 @@ import {
 } from 'recharts';
 import { Brain, TrendingUp, AlertTriangle, Target, DollarSign } from 'lucide-react';
 
+// Types sécurisés pour les données
+interface PredictionDataItem {
+  period: string;
+  actual: number | null;
+  predicted: number;
+  confidence: number;
+}
+
+interface PriceRecommendation {
+  item: string;
+  currentPrice: number;
+  suggestedPrice: number;
+  expectedIncrease: string;
+  reasoning: string;
+}
+
+interface PriceOptimizationData {
+  recommendations: PriceRecommendation[];
+  totalImpact: string;
+}
+
+interface GrowthOpportunity {
+  type: string;
+  title: string;
+  potential: string;
+  investment: string;
+  roi: string;
+}
+
+interface PriorityMatrix {
+  quickWins: string[];
+  strategic: string[];
+  experimental: string[];
+}
+
+interface GrowthOpportunitiesData {
+  opportunities: GrowthOpportunity[];
+  priorityMatrix: PriorityMatrix;
+}
+
+interface DemandForecastItem {
+  hour: string;
+  predicted: number;
+  actual: number;
+}
+
+interface PredictiveAnalyticsData {
+  priceOptimization?: PriceOptimizationData;
+  growthOpportunities?: GrowthOpportunitiesData;
+}
+
 interface PredictiveAnalyticsViewProps {
-  data?: any;
+  data?: PredictiveAnalyticsData;
 }
 
 export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = ({ data }) => {
-  const predictionData = [
+  const predictionData: PredictionDataItem[] = [
     { period: 'Sem 1', actual: 8500, predicted: 8300, confidence: 0.85 },
     { period: 'Sem 2', actual: 9200, predicted: 9100, confidence: 0.87 },
     { period: 'Sem 3', actual: 8800, predicted: 8750, confidence: 0.89 },
@@ -38,7 +89,7 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
     { period: 'Sem 8', actual: null, predicted: 10800, confidence: 0.65 }
   ];
 
-  const priceOptimization = data?.priceOptimization || {
+  const defaultPriceOptimization: PriceOptimizationData = {
     recommendations: [
       {
         item: 'Cappuccino',
@@ -65,7 +116,7 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
     totalImpact: '+12.8% revenus mensuels'
   };
 
-  const growthOpportunities = data?.growthOpportunities || {
+  const defaultGrowthOpportunities: GrowthOpportunitiesData = {
     opportunities: [
       {
         type: 'product',
@@ -96,7 +147,11 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
     }
   };
 
-  const demandForecast = [
+  // Sécurisation de l'accès aux données avec validation
+  const priceOptimization: PriceOptimizationData = (data && 'priceOptimization' in data) ? data.priceOptimization! : defaultPriceOptimization;
+  const growthOpportunities: GrowthOpportunitiesData = (data && 'growthOpportunities' in data) ? data.growthOpportunities! : defaultGrowthOpportunities;
+
+  const demandForecast: DemandForecastItem[] = [
     { hour: '8h', predicted: 35, actual: 32 },
     { hour: '9h', predicted: 42, actual: 38 },
     { hour: '10h', predicted: 28, actual: 31 },
@@ -110,6 +165,37 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
     { hour: '18h', predicted: 25, actual: 22 },
     { hour: '19h', predicted: 18, actual: 20 }
   ];
+
+  // Fonction de validation sécurisée pour les recommandations de prix
+  const isValidPriceRecommendation = (rec: unknown): rec is PriceRecommendation => {
+    if (typeof rec !== 'object' || rec === null) return false;
+    const obj = rec as Record<string, unknown>;
+    return (
+      typeof obj.item === 'string' &&
+      typeof obj.currentPrice === 'number' &&
+      typeof obj.suggestedPrice === 'number' &&
+      typeof obj.expectedIncrease === 'string' &&
+      typeof obj.reasoning === 'string'
+    );
+  };
+
+  // Fonction de validation sécurisée pour les opportunités de croissance
+  const isValidGrowthOpportunity = (opp: unknown): opp is GrowthOpportunity => {
+    if (typeof opp !== 'object' || opp === null) return false;
+    const obj = opp as Record<string, unknown>;
+    return (
+      typeof obj.type === 'string' &&
+      typeof obj.title === 'string' &&
+      typeof obj.potential === 'string' &&
+      typeof obj.investment === 'string' &&
+      typeof obj.roi === 'string'
+    );
+  };
+
+  // Fonction de validation sécurisée pour les chaînes de caractères
+  const isValidString = (item: unknown): item is string => {
+    return typeof item === 'string';
+  };
 
   return (
     <div className="space-y-6">
@@ -156,8 +242,10 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {priceOptimization.recommendations.map((rec: any, index: number) => (
-              <div key={index} className="p-4 border rounded-lg">
+            {priceOptimization.recommendations
+              .filter(isValidPriceRecommendation)
+              .map((rec: PriceRecommendation, index: number) => (
+              <div key={`price-rec-${index}`} className="p-4 border rounded-lg">
                 <div className="flex justify-between items-start mb-2">
                   <div>
                     <h4 className="font-semibold">{rec.item}</h4>
@@ -229,8 +317,10 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {growthOpportunities.opportunities.map((opp: any, index: number) => (
-              <div key={index} className="p-4 border rounded-lg">
+            {growthOpportunities.opportunities
+              .filter(isValidGrowthOpportunity)
+              .map((opp: GrowthOpportunity, index: number) => (
+              <div key={`growth-opp-${index}`} className="p-4 border rounded-lg">
                 <div className="flex justify-between items-start mb-2">
                   <div>
                     <h4 className="font-semibold">{opp.title}</h4>
@@ -268,8 +358,10 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
             <div className="p-4 bg-green-50 rounded-lg">
               <h4 className="font-semibold text-green-800 mb-2">Gains Rapides</h4>
               <div className="space-y-2">
-                {growthOpportunities.priorityMatrix.quickWins.map((item: any, index: number) => (
-                  <div key={index} className="text-sm text-green-700">
+                {growthOpportunities.priorityMatrix.quickWins
+                  .filter(isValidString)
+                  .map((item: string, index: number) => (
+                  <div key={`quick-win-${index}`} className="text-sm text-green-700">
                     • {item}
                   </div>
                 ))}
@@ -279,8 +371,10 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
             <div className="p-4 bg-blue-50 rounded-lg">
               <h4 className="font-semibold text-blue-800 mb-2">Stratégique</h4>
               <div className="space-y-2">
-                {growthOpportunities.priorityMatrix.strategic.map((item: any, index: number) => (
-                  <div key={index} className="text-sm text-blue-700">
+                {growthOpportunities.priorityMatrix.strategic
+                  .filter(isValidString)
+                  .map((item: string, index: number) => (
+                  <div key={`strategic-${index}`} className="text-sm text-blue-700">
                     • {item}
                   </div>
                 ))}
@@ -290,8 +384,10 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
             <div className="p-4 bg-purple-50 rounded-lg">
               <h4 className="font-semibold text-purple-800 mb-2">Expérimental</h4>
               <div className="space-y-2">
-                {growthOpportunities.priorityMatrix.experimental.map((item: any, index: number) => (
-                  <div key={index} className="text-sm text-purple-700">
+                {growthOpportunities.priorityMatrix.experimental
+                  .filter(isValidString)
+                  .map((item: string, index: number) => (
+                  <div key={`experimental-${index}`} className="text-sm text-purple-700">
                     • {item}
                   </div>
                 ))}

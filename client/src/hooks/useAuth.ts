@@ -48,7 +48,7 @@ export function useAuth(): AuthContextType {
     isAuthenticated: false,
     isLoading: true,
     error: null
-  });
+  )});
 
   // Vérification du token au démarrage
   useEffect(() => {
@@ -56,7 +56,7 @@ export function useAuth(): AuthContextType {
       try {
         const token = localStorage.getItem('auth_token');
         if (!token) {
-          setAuthState(prev => ({ ...prev, isLoading: false }));
+          setAuthState(prev => ({ ...prev, isLoading: false });
           return;
         }
 
@@ -77,7 +77,7 @@ export function useAuth(): AuthContextType {
           });
         } else {
           localStorage.removeItem('auth_token');
-          setAuthState(prev => ({ ...prev, isLoading: false }));
+          setAuthState(prev => ({ ...prev, isLoading: false });
         }
       } catch (error) {
         console.error('Erreur vérification auth:', error);
@@ -85,7 +85,7 @@ export function useAuth(): AuthContextType {
           ...prev, 
           isLoading: false,
           error: 'Erreur de connexion'
-        }));
+        });
       }
     };
 
@@ -93,14 +93,14 @@ export function useAuth(): AuthContextType {
   }, []);
 
   const login = useCallback(async (credentials: LoginCredentials): Promise<void> => {
-    setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
+    setAuthState(prev => ({ ...prev, isLoading: true, error: null )});
     
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
-        },
+        )},
         body: JSON.stringify(credentials)
       });
 
@@ -122,20 +122,20 @@ export function useAuth(): AuthContextType {
         ...prev,
         isLoading: false,
         error: error instanceof Error ? error.message : 'Erreur de connexion'
-      }));
+      )});
       throw error;
     }
   }, []);
 
   const register = useCallback(async (data: RegisterData): Promise<void> => {
-    setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
+    setAuthState(prev => ({ ...prev, isLoading: true, error: null )});
     
     try {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
-        },
+        )},
         body: JSON.stringify(data)
       });
 
@@ -157,66 +157,57 @@ export function useAuth(): AuthContextType {
         ...prev,
         isLoading: false,
         error: error instanceof Error ? error.message : 'Erreur d\'inscription'
-      }));
+      )});
       throw error;
     }
   }, []);
 
   const logout = useCallback(async (): Promise<void> => {
-    try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
-      });
-    } catch (error) {
-      console.error('Erreur lors de la déconnexion:', error);
-    } finally {
-      localStorage.removeItem('auth_token');
-      setAuthState({
-        user: null,
-        isAuthenticated: false,
-        isLoading: false,
-        error: null
-      });
-    }
+    localStorage.removeItem('auth_token');
+    setAuthState({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+      error: null
+    });
   }, []);
 
   const updateUser = useCallback(async (userData: Partial<User>): Promise<void> => {
-    if (!authState.user) throw new Error('Utilisateur non connecté');
-
     try {
-      const response = await fetch('/api/auth/update', {
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        throw new Error('Token non trouvé');
+      }
+
+      const response = await fetch('/api/auth/profile', {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(userData)
       });
 
-      const updatedUser = await response.json() as User;
-
       if (response.ok) {
+        const updatedUser = await response.json() as User;
         setAuthState(prev => ({
           ...prev,
           user: updatedUser
-        }));
+        });
       } else {
-        throw new Error('Erreur de mise à jour');
+        throw new Error('Erreur lors de la mise à jour');
       }
     } catch (error) {
       setAuthState(prev => ({
         ...prev,
         error: error instanceof Error ? error.message : 'Erreur de mise à jour'
-      }));
+      )});
       throw error;
     }
-  }, [authState.user]);
+  }, []);
 
   const clearError = useCallback((): void => {
-    setAuthState(prev => ({ ...prev, error: null }));
+    setAuthState(prev => ({ ...prev, error: null )});
   }, []);
 
   return {

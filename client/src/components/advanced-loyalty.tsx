@@ -73,40 +73,40 @@ const AdvancedLoyalty: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const { data: loyaltyProgram } = useQuery<LoyaltyProgram>({
-    queryKey: ['/api/loyalty/program'],
+    queryKey: ['/api/loyalty/program',],
   });
 
-  const { data: rewards = [], isLoading: rewardsLoading } = useQuery<LoyaltyReward[]>({
-    queryKey: ['/api/loyalty/rewards'],
+  const { data: rewards = [,], isLoading: rewardsLoading } = useQuery<LoyaltyReward[]>({
+    queryKey: ['/api/loyalty/rewards',],
   });
 
-  const { data: members = [], isLoading: membersLoading } = useQuery<LoyaltyMember[]>({
-    queryKey: ['/api/loyalty/members'],
+  const { data: members = [,], isLoading: membersLoading } = useQuery<LoyaltyMember[]>({
+    queryKey: ['/api/loyalty/members',],
   });
 
   const { data: stats } = useQuery({
-    queryKey: ['/api/loyalty/stats'],
+    queryKey: ['/api/loyalty/stats',],
   });
 
   const createRewardMutation = useMutation({
-    mutationFn: async (rewardData: Partial<LoyaltyReward>) => {
+    mutationFn: async (rewardData: Partial<LoyaltyReward>})}) => {
       const response = await fetch('/api/loyalty/rewards', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' )},
         body: JSON.stringify(rewardData),
       });
       if (!response.ok) throw new Error('Erreur lors de la création');
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/loyalty/rewards'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/loyalty/rewards'] )});
       toast({ title: 'Récompense créée', description: 'La nouvelle récompense a été ajoutée.' });
     },
   });
 
   const awardPointsMutation = useMutation({
-    mutationFn: async ({ memberId, points, reason }: { memberId: number; points: number; reason: string }) => {
-      const response = await fetch(`/api/loyalty/members/${memberId}/points`, {
+    mutationFn: async ({ memberId, points, reason })}: { memberId: number; points: number; reason: string }) => {
+      const response = await fetch(`/api/loyalty/members/${memberId)}/points`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ points, reason }),
@@ -115,7 +115,7 @@ const AdvancedLoyalty: React.FC = () => {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/loyalty/members'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/loyalty/members'] )});
       toast({ title: 'Points attribués', description: 'Les points ont été ajoutés au compte du client.' });
     },
   });
@@ -139,7 +139,7 @@ const AdvancedLoyalty: React.FC = () => {
   };
 
   const filteredMembers = members.filter(member => {
-    const matchesSearch = member.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch = member.customerName.toLowerCase()}).includes(searchTerm.toLowerCase()) ||
                          member.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesLevel = filterLevel === 'all' || member.currentLevel === filterLevel;
     return matchesSearch && matchesLevel;
@@ -276,7 +276,7 @@ const AdvancedLoyalty: React.FC = () => {
                         if (points && reason) {
                           awardPointsMutation.mutate({ 
                             memberId: member.id, 
-                            points: parseInt(points), 
+                            points: parseInt(points}), 
                             reason 
                           });
                         }
@@ -321,7 +321,7 @@ const AdvancedLoyalty: React.FC = () => {
                     {reward.maxUsage && (
                       <div className="flex justify-between text-sm">
                         <span>Limite</span>
-                        <span>{reward.maxUsage} max</span>
+                        <span>{reward.maxUsage)} max</span>
                       </div>
                     )}
                     {reward.expiryDate && (
@@ -386,7 +386,7 @@ const AdvancedLoyalty: React.FC = () => {
                       <PopoverTrigger asChild>
                         <Button variant="outline" className="w-full justify-start text-left">
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          {selectedDate ? format(selectedDate, "dd/MM/yyyy", { locale: fr }) : "Sélectionner une date"}
+                          {selectedDate ? format(selectedDate, "dd/MM/yyyy", { locale: fr )}) : "Sélectionner une date"}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0">

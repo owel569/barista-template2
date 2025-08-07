@@ -24,32 +24,64 @@ import {
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
+// Définition des types stricts pour la logique métier Loyalty
+interface LoyaltyLevel {
+  name: string;
+  color: string;
+  minPoints: number;
+  pointsRate: number;
+  benefits: string[];
+}
+interface LoyaltyReward {
+  name: string;
+  category: string;
+  cost: number;
+}
+interface LoyaltyStats {
+  totalMembers: number;
+  activeMembers: number;
+  pointsRedeemed: number;
+  averageLifetimeValue: number;
+}
+interface LoyaltyAnalytics {
+  levels?: Record<string, { count: number; percentage: number }>;
+  engagement?: { redemptionRate: number; averagePointsPerCustomer: number };
+  revenue?: { roi: number; averageOrderValue: number; fromLoyalMembers?: number };
+  overview?: { retentionRate: number; newMembers: number };
+}
+interface LoyaltyProgramData {
+  levels: LoyaltyLevel[];
+  rewards: LoyaltyReward[];
+  statistics: LoyaltyStats;
+}
+
 const LoyaltyProgram = () => {
   const [searchCustomer, setSearchCustomer] = useState('');
   const [selectedLevel, setSelectedLevel] = useState('all');
   const queryClient = useQueryClient();
 
   // Récupérer l'aperçu du programme
-  const { data: program, isLoading } = useQuery({
+  const { data: program, isLoading } = useQuery<LoyaltyProgramData>({
     queryKey: ['/api/admin/loyalty/program/overview']
   });
 
   // Récupérer les analytics du programme
-  const { data: programAnalytics } = useQuery({
+  const { data: programAnalytics } = useQuery<LoyaltyAnalytics>({
     queryKey: ['/api/admin/loyalty/analytics']
   });
 
-  // Mutation pour ajouter des points
+  // Correction de la mutation pour ajouter des points
   const addPointsMutation = useMutation({
     mutationFn: async (params: Record<string, unknown>) => {
       const response = await fetch('/api/admin/loyalty/points/add', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          ...(localStorage.getItem('auth_token') ? { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` } : {})
         },
         body: JSON.stringify(params)
       });
+      if (!response.ok) throw new Error('Erreur lors de l\'ajout de points');
       return response.json();
     },
     onSuccess: () => {
@@ -70,7 +102,7 @@ const LoyaltyProgram = () => {
 
   const levels = program?.levels || [];
   const rewards = program?.rewards || [];
-  const stats = program?.statistics || {};
+  const stats = program?.statistics || { totalMembers: 0, activeMembers: 0, pointsRedeemed: 0, averageLifetimeValue: 0 };
   const analytics = programAnalytics || {};
 
   return (
@@ -189,7 +221,7 @@ const LoyaltyProgram = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {levels.map((level: any, index: number) => (
+                  {levels.map((level: LoyaltyLevel, index: number) => (
                     <div key={index} className="space-y-2">
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-2">
@@ -283,7 +315,7 @@ const LoyaltyProgram = () => {
 
         <TabsContent value="levels" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {levels.map((level: any, index: number) => (
+            {levels.map((level: LoyaltyLevel, index: number) => (
               <Card key={index} className="border-2" style={{ borderColor: level.color + '40' }}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -333,7 +365,7 @@ const LoyaltyProgram = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {rewards.map((reward: any, index: number) => (
+            {rewards.map((reward: LoyaltyReward, index: number) => (
               <Card key={index}>
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">

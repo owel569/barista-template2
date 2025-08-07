@@ -18,7 +18,7 @@ interface UserPayload {
 
 const JWT_SECRET = process.env.JWT_SECRET || 'barista-secret-key-ultra-secure-2025';
 
-export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
+export const authenticateUser = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
@@ -36,7 +36,7 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
       return next();
     });
   } catch (error){
-    console.error('Erreur d\'authentification:', error);
+    logger.error('Erreur d\'authentification:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
     return res.status(500).json({ message: 'Erreur serveur d\'authentification', success: false, code: 'AUTH_ERROR' });
   }
 };
@@ -75,7 +75,7 @@ export const generateToken = (user: UserPayload): string => {
       id: user.id, 
       username: user.username, 
       role: user.role 
-    },
+    )},
     JWT_SECRET,
     { expiresIn: '24h' }
   );

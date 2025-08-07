@@ -33,7 +33,7 @@ function Router() : JSX.Element {
   return (
     <div className="flex min-h-screen">
       {showSidebar && (
-        <Sidebar isOpen={sidebarOpen} onToggle={toggleSidebar} />
+        <Sidebar isOpen={sidebarOpen)} onToggle={toggleSidebar} />
       )}
       <div className={`flex-1 ${showSidebar && sidebarOpen ? 'lg:ml-64' : ''} transition-all duration-300`}>
         <Switch>

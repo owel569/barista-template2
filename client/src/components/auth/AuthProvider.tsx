@@ -24,7 +24,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     token: null,
     isAuthenticated: false,
     isLoading: true,
-  });
+  )});
   const [, setLocation] = useLocation();
   const [isTokenExpiring, setIsTokenExpiring] = useState(false);
 
@@ -83,17 +83,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setAuthState(prev => ({
           ...prev,
           isLoading: false,
-        }));
+        )});
       }
     } catch (error) {
-      console.error('Erreur initialisation auth:', error);
+      logger.error('Erreur initialisation auth:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
       logout();
     }
   }, []);
 
   const login = useCallback(async (username: string, password: string): Promise<LoginResponse> => {
     try {
-      setAuthState(prev => ({ ...prev, isLoading: true }));
+      setAuthState(prev => ({ ...prev, isLoading: true )});
       
       const response = await ApiClient.post<{
         message: string;
@@ -121,12 +121,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         message: response.message,
       };
     } catch (error: unknown) {
-      console.error('Erreur de connexion:', error);
+      logger.error('Erreur de connexion:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
       
       setAuthState(prev => ({
         ...prev,
         isLoading: false,
-      }));
+      });
       
       toast.error(error.message || 'Erreur de connexion');
       
@@ -172,13 +172,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
         ...prev,
         token: response.token,
         user: response.user,
-      }));
+      });
       
       setIsTokenExpiring(false);
       
       return true;
     } catch (error) {
-      console.error('Erreur refresh token:', error);
+      logger.error('Erreur refresh token:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
       logout();
       return false;
     }
@@ -198,14 +198,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setAuthState(prev => ({
           ...prev,
           user: response.user,
-        }));
+        )});
         return true;
       } else {
         logout();
         return false;
       }
     } catch (error) {
-      console.error('Erreur validation session:', error);
+      logger.error('Erreur validation session:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
       logout();
       return false;
     }

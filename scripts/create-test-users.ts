@@ -8,7 +8,7 @@ async function createTestUsers() {
     console.log('Création des utilisateurs de test...');
     
     // Vérifier si les utilisateurs existent déjà
-    const existingUsers = await db.select().from(users);
+    const existingUsers = await await getDb().select().from(users);
     
     if (existingUsers.length > 0) {
       console.log('Des utilisateurs existent déjà:', existingUsers.map(u => u.username));
@@ -39,11 +39,11 @@ async function createTestUsers() {
       }
     ];
 
-    await db.insert(users).values(testUsers);
+    await await getDb().insert(users).values(testUsers);
     console.log('✅ Utilisateurs de test créés avec succès');
     
   } catch (error) {
-    console.error('❌ Erreur lors de la création des utilisateurs:', error);
+    logger.error('❌ Erreur lors de la création des utilisateurs:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
   }
 }
 

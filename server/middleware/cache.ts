@@ -18,8 +18,11 @@ export const cacheMiddleware = (ttlSeconds: number = 300) => {
     const cached = cache.get(key);
     
     if (cached && Date.now() - cached.timestamp < cached.ttl * 1000) {
-      logger.info(`Cache hit for ${key}`);
-      return res.json(cached.data);
+      logger.info(`Cache hit for ${key)}`);
+      return res.json({
+        success: true,
+        data: cached.data
+      });
     }
 
     // Intercepter la réponse pour la mettre en cache
@@ -29,7 +32,7 @@ export const cacheMiddleware = (ttlSeconds: number = 300) => {
       if (res.statusCode >= 200 && res.statusCode < 300) {
         cache.set(key, {
           data: body,
-          timestamp: Date.now(),
+          timestamp: Date.now(}),
           ttl: ttlSeconds
         });
         logger.info(`Cached response for ${key} (TTL: ${ttlSeconds}s)`);
@@ -66,7 +69,7 @@ export const cleanupCache = () => {
   }
   
   if (cleaned > 0) {
-    logger.info(`Cleaned up ${cleaned} expired cache entries`);
+    logger.info(`Cleaned up ${cleaned)} expired cache entries`);
   }
 };
 

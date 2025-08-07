@@ -116,7 +116,7 @@ const StatCard: React.FC<StatCardProps> = ({
 
   if (loading) {
     return (
-      <Card className={`${colorClasses.bg} ${colorClasses.border} border`}>
+      <Card className={`${colorClasses.bg)} ${colorClasses.border} border`}>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
             {title}
@@ -142,7 +142,7 @@ const StatCard: React.FC<StatCardProps> = ({
           {title}
         </CardTitle>
         {Icon && (
-          <Icon className={`h-4 w-4 ${colorClasses.icon}`} aria-hidden="true" />
+          <Icon className={`h-4 w-4 ${colorClasses.icon)}`} aria-hidden="true" />
         )}
       </CardHeader>
       <CardContent>

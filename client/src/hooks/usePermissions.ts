@@ -16,7 +16,7 @@ interface User {
 }
 
 export function usePermissions(user: User | null) {
-  const [permissions, setPermissions] = useState<PermissionsMap>({});
+  const [permissions, setPermissions] = useState<PermissionsMap>({)});
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export function usePermissions(user: User | null) {
         loadUserPermissions(user.id, user.role);
       }
     } else {
-      setPermissions({});
+      setPermissions({)});
     }
   }, [user]);
 
@@ -57,7 +57,7 @@ export function usePermissions(user: User | null) {
         }
       } else {
         // Fallback vers les permissions par défaut
-        setPermissions(DEFAULT_PERMISSIONS[role] || {});
+        setPermissions(DEFAULT_PERMISSIONS[role] || {)});
       }
     } catch (error) {
       console.error('Erreur lors du chargement des permissions:', error);

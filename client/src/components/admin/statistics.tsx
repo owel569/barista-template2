@@ -109,7 +109,7 @@ export default function Statistics({ userRole }: StatisticsProps) {
           totalOrders: revenueStats.orders || 245,
           averageOrder: revenueStats.average || 62.94,
           growthRate: revenueStats.growth || 12.5
-        }));
+        });
       } else {
         setRevenueData(generateMockRevenueData());
       }
@@ -137,7 +137,7 @@ export default function Statistics({ userRole }: StatisticsProps) {
         setTotalStats(prev => ({
           ...prev,
           totalCustomers: customerStats.total || 156
-        }));
+        });
       } else {
         setCustomerData(generateMockCustomerData());
       }
@@ -168,7 +168,7 @@ export default function Statistics({ userRole }: StatisticsProps) {
       const date = new Date(today);
       date.setDate(date.getDate() - i);
       data.push({
-        date: date.toISOString().split('T')[0]!,
+        date: date.toISOString(}).split('T')[0]!,
         revenue: Math.floor(Math.random() * 500) + 200,
         orders: Math.floor(Math.random() * 20) + 5
       });
@@ -201,7 +201,7 @@ export default function Statistics({ userRole }: StatisticsProps) {
     toast({
       title: "Export en cours",
       description: "Les données sont en cours d'export...",
-    });
+    )});
   };
 
   if (loading) {
@@ -360,7 +360,7 @@ export default function Statistics({ userRole }: StatisticsProps) {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ category, value }) => `${category}: ${value}€`}
+                      label={({ category, value )}) => `${category}: ${value}€`}
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"

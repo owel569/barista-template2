@@ -51,7 +51,7 @@ import { useWebSocket } from '@/hooks/useWebSocket';
 import { InternationalPhoneInput } from '@/components/ui/international-phone-input';
 
 const employeeSchema = z.object({
-  firstName: z.string().min(2, 'Le prénom doit contenir au moins 2 caractères'),
+  firstName: z.string()}).min(2, 'Le prénom doit contenir au moins 2 caractères'),
   lastName: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
   email: z.string().email('Email invalide'),
   position: z.string().min(2, 'Le poste doit contenir au moins 2 caractères'),
@@ -86,31 +86,31 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
       position: '',
       department: '',
       phone: '',
-      hireDate: new Date().toISOString().split('T')[0],
+      hireDate: new Date().toISOString().split('T')[0,],
       salary: 0,
       status: 'active',
     },
   });
 
-  const { data: employees = [], isLoading } = useQuery<Employee[]>({
-    queryKey: ['/api/admin/employees'],
+  const { data: employees = [,], isLoading } = useQuery<Employee[]>({
+    queryKey: ['/api/admin/employees',],
     retry: 3,
     retryDelay: 1000,
   });
 
   const { data: workShifts = [] } = useQuery<WorkShift[]>({
-    queryKey: ['/api/admin/work-shifts'],
+    queryKey: ['/api/admin/work-shifts',],
     retry: 3,
     retryDelay: 1000,
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: EmployeeFormData) => apiRequest('/api/admin/employees', {
+    mutationFn: (data: EmployeeFormData})}) => apiRequest('/api/admin/employees', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify(data)}),
     }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/employees'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/employees'] )});
       setIsDialogOpen(false);
       setEditingEmployee(null);
       form.reset({
@@ -120,7 +120,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
         position: '',
         department: '',
         phone: '',
-        hireDate: new Date().toISOString().split('T')[0],
+        hireDate: new Date()}).toISOString().split('T')[0],
         salary: 0,
         status: 'active',
       });
@@ -242,7 +242,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
   // Calculer les statistiques
   const totalEmployees = employees.length;
   const activeEmployees = employees.filter((emp: { id: number; firstName: string; lastName: string; email: string; position: string; status: string }) => emp.status === 'active').length;
-  const todayShifts = workShifts.filter((shift: any) => {
+  const todayShifts = workShifts.filter((shift: unknown) => {
     const today = new Date().toISOString().split('T')[0];
     return shift.date === today;
   }).length;
@@ -270,7 +270,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
               position: '',
               department: '',
               phone: '',
-              hireDate: new Date().toISOString().split('T')[0],
+              hireDate: new Date(}).toISOString().split('T')[0],
               salary: 0,
               status: 'active',
             });
@@ -298,7 +298,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                   <FormField
                     control={form.control}
                     name="firstName"
-                    render={({ field }) => (
+                    render={({ field )}) => (
                       <FormItem>
                         <FormLabel>Prénom</FormLabel>
                         <FormControl>
@@ -311,7 +311,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                   <FormField
                     control={form.control}
                     name="lastName"
-                    render={({ field }) => (
+                    render={({ field )}) => (
                       <FormItem>
                         <FormLabel>Nom</FormLabel>
                         <FormControl>
@@ -326,7 +326,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                 <FormField
                   control={form.control}
                   name="email"
-                  render={({ field }) => (
+                  render={({ field )}) => (
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
@@ -340,7 +340,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                 <FormField
                   control={form.control}
                   name="position"
-                  render={({ field }) => (
+                  render={({ field )}) => (
                     <FormItem>
                       <FormLabel>Poste</FormLabel>
                       <FormControl>
@@ -354,7 +354,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                 <FormField
                   control={form.control}
                   name="department"
-                  render={({ field }) => (
+                  render={({ field )}) => (
                     <FormItem>
                       <FormLabel>Département</FormLabel>
                       <FormControl>
@@ -368,7 +368,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                 <FormField
                   control={form.control}
                   name="phone"
-                  render={({ field }) => (
+                  render={({ field )}) => (
                     <FormItem>
                       <FormLabel>Téléphone</FormLabel>
                       <FormControl>
@@ -387,7 +387,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                   <FormField
                     control={form.control}
                     name="hireDate"
-                    render={({ field }) => (
+                    render={({ field )}) => (
                       <FormItem>
                         <FormLabel>Date d'embauche</FormLabel>
                         <FormControl>
@@ -400,7 +400,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                   <FormField
                     control={form.control}
                     name="salary"
-                    render={({ field }) => (
+                    render={({ field )}) => (
                       <FormItem>
                         <FormLabel>Salaire (DH)</FormLabel>
                         <FormControl>
@@ -426,7 +426,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                 <FormField
                   control={form.control}
                   name="status"
-                  render={({ field }) => (
+                  render={({ field )}) => (
                     <FormItem>
                       <FormLabel>Statut</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -521,7 +521,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {employees.map((employee: { id: number; firstName: string; lastName: string; email: string; position: string; hireDate?: string; status: string }) => (
+              {employees.map((employee: { id: number; firstName: string; lastName: string; email: string; position: string; hireDate?: string; status: string )}) => (
                 <TableRow key={employee.id}>
                   <TableCell className="font-medium">
                     {employee.firstName} {employee.lastName}
@@ -567,7 +567,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
               ))}
               {employees.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground">
+                  <TableCell colSpan={6)} className="text-center text-muted-foreground">
                     Aucun employé trouvé
                   </TableCell>
                 </TableRow>

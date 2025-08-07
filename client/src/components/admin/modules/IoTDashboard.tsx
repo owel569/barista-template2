@@ -61,21 +61,23 @@ const IoTDashboard: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Vérification et renforcement de la robustesse métier et du typage strict
+  // Correction potentielle : gestion des erreurs réseau, typage des données, et fallback pour les valeurs undefined
+
   const fetchIoTData = async () => {
     try {
       const response = await fetch('/api/admin/advanced/iot/sensors');
       if (response.ok) {
         const data = await response.json();
-        
         // Transformation des données pour le composant
         const sensorsData: Sensor[] = [
           {
             id: 'temp_kitchen',
             name: 'Température Cuisine',
             type: 'temperature',
-            value: data.kitchen?.temperature?.value || 22.5,
+            value: data?.kitchen?.temperature?.value ?? 22.5,
             unit: '°C',
-            status: data.kitchen?.temperature?.status || 'normal',
+            status: (data?.kitchen?.temperature?.status as Sensor['status']) ?? 'normal',
             lastUpdate: new Date().toISOString(),
             threshold: { min: 18, max: 25 }
           },
@@ -83,7 +85,7 @@ const IoTDashboard: React.FC = () => {
             id: 'humidity_dining',
             name: 'Humidité Salle',
             type: 'humidity',
-            value: data.diningArea?.humidity || 45,
+            value: data?.diningArea?.humidity ?? 45,
             unit: '%',
             status: 'normal',
             lastUpdate: new Date().toISOString(),
@@ -93,39 +95,38 @@ const IoTDashboard: React.FC = () => {
             id: 'occupancy',
             name: 'Occupation Salle',
             type: 'occupancy',
-            value: data.diningArea?.occupancy?.value || 18,
+            value: data?.diningArea?.occupancy?.value ?? 18,
             unit: 'personnes',
-            status: data.diningArea?.occupancy?.status || 'normal',
+            status: (data?.diningArea?.occupancy?.status as Sensor['status']) ?? 'normal',
             lastUpdate: new Date().toISOString(),
             threshold: { min: 0, max: 50 }
           }
         ];
-
         const equipmentData: Equipment[] = [
           {
             id: 'espresso_1',
             name: 'Machine Espresso #1',
             category: 'Cuisine',
-            status: data.equipment?.espressoMachine1?.status === 'active' ? 'active' : 'maintenance',
+            status: (data?.equipment?.espressoMachine1?.status === 'active' ? 'active' : 'maintenance'),
             healthScore: 95,
             lastMaintenance: '2025-01-01',
             nextMaintenance: '2025-03-01',
             metrics: {
-              temperature: data.equipment?.espressoMachine1?.temp || 93,
-              pressure: data.equipment?.espressoMachine1?.pressure || 9
+              temperature: data?.equipment?.espressoMachine1?.temp ?? 93,
+              pressure: data?.equipment?.espressoMachine1?.pressure ?? 9
             }
           },
           {
             id: 'espresso_2',
             name: 'Machine Espresso #2',
             category: 'Cuisine',
-            status: data.equipment?.espressoMachine2?.status === 'maintenance_needed' ? 'maintenance' : 'active',
+            status: (data?.equipment?.espressoMachine2?.status === 'maintenance_needed' ? 'maintenance' : 'active'),
             healthScore: 65,
             lastMaintenance: '2024-12-15',
             nextMaintenance: '2025-01-20',
             metrics: {
-              temperature: data.equipment?.espressoMachine2?.temp || 85,
-              pressure: data.equipment?.espressoMachine2?.pressure || 7
+              temperature: data?.equipment?.espressoMachine2?.temp ?? 85,
+              pressure: data?.equipment?.espressoMachine2?.pressure ?? 7
             }
           },
           {
@@ -141,12 +142,18 @@ const IoTDashboard: React.FC = () => {
             }
           }
         ];
-
         setSensors(sensorsData);
         setEquipment(equipmentData);
+      } else {
+        // Gestion professionnelle des erreurs réseau
+        setSensors([]);
+        setEquipment([]);
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Erreur lors du chargement des données IoT:', error);
+      setSensors([]);
+      setEquipment([]);
     } finally {
       setLoading(false);
     }
@@ -277,19 +284,19 @@ const IoTDashboard: React.FC = () => {
                   
                   {item.metrics && (
                     <div className="space-y-2">
-                      {item.metrics.temperature && (
+                      {typeof item.metrics.temperature !== 'undefined' && (
                         <div className="flex justify-between text-sm">
                           <span>Température:</span>
                           <span>{item.metrics.temperature}°C</span>
                         </div>
                       )}
-                      {item.metrics.pressure && (
+                      {typeof item.metrics.pressure !== 'undefined' && (
                         <div className="flex justify-between text-sm">
                           <span>Pression:</span>
                           <span>{item.metrics.pressure} bar</span>
                         </div>
                       )}
-                      {item.metrics.usage && (
+                      {typeof item.metrics.usage !== 'undefined' && (
                         <div className="flex justify-between text-sm">
                           <span>Utilisation:</span>
                           <span>{item.metrics.usage}%</span>

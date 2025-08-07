@@ -18,11 +18,11 @@ export async function getDb() {
 }
 
 async function initializeDatabase() {
-  connection = postgres(connectionString, { max: 1 });
+  connection = postgres(connectionString, { max: 1 )});
   db = drizzle(connection, { schema });
 
   // Appliquer les migrations si elles existent
-  await migrate(db, { migrationsFolder: path.join(__dirname, '../../migrations') });
+  await migrate(db, { migrationsFolder: path.join(__dirname, '../../migrations')}) });
 
   console.log('✅ Base de données initialisée et migrée avec succès');
 }

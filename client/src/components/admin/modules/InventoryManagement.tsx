@@ -34,13 +34,13 @@ const InventoryManagement = () => {
 
   // Récupérer l'aperçu du stock
   const { data: inventory, isLoading } = useQuery<InventoryData>({
-    queryKey: ['/api/admin/inventory/overview'],
+    queryKey: ['/api/admin/inventory/overview',],
     refetchInterval: 60000 // Actualisation chaque minute
   });
 
   // Récupérer les prédictions de stock
   const { data: predictions } = useQuery({
-    queryKey: ['/api/admin/inventory/predictions'],
+    queryKey: ['/api/admin/inventory/predictions',],
     refetchInterval: 300000 // Actualisation toutes les 5 minutes
   });
 
@@ -51,21 +51,22 @@ const InventoryManagement = () => {
 
   // Récupérer les mouvements de stock
   const { data: movements } = useQuery({
-    queryKey: ['/api/admin/inventory/movements'],
+    queryKey: ['/api/admin/inventory/movements',],
     refetchInterval: 30000
   });
 
-  // Mutation pour générer des commandes automatiques
+  // Correction de la mutation pour générer des commandes automatiques
   const generateOrdersMutation = useMutation({
     mutationFn: async (params: Record<string, unknown>) => {
       const response = await fetch('/api/admin/inventory/orders/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          ...(localStorage.getItem('auth_token') ? { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` } : {})
         },
         body: JSON.stringify(params)
       });
+      if (!response.ok) throw new Error('Erreur lors de la génération des commandes');
       return response.json();
     },
     onSuccess: () => {
@@ -362,8 +363,8 @@ const InventoryManagement = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-2">
-                        {predictions.automaticOrders.scheduled?.map((order: { item: string; date: string; quantity: number; supplier: string; estimated_cost: number; status: string }, index: number) => (
-                          <div key={index} className="flex justify-between items-center p-2 bg-white rounded border">
+                        {predictions.automaticOrders.scheduled?.map((order: { item: string; date: string; quantity: number; supplier: string; estimated_cost: number; status: string }) => (
+                          <div key={order.item} className="flex justify-between items-center p-2 bg-white rounded border">
                             <div>
                               <span className="font-medium">{order.item}</span>
                               <span className="text-sm text-gray-600 ml-2">- {order.quantity} unités</span>

@@ -88,7 +88,7 @@ interface MaintenanceStats {
 }
 
 const taskSchema = z.object({
-  title: z.string().min(3, "Titre requis (minimum 3 caractères)"),
+  title: z.string()}).min(3, "Titre requis (minimum 3 caractères)"),
   description: z.string().min(10, "Description requise (minimum 10 caractères)"),
   equipmentId: z.number().min(1, "Équipement requis"),
   priority: z.string().min(1, "Priorité requise"),
@@ -101,7 +101,7 @@ const taskSchema = z.object({
 });
 
 const equipmentSchema = z.object({
-  name: z.string().min(2, "Nom requis (minimum 2 caractères)"),
+  name: z.string()}).min(2, "Nom requis (minimum 2 caractères)"),
   type: z.string().min(1, "Type requis"),
   brand: z.string().min(1, "Marque requise"),
   model: z.string().min(1, "Modèle requis"),
@@ -174,7 +174,7 @@ export default function AdvancedMaintenance() : JSX.Element {
       const [tasksRes, equipmentRes, statsRes] = await Promise.all([
         fetch('/api/admin/maintenance/tasks', {
           headers: { 'Authorization': `Bearer ${token}` }
-        }),
+        })]),
         fetch('/api/admin/maintenance/equipment', {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
@@ -185,7 +185,7 @@ export default function AdvancedMaintenance() : JSX.Element {
 
       if (tasksRes.ok && equipmentRes.ok && statsRes.ok) {
         const [tasksData, equipmentData, statsData] = await Promise.all([
-          tasksRes.json(),
+          tasksRes.json()]),
           equipmentRes.json(),
           statsRes.json()
         ]);
@@ -195,7 +195,7 @@ export default function AdvancedMaintenance() : JSX.Element {
         setStats(statsData);
       }
     } catch (error) {
-      console.error('Erreur lors du chargement des données de maintenance:', error);
+      logger.error('Erreur lors du chargement des données de maintenance:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
 
       // Données d'exemple pour la démonstration
       const sampleTasks: MaintenanceTask[] = [
@@ -255,7 +255,7 @@ export default function AdvancedMaintenance() : JSX.Element {
             pressure: '9 bars',
             capacity: '11L'
           },
-          maintenanceHistory: [],
+          maintenanceHistory: [,],
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         },
@@ -279,7 +279,7 @@ export default function AdvancedMaintenance() : JSX.Element {
             speed: '1400rpm',
             burrs: 'Steel'
           },
-          maintenanceHistory: [],
+          maintenanceHistory: [,],
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         }
@@ -323,14 +323,14 @@ export default function AdvancedMaintenance() : JSX.Element {
         toast({
           title: selectedTask ? "Tâche modifiée" : "Tâche créée",
           description: selectedTask ? "La tâche a été modifiée avec succès" : "La tâche a été créée avec succès"
-        });
+        )});
         setShowTaskDialog(false);
         setSelectedTask(null);
         taskForm.reset();
         fetchMaintenanceData();
       }
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde de la tâche:', error);
+      logger.error('Erreur lors de la sauvegarde de la tâche:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
       toast({
         title: "Erreur",
         description: "Impossible de sauvegarder la tâche",
@@ -358,14 +358,14 @@ export default function AdvancedMaintenance() : JSX.Element {
         toast({
           title: selectedEquipment ? "Équipement modifié" : "Équipement ajouté",
           description: selectedEquipment ? "L'équipement a été modifié avec succès" : "L'équipement a été ajouté avec succès"
-        });
+        )});
         setShowEquipmentDialog(false);
         setSelectedEquipment(null);
         equipmentForm.reset();
         fetchMaintenanceData();
       }
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde de l\'équipement:', error);
+      logger.error('Erreur lors de la sauvegarde de l\'équipement:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
       toast({
         title: "Erreur",
         description: "Impossible de sauvegarder l'équipement",
@@ -445,7 +445,7 @@ export default function AdvancedMaintenance() : JSX.Element {
                   <FormField
                     control={taskForm.control}
                     name="title"
-                    render={({ field }) => (
+                    render={({ field )}) => (
                       <FormItem>
                         <FormLabel>Titre</FormLabel>
                         <FormControl>
@@ -458,7 +458,7 @@ export default function AdvancedMaintenance() : JSX.Element {
                   <FormField
                     control={taskForm.control}
                     name="description"
-                    render={({ field }) => (
+                    render={({ field )}) => (
                       <FormItem>
                         <FormLabel>Description</FormLabel>
                         <FormControl>
@@ -472,7 +472,7 @@ export default function AdvancedMaintenance() : JSX.Element {
                     <FormField
                       control={taskForm.control}
                       name="equipmentId"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Équipement</FormLabel>
                           <Select onValueChange={(value) => field.onChange(parseInt(value))}>
@@ -483,7 +483,7 @@ export default function AdvancedMaintenance() : JSX.Element {
                             </FormControl>
                             <SelectContent>
                               {equipment.map(eq => (
-                                <SelectItem key={eq.id} value={eq.id.toString()}>
+                                <SelectItem key={eq.id)} value={eq.id.toString()}>
                                   {eq.name} - {eq.location}
                                 </SelectItem>
                               ))}
@@ -496,7 +496,7 @@ export default function AdvancedMaintenance() : JSX.Element {
                     <FormField
                       control={taskForm.control}
                       name="priority"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Priorité</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -521,7 +521,7 @@ export default function AdvancedMaintenance() : JSX.Element {
                     <FormField
                       control={taskForm.control}
                       name="assignedTo"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Assigné à</FormLabel>
                           <FormControl>
@@ -534,7 +534,7 @@ export default function AdvancedMaintenance() : JSX.Element {
                     <FormField
                       control={taskForm.control}
                       name="scheduledDate"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Date programmée</FormLabel>
                           <FormControl>
@@ -549,7 +549,7 @@ export default function AdvancedMaintenance() : JSX.Element {
                     <FormField
                       control={taskForm.control}
                       name="estimatedCost"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Coût estimé (€)</FormLabel>
                           <FormControl>
@@ -567,7 +567,7 @@ export default function AdvancedMaintenance() : JSX.Element {
                     <FormField
                       control={taskForm.control}
                       name="category"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Catégorie</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -621,7 +621,7 @@ export default function AdvancedMaintenance() : JSX.Element {
                     <FormField
                       control={equipmentForm.control}
                       name="name"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Nom</FormLabel>
                           <FormControl>
@@ -634,7 +634,7 @@ export default function AdvancedMaintenance() : JSX.Element {
                     <FormField
                       control={equipmentForm.control}
                       name="type"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Type</FormLabel>
                           <FormControl>
@@ -649,7 +649,7 @@ export default function AdvancedMaintenance() : JSX.Element {
                     <FormField
                       control={equipmentForm.control}
                       name="brand"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Marque</FormLabel>
                           <FormControl>
@@ -662,7 +662,7 @@ export default function AdvancedMaintenance() : JSX.Element {
                     <FormField
                       control={equipmentForm.control}
                       name="model"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Modèle</FormLabel>
                           <FormControl>
@@ -677,7 +677,7 @@ export default function AdvancedMaintenance() : JSX.Element {
                     <FormField
                       control={equipmentForm.control}
                       name="serialNumber"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Numéro de série</FormLabel>
                           <FormControl>
@@ -690,7 +690,7 @@ export default function AdvancedMaintenance() : JSX.Element {
                     <FormField
                       control={equipmentForm.control}
                       name="location"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Emplacement</FormLabel>
                           <FormControl>
@@ -705,7 +705,7 @@ export default function AdvancedMaintenance() : JSX.Element {
                     <FormField
                       control={equipmentForm.control}
                       name="purchaseDate"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Date d'achat</FormLabel>
                           <FormControl>
@@ -718,7 +718,7 @@ export default function AdvancedMaintenance() : JSX.Element {
                     <FormField
                       control={equipmentForm.control}
                       name="purchasePrice"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Prix d'achat (€)</FormLabel>
                           <FormControl>
@@ -737,7 +737,7 @@ export default function AdvancedMaintenance() : JSX.Element {
                   <FormField
                     control={equipmentForm.control}
                     name="supplier"
-                    render={({ field }) => (
+                    render={({ field )}) => (
                       <FormItem>
                         <FormLabel>Fournisseur</FormLabel>
                         <FormControl>
@@ -771,7 +771,7 @@ export default function AdvancedMaintenance() : JSX.Element {
                 <Settings className="h-5 w-5 text-blue-500" />
                 <div>
                   <p className="text-sm text-gray-600">Équipements</p>
-                  <p className="text-2xl font-bold">{stats.totalEquipment}</p>
+                  <p className="text-2xl font-bold">{stats.totalEquipment)}</p>
                   <p className="text-xs text-green-600">{stats.operationalEquipment} opérationnels</p>
                 </div>
               </div>
@@ -867,7 +867,7 @@ export default function AdvancedMaintenance() : JSX.Element {
           {/* Liste des tâches */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredTasks.map(task => (
-              <Card key={task.id} className="hover:shadow-md transition-shadow">
+              <Card key={task.id)} className="hover:shadow-md transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <Badge className={getPriorityColor(task.priority)}>
@@ -934,7 +934,7 @@ export default function AdvancedMaintenance() : JSX.Element {
         <TabsContent value="equipment" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {equipment.map(eq => (
-              <Card key={eq.id} className="hover:shadow-md transition-shadow">
+              <Card key={eq.id)} className="hover:shadow-md transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <Badge className={getStatusColor(eq.status)}>

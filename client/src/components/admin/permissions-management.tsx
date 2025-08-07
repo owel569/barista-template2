@@ -87,7 +87,7 @@ export default function PermissionsManagement() : JSX.Element {
       const [permissionsRes, usersRes] = await Promise.all([
         fetch('/api/admin/permissions', {
           headers: { 'Authorization': `Bearer ${token}` }
-        }),
+        })]),
         fetch('/api/admin/users', {
           headers: { 'Authorization': `Bearer ${token}` }
         })
@@ -95,7 +95,7 @@ export default function PermissionsManagement() : JSX.Element {
 
       if (permissionsRes.ok && usersRes.ok) {
         const [permissionsData, usersData] = await Promise.all([
-          permissionsRes.json(),
+          permissionsRes.json()]),
           usersRes.json()
         ]);
 
@@ -146,7 +146,7 @@ export default function PermissionsManagement() : JSX.Element {
                 ...user,
                 permissions: granted 
                   ? [...user.permissions, permissionId]
-                  : user.permissions.filter(p => p !== permissionId)
+                  : user.permissions.filter(p => p !== permissionId)})
               }
             : user
         ));
@@ -154,7 +154,7 @@ export default function PermissionsManagement() : JSX.Element {
         // Émettre un événement pour notifier les autres composants
         window.dispatchEvent(new CustomEvent('permissions-updated', { 
           detail: { userId, permissionId, granted } 
-        }));
+        });
         
         toast({
           title: "Permission mise à jour",
@@ -229,7 +229,7 @@ export default function PermissionsManagement() : JSX.Element {
 
       if (response.ok) {
         setUsers(users.map(user => 
-          user.id === userId ? { ...user, active } : user
+          user.id === userId ? { ...user, active )} : user
         ));
         
         toast({
@@ -496,7 +496,7 @@ export default function PermissionsManagement() : JSX.Element {
       </Tabs>
 
       {selectedUser && (
-        <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
+        <Dialog open={!!selectedUser)} onOpenChange={() => setSelectedUser(null)}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Permissions de {selectedUser.username}</DialogTitle>

@@ -72,7 +72,7 @@ export default function QualityControl() : JSX.Element {
           maxScore: 100,
           status: 'excellent',
           notes: 'Excellente mousse de lait, température parfaite, présentation soignée',
-          correctionActions: [],
+          correctionActions: [,],
           photos: ['photo1.jpg']
         },
         {
@@ -268,7 +268,7 @@ export default function QualityControl() : JSX.Element {
   const getCategoryStats = () => {
     const categories = ['Produits', 'Service', 'Hygiène'];
     return categories.map(category => {
-      const categoryChecks = qualityChecks.filter(check => check.category === category);
+      const categoryChecks = qualityChecks.filter(check => check.category === category)});
       const avgScore = categoryChecks.length > 0 
         ? categoryChecks.reduce((sum, check) => sum + (check.score / check.maxScore) * 100, 0) / categoryChecks.length
         : 0;
@@ -282,7 +282,7 @@ export default function QualityControl() : JSX.Element {
     });
   };
 
-  const addQualityCheck = async (checkData: any) => {
+  const addQualityCheck = async (checkData: unknown) => {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch('/api/admin/quality/checks', {
@@ -530,7 +530,7 @@ export default function QualityControl() : JSX.Element {
                         <div>
                           <h4 className="font-medium mb-2 flex items-center">
                             <Camera className="h-4 w-4 mr-1" />
-                            Photos ({check.photos.length}):
+                            Photos ({check.photos.length)}):
                           </h4>
                           <div className="flex space-x-2">
                             {check.photos.map((photo, index) => (

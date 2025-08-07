@@ -56,7 +56,7 @@ export default function LoyaltySystem() : JSX.Element {
       const [customersRes, rewardsRes, statsRes] = await Promise.all([
         fetch('/api/admin/loyalty/customers', {
           headers: { 'Authorization': `Bearer ${token}` }
-        }),
+        })]),
         fetch('/api/admin/loyalty/rewards', {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
@@ -67,7 +67,7 @@ export default function LoyaltySystem() : JSX.Element {
 
       if (customersRes.ok && rewardsRes.ok && statsRes.ok) {
         const [customersData, rewardsData, statsData] = await Promise.all([
-          customersRes.json(),
+          customersRes.json()]),
           rewardsRes.json(),
           statsRes.json()
         ]);
@@ -77,7 +77,7 @@ export default function LoyaltySystem() : JSX.Element {
           ...customer,
           points: Number(customer.points) || 0,
           totalSpent: Number(customer.totalSpent) || 0
-        }));
+        });
         
         const processedStats = statsData ? {
           ...statsData,
@@ -215,7 +215,7 @@ export default function LoyaltySystem() : JSX.Element {
                     Total Clients
                   </p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {stats.totalCustomers}
+                    {stats.totalCustomers)}
                   </p>
                 </div>
                 <Users className="h-8 w-8 text-blue-500" />

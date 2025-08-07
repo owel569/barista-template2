@@ -1,414 +1,506 @@
 import { Router } from 'express';
-import { eq, and, or, inArray } from 'drizzle-orm';
 import { z } from 'zod';
-import { validateBody, validateParams } from '../middleware/validation';
 import { asyncHandler } from '../middleware/error-handler';
+import { createLogger } from '../middleware/logging';
+import { authenticateUser, requireRoles } from '../middleware/auth';
+import { validateBody, validateParams, validateQuery } from '../middleware/validation';
 import { getDb } from '../db';
 import { permissions, users, activityLogs } from '../../shared/schema';
-import { authenticateUser } from '../middleware/auth';
+import { eq, and, inArray } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 
 const router = Router();
+const logger = createLogger('PERMISSIONS');
 
-// Modules disponibles dans le système
+// ==========================================
+// TYPES ET INTERFACES
+// ==========================================
+
+export interface Permission {
+  id: number;
+  userId: number;
+  module: string;
+  canView: boolean;
+  canCreate: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
+}
+
+export interface PermissionTemplate {
+  name: string;
+  description: string;
+  permissions: Record<string, {
+    canView: boolean;
+    canCreate: boolean;
+    canUpdate: boolean;
+    canDelete: boolean;
+  }>;
+}
+
+export interface BulkPermissionUpdate {
+  userId: number;
+  permissions: Array<{
+    module: string;
+    canView: boolean;
+    canCreate: boolean;
+    canUpdate: boolean;
+    canDelete: boolean;
+  }>;
+}
+
+// ==========================================
+// CONSTANTES
+// ==========================================
+
 const AVAILABLE_MODULES = [
   'dashboard',
-  'users',
-  'customers',
-  'menu',
   'orders',
-  'reservations',
-  'tables',
+  'inventory',
+  'customers',
   'employees',
-  'analytics',
   'reports',
   'settings',
-  'logs',
-  'inventory',
-  'payments',
-  'delivery',
+  'analytics',
   'loyalty',
-  'feedback',
-  'maintenance',
-  'backup'
-] as const;
+  'delivery'
+];
+
+const PERMISSION_TEMPLATES: PermissionTemplate[] = [
+  {
+    name: 'Manager',
+    description: 'Accès complet à tous les modules',
+    permissions: AVAILABLE_MODULES.reduce((acc, module) => {
+      acc[module] = {
+        canView: true,
+        canCreate: true,
+        canUpdate: true,
+        canDelete: true
+      };
+      return acc;
+    }, {} as Record<string, any>)
+  },
+  {
+    name: 'Staff',
+    description: 'Accès limité aux opérations quotidiennes',
+    permissions: AVAILABLE_MODULES.reduce((acc, module) => {
+      acc[module] = {
+        canView: true,
+        canCreate: ['orders', 'customers'].includes(module),
+        canUpdate: ['orders', 'customers'].includes(module),
+        canDelete: false
+      };
+      return acc;
+    }, {} as Record<string, any>)
+  },
+  {
+    name: 'Viewer',
+    description: 'Accès en lecture seule',
+    permissions: AVAILABLE_MODULES.reduce((acc, module) => {
+      acc[module] = {
+        canView: true,
+        canCreate: false,
+        canUpdate: false,
+        canDelete: false
+      };
+      return acc;
+    }, {} as Record<string, any>)
+  }
+];
+
+// ==========================================
+// SCHÉMAS DE VALIDATION ZOD
+// ==========================================
 
 const permissionSchema = z.object({
-  userId: z.number().positive(),
-  module: z.enum(AVAILABLE_MODULES),
-  canView: z.boolean().default(true),
-  canCreate: z.boolean().default(false),
-  canUpdate: z.boolean().default(false),
-  canDelete: z.boolean().default(false)
+  userId: z.number().positive('ID utilisateur invalide'),
+  module: z.string().min(1, 'Module requis'),
+  canView: z.boolean(),
+  canCreate: z.boolean(),
+  canUpdate: z.boolean(),
+  canDelete: z.boolean()
 });
 
 const bulkPermissionSchema = z.object({
-  userId: z.number().positive(),
+  userId: z.number().positive('ID utilisateur invalide'),
   permissions: z.array(z.object({
-    module: z.enum(AVAILABLE_MODULES),
-    canView: z.boolean().default(true),
-    canCreate: z.boolean().default(false),
-    canUpdate: z.boolean().default(false),
-    canDelete: z.boolean().default(false)
+    module: z.string().min(1, 'Module requis'),
+    canView: z.boolean(),
+    canCreate: z.boolean(),
+    canUpdate: z.boolean(),
+    canDelete: z.boolean()
   }))
 });
 
-// Modèles de permissions prédéfinis
-const PERMISSION_TEMPLATES = {
-  admin: {
-    name: 'Administrateur',
-    permissions: AVAILABLE_MODULES.map(module => ({
-      module,
-      canView: true,
-      canCreate: true,
-      canUpdate: true,
-      canDelete: true
-    }))
-  },
-  manager: {
-    name: 'Manager',
-    permissions: [
-      { module: 'dashboard', canView: true, canCreate: false, canUpdate: false, canDelete: false },
-      { module: 'users', canView: true, canCreate: false, canUpdate: true, canDelete: false },
-      { module: 'customers', canView: true, canCreate: true, canUpdate: true, canDelete: false },
-      { module: 'menu', canView: true, canCreate: true, canUpdate: true, canDelete: true },
-      { module: 'orders', canView: true, canCreate: true, canUpdate: true, canDelete: false },
-      { module: 'reservations', canView: true, canCreate: true, canUpdate: true, canDelete: false },
-      { module: 'tables', canView: true, canCreate: true, canUpdate: true, canDelete: false },
-      { module: 'employees', canView: true, canCreate: false, canUpdate: true, canDelete: false },
-      { module: 'analytics', canView: true, canCreate: false, canUpdate: false, canDelete: false },
-      { module: 'reports', canView: true, canCreate: false, canUpdate: false, canDelete: false },
-      { module: 'settings', canView: true, canCreate: false, canUpdate: true, canDelete: false },
-      { module: 'logs', canView: true, canCreate: false, canUpdate: false, canDelete: false },
-      { module: 'inventory', canView: true, canCreate: true, canUpdate: true, canDelete: false },
-      { module: 'payments', canView: true, canCreate: false, canUpdate: false, canDelete: false },
-      { module: 'delivery', canView: true, canCreate: true, canUpdate: true, canDelete: false },
-      { module: 'loyalty', canView: true, canCreate: true, canUpdate: true, canDelete: false },
-      { module: 'feedback', canView: true, canCreate: false, canUpdate: true, canDelete: false },
-      { module: 'maintenance', canView: true, canCreate: true, canUpdate: true, canDelete: false },
-      { module: 'backup', canView: false, canCreate: false, canUpdate: false, canDelete: false }
-    ]
-  },
-  employee: {
-    name: 'Employé',
-    permissions: [
-      { module: 'dashboard', canView: true, canCreate: false, canUpdate: false, canDelete: false },
-      { module: 'users', canView: false, canCreate: false, canUpdate: false, canDelete: false },
-      { module: 'customers', canView: true, canCreate: true, canUpdate: true, canDelete: false },
-      { module: 'menu', canView: true, canCreate: false, canUpdate: false, canDelete: false },
-      { module: 'orders', canView: true, canCreate: true, canUpdate: true, canDelete: false },
-      { module: 'reservations', canView: true, canCreate: true, canUpdate: true, canDelete: false },
-      { module: 'tables', canView: true, canCreate: false, canUpdate: true, canDelete: false },
-      { module: 'employees', canView: false, canCreate: false, canUpdate: false, canDelete: false },
-      { module: 'analytics', canView: false, canCreate: false, canUpdate: false, canDelete: false },
-      { module: 'reports', canView: false, canCreate: false, canUpdate: false, canDelete: false },
-      { module: 'settings', canView: false, canCreate: false, canUpdate: false, canDelete: false },
-      { module: 'logs', canView: false, canCreate: false, canUpdate: false, canDelete: false },
-      { module: 'inventory', canView: true, canCreate: false, canUpdate: false, canDelete: false },
-      { module: 'payments', canView: true, canCreate: false, canUpdate: false, canDelete: false },
-      { module: 'delivery', canView: true, canCreate: false, canUpdate: true, canDelete: false },
-      { module: 'loyalty', canView: true, canCreate: false, canUpdate: false, canDelete: false },
-      { module: 'feedback', canView: true, canCreate: true, canUpdate: false, canDelete: false },
-      { module: 'maintenance', canView: false, canCreate: false, canUpdate: false, canDelete: false },
-      { module: 'backup', canView: false, canCreate: false, canUpdate: false, canDelete: false }
-    ]
-  },
-  viewer: {
-    name: 'Consultation seule',
-    permissions: AVAILABLE_MODULES.map(module => ({
-      module,
-      canView: ['dashboard', 'menu', 'orders', 'reservations', 'tables'].includes(module),
-      canCreate: false,
-      canUpdate: false,
-      canDelete: false
-    }))
-  }
-};
+const templateSchema = z.object({
+  userId: z.number().positive('ID utilisateur invalide'),
+  templateName: z.string().min(1, 'Nom du template requis')
+});
 
-// Obtenir toutes les permissions d'un utilisateur
-router.get('/user/:userId', authenticateUser, validateParams(z.object({ userId: z.coerce.number() })), asyncHandler(async (req, res) => {
+// ==========================================
+// ROUTES AVEC AUTHENTIFICATION ET VALIDATION
+// ==========================================
+
+// Routes des permissions avec authentification et autorisation
+router.get('/overview', authenticateUser, requireRoles(['admin']), asyncHandler(async (req, res) => {
+  try {
   const db = await getDb();
-  const { userId } = req.params;
-
-  const userPermissions = await db.select({
-    id: permissions.id,
-    module: permissions.module,
-    canView: permissions.canView,
-    canCreate: permissions.canCreate,
-    canUpdate: permissions.canUpdate,
-    canDelete: permissions.canDelete
-  }).from(permissions)
-    .where(eq(permissions.userId, Number(userId)));
-
-  // Créer un objet avec tous les modules et leurs permissions
-  const permissionsMap = AVAILABLE_MODULES.reduce((acc, module) => {
-    const modulePermission = userPermissions.find((p: any) => p.module === module);
-    acc[module] = modulePermission || {
-      module,
-      canView: false,
-      canCreate: false,
-      canUpdate: false,
-      canDelete: false
+    
+    // Récupérer les statistiques des permissions
+    const totalUsers = await db.select({ count: sql<number>`count(*)` }).from(users);
+    const totalPermissions = await db.select({ count: sql<number>`count(*)` }).from(permissions);
+    
+    const overview = {
+      totalUsers: totalUsers[0]?.count || 0,
+      totalPermissions: totalPermissions[0]?.count || 0,
+      templates: PERMISSION_TEMPLATES,
+      modules: AVAILABLE_MODULES
     };
-    return acc;
-  }, {} as Record<string, any>);
 
   res.json({
     success: true,
-    permissions: permissionsMap,
-    availableModules: AVAILABLE_MODULES
-  });
-}));
-
-// Obtenir les modèles de permissions
-router.get('/templates', authenticateUser, asyncHandler(async (req, res) => {
-  res.json({
-    success: true,
-    templates: PERMISSION_TEMPLATES
-  });
-}));
-
-// Créer ou mettre à jour une permission
-router.post('/permission', authenticateUser, validateBody(permissionSchema), asyncHandler(async (req, res) => {
-  const db = await getDb();
-  const { userId, module, canView, canCreate, canUpdate, canDelete } = req.body;
-
-  // Vérifier si la permission existe déjà
-  const existingPermission = await db.select()
-    .from(permissions)
-    .where(and(
-      eq(permissions.userId, userId),
-      eq(permissions.module, module)
-    ))
-    .limit(1);
-
-  let result;
-  if (existingPermission.length > 0) {
-    // Mettre à jour la permission existante
-    result = await db.update(permissions)
-      .set({ canView, canCreate, canUpdate, canDelete })
-      .where(eq(permissions.id, existingPermission[0].id))
-      .returning();
-  } else {
-    // Créer une nouvelle permission
-    result = await db.insert(permissions)
-      .values({ userId, module, canView, canCreate, canUpdate, canDelete })
-      .returning();
-  }
-
-  // Log de l'activité
-  await db.insert(activityLogs).values({
-    userId: req.user.id,
-    action: existingPermission.length > 0 ? 'update' : 'create',
-    entity: 'permission',
-    entityId: result[0].id,
-    details: `Permission ${module} pour l'utilisateur ${userId}`
-  });
-
-  res.json({
-    success: true,
-    message: 'Permission mise à jour avec succès',
-    permission: result[0]
-  });
-}));
-
-// Mettre à jour plusieurs permissions en une fois
-router.post('/bulk-update', authenticateUser, validateBody(bulkPermissionSchema), asyncHandler(async (req, res) => {
-  const db = await getDb();
-  const { userId, permissions: userPermissions } = req.body;
-
-  // Supprimer toutes les permissions existantes pour cet utilisateur
-  await db.delete(permissions).where(eq(permissions.userId, userId));
-
-  // Insérer les nouvelles permissions
-  const newPermissions = await db.insert(permissions)
-    .values(userPermissions.map(p => ({
-      userId,
-      module: p.module,
-      canView: p.canView,
-      canCreate: p.canCreate,
-      canUpdate: p.canUpdate,
-      canDelete: p.canDelete
-    })))
-    .returning();
-
-  // Log de l'activité
-  await db.insert(activityLogs).values({
-    userId: req.user.id,
-    action: 'bulk_update',
-    entity: 'permission',
-    entityId: userId,
-    details: `Mise à jour en masse des permissions pour l'utilisateur ${userId}`
-  });
-
-  res.json({
-    success: true,
-    message: 'Permissions mises à jour avec succès',
-    permissions: newPermissions
-  });
-}));
-
-// Appliquer un modèle de permissions
-router.post('/apply-template', authenticateUser, validateBody(z.object({
-  userId: z.number().positive(),
-  templateName: z.enum(['admin', 'manager', 'employee', 'viewer'])
-})), asyncHandler(async (req, res) => {
-  const db = await getDb();
-  const { userId, templateName } = req.body;
-
-  const template = PERMISSION_TEMPLATES[templateName];
-  if (!template) {
-    return res.status(400).json({
+      data: overview
+    });
+  } catch (error) {
+    logger.error('Erreur overview permissions', { 
+      error: error instanceof Error ? error.message : 'Erreur inconnue' 
+    });
+    res.status(500).json({
       success: false,
-      message: 'Modèle de permissions non trouvé'
+      message: 'Erreur lors de la récupération des permissions'
     });
   }
-
-  // Supprimer toutes les permissions existantes pour cet utilisateur
-  await db.delete(permissions).where(eq(permissions.userId, userId));
-
-  // Insérer les nouvelles permissions basées sur le modèle
-  const newPermissions = await db.insert(permissions)
-    .values(template.permissions.map(p => ({
-      userId,
-      module: p.module,
-      canView: p.canView,
-      canCreate: p.canCreate,
-      canUpdate: p.canUpdate,
-      canDelete: p.canDelete
-    })))
-    .returning();
-
-  // Log de l'activité
-  await db.insert(activityLogs).values({
-    userId: req.user.id,
-    action: 'apply_template',
-    entity: 'permission',
-    entityId: userId,
-    details: `Application du modèle ${template.name} pour l'utilisateur ${userId}`
-  });
-
-  res.json({
-    success: true,
-    message: `Modèle ${template.name} appliqué avec succès`,
-    permissions: newPermissions
-  });
 }));
 
-// Obtenir les permissions de tous les utilisateurs (vue d'ensemble)
-router.get('/overview', authenticateUser, asyncHandler(async (req, res) => {
-  const db = await getDb();
-
-  const usersWithPermissions = await db.select({
-    userId: users.id,
-    username: users.username,
-    firstName: users.firstName,
-    lastName: users.lastName,
-    role: users.role,
-    module: permissions.module,
-    canView: permissions.canView,
-    canCreate: permissions.canCreate,
-    canUpdate: permissions.canUpdate,
-    canDelete: permissions.canDelete
-  }).from(users)
-    .leftJoin(permissions, eq(users.id, permissions.userId))
-    .orderBy(users.username);
-
-  // Regrouper par utilisateur
-  const userPermissionsMap = usersWithPermissions.reduce((acc, row: unknown) => {
-    if (!acc[row.userId]) {
-      acc[row.userId] = {
-        id: row.userId,
-        username: row.username,
-        firstName: row.firstName,
-        lastName: row.lastName,
-        role: row.role,
-        permissions: {}
-      };
-    }
-
-    if (row.module) {
-      acc[row.userId].permissions[row.module] = {
-        canView: row.canView,
-        canCreate: row.canCreate,
-        canUpdate: row.canUpdate,
-        canDelete: row.canDelete
-      };
-    }
-
-    return acc;
-  }, {} as Record<number, any>);
-
-  res.json({
-    success: true,
-    users: Object.values(userPermissionsMap),
-    availableModules: AVAILABLE_MODULES
-  });
-}));
-
-// Vérifier une permission spécifique
-router.get('/check/:userId/:module/:action', authenticateUser, validateParams(z.object({
-  userId: z.coerce.number(),
-  module: z.enum(AVAILABLE_MODULES),
-  action: z.enum(['view', 'create', 'update', 'delete'])
+router.get('/user/:userId', authenticateUser, requireRoles(['admin']), validateParams(z.object({
+  userId: z.string().regex(/^\d+$/, 'ID utilisateur doit être un nombre')
 })), asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+  const userIdNum = parseInt(userId || '0');
+  
+  try {
   const db = await getDb();
-  const { userId, module, action } = req.params;
 
-  const permission = await db.select()
+    // Récupérer les permissions de l'utilisateur
+    const userPermissions = await db.select()
     .from(permissions)
-    .where(and(
-      eq(permissions.userId, Number(userId)),
-      eq(permissions.module, module)
-    ))
+      .where(eq(permissions.userId, userIdNum));
+    
+    // Récupérer les informations de l'utilisateur
+    const user = await db.select({
+      id: users.id,
+      username: users.username,
+      email: users.email,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      role: users.role
+    }).from(users).where(eq(users.id, userIdNum)).limit(1);
+    
+    if (user.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Utilisateur non trouvé'
+      });
+    }
+
+  res.json({
+    success: true,
+      data: {
+        user: user[0],
+        permissions: userPermissions
+      }
+    });
+  } catch (error) {
+    logger.error('Erreur permissions utilisateur', { 
+      userId, 
+      error: error instanceof Error ? error.message : 'Erreur inconnue' 
+    )});
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la récupération des permissions'
+    });
+  }
+}));
+
+router.get('/templates', authenticateUser, requireRoles(['admin']), asyncHandler(async (req, res) => {
+  try {
+  res.json({
+    success: true,
+      data: PERMISSION_TEMPLATES
+    )});
+  } catch (error) {
+    logger.error('Erreur templates permissions', { 
+      error: error instanceof Error ? error.message : 'Erreur inconnue' 
+    )});
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la récupération des templates'
+    });
+  }
+}));
+
+router.post('/permission', authenticateUser, requireRoles(['admin']), validateBody(z.object({
+  userId: z.number()}).positive('ID utilisateur invalide'),
+  module: z.string().min(1, 'Module requis'),
+  canView: z.boolean(),
+  canCreate: z.boolean(),
+  canUpdate: z.boolean(),
+  canDelete: z.boolean()
+})), asyncHandler(async (req, res) => {
+  const { userId, module, canView, canCreate, canUpdate, canDelete } = req.body;
+  
+  try {
+  const db = await getDb();
+    
+    // Vérifier que l'utilisateur existe
+    const user = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+    if (user.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Utilisateur non trouvé'
+      });
+    }
+    
+    // Vérifier que le module est valide
+    if (!AVAILABLE_MODULES.includes(module)) {
+    return res.status(400).json({
+      success: false,
+        message: 'Module invalide'
+      });
+    }
+    
+    // Créer ou mettre à jour la permission
+    const existingPermission = await db.select()
+      .from(permissions)
+      .where(and(eq(permissions.userId, userId), eq(permissions.module, module)))
+      .limit(1);
+    
+    if (existingPermission.length > 0) {
+      // Mettre à jour
+      await db.update(permissions)
+        .set({ canView, canCreate, canUpdate, canDelete })
+        .where(and(eq(permissions.userId, userId), eq(permissions.module, module)));
+    } else {
+      // Créer
+      await db.insert(permissions).values({
+      userId,
+        module,
+        canView,
+        canCreate,
+        canUpdate,
+        canDelete
+      });
+    }
+    
+    // Enregistrer l'activité
+  await db.insert(activityLogs).values({
+      userId: req.user?.id || 0,
+      action: 'permission_updated',
+      details: `Permission ${module} mise à jour pour l'utilisateur ${userId}`,
+      timestamp: new Date().toISOString()
+  });
+
+  res.json({
+    success: true,
+      message: 'Permission mise à jour avec succès'
+    });
+  } catch (error) {
+    logger.error('Erreur mise à jour permission', { 
+      userId, 
+      module, 
+      error: error instanceof Error ? error.message : 'Erreur inconnue' 
+    )});
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la mise à jour de la permission'
+    });
+  }
+}));
+
+router.post('/bulk-update', authenticateUser, requireRoles(['admin']), validateBody(z.object({
+  updates: z.array(z.object({
+    userId: z.number()}).positive('ID utilisateur invalide'),
+    permissions: z.array(z.object({
+      module: z.string()}).min(1, 'Module requis'),
+      canView: z.boolean(),
+      canCreate: z.boolean(),
+      canUpdate: z.boolean(),
+      canDelete: z.boolean()
+    }))
+  }))
+})), asyncHandler(async (req, res) => {
+  const { updates } = req.body;
+  
+  try {
+  const db = await getDb();
+
+    for (const update of updates) {
+      const { userId, permissions } = update;
+      
+      // Vérifier que l'utilisateur existe
+      const user = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+      if (user.length === 0) {
+        continue; // Ignorer cet utilisateur
+      }
+      
+      for (const permission of permissions) {
+        const { module, canView, canCreate, canUpdate, canDelete } = permission;
+        
+        if (!AVAILABLE_MODULES.includes(module)) {
+          continue; // Ignorer ce module invalide
+        }
+        
+        // Mettre à jour ou créer la permission
+        const existingPermission = await db.select()
+          .from(permissions)
+          .where(and(eq(permissions.userId, userId), eq(permissions.module, module)))
+          .limit(1);
+        
+        if (existingPermission.length > 0) {
+          await db.update(permissions)
+            .set({ canView, canCreate, canUpdate, canDelete })
+            .where(and(eq(permissions.userId, userId), eq(permissions.module, module)));
+        } else {
+          await db.insert(permissions).values({
+            userId,
+            module,
+            canView,
+            canCreate,
+            canUpdate,
+            canDelete
+          });
+        }
+      }
+    }
+    
+    // Enregistrer l'activité
+    await db.insert(activityLogs).values({
+      userId: req.user?.id || 0,
+      action: 'bulk_permissions_update',
+      details: `Mise à jour en masse de ${updates.length} utilisateurs`,
+      timestamp: new Date().toISOString()
+    });
+
+  res.json({
+    success: true,
+      message: 'Permissions mises à jour en masse avec succès'
+    });
+  } catch (error) {
+    logger.error('Erreur mise à jour masse permissions', { 
+      error: error instanceof Error ? error.message : 'Erreur inconnue' 
+    )});
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la mise à jour en masse des permissions'
+    });
+  }
+}));
+
+router.post('/apply-template', authenticateUser, requireRoles(['admin']), validateBody(z.object({
+  userId: z.number()}).positive('ID utilisateur invalide'),
+  templateName: z.string().min(1, 'Nom du template requis')
+})), asyncHandler(async (req, res) => {
+  const { userId, templateName } = req.body;
+  
+  try {
+  const db = await getDb();
+    
+    // Vérifier que l'utilisateur existe
+    const user = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+    if (user.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Utilisateur non trouvé'
+      });
+    }
+    
+    // Trouver le template
+    const template = PERMISSION_TEMPLATES.find(t => t.name === templateName);
+    if (!template) {
+      return res.status(404).json({
+        success: false,
+        message: 'Template non trouvé'
+      });
+    }
+    
+    // Appliquer le template
+    for (const [module, permissions] of Object.entries(template.permissions)) {
+      const existingPermission = await db.select()
+    .from(permissions)
+        .where(and(eq(permissions.userId, userId), eq(permissions.module, module)))
     .limit(1);
 
-  let hasPermission = false;
-  if (permission.length > 0) {
-    const p = permission[0];
-    switch (action) {
-      case 'view':
-        hasPermission = p.granted; // Utiliser le champ granted existant
-        break;
-      case 'create':
-        hasPermission = p.granted;
-        break;
-      case 'update':
-        hasPermission = p.granted;
-        break;
-      case 'delete':
-        hasPermission = p.granted;
-        break;
+      if (existingPermission.length > 0) {
+        await db.update(permissions)
+          .set(permissions)
+          .where(and(eq(permissions.userId, userId), eq(permissions.module, module)));
+      } else {
+        await db.insert(permissions).values({
+          userId,
+          module,
+          ...permissions
+        });
+      }
     }
-  }
+    
+    // Enregistrer l'activité
+    await db.insert(activityLogs).values({
+      userId: req.user?.id || 0,
+      action: 'template_applied',
+      details: `Template ${templateName} appliqué à l'utilisateur ${userId}`,
+      timestamp: new Date().toISOString()
+    });
 
   res.json({
     success: true,
-    hasPermission,
-    module,
-    action
-  });
+      message: `Template ${templateName} appliqué avec succès`
+    });
+  } catch (error) {
+    logger.error('Erreur application template', { 
+      userId, 
+      templateName, 
+      error: error instanceof Error ? error.message : 'Erreur inconnue' 
+    )});
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de l\'application du template'
+    });
+  }
 }));
 
-// Supprimer toutes les permissions d'un utilisateur
-router.delete('/user/:userId', authenticateUser, validateParams(z.object({ userId: z.coerce.number() })), asyncHandler(async (req, res) => {
-  const db = await getDb();
+router.delete('/user/:userId', authenticateUser, requireRoles(['admin']), validateParams(z.object({
+  userId: z.string()}).regex(/^\d+$/, 'ID utilisateur doit être un nombre')
+})), asyncHandler(async (req, res) => {
   const { userId } = req.params;
+  const userIdNum = parseInt(userId || '0');
+  
+  try {
+  const db = await getDb();
 
-  await db.delete(permissions).where(eq(permissions.userId, Number(userId)));
+    // Supprimer toutes les permissions de l'utilisateur
+    await db.delete(permissions).where(eq(permissions.userId, userIdNum));
 
-  // Log de l'activité
+    // Enregistrer l'activité
   await db.insert(activityLogs).values({
     userId: req.user?.id || 0,
-    action: 'delete',
-    entity: 'permission',
-    entityId: Number(userId),
-    details: `Suppression de toutes les permissions pour l'utilisateur ${userId}`
+      action: 'permissions_deleted',
+      details: `Toutes les permissions supprimées pour l'utilisateur ${userIdNum}`,
+      timestamp: new Date().toISOString()
   });
 
   res.json({
     success: true,
-    message: 'Toutes les permissions ont été supprimées'
-  });
+      message: 'Permissions supprimées avec succès'
+    });
+  } catch (error) {
+    logger.error('Erreur suppression permissions', { 
+      userId, 
+      error: error instanceof Error ? error.message : 'Erreur inconnue' 
+    )});
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la suppression des permissions'
+    });
+  }
 }));
 
 export default router;

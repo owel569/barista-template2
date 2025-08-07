@@ -21,27 +21,27 @@ interface DashboardMainProps {
 export default function DashboardMain({ userRole = 'directeur' }: DashboardMainProps) {
   // Requêtes pour les statistiques
   const { data: todayReservations } = useQuery({
-    queryKey: ["/api/admin/stats/today-reservations"],
+    queryKey: ["/api/admin/stats/today-reservations",],
   });
 
   const { data: monthlyRevenue } = useQuery({
-    queryKey: ["/api/admin/stats/monthly-revenue"],
+    queryKey: ["/api/admin/stats/monthly-revenue",],
   });
 
   const { data: activeOrders } = useQuery({
-    queryKey: ["/api/admin/stats/active-orders"],
+    queryKey: ["/api/admin/stats/active-orders",],
   });
 
   const { data: occupancyRate } = useQuery({
-    queryKey: ["/api/admin/stats/occupancy-rate"],
+    queryKey: ["/api/admin/stats/occupancy-rate",],
   });
 
   const { data: dailyReservations } = useQuery({
-    queryKey: ["/api/admin/stats/daily-reservations"],
+    queryKey: ["/api/admin/stats/daily-reservations",],
   });
 
   const { data: reservationStatus } = useQuery({
-    queryKey: ["/api/admin/stats/reservation-status"],
+    queryKey: ["/api/admin/stats/reservation-status",],
   });
 
   // Données pour les graphiques avec fallback
@@ -207,7 +207,7 @@ export default function DashboardMain({ userRole = 'directeur' }: DashboardMainP
                   paddingAngle={5}
                   dataKey="value"
                 >
-                  {(statusData.length > 0 ? statusData : [{ name: "Aucune donnée", value: 1, color: "#9CA3AF" }]).map((entry, index) => (
+                  {(statusData.length > 0 ? statusData : [{ name: "Aucune donnée", value: 1, color: "#9CA3AF" )}]).map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>

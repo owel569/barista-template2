@@ -18,7 +18,7 @@ import { z } from "zod";
 import { getItemImageUrl } from "@/lib/image-mapping";
 
 const reservationSchema = insertReservationSchema.extend({
-  customerName: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
+  customerName: z.string()}).min(2, "Le nom doit contenir au moins 2 caractères"),
   customerEmail: z.string().email("Email invalide"),
   customerPhone: z.string().min(10, "Numéro de téléphone invalide"),
   date: z.string().min(1, "Date requise"),
@@ -48,22 +48,22 @@ export default function InteractiveReservation() : JSX.Element {
   const queryClient = useQueryClient();
 
   const { data: categories = [] } = useQuery<Array<{ id: number; name: string; slug: string }>>({
-    queryKey: ['/api/menu/categories'],
+    queryKey: ['/api/menu/categories',],
   });
 
   const { data: menuItems = [] } = useQuery<Array<{ id: number; name: string; price: string; description: string; categoryId: number }>>({
-    queryKey: ['/api/menu/items'],
+    queryKey: ['/api/menu/items',],
   });
 
   const reservationMutation = useMutation({
-    mutationFn: async (data: Record<string, unknown>) => {
+    mutationFn: async (data: Record<string, unknown>})}) => {
       return apiRequest('POST', '/api/reservations', data);
     },
     onSuccess: () => {
       toast({
         title: "Réservation confirmée!",
         description: "Votre réservation a été enregistrée avec succès.",
-      });
+      )});
       queryClient.invalidateQueries({ queryKey: ['/api/reservations'] });
       form.reset();
       setCart([]);
@@ -73,7 +73,7 @@ export default function InteractiveReservation() : JSX.Element {
         title: "Erreur",
         description: error.message || "Une erreur est survenue",
         variant: "destructive",
-      });
+      )});
     },
   });
 
@@ -91,7 +91,7 @@ export default function InteractiveReservation() : JSX.Element {
     },
   });
 
-  const addToCart = (item: any) => {
+  const addToCart = (item: unknown) => {
     const existingItem = cart.find(cartItem => cartItem.menuItem.id === item.id);
     
     if (existingItem) {
@@ -105,7 +105,7 @@ export default function InteractiveReservation() : JSX.Element {
         menuItem: item,
         quantity: 1,
         notes: itemNotes[item.id] || ""
-      }]);
+      )}]);
     }
   };
 
@@ -124,7 +124,7 @@ export default function InteractiveReservation() : JSX.Element {
   };
 
   const updateItemNotes = (itemId: number, notes: string) => {
-    setItemNotes(prev => ({ ...prev, [itemId]: notes }));
+    setItemNotes(prev => ({ ...prev, [itemId]: notes )});
     setCart(cart.map(cartItem =>
       cartItem.menuItem.id === itemId
         ? { ...cartItem, notes }
@@ -219,7 +219,7 @@ export default function InteractiveReservation() : JSX.Element {
 
                 {/* Grille des produits */}
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                  {filteredItems.map((item: any) => {
+                  {filteredItems.map((item: unknown) => {
                     const quantity = getItemQuantity(item.id);
                     
                     return (
@@ -260,7 +260,7 @@ export default function InteractiveReservation() : JSX.Element {
                               
                               {quantity > 0 && (
                                 <Badge variant="secondary" className="px-2 py-1">
-                                  {quantity}
+                                  {quantity)}
                                 </Badge>
                               )}
                               
@@ -358,7 +358,7 @@ export default function InteractiveReservation() : JSX.Element {
                       />
                       {form.formState.errors.customerName && (
                         <p className="text-sm text-red-600 mt-1">
-                          {form.formState.errors.customerName.message}
+                          {form.formState.errors.customerName.message)}
                         </p>
                       )}
                     </div>
@@ -373,7 +373,7 @@ export default function InteractiveReservation() : JSX.Element {
                       />
                       {form.formState.errors.customerEmail && (
                         <p className="text-sm text-red-600 mt-1">
-                          {form.formState.errors.customerEmail.message}
+                          {form.formState.errors.customerEmail.message)}
                         </p>
                       )}
                     </div>
@@ -387,7 +387,7 @@ export default function InteractiveReservation() : JSX.Element {
                       />
                       {form.formState.errors.customerPhone && (
                         <p className="text-sm text-red-600 mt-1">
-                          {form.formState.errors.customerPhone.message}
+                          {form.formState.errors.customerPhone.message)}
                         </p>
                       )}
                     </div>
@@ -403,7 +403,7 @@ export default function InteractiveReservation() : JSX.Element {
                         />
                         {form.formState.errors.date && (
                           <p className="text-sm text-red-600 mt-1">
-                            {form.formState.errors.date.message}
+                            {form.formState.errors.date.message)}
                           </p>
                         )}
                       </div>
@@ -417,7 +417,7 @@ export default function InteractiveReservation() : JSX.Element {
                         />
                         {form.formState.errors.time && (
                           <p className="text-sm text-red-600 mt-1">
-                            {form.formState.errors.time.message}
+                            {form.formState.errors.time.message)}
                           </p>
                         )}
                       </div>
@@ -428,7 +428,7 @@ export default function InteractiveReservation() : JSX.Element {
                       <div className="flex items-center gap-2 mt-1">
                         <Users className="h-4 w-4 text-coffee-medium" />
                         <Input
-                          {...form.register("guests", { valueAsNumber: true })}
+                          {...form.register("guests", { valueAsNumber: true )})}
                           type="number"
                           min="1"
                           max="12"
@@ -437,7 +437,7 @@ export default function InteractiveReservation() : JSX.Element {
                       </div>
                       {form.formState.errors.guests && (
                         <p className="text-sm text-red-600 mt-1">
-                          {form.formState.errors.guests.message}
+                          {form.formState.errors.guests.message)}
                         </p>
                       )}
                     </div>
@@ -461,7 +461,7 @@ export default function InteractiveReservation() : JSX.Element {
                     {reservationMutation.isPending ? (
                       "Confirmation en cours..."
                     ) : (
-                      `Confirmer la réservation${cart.length > 0 ? ` (${cartTotal.toFixed(2)}€)` : ""}`
+                      `Confirmer la réservation${}cart.length > 0 ? ` (${cartTotal.toFixed(2)}€)` : ""}`
                     )}
                   </Button>
                 </form>

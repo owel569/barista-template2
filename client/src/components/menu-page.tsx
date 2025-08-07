@@ -43,11 +43,11 @@ export default function MenuPage() : JSX.Element {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   const { data: categoriesResponse, isLoading: categoriesLoading } = useQuery({
-    queryKey: ["/api/menu/categories"],
+    queryKey: ["/api/menu/categories",],
   });
 
   const { data: itemsResponse, isLoading: itemsLoading } = useQuery({
-    queryKey: ["/api/menu/items"],
+    queryKey: ["/api/menu/items",],
   });
 
   const categories = categoriesResponse?.categories || [];
@@ -56,7 +56,7 @@ export default function MenuPage() : JSX.Element {
   const filteredItems = selectedCategory === "all" 
     ? menuItems 
     : menuItems.filter(item => {
-        return item.category?.id?.toString() === selectedCategory;
+        return item.category?.id?.toString()}) === selectedCategory;
       });
 
   const getCategoryIcon = (categoryName: string) => {

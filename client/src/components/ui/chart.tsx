@@ -306,13 +306,13 @@ const TooltipItem = React.memo(({
   nestLabel,
   tooltipLabel
 }: {
-  item: any
+  item: unknown
   index: number
-  itemConfig: any
+  itemConfig: unknown
   indicatorColor: string
   indicator: "line" | "dot" | "dashed"
   hideIndicator: boolean
-  formatter?: any
+  formatter?: unknown
   nestLabel: boolean
   tooltipLabel: React.ReactNode
 }) => {
@@ -457,8 +457,8 @@ const LegendItem = React.memo(({
   itemConfig,
   hideIcon
 }: {
-  item: any
-  itemConfig: any
+  item: unknown
+  itemConfig: unknown
   hideIcon: boolean
 }) => (
   <div

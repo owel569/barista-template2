@@ -33,7 +33,7 @@ export default function ReservationDialog({
     guests: reservation?.guests || 2,
     notes: reservation?.notes || '',
     status: reservation?.status || 'pending'
-  });
+  })});
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,8 +41,8 @@ export default function ReservationDialog({
     onClose();
   };
 
-  const handleChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleChange = (field: string, value: unknown) => {
+    setFormData(prev => ({ ...prev, [field]: value )});
   };
 
   return (
@@ -126,7 +126,7 @@ export default function ReservationDialog({
                 </SelectTrigger>
                 <SelectContent>
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
-                    <SelectItem key={num} value={num.toString()}>
+                    <SelectItem key={num)} value={num.toString()}>
                       <div className="flex items-center gap-2">
                         <Users className="h-4 w-4" />
                         {num} personne{num > 1 ? 's' : ''}
@@ -140,7 +140,7 @@ export default function ReservationDialog({
             {isEdit && (
               <div>
                 <Label htmlFor="status">Statut</Label>
-                <Select value={formData.status} onValueChange={(value) => handleChange('status', value)}>
+                <Select value={formData.status)} onValueChange={(value) => handleChange('status', value)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>

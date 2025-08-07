@@ -42,7 +42,7 @@ export function PermissionGuard({
             Vous n'avez pas les permissions nécessaires pour accéder à cette fonctionnalité.
             <br />
             <span className="text-sm text-gray-600">
-              Module: {module} - Action: {action}
+              Module: {module)} - Action: {action}
             </span>
           </AlertDescription>
         </Alert>

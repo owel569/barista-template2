@@ -37,7 +37,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
 }) => {
   // État local pour la période sélectionnée
   const [dateRange, setDateRange] = useState({
-    start: new Date().toISOString().split('T')[0]!,
+    start: new Date(})}).toISOString().split('T')[0]!,
     end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]!
   });
 
@@ -80,22 +80,22 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
     validateShiftData,
     navigateTime
   } = useShiftManagement(shifts, employees, {
-    employees: selectedEmployee ? [selectedEmployee] : [],
+    employees: selectedEmployee ? [selectedEmployee] : [,],
     dateRange
   });
 
   // Gestion des actions sur les shifts
-  const handleShiftCreate = (shiftData: any) => {
+  const handleShiftCreate = (shiftData: unknown) => {
     const validation = validateShiftData(shiftData);
     if (validation.isValid) {
       createShift(shiftData);
     } else {
-      console.error('Validation échouée:', validation.conflicts);
+      logger.error('Validation échouée:', validation.conflicts);
     }
   };
 
-  const handleShiftEdit = (shift: any) => {
-    updateShift({ id: shift.id, data: shift });
+  const handleShiftEdit = (shift: unknown) => {
+    updateShift({ id: shift.id, data: shift )});
   };
 
   const handleShiftDelete = (shiftId: number) => {
@@ -186,7 +186,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
               overtimeHours: 0,
               totalPayroll: 0,
               averageHoursPerEmployee: 0,
-              departmentStats: [],
+              departmentStats: [,],
               costAnalysis: {
                 regularHours: 0,
                 overtimeHours: 0,
@@ -194,7 +194,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
                 overtimeCost: 0,
                 totalCost: 0,
                 projectedMonthlyCost: 0
-              }
+              )}
             }}
             reports={[]}
             period={timePeriod}
@@ -243,7 +243,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
         </Badge>
         {conflicts.length > 0 && (
           <Badge variant="destructive">
-            {conflicts.length} conflits
+            {conflicts.length)} conflits
           </Badge>
         )}
         
@@ -354,7 +354,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span>Demandes en attente</span>
-              <Badge variant="outline">{shiftRequests.length}</Badge>
+              <Badge variant="outline">{shiftRequests.length)}</Badge>
             </CardTitle>
           </CardHeader>
           <CardContent>

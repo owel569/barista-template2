@@ -54,7 +54,7 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
 
   // Filtrage par recherche
   const filteredShifts = shifts.filter(shift => {
-    const employee = employees.find(e => e.id === shift.employeeId);
+    const employee = employees.find(e => e.id === shift.employeeId});
     const employeeName = employee ? `${employee.firstName} ${employee.lastName}`.toLowerCase() : '';
     const searchLower = searchTerm.toLowerCase();
     
@@ -74,7 +74,7 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
     
     return (
       <div className="flex items-center space-x-1 cursor-pointer">
-        <span>{label}</span>
+        <span>{label)}</span>
         {isSorted ? (
           isAsc ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />
         ) : (
@@ -245,7 +245,7 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
               <div>
                 <label className="text-sm font-medium">Notes</label>
                 <div className="mt-1 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                  {shift.notes}
+                  {shift.notes)}
                 </div>
               </div>
             )}
@@ -456,7 +456,7 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
       
       {/* Modal de détails */}
       {selectedShift && (
-        <ShiftDetailsModal shift={selectedShift} />
+        <ShiftDetailsModal shift={selectedShift)} />
       )}
     </div>
   );

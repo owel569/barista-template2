@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 
 interface WebSocketMessage {
   type: string;
-  data?: any;
+  data?: unknown;
 }
 
 export function useWebSocket(url: string = '/api/ws') {

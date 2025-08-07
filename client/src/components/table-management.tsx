@@ -50,34 +50,34 @@ const TableManagement: React.FC = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'floor'>('grid');
 
-  const { data: tables = [], isLoading } = useQuery<Table[]>({
-    queryKey: ['/api/tables'],
+  const { data: tables = [,], isLoading } = useQuery<Table[]>({
+    queryKey: ['/api/tables',],
   });
 
   const { data: reservations = [] } = useQuery<TableReservation[]>({
-    queryKey: ['/api/table-reservations'],
+    queryKey: ['/api/table-reservations',],
   });
 
   const createTableMutation = useMutation({
-    mutationFn: async (tableData: Partial<Table>) => {
+    mutationFn: async (tableData: Partial<Table>})}) => {
       const response = await fetch('/api/tables', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' )},
         body: JSON.stringify(tableData),
       });
       if (!response.ok) throw new Error('Erreur lors de la création');
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/tables'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/tables'] )});
       setIsCreateDialogOpen(false);
       toast({ title: 'Table créée', description: 'La nouvelle table a été ajoutée.' });
     },
   });
 
   const updateTableMutation = useMutation({
-    mutationFn: async ({ id, ...data }: Partial<Table> & { id: number }) => {
-      const response = await fetch(`/api/tables/${id}`, {
+    mutationFn: async ({ id, ...data })}: Partial<Table> & { id: number }) => {
+      const response = await fetch(`/api/tables/${id)}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -86,7 +86,7 @@ const TableManagement: React.FC = () => {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/tables'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/tables'] )});
       setIsEditDialogOpen(false);
       setSelectedTable(null);
       toast({ title: 'Table mise à jour', description: 'Les modifications ont été sauvegardées.' });
@@ -94,8 +94,8 @@ const TableManagement: React.FC = () => {
   });
 
   const updateTableStatusMutation = useMutation({
-    mutationFn: async ({ id, status }: { id: number; status: string }) => {
-      const response = await fetch(`/api/tables/${id}/status`, {
+    mutationFn: async ({ id, status })}: { id: number; status: string }) => {
+      const response = await fetch(`/api/tables/${id)}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
@@ -104,21 +104,21 @@ const TableManagement: React.FC = () => {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/tables'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/tables'] )});
       toast({ title: 'Statut mis à jour', description: 'Le statut de la table a été modifié.' });
     },
   });
 
   const deleteTableMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const response = await fetch(`/api/tables/${id}`, {
+    mutationFn: async (id: number})}) => {
+      const response = await fetch(`/api/tables/${id)}`, {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Erreur lors de la suppression');
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/tables'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/tables'] )});
       toast({ title: 'Table supprimée', description: 'La table a été supprimée avec succès.' });
     },
   });
@@ -256,7 +256,7 @@ const TableManagement: React.FC = () => {
                 {table.currentReservation && (
                   <div className="p-3 bg-blue-50 rounded-lg">
                     <div className="text-sm">
-                      <p className="font-medium">{table.currentReservation.customerName}</p>
+                      <p className="font-medium">{table.currentReservation.customerName)}</p>
                       <p className="text-gray-600">{table.currentReservation.time} • {table.currentReservation.guests} pers.</p>
                     </div>
                   </div>
@@ -429,7 +429,7 @@ const TableManagement: React.FC = () => {
           </DialogHeader>
 
           {selectedTable && (
-            <form onSubmit={(e) => {
+            <form onSubmit={(e)}) => {
               e.preventDefault();
               const formData = new FormData(e.currentTarget);
               const tableData = {

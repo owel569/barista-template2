@@ -36,10 +36,10 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
   const queryClient = useQueryClient();
 
   // Récupérer les images existantes
-  const { data: images = [], isLoading } = useQuery({
+  const { data: images = [,], isLoading } = useQuery({
     queryKey: ['menu-item-images', menuItem.id],
-    queryFn: async () => {
-      const response = await fetch(`/api/admin/images/${menuItem.id}`, {
+    queryFn: async (})}) => {
+      const response = await fetch(`/api/admin/images/${menuItem.id)}`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
       if (!response.ok) throw new Error('Erreur lors de la récupération des images');
@@ -55,12 +55,12 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
       altText: string;
       isPrimary: boolean;
       uploadMethod: 'url' | 'upload' | 'generated';
-    }) => {
+    })}) => {
       const response = await fetch('/api/admin/images', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('token')})}`
         },
         body: JSON.stringify(imageData)
       });
@@ -68,7 +68,7 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['menu-item-images', menuItem.id] });
+      queryClient.invalidateQueries({ queryKey: ['menu-item-images', menuItem.id] )});
       queryClient.invalidateQueries({ queryKey: ['menu-items'] });
       setIsAddingImage(false);
       setNewImageUrl('');
@@ -77,14 +77,14 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
       toast({ title: 'Image ajoutée avec succès' });
     },
     onError: (error) => {
-      toast({ title: 'Erreur', description: error.message, variant: 'destructive' });
+      toast({ title: 'Erreur', description: error.message, variant: 'destructive' )});
     }
   });
 
   // Supprimer une image
   const deleteImageMutation = useMutation({
-    mutationFn: async (imageId: number) => {
-      const response = await fetch(`/api/admin/images/${imageId}`, {
+    mutationFn: async (imageId: number})}) => {
+      const response = await fetch(`/api/admin/images/${imageId)}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -94,19 +94,19 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['menu-item-images', menuItem.id] });
+      queryClient.invalidateQueries({ queryKey: ['menu-item-images', menuItem.id] )});
       queryClient.invalidateQueries({ queryKey: ['menu-items'] });
       toast({ title: 'Image supprimée avec succès' });
     },
     onError: (error) => {
-      toast({ title: 'Erreur', description: error.message, variant: 'destructive' });
+      toast({ title: 'Erreur', description: error.message, variant: 'destructive' )});
     }
   });
 
   // Mettre à jour une image
   const updateImageMutation = useMutation({
-    mutationFn: async ({ imageId, updates }: { imageId: number; updates: Partial<MenuItemImage> }) => {
-      const response = await fetch(`/api/admin/images/${imageId}`, {
+    mutationFn: async ({ imageId, updates })}: { imageId: number; updates: Partial<MenuItemImage> }) => {
+      const response = await fetch(`/api/admin/images/${imageId)}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -118,13 +118,13 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['menu-item-images', menuItem.id] });
+      queryClient.invalidateQueries({ queryKey: ['menu-item-images', menuItem.id] )});
       queryClient.invalidateQueries({ queryKey: ['menu-items'] });
       setEditingImageId(null);
       toast({ title: 'Image mise à jour avec succès' });
     },
     onError: (error) => {
-      toast({ title: 'Erreur', description: error.message, variant: 'destructive' });
+      toast({ title: 'Erreur', description: error.message, variant: 'destructive' )});
     }
   });
 
@@ -150,14 +150,14 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
   };
 
   const handleUpdateImage = (imageId: number, updates: Partial<MenuItemImage>) => {
-    updateImageMutation.mutate({ imageId, updates });
+    updateImageMutation.mutate({ imageId, updates )});
   };
 
   if (isLoading) {
     return (
       <Card className="w-full max-w-4xl">
         <CardHeader>
-          <CardTitle>Gestion des images - {menuItem.name}</CardTitle>
+          <CardTitle>Gestion des images - {menuItem.name)}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-center py-8">Chargement des images...</div>
@@ -242,7 +242,7 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
                       <div className="space-y-2 border-t pt-2">
                         <div className="flex items-center space-x-2">
                           <Switch
-                            checked={image.isPrimary}
+                            checked={image.isPrimary)}
                             onCheckedChange={(checked) => 
                               handleUpdateImage(image.id, { isPrimary: checked })
                             }
@@ -276,7 +276,7 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
                 <Input
                   id="imageUrl"
                   type="url"
-                  value={newImageUrl}
+                  value={newImageUrl)}
                   onChange={(e) => setNewImageUrl(e.target.value)}
                   placeholder="https://example.com/image.jpg"
                 />
@@ -304,7 +304,7 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
                 <div>
                   <Label>Aperçu :</Label>
                   <img 
-                    src={newImageUrl} 
+                    src={newImageUrl)} 
                     alt="Aperçu"
                     className="w-full h-40 object-cover rounded-lg border"
                     onError={(e) => {

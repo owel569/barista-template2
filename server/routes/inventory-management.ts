@@ -1,47 +1,130 @@
 import { Router } from 'express';
-// import { storage } from '../storage';
-// Simulation temporaire des données d'inventaire
-const storage = {
-  getInventoryOverview: async () => ({
-    alerts: [],
-    statistics: { totalItems: 0, lowStock: 0, outOfStock: 0, totalValue: 0, lowStockItems: 0, pendingOrders: 0, monthlyConsumption: 0 },
-    categories: [],
-    items: [],
-    automaticOrders: [],
-    movements: [],
-    suppliers: []
-  }),
-  getInventoryMovements: async () => ({ movements: [] }),
-  getInventoryPredictions: async () => ({ items: [] }),
-  getSuppliers: async () => ({ suppliers: [] })
-};
+import { z } from 'zod';
 import { asyncHandler } from '../middleware/error-handler';
 import { createLogger } from '../middleware/logging';
+import { authenticateUser, requireRoles } from '../middleware/auth';
+import { validateBody, validateParams, validateQuery } from '../middleware/validation';
+import { getDb } from '../db';
+import { eq, and, gte, lte, desc, sql } from 'drizzle-orm';
 
 const router = Router();
 const logger = createLogger('INVENTORY');
 
-// Gestion complète des stocks avec prédictions
-router.get('/overview', asyncHandler(async (req, res) => {
+// ==========================================
+// TYPES ET INTERFACES
+// ==========================================
+
+export interface InventoryItem {
+  id: number;
+  name: string;
+  currentStock: number;
+  minStock: number;
+  maxStock: number;
+  unit: string;
+  avgConsumption: number;
+  daysRemaining: number;
+  status: 'ok' | 'warning' | 'critical';
+  cost: number;
+  supplier: string;
+}
+
+export interface InventoryCategory {
+  name: string;
+  items: InventoryItem[];
+}
+
+export interface InventoryAlert {
+  type: 'low_stock' | 'reorder_soon' | 'expired';
+  item: string;
+  message: string;
+  priority: 'low' | 'medium' | 'high';
+}
+
+export interface InventoryStatistics {
+  totalValue: number;
+  lowStockItems: number;
+  pendingOrders: number;
+  monthlyConsumption: number;
+}
+
+export interface StockMovement {
+  id: number;
+  date: string;
+  type: 'in' | 'out' | 'adjustment';
+  item: string;
+  quantity: number;
+  unit: string;
+  reason: string;
+  user: string;
+  reference?: string;
+}
+
+export interface SupplierOrder {
+  id: string;
+  itemName: string;
+  quantity: number;
+  supplierName: string;
+  unitPrice: number;
+  totalPrice: number;
+  urgency: 'normal' | 'urgent' | 'critical';
+  estimatedDelivery: string;
+  generatedAt: string;
+  status: 'pending' | 'sent' | 'confirmed' | 'delivered';
+  sentAt?: string;
+  justification: string;
+}
+
+// ==========================================
+// SCHÉMAS DE VALIDATION ZOD
+// ==========================================
+
+const StockAdjustmentSchema = z.object({
+  itemId: z.number()}).positive('ID article invalide'),
+  quantity: z.number().not(0, 'Quantité ne peut pas être zéro'),
+  reason: z.string().min(1, 'Raison requise').max(200, 'Raison trop longue'),
+  type: z.enum(['in', 'out', 'adjustment'], { required_error: 'Type de mouvement requis' })
+});
+
+const ReorderSchema = z.object({
+  itemId: z.number()}).positive('ID article invalide'),
+  quantity: z.number().positive('Quantité doit être positive'),
+  urgency: z.enum(['normal', 'urgent', 'critical']).default('normal'),
+  supplierId: z.number().positive('ID fournisseur invalide').optional()
+});
+
+const PeriodQuerySchema = z.object({
+  period: z.enum(['1d', '7d', '30d', '90d'])}).default('7d'),
+  type: z.enum(['all', 'in', 'out', 'adjustment']).default('all')
+});
+
+// ==========================================
+// ROUTES AVEC AUTHENTIFICATION ET VALIDATION
+// ==========================================
+
+// Vue d'ensemble de l'inventaire
+router.get('/overview', 
+  authenticateUser,
+  requireRoles(['admin', 'manager', 'staff']),
+  asyncHandler(async (req, res) => {
   try {
     const inventory = {
       categories: [
         {
-          name: 'Café & Thé',
+            name: 'Café',
           items: [
             {
               id: 1,
               name: 'Grains café Arabica',
-              currentStock: 25,
+                currentStock: 12,
               minStock: 10,
               maxStock: 50,
               unit: 'kg',
-              avgConsumption: 2.5, // kg/jour
-              daysRemaining: 10,
+                avgConsumption: 1.5,
+                daysRemaining: 8,
               status: 'warning',
               cost: 12.50,
               supplier: 'Café Premium SAS'
-            },
+              },
             {
               id: 2,
               name: 'Thé Earl Grey',
@@ -111,19 +194,30 @@ router.get('/overview', asyncHandler(async (req, res) => {
       }
     };
 
-    res.json(inventory);
+      res.json({
+        success: true,
+        data: inventory
+      });
   } catch (error) {
-    logger.error('Erreur inventory overview', { error: (error as Error).message });
-    res.status(500).json({ message: 'Erreur serveur' });
-  }
-}));
+      logger.error('Erreur inventory overview', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      res.status(500).json({ 
+        success: false,
+        message: 'Erreur lors de la récupération de l\'inventaire' 
+      });
+    }
+  })
+);
 
 // Suivi des mouvements de stock
-router.get('/movements', asyncHandler(async (req, res) => {
-  const { period = '7d', type = 'all' } = req.query;
-  
-  try {
-    const movements = [
+router.get('/movements', 
+  authenticateUser,
+  requireRoles(['admin', 'manager']),
+  validateQuery(PeriodQuerySchema),
+  asyncHandler(async (req, res) => {
+    const { period, type } = req.query;
+    
+    try {
+      const movements: StockMovement[] = [
       {
         id: 1,
         date: '2025-01-16T10:30:00Z',
@@ -133,330 +227,163 @@ router.get('/movements', asyncHandler(async (req, res) => {
         unit: 'kg',
         reason: 'Livraison fournisseur',
         user: 'Marie Martin',
-        cost: 250.00,
-        supplier: 'Café Premium SAS'
+          reference: 'LIV-2025-001'
       },
       {
         id: 2,
         date: '2025-01-16T14:15:00Z',
         type: 'out',
         item: 'Farine T55',
-        quantity: 2.5,
+          quantity: 2,
         unit: 'kg',
-        reason: 'Production croissants',
-        user: 'Jean Dupont',
-        orderId: 'ORD-2025-001'
-      },
-      {
-        id: 3,
-        date: '2025-01-15T16:45:00Z',
-        type: 'adjustment',
-        item: 'Sucre blanc',
-        quantity: -0.5,
-        unit: 'kg',
-        reason: 'Correction inventaire',
-        user: 'Marie Martin',
-        note: 'Emballage endommagé'
-      }
-    ];
-
-    const filteredMovements = type === 'all' ? movements : 
-      movements.filter(m => m.type === type);
-
-    res.json({
-      movements: filteredMovements,
-      summary: {
-        totalIn: movements.filter(m => m.type === 'in').length,
-        totalOut: movements.filter(m => m.type === 'out').length,
-        adjustments: movements.filter(m => m.type === 'adjustment').length,
-        totalValue: movements.reduce((sum, m) => sum + (m.cost || 0), 0)
-      }
-    });
-  } catch (error) {
-    logger.error('Erreur inventory movements', { error: (error as Error).message });
-    res.status(500).json({ message: 'Erreur serveur' });
-  }
-}));
-
-// Prédictions de stock intelligentes
-router.get('/predictions', asyncHandler(async (req, res) => {
-  const { period = '30d' } = req.query;
-  
-  try {
-    const predictions = {
-      algorithm: 'ML_FORECAST_v2.1',
-      accuracy: 89.5,
-      lastUpdate: new Date().toISOString(),
-      items: [
-        {
-          itemId: 1,
-          name: 'Grains café Arabica',
-          currentStock: 25,
-          predictions: {
-            '7d': { consumption: 17.5, remaining: 7.5, status: 'ok' },
-            '14d': { consumption: 35, remaining: -10, status: 'critical' },
-            '30d': { consumption: 75, remaining: -50, status: 'critical' }
-          },
-          recommendations: {
-            reorderDate: '2025-01-22',
-            reorderQuantity: 30,
-            estimatedCost: 375.00,
-            urgency: 'medium'
-          },
-          seasonalFactors: {
-            current: 1.1, // 10% augmentation hivernale
-            trend: 'increasing',
-            specialEvents: ['Semaine du café (01-02)']
-          }
-        },
-        {
-          itemId: 3,
-          name: 'Farine T55',
-          currentStock: 8,
-          predictions: {
-            '7d': { consumption: 8.4, remaining: -0.4, status: 'critical' },
-            '14d': { consumption: 16.8, remaining: -8.8, status: 'critical' },
-            '30d': { consumption: 36, remaining: -28, status: 'critical' }
-          },
-          recommendations: {
-            reorderDate: '2025-01-17', // Urgent
-            reorderQuantity: 20,
-            estimatedCost: 37.00,
-            urgency: 'high'
-          },
-          seasonalFactors: {
-            current: 1.0,
-            trend: 'stable',
-            specialEvents: []
-          }
+          reason: 'Préparation pâtisseries',
+          user: 'Pierre Dubois'
         }
-      ],
-      automaticOrders: {
-        enabled: true,
-        scheduled: [
-          {
-            item: 'Farine T55',
-            date: '2025-01-17',
-            quantity: 20,
-            supplier: 'Minoterie Locale',
-            estimated_cost: 37.00,
-            status: 'pending_approval'
-          }
-        ]
-      },
-      costOptimization: {
-        potentialSavings: 125.50,
-        recommendations: [
-          'Grouper commandes Café Premium SAS pour réduction volume',
-          'Commander farine en plus grande quantité pour meilleur prix unitaire'
-        ]
-      }
-    };
-
-    res.json(predictions);
-  } catch (error) {
-    logger.error('Erreur inventory predictions', { error: (error as Error).message });
-    res.status(500).json({ message: 'Erreur serveur' });
-  }
-}));
-
-// Gestion des fournisseurs
-router.get('/suppliers', asyncHandler(async (req, res) => {
-  try {
-    const suppliers = [
-      {
-        id: 1,
-        name: 'Café Premium SAS',
-        contact: 'contact@cafepremium.fr',
-        phone: '01 23 45 67 89',
-        categories: ['Café', 'Thé'],
-        rating: 4.8,
-        deliveryTime: '24-48h',
-        minimumOrder: 100,
-        paymentTerms: '30 jours',
-        lastOrder: '2025-01-16',
-        totalOrders: 48,
-        reliability: 96.5,
-        priceCompetitiveness: 4.2
-      },
-      {
-        id: 2,
-        name: 'Minoterie Locale',
-        contact: 'orders@minoterie-locale.fr',
-        phone: '01 98 76 54 32',
-        categories: ['Farine', 'Céréales'],
-        rating: 4.6,
-        deliveryTime: '48-72h',
-        minimumOrder: 50,
-        paymentTerms: '15 jours',
-        lastOrder: '2025-01-10',
-        totalOrders: 32,
-        reliability: 94.2,
-        priceCompetitiveness: 4.5
-      }
-    ];
+      ];
 
     res.json({
-      suppliers,
-      analytics: {
-        totalSuppliers: suppliers.length,
-        averageRating: 4.7,
-        averageReliability: 95.35,
-        averageDeliveryTime: '48h',
-        topPerformers: suppliers.filter(s => s.rating >= 4.5)
-      }
+        success: true,
+        data: movements
     });
   } catch (error) {
-    logger.error('Erreur suppliers', { error: (error as Error).message });
-    res.status(500).json({ message: 'Erreur serveur' });
-  }
-}));
+      logger.error('Erreur mouvements stock', { 
+        period, 
+        type, 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      )});
+      res.status(500).json({ 
+        success: false,
+        message: 'Erreur lors de la récupération des mouvements' 
+      });
+    }
+  })
+);
 
-// Génération automatique de commandes
-router.post('/orders/generate', asyncHandler(async (req, res) => {
-  const { 
-    itemIds = [], 
-    forceGenerate = false,
-    approvalRequired = true 
-  } = req.body;
-
-  try {
-    // Analyser les besoins de stock
-    const analysisResults = await analyzeStockNeeds(itemIds);
+// Ajustement de stock
+router.post('/adjust',
+  authenticateUser,
+  requireRoles(['admin', 'manager']),
+  validateBody(StockAdjustmentSchema),
+  asyncHandler(async (req, res) => {
+    const { itemId, quantity, reason, type } = req.body;
     
-    const generatedOrders = [];
-    
-    for (const item of analysisResults.criticalItems) {
-      const order = {
-        id: `AUTO_${Date.now()}_${item.id}`,
-        itemId: item.id,
-        itemName: item.name,
-        supplierId: item.preferredSupplierId,
-        supplierName: item.supplierName,
-        quantity: item.recommendedQuantity,
-        unitPrice: item.unitPrice,
-        totalPrice: item.recommendedQuantity * item.unitPrice,
-        urgency: item.urgency,
-        estimatedDelivery: item.estimatedDelivery,
-        generatedAt: new Date().toISOString(),
-        status: approvalRequired ? 'pending_approval' : 'auto_approved',
-        justification: item.justification
+    try {
+      // TODO: Implémenter la logique d'ajustement de stock
+      const adjustment = {
+        id: Date.now(),
+        itemId,
+        quantity,
+        reason,
+        type,
+        timestamp: new Date().toISOString(),
+        userId: req.user?.id
       };
 
-      if (!approvalRequired || forceGenerate) {
-        // Envoyer automatiquement la commande
-        await sendOrderToSupplier(order);
-        order.status = 'sent';
-        (order as any).sentAt = new Date().toISOString();
-      }
-
-      generatedOrders.push(order);
+    res.json({
+        success: true,
+        data: adjustment
+    });
+  } catch (error) {
+      logger.error('Erreur ajustement stock', { 
+        itemId, 
+        quantity, 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      )});
+      res.status(500).json({ 
+        success: false,
+        message: 'Erreur lors de l\'ajustement de stock' 
+      });
     }
+  })
+);
 
-    // Sauvegarder les commandes
-    for (const order of generatedOrders) {
-      await storage.createInventoryOrder(order);
-    }
+// Génération de commandes fournisseurs
+router.post('/reorder',
+  authenticateUser,
+  requireRoles(['admin', 'manager']),
+  validateBody(ReorderSchema),
+  asyncHandler(async (req, res) => {
+    const { itemId, quantity, urgency, supplierId } = req.body;
+    
+    try {
+      const order: SupplierOrder = {
+        id: `CMD-${Date.now()}`,
+        itemName: 'Article à commander',
+        quantity,
+        supplierName: 'Fournisseur par défaut',
+        unitPrice: 10.00,
+        totalPrice: quantity * 10.00,
+        urgency,
+        estimatedDelivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        generatedAt: new Date().toISOString(),
+        status: 'pending',
+        justification: 'Commande automatique - stock faible'
+      };
 
     res.json({
       success: true,
-      ordersGenerated: generatedOrders.length,
-      orders: generatedOrders,
-      totalValue: generatedOrders.reduce((sum, order) => sum + order.totalPrice, 0),
-      estimatedSavings: analysisResults.estimatedSavings || 0
+        data: order
     });
   } catch (error) {
-    logger.error('Erreur génération commandes', { error: (error as Error).message });
-    res.status(500).json({ message: 'Erreur serveur' });
-  }
-}));
+      logger.error('Erreur génération commande', { 
+        itemId, 
+        quantity, 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      )});
+      res.status(500).json({ 
+        success: false,
+        message: 'Erreur lors de la génération de la commande' 
+      });
+    }
+  })
+);
 
-// Valorisation du stock
-router.get('/valuation', asyncHandler(async (req, res) => {
-  const { method = 'fifo' } = req.query; // fifo, lifo, average
-  
-  try {
-    const valuation = {
-      method,
-      lastCalculated: new Date().toISOString(),
-      categories: [
-        {
-          name: 'Café & Thé',
-          totalValue: 525.50,
-          totalQuantity: 35,
-          averageUnitPrice: 15.01,
-          items: [
-            { name: 'Grains café Arabica', quantity: 25, unitPrice: 12.50, totalValue: 312.50 },
-            { name: 'Thé Earl Grey', quantity: 5, unitPrice: 8.90, totalValue: 44.50 }
-          ]
-        },
-        {
-          name: 'Pâtisserie',
-          totalValue: 180.80,
-          totalQuantity: 23,
-          averageUnitPrice: 7.86,
-          items: [
-            { name: 'Farine T55', quantity: 8, unitPrice: 1.85, totalValue: 14.80 },
-            { name: 'Sucre blanc', quantity: 15, unitPrice: 2.20, totalValue: 33.00 }
-          ]
+// Analyse des besoins en stock
+router.get('/analysis',
+  authenticateUser,
+  requireRoles(['admin', 'manager']),
+  asyncHandler(async (req, res) => {
+    try {
+      const analysis = {
+        items: [
+          {
+            id: 1,
+            name: 'Grains café Arabica',
+            currentStock: 12,
+            recommendedOrder: 20,
+            urgency: 'medium',
+            reason: 'Consommation élevée'
+          },
+          {
+            id: 3,
+            name: 'Farine T55',
+            currentStock: 8,
+            recommendedOrder: 15,
+            urgency: 'high',
+            reason: 'Stock critique'
         }
       ],
       summary: {
-        totalStockValue: 706.30,
-        totalItems: 58,
-        mostValuableCategory: 'Café & Thé',
-        stockTurnover: 12.5, // fois par an
-        deadStockValue: 25.50,
-        deadStockPercentage: 3.6
-      },
-      trends: {
-        monthlyChange: +12.5,
-        yearlyChange: +185.30,
-        efficiency: 'good'
-      }
-    };
+          totalItems: 2,
+          urgentOrders: 1,
+          estimatedCost: 350.00
+        }
+      };
 
-    res.json(valuation);
+      res.json({
+        success: true,
+        data: analysis
+      });
   } catch (error) {
-    logger.error('Erreur stock valuation', { error: (error as Error).message });
-    res.status(500).json({ message: 'Erreur serveur' });
-  }
-}));
-
-// Fonctions utilitaires
-async function analyzeStockNeeds(itemIds: number[]) {
-  // Simulation d'analyse IA des besoins de stock
-  const criticalItems = [
-    {
-      id: 3,
-      name: 'Farine T55',
-      currentStock: 8,
-      recommendedQuantity: 20,
-      preferredSupplierId: 2,
-      supplierName: 'Minoterie Locale',
-      unitPrice: 1.85,
-      urgency: 'high',
-      estimatedDelivery: '2025-01-18',
-      justification: 'Stock épuisé dans 6 jours selon consommation actuelle'
+      logger.error('Erreur analyse stock', { 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      )});
+      res.status(500).json({ 
+        success: false,
+        message: 'Erreur lors de l\'analyse des stocks' 
+      });
     }
-  ];
+  })
+);
 
-  return {
-    criticalItems,
-    estimatedSavings: 25.50
-  };
-}
-
-async function sendOrderToSupplier(order: { id: string; itemName: string; quantity: number; supplierName: string; unitPrice: number; totalPrice: number; urgency: string; estimatedDelivery: string; generatedAt: string; status: string; sentAt?: string; justification: string }) {
-  // Simulation d'envoi de commande au fournisseur
-  logger.info('Commande envoyée', { 
-    orderId: order.id, 
-    supplier: order.supplierName,
-    item: order.itemName,
-    quantity: order.quantity 
-  });
-  
-  return true;
-}
-
-export { router as inventoryRouter };
+export default router;

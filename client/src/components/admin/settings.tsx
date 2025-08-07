@@ -93,7 +93,7 @@ export default function Settings({ userRole }: SettingsProps) {
   const queryClient = useQueryClient();
 
   const { data: fetchedSettings, isLoading } = useQuery({
-    queryKey: ['/api/admin/settings'],
+    queryKey: ['/api/admin/settings',],
     retry: 3,
     retryDelay: 1000,
   });
@@ -110,24 +110,24 @@ export default function Settings({ userRole }: SettingsProps) {
         },
         notificationSettings: {
           ...defaultSettings.notificationSettings,
-          ...(fetchedSettings.notificationSettings || {})
+          ...(fetchedSettings.notificationSettings || {)})
         },
         openingHours: {
           ...defaultSettings.openingHours,
-          ...(fetchedSettings.openingHours || {})
+          ...(fetchedSettings.openingHours || {)})
         }
-      }));
+      });
     }
   }, [fetchedSettings]);
 
   const saveMutation = useMutation({
-    mutationFn: (settings: RestaurantSettings) =>
+    mutationFn: (settings: RestaurantSettings})}) =>
       apiRequest('/api/admin/settings', {
         method: 'PUT',
-        body: JSON.stringify(settings),
+        body: JSON.stringify(settings)}),
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/settings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/settings'] )});
       toast({
         title: 'Succès',
         description: 'Paramètres sauvegardés avec succès',
@@ -138,13 +138,13 @@ export default function Settings({ userRole }: SettingsProps) {
         title: 'Erreur',
         description: 'Erreur lors de la sauvegarde des paramètres',
         variant: 'destructive',
-      });
+      )});
     },
   });
 
   useEffect(() => {
     if (fetchedSettings) {
-      setSettings(prev => ({ ...prev, ...fetchedSettings }));
+      setSettings(prev => ({ ...prev, ...fetchedSettings });
     }
   }, [fetchedSettings]);
 
@@ -161,9 +161,9 @@ export default function Settings({ userRole }: SettingsProps) {
         [day]: {
           ...prev.openingHours[day as keyof typeof prev.openingHours],
           [field]: value
-        }
+        )}
       }
-    }));
+    });
   };
 
   if (!hasPermission('settings', 'view')) {
@@ -223,7 +223,7 @@ export default function Settings({ userRole }: SettingsProps) {
                   <Input
                     id="restaurantName"
                     value={settings.restaurantName}
-                    onChange={(e) => setSettings(prev => ({ ...prev, restaurantName: e.target.value }))}
+                    onChange={(e) => setSettings(prev => ({ ...prev, restaurantName: e.target.value }));}
                     disabled={!hasPermission('settings', 'edit')}
                   />
                 </div>
@@ -232,7 +232,7 @@ export default function Settings({ userRole }: SettingsProps) {
                   <Input
                     id="phone"
                     value={settings.phone}
-                    onChange={(e) => setSettings(prev => ({ ...prev, phone: e.target.value }))}
+                    onChange={(e) => setSettings(prev => ({ ...prev, phone: e.target.value }));}
                     disabled={!hasPermission('settings', 'edit')}
                   />
                 </div>
@@ -242,7 +242,7 @@ export default function Settings({ userRole }: SettingsProps) {
                     id="email"
                     type="email"
                     value={settings.email}
-                    onChange={(e) => setSettings(prev => ({ ...prev, email: e.target.value }))}
+                    onChange={(e) => setSettings(prev => ({ ...prev, email: e.target.value }));}
                     disabled={!hasPermission('settings', 'edit')}
                   />
                 </div>
@@ -251,7 +251,7 @@ export default function Settings({ userRole }: SettingsProps) {
                   <Input
                     id="website"
                     value={settings.website}
-                    onChange={(e) => setSettings(prev => ({ ...prev, website: e.target.value }))}
+                    onChange={(e) => setSettings(prev => ({ ...prev, website: e.target.value }));}
                     disabled={!hasPermission('settings', 'edit')}
                   />
                 </div>
@@ -262,7 +262,7 @@ export default function Settings({ userRole }: SettingsProps) {
                 <Input
                   id="address"
                   value={settings.address}
-                  onChange={(e) => setSettings(prev => ({ ...prev, address: e.target.value }))}
+                  onChange={(e) => setSettings(prev => ({ ...prev, address: e.target.value }));}
                   disabled={!hasPermission('settings', 'edit')}
                 />
               </div>
@@ -272,7 +272,7 @@ export default function Settings({ userRole }: SettingsProps) {
                 <Textarea
                   id="description"
                   value={settings.description}
-                  onChange={(e) => setSettings(prev => ({ ...prev, description: e.target.value }))}
+                  onChange={(e) => setSettings(prev => ({ ...prev, description: e.target.value }));}
                   disabled={!hasPermission('settings', 'edit')}
                   rows={3}
                 />
@@ -284,7 +284,7 @@ export default function Settings({ userRole }: SettingsProps) {
                   id="maxCapacity"
                   type="number"
                   value={settings.maxCapacity}
-                  onChange={(e) => setSettings(prev => ({ ...prev, maxCapacity: parseInt(e.target.value) }))}
+                  onChange={(e) => setSettings(prev => ({ ...prev, maxCapacity: parseInt(e.target.value}) }));}
                   disabled={!hasPermission('settings', 'edit')}
                 />
               </div>
@@ -329,7 +329,7 @@ export default function Settings({ userRole }: SettingsProps) {
                       <>
                         <Input
                           type="time"
-                          value={hours.open}
+                          value={hours.open)}
                           onChange={(e) => updateOpeningHours(day, 'open', e.target.value)}
                           disabled={!hasPermission('settings', 'edit')}
                           className="w-32"
@@ -366,7 +366,7 @@ export default function Settings({ userRole }: SettingsProps) {
                   onCheckedChange={(checked) => setSettings(prev => ({
                     ...prev,
                     reservationSettings: { ...prev.reservationSettings, enableOnlineReservations: checked }
-                  }))}
+                  }));}
                   disabled={!hasPermission('settings', 'edit')}
                 />
                 <Label>Activer les réservations en ligne</Label>
@@ -378,7 +378,7 @@ export default function Settings({ userRole }: SettingsProps) {
                   onCheckedChange={(checked) => setSettings(prev => ({
                     ...prev,
                     reservationSettings: { ...prev.reservationSettings, requireConfirmation: checked }
-                  }))}
+                  }));}
                   disabled={!hasPermission('settings', 'edit')}
                 />
                 <Label>Confirmation requise</Label>
@@ -392,8 +392,8 @@ export default function Settings({ userRole }: SettingsProps) {
                     value={settings.reservationSettings.maxAdvanceDays}
                     onChange={(e) => setSettings(prev => ({
                       ...prev,
-                      reservationSettings: { ...prev.reservationSettings, maxAdvanceDays: parseInt(e.target.value) }
-                    }))}
+                      reservationSettings: { ...prev.reservationSettings, maxAdvanceDays: parseInt(e.target.value}) }
+                    }));}
                     disabled={!hasPermission('settings', 'edit')}
                   />
                 </div>
@@ -404,8 +404,8 @@ export default function Settings({ userRole }: SettingsProps) {
                     value={settings.reservationSettings.minPartySize}
                     onChange={(e) => setSettings(prev => ({
                       ...prev,
-                      reservationSettings: { ...prev.reservationSettings, minPartySize: parseInt(e.target.value) }
-                    }))}
+                      reservationSettings: { ...prev.reservationSettings, minPartySize: parseInt(e.target.value}) }
+                    }));}
                     disabled={!hasPermission('settings', 'edit')}
                   />
                 </div>
@@ -416,8 +416,8 @@ export default function Settings({ userRole }: SettingsProps) {
                     value={settings.reservationSettings.maxPartySize}
                     onChange={(e) => setSettings(prev => ({
                       ...prev,
-                      reservationSettings: { ...prev.reservationSettings, maxPartySize: parseInt(e.target.value) }
-                    }))}
+                      reservationSettings: { ...prev.reservationSettings, maxPartySize: parseInt(e.target.value}) }
+                    }));}
                     disabled={!hasPermission('settings', 'edit')}
                   />
                 </div>
@@ -441,7 +441,7 @@ export default function Settings({ userRole }: SettingsProps) {
                   onCheckedChange={(checked) => setSettings(prev => ({
                     ...prev,
                     notificationSettings: { ...prev.notificationSettings, emailNotifications: checked }
-                  }))}
+                  }));}
                   disabled={!hasPermission('settings', 'edit')}
                 />
                 <Label>Notifications par email</Label>
@@ -453,7 +453,7 @@ export default function Settings({ userRole }: SettingsProps) {
                   onCheckedChange={(checked) => setSettings(prev => ({
                     ...prev,
                     notificationSettings: { ...prev.notificationSettings, smsNotifications: checked }
-                  }))}
+                  }));}
                   disabled={!hasPermission('settings', 'edit')}
                 />
                 <Label>Notifications par SMS</Label>
@@ -466,8 +466,8 @@ export default function Settings({ userRole }: SettingsProps) {
                   value={settings.notificationSettings.reminderBefore}
                   onChange={(e) => setSettings(prev => ({
                     ...prev,
-                    notificationSettings: { ...prev.notificationSettings, reminderBefore: parseInt(e.target.value) }
-                  }))}
+                    notificationSettings: { ...prev.notificationSettings, reminderBefore: parseInt(e.target.value}) }
+                  }));}
                   disabled={!hasPermission('settings', 'edit')}
                 />
               </div>

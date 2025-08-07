@@ -92,7 +92,7 @@ export const formatDateTime = (date: string, time: string): string => {
 
 // Génération des dates pour le calendrier
 export const generateWeekDates = (startDate: Date = new Date()): Date[] => {
-  const weekStart = startOfWeek(startDate, { weekStartsOn: 1 }); // Lundi
+  const weekStart = startOfWeek(startDate, { weekStartsOn: 1 )}); // Lundi
   const weekEnd = endOfWeek(startDate, { weekStartsOn: 1 }); // Dimanche
   return eachDayOfInterval({ start: weekStart, end: weekEnd });
 };
@@ -104,22 +104,22 @@ export const generateMonthDates = (startDate: Date = new Date()): Date[] => {
 };
 
 // Filtrage des horaires
-export const filterShiftsByDate = (shifts: Shift[], targetDate: Date): Shift[] => {
+export const filterShiftsByDate = (shifts: Shift[,], targetDate: Date): Shift[] => {
   return shifts.filter(shift => isSameDay(parseISO(shift.date), targetDate));
 };
 
-export const filterShiftsByEmployee = (shifts: Shift[], employeeId: number): Shift[] => {
+export const filterShiftsByEmployee = (shifts: Shift[,], employeeId: number): Shift[] => {
   return shifts.filter(shift => shift.employeeId === employeeId);
 };
 
-export const filterShiftsByDepartment = (shifts: Shift[], employees: Employee[], department: string): Shift[] => {
+export const filterShiftsByDepartment = (shifts: Shift[,], employees: Employee[,], department: string): Shift[] => {
   const departmentEmployeeIds = employees
     .filter(emp => emp.department === department)
     .map(emp => emp.id);
   return shifts.filter(shift => departmentEmployeeIds.includes(shift.employeeId));
 };
 
-export const filterShiftsByPosition = (shifts: Shift[], employees: Employee[], position: string): Shift[] => {
+export const filterShiftsByPosition = (shifts: Shift[,], employees: Employee[,], position: string): Shift[] => {
   const positionEmployeeIds = employees
     .filter(emp => emp.position === position)
     .map(emp => emp.id);
@@ -128,7 +128,7 @@ export const filterShiftsByPosition = (shifts: Shift[], employees: Employee[], p
 
 // Calcul des statistiques
 export const calculateShiftDuration = (startTime: string, endTime: string): number => {
-  const start = new Date(`1970-01-01T${startTime}`);
+  const start = new Date(`1970-01-01T${startTime)}`);
   const end = new Date(`1970-01-01T${endTime}`);
   const diff = end.getTime() - start.getTime();
   return diff / (1000 * 60 * 60); // Retourne en heures
@@ -140,12 +140,12 @@ export const calculateTotalHours = (shifts: Shift[]): number => {
   }, 0);
 };
 
-export const calculateEmployeeHours = (shifts: Shift[], employeeId: number): number => {
+export const calculateEmployeeHours = (shifts: Shift[,], employeeId: number): number => {
   const employeeShifts = filterShiftsByEmployee(shifts, employeeId);
   return calculateTotalHours(employeeShifts);
 };
 
-export const calculateScheduleStats = (shifts: Shift[], employees: Employee[]): ScheduleStats => {
+export const calculateScheduleStats = (shifts: Shift[,], employees: Employee[]): ScheduleStats => {
   const totalShifts = shifts.length;
   const activeEmployees = employees.filter(emp => emp.status === 'active').length;
   const totalHours = calculateTotalHours(shifts);
@@ -154,7 +154,7 @@ export const calculateScheduleStats = (shifts: Shift[], employees: Employee[]): 
   // Répartition par département
   const departmentBreakdown: Record<string, number> = {};
   employees.forEach(emp => {
-    const empShifts = filterShiftsByEmployee(shifts, emp.id);
+    const empShifts = filterShiftsByEmployee(shifts, emp.id)});
     const hours = calculateTotalHours(empShifts);
     if (hours > 0) {
       departmentBreakdown[emp.department] = (departmentBreakdown[emp.department] || 0) + hours;
@@ -164,7 +164,7 @@ export const calculateScheduleStats = (shifts: Shift[], employees: Employee[]): 
   // Répartition par position
   const positionBreakdown: Record<string, number> = {};
   employees.forEach(emp => {
-    const empShifts = filterShiftsByEmployee(shifts, emp.id);
+    const empShifts = filterShiftsByEmployee(shifts, emp.id)});
     const hours = calculateTotalHours(empShifts);
     if (hours > 0) {
       positionBreakdown[emp.position] = (positionBreakdown[emp.position] || 0) + hours;
@@ -183,7 +183,7 @@ export const calculateScheduleStats = (shifts: Shift[], employees: Employee[]): 
 
 // Validation des horaires
 export const validateShiftTime = (startTime: string, endTime: string): boolean => {
-  const start = new Date(`1970-01-01T${startTime}`);
+  const start = new Date(`1970-01-01T${startTime)}`);
   const end = new Date(`1970-01-01T${endTime}`);
   return start < end;
 };
@@ -205,7 +205,7 @@ export const checkShiftConflict = (newShift: Partial<Shift>, existingShifts: Shi
   );
 
   return sameDayShifts.some(shift => {
-    const existingStart = new Date(`1970-01-01T${shift.startTime}`);
+    const existingStart = new Date(`1970-01-01T${shift.startTime)}`);
     const existingEnd = new Date(`1970-01-01T${shift.endTime}`);
     const newStart = new Date(`1970-01-01T${newShift.startTime}`);
     const newEnd = new Date(`1970-01-01T${newShift.endTime}`);
@@ -220,7 +220,7 @@ export const checkShiftConflict = (newShift: Partial<Shift>, existingShifts: Shi
 
 // Génération automatique d'horaires
 export const generateWeeklySchedule = (
-  employees: Employee[],
+  employees: Employee[,],
   weekStart: Date,
   businessHours: { start: string; end: string } = { start: '08:00', end: '20:00' }
 ): Partial<Shift>[] => {
@@ -231,7 +231,7 @@ export const generateWeeklySchedule = (
   const shiftDuration = 8; // 8 heures par shift
   
   weekDays.forEach(day => {
-    const dayOfWeek = day.getDay();
+    const dayOfWeek = day.getDay(});
     
     // Pas de shifts le dimanche (jour de repos)
     if (dayOfWeek === 0) return;
@@ -265,9 +265,9 @@ export const generateWeeklySchedule = (
 };
 
 // Analyse des performances
-export const analyzeEmployeePerformance = (shifts: Shift[], employees: Employee[]) => {
+export const analyzeEmployeePerformance = (shifts: Shift[,], employees: Employee[]) => {
   return employees.map(employee => {
-    const employeeShifts = filterShiftsByEmployee(shifts, employee.id);
+    const employeeShifts = filterShiftsByEmployee(shifts, employee.id)});
     const totalHours = calculateTotalHours(employeeShifts);
     const completedShifts = employeeShifts.filter(shift => shift.status === 'completed').length;
     const cancelledShifts = employeeShifts.filter(shift => shift.status === 'cancelled').length;
@@ -321,7 +321,7 @@ export const getPositionLabel = (position: string): string => {
 };
 
 // Exportation des données
-export const exportScheduleToCSV = (shifts: Shift[], employees: Employee[]): string => {
+export const exportScheduleToCSV = (shifts: Shift[,], employees: Employee[]): string => {
   const headers = [
     'Date',
     'Employé',
@@ -335,7 +335,7 @@ export const exportScheduleToCSV = (shifts: Shift[], employees: Employee[]): str
   ];
   
   const rows = shifts.map(shift => {
-    const employee = employees.find(emp => emp.id === shift.employeeId);
+    const employee = employees.find(emp => emp.id === shift.employeeId});
     const duration = calculateShiftDuration(shift.startTime, shift.endTime);
     
     return [
@@ -377,12 +377,12 @@ export const isShiftToday = (shift: Shift): boolean => {
 };
 
 export const isShiftPast = (shift: Shift): boolean => {
-  const shiftDateTime = new Date(`${shift.date}T${shift.endTime}`);
+  const shiftDateTime = new Date(`${shift.date)}T${shift.endTime}`);
   return isPast(shiftDateTime);
 };
 
 export const isShiftFuture = (shift: Shift): boolean => {
-  const shiftDateTime = new Date(`${shift.date}T${shift.startTime}`);
+  const shiftDateTime = new Date(`${shift.date)}T${shift.startTime}`);
   return isFuture(shiftDateTime);
 };
 
@@ -447,7 +447,7 @@ export const validateShift = (shift: Partial<Shift>, existingShifts: Shift[] = [
   };
 };
 
-export const filterShifts = (shifts: Shift[], filters: {
+export const filterShifts = (shifts: Shift[,], filters: {
   employeeId?: number;
   department?: string;
   position?: string;
@@ -455,7 +455,7 @@ export const filterShifts = (shifts: Shift[], filters: {
   dateRange?: { start: Date; end: Date };
 }): Shift[] => {
   return shifts.filter(shift => {
-    if (filters.employeeId && shift.employeeId !== filters.employeeId) return false;
+    if (filters.employeeId && shift.employeeId !== filters.employeeId)}) return false;
     if (filters.department && shift.department !== filters.department) return false;
     if (filters.position && shift.position !== filters.position) return false;
     if (filters.status && shift.status !== filters.status) return false;
@@ -469,7 +469,7 @@ export const filterShifts = (shifts: Shift[], filters: {
   });
 };
 
-export const sortShifts = (shifts: Shift[], sortBy: 'date' | 'employee' | 'department' | 'position' = 'date'): Shift[] => {
+export const sortShifts = (shifts: Shift[,], sortBy: 'date' | 'employee' | 'department' | 'position' = 'date'): Shift[] => {
   return [...shifts].sort((a, b) => {
     switch (sortBy) {
       case 'date':
@@ -488,9 +488,9 @@ export const sortShifts = (shifts: Shift[], sortBy: 'date' | 'employee' | 'depar
   });
 };
 
-export const shiftsToCalendarEvents = (shifts: Shift[], employees: Employee[] = []) => {
+export const shiftsToCalendarEvents = (shifts: Shift[,], employees: Employee[] = []) => {
   return shifts.map(shift => {
-    const employee = employees.find(emp => emp.id === shift.employeeId);
+    const employee = employees.find(emp => emp.id === shift.employeeId)});
     const start = new Date(`${shift.date}T${shift.startTime}`);
     const end = new Date(`${shift.date}T${shift.endTime}`);
     
@@ -544,5 +544,5 @@ export const formatCurrency = (amount: number): string => {
     style: 'currency',
     currency: 'EUR',
     minimumFractionDigits: 2,
-  }).format(amount);
+  )}).format(amount);
 };

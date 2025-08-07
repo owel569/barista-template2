@@ -34,7 +34,7 @@ export const authenticateUser = (req: Request, res: Response, next: NextFunction
 };
 
 // Alias pour compatibilité (sera supprimé progressivement)
-export const authenticateToken = authenticateUser;
+export const authMiddleware = authenticateUser;
 
 export const requireRole = (role: string) => {
   return (req: Request, res: Response, next: NextFunction): void => {

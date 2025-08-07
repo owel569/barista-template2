@@ -10,9 +10,10 @@ interface AuthenticatedRequest extends Request {
 }
 
 const router = Router();
+const logger = createLogger('ROUTES');
 
 // Middleware d'authentification
-const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
+const authenticateUser = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
@@ -33,7 +34,7 @@ const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
 // === INTELLIGENCE ARTIFICIELLE ===
 
 // Chatbot IA
-router.get('/ai/chatbot/conversations', authenticateToken, async (req, res) => {
+router.get('/ai/chatbot/conversations', authenticateUser, async (req, res) => {
   try {
     const conversations = [
       { id: 1, customer: 'Client A', message: 'Bonjour, je voudrais réserver une table', response: 'Bien sûr! Pour combien de personnes?', timestamp: new Date().toISOString() },
@@ -45,7 +46,7 @@ router.get('/ai/chatbot/conversations', authenticateToken, async (req, res) => {
   }
 });
 
-router.post('/ai/chatbot/respond', authenticateToken, async (req, res) => {
+router.post('/ai/chatbot/respond', authenticateUser, async (req, res) => {
   try {
     const { message } = req.body;
 
@@ -60,14 +61,14 @@ router.post('/ai/chatbot/respond', authenticateToken, async (req, res) => {
       response = "Nous sommes ouverts tous les jours de 7h à 22h.";
     }
 
-    res.json({ response, timestamp: new Date().toISOString() });
+    res.json({ response, timestamp: new Date()}).toISOString() });
   } catch (error) {
     res.status(500).json({ error: 'Erreur de traitement' });
   }
 });
 
 // Vision par ordinateur
-router.get('/ai/vision/quality-checks', authenticateToken, async (req, res) => {
+router.get('/ai/vision/quality-checks', authenticateUser, async (req, res) => {
   try {
     const checks = [
       { id: 1, dish: 'Cappuccino', quality: 'Excellent', score: 95, issues: [] },
@@ -81,12 +82,12 @@ router.get('/ai/vision/quality-checks', authenticateToken, async (req, res) => {
 });
 
 // Prédiction de la demande
-router.get('/ai/prediction/demand', authenticateToken, async (req, res) => {
+router.get('/ai/prediction/demand', authenticateUser, async (req, res) => {
   try {
     const predictions = {
       tomorrow: {
         expectedCustomers: 125,
-        peakHours: ['12:00-14:00', '19:00-21:00'],
+        peakHours: ['12:00-14:00', '19: 00-21:00',],
         recommendedStaff: 8,
         stockNeeded: {
           coffee: '5kg',
@@ -102,14 +103,14 @@ router.get('/ai/prediction/demand', authenticateToken, async (req, res) => {
     };
     res.json(predictions);
   } catch (error) {
-    res.status(500).json({ expectedCustomers: 0, peakHours: [], recommendedStaff: 0, stockNeeded: {} });
+    res.status(500).json({ expectedCustomers: 0, peakHours: [,], recommendedStaff: 0, stockNeeded: {} });
   }
 });
 
 // === APPLICATIONS MOBILES ===
 
 // App Staff
-router.get('/mobile/staff/notifications', authenticateToken, async (req, res) => {
+router.get('/mobile/staff/notifications', authenticateUser, async (req, res) => {
   try {
     const notifications = [
       { id: 1, type: 'shift', message: 'Votre service commence dans 30 minutes', timestamp: new Date().toISOString() },
@@ -122,7 +123,7 @@ router.get('/mobile/staff/notifications', authenticateToken, async (req, res) =>
 });
 
 // App Manager
-router.get('/mobile/manager/dashboard', authenticateToken, async (req, res) => {
+router.get('/mobile/manager/dashboard', authenticateUser, async (req, res) => {
   try {
     const dashboard = {
       todayRevenue: 1250.75,
@@ -140,7 +141,7 @@ router.get('/mobile/manager/dashboard', authenticateToken, async (req, res) => {
 // === PRÉSENCE DIGITALE ===
 
 // Réseaux sociaux
-router.get('/digital/social/posts', authenticateToken, async (req, res) => {
+router.get('/digital/social/posts', authenticateUser, async (req, res) => {
   try {
     const posts = [
       { id: 1, platform: 'Instagram', content: 'Nouveau latte art spécial automne!', likes: 245, comments: 18 },
@@ -153,7 +154,7 @@ router.get('/digital/social/posts', authenticateToken, async (req, res) => {
 });
 
 // E-reputation
-router.get('/digital/reviews/summary', authenticateToken, async (req, res) => {
+router.get('/digital/reviews/summary', authenticateUser, async (req, res) => {
   try {
     const reviews = {
       average: 4.7,
@@ -176,7 +177,7 @@ router.get('/digital/reviews/summary', authenticateToken, async (req, res) => {
 // === PAIEMENTS & FINTECH ===
 
 // Paiements mobiles
-router.get('/fintech/payments/methods', authenticateToken, async (req, res) => {
+router.get('/fintech/payments/methods', authenticateUser, async (req, res) => {
   try {
     const methods = [
       { id: 1, name: 'Apple Pay', enabled: true, usage: 45 },
@@ -193,7 +194,7 @@ router.get('/fintech/payments/methods', authenticateToken, async (req, res) => {
 // === DURABILITÉ & RSE ===
 
 // Gestion des déchets
-router.get('/sustainability/waste/tracking', authenticateToken, async (req, res) => {
+router.get('/sustainability/waste/tracking', authenticateUser, async (req, res) => {
   try {
     const waste = {
       daily: {
@@ -217,7 +218,7 @@ router.get('/sustainability/waste/tracking', authenticateToken, async (req, res)
 // === TECHNOLOGIES ÉMERGENTES ===
 
 // IoT
-router.get('/iot/sensors/status', authenticateToken, async (req, res) => {
+router.get('/iot/sensors/status', authenticateUser, async (req, res) => {
   try {
     const sensors = [
       { id: 1, name: 'Température frigo', value: 4.2, unit: '°C', status: 'normal' },
@@ -233,7 +234,7 @@ router.get('/iot/sensors/status', authenticateToken, async (req, res) => {
 // === MARKETING & CRM AVANCÉ ===
 
 // Campagnes automatisées
-router.get('/marketing/campaigns/automated', authenticateToken, async (req, res) => {
+router.get('/marketing/campaigns/automated', authenticateUser, async (req, res) => {
   try {
     const campaigns = [
       { id: 1, name: 'Bienvenue nouveaux clients', trigger: 'Première visite', sent: 156, opened: 89 },
@@ -248,7 +249,7 @@ router.get('/marketing/campaigns/automated', authenticateToken, async (req, res)
 // === SÉCURITÉ & CONFORMITÉ ===
 
 // Audit RGPD
-router.get('/security/gdpr/compliance', authenticateToken, async (req, res) => {
+router.get('/security/gdpr/compliance', authenticateUser, async (req, res) => {
   try {
     const compliance = {
       dataProcessing: 'Conforme',
@@ -268,7 +269,7 @@ router.get('/security/gdpr/compliance', authenticateToken, async (req, res) => {
 // === MULTI-ÉTABLISSEMENTS ===
 
 // Gestion centralisée
-router.get('/multi-site/overview', authenticateToken, async (req, res) => {
+router.get('/multi-site/overview', authenticateUser, async (req, res) => {
   try {
     const sites = [
       { id: 1, name: 'Barista Centre', revenue: 15420.50, customers: 1247, staff: 8 },
@@ -334,7 +335,7 @@ router.get('/ai-insights', async (req, res) => {
 
     res.json({ insights });
   } catch (error) {
-    console.error('Erreur récupération insights IA:', error);
+    logger.error('Erreur récupération insights IA:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
     res.status(500).json({ message: 'Erreur serveur' });
   }
 });
@@ -349,7 +350,7 @@ router.get('/ai-metrics', async (req, res) => {
       };
       res.json(metrics);
   } catch (error) {
-      console.error('Erreur récupération des métriques IA:', error);
+      logger.error('Erreur récupération des métriques IA:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
       res.status(500).json({ message: 'Erreur serveur' });
   }
 });
@@ -406,7 +407,7 @@ router.get('/reports', async (req, res) => {
 
     res.json({ reports });
   } catch (error) {
-    console.error('Erreur récupération rapports:', error);
+    logger.error('Erreur récupération rapports:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
     res.status(500).json({ message: 'Erreur serveur' });
   }
 });
@@ -434,7 +435,7 @@ router.post('/reports/:reportId/generate', async (req, res) => {
 
     res.json(reportData);
   } catch (error) {
-    console.error('Erreur génération rapport:', error);
+    logger.error('Erreur génération rapport:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
     res.status(500).json({ message: 'Erreur serveur' });
   }
 });
@@ -688,13 +689,13 @@ router.get('/modules', async (req, res) => {
 
     res.json({ modules });
   } catch (error) {
-    console.error('Erreur récupération modules:', error);
+    logger.error('Erreur récupération modules:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
     res.status(500).json({ message: 'Erreur serveur' });
   }
 });
 
 // Routes pour activer/désactiver les modules
-router.post('/modules/:moduleId/activate', authenticateToken, async (req, res) => {
+router.post('/modules/:moduleId/activate', authenticateUser, async (req, res) => {
   try {
     const { moduleId } = req.params;
 
@@ -708,12 +709,12 @@ router.post('/modules/:moduleId/activate', authenticateToken, async (req, res) =
       status: 'active'
     });
   } catch (error) {
-    console.error('Erreur activation module:', error);
+    logger.error('Erreur activation module:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
     res.status(500).json({ message: 'Erreur serveur' });
   }
 });
 
-router.post('/modules/:moduleId/deactivate', authenticateToken, async (req, res) => {
+router.post('/modules/:moduleId/deactivate', authenticateUser, async (req, res) => {
   try {
     const { moduleId } = req.params;
 
@@ -727,13 +728,13 @@ router.post('/modules/:moduleId/deactivate', authenticateToken, async (req, res)
       status: 'inactive'
     });
   } catch (error) {
-    console.error('Erreur désactivation module:', error);
+    logger.error('Erreur désactivation module:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
     res.status(500).json({ message: 'Erreur serveur' });
   }
 });
 
 // Route pour configurer un module
-router.post('/modules/:moduleId/configure', authenticateToken, async (req, res) => {
+router.post('/modules/:moduleId/configure', authenticateUser, async (req, res) => {
   try {
     const { moduleId } = req.params;
     const { config } = req.body;
@@ -748,7 +749,7 @@ router.post('/modules/:moduleId/configure', authenticateToken, async (req, res) 
       config
     });
   } catch (error) {
-    console.error('Erreur configuration module:', error);
+    logger.error('Erreur configuration module:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
     res.status(500).json({ message: 'Erreur serveur' });
   }
 });
@@ -767,13 +768,13 @@ router.get('/kpis', async (req, res) => {
 
     res.json(kpis);
   } catch (error) {
-    console.error('Erreur récupération KPIs:', error);
+    logger.error('Erreur récupération KPIs:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
     res.status(500).json({ message: 'Erreur serveur' });
   }
 });
 
 // Routes pour les fonctionnalités avancées
-router.get('/modules-status', authenticateToken, async (req, res) => {
+router.get('/modules-status', authenticateUser, async (req, res) => {
   try {
     // Simuler la récupération du statut des modules avec validation
     // Fonction simulée pour le statut des modules
@@ -794,14 +795,14 @@ router.get('/modules-status', authenticateToken, async (req, res) => {
     res.json({
       success: true,
       data: modulesStatus,
-      timestamp: new Date().toISOString()
+      timestamp: new Date()}).toISOString()
     });
   } catch (error: unknown) {
-    console.error('Erreur lors de la récupération du statut des modules:', error);
+    logger.error('Erreur lors de la récupération du statut des modules:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
     res.status(500).json({ 
       success: false,
       error: 'Erreur lors de la récupération du statut des modules',
-      message: (error as Error).message || 'Erreur inconnue'
+      message: (error as Error)}).message || 'Erreur inconnue'
     });
   }
 });

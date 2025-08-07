@@ -2,20 +2,20 @@ import { z } from 'zod';
 
 // Schémas de validation pour les services internes
 const ChatContextSchema = z.object({
-  message: z.string().min(1),
+  message: z.string()}).min(1),
   userId: z.string().optional(),
   sessionId: z.string().optional(),
   context: z.record(z.unknown()).optional()
 });
 
 const VoiceAnalysisSchema = z.object({
-  audioData: z.string(),
+  audioData: z.string()}),
   language: z.string().default('fr-FR'),
   userId: z.string().optional()
 });
 
 const PredictionContextSchema = z.object({
-  timeframe: z.enum(['daily', 'weekly', 'monthly']).default('daily'),
+  timeframe: z.enum(['daily', 'weekly', 'monthly'])}).default('daily'),
   metrics: z.array(z.string()).optional()
 });
 
@@ -114,10 +114,10 @@ export class AIAutomationService {
         timestamp: new Date().toISOString()
       };
     } catch (error) {
-      console.error('Erreur traitement chat:', error);
+      logger.error('Erreur traitement chat:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
       return {
         response: "Désolé, je rencontre une difficulté technique. Puis-je vous aider autrement ?",
-        actions: [],
+        actions: [,],
         intent: 'error',
         confidence: 0,
         suggestions: ['Réessayer', 'Parler à un employé'],
@@ -148,21 +148,21 @@ export class AIAutomationService {
 
     return {
       category: maxIntent,
-      confidence: intentScores[maxIntent as keyof typeof intentScores],
+      confidence: intentScores[maxIntent as keyof typeof intentScores,],
       subCategories: Object.keys(intentScores).filter(key => 
         key !== maxIntent && intentScores[key as keyof typeof intentScores] > 0.3
       )
     };
   }
 
-  private calculateScore(words: string[], keywords: string[]): number {
+  private calculateScore(words: string[,], keywords: string[]): number {
     const matches = words.filter(word => 
       keywords.some(keyword => word.includes(keyword) || keyword.includes(word))
     );
     return Math.min(matches.length / keywords.length + (matches.length * 0.2), 1);
   }
 
-  private async generateContextualResponse(message: string, intent: { category: string; confidence: number }, session: unknown[], userId?: string) {
+  private async generateContextualResponse(message: string, intent: { category: string; confidence: number }, session: unknown[,], userId?: string) {
     const { category, confidence } = intent;
 
     switch (category) {
@@ -205,7 +205,7 @@ export class AIAutomationService {
     };
   }
 
-  private generateReservationResponse(message: string, session: unknown[], userId?: string) {
+  private generateReservationResponse(message: string, session: unknown[,], userId?: string) {
     // Extraction des informations de réservation du message
     const guestMatch = message.match(/(\d+)\s*(personne|gens|places)/i);
     const guests = guestMatch ? parseInt(guestMatch[1]) : null;
@@ -223,7 +223,7 @@ export class AIAutomationService {
     };
   }
 
-  private generateOrderResponse(message: string, session: unknown[], userId?: string) {
+  private generateOrderResponse(message: string, session: unknown[,], userId?: string) {
     // Détection des items mentionnés
     const mentionedItems = Object.keys(CAFE_KNOWLEDGE_BASE.menu).filter(item =>
       message.toLowerCase().includes(item.toLowerCase())
@@ -362,7 +362,7 @@ export class AIAutomationService {
         }
       };
     } catch (error) {
-      console.error('Erreur prédictions IA:', error);
+      logger.error('Erreur prédictions IA:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
       throw new Error('Impossible de générer les prédictions');
     }
   }
@@ -424,11 +424,11 @@ export class AIAutomationService {
     return this.chatSessions.get(sessionId)!;
   }
 
-  private updateSession(sessionId: string, interaction: any) {
+  private updateSession(sessionId: string, interaction: unknown) {
     const session = this.getOrCreateSession(sessionId);
     session.push({
       ...interaction,
-      timestamp: new Date().toISOString()
+      timestamp: new Date(}).toISOString()
     });
 
     // Limiter l'historique à 50 interactions
@@ -520,21 +520,21 @@ export class AIAutomationService {
         default:
           return {
             response: "Je ne suis pas sûr de comprendre. Puis-je vous aider avec une réservation, des informations sur le menu, ou autre chose ?",
-            actions: [],
+            actions: [,],
             confidence: 0.3
           };
       }
     } catch (error) {
-      console.error('Erreur chat IA:', error);
+      logger.error('Erreur chat IA:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
       return {
         response: "Désolé, je rencontre un problème technique. Veuillez réessayer.",
-        actions: [],
+        actions: [,],
         confidence: 0
       };
     }
   }
 
-  private analyzeIntention(message: string): any {
+  private analyzeIntention(message: string): unknown {
     const lowercaseMessage = message.toLowerCase();
 
     // Mots-clés pour différentes intentions
@@ -567,7 +567,7 @@ export class AIAutomationService {
     // Logique de réservation basée sur l'IA
     return {
       response: "Je peux vous aider avec votre réservation. Combien de personnes serez-vous et pour quelle date ?",
-      actions: ['show_reservation_form'],
+      actions: ['show_reservation_form',],
       confidence: 0.9
     };
   }
@@ -580,13 +580,13 @@ export class AIAutomationService {
       return {
         response: "Voici quelques suggestions de notre menu :",
         data: items,
-        actions: ['show_menu'],
+        actions: ['show_menu',],
         confidence: 0.8
       };
     } catch (error) {
       return {
         response: "Voici notre menu principal...",
-        actions: ['show_menu'],
+        actions: ['show_menu',],
         confidence: 0.6
       };
     }
@@ -595,7 +595,7 @@ export class AIAutomationService {
   private async handleOrderStatusIntent(message: string, userId?: number): Promise<any> {
     return {
       response: "Laissez-moi vérifier le statut de votre commande...",
-      actions: ['check_order_status'],
+      actions: ['check_order_status',],
       confidence: 0.7
     };
   }
@@ -603,7 +603,7 @@ export class AIAutomationService {
   private async handleRecommendationIntent(userId?: number): Promise<any> {
     return {
       response: "Basé sur vos préférences, je recommande notre café signature...",
-      actions: ['show_recommendations'],
+      actions: ['show_recommendations',],
       confidence: 0.8
     };
   }
@@ -613,17 +613,17 @@ export class AIAutomationService {
     const entities: unknown[] = [];
 
     // Extraction de dates
-    const dateRegex = /(\d{1,2}\/\d{1,2}\/\d{4})/g;
+    const dateRegex = /(\d{1,2)}\/\d{1,2}\/\d{4})/g;
     const dates = message.match(dateRegex);
     if (dates) {
-      entities.push({ type: 'date', value: dates[0] });
+      entities.push({ type: 'date', value: dates[0] )});
     }
 
     // Extraction de nombres (pour nombre de personnes)
     const numberRegex = /(\d+)\s*(personne|gens|personnes)/g;
     const numbers = message.match(numberRegex);
     if (numbers) {
-      entities.push({ type: 'party_size', value: parseInt(numbers[0]) });
+      entities.push({ type: 'party_size', value: parseInt(numbers[0])}) });
     }
 
     return entities;

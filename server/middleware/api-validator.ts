@@ -17,11 +17,11 @@ export const apiResponseValidator = (req: Request, res: Response, next: NextFunc
         try {
           JSON.parse(body);
         } catch (e) {
-          console.error('🚨 Réponse API non-JSON détectée:', body.substring(0, 100));
+          logger.error('🚨 Réponse API non-JSON détectée:', body.substring(0, 100));
           return originalJson.call(this, {
             success: false,
             message: 'Erreur de format de réponse',
-            timestamp: new Date().toISOString()
+            timestamp: new Date(}).toISOString()
           });
         }
       }
@@ -32,11 +32,11 @@ export const apiResponseValidator = (req: Request, res: Response, next: NextFunc
     // Override res.send pour intercepter les réponses HTML
     res.send = function(body: string | Buffer) {
       if (typeof body === 'string' && body.includes('<!DOCTYPE')) {
-        console.error('🚨 Tentative d\'envoi de HTML sur route API:', req.path);
+        logger.error('🚨 Tentative d\'envoi de HTML sur route API:', req.path);
         return originalJson.call(this, {
           success: false,
           message: 'Erreur interne - format de réponse incorrect',
-          timestamp: new Date().toISOString()
+          timestamp: new Date(}).toISOString()
         });
       }
       return originalSend.call(this, body);
@@ -52,7 +52,7 @@ export const errorResponseHandler = (error: unknown, req: Request, res: Response
     
     return res.status(statusCode).json({
       success: false,
-      message: (error as Error).message || 'Erreur interne du serveur',
+      message: (error as Error}).message || 'Erreur interne du serveur',
       error: process.env.NODE_ENV === 'development' ? {
         stack: error.stack,
         details: error

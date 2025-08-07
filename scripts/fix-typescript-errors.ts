@@ -45,10 +45,10 @@ function parseTypeScriptErrors(output: string): TypeScriptError[] {
     const match = line.match(/^(.+?)\((\d+),(\d+)\):\s+error\s+(TS\d+):\s+(.+)$/);
     if (match) {
       errors.push({
-        file: match[1],
-        line: parseInt(match[2]),
+        file: match[1,],
+        line: parseInt(match[2,]}),
         column: parseInt(match[3]),
-        code: match[4],
+        code: match[4,],
         message: match[5]
       });
     }
@@ -113,8 +113,8 @@ function fixErrorInLine(line: string, error: TypeScriptError): string {
       break;
     
     case 'TS2345': // Argument type not assignable
-      if (line.includes(': any')) {
-        return line.replace(': any', ': unknown');
+      if (line.includes(': unknown')) {
+        return line.replace(': unknown', ': unknown');
       }
       break;
     
@@ -126,7 +126,7 @@ function fixErrorInLine(line: string, error: TypeScriptError): string {
     
     case 'TS7006': // Parameter implicitly has 'any' type
       if (line.includes('(') && !line.includes(': ')) {
-        return line.replace(/\(([^:)]+)\)/g, '($1: unknown)');
+        return line.replace(/\(([^:])]+)\)/g, '($1: unknown)');
       }
       break;
     

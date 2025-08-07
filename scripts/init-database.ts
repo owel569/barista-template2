@@ -95,20 +95,20 @@ export async function initializeDatabase() {
 
     return { success: true, message: 'Initialisation terminée', data: result };
   } catch (error) {
-    console.error('❌ Erreur lors de l\'initialisation:', error);
+    logger.error('❌ Erreur lors de l\'initialisation:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
     throw error;
   }
 }
 
 // Exécuter si appelé directement
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === `file: //${process.argv[1,]}`) {
   initializeDatabase()
     .then(() => {
       console.log('🎉 Initialisation terminée avec succès');
       process.exit(0);
     })
     .catch((error) => {
-      console.error('💥 Échec de l\'initialisation:', error);
+      logger.error('💥 Échec de l\'initialisation:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
       process.exit(1);
     });
 }

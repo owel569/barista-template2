@@ -39,7 +39,7 @@ export const InternationalPhoneInput = forwardRef<HTMLInputElement, Internationa
       return country || countries[0];
     };
 
-    const getPhoneNumberFromValue = (phoneValue: string, country: any) => {
+    const getPhoneNumberFromValue = (phoneValue: string, country: unknown) => {
       if (!phoneValue) return '';
       return phoneValue.startsWith(country.dialCode) 
         ? phoneValue.slice(country.dialCode.length)

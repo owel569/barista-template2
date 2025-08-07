@@ -49,7 +49,7 @@ export default function InventoryManagement() : JSX.Element {
       const [itemsRes, alertsRes] = await Promise.all([
         fetch('/api/admin/inventory/items', {
           headers: { 'Authorization': `Bearer ${token}` }
-        }),
+        })]),
         fetch('/api/admin/inventory/alerts', {
           headers: { 'Authorization': `Bearer ${token}` }
         })
@@ -57,24 +57,24 @@ export default function InventoryManagement() : JSX.Element {
 
       if (itemsRes.ok && alertsRes.ok) {
         const [itemsData, alertsData] = await Promise.all([
-          itemsRes.json(),
+          itemsRes.json()]),
           alertsRes.json()
         ]);
         
         // Traiter les données pour s'assurer que tous les nombres sont correctement formatés
-        const processedItems = (itemsData || []).map((item: any) => ({
+        const processedItems = (itemsData || []).map((item: unknown) => ({
           ...item,
           currentStock: Number(item.currentStock) || 0,
           minStock: Number(item.minStock) || 0,
           maxStock: Number(item.maxStock) || 0,
           unitCost: Number(item.unitCost) || 0
-        }));
+        });
         
-        const processedAlerts = Array.isArray(alertsData) ? alertsData.map((alert: any) => ({
+        const processedAlerts = Array.isArray(alertsData) ? alertsData.map((alert: unknown) => ({
           ...alert,
           currentStock: Number(alert.currentStock) || 0,
           minStock: Number(alert.minStock) || 0
-        })) : [];
+        }); : [];
         
         setItems(processedItems);
         setAlerts(processedAlerts);
@@ -241,7 +241,7 @@ export default function InventoryManagement() : JSX.Element {
           <TabsTrigger value="items">Articles</TabsTrigger>
           <TabsTrigger value="alerts">
             Alertes {alerts.length > 0 && (
-              <Badge variant="destructive" className="ml-2">{alerts.length}</Badge>
+              <Badge variant="destructive" className="ml-2">{alerts.length)}</Badge>
             )}
           </TabsTrigger>
           <TabsTrigger value="suppliers">Fournisseurs</TabsTrigger>

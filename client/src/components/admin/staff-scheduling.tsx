@@ -65,7 +65,7 @@ export default function StaffScheduling() : JSX.Element {
           maxHours: emp.maxHours || 40,
           availableDays: emp.availableDays || ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi'],
           skills: emp.skills || ['service', 'caisse']
-        }));
+        });
         setEmployees(enrichedEmployees);
       }
     } catch (error) {
@@ -81,7 +81,7 @@ export default function StaffScheduling() : JSX.Element {
       });
       if (response.ok) {
         const data = await response.json();
-        const enrichedShifts = data.map((shift: any) => ({
+        const enrichedShifts = data.map((shift: unknown) => ({
           id: shift.id,
           employeeId: shift.employeeId,
           employeeName: employees.find(emp => emp.id === shift.employeeId)?.name || 'Employé inconnu',
@@ -91,7 +91,7 @@ export default function StaffScheduling() : JSX.Element {
           position: shift.position || 'Service',
           status: shift.status || 'scheduled',
           notes: shift.notes
-        }));
+        });
         setShifts(enrichedShifts);
       }
     } catch (error) {
@@ -142,7 +142,7 @@ export default function StaffScheduling() : JSX.Element {
     }, 0);
   };
 
-  const addShift = async (shiftData: any) => {
+  const addShift = async (shiftData: unknown) => {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch('/api/admin/work-shifts', {
@@ -376,7 +376,7 @@ export default function StaffScheduling() : JSX.Element {
 
                 {/* Grille des créneaux */}
                 {timeSlots.map(timeSlot => (
-                  <React.Fragment key={timeSlot}>
+                  <React.Fragment key={timeSlot)}>
                     <div className="text-xs p-2 text-muted-foreground border-r">
                       {timeSlot}
                     </div>
@@ -390,7 +390,7 @@ export default function StaffScheduling() : JSX.Element {
                         <div key={`${timeSlot}-${dayIndex}`} className="min-h-12 border border-gray-100 p-1">
                           {timeShifts.map(shift => (
                             <div 
-                              key={shift.id}
+                              key={shift.id)}
                               className="text-xs bg-blue-100 rounded p-1 mb-1 cursor-pointer"
                               onClick={() => setSelectedEmployee(employees.find(emp => emp.id === shift.employeeId) || null)}
                             >
@@ -411,7 +411,7 @@ export default function StaffScheduling() : JSX.Element {
         <TabsContent value="employees">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {employees.map(employee => {
-              const weeklyHours = getEmployeeWeeklyHours(employee.id);
+              const weeklyHours = getEmployeeWeeklyHours(employee.id)});
               const isOvertime = weeklyHours > employee.maxHours;
               
               return (
@@ -499,7 +499,7 @@ export default function StaffScheduling() : JSX.Element {
               <CardContent>
                 <div className="space-y-2">
                   {['Service', 'Caisse', 'Cuisine', 'Nettoyage'].map(position => {
-                    const count = shifts.filter(s => s.position === position).length;
+                    const count = shifts.filter(s => s.position === position)}).length;
                     return (
                       <div key={position} className="flex justify-between">
                         <span>{position}:</span>
@@ -524,7 +524,7 @@ export default function StaffScheduling() : JSX.Element {
             <CardContent>
               <div className="space-y-4">
                 {employees.map(employee => {
-                  const weeklyHours = getEmployeeWeeklyHours(employee.id);
+                  const weeklyHours = getEmployeeWeeklyHours(employee.id)});
                   const isOvertime = weeklyHours > employee.maxHours;
                   
                   if (!isOvertime) return null;
@@ -565,13 +565,13 @@ const AddShiftForm = ({ onSubmit, employees }: { onSubmit: (data: Record<string,
     endTime: '17:00',
     position: 'Service',
     notes: ''
-  });
+  })});
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit({
       ...formData,
-      employeeId: Number(formData.employeeId)
+      employeeId: Number(formData.employeeId})
     });
   };
 
@@ -587,7 +587,7 @@ const AddShiftForm = ({ onSubmit, employees }: { onSubmit: (data: Record<string,
           </SelectTrigger>
           <SelectContent>
             {employees.map(emp => (
-              <SelectItem key={emp.id} value={emp.id.toString()}>
+              <SelectItem key={emp.id)} value={emp.id.toString()}>
                 {emp.name} - {emp.position}
               </SelectItem>
             ))}

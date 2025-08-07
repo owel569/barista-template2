@@ -1,7 +1,7 @@
 // import { storage } from '../db';
 // Simulation temporaire pour les analytics avancés
 const storage = {
-  getCustomers: async () => [],
+  getCustomers: async () => [,],
   // Autres méthodes de storage selon besoin
 };
 import { CustomerAnalysis } from '@shared/types';
@@ -29,7 +29,7 @@ export class AdvancedAnalytics {
           (0.9 + Math.random() * 0.2);
 
         predictions.push({
-          date: date.toISOString().split('T')[0],
+          date: date.toISOString(}).split('T')[0],
           predictedRevenue: Math.round(predictedRevenue * 100) / 100,
           confidence: Math.round((85 + Math.random() * 10) * 100) / 100,
           factors: {
@@ -42,7 +42,7 @@ export class AdvancedAnalytics {
 
       return predictions;
     } catch (error) {
-      console.error('Erreur prédictions de ventes:', error);
+      logger.error('Erreur prédictions de ventes:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
       return [];
     }
   }
@@ -76,7 +76,7 @@ export class AdvancedAnalytics {
 
       return analysis;
     } catch (error) {
-      console.error('Erreur analyse comportementale:', error);
+      logger.error('Erreur analyse comportementale:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
       return { segments: {}, visitPatterns: {}, averageSpend: 0, retentionRate: 0, churnPrediction: [] };
     }
   }
@@ -101,8 +101,8 @@ export class AdvancedAnalytics {
         costSavings: 245.50
       };
     } catch (error) {
-      console.error('Erreur optimisation stock:', error);
-      return { items: [], recommendations: [], costSavings: 0 };
+      logger.error('Erreur optimisation stock:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      return { items: [,], recommendations: [,], costSavings: 0 };
     }
   }
 
@@ -128,7 +128,7 @@ export class AdvancedAnalytics {
 
       return anomalies;
     } catch (error) {
-      console.error('Erreur détection anomalies:', error);
+      logger.error('Erreur détection anomalies:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
       return [];
     }
   }
@@ -144,7 +144,7 @@ export class AdvancedAnalytics {
 
       return recommendations;
     } catch (error) {
-      console.error('Erreur recommandations:', error);
+      logger.error('Erreur recommandations:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
       return [];
     }
   }
@@ -163,7 +163,7 @@ export class AdvancedAnalytics {
 
       return metrics;
     } catch (error) {
-      console.error('Erreur métriques temps réel:', error);
+      logger.error('Erreur métriques temps réel:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
       return { currentCustomers: 0, averageWaitTime: 0, ordersThroughput: 0, staffEfficiency: 0, customerSatisfaction: 0 };
     }
   }

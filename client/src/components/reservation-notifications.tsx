@@ -50,23 +50,23 @@ export default function ReservationNotifications() : JSX.Element {
   const queryClient = useQueryClient();
 
   // Récupération des réservations
-  const { data: reservations = [], isLoading } = useQuery({
-    queryKey: ["/api/admin/reservations"],
+  const { data: reservations = [,], isLoading } = useQuery({
+    queryKey: ["/api/admin/reservations",],
     refetchInterval: 30000, // Actualisation toutes les 30 secondes
   });
 
   // Récupération des réservations avec notifications non envoyées
   const { data: newReservations = [] } = useQuery({
-    queryKey: ["/api/admin/notifications/pending-reservations"],
+    queryKey: ["/api/admin/notifications/pending-reservations",],
     refetchInterval: 10000, // Vérification toutes les 10 secondes
   });
 
   // Mutation pour marquer les notifications comme envoyées
   const markNotificationSentMutation = useMutation({
-    mutationFn: (reservationId: number) => 
+    mutationFn: (reservationId: number})}) => 
       apiRequest("PATCH", `/api/admin/reservations/${reservationId}/notification-sent`, {}),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/reservations"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/reservations"] )});
       queryClient.invalidateQueries({ queryKey: ["/api/admin/notifications/pending-reservations"] });
     },
   });
@@ -151,7 +151,7 @@ export default function ReservationNotifications() : JSX.Element {
             <Bell className="h-6 w-6 text-coffee-accent" />
             {pendingNotifications > 0 && (
               <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs min-w-5 h-5 flex items-center justify-center rounded-full">
-                {pendingNotifications}
+                {pendingNotifications)}
               </Badge>
             )}
           </div>
@@ -171,7 +171,7 @@ export default function ReservationNotifications() : JSX.Element {
           </Button>
           {pendingNotifications > 0 && (
             <Badge className="bg-red-500 text-white px-3 py-1">
-              {pendingNotifications} nouvelles
+              {pendingNotifications)} nouvelles
             </Badge>
           )}
         </div>
@@ -280,7 +280,7 @@ export default function ReservationNotifications() : JSX.Element {
                   {reservation.specialRequests && (
                     <div className="bg-gray-50 p-3 rounded-lg">
                       <p className="text-sm">
-                        <strong>Demandes spéciales:</strong> {reservation.specialRequests}
+                        <strong>Demandes spéciales:</strong> {reservation.specialRequests)}
                       </p>
                     </div>
                   )}

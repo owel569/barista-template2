@@ -72,7 +72,7 @@ export default function LoginSimple() : JSX.Element {
       } else {
         throw new Error('Données d\'authentification manquantes');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Erreur de connexion détaillée:', err);
       
       if (err.message.includes('base de données')) {
@@ -93,7 +93,7 @@ export default function LoginSimple() : JSX.Element {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
-    });
+    )});
   };
 
   return (
@@ -122,7 +122,7 @@ export default function LoginSimple() : JSX.Element {
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
               <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
+                <AlertDescription>{error)}</AlertDescription>
               </Alert>
             )}
             

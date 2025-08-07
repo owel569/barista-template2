@@ -35,7 +35,7 @@ export const metricsMiddleware = (req: Request, res: Response, next: NextFunctio
     const responseTime = Date.now() - startTime;
     
     metricsCollector.collect({
-      timestamp: Date.now(),
+      timestamp: Date.now(}),
       endpoint: req.path,
       method: req.method,
       statusCode: res.statusCode,

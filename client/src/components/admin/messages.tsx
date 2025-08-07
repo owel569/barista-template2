@@ -60,14 +60,14 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
   // Initialiser WebSocket pour les notifications temps réel
   useWebSocket();
 
-  const { data: messages = [], isLoading } = useQuery<ContactMessage[]>({
-    queryKey: ['/api/admin/messages'],
+  const { data: messages = [,], isLoading } = useQuery<ContactMessage[]>({
+    queryKey: ['/api/admin/messages',],
     retry: 3,
     retryDelay: 1000,
   });
 
   const updateStatusMutation = useMutation({
-    mutationFn: async ({ id, status }: { id: number; status: string }) => {
+    mutationFn: async ({ id, status })}: { id: number; status: string }) => {
       const token = localStorage.getItem('token');
       const response = await fetch(`/api/admin/messages/${id}/status`, {
         method: 'PUT',
@@ -84,7 +84,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/messages'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/messages'] )});
       queryClient.refetchQueries({ queryKey: ['/api/admin/messages'] });
       toast({
         title: 'Succès',
@@ -96,18 +96,18 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
         title: 'Erreur',
         description: 'Erreur lors de la mise à jour du statut',
         variant: 'destructive',
-      });
+      )});
     },
   });
 
   const replyMutation = useMutation({
-    mutationFn: ({ id, response }: { id: number; response: string }) =>
+    mutationFn: ({ id, response })}: { id: number; response: string }) =>
       apiRequest(`/api/admin/messages/${id}/reply`, {
         method: 'POST',
-        body: JSON.stringify({ response }),
+        body: JSON.stringify({ response )}),
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/messages'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/messages'] )});
       setResponse('');
       setIsDialogOpen(false);
       toast({
@@ -120,16 +120,16 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
         title: 'Erreur',
         description: 'Erreur lors de l\'envoi de la réponse',
         variant: 'destructive',
-      });
+      )});
     },
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => apiRequest(`/api/admin/messages/${id}`, {
+    mutationFn: (id: number})}) => apiRequest(`/api/admin/messages/${id}`, {
       method: 'DELETE',
     }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/messages'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/messages'] )});
       toast({
         title: 'Succès',
         description: 'Message supprimé avec succès',
@@ -140,17 +140,17 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
         title: 'Erreur',
         description: 'Erreur lors de la suppression du message',
         variant: 'destructive',
-      });
+      )});
     },
   });
 
   const handleStatusChange = (messageId: number, newStatus: string) => {
-    updateStatusMutation.mutate({ id: messageId, status: newStatus });
+    updateStatusMutation.mutate({ id: messageId, status: newStatus )});
   };
 
   const handleReply = () => {
     if (!selectedMessage || !response.trim()) return;
-    replyMutation.mutate({ id: selectedMessage.id, response: response.trim() });
+    replyMutation.mutate({ id: selectedMessage.id, response: response.trim(}) });
   };
 
   const handleDelete = (id: number) => {
@@ -172,7 +172,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
 
   const filteredMessages = messages.filter(message => {
     const matchesSearch = !searchTerm || 
-      message.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      message.name?.toLowerCase()}).includes(searchTerm.toLowerCase()) ||
       message.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       message.subject.toLowerCase().includes(searchTerm.toLowerCase());
     
@@ -362,7 +362,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
               ))}
               {filteredMessages.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={5)} className="text-center py-8 text-muted-foreground">
                     Aucun message trouvé
                   </TableCell>
                 </TableRow>
@@ -386,10 +386,10 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <h3 className="font-semibold">Expéditeur</h3>
-                  <p>{selectedMessage.name || 'Anonyme'}</p>
+                  <p>{selectedMessage.name || 'Anonyme')}</p>
                   <p className="text-sm text-muted-foreground">{selectedMessage.email}</p>
                   {selectedMessage.phone && (
-                    <p className="text-sm text-muted-foreground">{selectedMessage.phone}</p>
+                    <p className="text-sm text-muted-foreground">{selectedMessage.phone)}</p>
                   )}
                 </div>
                 <div>

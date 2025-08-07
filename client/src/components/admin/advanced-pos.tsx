@@ -100,7 +100,7 @@ export default function AdvancedPOS() : JSX.Element {
         setMenuItems(data.menu || []);
       }
     } catch (error) {
-      console.error('Erreur lors du chargement du menu:', error);
+      logger.error('Erreur lors du chargement du menu:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
       // Données par défaut
       setMenuItems([
         { id: 1, name: 'Espresso', price: 2.50, category: 'Cafés', stock: 50 },
@@ -113,15 +113,15 @@ export default function AdvancedPOS() : JSX.Element {
 
   const addToCart = useCallback((item: MenuItem) => {
     setCart(prev => {
-      const existing = prev.find(cartItem => cartItem.id === item.id);
+      const existing = prev.find(cartItem => cartItem.id === item.id)});
       if (existing) {
         return prev.map(cartItem =>
           cartItem.id === item.id
-            ? { ...cartItem, quantity: cartItem.quantity + 1 }
+            ? { ...cartItem, quantity: cartItem.quantity + 1 )}
             : cartItem
         );
       }
-      return [...prev, { ...item, quantity: 1 }];
+      return [...prev, { ...item, quantity: 1 });
     });
     toast({
       title: "Ajouté au panier",
@@ -162,7 +162,7 @@ export default function AdvancedPOS() : JSX.Element {
 
       const order: Order = {
         id: `ORD-${Date.now()}`,
-        items: [...cart],
+        items: [...cart,],
         total: finalTotal,
         tax: totals.tax,
         subtotal: totals.subtotal,
@@ -195,7 +195,7 @@ export default function AdvancedPOS() : JSX.Element {
         title: "Erreur de paiement",
         description: "Une erreur est survenue lors du traitement",
         variant: "destructive"
-      });
+      )});
     } finally {
       setLoading(false);
     }
@@ -211,7 +211,7 @@ export default function AdvancedPOS() : JSX.Element {
   };
 
   const filteredItems = menuItems.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = item.name.toLowerCase()}).includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -247,7 +247,7 @@ export default function AdvancedPOS() : JSX.Element {
                 className="px-3 py-2 border rounded-md"
               >
                 {categories.map(category => (
-                  <option key={category} value={category}>
+                  <option key={category)} value={category}>
                     {category === 'all' ? 'Toutes catégories' : category}
                   </option>
                 ))}
@@ -258,14 +258,14 @@ export default function AdvancedPOS() : JSX.Element {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {filteredItems.map(item => (
               <Card
-                key={item.id}
+                key={item.id)}
                 className="cursor-pointer hover:shadow-lg transition-shadow"
                 onClick={() => addToCart(item)}
               >
                 <CardContent className="p-4">
                   <div className="aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg mb-3 flex items-center justify-center">
                     {item.image ? (
-                      <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded-lg" />
+                      <img src={item.image)} alt={item.name} className="w-full h-full object-cover rounded-lg" />
                     ) : (
                       <div className="text-gray-400 text-2xl">🍽️</div>
                     )}
@@ -273,7 +273,7 @@ export default function AdvancedPOS() : JSX.Element {
                   <h3 className="font-semibold text-sm mb-1 truncate">{item.name}</h3>
                   <p className="text-lg font-bold text-primary">{item.price.toFixed(2)}€</p>
                   {item.stock !== undefined && (
-                    <p className="text-xs text-gray-500">Stock: {item.stock}</p>
+                    <p className="text-xs text-gray-500">Stock: {item.stock)}</p>
                   )}
                 </CardContent>
               </Card>
@@ -438,7 +438,7 @@ export default function AdvancedPOS() : JSX.Element {
               <CardTitle className="text-green-600">Paiement réussi !</CardTitle>
             </CardHeader>
             <CardContent className="text-center space-y-4">
-              <p>Commande #{currentOrder.id}</p>
+              <p>Commande #{currentOrder.id)}</p>
               <p className="text-2xl font-bold">{currentOrder.total.toFixed(2)}€</p>
               <p className="text-sm text-gray-500">
                 Payé par {paymentMethods.find(m => m.id === currentOrder.paymentMethod)?.name}

@@ -77,7 +77,7 @@ interface Driver {
 }
 
 const deliverySchema = z.object({
-  orderId: z.number().min(1, "Commande requise"),
+  orderId: z.number()}).min(1, "Commande requise"),
   driverId: z.number().optional(),
   estimatedTime: z.string().min(1, "Temps estimé requis"),
   notes: z.string().optional(),
@@ -108,36 +108,36 @@ export default function DeliveryTracking() : JSX.Element {
   const queryClient = useQueryClient();
   useWebSocket();
 
-  const { data: deliveries = [], isLoading } = useQuery({
-    queryKey: ['/api/admin/deliveries'],
+  const { data: deliveries = [,], isLoading } = useQuery({
+    queryKey: ['/api/admin/deliveries',],
   });
 
   const { data: drivers = [] } = useQuery({
-    queryKey: ['/api/admin/drivers'],
+    queryKey: ['/api/admin/drivers',],
   });
 
   const { data: orders = [] } = useQuery({
-    queryKey: ['/api/admin/orders-for-delivery'],
+    queryKey: ['/api/admin/orders-for-delivery',],
   });
 
   const createDeliveryMutation = useMutation({
-    mutationFn: (data: Record<string, unknown>) => apiRequest('/api/admin/deliveries', { method: 'POST', data }),
+    mutationFn: (data: Record<string, unknown>})}) => apiRequest('/api/admin/deliveries', { method: 'POST', data }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/deliveries'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/deliveries'] )});
       toast({ title: "Livraison créée avec succès" });
     },
   });
 
   const updateDeliveryMutation = useMutation({
-    mutationFn: ({ id, ...data }: any) => apiRequest(`/api/admin/deliveries/${id}`, { method: 'PUT', data }),
+    mutationFn: ({ id, ...data })}: unknown) => apiRequest(`/api/admin/deliveries/${id}`, { method: 'PUT', data }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/deliveries'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/deliveries'] )});
       toast({ title: "Livraison mise à jour" });
     },
   });
 
   const form = useForm({
-    resolver: zodResolver(deliverySchema),
+    resolver: zodResolver(deliverySchema})}),
     defaultValues: {
       orderId: 0,
       driverId: undefined,
@@ -151,7 +151,7 @@ export default function DeliveryTracking() : JSX.Element {
   };
 
   const updateDeliveryStatus = (id: number, status: string) => {
-    updateDeliveryMutation.mutate({ id, status });
+    updateDeliveryMutation.mutate({ id, status )});
   };
 
   const filteredDeliveries = deliveries.filter((delivery: Delivery) => 
@@ -197,7 +197,7 @@ export default function DeliveryTracking() : JSX.Element {
                 <FormField
                   control={form.control}
                   name="orderId"
-                  render={({ field }) => (
+                  render={({ field )}) => (
                     <FormItem>
                       <FormLabel>Commande</FormLabel>
                       <Select onValueChange={(value) => field.onChange(parseInt(value))}>
@@ -207,7 +207,7 @@ export default function DeliveryTracking() : JSX.Element {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {orders.map((order: { id: number; customerName: string; address: string; city: string; postalCode: string; driverName?: string; status: string; estimatedTime: string; totalAmount: number }) => (
+                          {orders.map((order: { id: number; customerName: string; address: string; city: string; postalCode: string; driverName?: string; status: string; estimatedTime: string; totalAmount: number )}) => (
                             <SelectItem key={order.id} value={order.id.toString()}>
                               Commande #{order.id} - {order.customerName}
                             </SelectItem>
@@ -222,7 +222,7 @@ export default function DeliveryTracking() : JSX.Element {
                 <FormField
                   control={form.control}
                   name="driverId"
-                  render={({ field }) => (
+                  render={({ field )}) => (
                     <FormItem>
                       <FormLabel>Livreur (optionnel)</FormLabel>
                       <Select onValueChange={(value) => field.onChange(parseInt(value))}>
@@ -247,7 +247,7 @@ export default function DeliveryTracking() : JSX.Element {
                 <FormField
                   control={form.control}
                   name="estimatedTime"
-                  render={({ field }) => (
+                  render={({ field )}) => (
                     <FormItem>
                       <FormLabel>Temps estimé (minutes)</FormLabel>
                       <FormControl>
@@ -261,7 +261,7 @@ export default function DeliveryTracking() : JSX.Element {
                 <FormField
                   control={form.control}
                   name="notes"
-                  render={({ field }) => (
+                  render={({ field )}) => (
                     <FormItem>
                       <FormLabel>Notes</FormLabel>
                       <FormControl>

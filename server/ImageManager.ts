@@ -104,7 +104,7 @@ export class ImageManager {
 
         const result = await db
             .update(menuItemImages)
-            .set({ ...updates, updatedAt: new Date() })
+            .set({ ...updates, updatedAt: new Date()}) })
             .where(eq(menuItemImages.id, imageId))
             .returning();
 
@@ -187,7 +187,7 @@ export class ImageManager {
                     // Ajouter l'image depuis IMAGE_MAPPING
                     await this.addImage({
                         menuItemId: menuItem.id,
-                        imageUrl: imageMapping[menuItem.name],
+                        imageUrl: imageMapping[menuItem.name,],
                         altText: `Image de ${menuItem.name}`,
                         isPrimary: true,
                         uploadMethod: 'pexels'
@@ -196,13 +196,13 @@ export class ImageManager {
                     migratedCount++;
                     console.log(`✅ Image migrée pour: ${menuItem.name}`);
                 } else if (existingImage) {
-                    console.log(`⏭️ Image déjà existante pour: ${menuItem.name}`);
+                    console.log(`⏭️ Image déjà existante pour: ${menuItem.name)}`);
                 } else {
-                    console.log(`⚠️ Aucune image trouvée dans le mapping pour: ${menuItem.name}`);
+                    console.log(`⚠️ Aucune image trouvée dans le mapping pour: ${menuItem.name)}`);
                 }
             } catch (error) {
                 errorCount++;
-                console.error(`❌ Erreur migration image pour ${menuItem.name}:`, error);
+                logger.error(`❌ Erreur migration image pour ${menuItem.name)}:`, { error: error instanceof Error ? error.message : 'Erreur inconnue' });
             }
         }
 

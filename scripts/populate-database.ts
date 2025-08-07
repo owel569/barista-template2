@@ -179,7 +179,7 @@ async function populateDatabase() {
     `);
 
   } catch (error) {
-    console.error('❌ Erreur lors du peuplement :', error);
+    logger.error('❌ Erreur lors du peuplement :', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
     throw error;
   }
 }
@@ -191,6 +191,6 @@ populateDatabase()
     process.exit(0);
   })
   .catch((error) => {
-    console.error('❌ Erreur fatale :', error);
+    logger.error('❌ Erreur fatale :', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
     process.exit(1);
   });

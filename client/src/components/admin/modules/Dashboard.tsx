@@ -1,3 +1,8 @@
+/**
+ * Dashboard Intelligence Artificielle - Logique métier professionnelle et sécurisée
+ * Optimisé pour la longévité du système
+ */
+
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -19,21 +24,63 @@ import {
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 
-const DashboardModule = () => {
+// Types sécurisés pour les données
+interface DashboardStats {
+  aiInsights?: {
+    newInsights?: number;
+    efficiency?: number;
+    insights?: Array<{
+      type: string;
+      title: string;
+      description: string;
+      impact: string;
+      confidence: number;
+    }>;
+  };
+  chatbot?: {
+    totalInteractions?: number;
+    activeConversations?: number;
+    satisfactionRate?: number;
+    averageResponseTime?: string;
+    autoResolutionRate?: number;
+    topQuestions?: Array<{
+      question: string;
+      count: number;
+    }>;
+  };
+  reports?: {
+    generated?: number;
+    scheduled?: number;
+    pending?: number;
+  };
+}
+
+interface AIAlert {
+  severity: string;
+  message: string;
+}
+
+interface ReportData {
+  name: string;
+  type: string;
+  nextRun: string;
+}
+
+const DashboardModule: React.FC = () => {
   // Récupérer les statistiques du tableau de bord
-  const { data: stats, isLoading } = useQuery({
+  const { data: stats, isLoading } = useQuery<DashboardStats>({
     queryKey: ['/api/admin/advanced/dashboard-stats'],
     refetchInterval: 30000
   });
 
   // Récupérer les alertes IA
-  const { data: aiAlerts } = useQuery({
+  const { data: aiAlerts } = useQuery<{ alerts?: AIAlert[] }>({
     queryKey: ['/api/admin/advanced/ai-alerts'],
     refetchInterval: 60000
   });
 
   // Récupérer les rapports automatiques
-  const { data: reports } = useQuery({
+  const { data: reports } = useQuery<{ upcoming?: ReportData[] }>({
     queryKey: ['/api/admin/advanced/automated-reports'],
     refetchInterval: 300000
   });
@@ -69,7 +116,7 @@ const DashboardModule = () => {
       {/* Alertes critiques IA */}
       {aiAlerts?.alerts && aiAlerts.alerts.length > 0 && (
         <div className="space-y-2">
-          {aiAlerts.alerts.map((alert: any, index: number) => (
+          {aiAlerts.alerts.map((alert: AIAlert, index: number) => (
             <Alert key={index} variant={alert.severity === 'high' ? 'destructive' : 'default'}>
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
@@ -184,7 +231,7 @@ const DashboardModule = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {chatbotStats.topQuestions?.slice(0, 5).map((question: any, index: number) => (
+                  {chatbotStats.topQuestions?.slice(0, 5).map((question, index: number) => (
                     <div key={index} className="flex justify-between items-center">
                       <span className="text-sm">{question.question}</span>
                       <Badge variant="outline">{question.count}</Badge>
@@ -319,7 +366,7 @@ const DashboardModule = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {aiInsights.insights?.slice(0, 3).map((insight: any, index: number) => (
+                {aiInsights.insights?.slice(0, 3).map((insight, index: number) => (
                   <div key={index} className="p-4 border rounded-lg">
                     <div className="flex items-start gap-3">
                       <div className={`p-2 rounded ${

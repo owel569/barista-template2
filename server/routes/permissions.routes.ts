@@ -1,11 +1,11 @@
 
 import { Router } from 'express';
-import { authenticateToken, requireRole } from '../middleware/auth';
+import { authenticateUser, requireRoles } from '../middleware/auth';
 
 const router = Router();
 
 // Routes permissions utilisateur
-router.get('/users/:userId/permissions', authenticateToken, requireRole('directeur'), async (req, res) => {
+router.get('/users/:userId/permissions', authenticateUser, requireRoles(['directeur']), async (req, res) => {
   try {
     const { userId } = req.params;
     const permissions = [
@@ -22,7 +22,7 @@ router.get('/users/:userId/permissions', authenticateToken, requireRole('directe
   }
 });
 
-router.put('/users/:userId/permissions', authenticateToken, requireRole('directeur'), async (req, res) => {
+router.put('/users/:userId/permissions', authenticateUser, requireRoles(['directeur']), async (req, res) => {
   try {
     const { userId } = req.params;
     const { permissionId, granted } = req.body;
@@ -40,7 +40,7 @@ router.put('/users/:userId/permissions', authenticateToken, requireRole('directe
   }
 });
 
-router.put('/users/:userId/status', authenticateToken, requireRole('directeur'), async (req, res) => {
+router.put('/users/:userId/status', authenticateUser, requireRoles(['directeur']), async (req, res) => {
   try {
     const { userId } = req.params;
     const { active } = req.body;
@@ -58,7 +58,7 @@ router.put('/users/:userId/status', authenticateToken, requireRole('directeur'),
 });
 
 // Route pour obtenir toutes les permissions disponibles
-router.get('/available', authenticateToken, requireRole('directeur'), async (req, res) => {
+router.get('/available', authenticateUser, requireRoles(['directeur']), async (req, res) => {
   try {
     const permissions = [
       {
@@ -133,9 +133,12 @@ router.get('/available', authenticateToken, requireRole('directeur'), async (req
 });
 
 // Route pour obtenir les permissions d'un utilisateur
-router.get('/user/:userId', authenticateToken, async (req, res) => {
+router.get('/user/:userId', authenticateUser, async (req, res) => {
   try {
     const { userId } = req.params;
+    if (!userId) {
+      return res.status(400).json({ error: 'ID utilisateur requis' });
+    }
     
     // Simuler la récupération des permissions utilisateur
     const userPermissions = {
@@ -155,9 +158,12 @@ router.get('/user/:userId', authenticateToken, async (req, res) => {
 });
 
 // Route pour mettre à jour les permissions d'un utilisateur
-router.put('/user/:userId', authenticateToken, requireRole('directeur'), async (req, res) => {
+router.put('/user/:userId', authenticateUser, requireRoles(['directeur']), async (req, res) => {
   try {
     const { userId } = req.params;
+    if (!userId) {
+      return res.status(400).json({ error: 'ID utilisateur requis' });
+    }
     const { permissions } = req.body;
     
     // Validation des données
@@ -168,9 +174,9 @@ router.put('/user/:userId', authenticateToken, requireRole('directeur'), async (
     // Simuler la mise à jour
     const updatedPermissions = permissions.map(perm => ({
       ...perm,
-      userId: parseInt(userId),
+      userId: parseInt(userId)}),
       updatedAt: new Date().toISOString()
-    }));
+    });
     
     res.json({
       success: true,
@@ -183,7 +189,7 @@ router.put('/user/:userId', authenticateToken, requireRole('directeur'), async (
 });
 
 // Route pour les rôles prédéfinis
-router.get('/roles', authenticateToken, requireRole('directeur'), async (req, res) => {
+router.get('/roles', authenticateUser, requireRoles(['directeur']), async (req, res) => {
   try {
     const roles = [
       {

@@ -69,13 +69,13 @@ async function analyzeBusinessLogicAny(): Promise<void> {
       lines.forEach((line, index) => {
         // Recherche des patterns de logique métier avec any
         businessLogicPatterns.forEach(pattern => {
-          const matches = line.match(pattern.pattern);
+          const matches = line.match(pattern.pattern});
           if (matches) {
             const suggestion = restaurantTypes[pattern.type] || 'Record<string, unknown>';
             findings.push({
               file,
               line: index + 1,
-              context: line.trim(),
+              context: line.trim()}),
               suggestion: `Remplacer par: ${suggestion}`,
               severity: pattern.severity
             });
@@ -94,7 +94,7 @@ async function analyzeBusinessLogicAny(): Promise<void> {
           findings.push({
             file,
             line: index + 1,
-            context: line.trim(),
+            context: line.trim()}),
             suggestion: 'CRITIQUE: Fonction métier critique avec type any',
             severity: 'critical'
           });
@@ -109,7 +109,7 @@ async function analyzeBusinessLogicAny(): Promise<void> {
 
     console.log(chalk.red(`🚨 CRITIQUE (${criticalFindings.length}): Types any dans fonctions essentielles`));
     criticalFindings.forEach(finding => {
-      console.log(chalk.red(`   ${finding.file}:${finding.line}`));
+      console.log(chalk.red(`   ${finding.file)}:${finding.line}`));
       console.log(chalk.gray(`      ${finding.context}`));
       console.log(chalk.yellow(`      💡 ${finding.suggestion}`));
       console.log();
@@ -117,7 +117,7 @@ async function analyzeBusinessLogicAny(): Promise<void> {
 
     console.log(chalk.yellow(`⚠️  ÉLEVÉ (${highFindings.length}): Types any dans données importantes`));
     highFindings.forEach(finding => {
-      console.log(chalk.yellow(`   ${finding.file}:${finding.line}`));
+      console.log(chalk.yellow(`   ${finding.file)}:${finding.line}`));
       console.log(chalk.gray(`      ${finding.context}`));
       console.log(chalk.cyan(`      💡 ${finding.suggestion}`));
       console.log();
@@ -125,7 +125,7 @@ async function analyzeBusinessLogicAny(): Promise<void> {
 
     console.log(chalk.blue(`ℹ️  MOYEN (${mediumFindings.length}): Types any à améliorer`));
     mediumFindings.slice(0, 5).forEach(finding => {
-      console.log(chalk.blue(`   ${finding.file}:${finding.line}`));
+      console.log(chalk.blue(`   ${finding.file)}:${finding.line}`));
       console.log(chalk.gray(`      ${finding.context}`));
       console.log(chalk.cyan(`      💡 ${finding.suggestion}`));
       console.log();
@@ -152,7 +152,7 @@ async function analyzeBusinessLogicAny(): Promise<void> {
     }
 
   } catch (error) {
-    console.error(chalk.red('❌ Erreur lors de l\'analyse:'), error);
+    logger.error(chalk.red('❌ Erreur lors de l\'analyse:'), { error: error instanceof Error ? error.message : 'Erreur inconnue' });
   }
 }
 

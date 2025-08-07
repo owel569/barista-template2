@@ -177,16 +177,16 @@ export default function GreenBlackHome() : JSX.Element {
             <div className="overflow-hidden">
               <div 
                 className="flex transition-transform duration-500 ease-in-out"
-                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                style={{ transform: `translateX(-${currentSlide * 100)}%)` }}
               >
-                {Array.from({ length: Math.ceil(menuCategories.length / 3) }).map((_, slideIndex) => (
+                {Array.from({ length: Math.ceil(menuCategories.length / 3)}) }).map((_, slideIndex) => (
                   <div key={slideIndex} className="w-full flex-shrink-0">
                     <div className="grid md:grid-cols-3 gap-8 px-4">
                       {menuCategories.slice(slideIndex * 3, slideIndex * 3 + 3).map((category) => (
                         <Card key={category.id} className="bg-gray-800 border-gray-700 overflow-hidden hover:scale-105 transition-transform duration-300">
                           <div 
                             className="h-48 bg-cover bg-center relative"
-                            style={{ backgroundImage: `url(${category.image})` }}
+                            style={{ backgroundImage: `url(${category.image)})` }}
                           >
                             <div className="absolute inset-0 bg-black/40"></div>
                           </div>
@@ -221,7 +221,7 @@ export default function GreenBlackHome() : JSX.Element {
           </div>
 
           <div className="flex justify-center mt-8 space-x-2">
-            {Array.from({ length: Math.ceil(menuCategories.length / 3) }).map((_, index) => (
+            {Array.from({ length: Math.ceil(menuCategories.length / 3)}) }).map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentSlide(index)}

@@ -70,14 +70,14 @@ function StatsCard({ title, value, icon: Icon, trend, color }: StatsCardProps) {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-              {title}
+              {title)}
             </p>
             <p className="text-2xl font-bold text-gray-900 dark:text-white">
               {value}
             </p>
             {trend && (
               <p className="text-sm text-green-600 dark:text-green-400 mt-1">
-                {trend}
+                {trend)}
               </p>
             )}
           </div>
@@ -94,86 +94,86 @@ export default function DashboardMain() : JSX.Element {
   const { user } = useUser();
   
   const { data: todayReservations } = useQuery({
-    queryKey: ["/api/admin/stats/today-reservations"],
+    queryKey: ["/api/admin/stats/today-reservations",],
     enabled: !!user,
-    queryFn: async () => {
+    queryFn: async (})}) => {
       try {
         const response = await fetch('/api/admin/stats/today-reservations');
         if (!response.ok) throw new Error('Failed to fetch');
         const data = await response.json();
         return data.data || data;
       } catch (error) {
-        console.error('Erreur lors du chargement des statistiques:', error);
+        logger.error('Erreur lors du chargement des statistiques:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
         return { count: 0 };
       }
     }
   });
 
   const { data: monthlyRevenue } = useQuery({
-    queryKey: ["/api/admin/stats/monthly-revenue"],
+    queryKey: ["/api/admin/stats/monthly-revenue",],
     enabled: !!user,
-    queryFn: async () => {
+    queryFn: async (})}) => {
       try {
         const response = await fetch('/api/admin/stats/monthly-revenue');
         if (!response.ok) throw new Error('Failed to fetch');
         const data = await response.json();
         return data.data || data;
       } catch (error) {
-        console.error('Erreur lors du chargement des statistiques:', error);
+        logger.error('Erreur lors du chargement des statistiques:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
         return { revenue: 0 };
       }
     }
   });
 
   const { data: activeOrders } = useQuery({
-    queryKey: ["/api/admin/stats/active-orders"],
+    queryKey: ["/api/admin/stats/active-orders",],
     enabled: !!user,
-    queryFn: async () => {
+    queryFn: async (})}) => {
       try {
         const response = await fetch('/api/admin/stats/active-orders');
         if (!response.ok) throw new Error('Failed to fetch');
         const data = await response.json();
         return data.data || data;
       } catch (error) {
-        console.error('Erreur lors du chargement des statistiques:', error);
+        logger.error('Erreur lors du chargement des statistiques:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
         return { count: 0 };
       }
     }
   });
 
   const { data: occupancyRate } = useQuery({
-    queryKey: ["/api/admin/stats/occupancy-rate"],
+    queryKey: ["/api/admin/stats/occupancy-rate",],
     enabled: !!user,
-    queryFn: async () => {
+    queryFn: async (})}) => {
       try {
         const response = await fetch('/api/admin/stats/occupancy-rate');
         if (!response.ok) throw new Error('Failed to fetch');
         const data = await response.json();
         return data.data || data;
       } catch (error) {
-        console.error('Erreur lors du chargement des statistiques:', error);
+        logger.error('Erreur lors du chargement des statistiques:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
         return { rate: 0 };
       }
     }
   });
 
   const { data: weeklyStats } = useQuery({
-    queryKey: ["/api/dashboard/weekly-stats"],
+    queryKey: ["/api/dashboard/weekly-stats",],
     enabled: !!user,
-    queryFn: async () => {
+    queryFn: async (})}) => {
       try {
         const response = await fetch('/api/dashboard/weekly-stats');
         if (!response.ok) throw new Error('Failed to fetch');
         const data = await response.json();
         return data.data || data;
       } catch (error) {
-        console.error('Erreur lors du chargement des statistiques:', error);
+        logger.error('Erreur lors du chargement des statistiques:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
         return {};
       }
     }
   });
 
-  if (!user) return null;
+  if (!user) return <div>Chargement...</div>;
 
   const isDirecteur = user.role === "directeur";
 
@@ -261,7 +261,7 @@ export default function DashboardMain() : JSX.Element {
                   cy="50%"
                   outerRadius={100}
                   dataKey="value"
-                  label={({ name, value }) => `${name}: ${value}`}
+                  label={({ name, value )}) => `${name}: ${value}`}
                 >
                   {orderStatusData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
@@ -277,7 +277,7 @@ export default function DashboardMain() : JSX.Element {
       {/* Advanced charts for Director only */}
       {isDirecteur && (
         <div className="space-y-6">
-          {/* Revenue Chart */}
+          {/* Revenue Chart */)}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">

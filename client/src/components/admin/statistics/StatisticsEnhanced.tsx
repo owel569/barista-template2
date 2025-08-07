@@ -103,82 +103,80 @@ export default function StatisticsEnhanced(): JSX.Element {
   const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
 
   // Génération de données de démonstration professionnelles
-  const generateMockData = useMemo(() => {
-    const period = PERIODS.find(p => p.value === selectedPeriod);
-    if (!period) return;
-
-    const days = period.days;
-    const today = new Date();
-
-    // Données de revenus
-    const revenue: RevenueData[] = Array.from({ length: days }, (_, i) => {
-      const date = new Date(today);
-      date.setDate(date.getDate() - (days - i - 1));
-      return {
-        date: date.toISOString().split('T')[0],
-        revenue: Math.floor(Math.random() * 2000) + 500,
-        orders: Math.floor(Math.random() * 50) + 10,
-        customers: Math.floor(Math.random() * 40) + 8
-      };
-    });
-
-    // Produits les plus vendus
-    const products: ProductSales[] = [
-      { name: 'Espresso', sales: 245, revenue: 735, category: 'Boissons chaudes' },
-      { name: 'Cappuccino', sales: 189, revenue: 851, category: 'Boissons chaudes' },
-      { name: 'Croissant', sales: 156, revenue: 468, category: 'Viennoiseries' },
-      { name: 'Sandwich jambon', sales: 134, revenue: 938, category: 'Sandwichs' },
-      { name: 'Salade César', sales: 98, revenue: 1176, category: 'Salades' }
-    ];
-
-    // Données par heure
-    const hourly: HourlyData[] = Array.from({ length: 24 }, (_, i) => ({
-      hour: `${i.toString().padStart(2, '0')}:00`,
-      orders: Math.floor(Math.random() * 15) + 1,
-      revenue: Math.floor(Math.random() * 300) + 50
-    }));
-
-    // Données par catégorie
-    const categories: CategoryData[] = [
-      { name: 'Boissons chaudes', value: 45, color: COLORS[0] },
-      { name: 'Viennoiseries', value: 25, color: COLORS[1] },
-      { name: 'Sandwichs', value: 20, color: COLORS[2] },
-      { name: 'Salades', value: 10, color: COLORS[3] }
-    ];
-
-    setRevenueData(revenue);
-    setProductSales(products);
-    setHourlyData(hourly);
-    setCategoryData(categories);
-
-    // Métriques calculées
-    const totalRevenue = revenue.reduce((sum, day) => sum + day.revenue, 0);
-    const totalOrders = revenue.reduce((sum, day) => sum + day.orders, 0);
-    const totalCustomers = revenue.reduce((sum, day) => sum + day.customers, 0);
-
-    setCustomerMetrics({
-      totalCustomers,
-      newCustomers: Math.floor(totalCustomers * 0.3),
-      returningCustomers: Math.floor(totalCustomers * 0.7),
-      averageOrderValue: totalRevenue / totalOrders
-    });
-
-    setOrderMetrics({
-      totalOrders,
-      completedOrders: Math.floor(totalOrders * 0.95),
-      cancelledOrders: Math.floor(totalOrders * 0.05),
-      averagePreparationTime: 12
-    });
-  }, [selectedPeriod]);
-
   useEffect(() => {
     setIsLoading(true);
     const timer = setTimeout(() => {
-      generateMockData;
+      const period = PERIODS.find(p => p.value === selectedPeriod);
+      if (!period) {
+        setIsLoading(false);
+        return;
+      }
+      const days = period.days;
+      const today = new Date();
+
+      // Données de revenus
+      const revenue: RevenueData[] = Array.from({ length: days }, (_, i) => {
+        const date = new Date(today);
+        date.setDate(date.getDate() - (days - i - 1));
+        return {
+          date: date.toISOString().split('T')[0] ?? '',
+          revenue: Math.floor(Math.random() * 2000) + 500,
+          orders: Math.floor(Math.random() * 50) + 10,
+          customers: Math.floor(Math.random() * 40) + 8
+        };
+      });
+
+      // Produits les plus vendus
+      const products: ProductSales[] = [
+        { name: 'Espresso', sales: 245, revenue: 735, category: 'Boissons chaudes' },
+        { name: 'Cappuccino', sales: 189, revenue: 851, category: 'Boissons chaudes' },
+        { name: 'Croissant', sales: 156, revenue: 468, category: 'Viennoiseries' },
+        { name: 'Sandwich jambon', sales: 134, revenue: 938, category: 'Sandwichs' },
+        { name: 'Salade César', sales: 98, revenue: 1176, category: 'Salades' }
+      ];
+
+      // Données par heure
+      const hourly: HourlyData[] = Array.from({ length: 24 }, (_, i) => ({
+        hour: `${i.toString().padStart(2, '0')}:00`,
+        orders: Math.floor(Math.random() * 15) + 1,
+        revenue: Math.floor(Math.random() * 300) + 50
+      }));
+
+      // Données par catégorie
+      const categories: CategoryData[] = [
+        { name: 'Boissons chaudes', value: 45, color: COLORS[0] || '#8884d8' },
+        { name: 'Viennoiseries', value: 25, color: COLORS[1] || '#82ca9d' },
+        { name: 'Sandwichs', value: 20, color: COLORS[2] || '#ffc658' },
+        { name: 'Salades', value: 10, color: COLORS[3] || '#ff7300' }
+      ];
+
+      setRevenueData(revenue);
+      setProductSales(products);
+      setHourlyData(hourly);
+      setCategoryData(categories);
+
+      // Métriques calculées
+      const totalRevenue = revenue.reduce((sum, day) => sum + day.revenue, 0);
+      const totalOrders = revenue.reduce((sum, day) => sum + day.orders, 0);
+      const totalCustomers = revenue.reduce((sum, day) => sum + day.customers, 0);
+
+      setCustomerMetrics({
+        totalCustomers,
+        newCustomers: Math.floor(totalCustomers * 0.3),
+        returningCustomers: Math.floor(totalCustomers * 0.7),
+        averageOrderValue: totalOrders > 0 ? totalRevenue / totalOrders : 0
+      });
+
+      setOrderMetrics({
+        totalOrders,
+        completedOrders: Math.floor(totalOrders * 0.95),
+        cancelledOrders: Math.floor(totalOrders * 0.05),
+        averagePreparationTime: 12
+      });
       setIsLoading(false);
     }, 500);
     return () => clearTimeout(timer);
-  }, [generateMockData]);
+  }, [selectedPeriod]);
 
   // Fonction d'export professionnelle
   const handleExport = async (options: ExportOptions): Promise<void> => {
@@ -195,8 +193,8 @@ export default function StatisticsEnhanced(): JSX.Element {
         orders: orderMetrics
       };
 
-      const blob = new Blob([JSON.stringify(data, null, 2)], { 
-        type: 'application/json' 
+      const blob = new Blob([JSON.stringify(data, null, 2)], {
+        type: 'application/json'
       });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -207,6 +205,8 @@ export default function StatisticsEnhanced(): JSX.Element {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (error) {
+      // Logique métier : gestion d'erreur professionnelle
+      // eslint-disable-next-line no-console
       console.error('Erreur lors de l\'export:', error);
     } finally {
       setIsExporting(false);
@@ -216,11 +216,10 @@ export default function StatisticsEnhanced(): JSX.Element {
   // Calculs de performance
   const performanceMetrics = useMemo(() => {
     const currentPeriodRevenue = revenueData.reduce((sum, day) => sum + day.revenue, 0);
-    const averageDailyRevenue = currentPeriodRevenue / revenueData.length;
-    const completionRate = orderMetrics.totalOrders > 0 
-      ? (orderMetrics.completedOrders / orderMetrics.totalOrders) * 100 
+    const averageDailyRevenue = revenueData.length > 0 ? currentPeriodRevenue / revenueData.length : 0;
+    const completionRate = orderMetrics.totalOrders > 0
+      ? (orderMetrics.completedOrders / orderMetrics.totalOrders) * 100
       : 0;
-
     return {
       totalRevenue: currentPeriodRevenue,
       averageDailyRevenue,
@@ -248,7 +247,6 @@ export default function StatisticsEnhanced(): JSX.Element {
           <h1 className="text-3xl font-bold text-gray-900">Statistiques Avancées</h1>
           <p className="text-gray-600">Barista Café - Analyse professionnelle</p>
         </div>
-
         <div className="flex flex-wrap gap-3">
           <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
             <SelectTrigger className="w-[180px]">
@@ -262,7 +260,6 @@ export default function StatisticsEnhanced(): JSX.Element {
               ))}
             </SelectContent>
           </Select>
-
           <Button
             variant="outline"
             onClick={() => handleExport({ format: 'excel', period: selectedPeriod, includeCharts: true })}
@@ -273,7 +270,6 @@ export default function StatisticsEnhanced(): JSX.Element {
           </Button>
         </div>
       </div>
-
       {/* Métriques principales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
@@ -292,7 +288,6 @@ export default function StatisticsEnhanced(): JSX.Element {
             </p>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
@@ -312,7 +307,6 @@ export default function StatisticsEnhanced(): JSX.Element {
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
@@ -329,7 +323,6 @@ export default function StatisticsEnhanced(): JSX.Element {
             </p>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
@@ -347,7 +340,6 @@ export default function StatisticsEnhanced(): JSX.Element {
           </CardContent>
         </Card>
       </div>
-
       {/* Graphiques détaillés */}
       <Tabs value={selectedView} onValueChange={setSelectedView}>
         <TabsList className="grid w-full grid-cols-4">
@@ -356,7 +348,6 @@ export default function StatisticsEnhanced(): JSX.Element {
           <TabsTrigger value="products">Produits</TabsTrigger>
           <TabsTrigger value="hours">Heures de pointe</TabsTrigger>
         </TabsList>
-
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
@@ -375,7 +366,6 @@ export default function StatisticsEnhanced(): JSX.Element {
                 </ResponsiveContainer>
               </CardContent>
             </Card>
-
             <Card>
               <CardHeader>
                 <CardTitle>Répartition par catégorie</CardTitle>
@@ -403,7 +393,6 @@ export default function StatisticsEnhanced(): JSX.Element {
             </Card>
           </div>
         </TabsContent>
-
         <TabsContent value="revenue">
           <Card>
             <CardHeader>
@@ -427,7 +416,6 @@ export default function StatisticsEnhanced(): JSX.Element {
             </CardContent>
           </Card>
         </TabsContent>
-
         <TabsContent value="products">
           <Card>
             <CardHeader>
@@ -451,7 +439,6 @@ export default function StatisticsEnhanced(): JSX.Element {
             </CardContent>
           </Card>
         </TabsContent>
-
         <TabsContent value="hours">
           <Card>
             <CardHeader>

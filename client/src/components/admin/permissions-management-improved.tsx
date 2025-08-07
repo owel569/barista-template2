@@ -180,7 +180,7 @@ export function PermissionsManagementImproved() : JSX.Element {
   const filteredUsers = useMemo(() => {
     return users.filter(user => {
       const matchesSearch = !searchTerm || 
-        user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.username.toLowerCase()}).includes(searchTerm.toLowerCase()) ||
         user.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -199,11 +199,11 @@ export function PermissionsManagementImproved() : JSX.Element {
 
   // Gestion des changements de formulaire
   const handleFormChange = useCallback((field: keyof UserFormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData(prev => ({ ...prev, [field]: value )});
     
     // Effacer l'erreur du champ modifié
     if (formErrors[field]) {
-      setFormErrors(prev => ({ ...prev, [field]: undefined }));
+      setFormErrors(prev => ({ ...prev, [field]: undefined )});
     }
   }, [formErrors]);
 
@@ -240,7 +240,7 @@ export function PermissionsManagementImproved() : JSX.Element {
         title: "Erreur",
         description: "Impossible de créer l'utilisateur. Vérifiez les données saisies.",
         variant: "destructive",
-      });
+      )});
     }
   }, [formData, validateForm, createUser, toast]);
 
@@ -260,14 +260,14 @@ export function PermissionsManagementImproved() : JSX.Element {
         title: "Erreur",
         description: "Impossible de supprimer l'utilisateur.",
         variant: "destructive",
-      });
+      )});
     }
   }, [userToDelete, deleteUser, toast]);
 
   // Activer/désactiver un utilisateur
   const handleToggleUserStatus = useCallback(async (userId: number, isActive: boolean) => {
     try {
-      await toggleUserStatus({ userId, isActive });
+      await toggleUserStatus({ userId, isActive )});
       toast({
         title: "Statut modifié",
         description: `L'utilisateur a été ${isActive ? 'activé' : 'désactivé'}.`,
@@ -277,7 +277,7 @@ export function PermissionsManagementImproved() : JSX.Element {
         title: "Erreur",
         description: "Impossible de modifier le statut de l'utilisateur.",
         variant: "destructive",
-      });
+      )});
     }
   }, [toggleUserStatus, toast]);
 
@@ -293,7 +293,7 @@ export function PermissionsManagementImproved() : JSX.Element {
         userId,
         module,
         [permission]: value
-      });
+      )});
       
       toast({
         title: "Permission mise à jour",
@@ -304,7 +304,7 @@ export function PermissionsManagementImproved() : JSX.Element {
         title: "Erreur",
         description: "Impossible de mettre à jour la permission.",
         variant: "destructive",
-      });
+      )});
     }
   }, [updatePermission, toast]);
 
@@ -362,7 +362,7 @@ export function PermissionsManagementImproved() : JSX.Element {
                       className={formErrors.firstName ? 'border-red-500' : ''}
                     />
                     {formErrors.firstName && (
-                      <p className="text-red-500 text-sm mt-1">{formErrors.firstName}</p>
+                      <p className="text-red-500 text-sm mt-1">{formErrors.firstName)}</p>
                     )}
                   </div>
                   <div>
@@ -375,7 +375,7 @@ export function PermissionsManagementImproved() : JSX.Element {
                       className={formErrors.lastName ? 'border-red-500' : ''}
                     />
                     {formErrors.lastName && (
-                      <p className="text-red-500 text-sm mt-1">{formErrors.lastName}</p>
+                      <p className="text-red-500 text-sm mt-1">{formErrors.lastName)}</p>
                     )}
                   </div>
                 </div>
@@ -390,7 +390,7 @@ export function PermissionsManagementImproved() : JSX.Element {
                     className={formErrors.username ? 'border-red-500' : ''}
                   />
                   {formErrors.username && (
-                    <p className="text-red-500 text-sm mt-1">{formErrors.username}</p>
+                    <p className="text-red-500 text-sm mt-1">{formErrors.username)}</p>
                   )}
                 </div>
                 
@@ -405,7 +405,7 @@ export function PermissionsManagementImproved() : JSX.Element {
                     className={formErrors.password ? 'border-red-500' : ''}
                   />
                   {formErrors.password && (
-                    <p className="text-red-500 text-sm mt-1">{formErrors.password}</p>
+                    <p className="text-red-500 text-sm mt-1">{formErrors.password)}</p>
                   )}
                 </div>
                 
@@ -420,7 +420,7 @@ export function PermissionsManagementImproved() : JSX.Element {
                     className={formErrors.email ? 'border-red-500' : ''}
                   />
                   {formErrors.email && (
-                    <p className="text-red-500 text-sm mt-1">{formErrors.email}</p>
+                    <p className="text-red-500 text-sm mt-1">{formErrors.email)}</p>
                   )}
                 </div>
                 
@@ -434,7 +434,7 @@ export function PermissionsManagementImproved() : JSX.Element {
                     className={formErrors.phone ? 'border-red-500' : ''}
                   />
                   {formErrors.phone && (
-                    <p className="text-red-500 text-sm mt-1">{formErrors.phone}</p>
+                    <p className="text-red-500 text-sm mt-1">{formErrors.phone)}</p>
                   )}
                 </div>
                 

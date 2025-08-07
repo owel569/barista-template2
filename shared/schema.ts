@@ -1,314 +1,280 @@
-import { pgTable, serial, text, integer, boolean, timestamp, real, index } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, varchar, integer, decimal, boolean, timestamp, json, pgEnum } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
-import { createInsertSchema } from 'drizzle-zod';
+import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 
 // ==========================================
-// TABLES PRINCIPALES
+// ENUMS
 // ==========================================
 
-// Utilisateurs du système
+export const userRoleEnum = pgEnum('user_role', ['admin', 'manager', 'staff', 'user']);
+export const orderStatusEnum = pgEnum('order_status', ['pending', 'preparing', 'ready', 'delivered', 'cancelled']);
+export const reservationStatusEnum = pgEnum('reservation_status', ['pending', 'confirmed', 'cancelled', 'completed']);
+export const tableStatusEnum = pgEnum('table_status', ['available', 'occupied', 'reserved', 'maintenance']);
+
+// ==========================================
+// TABLES
+// ==========================================
+
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
-  username: text('username').unique().notNull(),
-  password: text('password').notNull(),
-  role: text('role').notNull().default('employe'),
-  firstName: text('first_name'),
-  lastName: text('last_name'),
-  email: text('email').unique(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-}, (table) => ({
-  usernameIdx: index('users_username_idx').on(table.username),
-  emailIdx: index('users_email_idx').on(table.email),
-}));
-
-// Catégories du menu
-export const menuCategories = pgTable("menu_categories", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  description: text("description"),
-  slug: text("slug").notNull().unique(),
-  displayOrder: integer("display_order").notNull().default(0),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-}, (table) => ({
-  slugIdx: index("menu_categories_slug_idx").on(table.slug),
-}));
-
-// Articles du menu
-export const menuItems = pgTable("menu_items", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  description: text("description").notNull(),
-  price: real("price").notNull(),
-  categoryId: integer("category_id").notNull().references(() => menuCategories.id),
-  imageUrl: text("image_url"),
-  available: boolean("available").notNull().default(true),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-}, (table) => ({
-  categoryIdx: index("menu_items_category_idx").on(table.categoryId),
-  availableIdx: index("menu_items_available_idx").on(table.available),
-}));
-
-// Tables physiques du restaurant
-export const tables = pgTable("tables", {
-  id: serial("id").primaryKey(),
-  number: integer("number").notNull().unique(),
-  capacity: integer("capacity").notNull(),
-  available: boolean("available").notNull().default(true),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-}, (table) => ({
-  numberIdx: index("tables_number_idx").on(table.number),
-}));
-
-// Clients
-export const customers = pgTable("customers", {
-  id: serial("id").primaryKey(),
-  firstName: text("first_name").notNull(),
-  lastName: text("last_name").notNull(),
-  email: text("email").unique().notNull(),
-  phone: text("phone"),
-  loyaltyPoints: integer("loyalty_points").notNull().default(0),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-}, (table) => ({
-  emailIdx: index("customers_email_idx").on(table.email),
-}));
-
-// Réservations
-export const reservations = pgTable("reservations", {
-  id: serial("id").primaryKey(),
-  customerId: integer("customer_id").references(() => customers.id),
-  tableId: integer("table_id").references(() => tables.id),
-  date: text("date").notNull(),
-  time: text("time").notNull(),
-  partySize: integer("party_size").notNull(),
-  status: text("status").notNull().default("pending"),
-  notes: text("notes"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-}, (table) => ({
-  dateIdx: index("reservations_date_idx").on(table.date),
-  statusIdx: index("reservations_status_idx").on(table.status),
-}));
-
-// Commandes
-export const orders = pgTable("orders", {
-  id: serial("id").primaryKey(),
-  customerId: integer("customer_id").references(() => customers.id),
-  totalAmount: real("total_amount").notNull(),
-  status: text("status").notNull().default("pending"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-}, (table) => ({
-  statusIdx: index("orders_status_idx").on(table.status),
-  createdAtIdx: index("orders_created_at_idx").on(table.createdAt),
-}));
-
-// Articles de commande
-export const orderItems = pgTable("order_items", {
-  id: serial("id").primaryKey(),
-  orderId: integer("order_id").notNull().references(() => orders.id, { onDelete: 'cascade' }),
-  menuItemId: integer("menu_item_id").notNull().references(() => menuItems.id),
-  quantity: integer("quantity").notNull(),
-  unitPrice: real("unit_price").notNull(),
-  totalPrice: real("total_price").notNull(),
-}, (table) => ({
-  orderIdx: index("order_items_order_idx").on(table.orderId),
-}));
-
-// Messages de contact
-export const contactMessages = pgTable("contact_messages", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  email: text("email").notNull(),
-  subject: text("subject").notNull(),
-  message: text("message").notNull(),
-  status: text("status").notNull().default("new"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-}, (table) => ({
-  statusIdx: index("contact_messages_status_idx").on(table.status),
-}));
-
-// Images des éléments de menu
-export const menuItemImages = pgTable('menu_item_images', {
-  id: serial('id').primaryKey(),
-  menuItemId: integer('menu_item_id').notNull().references(() => menuItems.id, { onDelete: 'cascade' }),
-  imageUrl: text('image_url').notNull(),
-  altText: text('alt_text'),
-  isPrimary: boolean('is_primary').notNull().default(false),
-  uploadMethod: text('upload_method').notNull().default('url'),
+  username: varchar('username', { length: 50 }).notNull().unique(),
+  email: varchar('email', { length: 100 }).notNull().unique(),
+  password: varchar('password', { length: 255 }).notNull(),
+  firstName: varchar('first_name', { length: 50 }).notNull(),
+  lastName: varchar('last_name', { length: 50 }).notNull(),
+  role: userRoleEnum('role').notNull().default('user'),
+  isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
 });
 
-// Journaux d'activité
+export const menuCategories = pgTable("menu_categories", {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 100 }).notNull(),
+  description: text('description'),
+  imageUrl: varchar('image_url', { length: 255 }),
+  isActive: boolean('is_active').notNull().default(true),
+  sortOrder: integer('sort_order').notNull().default(0),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
+});
+
+export const menuItems = pgTable("menu_items", {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 100 }).notNull(),
+  description: text('description'),
+  price: decimal('price', { precision: 10, scale: 2 }).notNull(),
+  categoryId: integer('category_id').references(() => menuCategories.id),
+  imageUrl: varchar('image_url', { length: 255 }),
+  isAvailable: boolean('is_available').notNull().default(true),
+  isVegetarian: boolean('is_vegetarian').notNull().default(false),
+  isGlutenFree: boolean('is_gluten_free').notNull().default(false),
+  allergens: json('allergens'),
+  nutritionalInfo: json('nutritional_info'),
+  sortOrder: integer('sort_order').notNull().default(0),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
+});
+
+export const tables = pgTable("tables", {
+  id: serial('id').primaryKey(),
+  number: integer('number').notNull().unique(),
+  capacity: integer('capacity').notNull(),
+  status: tableStatusEnum('status').notNull().default('available'),
+  location: varchar('location', { length: 50 }),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
+});
+
+export const customers = pgTable("customers", {
+  id: serial('id').primaryKey(),
+  firstName: varchar('first_name', { length: 50 }).notNull(),
+  lastName: varchar('last_name', { length: 50 }).notNull(),
+  email: varchar('email', { length: 100 }).notNull().unique(),
+  phone: varchar('phone', { length: 20 }),
+  loyaltyPoints: integer('loyalty_points').notNull().default(0),
+  totalOrders: integer('total_orders').notNull().default(0),
+  totalSpent: decimal('total_spent', { precision: 10, scale: 2 }).notNull().default('0'),
+  lastVisit: timestamp('last_visit'),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
+});
+
+export const reservations = pgTable("reservations", {
+  id: serial('id').primaryKey(),
+  customerId: integer('customer_id').references(() => customers.id),
+  tableId: integer('table_id').references(() => tables.id),
+  date: timestamp('date').notNull(),
+  time: varchar('time', { length: 10 }).notNull(),
+  partySize: integer('party_size').notNull(),
+  status: reservationStatusEnum('status').notNull().default('pending'),
+  specialRequests: text('special_requests'),
+  notes: text('notes'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
+});
+
+export const orders = pgTable("orders", {
+  id: serial('id').primaryKey(),
+  orderNumber: varchar('order_number', { length: 20 }).notNull().unique(),
+  customerId: integer('customer_id').references(() => customers.id),
+  tableId: integer('table_id').references(() => tables.id),
+  status: orderStatusEnum('status').notNull().default('pending'),
+  totalAmount: decimal('total_amount', { precision: 10, scale: 2 }).notNull(),
+  items: json('items'),
+  paymentMethod: varchar('payment_method', { length: 20 }),
+  paymentStatus: varchar('payment_status', { length: 20 }).notNull().default('pending'),
+  notes: text('notes'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
+});
+
+export const orderItems = pgTable("order_items", {
+  id: serial('id').primaryKey(),
+  orderId: integer('order_id').references(() => orders.id),
+  menuItemId: integer('menu_item_id').references(() => menuItems.id),
+  quantity: integer('quantity').notNull(),
+  unitPrice: decimal('unit_price', { precision: 10, scale: 2 }).notNull(),
+  totalPrice: decimal('total_price', { precision: 10, scale: 2 }).notNull(),
+  specialInstructions: text('special_instructions'),
+  createdAt: timestamp('created_at').notNull().defaultNow()
+});
+
+export const contactMessages = pgTable("contact_messages", {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 100 }).notNull(),
+  email: varchar('email', { length: 100 }).notNull(),
+  subject: varchar('subject', { length: 200 }).notNull(),
+  message: text('message').notNull(),
+  isRead: boolean('is_read').notNull().default(false),
+  createdAt: timestamp('created_at').notNull().defaultNow()
+});
+
+export const menuItemImages = pgTable('menu_item_images', {
+  id: serial('id').primaryKey(),
+  menuItemId: integer('menu_item_id').references(() => menuItems.id),
+  imageUrl: varchar('image_url', { length: 255 }).notNull(),
+  altText: varchar('alt_text', { length: 200 }),
+  isPrimary: boolean('is_primary').notNull().default(false),
+  sortOrder: integer('sort_order').notNull().default(0),
+  createdAt: timestamp('created_at').notNull().defaultNow()
+});
+
 export const activityLogs = pgTable('activity_logs', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').references(() => users.id),
-  action: text('action').notNull(),
-  entity: text('entity').notNull(),
+  action: varchar('action', { length: 100 }).notNull(),
+  entity: varchar('entity', { length: 50 }).notNull(),
   entityId: integer('entity_id'),
   details: text('details'),
-  timestamp: timestamp('timestamp').defaultNow().notNull()
-}, (table) => ({
-  userIdx: index('activity_logs_user_idx').on(table.userId),
-  timestampIdx: index('activity_logs_timestamp_idx').on(table.timestamp)
-}));
+  ipAddress: varchar('ip_address', { length: 45 }),
+  userAgent: text('user_agent'),
+  createdAt: timestamp('created_at').notNull().defaultNow()
+});
 
-// Table employees pour les scripts
 export const employees = pgTable('employees', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').references(() => users.id),
-  position: text('position').notNull(),
-  department: text('department').notNull(),
-  hireDate: timestamp('hire_date').defaultNow().notNull(),
-  salary: real('salary'),
-  status: text('status').default('active').notNull()
+  employeeNumber: varchar('employee_number', { length: 20 }).notNull().unique(),
+  position: varchar('position', { length: 50 }).notNull(),
+  hireDate: timestamp('hire_date').notNull(),
+  salary: decimal('salary', { precision: 10, scale: 2 }),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
 });
 
-// Permissions
 export const permissions = pgTable("permissions", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
-  module: text("module").notNull(),
-  canView: boolean("can_view").notNull().default(true),
-  canCreate: boolean("can_create").notNull().default(false),
-  canUpdate: boolean("can_update").notNull().default(false),
-  canDelete: boolean("can_delete").notNull().default(false),
-  grantedBy: integer("granted_by").references(() => users.id),
-  grantedAt: timestamp("granted_at").defaultNow().notNull(),
-}, (table) => ({
-  userIdx: index("permissions_user_idx").on(table.userId),
-  moduleIdx: index("permissions_module_idx").on(table.module),
-}));
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => users.id),
+  module: varchar('module', { length: 50 }).notNull(),
+  canView: boolean('can_view').notNull().default(false),
+  canCreate: boolean('can_create').notNull().default(false),
+  canUpdate: boolean('can_update').notNull().default(false),
+  canDelete: boolean('can_delete').notNull().default(false),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
+});
 
 // ==========================================
 // RELATIONS
 // ==========================================
 
 export const menuCategoriesRelations = relations(menuCategories, ({ many }) => ({
-  menuItems: many(menuItems),
+  menuItems: many(menuItems)
 }));
 
 export const menuItemsRelations = relations(menuItems, ({ one, many }) => ({
   category: one(menuCategories, {
     fields: [menuItems.categoryId],
-    references: [menuCategories.id],
+    references: [menuCategories.id]
   }),
   orderItems: many(orderItems),
-  images: many(menuItemImages),
+  images: many(menuItemImages)
 }));
 
 export const customersRelations = relations(customers, ({ many }) => ({
-  orders: many(orders),
   reservations: many(reservations),
+  orders: many(orders)
 }));
 
 export const ordersRelations = relations(orders, ({ one, many }) => ({
   customer: one(customers, {
     fields: [orders.customerId],
-    references: [customers.id],
+    references: [customers.id]
   }),
-  items: many(orderItems),
+  table: one(tables, {
+    fields: [orders.tableId],
+    references: [tables.id]
+  }),
+  orderItems: many(orderItems)
 }));
 
 export const orderItemsRelations = relations(orderItems, ({ one }) => ({
   order: one(orders, {
     fields: [orderItems.orderId],
-    references: [orders.id],
+    references: [orders.id]
   }),
   menuItem: one(menuItems, {
     fields: [orderItems.menuItemId],
-    references: [menuItems.id],
-  }),
+    references: [menuItems.id]
+  })
 }));
 
 export const reservationsRelations = relations(reservations, ({ one }) => ({
   customer: one(customers, {
     fields: [reservations.customerId],
-    references: [customers.id],
+    references: [customers.id]
   }),
   table: one(tables, {
     fields: [reservations.tableId],
-    references: [tables.id],
-  }),
+    references: [tables.id]
+  })
+}));
+
+export const tablesRelations = relations(tables, ({ many }) => ({
+  reservations: many(reservations),
+  orders: many(orders)
 }));
 
 export const usersRelations = relations(users, ({ many }) => ({
   activityLogs: many(activityLogs),
   permissions: many(permissions),
-  grantedPermissions: many(permissions, { relationName: "grantedBy" }),
+  employee: many(employees)
 }));
 
 export const menuItemImagesRelations = relations(menuItemImages, ({ one }) => ({
   menuItem: one(menuItems, {
     fields: [menuItemImages.menuItemId],
-    references: [menuItems.id],
-  }),
+    references: [menuItems.id]
+  })
 }));
 
 export const activityLogsRelations = relations(activityLogs, ({ one }) => ({
   user: one(users, {
     fields: [activityLogs.userId],
-    references: [users.id],
-  }),
+    references: [users.id]
+  })
 }));
 
 export const permissionsRelations = relations(permissions, ({ one }) => ({
   user: one(users, {
     fields: [permissions.userId],
-    references: [users.id],
-  }),
-  grantedByUser: one(users, {
-    fields: [permissions.grantedBy],
-    references: [users.id],
-    relationName: "grantedBy",
-  }),
+    references: [users.id]
+  })
+}));
+
+export const employeesRelations = relations(employees, ({ one }) => ({
+  user: one(users, {
+    fields: [employees.userId],
+    references: [users.id]
+  })
 }));
 
 // ==========================================
-// TYPES TYPESCRIPT
-// ==========================================
-
-export type User = typeof users.$inferSelect;
-export type NewUser = typeof users.$inferInsert;
-
-export type MenuCategory = typeof menuCategories.$inferSelect;
-export type NewMenuCategory = typeof menuCategories.$inferInsert;
-
-export type MenuItem = typeof menuItems.$inferSelect;
-export type NewMenuItem = typeof menuItems.$inferInsert;
-
-export type Table = typeof tables.$inferSelect;
-export type NewTable = typeof tables.$inferInsert;
-
-export type Customer = typeof customers.$inferSelect;
-export type NewCustomer = typeof customers.$inferInsert;
-
-export type Reservation = typeof reservations.$inferSelect;
-export type NewReservation = typeof reservations.$inferInsert;
-
-export type Order = typeof orders.$inferSelect;
-export type NewOrder = typeof orders.$inferInsert;
-
-export type OrderItem = typeof orderItems.$inferSelect;
-export type NewOrderItem = typeof orderItems.$inferInsert;
-
-export type ContactMessage = typeof contactMessages.$inferSelect;
-export type NewContactMessage = typeof contactMessages.$inferInsert;
-
-export type MenuItemImage = typeof menuItemImages.$inferSelect;
-export type NewMenuItemImage = typeof menuItemImages.$inferInsert;
-
-export type ActivityLog = typeof activityLogs.$inferSelect;
-export type NewActivityLog = typeof activityLogs.$inferInsert;
-
-export type Permission = typeof permissions.$inferSelect;
-export type NewPermission = typeof permissions.$inferInsert;
-
-// Type Employee
-export type Employee = typeof employees.$inferSelect;
-
-// ==========================================
-// SCHÉMAS DE VALIDATION ZOD
+// SCHÉMAS ZOD POUR VALIDATION
 // ==========================================
 
 export const insertUserSchema = createInsertSchema(users);
@@ -323,3 +289,16 @@ export const insertContactMessageSchema = createInsertSchema(contactMessages);
 export const insertMenuItemImageSchema = createInsertSchema(menuItemImages);
 export const insertActivityLogSchema = createInsertSchema(activityLogs);
 export const insertPermissionSchema = createInsertSchema(permissions);
+
+export const selectUserSchema = createSelectSchema(users);
+export const selectMenuCategorySchema = createSelectSchema(menuCategories);
+export const selectMenuItemSchema = createSelectSchema(menuItems);
+export const selectTableSchema = createSelectSchema(tables);
+export const selectCustomerSchema = createSelectSchema(customers);
+export const selectReservationSchema = createSelectSchema(reservations);
+export const selectOrderSchema = createSelectSchema(orders);
+export const selectOrderItemSchema = createSelectSchema(orderItems);
+export const selectContactMessageSchema = createSelectSchema(contactMessages);
+export const selectMenuItemImageSchema = createSelectSchema(menuItemImages);
+export const selectActivityLogSchema = createSelectSchema(activityLogs);
+export const selectPermissionSchema = createSelectSchema(permissions);

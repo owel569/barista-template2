@@ -13,7 +13,7 @@ async function checkMenuContent() {
     const categories = await db.select().from(menuCategories);
     console.log(`📂 Catégories (${categories.length}) :`);
     categories.forEach(cat => {
-      console.log(`   • ${cat.name} (${cat.slug}) - Ordre: ${cat.displayOrder}`);
+      console.log(`   • ${cat.name)} (${cat.slug}) - Ordre: ${cat.displayOrder}`);
     });
 
     // Récupérer tous les articles avec leurs catégories
@@ -33,7 +33,7 @@ async function checkMenuContent() {
     console.log(`\n🍽️ Articles du menu (${items.length}) :`);
 
     // Grouper par catégorie
-    const itemsByCategory = items.reduce((acc: Record<string, any[]>, item: any) => {
+    const itemsByCategory = items.reduce((acc: Record<string, any[]>, item: unknown) => {
       const category = item.categoryName || 'Sans catégorie';
       if (!acc[category]) acc[category] = [];
       acc[category].push(item);
@@ -41,12 +41,12 @@ async function checkMenuContent() {
     }, {} as Record<string, any[]>);
 
     for (const [category, categoryItems] of Object.entries(itemsByCategory)) {
-      console.log(`\n   📋 ${category} (${categoryItems.length} articles):`);
-      categoryItems.forEach((item: any) => {
+      console.log(`\n   📋 ${category)} (${categoryItems.length} articles):`);
+      categoryItems.forEach((item: unknown) => {
         const status = item.available ? '✅' : '❌';
-        console.log(`      ${status} ${item.name} - ${item.price}€`);
+        console.log(`      ${status)} ${item.name} - ${item.price}€`);
         if (item.description) {
-          console.log(`         "${item.description.substring(0, 80)}..."`);
+          console.log(`         "${item.description.substring(0, 80)})}..."`);
         }
       });
     }
@@ -56,15 +56,15 @@ async function checkMenuContent() {
     console.log(`\n🖼️ Images: ${imagesCount.length} images associées`);
 
     // Statistiques
-    const availableItems = items.filter((item: any) => item.available).length;
-    const unavailableItems = items.filter((item: any) => !item.available).length;
+    const availableItems = items.filter((item: unknown) => item.available).length;
+    const unavailableItems = items.filter((item: unknown) => !item.available).length;
 
     console.log(`\n📊 Statistiques :`);
     console.log(`   • Articles disponibles: ${availableItems}`);
     console.log(`   • Articles indisponibles: ${unavailableItems}`);
-    console.log(`   • Prix moyen: ${(items.reduce((sum: number, item: any) => sum + item.price, 0) / items.length).toFixed(2)}€`);
-    console.log(`   • Prix min: ${Math.min(...items.map((item: any) => item.price))}€`);
-    console.log(`   • Prix max: ${Math.max(...items.map((item: any) => item.price))}€`);
+    console.log(`   • Prix moyen: ${(items.reduce((sum: number, item: unknown)}) => sum + item.price, 0) / items.length).toFixed(2)}€`);
+    console.log(`   • Prix min: ${Math.min(...items.map((item: unknown)}) => item.price))}€`);
+    console.log(`   • Prix max: ${Math.max(...items.map((item: unknown)}) => item.price))}€`);
 
   } catch (error) {
     console.error('❌ Erreur lors de la vérification:', error);

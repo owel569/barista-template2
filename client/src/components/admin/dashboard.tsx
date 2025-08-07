@@ -48,7 +48,7 @@ export default function Dashboard() : JSX.Element {
     activeOrders: 0,
     occupancyRate: 0,
     reservationStatus: []
-  });
+  )});
   const [loading, setLoading] = useState(true);
 
   const fetchStats = async () => {
@@ -64,7 +64,7 @@ export default function Dashboard() : JSX.Element {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        throw new Error(`HTTP ${response.status)}: ${response.statusText}`);
       }
 
       const data: ApiResponse<{
@@ -79,7 +79,7 @@ export default function Dashboard() : JSX.Element {
           todayReservations: data.data.reservations || 0,
           monthlyRevenue: data.data.revenue || 0,
           activeOrders: data.data.orders || 0,
-          occupancyRate: Math.round((data.data.reservations / 50) * 100) || 0,
+          occupancyRate: Math.round((data.data.reservations / 50)}) * 100) || 0,
           reservationStatus: [
             { status: 'Confirmées', count: Math.floor(data.data.reservations * 0.7) },
             { status: 'En attente', count: Math.floor(data.data.reservations * 0.2) },
@@ -97,7 +97,7 @@ export default function Dashboard() : JSX.Element {
         });
       }
     } catch (error) {
-      console.error('Erreur lors du chargement des statistiques:', error);
+      logger.error('Erreur lors du chargement des statistiques:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
       // Valeurs par défaut en cas d'erreur
       setStats({
         todayReservations: 0,
@@ -129,7 +129,7 @@ export default function Dashboard() : JSX.Element {
               todayReservations: data.data.reservations || 0,
               monthlyRevenue: data.data.revenue || 0,
               activeOrders: data.data.orders || 0,
-              occupancyRate: Math.round((data.data.reservations / 50) * 100) || 0,
+              occupancyRate: Math.round((data.data.reservations / 50}) * 100) || 0,
               reservationStatus: [
                 { status: 'Confirmées', count: Math.floor(data.data.reservations * 0.7) },
                 { status: 'En attente', count: Math.floor(data.data.reservations * 0.2) },
@@ -147,7 +147,7 @@ export default function Dashboard() : JSX.Element {
             });
           }
         } else {
-          console.error('Erreur HTTP:', response.status, response.statusText);
+          logger.error('Erreur HTTP:', response.status, response.statusText);
           setStats({
             todayReservations: 0,
             monthlyRevenue: 0,
@@ -157,7 +157,7 @@ export default function Dashboard() : JSX.Element {
           });
         }
       } catch (error) {
-        console.error('Erreur lors du chargement des statistiques:', error);
+        logger.error('Erreur lors du chargement des statistiques:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
         setStats({
           todayReservations: 0,
           monthlyRevenue: 0,
@@ -312,7 +312,7 @@ export default function Dashboard() : JSX.Element {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ status, count }) => `${status}: ${count}`}
+                    label={({ status, count )}) => `${status}: ${count}`}
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="count"

@@ -2,25 +2,44 @@ import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Area, AreaChart } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-type HourData = {
+// Types sécurisés pour les données
+interface HourData {
   hour: string;
   orders: number;
   revenue: number;
   avgWaitTime: number;
-};
+}
 
-type HourViewProps = {
+interface HourViewProps {
   data: HourData[];
   timeRange: string;
+}
+
+// Fonction de validation sécurisée
+const isValidHourData = (item: unknown): item is HourData => {
+  if (typeof item !== 'object' || item === null) return false;
+  const obj = item as Record<string, unknown>;
+  return (
+    typeof obj.hour === 'string' &&
+    typeof obj.orders === 'number' &&
+    typeof obj.revenue === 'number' &&
+    typeof obj.avgWaitTime === 'number'
+  );
 };
 
 const HourView: React.FC<HourViewProps> = ({ data, timeRange }) => {
-  const peakHour = data.reduce((max, item) => 
-    item.orders > max.orders ? item : max, data[0]
-  );
+  // Validation et filtrage des données
+  const validData = Array.isArray(data) ? data.filter(isValidHourData) : [];
   
-  const totalOrders = data.reduce((sum, item) => sum + item.orders, 0);
-  const avgWaitTime = data.reduce((sum, item) => sum + item.avgWaitTime, 0) / data.length;
+  // Calculs sécurisés avec gestion des cas limites
+  const peakHour = validData.length > 0 
+    ? validData.reduce((max, item) => item.orders > max.orders ? item : max, validData[0]!)
+    : null;
+  
+  const totalOrders = validData.reduce((sum, item) => sum + item.orders, 0);
+  const avgWaitTime = validData.length > 0 
+    ? validData.reduce((sum, item) => sum + item.avgWaitTime, 0) / validData.length 
+    : 0;
 
   return (
     <div className="space-y-6">
@@ -62,7 +81,7 @@ const HourView: React.FC<HourViewProps> = ({ data, timeRange }) => {
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={data}>
+            <BarChart data={validData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis 
                 dataKey="hour" 
@@ -95,7 +114,7 @@ const HourView: React.FC<HourViewProps> = ({ data, timeRange }) => {
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={data}>
+            <AreaChart data={validData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis 
                 dataKey="hour" 
@@ -131,7 +150,7 @@ const HourView: React.FC<HourViewProps> = ({ data, timeRange }) => {
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={data}>
+            <LineChart data={validData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis 
                 dataKey="hour" 

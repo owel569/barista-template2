@@ -176,7 +176,7 @@ export default function EventsPromotions() : JSX.Element {
           price: 25.00,
           status: 'published',
           tags: ['café', 'dégustation', 'expert'],
-          createdAt: new Date().toISOString(),
+          createdAt: new Date(}).toISOString(),
           updatedAt: new Date().toISOString()
         },
         {
@@ -212,7 +212,7 @@ export default function EventsPromotions() : JSX.Element {
           usageCount: 156,
           applicableItems: ['café', 'espresso', 'cappuccino'],
           customerSegment: 'all',
-          createdAt: new Date().toISOString(),
+          createdAt: new Date()}).toISOString(),
           updatedAt: new Date().toISOString()
         },
         {
@@ -226,7 +226,7 @@ export default function EventsPromotions() : JSX.Element {
           isActive: true,
           usageLimit: 500,
           usageCount: 23,
-          applicableItems: ['café'],
+          applicableItems: ['café',],
           customerSegment: 'vip',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
@@ -256,7 +256,7 @@ export default function EventsPromotions() : JSX.Element {
         toast({
           title: selectedEvent ? "Événement modifié" : "Événement créé",
           description: selectedEvent ? "L'événement a été modifié avec succès" : "L'événement a été créé avec succès"
-        });
+        )});
         setShowEventDialog(false);
         setSelectedEvent(null);
         eventForm.reset();
@@ -291,7 +291,7 @@ export default function EventsPromotions() : JSX.Element {
         toast({
           title: selectedPromotion ? "Promotion modifiée" : "Promotion créée",
           description: selectedPromotion ? "La promotion a été modifiée avec succès" : "La promotion a été créée avec succès"
-        });
+        )});
         setShowPromotionDialog(false);
         setSelectedPromotion(null);
         promotionForm.reset();
@@ -376,7 +376,7 @@ export default function EventsPromotions() : JSX.Element {
                     <FormField
                       control={eventForm.control}
                       name="title"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Titre</FormLabel>
                           <FormControl>
@@ -389,7 +389,7 @@ export default function EventsPromotions() : JSX.Element {
                     <FormField
                       control={eventForm.control}
                       name="type"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Type</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -415,7 +415,7 @@ export default function EventsPromotions() : JSX.Element {
                   <FormField
                     control={eventForm.control}
                     name="description"
-                    render={({ field }) => (
+                    render={({ field )}) => (
                       <FormItem>
                         <FormLabel>Description</FormLabel>
                         <FormControl>
@@ -429,7 +429,7 @@ export default function EventsPromotions() : JSX.Element {
                     <FormField
                       control={eventForm.control}
                       name="date"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Date</FormLabel>
                           <FormControl>
@@ -442,7 +442,7 @@ export default function EventsPromotions() : JSX.Element {
                     <FormField
                       control={eventForm.control}
                       name="startTime"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Heure de début</FormLabel>
                           <FormControl>
@@ -455,7 +455,7 @@ export default function EventsPromotions() : JSX.Element {
                     <FormField
                       control={eventForm.control}
                       name="endTime"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Heure de fin</FormLabel>
                           <FormControl>
@@ -470,7 +470,7 @@ export default function EventsPromotions() : JSX.Element {
                     <FormField
                       control={eventForm.control}
                       name="location"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Lieu</FormLabel>
                           <FormControl>
@@ -483,7 +483,7 @@ export default function EventsPromotions() : JSX.Element {
                     <FormField
                       control={eventForm.control}
                       name="maxAttendees"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Nombre maximum de participants</FormLabel>
                           <FormControl>
@@ -501,7 +501,7 @@ export default function EventsPromotions() : JSX.Element {
                   <FormField
                     control={eventForm.control}
                     name="price"
-                    render={({ field }) => (
+                    render={({ field )}) => (
                       <FormItem>
                         <FormLabel>Prix (€)</FormLabel>
                         <FormControl>
@@ -550,7 +550,7 @@ export default function EventsPromotions() : JSX.Element {
                     <FormField
                       control={promotionForm.control}
                       name="name"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Nom</FormLabel>
                           <FormControl>
@@ -563,7 +563,7 @@ export default function EventsPromotions() : JSX.Element {
                     <FormField
                       control={promotionForm.control}
                       name="type"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Type</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -588,7 +588,7 @@ export default function EventsPromotions() : JSX.Element {
                   <FormField
                     control={promotionForm.control}
                     name="description"
-                    render={({ field }) => (
+                    render={({ field )}) => (
                       <FormItem>
                         <FormLabel>Description</FormLabel>
                         <FormControl>
@@ -602,7 +602,7 @@ export default function EventsPromotions() : JSX.Element {
                     <FormField
                       control={promotionForm.control}
                       name="discountValue"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Valeur de réduction</FormLabel>
                           <FormControl>
@@ -620,7 +620,7 @@ export default function EventsPromotions() : JSX.Element {
                     <FormField
                       control={promotionForm.control}
                       name="customerSegment"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Segment client</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -645,7 +645,7 @@ export default function EventsPromotions() : JSX.Element {
                     <FormField
                       control={promotionForm.control}
                       name="startDate"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Date de début</FormLabel>
                           <FormControl>
@@ -658,7 +658,7 @@ export default function EventsPromotions() : JSX.Element {
                     <FormField
                       control={promotionForm.control}
                       name="endDate"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Date de fin</FormLabel>
                           <FormControl>
@@ -693,7 +693,7 @@ export default function EventsPromotions() : JSX.Element {
         <TabsContent value="events" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {events.map(event => (
-              <Card key={event.id} className="hover:shadow-md transition-shadow">
+              <Card key={event.id)} className="hover:shadow-md transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <Badge className={getStatusColor(event.status)}>
@@ -761,7 +761,7 @@ export default function EventsPromotions() : JSX.Element {
         <TabsContent value="promotions" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {promotions.map(promotion => (
-              <Card key={promotion.id} className="hover:shadow-md transition-shadow">
+              <Card key={promotion.id)} className="hover:shadow-md transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <Badge className={promotion.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
@@ -798,13 +798,13 @@ export default function EventsPromotions() : JSX.Element {
                     {promotion.usageLimit && (
                       <div className="flex items-center text-sm text-gray-600">
                         <Trophy className="h-4 w-4 mr-2" />
-                        {promotion.usageCount}/{promotion.usageLimit} utilisations
+                        {promotion.usageCount)}/{promotion.usageLimit} utilisations
                       </div>
                     )}
                     <div className="flex items-center justify-between pt-2">
                       {promotion.code && (
                         <Badge variant="secondary" className="font-mono">
-                          {promotion.code}
+                          {promotion.code)}
                         </Badge>
                       )}
                       <div className="flex space-x-1">

@@ -32,7 +32,7 @@ interface RealTimeEvent {
   description: string;
   timestamp: Date;
   priority: 'low' | 'medium' | 'high' | 'critical';
-  data?: any;
+  data?: unknown;
   handled?: boolean;
 }
 
@@ -102,9 +102,9 @@ export default function RealTimeUpdates() : JSX.Element {
         setConnectionStatus(prev => ({
           ...prev,
           connected: true,
-          lastHeartbeat: new Date(),
+          lastHeartbeat: new Date()}),
           reconnectAttempts: 0
-        }));
+        });
         
         toast({
           title: "Connexion temps réel établie",
@@ -115,14 +115,14 @@ export default function RealTimeUpdates() : JSX.Element {
         const heartbeatInterval = setInterval(() => {
           if (websocket.readyState === WebSocket.OPEN) {
             const start = Date.now();
-            websocket.send(JSON.stringify({ type: 'ping' }));
+            websocket.send(JSON.stringify({ type: 'ping' });
             
             // Mesurer la latence
             setTimeout(() => {
               setConnectionStatus(prev => ({
                 ...prev,
-                latency: Date.now() - start
-              }));
+                latency: Date.now()}) - start
+              });
             }, 100);
           }
         }, 30000);
@@ -137,7 +137,7 @@ export default function RealTimeUpdates() : JSX.Element {
           const data = JSON.parse(event.data);
           handleWebSocketMessage(data);
         } catch (error) {
-          console.error('Erreur parsing WebSocket message:', error);
+          logger.error('Erreur parsing WebSocket message:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
         }
       };
 
@@ -145,14 +145,14 @@ export default function RealTimeUpdates() : JSX.Element {
         setConnectionStatus(prev => ({
           ...prev,
           connected: false
-        }));
+        )});
 
         // Tentative de reconnexion automatique
         setTimeout(() => {
           setConnectionStatus(prev => ({
             ...prev,
             reconnectAttempts: prev.reconnectAttempts + 1
-          }));
+          )});
           
           if (connectionStatus.reconnectAttempts < 5) {
             connectWebSocket();
@@ -161,7 +161,7 @@ export default function RealTimeUpdates() : JSX.Element {
       };
 
       websocket.onerror = (error) => {
-        console.error('Erreur WebSocket:', error);
+        logger.error('Erreur WebSocket:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
         toast({
           title: "Erreur de connexion",
           description: "Problème de connexion temps réel",
@@ -172,7 +172,7 @@ export default function RealTimeUpdates() : JSX.Element {
       setWs(websocket);
 
     } catch (error) {
-      console.error('Erreur création WebSocket:', error);
+      logger.error('Erreur création WebSocket:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
       // Fallback vers polling si WebSocket échoue
       startPollingFallback();
     }
@@ -187,7 +187,7 @@ export default function RealTimeUpdates() : JSX.Element {
 
     setConnectionStatus({
       connected: true,
-      lastHeartbeat: new Date(),
+      lastHeartbeat: new Date()}),
       reconnectAttempts: 0,
       latency: 150
     });
@@ -206,8 +206,8 @@ export default function RealTimeUpdates() : JSX.Element {
       case 'pong':
         setConnectionStatus(prev => ({
           ...prev,
-          lastHeartbeat: new Date()
-        }));
+          lastHeartbeat: new Date(})
+        });
         break;
       default:
         console.log('Message WebSocket non géré:', data);
@@ -216,7 +216,7 @@ export default function RealTimeUpdates() : JSX.Element {
 
   const addNewEvent = useCallback((event: RealTimeEvent) => {
     setEvents(prev => {
-      const newEvents = [event, ...prev].slice(0, 100); // Limiter à 100 événements
+      const newEvents = [event, ...prev].slice(0, 100)}); // Limiter à 100 événements
       
       // Son de notification
       if (soundEnabled && event.priority === 'high' || event.priority === 'critical') {
@@ -229,7 +229,7 @@ export default function RealTimeUpdates() : JSX.Element {
     // Notification toast pour événements critiques
     if (event.priority === 'critical') {
       toast({
-        title: `🚨 ${event.title}`,
+        title: `🚨 ${event.title)}`,
         description: event.description,
         variant: "destructive"
       });
@@ -297,7 +297,7 @@ export default function RealTimeUpdates() : JSX.Element {
 
   const updateMockMetrics = useCallback(() => {
     setLiveMetrics({
-      activeConnections: Math.floor(Math.random() * 50) + 10,
+      activeConnections: Math.floor(Math.random()}) * 50) + 10,
       eventsPerMinute: Math.floor(Math.random() * 20) + 5,
       systemLoad: Math.floor(Math.random() * 30) + 40,
       responseTime: Math.floor(Math.random() * 100) + 50,
@@ -320,13 +320,13 @@ export default function RealTimeUpdates() : JSX.Element {
   const markEventAsHandled = useCallback((eventId: string) => {
     setEvents(prev =>
       prev.map(event =>
-        event.id === eventId ? { ...event, handled: true } : event
+        event.id === eventId ? { ...event, handled: true )} : event
       )
     );
   }, []);
 
   const filteredEvents = events.filter(event => {
-    const typeMatch = filters.types.includes(event.type);
+    const typeMatch = filters.types.includes(event.type)});
     const priorityMatch = filters.priorities.includes(event.priority);
     
     let timeMatch = true;
@@ -502,7 +502,7 @@ export default function RealTimeUpdates() : JSX.Element {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={connectWebSocket}
+                  onClick={connectWebSocket)}
                   className="ml-2"
                 >
                   Reconnecter
@@ -521,7 +521,7 @@ export default function RealTimeUpdates() : JSX.Element {
               </Card>
             ) : (
               filteredEvents.map(event => {
-                const TypeIcon = getTypeIcon(event.type);
+                const TypeIcon = getTypeIcon(event.type});
                 return (
                   <Card key={event.id} className={`${event.handled ? 'opacity-50' : ''}`}>
                     <CardContent className="p-4">
@@ -573,7 +573,7 @@ export default function RealTimeUpdates() : JSX.Element {
                 <label className="text-sm font-medium mb-2 block">Types d'événements</label>
                 <div className="grid grid-cols-3 gap-2">
                   {['order', 'reservation', 'payment', 'customer', 'system', 'alert'].map(type => (
-                    <label key={type} className="flex items-center space-x-2">
+                    <label key={type)} className="flex items-center space-x-2">
                       <input
                         type="checkbox"
                         checked={filters.types.includes(type)}
@@ -582,12 +582,12 @@ export default function RealTimeUpdates() : JSX.Element {
                             setFilters(prev => ({
                               ...prev,
                               types: [...prev.types, type]
-                            }));
+                            });
                           } else {
                             setFilters(prev => ({
                               ...prev,
-                              types: prev.types.filter(t => t !== type)
-                            }));
+                              types: prev.types.filter(t => t !== type)})
+                            });
                           }
                         }}
                       />
@@ -601,7 +601,7 @@ export default function RealTimeUpdates() : JSX.Element {
                 <label className="text-sm font-medium mb-2 block">Priorités</label>
                 <div className="grid grid-cols-2 gap-2">
                   {['low', 'medium', 'high', 'critical'].map(priority => (
-                    <label key={priority} className="flex items-center space-x-2">
+                    <label key={priority)} className="flex items-center space-x-2">
                       <input
                         type="checkbox"
                         checked={filters.priorities.includes(priority)}
@@ -610,12 +610,12 @@ export default function RealTimeUpdates() : JSX.Element {
                             setFilters(prev => ({
                               ...prev,
                               priorities: [...prev.priorities, priority]
-                            }));
+                            });
                           } else {
                             setFilters(prev => ({
                               ...prev,
-                              priorities: prev.priorities.filter(p => p !== priority)
-                            }));
+                              priorities: prev.priorities.filter(p => p !== priority)})
+                            });
                           }
                         }}
                       />
@@ -629,7 +629,7 @@ export default function RealTimeUpdates() : JSX.Element {
                 <label className="text-sm font-medium mb-2 block">Période</label>
                 <select
                   value={filters.timeRange}
-                  onChange={(e) => setFilters(prev => ({ ...prev, timeRange: e.target.value }))}
+                  onChange={(e) => setFilters(prev => ({ ...prev, timeRange: e.target.value }));}
                   className="w-full p-2 border rounded-md"
                 >
                   <option value="15m">15 dernières minutes</option>

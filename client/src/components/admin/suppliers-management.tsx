@@ -50,7 +50,7 @@ export default function SuppliersManagement() : JSX.Element {
       const [suppliersRes, statsRes] = await Promise.all([
         fetch('/api/admin/suppliers', {
           headers: { 'Authorization': `Bearer ${token}` }
-        }),
+        })]),
         fetch('/api/admin/suppliers/stats', {
           headers: { 'Authorization': `Bearer ${token}` }
         })
@@ -58,7 +58,7 @@ export default function SuppliersManagement() : JSX.Element {
 
       if (suppliersRes.ok && statsRes.ok) {
         const [suppliersData, statsData] = await Promise.all([
-          suppliersRes.json(),
+          suppliersRes.json()]),
           statsRes.json()
         ]);
         
@@ -110,7 +110,7 @@ export default function SuppliersManagement() : JSX.Element {
   };
 
   const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, index) => (
+    return Array.from({ length: 5 )}, (_, index) => (
       <Star
         key={index}
         className={`h-4 w-4 ${index < rating 
@@ -122,7 +122,7 @@ export default function SuppliersManagement() : JSX.Element {
   };
 
   const filteredSuppliers = suppliers.filter(supplier => {
-    const matchesSearch = supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch = supplier.name.toLowerCase()}).includes(searchTerm.toLowerCase()) ||
                          supplier.company.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || supplier.category === selectedCategory;
     return matchesSearch && matchesCategory;
@@ -191,7 +191,7 @@ export default function SuppliersManagement() : JSX.Element {
                     Total Fournisseurs
                   </p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {stats.totalSuppliers}
+                    {stats.totalSuppliers)}
                   </p>
                 </div>
                 <Truck className="h-8 w-8 text-blue-500" />

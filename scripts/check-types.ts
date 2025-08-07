@@ -19,7 +19,7 @@ try {
   const result = execSync('npx tsc --noEmit --strict --skipLibCheck', {
     encoding: 'utf8',
     stdio: 'pipe'
-  });
+  )});
 
   console.log(`${colors.green}✅ Aucune erreur TypeScript détectée !${colors.reset}`);
   console.log(`${colors.green}🎉 Tout est parfaitement typé.${colors.reset}\n`);
@@ -46,7 +46,7 @@ try {
   };
 
   lines.forEach(line => {
-    if (line.includes('Property') && line.includes('missing')) {
+    if (line.includes('Property')}) && line.includes('missing')) {
       errorsByCategory['Property missing']?.push(line);
     } else if (line.includes('not assignable') || line.includes('mismatch')) {
       errorsByCategory['Type mismatch']?.push(line);

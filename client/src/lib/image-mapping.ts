@@ -52,7 +52,7 @@ const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2
 /**
  * Normalise une chaîne pour la recherche d'image
  */
-export function normalizeKey(key: any): string {
+export function normalizeKey(key: unknown): string {
   if (!key || typeof key !== 'string') return 'default';
 
   return String(key)
@@ -74,7 +74,7 @@ export function normalizeKey(key: any): string {
 /**
  * Obtient l'URL d'image pour un item avec fallback intelligent
  */
-export function getItemImageUrl(itemName: any, categorySlug: any = 'default'): string {
+export function getItemImageUrl(itemName: unknown, categorySlug: unknown = 'default'): string {
   try {
     if (!itemName) return DEFAULT_IMAGE;
 
@@ -136,7 +136,7 @@ export function preloadCriticalImages(): void {
   ];
 
   criticalImages.forEach(url => {
-    const img = new Image();
+    const img = new Image(});
     img.src = url;
   });
 }
@@ -146,7 +146,7 @@ export function preloadCriticalImages(): void {
  */
 export async function validateImageUrl(url: string): Promise<boolean> {
   try {
-    const response = await fetch(url, { method: 'HEAD' });
+    const response = await fetch(url, { method: 'HEAD' )});
     return response.ok;
   } catch {
     return false;

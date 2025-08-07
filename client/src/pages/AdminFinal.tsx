@@ -80,7 +80,7 @@ export default function AdminFinal() : JSX.Element {
       const payload = JSON.parse(atob(token.split('.')[1]));
       setUser(payload);
     } catch (error) {
-      console.error('Token invalide:', error);
+      logger.error('Token invalide:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
       navigate('/login');
     }
   }, [navigate]);
@@ -378,7 +378,7 @@ export default function AdminFinal() : JSX.Element {
 
   // Filtrer les modules selon les permissions
   const availableModules = adminModules.filter(module => {
-    if (module.always) return true;
+    if (module.always)}) return true;
     if (module.adminOnly && user?.role !== 'directeur') return false;
     return true;
   });
@@ -442,7 +442,7 @@ export default function AdminFinal() : JSX.Element {
                       <span className="truncate text-xs">{module.name}</span>
                       {module.notification && module.notification > 0 && (
                         <Badge className="ml-auto bg-red-500 text-white text-xs px-1 py-0">
-                          {module.notification}
+                          {module.notification)}
                         </Badge>
                       )}
                     </button>

@@ -15,7 +15,7 @@ interface Report {
   description: string;
   lastGenerated: string;
   format: 'PDF' | 'Excel' | 'CSV';
-  icon: any;
+  icon: unknown;
 }
 
 interface ReportData {
@@ -454,10 +454,10 @@ export default function ReportsSystem() : JSX.Element {
                       </div>
                       <div className="text-right">
                         <p className="font-bold text-green-600">{product.sales}€</p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">ventes</p>
+                        <p className="text-xs text-gray-600 dark: text-gray-400">ventes</p>
                       </div>
                     </div>
-                  )) || []}
+                  )) || [,]}
                 </div>
               </CardContent>
             </Card>

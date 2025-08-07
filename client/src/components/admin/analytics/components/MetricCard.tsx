@@ -13,7 +13,7 @@ export interface MetricCardProps {
   previousValue: number;
   growth: number;
   icon: LucideIcon;
-  format?: 'number' | 'currency' | 'percentage';
+  format?: 'number' | 'currency' | 'percentage' | 'rating';
   subtitle?: string;
   trend?: 'up' | 'down' | 'stable';
 }
@@ -34,6 +34,8 @@ export const MetricCard: React.FC<MetricCardProps> = ({
         return val.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
       case 'percentage':
         return `${val.toFixed(1)}%`;
+      case 'rating':
+        return `${val.toFixed(1)}/5`;
       default:
         return val.toLocaleString('fr-FR');
     }

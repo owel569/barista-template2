@@ -166,7 +166,7 @@ async function populateRichMenu() {
           totalInserted++;
           
         } catch (error) {
-          console.error(`❌ Erreur pour ${item.name}:`, error);
+          logger.error(`❌ Erreur pour ${item.name)}:`, { error: error instanceof Error ? error.message : 'Erreur inconnue' });
         }
       }
     }
@@ -180,7 +180,7 @@ async function populateRichMenu() {
     console.log(`✅ Vérification: ${finalCount.length} éléments en base`);
     
   } catch (error) {
-    console.error('❌ Erreur lors de l\'enrichissement:', error);
+    logger.error('❌ Erreur lors de l\'enrichissement:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
     process.exit(1);
   }
 }
@@ -193,7 +193,7 @@ if (import.meta.main) {
       process.exit(0);
     })
     .catch((error) => {
-      console.error('❌ Échec de l\'enrichissement:', error);
+      logger.error('❌ Échec de l\'enrichissement:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
       process.exit(1);
     });
 }

@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Utensils } from "lucide-react";
 import { useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
-import logoBaristaCafe from "@/assets/logo-barista-cafe.png";
+// Import du logo avec gestion d'erreur
+const logoBaristaCafe = "/logo-barista-cafe.png";
 
 export default function Hero() : JSX.Element {
   const [, setLocation] = useLocation();

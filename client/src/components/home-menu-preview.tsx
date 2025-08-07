@@ -10,7 +10,7 @@ export default function HomeMenuPreview() : JSX.Element {
   const [, setLocation] = useLocation();
   
   const { data: menuResponse } = useQuery({
-    queryKey: ['/api/menu/items'],
+    queryKey: ['/api/menu/items',],
   });
 
   // Sélectionner 3 articles populaires pour l'aperçu
@@ -30,7 +30,7 @@ export default function HomeMenuPreview() : JSX.Element {
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 mb-12">
-          {featuredItems.map((item: { id: number; name: string; description: string; price: string; category?: { slug?: string; name?: string } }) => (
+          {featuredItems.map((item: { id: number; name: string; description: string; price: string; category?: { slug?: string; name?: string )} }) => (
             <Card key={item.id} className="bg-white/90 backdrop-blur-sm border-coffee-light/30 hover:shadow-xl transition-all duration-300 group">
               <CardContent className="p-0">
                 <div className="aspect-square overflow-hidden rounded-t-lg">

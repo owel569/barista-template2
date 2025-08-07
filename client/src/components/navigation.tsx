@@ -17,7 +17,7 @@ export default function Navigation() : JSX.Element {
     
     const element = document.getElementById(sectionId);
     if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+      element.scrollIntoView({ behavior: "smooth" )});
     }
     setIsMobileMenuOpen(false);
   };

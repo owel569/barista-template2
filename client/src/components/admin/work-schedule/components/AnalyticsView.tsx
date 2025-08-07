@@ -54,7 +54,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
       cout: dept.totalCost,
       employes: dept.employeeCount,
       tauxHoraire: dept.averageHourlyRate
-    }));
+    });
   }, [stats.departmentStats]);
 
   const costAnalysisData = useMemo(() => {
@@ -84,7 +84,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
       salaire: emp.totalPay,
       ponctualite: emp.punctualityScore,
       shifts: emp.shiftsWorked
-    }));
+    });
   }, [reports]);
 
   const trendData = useMemo(() => {
@@ -132,7 +132,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
     if (mainMetrics.overtimeRate > 20) {
       alerts.push({
         type: 'warning',
-        message: `Taux d'heures supplémentaires élevé (${mainMetrics.overtimeRate.toFixed(1)}%)`,
+        message: `Taux d'heures supplémentaires élevé (${mainMetrics.overtimeRate.toFixed(1)})}%)`,
         suggestion: 'Considérez recruter plus d\'employés ou réorganiser les shifts'
       });
     }
@@ -140,7 +140,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
     if (mainMetrics.costPerHour > 25) {
       alerts.push({
         type: 'warning',
-        message: `Coût par heure élevé (${formatCurrency(mainMetrics.costPerHour)})`,
+        message: `Coût par heure élevé (${formatCurrency(mainMetrics.costPerHour)})})`,
         suggestion: 'Optimisez la répartition des postes et les taux horaires'
       });
     }
@@ -148,7 +148,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
     if (mainMetrics.utilization < 70) {
       alerts.push({
         type: 'info',
-        message: `Sous-utilisation des employés (${mainMetrics.utilization.toFixed(1)}%)`,
+        message: `Sous-utilisation des employés (${mainMetrics.utilization.toFixed(1)})}%)`,
         suggestion: 'Réduisez les heures programmées ou réaffectez les employés'
       });
     }
@@ -319,7 +319,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                  label={({ name, percent )}) => `${name} (${(percent * 100).toFixed(0)}%)`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="cout"

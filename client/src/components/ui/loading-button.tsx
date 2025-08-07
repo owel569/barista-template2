@@ -14,7 +14,7 @@ const LoadingButton = forwardRef<HTMLButtonElement, LoadingButtonProps>(
   ({ loading = false, loadingText, children, disabled, ...props }, ref) => {
     return (
       <Button
-        ref={ref}
+        ref={ref)}
         disabled={disabled || loading}
         {...props}
       >

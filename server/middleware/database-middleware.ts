@@ -12,14 +12,14 @@ export async function ensureDatabaseConnection(req: Request, res: Response, next
     
     next();
   } catch (error) {
-    console.error('❌ Erreur middleware base de données:', error);
+    logger.error('❌ Erreur middleware base de données:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
     
     // Tentative de reconnexion automatique
     try {
       await initializeDatabase();
       next();
     } catch (reconnectError) {
-      console.error('❌ Échec de la reconnexion:', reconnectError);
+      logger.error('❌ Échec de la reconnexion:', reconnectError);
       res.status(500).json({ 
         success: false, 
         message: 'Erreur de connexion à la base de données',

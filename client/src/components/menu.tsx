@@ -158,10 +158,10 @@ export default function Menu() : JSX.Element {
   
   const displayItems = getItemsByCategory(activeTab);
 
-  const handleAddToCart = (item: any) => {
+  const handleAddToCart = (item: unknown) => {
     toast({
       title: "Ajouté au panier",
-      description: `${item.name} a été ajouté à votre commande`,
+      description: `${item.name)} a été ajouté à votre commande`,
     });
   };
 
@@ -200,7 +200,7 @@ export default function Menu() : JSX.Element {
 
         {/* Menu Content */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {displayItems.map((item: any) => (
+          {displayItems.map((item: unknown) => (
             <Card key={item.id} className="bg-white shadow-lg overflow-hidden hover:transform hover:scale-105 transition duration-300">
               <div className="w-full h-48 bg-coffee-light/20 overflow-hidden">
                 <img 

@@ -36,7 +36,7 @@ async function updateMenuDescriptions() {
     
     for (const item of menuItemsList) {
       let hasUpdates = false;
-      const updates: any = {};
+      const updates: unknown = {};
       
       // Mettre à jour la description si elle existe
       const enhancedDesc = ENHANCED_DESCRIPTIONS[item.name];
@@ -93,12 +93,12 @@ async function updateMenuDescriptions() {
     console.log('\n📋 Aperçu du menu enrichi:');
     const sampleItems = await db.select().from(menuItems).limit(3);
     for (const item of sampleItems) {
-      console.log(`   • ${item.name} - ${item.price}€`);
+      console.log(`   • ${item.name)} - ${item.price}€`);
       console.log(`     ${item.description}`);
     }
     
   } catch (error) {
-    console.error('❌ Erreur lors de la mise à jour:', error);
+    logger.error('❌ Erreur lors de la mise à jour:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
     process.exit(1);
   }
 }
@@ -111,7 +111,7 @@ if (import.meta.main) {
       process.exit(0);
     })
     .catch((error) => {
-      console.error('❌ Échec de la mise à jour:', error);
+      logger.error('❌ Échec de la mise à jour:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
       process.exit(1);
     });
 }

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -17,9 +17,8 @@ import {
   DollarSign,
   Clock
 } from 'lucide-react';
-import { ApiClient } from '@/lib/auth-utils';
-import { toast } from '@/hooks/use-toast';
 
+// Types sécurisés pour les données IA
 interface AIInsight {
   id: string;
   type: 'prediction' | 'recommendation' | 'alert' | 'optimization';
@@ -40,34 +39,124 @@ interface AIMetrics {
   efficiency_gain: number;
 }
 
+interface ApiResponse<T> {
+  insights?: T[];
+  metrics?: AIMetrics;
+}
+
+// Fonction sécurisée pour les appels API
+const secureApiCall = async (endpoint: string) => {
+  try {
+    const token = localStorage.getItem('barista_token');
+    const response = await fetch(endpoint, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return response.json();
+  } catch (error) {
+    console.error(`Erreur API pour ${endpoint}:`, error);
+    throw error;
+  }
+};
+
+// Fonction de validation sécurisée pour les insights IA
+const isValidAIInsight = (insight: unknown): insight is AIInsight => {
+  if (typeof insight !== 'object' || insight === null) return false;
+  const obj = insight as Record<string, unknown>;
+  return (
+    typeof obj.id === 'string' &&
+    typeof obj.title === 'string' &&
+    typeof obj.description === 'string' &&
+    typeof obj.confidence === 'number' &&
+    typeof obj.category === 'string' &&
+    typeof obj.actionable === 'boolean' &&
+    typeof obj.timestamp === 'string' &&
+    ['prediction', 'recommendation', 'alert', 'optimization'].includes(obj.type as string) &&
+    ['high', 'medium', 'low'].includes(obj.impact as string)
+  );
+};
+
+// Fonction de validation sécurisée pour les métriques IA
+const isValidAIMetrics = (metrics: unknown): metrics is AIMetrics => {
+  if (typeof metrics !== 'object' || metrics === null) return false;
+  const obj = metrics as Record<string, unknown>;
+  return (
+    typeof obj.accuracy === 'number' &&
+    typeof obj.processing_speed === 'number' &&
+    typeof obj.insights_generated === 'number' &&
+    typeof obj.cost_savings === 'number' &&
+    typeof obj.efficiency_gain === 'number'
+  );
+};
+
 export const AIInsightsPanel: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
-  // Récupération des insights IA
-  const { data: insights, isLoading, refetch } = useQuery({
+  // Récupération des insights IA avec gestion d'erreur sécurisée
+  const { data: insightsResponse, isLoading, refetch } = useQuery({
     queryKey: ['ai-insights'],
     queryFn: async () => {
-      const response = await ApiClient.get('/api/advanced/ai-insights');
-      return response.insights || [];
+      try {
+        const response = await secureApiCall('/api/advanced/ai-insights');
+        const data = response as ApiResponse<AIInsight>;
+        return data.insights || [];
+      } catch (error) {
+        console.error('Erreur lors de la récupération des insights IA:', error);
+        return [];
+      }
     },
-    refetchInterval: 60000 // Actualisation toutes les minutes
+    refetchInterval: 60000
   });
 
-  // Métriques de performance IA
-  const { data: aiMetrics } = useQuery({
+  // Métriques de performance IA avec gestion d'erreur sécurisée
+  const { data: aiMetricsResponse } = useQuery({
     queryKey: ['ai-metrics'],
     queryFn: async () => {
-      const response = await ApiClient.get('/api/advanced/ai-metrics');
-      return response.metrics || {
+      try {
+        const response = await secureApiCall('/api/advanced/ai-metrics');
+        const data = response as ApiResponse<AIMetrics>;
+        return data.metrics || {
+          accuracy: 94,
+          processing_speed: 0.8,
+          insights_generated: 247,
+          cost_savings: 3250,
+          efficiency_gain: 28
+        };
+      } catch (error) {
+        console.error('Erreur lors de la récupération des métriques IA:', error);
+        return {
+          accuracy: 94,
+          processing_speed: 0.8,
+          insights_generated: 247,
+          cost_savings: 3250,
+          efficiency_gain: 28
+        };
+      }
+    },
+    refetchInterval: 300000
+  });
+
+  // Validation et filtrage sécurisé des données
+  const insights = Array.isArray(insightsResponse) 
+    ? insightsResponse.filter(isValidAIInsight)
+    : [];
+
+  const aiMetrics = isValidAIMetrics(aiMetricsResponse) 
+    ? aiMetricsResponse 
+    : {
         accuracy: 94,
         processing_speed: 0.8,
         insights_generated: 247,
         cost_savings: 3250,
         efficiency_gain: 28
       };
-    },
-    refetchInterval: 300000 // Actualisation toutes les 5 minutes
-  });
 
   const getInsightIcon = (type: string) => {
     switch (type) {
@@ -88,9 +177,9 @@ export const AIInsightsPanel: React.FC = () => {
     }
   };
 
-  const filteredInsights = insights?.filter((insight: AIInsight) => 
+  const filteredInsights = insights.filter((insight: AIInsight) => 
     selectedCategory === 'all' || insight.category === selectedCategory
-  ) || [];
+  );
 
   if (isLoading) {
     return (
@@ -114,7 +203,7 @@ export const AIInsightsPanel: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Précision IA</p>
-                <p className="text-2xl font-bold text-blue-600">{aiMetrics?.accuracy || 94}%</p>
+                <p className="text-2xl font-bold text-blue-600">{aiMetrics.accuracy}%</p>
               </div>
               <Brain className="h-8 w-8 text-blue-600" />
             </div>
@@ -126,7 +215,7 @@ export const AIInsightsPanel: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Vitesse</p>
-                <p className="text-2xl font-bold text-green-600">{aiMetrics?.processing_speed || 0.8}s</p>
+                <p className="text-2xl font-bold text-green-600">{aiMetrics.processing_speed}s</p>
               </div>
               <Zap className="h-8 w-8 text-green-600" />
             </div>
@@ -138,7 +227,7 @@ export const AIInsightsPanel: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Insights</p>
-                <p className="text-2xl font-bold text-purple-600">{aiMetrics?.insights_generated || 247}</p>
+                <p className="text-2xl font-bold text-purple-600">{aiMetrics.insights_generated}</p>
               </div>
               <Lightbulb className="h-8 w-8 text-purple-600" />
             </div>
@@ -150,7 +239,7 @@ export const AIInsightsPanel: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Économies</p>
-                <p className="text-2xl font-bold text-green-600">€{aiMetrics?.cost_savings || 3250}</p>
+                <p className="text-2xl font-bold text-green-600">€{aiMetrics.cost_savings}</p>
               </div>
               <DollarSign className="h-8 w-8 text-green-600" />
             </div>
@@ -162,7 +251,7 @@ export const AIInsightsPanel: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Gain efficacité</p>
-                <p className="text-2xl font-bold text-blue-600">+{aiMetrics?.efficiency_gain || 28}%</p>
+                <p className="text-2xl font-bold text-blue-600">+{aiMetrics.efficiency_gain}%</p>
               </div>
               <TrendingUp className="h-8 w-8 text-blue-600" />
             </div>

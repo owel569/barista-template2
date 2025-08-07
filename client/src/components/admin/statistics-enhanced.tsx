@@ -120,7 +120,7 @@ export default function StatisticsEnhanced({ userRole }: StatisticsEnhancedProps
         hourlyResponse,
         statsResponse
       ] = await Promise.all([
-        apiRequest(`/api/admin/statistics/revenue?range=${dateRange}`).catch(() => null),
+        apiRequest(`/api/admin/statistics/revenue?range=${dateRange}`)]).catch(() => null),
         apiRequest('/api/admin/statistics/categories').catch(() => null),
         apiRequest('/api/admin/statistics/customers').catch(() => null),
         apiRequest('/api/admin/statistics/popular-items').catch(() => null),
@@ -179,7 +179,7 @@ export default function StatisticsEnhanced({ userRole }: StatisticsEnhancedProps
         });
       }
     } catch (error) {
-      console.error('Erreur lors du chargement des données:', error);
+      logger.error('Erreur lors du chargement des données:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
       toast({
         title: "Erreur",
         description: "Impossible de charger les statistiques",
@@ -211,7 +211,7 @@ export default function StatisticsEnhanced({ userRole }: StatisticsEnhancedProps
     return revenueData.map(item => ({
       ...item,
       avgOrderValue: item.revenue / item.orders || 0
-    }));
+    )});
   }, [revenueData]);
 
   // Articles populaires dynamiques (mémorisés)
@@ -254,7 +254,7 @@ export default function StatisticsEnhanced({ userRole }: StatisticsEnhancedProps
         description: `Les statistiques ont été exportées dans ${fileName}`,
       });
     } catch (error) {
-      console.error('Erreur lors de l\'export:', error);
+      logger.error('Erreur lors de l\'export:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
       toast({
         title: "Erreur d'export",
         description: "Impossible d'exporter les données",
@@ -270,7 +270,7 @@ export default function StatisticsEnhanced({ userRole }: StatisticsEnhancedProps
     return new Intl.NumberFormat('fr-FR', {
       style: 'currency',
       currency: 'EUR',
-    }).format(amount);
+    )}).format(amount);
   };
 
   // Formatage des pourcentages
@@ -460,7 +460,7 @@ export default function StatisticsEnhanced({ userRole }: StatisticsEnhancedProps
                         cy="50%"
                         outerRadius={80}
                         dataKey="value"
-                        label={({ category, value }) => `${category}: ${value}%`}
+                        label={({ category, value )}) => `${category}: ${value}%`}
                       >
                         {categoryData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

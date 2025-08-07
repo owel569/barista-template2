@@ -60,7 +60,7 @@ export default function MaintenanceManagement() : JSX.Element {
       const [tasksRes, equipmentRes, statsRes] = await Promise.all([
         fetch('/api/admin/maintenance/tasks', {
           headers: { 'Authorization': `Bearer ${token}` }
-        }),
+        })]),
         fetch('/api/admin/maintenance/equipment', {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
@@ -71,7 +71,7 @@ export default function MaintenanceManagement() : JSX.Element {
 
       if (tasksRes.ok && equipmentRes.ok && statsRes.ok) {
         const [tasksData, equipmentData, statsData] = await Promise.all([
-          tasksRes.json(),
+          tasksRes.json()]),
           equipmentRes.json(),
           statsRes.json()
         ]);
@@ -175,7 +175,7 @@ export default function MaintenanceManagement() : JSX.Element {
   };
 
   const filteredTasks = tasks.filter(task => {
-    const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch = task.title.toLowerCase()}).includes(searchTerm.toLowerCase()) ||
                          task.equipment.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = selectedStatus === 'all' || task.status === selectedStatus;
     return matchesSearch && matchesStatus;
@@ -243,7 +243,7 @@ export default function MaintenanceManagement() : JSX.Element {
                     Total Tâches
                   </p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {stats.totalTasks}
+                    {stats.totalTasks)}
                   </p>
                 </div>
                 <Wrench className="h-8 w-8 text-blue-500" />

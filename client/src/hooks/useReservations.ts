@@ -22,11 +22,11 @@ export type ReservationForm = {
 export function useReservations() : void {
   const queryClient = useQueryClient();
 
-  const { data: reservations = [], isLoading } = useQuery<Reservation[]>({
-    queryKey: ["reservations"],
-    queryFn: async () => {
+  const { data: reservations = [,], isLoading } = useQuery<Reservation[]>({
+    queryKey: ["reservations",],
+    queryFn: async (}) => {
       const res = await fetch("/api/reservations", {
-        headers: { Authorization: "Bearer " + localStorage.getItem("token") },
+        headers: { Authorization: "Bearer " + localStorage.getItem("token"}) },
       });
       if (!res.ok) throw new Error("Erreur lors du chargement des réservations");
       return res.json();
@@ -34,7 +34,7 @@ export function useReservations() : void {
   });
 
   const addReservation = useMutation<any, Error, ReservationForm>({
-    mutationFn: async (data) => {
+    mutationFn: async (data}) => {
       const res = await fetch("/api/reservations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -44,7 +44,7 @@ export function useReservations() : void {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["reservations"] });
+      queryClient.invalidateQueries({ queryKey: ["reservations"] )});
     },
   });
 

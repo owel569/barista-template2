@@ -43,7 +43,7 @@ export default function BackupSystem() : JSX.Element {
       const [backupsRes, settingsRes] = await Promise.all([
         fetch('/api/admin/backups', {
           headers: { 'Authorization': `Bearer ${token}` }
-        }),
+        })]),
         fetch('/api/admin/backups/settings', {
           headers: { 'Authorization': `Bearer ${token}` }
         })
@@ -51,16 +51,16 @@ export default function BackupSystem() : JSX.Element {
 
       if (backupsRes.ok && settingsRes.ok) {
         const [backupsData, settingsData] = await Promise.all([
-          backupsRes.json(),
+          backupsRes.json()]),
           settingsRes.json()
         ]);
         
         // Traiter les données pour s'assurer que les tailles sont des nombres
-        const processedBackups = Array.isArray(backupsData) ? backupsData.map((backup: any) => ({
+        const processedBackups = Array.isArray(backupsData) ? backupsData.map((backup: unknown) => ({
           ...backup,
           size: Number(backup.size) || 0,
           tables: Array.isArray(backup.tables) ? backup.tables : []
-        })) : [];
+        }); : [];
         
         setBackups(processedBackups);
         setSettings(settingsData || {
@@ -133,7 +133,7 @@ export default function BackupSystem() : JSX.Element {
         },
         body: JSON.stringify({
           type: 'manual',
-          name: `Sauvegarde_${new Date().toISOString().split('T')[0]}`
+          name: `Sauvegarde_${new Date().toISOString().split('T')[0,]}`
         })
       });
 

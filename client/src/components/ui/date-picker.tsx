@@ -12,7 +12,7 @@ export function DatePicker({ value, onChange, placeholder = "Sélectionnez une d
   return (
     <Input
       type="date"
-      value={value}
+      value={value)}
       onChange={(e) => onChange?.(e.target.value)}
       placeholder={placeholder}
       className={className}

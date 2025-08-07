@@ -42,16 +42,16 @@ export default function Contact() : JSX.Element {
   });
 
   const contactMutation = useMutation({
-    mutationFn: (data: ContactFormData) => 
+    mutationFn: (data: ContactFormData})}) => 
       apiRequest("/api/contact", {
         method: "POST",
-        body: JSON.stringify(data)
+        body: JSON.stringify(data)})
       }),
     onSuccess: () => {
       toast({
         title: "Message envoyé !",
         description: "Nous vous répondrons dans les plus brefs délais.",
-      });
+      )});
       reset();
     },
     onError: (error: unknown) => {
@@ -59,7 +59,7 @@ export default function Contact() : JSX.Element {
         title: "Erreur d'envoi",
         description: error.message || "Une erreur est survenue lors de l'envoi du message.",
         variant: "destructive",
-      });
+      )});
     }
   });
 
@@ -94,11 +94,11 @@ export default function Contact() : JSX.Element {
                 </Label>
                 <Input
                   id="name"
-                  {...register("name", { required: "Le nom est requis" })}
+                  {...register("name", { required: "Le nom est requis" )})}
                   className="bg-coffee-cream text-coffee-dark focus:border-coffee-accent"
                 />
                 {errors.name && (
-                  <p className="text-red-400 text-sm mt-1">{errors.name.message}</p>
+                  <p className="text-red-400 text-sm mt-1">{errors.name.message)}</p>
                 )}
               </div>
 
@@ -109,11 +109,11 @@ export default function Contact() : JSX.Element {
                 <Input
                   id="email"
                   type="email"
-                  {...register("email", { required: "L'email est requis" })}
+                  {...register("email", { required: "L'email est requis" )})}
                   className="bg-coffee-cream text-coffee-dark focus:border-coffee-accent"
                 />
                 {errors.email && (
-                  <p className="text-red-400 text-sm mt-1">{errors.email.message}</p>
+                  <p className="text-red-400 text-sm mt-1">{errors.email.message)}</p>
                 )}
               </div>
 
@@ -129,7 +129,7 @@ export default function Contact() : JSX.Element {
                   />
                 </div>
                 {errors.phone && (
-                  <p className="text-red-400 text-sm mt-1">{errors.phone.message}</p>
+                  <p className="text-red-400 text-sm mt-1">{errors.phone.message)}</p>
                 )}
               </div>
 
@@ -150,7 +150,7 @@ export default function Contact() : JSX.Element {
                   </SelectContent>
                 </Select>
                 {errors.subject && (
-                  <p className="text-red-400 text-sm mt-1">{errors.subject.message}</p>
+                  <p className="text-red-400 text-sm mt-1">{errors.subject.message)}</p>
                 )}
               </div>
 
@@ -160,13 +160,13 @@ export default function Contact() : JSX.Element {
                 </Label>
                 <Textarea
                   id="message"
-                  {...register("message", { required: "Le message est requis" })}
+                  {...register("message", { required: "Le message est requis" )})}
                   rows={6}
                   placeholder="Votre message..."
                   className="bg-coffee-cream text-coffee-dark focus:border-coffee-accent"
                 />
                 {errors.message && (
-                  <p className="text-red-400 text-sm mt-1">{errors.message.message}</p>
+                  <p className="text-red-400 text-sm mt-1">{errors.message.message)}</p>
                 )}
               </div>
 

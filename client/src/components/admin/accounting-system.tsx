@@ -42,7 +42,7 @@ export default function AccountingSystem() : JSX.Element {
       const [transactionsRes, summaryRes] = await Promise.all([
         fetch('/api/admin/accounting/transactions', {
           headers: { 'Authorization': `Bearer ${token}` }
-        }),
+        })]),
         fetch('/api/admin/accounting/summary', {
           headers: { 'Authorization': `Bearer ${token}` }
         })
@@ -50,7 +50,7 @@ export default function AccountingSystem() : JSX.Element {
 
       if (transactionsRes.ok && summaryRes.ok) {
         const [transactionsData, summaryData] = await Promise.all([
-          transactionsRes.json(),
+          transactionsRes.json()]),
           summaryRes.json()
         ]);
         
@@ -58,7 +58,7 @@ export default function AccountingSystem() : JSX.Element {
         const processedTransactions = transactionsData.map((transaction: Transaction) => ({
           ...transaction,
           amount: Number(transaction.amount) || 0
-        }));
+        });
         
         const processedSummary = summaryData ? {
           ...summaryData,

@@ -86,7 +86,7 @@ interface TableLayout {
 }
 
 const tableSchema = z.object({
-  number: z.number().min(1, "Numéro de table requis"),
+  number: z.number()}).min(1, "Numéro de table requis"),
   capacity: z.number().min(1, "Capacité requise"),
   location: z.string().min(1, "Emplacement requis"),
   shape: z.string().min(1, "Forme requise"),
@@ -126,44 +126,44 @@ export default function TableManagement() : JSX.Element {
   const queryClient = useQueryClient();
   useWebSocket();
 
-  const { data: tables = [], isLoading } = useQuery({
-    queryKey: ['/api/admin/tables'],
+  const { data: tables = [,], isLoading } = useQuery({
+    queryKey: ['/api/admin/tables',],
   });
 
   const { data: layouts = [] } = useQuery({
-    queryKey: ['/api/admin/table-layouts'],
+    queryKey: ['/api/admin/table-layouts',],
   });
 
   const { data: occupancyStats } = useQuery({
-    queryKey: ['/api/admin/tables/occupancy'],
+    queryKey: ['/api/admin/tables/occupancy',],
   });
 
   const createTableMutation = useMutation({
-    mutationFn: (data: Record<string, unknown>) => apiRequest('/api/admin/tables', { method: 'POST', data }),
+    mutationFn: (data: Record<string, unknown>})}) => apiRequest('/api/admin/tables', { method: 'POST', data }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/tables'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/tables'] )});
       toast({ title: "Table créée avec succès" });
     },
   });
 
   const updateTableMutation = useMutation({
-    mutationFn: ({ id, ...data }: any) => apiRequest(`/api/admin/tables/${id}`, { method: 'PUT', data }),
+    mutationFn: ({ id, ...data })}: unknown) => apiRequest(`/api/admin/tables/${id}`, { method: 'PUT', data }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/tables'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/tables'] )});
       toast({ title: "Table mise à jour" });
     },
   });
 
   const updateTableStatusMutation = useMutation({
-    mutationFn: ({ id, status }: any) => apiRequest(`/api/admin/tables/${id}/status`, { method: 'PUT', data: { status } }),
+    mutationFn: ({ id, status })}: unknown) => apiRequest(`/api/admin/tables/${id}/status`, { method: 'PUT', data: { status } }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/tables'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/tables'] )});
       toast({ title: "Statut mis à jour" });
     },
   });
 
   const form = useForm({
-    resolver: zodResolver(tableSchema),
+    resolver: zodResolver(tableSchema})}),
     defaultValues: {
       number: 1,
       capacity: 2,
@@ -179,7 +179,7 @@ export default function TableManagement() : JSX.Element {
   };
 
   const updateTableStatus = (id: number, status: string) => {
-    updateTableStatusMutation.mutate({ id, status });
+    updateTableStatusMutation.mutate({ id, status )});
   };
 
   const filteredTables = tables.filter((table: RestaurantTable) => {
@@ -240,7 +240,7 @@ export default function TableManagement() : JSX.Element {
                     <FormField
                       control={form.control}
                       name="number"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Numéro de table</FormLabel>
                           <FormControl>
@@ -258,7 +258,7 @@ export default function TableManagement() : JSX.Element {
                     <FormField
                       control={form.control}
                       name="capacity"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Capacité</FormLabel>
                           <FormControl>
@@ -278,7 +278,7 @@ export default function TableManagement() : JSX.Element {
                     <FormField
                       control={form.control}
                       name="location"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Emplacement</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -302,7 +302,7 @@ export default function TableManagement() : JSX.Element {
                     <FormField
                       control={form.control}
                       name="shape"
-                      render={({ field }) => (
+                      render={({ field )}) => (
                         <FormItem>
                           <FormLabel>Forme</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -326,7 +326,7 @@ export default function TableManagement() : JSX.Element {
                   <FormField
                     control={form.control}
                     name="isVip"
-                    render={({ field }) => (
+                    render={({ field )}) => (
                       <FormItem className="flex items-center space-x-2">
                         <FormControl>
                           <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -339,7 +339,7 @@ export default function TableManagement() : JSX.Element {
                   <FormField
                     control={form.control}
                     name="notes"
-                    render={({ field }) => (
+                    render={({ field )}) => (
                       <FormItem>
                         <FormLabel>Notes</FormLabel>
                         <FormControl>
@@ -503,7 +503,7 @@ export default function TableManagement() : JSX.Element {
                     <TableCell>
                       {table.currentReservation ? (
                         <div>
-                          <p className="font-medium">{table.currentReservation.customerName}</p>
+                          <p className="font-medium">{table.currentReservation.customerName)}</p>
                           <p className="text-sm text-gray-500">
                             {table.currentReservation.time} - {table.currentReservation.guests} pers.
                           </p>
@@ -515,7 +515,7 @@ export default function TableManagement() : JSX.Element {
                     <TableCell>
                       {table.nextReservation ? (
                         <div>
-                          <p className="font-medium">{table.nextReservation.customerName}</p>
+                          <p className="font-medium">{table.nextReservation.customerName)}</p>
                           <p className="text-sm text-gray-500">
                             {table.nextReservation.time} - {table.nextReservation.guests} pers.
                           </p>
@@ -609,7 +609,7 @@ export default function TableManagement() : JSX.Element {
 
       {/* Dialog détails table */}
       {selectedTable && (
-        <Dialog open={!!selectedTable} onOpenChange={() => setSelectedTable(null)}>
+        <Dialog open={!!selectedTable)} onOpenChange={() => setSelectedTable(null)}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>
@@ -643,7 +643,7 @@ export default function TableManagement() : JSX.Element {
                 <div>
                   <p className="font-medium">Réservation actuelle</p>
                   <div className="p-3 bg-blue-50 rounded">
-                    <p>{selectedTable.currentReservation.customerName}</p>
+                    <p>{selectedTable.currentReservation.customerName)}</p>
                     <p className="text-sm text-gray-600">
                       {selectedTable.currentReservation.time} - {selectedTable.currentReservation.guests} personnes
                     </p>
@@ -655,7 +655,7 @@ export default function TableManagement() : JSX.Element {
                 <div>
                   <p className="font-medium">Prochaine réservation</p>
                   <div className="p-3 bg-green-50 rounded">
-                    <p>{selectedTable.nextReservation.customerName}</p>
+                    <p>{selectedTable.nextReservation.customerName)}</p>
                     <p className="text-sm text-gray-600">
                       {selectedTable.nextReservation.time} - {selectedTable.nextReservation.guests} personnes
                     </p>
@@ -666,7 +666,7 @@ export default function TableManagement() : JSX.Element {
               {selectedTable.notes && (
                 <div>
                   <p className="font-medium">Notes</p>
-                  <p className="text-sm text-gray-600">{selectedTable.notes}</p>
+                  <p className="text-sm text-gray-600">{selectedTable.notes)}</p>
                 </div>
               )}
 

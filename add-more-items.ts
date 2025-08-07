@@ -131,7 +131,7 @@ async function addMoreItems() {
           console.log(`✅ Ajouté: ${item.name}`);
         }
       } catch (error) {
-        console.log(`⚠️ Erreur pour ${item.name}:`, error.message);
+        console.log(`⚠️ Erreur pour ${item.name)}:`, error.message);
       }
     }
     

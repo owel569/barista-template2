@@ -100,7 +100,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
       {/* Bouton hamburger pour ouvrir la barre latérale */}
       {!isOpen && (
         <Button
-          onClick={onToggle}
+          onClick={onToggle)}
           className="fixed top-4 left-4 z-50 bg-coffee-dark hover:bg-coffee-accent"
           size="sm"
         >
@@ -112,7 +112,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={onToggle}
+          onClick={onToggle)}
         />
       )}
 
@@ -164,7 +164,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
               if (item.href === "/contact") {
                 return (
                   <div
-                    key={item.href}
+                    key={item.href)}
                     className={cn(
                       "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors cursor-pointer",
                       "text-coffee-light hover:bg-coffee-medium hover:text-white"

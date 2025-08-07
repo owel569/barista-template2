@@ -1,7 +1,9 @@
 import { Router } from 'express';
-import { authenticateToken, requireRole } from '../middleware/auth';
+import { createLogger } from '../middleware/logging';
+import { authenticateUser, requireRoles } from '../middleware/auth';
 
 const router = Router();
+const logger = createLogger('ROUTES');
 
 // Interface pour les KPIs
 interface KPIData {
@@ -46,7 +48,7 @@ interface KPIData {
 }
 
 // Route principale des KPIs temps réel
-router.get('/', authenticateToken, async (req, res) => {
+router.get('/', authenticateUser, async (req, res) => {
   try {
     // KPIs avancés avec calculs en temps réel
     const kpis = {
@@ -106,18 +108,21 @@ router.get('/', authenticateToken, async (req, res) => {
         cashFlow: 15420.75
       }
     };
-    res.json(kpis);
+    res.json({
+        success: true,
+        data: kpis
+      });
   } catch (error) {
-    console.error('Erreur KPIs:', error);
+    logger.error('Erreur KPIs:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
     res.status(500).json({ 
       error: 'Erreur lors de la récupération des KPIs',
-      details: (error as Error).message 
+      details: (error as Error)}).message 
     });
   }
 });
 
 // KPIs par période
-router.get('/period/:period', authenticateToken, async (req, res) => {
+router.get('/period/:period', authenticateUser, async (req, res) => {
   try {
     const { period } = req.params;
     const periods = ['day', 'week', 'month', 'quarter', 'year'];
@@ -128,7 +133,10 @@ router.get('/period/:period', authenticateToken, async (req, res) => {
 
     // Génération de données historiques selon la période
     const historicalData = generateHistoricalKPIs(period as string);
-    res.json(historicalData);
+    res.json({
+        success: true,
+        data: historicalData
+      });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la récupération des KPIs historiques' });
     return;
@@ -136,7 +144,7 @@ router.get('/period/:period', authenticateToken, async (req, res) => {
 });
 
 // KPIs comparatifs
-router.get('/comparison', authenticateToken, async (req, res) => {
+router.get('/comparison', authenticateUser, async (req, res) => {
   try {
     const comparison = {
       currentVsPrevious: {
@@ -157,14 +165,17 @@ router.get('/comparison', authenticateToken, async (req, res) => {
       }
     };
 
-    res.json(comparison);
+    res.json({
+        success: true,
+        data: comparison
+      });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la récupération des comparaisons' });
   }
 });
 
 // Alertes basées sur les KPIs
-router.get('/alerts', authenticateToken, async (req, res) => {
+router.get('/alerts', authenticateUser, async (req, res) => {
   try {
     const alerts = [
       {
@@ -190,14 +201,17 @@ router.get('/alerts', authenticateToken, async (req, res) => {
       }
     ];
 
-    res.json(alerts);
+    res.json({
+        success: true,
+        data: alerts
+      });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la récupération des alertes' });
   }
 });
 
 // Prédictions basées sur l'IA
-router.get('/predictions', authenticateToken, requireRole('manager'), async (req, res) => {
+router.get('/predictions', authenticateUser, requireRoles(['manager']), async (req, res) => {
   try {
     const predictions = {
       nextHour: {
@@ -217,7 +231,10 @@ router.get('/predictions', authenticateToken, requireRole('manager'), async (req
       }
     };
 
-    res.json(predictions);
+    res.json({
+        success: true,
+        data: predictions
+      });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la génération des prédictions' });
   }
@@ -256,7 +273,7 @@ function generateHistoricalKPIs(period: string) {
   for (let i = intervals - 1; i >= 0; i--) {
     const timestamp = new Date(now.getTime() - i * stepSize);
     data.push({
-      timestamp: timestamp.toISOString(),
+      timestamp: timestamp.toISOString(}),
       revenue: Math.round((2000 + Math.random() * 1000) * 100) / 100,
       customers: Math.round(120 + Math.random() * 80),
       orders: Math.round(70 + Math.random() * 40),

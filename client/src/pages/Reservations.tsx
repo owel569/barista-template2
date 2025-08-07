@@ -30,14 +30,14 @@ export default function ReservationsPage() : JSX.Element {
     setForm((prev) => ({
       ...prev,
       [name]: type === "number" ? Number(value) : value,
-    }));
+    });
   };
 
   // Typage de l'event pour le submit
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     addReservation.mutate(form, {
-      onSuccess: () =>
+      onSuccess: (}) =>
         setForm({
           name: "",
           email: "",

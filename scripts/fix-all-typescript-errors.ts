@@ -49,19 +49,19 @@ const PROFESSIONAL_FIXES = [
   
   // 3. Corrections types unknown sécurisées
   { 
-    from: /:\s*unknown\s*=\s*\{([^}]*)\}/g, 
+    from: /:\s*unknown\s*=\s*\{([^)}]*)\}/g, 
     to: ': Record<string, unknown> = {$1}',
     description: 'Fix unknown type assignments'
   },
   
   // 4. Corrections générales TypeScript sécurisées
   { 
-    from: /(?<!\/\/.*):\s*any\b(?=[\s;,\)])/g, 
+    from: /(?<!\/\/.*):\s*any\b(?=[\s;,\])])/g, 
     to: ': unknown',
     description: 'Replace any with unknown'
   },
   { 
-    from: /(?<!\/\/.*)=\s*any\b(?=[\s;,\)])/g, 
+    from: /(?<!\/\/.*)=\s*any\b(?=[\s;,\])])/g, 
     to: '= unknown',
     description: 'Replace any assignments'
   },
@@ -200,13 +200,13 @@ async function createBackup(filePath: string): Promise<FileBackup | null> {
       timestamp
     };
   } catch (error) {
-    console.log(chalk.yellow(`⚠️ Impossible de créer un backup pour ${filePath}`));
+    console.log(chalk.yellow(`⚠️ Impossible de créer un backup pour ${filePath)}`));
     return null;
   }
 }
 
 function mergeInterface(existingContent: string, interfaceName: string, newInterface: string): string {
-  const interfaceRegex = new RegExp(`interface\\s+${interfaceName}\\s*{[^}]*}`, 'gs');
+  const interfaceRegex = new RegExp(`interface\\s+${interfaceName)}\\s*{[^}]*}`, 'gs');
   const existingMatch = existingContent.match(interfaceRegex);
   
   if (existingMatch) {
@@ -268,8 +268,8 @@ function safeReplace(content: string, pattern: RegExp, replacement: string): { c
 
 async function fixAllTypeScriptErrors(dryRun: boolean = false): Promise<FixResult> {
   const result: FixResult = {
-    modified: [],
-    errors: [],
+    modified: [,],
+    errors: [,],
     totalFixes: 0,
     backups: []
   };
@@ -307,7 +307,7 @@ async function fixAllTypeScriptErrors(dryRun: boolean = false): Promise<FixResul
     return result;
     
   } catch (error) {
-    console.error(chalk.red('❌ Erreur lors de la correction:'), error);
+    logger.error(chalk.red('❌ Erreur lors de la correction:'), { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     result.errors.push((error as Error).message);
     return result;
   }
@@ -321,7 +321,7 @@ async function applyAutomaticFixes(result: FixResult, dryRun: boolean): Promise<
     'shared/**/*.ts'
   ], {
     ignore: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/backups/**']
-  });
+  )});
 
   for (const file of files) {
     if (!fs.existsSync(file)) continue;
@@ -358,7 +358,7 @@ async function applyAutomaticFixes(result: FixResult, dryRun: boolean): Promise<
         console.log(chalk.green(`  ✓ ${file}: ${fileFixCount} corrections ${dryRun ? '(simulation)' : ''}`));
       }
     } catch (error) {
-      console.log(chalk.yellow(`  ⚠ Erreur avec ${file}:`, error));
+      console.log(chalk.yellow(`  ⚠ Erreur avec ${file)}:`, error));
       result.errors.push(`Erreur avec ${file}: ${(error as Error).message}`);
     }
   }
@@ -388,7 +388,7 @@ async function applyFileSpecificFixes(result: FixResult, dryRun: boolean): Promi
         console.log(chalk.green(`  ✓ ${filePath}: Correction spécifique ${dryRun ? '(simulation)' : ''}`));
       }
     } catch (error) {
-      console.log(chalk.yellow(`  ⚠ Erreur avec ${filePath}:`, error));
+      console.log(chalk.yellow(`  ⚠ Erreur avec ${filePath)}:`, error));
       result.errors.push(`Erreur avec ${filePath}: ${(error as Error).message}`);
     }
   }
@@ -396,9 +396,9 @@ async function applyFileSpecificFixes(result: FixResult, dryRun: boolean): Promi
 
 async function applyAdvancedFixes(result: FixResult, dryRun: boolean): Promise<void> {
   // Correction des imports manquants React
-  const reactFiles = await fg(['client/src/**/*.tsx'], {
+  const reactFiles = await fg(['client/src/**/*.tsx',], {
     ignore: ['**/node_modules/**', '**/backups/**']
-  });
+  )});
 
   for (const file of reactFiles) {
     if (!fs.existsSync(file)) continue;
@@ -425,7 +425,7 @@ async function applyAdvancedFixes(result: FixResult, dryRun: boolean): Promise<v
         console.log(chalk.green(`  ✓ ${file}: Import React ajouté`));
       }
     } catch (error) {
-      result.errors.push(`Erreur React import ${file}: ${(error as Error).message}`);
+      result.errors.push(`Erreur React import ${file)}: ${(error as Error).message}`);
     }
   }
 
@@ -459,7 +459,7 @@ async function applyAdvancedFixes(result: FixResult, dryRun: boolean): Promise<v
       }
       
     } catch (error) {
-      result.errors.push(`Erreur types update: ${(error as Error).message}`);
+      result.errors.push(`Erreur types update: ${(error as Error)}).message}`);
     }
   }
 }
@@ -471,9 +471,9 @@ function generateReport(results: FixResult): void {
   console.log(chalk.cyan(`💾 Backups créés: ${results.backups.length}`));
   
   if (results.errors.length > 0) {
-    console.log(chalk.red(`❌ Erreurs rencontrées: ${results.errors.length}`));
+    console.log(chalk.red(`❌ Erreurs rencontrées: ${results.errors.length)}`));
     results.errors.forEach(error => {
-      console.log(chalk.red(`   • ${error}`));
+      console.log(chalk.red(`   • ${error)}`));
     });
   }
   
@@ -504,15 +504,15 @@ function cleanupOldBackups(): void {
       .filter(file => file.endsWith('.backup'))
       .map(file => ({
         name: file,
-        path: path.join(backupDir, file),
+        path: path.join(backupDir, file}),
         time: fs.statSync(path.join(backupDir, file)).mtime
-      }))
+      });
       .sort((a, b) => b.time.getTime() - a.time.getTime());
     
     // Garder seulement les 10 plus récents
     const toDelete = files.slice(10);
     toDelete.forEach(file => {
-      fs.unlinkSync(file.path);
+      fs.unlinkSync(file.path)});
       console.log(chalk.gray(`🗑️ Ancien backup supprimé: ${file.name}`));
     });
   } catch (error) {
@@ -557,7 +557,7 @@ Fonctionnalités:
   
   fixAllTypeScriptErrors(isDryRun)
     .then(result => {
-      if (result.errors.length === 0) {
+      if (result.errors.length === 0)}) {
         console.log(chalk.green('\n🎉 CORRECTION TERMINÉE AVEC SUCCÈS!'));
         process.exit(0);
       } else {
@@ -566,7 +566,7 @@ Fonctionnalités:
       }
     })
     .catch(error => {
-      console.error(chalk.red('\n❌ ERREUR CRITIQUE:'), error);
+      logger.error(chalk.red('\n❌ ERREUR CRITIQUE:')}), { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       process.exit(1);
     });
 }

@@ -13,7 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   Users, UserPlus, Search, Filter, Mail, Phone, Calendar, 
   MapPin, Star, Gift, TrendingUp, Eye, Edit, Trash2, MessageSquare,
-  Heart, Award, Clock, DollarSign
+  Heart, Award, Clock, DollarSign, Euro
 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
@@ -37,6 +37,9 @@ interface Customer {
   tags: string[];
   createdAt: string;
   updatedAt: string;
+  firstName: string;
+  lastName: string;
+  totalOrders: number;
 }
 
 import { useWebSocket } from '@/hooks/useWebSocket';
@@ -80,8 +83,6 @@ export default function Customers({ userRole, user }: CustomersProps) {
 
   useEffect(() => {
     fetchCustomers();
-
-    // Actualisation automatique toutes les 20 secondes
     const interval = setInterval(() => {
       fetchCustomers();
     }, 20000);
@@ -105,7 +106,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
         setCustomers(data);
       }
     } catch (error) {
-      console.error('Erreur lors du chargement des clients:', error);
+      logger.error('Erreur lors du chargement des clients:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
       toast({
         title: "Erreur",
         description: "Impossible de charger les clients",
@@ -196,7 +197,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
         });
       } else {
         const errorData = await response.json();
-        console.error('Erreur détaillée:', errorData);
+        logger.error('Erreur détaillée:', errorData);
         toast({
           title: "Erreur",
           description: errorData.message || "Erreur lors de l'ajout du client",
@@ -204,7 +205,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
         });
       }
     } catch (error) {
-      console.error('Erreur lors de l\'ajout:', error);
+      logger.error('Erreur lors de l\'ajout:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
       toast({
         title: "Erreur",
         description: "Impossible d'ajouter le client",
@@ -249,7 +250,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
         });
       }
     } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
+      logger.error('Erreur lors de la suppression:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
       toast({
         title: "Erreur",
         description: "Erreur de connexion lors de la suppression",
@@ -298,7 +299,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
             {userRole === 'directeur' ? 'Directeur' : 'Employé'}
           </Badge>
           {!isReadOnly && (
-            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <Dialog open={isAddDialogOpen)} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
                 <Button>
                   <UserPlus className="h-4 w-4 mr-2" />
@@ -319,7 +320,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                       <Input
                         id="firstName"
                         value={newCustomer.firstName}
-                        onChange={(e) => setNewCustomer(prev => ({ ...prev, firstName: e.target.value }))}
+                        onChange={(e) => setNewCustomer(prev => ({ ...prev, firstName: e.target.value });}
                         required
                       />
                     </div>
@@ -328,7 +329,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                       <Input
                         id="lastName"
                         value={newCustomer.lastName}
-                        onChange={(e) => setNewCustomer(prev => ({ ...prev, lastName: e.target.value }))}
+                        onChange={(e) => setNewCustomer(prev => ({ ...prev, lastName: e.target.value });}
                         required
                       />
                     </div>
@@ -339,7 +340,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                       id="email"
                       type="email"
                       value={newCustomer.email}
-                      onChange={(e) => setNewCustomer(prev => ({ ...prev, email: e.target.value }))}
+                      onChange={(e) => setNewCustomer(prev => ({ ...prev, email: e.target.value });}
                       required
                     />
                   </div>
@@ -349,7 +350,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                       id="phone"
                       type="tel"
                       value={newCustomer.phone}
-                      onChange={(e) => setNewCustomer(prev => ({ ...prev, phone: e.target.value }))}
+                      onChange={(e) => setNewCustomer(prev => ({ ...prev, phone: e.target.value });}
                       placeholder="Ex: +33612345678"
                     />
                     <p className="text-xs text-gray-500">📞 Exemple : +33612345678</p>
@@ -359,7 +360,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                     <Input
                       id="address"
                       value={newCustomer.address}
-                      onChange={(e) => setNewCustomer(prev => ({ ...prev, address: e.target.value }))}
+                      onChange={(e) => setNewCustomer(prev => ({ ...prev, address: e.target.value });}
                     />
                   </div>
                   <div className="space-y-2">
@@ -368,7 +369,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                       id="dateOfBirth"
                       type="date"
                       value={newCustomer.dateOfBirth}
-                      onChange={(e) => setNewCustomer(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+                      onChange={(e) => setNewCustomer(prev => ({ ...prev, dateOfBirth: e.target.value });}
                     />
                   </div>
                   <div className="space-y-2">
@@ -376,7 +377,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                     <Input
                       id="notes"
                       value={newCustomer.notes}
-                      onChange={(e) => setNewCustomer(prev => ({ ...prev, notes: e.target.value }))}
+                      onChange={(e) => setNewCustomer(prev => ({ ...prev, notes: e.target.value });}
                     />
                   </div>
                   <div className="flex gap-2">
@@ -452,7 +453,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                         {customer.phone && (
                           <div className="flex items-center gap-2">
                             <Phone className="h-4 w-4" />
-                            <span>{customer.phone}</span>
+                            <span>{customer.phone)}</span>
                           </div>
                         )}
                         <div className="flex items-center gap-2">
@@ -484,7 +485,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
 
                       {customer.notes && (
                         <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-800 rounded text-sm">
-                          <span className="font-medium">Note:</span> {customer.notes}
+                          <span className="font-medium">Note:</span> {customer.notes)}
                         </div>
                       )}
                     </div>
@@ -513,7 +514,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                                 <div>
                                   <Label>Nom complet</Label>
                                   <p className="text-sm font-medium">
-                                    {selectedCustomer.firstName} {selectedCustomer.lastName}
+                                    {selectedCustomer.firstName)} {selectedCustomer.lastName}
                                   </p>
                                 </div>
                                 <div>
@@ -529,7 +530,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                                 {selectedCustomer.phone && (
                                   <div>
                                     <Label>Téléphone</Label>
-                                    <p className="text-sm">{selectedCustomer.phone}</p>
+                                    <p className="text-sm">{selectedCustomer.phone)}</p>
                                   </div>
                                 )}
                                 <div>
@@ -557,7 +558,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                               {selectedCustomer.notes && (
                                 <div>
                                   <Label>Notes</Label>
-                                  <p className="text-sm">{selectedCustomer.notes}</p>
+                                  <p className="text-sm">{selectedCustomer.notes)}</p>
                                 </div>
                               )}
                             </div>

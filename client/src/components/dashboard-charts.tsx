@@ -35,27 +35,27 @@ interface OccupancyData {
 
 export default function DashboardCharts() : JSX.Element {
   const { data: dailyReservations = [] } = useQuery<ReservationData[]>({
-    queryKey: ["/api/stats/daily-reservations"],
+    queryKey: ["/api/stats/daily-reservations",],
   });
 
   const { data: reservationsByStatus = [] } = useQuery<StatusData[]>({
-    queryKey: ["/api/stats/reservations-by-status"],
+    queryKey: ["/api/stats/reservations-by-status",],
   });
 
   const { data: revenueStats = [] } = useQuery<RevenueData[]>({
-    queryKey: ["/api/stats/revenue"],
+    queryKey: ["/api/stats/revenue",],
   });
 
   const { data: ordersByStatus = [] } = useQuery<StatusData[]>({
-    queryKey: ["/api/stats/orders-by-status"],
+    queryKey: ["/api/stats/orders-by-status",],
   });
 
   const { data: todayReservations = { count: 0 } } = useQuery<TodayStats>({
-    queryKey: ["/api/stats/today-reservations"],
+    queryKey: ["/api/stats/today-reservations",],
   });
 
   const { data: occupancyData = { rate: 0 } } = useQuery<OccupancyData>({
-    queryKey: ["/api/stats/occupancy"],
+    queryKey: ["/api/stats/occupancy",],
   });
 
   // Formatage des données pour les graphiques
@@ -64,24 +64,24 @@ export default function DashboardCharts() : JSX.Element {
     heure: item.time,
     invites: item.guests,
     status: getStatusLabel(item.status)
-  }));
+  });
 
   const formattedReservationsStatusData = reservationsByStatus.map((item: StatusData, index: number) => ({
     name: getStatusLabel(item.status),
     value: item.count,
     fill: COLORS[index % COLORS.length]
-  }));
+  });
 
   const formattedRevenueData = revenueStats.map((item: RevenueData) => ({
     date: new Date(item.date).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' }),
     revenue: item.revenue
-  }));
+  });
 
   const formattedOrdersData = ordersByStatus.map((item: StatusData, index: number) => ({
     name: getStatusLabel(item.status),
     value: item.count,
     fill: COLORS[index % COLORS.length]
-  }));
+  });
 
   function getStatusLabel(status: string) {
     const labels: Record<string, string> = {
@@ -174,7 +174,7 @@ export default function DashboardCharts() : JSX.Element {
                 <YAxis />
                 <Tooltip 
                   labelFormatter={(label) => `Client: ${label}`}
-                  formatter={(value: any, name: any) => {
+                  formatter={(value: unknown, name: unknown) => {
                     if (name === 'invites') return [value, 'Invités'];
                     return [value, name];
                   }}
@@ -200,7 +200,7 @@ export default function DashboardCharts() : JSX.Element {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent )}) => `${name} ${(percent * 100).toFixed(0)}%`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
@@ -231,7 +231,7 @@ export default function DashboardCharts() : JSX.Element {
                 <XAxis dataKey="date" />
                 <YAxis />
                 <Tooltip 
-                  formatter={(value: any) => [`${value}€`, 'Revenus']}
+                  formatter={(value: unknown) => [`${value}€`, 'Revenus']}
                 />
                 <Line 
                   type="monotone" 
@@ -259,7 +259,7 @@ export default function DashboardCharts() : JSX.Element {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent )}) => `${name} ${(percent * 100).toFixed(0)}%`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"

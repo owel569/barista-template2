@@ -1,11 +1,11 @@
 
 import { Router } from 'express';
-import { authenticateToken, requireRole } from '../middleware/auth';
+import { authenticateUser, requireRoles } from '../middleware/auth';
 
 const router = Router();
 
 // Routes inventaire
-router.get('/', authenticateToken, async (req, res) => {
+router.get('/', authenticateUser, async (req, res) => {
   try {
     const inventory = [
       {
@@ -31,13 +31,16 @@ router.get('/', authenticateToken, async (req, res) => {
         supplier: 'Ferme du Soleil'
       }
     ];
-    res.json(inventory);
+    res.json({
+        success: true,
+        data: inventory
+      });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la récupération de l\'inventaire' });
   }
 });
 
-router.post('/restock', authenticateToken, requireRole('manager'), async (req, res) => {
+router.post('/restock', authenticateUser, requireRoles(['manager']), async (req, res) => {
   try {
     const { itemId, quantity } = req.body;
     const restockOrder = {
