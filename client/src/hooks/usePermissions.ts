@@ -1,133 +1,234 @@
 
-import { useState, useEffect } from 'react';
-import { 
-  DEFAULT_PERMISSIONS, 
-  ALL_ACCESS_ROLES,
-  type Role, 
-  type PermissionAction, 
-  type PermissionsMap 
-} from '@/constants/permissions';
-import { STORAGE_KEYS } from '@/constants/storage';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useAuth } from '@/contexts/auth-context';
 
-interface User {
+// Types pour une meilleure type safety
+export type PermissionAction = 'view' | 'create' | 'edit' | 'delete' | 'respond' | 'use' | 'all' | 'read' | 'write';
+export type UserRole = 'directeur' | 'employe' | 'admin';
+export type ModuleName = 'dashboard' | 'reservations' | 'orders' | 'customers' | 'menu' | 'messages' | 'employees' | 'settings' | 'inventory' | 'analytics' | 'maintenance';
+
+export interface Permission {
   id: number;
-  username: string;
-  role: Role;
+  resource: string;
+  action: PermissionAction;
+  module: ModuleName;
+  enabled: boolean;
 }
 
-export function usePermissions(user: User | null) {
-  const [permissions, setPermissions] = useState<PermissionsMap>({)});
-  const [isLoading, setIsLoading] = useState(false);
+export interface PermissionsMap {
+  [key: string]: PermissionAction[];
+}
 
-  useEffect(() => {
-    if (user && user.role) {
-      // Le directeur a automatiquement tous les droits selon DEFAULT_PERMISSIONS
-      if (user.role === 'directeur') {
-        setPermissions(DEFAULT_PERMISSIONS.directeur);
-      } else {
-        // Pour les employés, charger les permissions depuis l'API ou utiliser les permissions par défaut
-        loadUserPermissions(user.id, user.role);
-      }
-    } else {
-      setPermissions({)});
+// Interface pour l'utilisateur
+interface User {
+  id: number;
+  role: UserRole;
+  [key: string]: unknown;
+}
+
+// Permissions par défaut optimisées
+const DEFAULT_PERMISSIONS: Record<UserRole, PermissionsMap> = {
+  directeur: {
+    dashboard: ['all'],
+    reservations: ['all'],
+    orders: ['all'],
+    customers: ['all'],
+    menu: ['all'],
+    messages: ['all'],
+    employees: ['all'],
+    settings: ['all'],
+    inventory: ['all'],
+    analytics: ['all']
+  },
+  employe: {
+    dashboard: ['view'],
+    reservations: ['view', 'create', 'edit'],
+    orders: ['view', 'create'],
+    customers: ['view'],
+    menu: ['view'],
+    messages: ['view', 'respond'],
+    employees: ['view'],
+    settings: ['view'],
+    inventory: ['view'],
+    analytics: ['view']
+  },
+  admin: {
+    dashboard: ['all'],
+    reservations: ['all'],
+    orders: ['all'],
+    customers: ['all'],
+    menu: ['all'],
+    messages: ['all'],
+    employees: ['all'],
+    settings: ['all'],
+    inventory: ['all'],
+    analytics: ['all']
+  }
+};
+
+// Rôles avec accès complet
+const ALL_ACCESS_ROLES: UserRole[] = ['directeur', 'admin'];
+
+interface PermissionsCache {
+  [key: string]: {
+    permissions: Permission[];
+    timestamp: number;
+    ttl: number;
+  };
+}
+
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const permissionsCache: PermissionsCache = {};
+
+export const usePermissions = (userParam?: User | null) => {
+  const { user: contextUser, token } = useAuth();
+  const user = (userParam || contextUser) as User | null;
+  const [permissions, setPermissions] = useState<Permission[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchPermissions = useCallback(async () => {
+    if (!user || !token) {
+      setPermissions([]);
+      setIsLoading(false);
+      return;
     }
-  }, [user]);
 
-  const loadUserPermissions = async (userId: number, role: Role) => {
-    setIsLoading(true);
+    const cacheKey = `${user.id}_${user.role}`;
+    const cached = permissionsCache[cacheKey];
+
+    // Vérifier le cache
+    if (cached && Date.now() - cached.timestamp < cached.ttl) {
+      setPermissions(cached.permissions);
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const token = localStorage.getItem(STORAGE_KEYS.token);
-      if (!token) {
-        setPermissions(DEFAULT_PERMISSIONS[role] || {});
-        return;
-      }
-      
-      const response = await fetch(`/api/admin/users/${userId}/permissions`, {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await fetch(`/api/admin/permissions/user/${user.id}`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       });
 
-      if (response.ok) {
-        const userCustomPermissions = await response.json();
-        if (userCustomPermissions && typeof userCustomPermissions === 'object') {
-          setPermissions(userCustomPermissions);
-        } else {
-          throw new Error('Invalid permissions data');
-        }
-      } else {
-        // Fallback vers les permissions par défaut
-        setPermissions(DEFAULT_PERMISSIONS[role] || {)});
+      if (!response.ok) {
+        throw new Error('Erreur lors du chargement des permissions');
       }
-    } catch (error) {
-      console.error('Erreur lors du chargement des permissions:', error);
-      // Fallback vers les permissions par défaut
-      setPermissions(DEFAULT_PERMISSIONS[role] || {});
+
+      const data = await response.json();
+
+      // Mettre en cache
+      permissionsCache[cacheKey] = {
+        permissions: data,
+        timestamp: Date.now(),
+        ttl: CACHE_TTL
+      };
+
+      setPermissions(data);
+    } catch (err) {
+      console.error('Erreur permissions:', err);
+      setError(err instanceof Error ? err.message : 'Erreur inconnue');
+      setPermissions([]);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user, token]);
 
-  const hasPermission = (module: string, action: PermissionAction): boolean => {
+  useEffect(() => {
+    fetchPermissions();
+  }, [fetchPermissions]);
+
+  // Méthodes de vérification des permissions
+  const hasPermission = useCallback((permission: string): boolean => {
     if (!user) return false;
-    
-    // Stratégie fallback plus précise avec ALL_ACCESS_ROLES
-    if (user && ALL_ACCESS_ROLES.includes(user.role)) return true;
+    if (ALL_ACCESS_ROLES.includes(user.role as UserRole)) return true;
 
-    const modulePermissions = permissions[module] || [];
-    return modulePermissions.includes(action);
-  };
+    return permissions.some(p => 
+      p.resource === permission && 
+      (p.action === 'all' || p.action === 'read')
+    );
+  }, [user, permissions]);
 
-  // Méthode générique pour éviter la répétition
-  const can = (module: string, action: PermissionAction): boolean => {
-    return hasPermission(module, action);
-  };
+  const hasWritePermission = useCallback((resource: string): boolean => {
+    if (!user) return false;
+    if (ALL_ACCESS_ROLES.includes(user.role as UserRole)) return true;
 
-  const canView = (module: string): boolean => {
-    return hasPermission(module, 'view');
-  };
+    return permissions.some(p => 
+      p.resource === resource && 
+      (p.action === 'all' || p.action === 'write')
+    );
+  }, [user, permissions]);
 
-  const canCreate = (module: string): boolean => {
-    return hasPermission(module, 'create');
-  };
+  const canAccess = useCallback((module: ModuleName): boolean => {
+    const modulePermissions: Record<ModuleName, string> = {
+      'dashboard': 'dashboard',
+      'orders': 'orders',
+      'reservations': 'reservations',
+      'menu': 'menu',
+      'customers': 'customers',
+      'employees': 'employees',
+      'inventory': 'inventory',
+      'maintenance': 'maintenance',
+      'analytics': 'analytics',
+      'settings': 'settings',
+      'messages': 'messages'
+    };
 
-  const canEdit = (module: string): boolean => {
-    return hasPermission(module, 'edit');
-  };
+    return hasPermission(modulePermissions[module] || module);
+  }, [hasPermission]);
 
-  const canDelete = (module: string): boolean => {
-    return hasPermission(module, 'delete');
-  };
+  // Méthode générique can() pour éviter la répétition
+  const can = useCallback((module: ModuleName, action: PermissionAction): boolean => {
+    if (!user) return false;
+    if (ALL_ACCESS_ROLES.includes(user.role as UserRole)) return true;
 
-  const canRespond = (module: string): boolean => {
-    return hasPermission(module, 'respond');
-  };
+    return permissions.some(p => 
+      p.resource === module && 
+      (p.action === 'all' || p.action === action)
+    );
+  }, [user, permissions]);
 
-  const canUse = (module: string): boolean => {
-    return hasPermission(module, 'use');
-  };
+  // Méthodes spécifiques pour une meilleure DX
+  const canView = useCallback((module: ModuleName): boolean => can(module, 'view'), [can]);
+  const canCreate = useCallback((module: ModuleName): boolean => can(module, 'create'), [can]);
+  const canEdit = useCallback((module: ModuleName): boolean => can(module, 'edit'), [can]);
+  const canDelete = useCallback((module: ModuleName): boolean => can(module, 'delete'), [can]);
+  const canRespond = useCallback((module: ModuleName): boolean => can(module, 'respond'), [can]);
 
-  // Fonction pour rafraîchir les permissions (utile après une modification)
-  const refreshPermissions = () => {
-    if (user && user.role !== 'directeur') {
-      loadUserPermissions(user.id, user.role);
-    }
-  };
+  // Résumé des permissions pour l'UI
+  const permissionsSummary = useMemo(() => {
+    return {
+      total: permissions.length,
+      readOnly: permissions.filter(p => p.action === 'view').length,
+      writeAccess: permissions.filter(p => p.action === 'write' || p.action === 'all').length,
+      fullAccess: permissions.filter(p => p.action === 'all').length
+    };
+  }, [permissions]);
+
+  // Vérification du rôle directeur
+  const isDirector = useMemo(() => {
+    return user?.role === 'directeur' || user?.role === 'admin';
+  }, [user]);
 
   return {
     permissions,
     isLoading,
+    error,
     hasPermission,
+    hasWritePermission,
+    canAccess,
     can,
     canView,
     canCreate,
     canEdit,
     canDelete,
     canRespond,
-    canUse,
-    refreshPermissions,
-    // Méthodes utilitaires
-    isDirector: user?.role === 'directeur',
-    isEmployee: user?.role === 'employe'
+    permissionsSummary,
+    isDirector,
+    refreshPermissions: fetchPermissions
   };
-}
+};

@@ -224,7 +224,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
       toast({
         title: "Erreur",
         description: "Impossible de mettre à jour les données.",
-        variant: "destructive"
+        variant: "error"
       });
     } finally {
       setIsLoading(false);
@@ -251,7 +251,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
       toast({
         title: "Erreur d'export",
         description: "Impossible d'exporter les données.",
-        variant: "destructive"
+        variant: "error"
       });
     }
   };

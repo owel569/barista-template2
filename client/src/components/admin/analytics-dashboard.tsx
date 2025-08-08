@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'
+import { exportStatistics } from '@/lib/excel-export';
+import { exportCustomerProfiles } from '@/lib/excel-export';
+import { exportToExcel, exportCustomerProfiles, exportStatistics } from '@/lib/excel-export';;
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

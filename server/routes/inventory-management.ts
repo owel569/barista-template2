@@ -79,21 +79,21 @@ export interface SupplierOrder {
 // ==========================================
 
 const StockAdjustmentSchema = z.object({
-  itemId: z.number()}).positive('ID article invalide'),
-  quantity: z.number().not(0, 'Quantité ne peut pas être zéro'),
+  itemId: z.number().positive('ID article invalide'),
+  quantity: z.number().refine((q) => q !== 0, { message: 'Quantité ne peut pas être zéro' }),
   reason: z.string().min(1, 'Raison requise').max(200, 'Raison trop longue'),
   type: z.enum(['in', 'out', 'adjustment'], { required_error: 'Type de mouvement requis' })
 });
 
 const ReorderSchema = z.object({
-  itemId: z.number()}).positive('ID article invalide'),
+  itemId: z.number().positive('ID article invalide'),
   quantity: z.number().positive('Quantité doit être positive'),
   urgency: z.enum(['normal', 'urgent', 'critical']).default('normal'),
   supplierId: z.number().positive('ID fournisseur invalide').optional()
 });
 
 const PeriodQuerySchema = z.object({
-  period: z.enum(['1d', '7d', '30d', '90d'])}).default('7d'),
+  period: z.enum(['1d', '7d', '30d', '90d']).default('7d'),
   type: z.enum(['all', 'in', 'out', 'adjustment']).default('all')
 });
 
@@ -106,104 +106,185 @@ router.get('/overview',
   authenticateUser,
   requireRoles(['admin', 'manager', 'staff']),
   asyncHandler(async (req, res) => {
-  try {
-    const inventory = {
-      categories: [
-        {
-            name: 'Café',
-          items: [
-            {
-              id: 1,
-              name: 'Grains café Arabica',
-                currentStock: 12,
-              minStock: 10,
-              maxStock: 50,
-              unit: 'kg',
-                avgConsumption: 1.5,
-                daysRemaining: 8,
-              status: 'warning',
-              cost: 12.50,
-              supplier: 'Café Premium SAS'
+    try {
+      const inventory = {
+        categories: [
+          {
+              name: 'Café',
+            items: [
+              {
+                id: 1,
+                name: 'Grains café Arabica',
+                  currentStock: 12,
+                minStock: 10,
+                maxStock: 50,
+                unit: 'kg',
+                  avgConsumption: 1.5,
+                  daysRemaining: 8,
+                status: 'warning',
+                cost: 12.50,
+                supplier: 'Café Premium SAS'
+                },
+              {
+                id: 2,
+                name: 'Thé Earl Grey',
+                currentStock: 5,
+                minStock: 3,
+                maxStock: 20,
+                unit: 'boîtes',
+                avgConsumption: 0.3,
+                daysRemaining: 16,
+                status: 'ok',
+                cost: 8.90,
+                supplier: 'Thés du Monde'
+              }
+            ]
+          },
+          {
+            name: 'Pâtisserie',
+            items: [
+              {
+                id: 3,
+                name: 'Farine T55',
+                currentStock: 8,
+                minStock: 5,
+                maxStock: 25,
+                unit: 'kg',
+                avgConsumption: 1.2,
+                daysRemaining: 6,
+                status: 'critical',
+                cost: 1.85,
+                supplier: 'Minoterie Locale'
               },
-            {
-              id: 2,
-              name: 'Thé Earl Grey',
-              currentStock: 5,
-              minStock: 3,
-              maxStock: 20,
-              unit: 'boîtes',
-              avgConsumption: 0.3,
-              daysRemaining: 16,
-              status: 'ok',
-              cost: 8.90,
-              supplier: 'Thés du Monde'
-            }
-          ]
-        },
-        {
-          name: 'Pâtisserie',
-          items: [
-            {
-              id: 3,
-              name: 'Farine T55',
-              currentStock: 8,
-              minStock: 5,
-              maxStock: 25,
-              unit: 'kg',
-              avgConsumption: 1.2,
-              daysRemaining: 6,
-              status: 'critical',
-              cost: 1.85,
-              supplier: 'Minoterie Locale'
-            },
-            {
-              id: 4,
-              name: 'Sucre blanc',
-              currentStock: 15,
-              minStock: 5,
-              maxStock: 30,
-              unit: 'kg',
-              avgConsumption: 0.8,
-              daysRemaining: 18,
-              status: 'ok',
-              cost: 2.20,
-              supplier: 'Sucres & Co'
-            }
-          ]
+              {
+                id: 4,
+                name: 'Sucre blanc',
+                currentStock: 15,
+                minStock: 5,
+                maxStock: 30,
+                unit: 'kg',
+                avgConsumption: 0.8,
+                daysRemaining: 18,
+                status: 'ok',
+                cost: 2.20,
+                supplier: 'Sucres & Co'
+              }
+            ]
+          }
+        ],
+        alerts: [
+          {
+            type: 'low_stock',
+            item: 'Farine T55',
+            message: 'Stock critique - 6 jours restants',
+            priority: 'high'
+          },
+          {
+            type: 'reorder_soon',
+            item: 'Grains café Arabica',
+            message: 'Réapprovisionnement recommandé',
+            priority: 'medium'
+          }
+        ],
+        statistics: {
+          totalValue: 1250.75,
+          lowStockItems: 2,
+          pendingOrders: 1,
+          monthlyConsumption: 2850.50
         }
-      ],
-      alerts: [
-        {
-          type: 'low_stock',
-          item: 'Farine T55',
-          message: 'Stock critique - 6 jours restants',
-          priority: 'high'
-        },
-        {
-          type: 'reorder_soon',
-          item: 'Grains café Arabica',
-          message: 'Réapprovisionnement recommandé',
-          priority: 'medium'
-        }
-      ],
-      statistics: {
-        totalValue: 1250.75,
-        lowStockItems: 2,
-        pendingOrders: 1,
-        monthlyConsumption: 2850.50
-      }
-    };
+      };
 
-      res.json({
-        success: true,
-        data: inventory
-      });
-  } catch (error) {
-      logger.error('Erreur inventory overview', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      res.json(inventory);
+    } catch (error) {
+      logger.error('Erreur inventory overview', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       res.status(500).json({ 
         success: false,
         message: 'Erreur lors de la récupération de l\'inventaire' 
       });
+    }
+  })
+);
+
+// Prédictions de consommation
+router.get('/predictions',
+  authenticateUser,
+  requireRoles(['admin', 'manager']),
+  asyncHandler(async (req, res) => {
+    try {
+      const predictions = [
+        {
+          name: 'Grains café Arabica',
+          currentStock: 12,
+          predictions: {
+            '7d': { remaining: 8 },
+            '14d': { remaining: 3 },
+            '30d': { remaining: 0 }
+          },
+          recommendations: {
+            urgency: 'high',
+            reorderDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+            reorderQuantity: 20,
+            estimatedCost: 250
+          }
+        },
+        {
+          name: 'Farine T55',
+          currentStock: 8,
+          predictions: {
+            '7d': { remaining: 4 },
+            '14d': { remaining: 1 },
+            '30d': { remaining: 0 }
+          },
+          recommendations: {
+            urgency: 'medium',
+            reorderDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+            reorderQuantity: 15,
+            estimatedCost: 90
+          }
+        }
+      ];
+
+      res.json(predictions);
+    } catch (error) {
+      logger.error('Erreur prédictions inventaire', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+      res.status(500).json({ success: false, message: 'Erreur lors des prédictions' });
+    }
+  })
+);
+
+// Fournisseurs
+router.get('/suppliers',
+  authenticateUser,
+  requireRoles(['admin', 'manager']),
+  asyncHandler(async (req, res) => {
+    try {
+      const suppliers = [
+        {
+          id: 'sup-1',
+          name: 'Café Premium SAS',
+          categories: ['Café'],
+          deliveryTime: '3-5 jours',
+          minimumOrder: 100,
+          reliability: 92,
+          rating: 4.6,
+          lastOrder: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString()
+        },
+        {
+          id: 'sup-2',
+          name: 'Minoterie Locale',
+          categories: ['Pâtisserie'],
+          deliveryTime: '2-3 jours',
+          minimumOrder: 50,
+          reliability: 88,
+          rating: 4.3,
+          lastOrder: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString()
+        }
+      ];
+
+      res.json(suppliers);
+    } catch (error) {
+      logger.error('Erreur fournisseurs inventaire', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+      res.status(500).json({ success: false, message: 'Erreur lors de la récupération des fournisseurs' });
     }
   })
 );
@@ -214,7 +295,7 @@ router.get('/movements',
   requireRoles(['admin', 'manager']),
   validateQuery(PeriodQuerySchema),
   asyncHandler(async (req, res) => {
-    const { period, type } = req.query;
+    const { period, type } = req.query as { period?: string; type?: string };
     
     try {
       const movements: StockMovement[] = [
@@ -241,20 +322,47 @@ router.get('/movements',
         }
       ];
 
-    res.json({
-        success: true,
-        data: movements
-    });
-  } catch (error) {
+      res.json(movements);
+    } catch (error) {
       logger.error('Erreur mouvements stock', { 
         period, 
         type, 
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
-      )});
+      });
       res.status(500).json({ 
         success: false,
         message: 'Erreur lors de la récupération des mouvements' 
       });
+    }
+  })
+);
+
+// Génération automatique de commandes
+router.post('/orders/generate',
+  authenticateUser,
+  requireRoles(['admin', 'manager']),
+  asyncHandler(async (req, res) => {
+    try {
+      const approvalRequired = Boolean(req.body?.approvalRequired);
+      const orders = [
+        {
+          id: `CMD-${Date.now()}`,
+          itemName: 'Grains café Arabica',
+          quantity: 20,
+          supplierName: 'Café Premium SAS',
+          unitPrice: 12.5,
+          totalPrice: 250,
+          urgency: 'high',
+          estimatedDelivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+          generatedAt: new Date().toISOString(),
+          status: approvalRequired ? 'pending' : 'sent',
+          justification: 'Stock projeté insuffisant sous 7 jours'
+        }
+      ];
+      res.json(orders);
+    } catch (error) {
+      logger.error('Erreur génération commandes', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+      res.status(500).json({ success: false, message: 'Erreur lors de la génération des commandes' });
     }
   })
 );
@@ -265,10 +373,9 @@ router.post('/adjust',
   requireRoles(['admin', 'manager']),
   validateBody(StockAdjustmentSchema),
   asyncHandler(async (req, res) => {
-    const { itemId, quantity, reason, type } = req.body;
+    const { itemId, quantity, reason, type } = req.body as { itemId: number; quantity: number; reason: string; type: 'in' | 'out' | 'adjustment' };
     
     try {
-      // TODO: Implémenter la logique d'ajustement de stock
       const adjustment = {
         id: Date.now(),
         itemId,
@@ -276,64 +383,17 @@ router.post('/adjust',
         reason,
         type,
         timestamp: new Date().toISOString(),
-        userId: req.user?.id
+        userId: (req as any).user?.id
       };
 
-    res.json({
-        success: true,
-        data: adjustment
-    });
-  } catch (error) {
+      res.json(adjustment);
+    } catch (error) {
       logger.error('Erreur ajustement stock', { 
         itemId, 
         quantity, 
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
-      )});
-      res.status(500).json({ 
-        success: false,
-        message: 'Erreur lors de l\'ajustement de stock' 
       });
-    }
-  })
-);
-
-// Génération de commandes fournisseurs
-router.post('/reorder',
-  authenticateUser,
-  requireRoles(['admin', 'manager']),
-  validateBody(ReorderSchema),
-  asyncHandler(async (req, res) => {
-    const { itemId, quantity, urgency, supplierId } = req.body;
-    
-    try {
-      const order: SupplierOrder = {
-        id: `CMD-${Date.now()}`,
-        itemName: 'Article à commander',
-        quantity,
-        supplierName: 'Fournisseur par défaut',
-        unitPrice: 10.00,
-        totalPrice: quantity * 10.00,
-        urgency,
-        estimatedDelivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        generatedAt: new Date().toISOString(),
-        status: 'pending',
-        justification: 'Commande automatique - stock faible'
-      };
-
-    res.json({
-      success: true,
-        data: order
-    });
-  } catch (error) {
-      logger.error('Erreur génération commande', { 
-        itemId, 
-        quantity, 
-        error: error instanceof Error ? error.message : 'Erreur inconnue' 
-      )});
-      res.status(500).json({ 
-        success: false,
-        message: 'Erreur lors de la génération de la commande' 
-      });
+      res.status(500).json({ success: false, message: 'Erreur lors de l\'ajustement de stock' });
     }
   })
 );
@@ -370,18 +430,10 @@ router.get('/analysis',
         }
       };
 
-      res.json({
-        success: true,
-        data: analysis
-      });
-  } catch (error) {
-      logger.error('Erreur analyse stock', { 
-        error: error instanceof Error ? error.message : 'Erreur inconnue' 
-      )});
-      res.status(500).json({ 
-        success: false,
-        message: 'Erreur lors de l\'analyse des stocks' 
-      });
+      res.json(analysis);
+    } catch (error) {
+      logger.error('Erreur analyse stock', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+      res.status(500).json({ success: false, message: 'Erreur lors de l\'analyse des stocks' });
     }
   })
 );

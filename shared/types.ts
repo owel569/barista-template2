@@ -513,3 +513,107 @@ export interface ChartOptions {
   scales?: Record<string, unknown>;
   elements?: Record<string, unknown>;
 }
+
+// Interfaces pour la gestion d'inventaire optimisée
+export interface InventoryData {
+  alerts: InventoryAlert[];
+  statistics: InventoryStatistics;
+  categories: InventoryCategory[];
+  items: InventoryItem[];
+  automaticOrders: AutomaticOrder[];
+  movements: InventoryMovement[];
+  suppliers: InventorySupplier[];
+  predictions?: InventoryPrediction[];
+}
+
+export interface InventoryAlert {
+  id: string;
+  itemId: string;
+  itemName: string;
+  message: string;
+  priority: 'low' | 'medium' | 'high';
+  type: 'stock_low' | 'expiring' | 'out_of_stock';
+  createdAt: string;
+}
+
+export interface InventoryStatistics {
+  totalValue: number;
+  lowStockItems: number;
+  pendingOrders: number;
+  monthlyConsumption: number;
+  totalItems: number;
+}
+
+export interface InventoryCategory {
+  id: string;
+  name: string;
+  items: InventoryItem[];
+}
+
+export interface InventoryItem {
+  id: string;
+  name: string;
+  supplier: string;
+  status: 'critical' | 'warning' | 'normal';
+  currentStock: number;
+  minStock: number;
+  maxStock: number;
+  unit: string;
+  daysRemaining?: number;
+  cost: number;
+  categoryId: string;
+}
+
+export interface InventoryMovement {
+  id: string;
+  item: string;
+  type: 'in' | 'out' | 'adjustment';
+  quantity: number;
+  unit: string;
+  reason: string;
+  user: string;
+  date: string;
+}
+
+export interface InventorySupplier {
+  id: string;
+  name: string;
+  categories: string[];
+  deliveryTime: string;
+  minimumOrder: number;
+  reliability: number;
+  rating: number;
+  lastOrder: string;
+}
+
+export interface InventoryPrediction {
+  name: string;
+  currentStock: number;
+  predictions: {
+    '7d': { remaining: number };
+    '14d': { remaining: number };
+    '30d': { remaining: number };
+  };
+  recommendations: {
+    urgency: 'high' | 'medium' | 'low';
+    reorderDate: string;
+    reorderQuantity: number;
+    estimatedCost: number;
+  };
+}
+
+export interface AutomaticOrder {
+  id: string;
+  supplierId: string;
+  supplierName: string;
+  items: Array<{
+    itemId: string;
+    itemName: string;
+    quantity: number;
+    unitCost: number;
+  }>;
+  totalCost: number;
+  status: 'pending' | 'approved' | 'ordered' | 'delivered';
+  createdAt: string;
+  estimatedDelivery: string;
+}

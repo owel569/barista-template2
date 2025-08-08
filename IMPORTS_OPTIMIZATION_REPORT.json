@@ -1,0 +1,94 @@
+{
+  "timestamp": "2025-08-07T17:00:14.964Z",
+  "totalFiles": 13,
+  "totalFixes": 20,
+  "totalErrors": 0,
+  "results": [
+    {
+      "filePath": "client/src/pages/AdminFinal.tsx",
+      "fixes": [
+        "Utiliser le hook usePermissions optimisé"
+      ],
+      "errors": []
+    },
+    {
+      "filePath": "client/src/components/admin/customers.tsx",
+      "fixes": [
+        "Utiliser le hook usePermissions optimisé"
+      ],
+      "errors": []
+    },
+    {
+      "filePath": "client/src/components/admin/menu-management.tsx",
+      "fixes": [
+        "Utiliser le hook usePermissions optimisé"
+      ],
+      "errors": []
+    },
+    {
+      "filePath": "client/src/components/admin/messages.tsx",
+      "fixes": [
+        "Utiliser le hook usePermissions optimisé"
+      ],
+      "errors": []
+    },
+    {
+      "filePath": "client/src/components/admin/settings.tsx",
+      "fixes": [
+        "Utiliser le hook usePermissions optimisé"
+      ],
+      "errors": []
+    },
+    {
+      "filePath": "client/src/components/admin/statistics-enhanced.tsx",
+      "fixes": [
+        "Remplacé XLSX.utils.json_to_sheet par commentaire TODO",
+        "Remplacé XLSX.utils.book_new par commentaire TODO",
+        "Remplacé XLSX.writeFile par commentaire TODO"
+      ],
+      "errors": []
+    },
+    {
+      "filePath": "client/src/components/admin/user-profile-enhanced.tsx",
+      "fixes": [
+        "Remplacé XLSX.utils.json_to_sheet par commentaire TODO",
+        "Remplacé XLSX.utils.book_new par commentaire TODO",
+        "Remplacé XLSX.writeFile par commentaire TODO"
+      ],
+      "errors": []
+    },
+    {
+      "filePath": "client/src/components/admin/work-schedule.tsx",
+      "fixes": [
+        "Utiliser le hook usePermissions optimisé"
+      ],
+      "errors": []
+    },
+    {
+      "filePath": "client/src/components/auth/AuthProvider.tsx",
+      "fixes": [
+        "Corrigé toast.success",
+        "Corrigé toast.error",
+        "Ajouté import usePermissions"
+      ],
+      "errors": []
+    },
+    {
+      "filePath": "client/src/components/auth/PermissionGuard.tsx",
+      "fixes": [
+        "Utiliser le hook usePermissions optimisé"
+      ],
+      "errors": []
+    },
+    {
+      "filePath": "client/src/components/admin/statistics/components/ExportToExcelButton.tsx",
+      "fixes": [
+        "Remplacer XLSX par exceljs optimisé",
+        "Remplacé XLSX.utils.json_to_sheet par commentaire TODO",
+        "Remplacé XLSX.utils.book_new par commentaire TODO",
+        "Remplacé XLSX.writeFile par commentaire TODO"
+      ],
+      "errors": []
+    }
+  ]
+}

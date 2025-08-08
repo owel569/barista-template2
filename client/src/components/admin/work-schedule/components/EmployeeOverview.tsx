@@ -27,7 +27,7 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
   // Calcul des statistiques par employé
   const employeeStats = useMemo(() => {
     return employees.map(employee => {
-      const employeeShifts = shifts.filter(shift => shift.employeeId === employee.id});
+      const employeeShifts = shifts.filter(shift => shift.employeeId === employee.id);
       const totalHours = employeeShifts.reduce((sum, shift) => sum + shift.totalHours, 0);
       const totalPay = employeeShifts.reduce((sum, shift) => sum + shift.totalPay, 0);
       const overtimeHours = employeeShifts.reduce((sum, shift) => sum + (shift.overtimeHours || 0), 0);
@@ -41,7 +41,7 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
       
       // Prochains shifts
       const upcomingShifts = employeeShifts.filter(shift => {
-        const shiftDate = new Date(shift.date)});
+        const shiftDate = new Date(shift.date);
         const today = new Date();
         return shiftDate >= today && shift.status === 'scheduled';
       }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -72,8 +72,8 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
   // Composant EmployeeCard
   const EmployeeCard: React.FC<{ stats: typeof employeeStats[0] }> = ({ stats }) => {
     const { employee } = stats;
-    const department = DEPARTMENTS.find(d => d.id === employee.department);
-    const position = POSITIONS.find(p => p.id === employee.position);
+      const department = DEPARTMENTS.find((d: { id: string; name: string; color: string }) => d.id === employee.department);
+  const position = POSITIONS.find((p: { id: string; name: string; color: string }) => p.id === employee.position);
     
     const isHighPerformer = stats.reliabilityScore >= 95 && stats.totalHours > 0;
     const needsAttention = stats.reliabilityScore < 80 || stats.noShowShifts > 0;
@@ -238,7 +238,7 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
                 ))}
                 {employee.skills.length > 3 && (
                   <Badge variant="outline" className="text-xs">
-                    +{employee.skills.length - 3)} autres
+                    +{employee.skills.length - 3} autres
                   </Badge>
                 )}
               </div>
@@ -274,10 +274,10 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
       {/* Statistiques générales */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Users className="h-5 w-5" />
-            <span>Vue d'ensemble des employés</span>
-          </CardTitle>
+                  <CardTitle className="flex items-center space-x-2">
+          <User className="h-5 w-5" />
+          <span>Vue d'ensemble des employés</span>
+        </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -330,8 +330,8 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
 
       {/* Grille des employés */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {sortedEmployeeStats.map(stats => (
-          <EmployeeCard key={stats.employee.id)} stats={stats} />
+        {sortedEmployeeStats.map((stats) => (
+          <EmployeeCard key={stats.employee.id} stats={stats} />
         ))}
       </div>
       

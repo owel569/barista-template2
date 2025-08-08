@@ -54,7 +54,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
       cout: dept.totalCost,
       employes: dept.employeeCount,
       tauxHoraire: dept.averageHourlyRate
-    });
+    }));
   }, [stats.departmentStats]);
 
   const costAnalysisData = useMemo(() => {
@@ -78,13 +78,15 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
     if (reports.length === 0) return [];
     
     const currentReport = reports[0];
+    if (!currentReport) return [];
+    
     return currentReport.employeeBreakdown.map(emp => ({
       name: emp.employeeName,
       heures: emp.totalHours,
       salaire: emp.totalPay,
       ponctualite: emp.punctualityScore,
       shifts: emp.shiftsWorked
-    });
+    }));
   }, [reports]);
 
   const trendData = useMemo(() => {
@@ -319,7 +321,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent )}) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="cout"

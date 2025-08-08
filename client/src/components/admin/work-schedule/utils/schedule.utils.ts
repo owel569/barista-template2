@@ -92,7 +92,7 @@ export const formatDateTime = (date: string, time: string): string => {
 
 // Génération des dates pour le calendrier
 export const generateWeekDates = (startDate: Date = new Date()): Date[] => {
-  const weekStart = startOfWeek(startDate, { weekStartsOn: 1 )}); // Lundi
+  const weekStart = startOfWeek(startDate, { weekStartsOn: 1 }); // Lundi
   const weekEnd = endOfWeek(startDate, { weekStartsOn: 1 }); // Dimanche
   return eachDayOfInterval({ start: weekStart, end: weekEnd });
 };
@@ -104,22 +104,22 @@ export const generateMonthDates = (startDate: Date = new Date()): Date[] => {
 };
 
 // Filtrage des horaires
-export const filterShiftsByDate = (shifts: Shift[,], targetDate: Date): Shift[] => {
+export const filterShiftsByDate = (shifts: Shift[], targetDate: Date): Shift[] => {
   return shifts.filter(shift => isSameDay(parseISO(shift.date), targetDate));
 };
 
-export const filterShiftsByEmployee = (shifts: Shift[,], employeeId: number): Shift[] => {
+export const filterShiftsByEmployee = (shifts: Shift[], employeeId: number): Shift[] => {
   return shifts.filter(shift => shift.employeeId === employeeId);
 };
 
-export const filterShiftsByDepartment = (shifts: Shift[,], employees: Employee[,], department: string): Shift[] => {
+export const filterShiftsByDepartment = (shifts: Shift[], employees: Employee[], department: string): Shift[] => {
   const departmentEmployeeIds = employees
     .filter(emp => emp.department === department)
     .map(emp => emp.id);
   return shifts.filter(shift => departmentEmployeeIds.includes(shift.employeeId));
 };
 
-export const filterShiftsByPosition = (shifts: Shift[,], employees: Employee[,], position: string): Shift[] => {
+export const filterShiftsByPosition = (shifts: Shift[], employees: Employee[], position: string): Shift[] => {
   const positionEmployeeIds = employees
     .filter(emp => emp.position === position)
     .map(emp => emp.id);
@@ -128,7 +128,7 @@ export const filterShiftsByPosition = (shifts: Shift[,], employees: Employee[,],
 
 // Calcul des statistiques
 export const calculateShiftDuration = (startTime: string, endTime: string): number => {
-  const start = new Date(`1970-01-01T${startTime)}`);
+  const start = new Date(`1970-01-01T${startTime}`);
   const end = new Date(`1970-01-01T${endTime}`);
   const diff = end.getTime() - start.getTime();
   return diff / (1000 * 60 * 60); // Retourne en heures
@@ -140,12 +140,12 @@ export const calculateTotalHours = (shifts: Shift[]): number => {
   }, 0);
 };
 
-export const calculateEmployeeHours = (shifts: Shift[,], employeeId: number): number => {
+export const calculateEmployeeHours = (shifts: Shift[], employeeId: number): number => {
   const employeeShifts = filterShiftsByEmployee(shifts, employeeId);
   return calculateTotalHours(employeeShifts);
 };
 
-export const calculateScheduleStats = (shifts: Shift[,], employees: Employee[]): ScheduleStats => {
+export const calculateScheduleStats = (shifts: Shift[], employees: Employee[]): ScheduleStats => {
   const totalShifts = shifts.length;
   const activeEmployees = employees.filter(emp => emp.status === 'active').length;
   const totalHours = calculateTotalHours(shifts);
@@ -154,7 +154,7 @@ export const calculateScheduleStats = (shifts: Shift[,], employees: Employee[]):
   // Répartition par département
   const departmentBreakdown: Record<string, number> = {};
   employees.forEach(emp => {
-    const empShifts = filterShiftsByEmployee(shifts, emp.id)});
+    const empShifts = filterShiftsByEmployee(shifts, emp.id);
     const hours = calculateTotalHours(empShifts);
     if (hours > 0) {
       departmentBreakdown[emp.department] = (departmentBreakdown[emp.department] || 0) + hours;
@@ -164,7 +164,7 @@ export const calculateScheduleStats = (shifts: Shift[,], employees: Employee[]):
   // Répartition par position
   const positionBreakdown: Record<string, number> = {};
   employees.forEach(emp => {
-    const empShifts = filterShiftsByEmployee(shifts, emp.id)});
+    const empShifts = filterShiftsByEmployee(shifts, emp.id);
     const hours = calculateTotalHours(empShifts);
     if (hours > 0) {
       positionBreakdown[emp.position] = (positionBreakdown[emp.position] || 0) + hours;
@@ -183,7 +183,7 @@ export const calculateScheduleStats = (shifts: Shift[,], employees: Employee[]):
 
 // Validation des horaires
 export const validateShiftTime = (startTime: string, endTime: string): boolean => {
-  const start = new Date(`1970-01-01T${startTime)}`);
+  const start = new Date(`1970-01-01T${startTime}`);
   const end = new Date(`1970-01-01T${endTime}`);
   return start < end;
 };
@@ -205,7 +205,7 @@ export const checkShiftConflict = (newShift: Partial<Shift>, existingShifts: Shi
   );
 
   return sameDayShifts.some(shift => {
-    const existingStart = new Date(`1970-01-01T${shift.startTime)}`);
+    const existingStart = new Date(`1970-01-01T${shift.startTime}`);
     const existingEnd = new Date(`1970-01-01T${shift.endTime}`);
     const newStart = new Date(`1970-01-01T${newShift.startTime}`);
     const newEnd = new Date(`1970-01-01T${newShift.endTime}`);
@@ -215,73 +215,6 @@ export const checkShiftConflict = (newShift: Partial<Shift>, existingShifts: Shi
       (newEnd > existingStart && newEnd <= existingEnd) ||
       (newStart <= existingStart && newEnd >= existingEnd)
     );
-  });
-};
-
-// Génération automatique d'horaires
-export const generateWeeklySchedule = (
-  employees: Employee[,],
-  weekStart: Date,
-  businessHours: { start: string; end: string } = { start: '08:00', end: '20:00' }
-): Partial<Shift>[] => {
-  const schedule: Partial<Shift>[] = [];
-  const weekDays = generateWeekDates(weekStart);
-  
-  const activeEmployees = employees.filter(emp => emp.status === 'active');
-  const shiftDuration = 8; // 8 heures par shift
-  
-  weekDays.forEach(day => {
-    const dayOfWeek = day.getDay(});
-    
-    // Pas de shifts le dimanche (jour de repos)
-    if (dayOfWeek === 0) return;
-    
-    const isWeekend = dayOfWeek === 6; // Samedi
-    const shiftsPerDay = isWeekend ? 2 : 3; // Moins de shifts le weekend
-    
-    // Créer les shifts pour la journée
-    for (let i = 0; i < shiftsPerDay && i < activeEmployees.length; i++) {
-      const employee = activeEmployees[i];
-      const startHour = 8 + (i * 4); // Décalage de 4 heures entre les shifts
-      const endHour = startHour + shiftDuration;
-      
-      if (endHour <= 20) { // Pas de shift après 20h
-        schedule.push({
-          employeeId: employee.id,
-          employeeName: `${employee.firstName} ${employee.lastName}`,
-          date: format(day, 'yyyy-MM-dd'),
-          startTime: `${startHour.toString().padStart(2, '0')}:00`,
-          endTime: `${endHour.toString().padStart(2, '0')}:00`,
-          position: employee.position,
-          department: employee.department,
-          status: 'scheduled',
-          notes: 'Généré automatiquement',
-        });
-      }
-    }
-  });
-  
-  return schedule;
-};
-
-// Analyse des performances
-export const analyzeEmployeePerformance = (shifts: Shift[,], employees: Employee[]) => {
-  return employees.map(employee => {
-    const employeeShifts = filterShiftsByEmployee(shifts, employee.id)});
-    const totalHours = calculateTotalHours(employeeShifts);
-    const completedShifts = employeeShifts.filter(shift => shift.status === 'completed').length;
-    const cancelledShifts = employeeShifts.filter(shift => shift.status === 'cancelled').length;
-    const completionRate = employeeShifts.length > 0 ? (completedShifts / employeeShifts.length) * 100 : 0;
-    
-    return {
-      employee,
-      totalShifts: employeeShifts.length,
-      totalHours,
-      completedShifts,
-      cancelledShifts,
-      completionRate,
-      averageHoursPerShift: employeeShifts.length > 0 ? totalHours / employeeShifts.length : 0,
-    };
   });
 };
 
@@ -320,42 +253,38 @@ export const getPositionLabel = (position: string): string => {
   return labels[position] || position;
 };
 
-// Exportation des données
-export const exportScheduleToCSV = (shifts: Shift[,], employees: Employee[]): string => {
-  const headers = [
-    'Date',
-    'Employé',
-    'Position',
-    'Département',
-    'Début',
-    'Fin',
-    'Durée (h)',
-    'Statut',
-    'Notes'
-  ];
-  
-  const rows = shifts.map(shift => {
-    const employee = employees.find(emp => emp.id === shift.employeeId});
-    const duration = calculateShiftDuration(shift.startTime, shift.endTime);
-    
-    return [
-      formatDate(shift.date),
-      employee ? `${employee.firstName} ${employee.lastName}` : 'Employé inconnu',
-      shift.position,
-      shift.department,
-      formatTime(shift.startTime),
-      formatTime(shift.endTime),
-      duration.toFixed(1),
-      getStatusLabel(shift.status),
-      shift.notes || ''
-    ];
-  });
-  
-  const csvContent = [headers, ...rows]
-    .map(row => row.map(cell => `"${cell}"`).join(','))
-    .join('\n');
-  
-  return csvContent;
+// Constantes manquantes pour les composants
+export const DEPARTMENTS = [
+  { id: 'service', name: 'Service', color: '#3B82F6' },
+  { id: 'kitchen', name: 'Cuisine', color: '#10B981' },
+  { id: 'management', name: 'Direction', color: '#8B5CF6' },
+  { id: 'cleaning', name: 'Nettoyage', color: '#F59E0B' },
+  { id: 'security', name: 'Sécurité', color: '#EF4444' },
+];
+
+export const POSITIONS = [
+  { id: 'barista', name: 'Barista', color: '#F59E0B' },
+  { id: 'server', name: 'Serveur', color: '#3B82F6' },
+  { id: 'chef', name: 'Chef', color: '#10B981' },
+  { id: 'manager', name: 'Manager', color: '#8B5CF6' },
+  { id: 'cashier', name: 'Caissier', color: '#14B8A6' },
+  { id: 'cleaner', name: 'Agent d\'entretien', color: '#F97316' },
+];
+
+// Fonctions de formatage manquantes
+export const formatDuration = (hours: number): string => {
+  const h = Math.floor(hours);
+  const m = Math.round((hours - h) * 60);
+  if (m === 0) return `${h}h`;
+  return `${h}h ${m}m`;
+};
+
+export const formatCurrency = (amount: number): string => {
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'EUR',
+    minimumFractionDigits: 2,
+  }).format(amount);
 };
 
 // Utilitaires pour la couleur
@@ -377,12 +306,12 @@ export const isShiftToday = (shift: Shift): boolean => {
 };
 
 export const isShiftPast = (shift: Shift): boolean => {
-  const shiftDateTime = new Date(`${shift.date)}T${shift.endTime}`);
+  const shiftDateTime = new Date(`${shift.date}T${shift.endTime}`);
   return isPast(shiftDateTime);
 };
 
 export const isShiftFuture = (shift: Shift): boolean => {
-  const shiftDateTime = new Date(`${shift.date)}T${shift.startTime}`);
+  const shiftDateTime = new Date(`${shift.date}T${shift.startTime}`);
   return isFuture(shiftDateTime);
 };
 
@@ -396,27 +325,26 @@ export const getShiftTimeStatus = (shift: Shift): 'past' | 'current' | 'future' 
   return 'future';
 };
 
-// Constantes manquantes pour les composants
-export const DEPARTMENTS = [
-  { value: 'service', label: 'Service' },
-  { value: 'kitchen', label: 'Cuisine' },
-  { value: 'management', label: 'Direction' },
-  { value: 'cleaning', label: 'Nettoyage' },
-  { value: 'security', label: 'Sécurité' },
-];
+// Fonctions pour les composants
+export const getWeekDates = generateWeekDates;
+export const getMonthDates = generateMonthDates;
 
-export const POSITIONS = [
-  { value: 'barista', label: 'Barista' },
-  { value: 'server', label: 'Serveur' },
-  { value: 'chef', label: 'Chef' },
-  { value: 'manager', label: 'Manager' },
-  { value: 'cashier', label: 'Caissier' },
-  { value: 'cleaner', label: 'Agent d\'entretien' },
-];
+export const generateEmployeeColors = (employees: Employee[]): Record<number, string> => {
+  const colors = [
+    '#8884d8', '#82ca9d', '#ffc658', '#ff7c7c', '#8dd1e1',
+    '#82d982', '#ffb347', '#ff6b6b', '#4ecdc4', '#45b7d1',
+    '#f39c12', '#e74c3c', '#9b59b6', '#1abc9c', '#34495e'
+  ];
+  
+  const employeeColors: Record<number, string> = {};
+  employees.forEach((employee, index) => {
+    employeeColors[employee.id] = colors[index % colors.length];
+  });
+  
+  return employeeColors;
+};
 
-// Fonctions manquantes pour les hooks
-export const generateScheduleStats = calculateScheduleStats;
-
+// Fonctions de validation
 export const validateShift = (shift: Partial<Shift>, existingShifts: Shift[] = []): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
 
@@ -447,7 +375,8 @@ export const validateShift = (shift: Partial<Shift>, existingShifts: Shift[] = [
   };
 };
 
-export const filterShifts = (shifts: Shift[,], filters: {
+// Fonctions de filtrage et tri
+export const filterShifts = (shifts: Shift[], filters: {
   employeeId?: number;
   department?: string;
   position?: string;
@@ -455,7 +384,7 @@ export const filterShifts = (shifts: Shift[,], filters: {
   dateRange?: { start: Date; end: Date };
 }): Shift[] => {
   return shifts.filter(shift => {
-    if (filters.employeeId && shift.employeeId !== filters.employeeId)}) return false;
+    if (filters.employeeId && shift.employeeId !== filters.employeeId) return false;
     if (filters.department && shift.department !== filters.department) return false;
     if (filters.position && shift.position !== filters.position) return false;
     if (filters.status && shift.status !== filters.status) return false;
@@ -469,7 +398,7 @@ export const filterShifts = (shifts: Shift[,], filters: {
   });
 };
 
-export const sortShifts = (shifts: Shift[,], sortBy: 'date' | 'employee' | 'department' | 'position' = 'date'): Shift[] => {
+export const sortShifts = (shifts: Shift[], sortBy: 'date' | 'employee' | 'department' | 'position' = 'date'): Shift[] => {
   return [...shifts].sort((a, b) => {
     switch (sortBy) {
       case 'date':
@@ -488,9 +417,10 @@ export const sortShifts = (shifts: Shift[,], sortBy: 'date' | 'employee' | 'depa
   });
 };
 
-export const shiftsToCalendarEvents = (shifts: Shift[,], employees: Employee[] = []) => {
+// Fonction pour convertir les shifts en événements de calendrier
+export const shiftsToCalendarEvents = (shifts: Shift[], employees: Employee[] = []) => {
   return shifts.map(shift => {
-    const employee = employees.find(emp => emp.id === shift.employeeId)});
+    const employee = employees.find(emp => emp.id === shift.employeeId);
     const start = new Date(`${shift.date}T${shift.startTime}`);
     const end = new Date(`${shift.date}T${shift.endTime}`);
     
@@ -511,38 +441,4 @@ export const shiftsToCalendarEvents = (shifts: Shift[,], employees: Employee[] =
       },
     };
   });
-};
-
-export const getWeekDates = generateWeekDates;
-export const getMonthDates = generateMonthDates;
-
-export const generateEmployeeColors = (employees: Employee[]): Record<number, string> => {
-  const colors = [
-    '#8884d8', '#82ca9d', '#ffc658', '#ff7c7c', '#8dd1e1',
-    '#82d982', '#ffb347', '#ff6b6b', '#4ecdc4', '#45b7d1',
-    '#f39c12', '#e74c3c', '#9b59b6', '#1abc9c', '#34495e'
-  ];
-  
-  const employeeColors: Record<number, string> = {};
-  employees.forEach((employee, index) => {
-    employeeColors[employee.id] = colors[index % colors.length];
-  });
-  
-  return employeeColors;
-};
-
-// Fonctions de formatage manquantes
-export const formatDuration = (hours: number): string => {
-  const h = Math.floor(hours);
-  const m = Math.round((hours - h) * 60);
-  if (m === 0) return `${h}h`;
-  return `${h}h ${m}m`;
-};
-
-export const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 2,
-  )}).format(amount);
-};
+}; 

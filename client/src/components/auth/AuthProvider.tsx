@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react'
+import { usePermissions } from '@/hooks/usePermissions';;
 import { useLocation } from 'wouter';
 import { AuthTokenManager, ApiClient, AuthState, AuthUser, LoginResponse } from '@/lib/auth-utils';
 import { toast } from 'sonner';

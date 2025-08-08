@@ -9,9 +9,10 @@ import { AuthenticatedUser } from '../types/auth';
 // Import des routes
 import analyticsRouter from './analytics';
 import permissionsRouter from './permissions';
-import { userProfileRouter } from './user-profile';
-import { tablesRouter } from './tables';
+import userProfileRouter from './user-profile';
+import tablesRouter from './tables';
 import databaseRouter from './database.routes';
+import inventoryAdvancedRouter from './inventory-management';
 
 const router = Router();
 const logger = createLogger('MAIN_ROUTES');
@@ -589,7 +590,7 @@ router.get('/admin/inventory/items', authenticateUser, asyncHandler(async (req: 
       }
     ];
 
-    res.json({ success: true, data: inventoryItems });
+    res.json(inventoryItems);
   } catch (error) {
     logger.error('Erreur récupération inventaire', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     res.status(500).json({ success: false, message: 'Erreur serveur' });
@@ -615,9 +616,31 @@ router.get('/admin/inventory/alerts', authenticateUser, asyncHandler(async (req:
       }
     ];
 
-    res.json({ success: true, data: alerts });
+    res.json(alerts);
   } catch (error) {
     logger.error('Erreur récupération alertes', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+    res.status(500).json({ success: false, message: 'Erreur serveur' });
+  }
+}));
+
+router.put('/admin/inventory/items/:id/stock', authenticateUser, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const itemId = parseInt(req.params.id || '0', 10);
+    const { currentStock } = req.body as { currentStock: number };
+
+    if (!Number.isFinite(currentStock)) {
+      return res.status(400).json({ success: false, message: 'currentStock invalide' });
+    }
+
+    const updated = {
+      id: itemId,
+      currentStock,
+      updatedAt: new Date().toISOString()
+    };
+
+    res.json(updated);
+  } catch (error) {
+    logger.error('Erreur mise à jour stock', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     res.status(500).json({ success: false, message: 'Erreur serveur' });
   }
 }));
@@ -702,6 +725,7 @@ router.use('/permissions', permissionsRouter);
 router.use('/user-profile', userProfileRouter);
 router.use('/tables', tablesRouter);
 router.use('/database', databaseRouter);
+router.use('/admin/inventory', inventoryAdvancedRouter);
 
 // Route WebSocket endpoint pour connexion
 router.get('/ws', (req, res) => {

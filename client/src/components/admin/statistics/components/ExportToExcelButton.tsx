@@ -3,10 +3,12 @@ import React from 'react';
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Download, Loader2 } from 'lucide-react';
-import * as XLSX from 'xlsx';
+import { exportToExcel } from '@/lib/excel-export';
+
+import { ExportData } from '@/lib/excel-export';
 
 interface ExportToExcelButtonProps {
-  data: unknown[];
+  data: ExportData[];
   filename?: string;
   sheetName?: string;
   disabled?: boolean;
@@ -41,14 +43,13 @@ export function ExportToExcelButton({
           return;
         }
       }
-      const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.json_to_sheet(data);
-      const colWidths = Object.keys(data[0] || {}).map(key => ({ wch: Math.max(key.length, 15) }));
-      ws['!cols'] = colWidths;
-      XLSX.utils.book_append_sheet(wb, ws, sheetName);
-      const timestamp = new Date().toISOString().split('T')[0];
-      const fullFilename = `${filename}_${timestamp}.xlsx`;
-      XLSX.writeFile(wb, fullFilename);
+      
+      await exportToExcel(data, {
+        filename: `${filename}_${new Date().toISOString().split('T')[0]}`,
+        sheetName,
+        autoWidth: true,
+        styleHeaders: true
+      });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Erreur lors de l\'export Excel:', error);

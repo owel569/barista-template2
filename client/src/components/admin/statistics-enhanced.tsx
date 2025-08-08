@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { LoadingButton } from '@/components/ui/loading-button';
+
+;
+;
+;
+;
+;
+;
+;
 import {
   Select,
   SelectContent,
@@ -43,11 +45,11 @@ import {
   BarChart3,
   PieChart as PieChartIcon
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { useWebSocket } from '@/hooks/useWebSocket';
-import { useAuth } from '@/hooks/useAuth';
-import { mockRevenueData, mockCategoryData, mockCustomerData, mockPopularItems, mockHourlyData } from '@/data/mocks';
-import * as XLSX from 'xlsx';
+;
+;
+;
+;
+;
 
 interface StatisticsEnhancedProps {
   userRole: 'directeur' | 'employe';
@@ -223,31 +225,31 @@ export default function StatisticsEnhanced({ userRole }: StatisticsEnhancedProps
   const exportToExcel = useCallback(async () => {
     setExporting(true);
     try {
-      const wb = XLSX.utils.book_new();
+      const wb = await exportStatistics(data, "revenue");
       
       // Feuille Revenus
-      const revenueWS = XLSX.utils.json_to_sheet(revenueData);
-      XLSX.utils.book_append_sheet(wb, revenueWS, 'Revenus');
+      const revenueWS = await exportStatistics(data, "revenue");
+      // TODO: Remplacé par exportToExcel optimisé;
       
       // Feuille Catégories
-      const categoryWS = XLSX.utils.json_to_sheet(categoryData);
-      XLSX.utils.book_append_sheet(wb, categoryWS, 'Catégories');
+      const categoryWS = await exportStatistics(data, "revenue");
+      // TODO: Remplacé par exportToExcel optimisé;
       
       // Feuille Clients
-      const customerWS = XLSX.utils.json_to_sheet(customerData);
-      XLSX.utils.book_append_sheet(wb, customerWS, 'Clients');
+      const customerWS = await exportStatistics(data, "revenue");
+      // TODO: Remplacé par exportToExcel optimisé;
       
       // Feuille Articles populaires
-      const popularWS = XLSX.utils.json_to_sheet(popularItems);
-      XLSX.utils.book_append_sheet(wb, popularWS, 'Articles populaires');
+      const popularWS = await exportStatistics(data, "revenue");
+      // TODO: Remplacé par exportToExcel optimisé;
       
       // Feuille Statistiques générales
-      const statsWS = XLSX.utils.json_to_sheet([totalStats]);
-      XLSX.utils.book_append_sheet(wb, statsWS, 'Statistiques générales');
+      const statsWS = await exportStatistics(data, "revenue");
+      // TODO: Remplacé par exportToExcel optimisé;
       
       // Télécharger le fichier
       const fileName = `barista-cafe-stats-${new Date().toISOString().split('T')[0]}.xlsx`;
-      XLSX.writeFile(wb, fileName);
+      await exportStatistics(data, "revenue");
       
       toast({
         title: "Export réussi",

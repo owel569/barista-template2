@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
+import { usePermissions } from '@/hooks/usePermissions';
 import {
   Card,
   CardContent,
@@ -59,14 +60,14 @@ import { useToast } from '@/hooks/use-toast';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import QRCode from 'qrcode.react';
 import { useReactToPrint } from 'react-to-print';
-import * as XLSX from 'xlsx';
+import { exportCustomerProfiles } from '@/lib/excel-export';
 
 // Schéma de validation amélioré
-const userProfileSchema = z.object({
-  firstName: z.string()}).min(2, "Le prénom doit contenir au moins 2 caractères"),
+const userProfileSchema = z.object{
+  firstName: z.string().min(2, "Le prénom doit contenir au moins 2 caractères"),
   lastName: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
-  email: z.string().email("Email invalide").optional().or(z.literal("")),
-  phone: z.string().regex(/^(\+?\d{8,15})$/, "Numéro de téléphone invalide").optional().or(z.literal("")),
+  email: z.string().email("Email invalide").optional().or(z.literal(""),
+  phone: z.string().regex(/^(\+?\d{8,15}$/, "Numéro de téléphone invalide").optional().or(z.literal(""),
   address: z.string().optional(),
   city: z.string().optional(),
   postalCode: z.string().optional(),
@@ -77,25 +78,25 @@ const userProfileSchema = z.object({
     const age = today.getFullYear() - birthDate.getFullYear();
     return age >= 0 && age <= 120;
   }, "Date de naissance invalide"),
-  preferences: z.object({
-    emailNotifications: z.boolean()}),
+  preferences: z.object{
+    emailNotifications: z.boolean(),
     smsNotifications: z.boolean(),
     promotionalEmails: z.boolean(),
     favoriteTable: z.number().optional(),
-    dietaryRestrictions: z.array(z.string()),
-    allergens: z.array(z.string()),
+    dietaryRestrictions: z.array(z.string(),
+    allergens: z.array(z.string(),
     language: z.string(),
     currency: z.string(),
-  }),
-});
+  },
+};
 
-const addressSchema = z.object({
-  street: z.string()}).min(1, "L'adresse est requise"),
+const addressSchema = z.object{
+  street: z.string().min(1, "L'adresse est requise"),
   city: z.string().min(1, "La ville est requise"),
   postalCode: z.string().min(1, "Le code postal est requis"),
   country: z.string().min(1, "Le pays est requis"),
   type: z.enum(["home", "work", "other"]),
-});
+};
 
 // Interfaces TypeScript améliorées
 interface UserProfile {
@@ -171,6 +172,7 @@ export default function UserProfileEnhanced() : JSX.Element {
   const { apiRequest } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const permissions = usePermissions();
   const printRef = React.useRef<HTMLDivElement>(null);
   
   // États locaux pour la gestion UI
@@ -189,16 +191,16 @@ export default function UserProfileEnhanced() : JSX.Element {
   const usersPerPage = 12;
 
   // Récupération des utilisateurs
-  const { data: users = [,], isLoading, error } = useQuery<UserProfile[]>({
-    queryKey: ['user-profiles',],
-    queryFn: async ()}) => {
+  const { data: users = [], isLoading, error } = useQuery<UserProfile[]>{
+    queryKey: ['user-profiles'],
+    queryFn: async () => {
       const response = await apiRequest('/api/admin/user-profiles');
       return response.json();
     },
-  });
+  };
 
   // Formulaires avec validation
-  const profileForm = useForm<z.infer<typeof userProfileSchema>>({
+  const profileForm = useForm<z.infer<typeof userProfileSchema>>{
     resolver: zodResolver(userProfileSchema),
     defaultValues: {
       firstName: '',
@@ -213,15 +215,15 @@ export default function UserProfileEnhanced() : JSX.Element {
         emailNotifications: true,
         smsNotifications: false,
         promotionalEmails: true,
-        dietaryRestrictions: [,],
-        allergens: [,],
+        dietaryRestrictions: [],
+        allergens: [],
         language: 'fr',
         currency: 'EUR',
       },
     },
-  });
+  };
 
-  const addressForm = useForm<z.infer<typeof addressSchema>>({
+  const addressForm = useForm<z.infer<typeof addressSchema>>{
     resolver: zodResolver(addressSchema),
     defaultValues: {
       street: '',
@@ -230,75 +232,75 @@ export default function UserProfileEnhanced() : JSX.Element {
       country: 'France',
       type: 'home',
     },
-  });
+  };
 
   // Mutations pour les opérations CRUD
-  const updateUserMutation = useMutation({
-    mutationFn: async (data: { id: number; updates: Partial<UserProfile> })}) => {
-      const response = await apiRequest(`/api/admin/user-profiles/${data.id)}`, {
+  const updateUserMutation = useMutation{
+    mutationFn: async (data: { id: number; updates: Partial<UserProfile> } => {
+      const response = await apiRequest(`/api/admin/user-profiles/${data.id}`, {
         method: 'PUT',
         body: JSON.stringify(data.updates),
-      });
+      };
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-profiles'] )});
-      toast({
+      queryClient.invalidateQueries{ queryKey: ['user-profiles'] };
+      toast{
         title: "Profil mis à jour",
         description: "Le profil utilisateur a été mis à jour avec succès",
-      });
+      };
       setIsEditDialogOpen(false);
     },
-  });
+  };
 
-  const addAddressMutation = useMutation({
-    mutationFn: async (data: { userId: number; address: Omit<Address, 'id'> })}) => {
-      const response = await apiRequest(`/api/admin/user-profiles/${data.userId)}/addresses`, {
+  const addAddressMutation = useMutation{
+    mutationFn: async (data: { userId: number; address: Omit<Address, 'id'> } => {
+      const response = await apiRequest(`/api/admin/user-profiles/${data.userId}/addresses`, {
         method: 'POST',
         body: JSON.stringify(data.address),
-      });
+      };
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-profiles'] )});
-      toast({
+      queryClient.invalidateQueries{ queryKey: ['user-profiles'] };
+      toast{
         title: "Adresse ajoutée",
         description: "L'adresse a été ajoutée avec succès",
-      });
+      };
       setIsAddressDialogOpen(false);
       addressForm.reset();
     },
-  });
+  };
 
-  const deleteAddressMutation = useMutation({
-    mutationFn: async (addressId: number})}) => {
-      const response = await apiRequest(`/api/admin/addresses/${addressId)}`, {
+  const deleteAddressMutation = useMutation{
+    mutationFn: async (addressId: number) => {
+      const response = await apiRequest(`/api/admin/addresses/${addressId}`, {
         method: 'DELETE',
-      });
+      };
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-profiles'] )});
-      toast({
+      queryClient.invalidateQueries{ queryKey: ['user-profiles'] };
+      toast{
         title: "Adresse supprimée",
         description: "L'adresse a été supprimée avec succès",
-      });
+      };
       setAddressToDelete(null);
     },
-  });
+  };
 
   // Filtrage et tri des utilisateurs (mémorisé)
   const filteredAndSortedUsers = useMemo(() => {
     let filtered = users.filter(user => {
       const matchesSearch = !searchTerm || 
-        user.firstName.toLowerCase()}).includes(searchTerm.toLowerCase()) ||
-        user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase());
+        user.firstName.toLowerCase()}.includes(searchTerm.toLowerCase() ||
+        user.lastName.toLowerCase().includes(searchTerm.toLowerCase() ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase();
       
       const matchesActiveFilter = showInactive || user.isActive;
       
       return matchesSearch && matchesActiveFilter;
-    });
+    };
 
     // Tri
     filtered.sort((a, b) => {
@@ -314,7 +316,7 @@ export default function UserProfileEnhanced() : JSX.Element {
         default:
           return 0;
       }
-    });
+    };
 
     return filtered;
   }, [users, searchTerm, showInactive, sortBy]);
@@ -334,7 +336,7 @@ export default function UserProfileEnhanced() : JSX.Element {
     const birth = new Date(birthDate);
     const age = today.getFullYear() - birth.getFullYear();
     const monthDiff = today.getMonth() - birth.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate()) {
       return age - 1;
     }
     return age;
@@ -352,10 +354,37 @@ export default function UserProfileEnhanced() : JSX.Element {
     const badge = badges[level as keyof typeof badges] || badges['Bronze'];
     const IconComponent = badge.icon;
     
-    return (
+    
+  // Fonction d'export Excel optimisée
+  const handleExportExcel = useCallback(async () => {
+    try {
+      const exportData = filteredProfiles.map((profile) => ({
+        'Prénom': profile.firstName,
+        'Nom': profile.lastName,
+        'Email': profile.email,
+        'Téléphone': profile.phone,
+        'Niveau Fidélité': profile.loyalty?.level || '',
+        'Points Fidélité': profile.loyalty?.points || 0,
+        'Total Dépensé (€)': profile.loyalty?.totalSpent || 0,
+        'Commandes': profile.orderHistory?.length || 0,
+        'Panier Moyen (€)': profile.loyalty?.totalSpent / (profile.orderHistory?.length || 1),
+        'Dernière Visite': profile.lastActivity || '',
+        'Date d\'Inscription': profile.loyalty?.joinDate || '',
+        'Statut': profile.isActive ? 'Actif' : 'Inactif',
+      }));
+
+      await exportCustomerProfiles(exportData);
+      toast.success('Export Excel généré avec succès');
+    } catch (error) {
+      console.error('Erreur lors de l\'export Excel:', error);
+      toast.error('Échec de l\'export Excel');
+    }
+  }, [filteredProfiles, toast]);
+
+  return (
       <Badge className={`${badge.color} flex items-center gap-1`}>
         <IconComponent className="h-3 w-3" />
-        {level} ({points} pts)
+        {level} {points} pts)
       </Badge>
     );
   }, []);
@@ -364,13 +393,13 @@ export default function UserProfileEnhanced() : JSX.Element {
     return new Intl.NumberFormat('fr-FR', {
       style: 'currency',
       currency: 'EUR',
-    )}).format(amount);
+    )}.format(amount);
   };
 
   // Gestion des formulaires
   const handleEditUser = useCallback((user: UserProfile) => {
     setSelectedUser(user);
-    profileForm.reset({
+    profileForm.reset{
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
@@ -380,33 +409,33 @@ export default function UserProfileEnhanced() : JSX.Element {
       postalCode: user.postalCode,
       birthDate: user.birthDate,
       preferences: user.preferences,
-    });
+    };
     setIsEditDialogOpen(true);
   }, [profileForm]);
 
   const handleUpdateUser = useCallback(async (data: z.infer<typeof userProfileSchema>) => {
     if (!selectedUser) return;
     
-    await updateUserMutation.mutateAsync({
+    await updateUserMutation.mutateAsync{
       id: selectedUser.id,
       updates: data,
-    });
+    };
   }, [selectedUser, updateUserMutation]);
 
   const handleAddAddress = useCallback(async (data: z.infer<typeof addressSchema>) => {
     if (!selectedUser) return;
     
-    await addAddressMutation.mutateAsync({
+    await addAddressMutation.mutateAsync{
       userId: selectedUser.id,
       address: { ...data, id: 0, isDefault: false },
-    });
+    };
   }, [selectedUser, addAddressMutation]);
 
   // Fonctions d'impression et export
-  const handlePrint = useReactToPrint({
-    content: (})}) => printRef.current,
+  const handlePrint = useReactToPrint{
+    content: (}} => printRef.current,
     documentTitle: `Profil-${selectedUser?.firstName}-${selectedUser?.lastName}`,
-  });
+  };
 
   const handleExportProfile = useCallback(async () => {
     if (!selectedUser) return;
@@ -430,41 +459,41 @@ export default function UserProfileEnhanced() : JSX.Element {
           'Total dépensé': formatCurrency(selectedUser.loyalty.totalSpent),
           'Nombre de visites': selectedUser.loyalty.visitsCount,
         },
-        'Historique des commandes': selectedUser.orderHistory.map(order => ({
-          'Date': new Date(order.date)}).toLocaleDateString('fr-FR'),
+        'Historique des commandes': selectedUser.orderHistory.map(order => {
+          'Date': new Date(order.date)}.toLocaleDateString('fr-FR'),
           'Montant': formatCurrency(order.amount),
           'Statut': order.status,
-          'Articles': order.items.map(item => `${item.name} (${item.quantity})`).join(', '),
-        });
+          'Articles': order.items.map(item => `${item.name} (${item.quantity}`).join(', '),
+        };
       };
 
-      const wb = XLSX.utils.book_new();
+      const wb = await exportCustomerProfiles(data);
       
       // Feuille informations personnelles
-      const personalWS = XLSX.utils.json_to_sheet([profileData['Informations personnelles']]);
-      XLSX.utils.book_append_sheet(wb, personalWS, 'Informations personnelles');
+      const personalWS = await exportCustomerProfiles(data);
+      // TODO: Remplacé par exportToExcel optimisé;
       
       // Feuille fidélité
-      const loyaltyWS = XLSX.utils.json_to_sheet([profileData['Fidélité']]);
-      XLSX.utils.book_append_sheet(wb, loyaltyWS, 'Fidélité');
+      const loyaltyWS = await exportCustomerProfiles(data);
+      // TODO: Remplacé par exportToExcel optimisé;
       
       // Feuille commandes
-      const ordersWS = XLSX.utils.json_to_sheet(profileData['Historique des commandes']);
-      XLSX.utils.book_append_sheet(wb, ordersWS, 'Commandes');
+      const ordersWS = await exportCustomerProfiles(data);
+      // TODO: Remplacé par exportToExcel optimisé;
       
       const fileName = `profil-${selectedUser.firstName}-${selectedUser.lastName}-${new Date().toISOString().split('T')[0]}.xlsx`;
-      XLSX.writeFile(wb, fileName);
+      await exportCustomerProfiles(data);
       
-      toast({
+      toast{
         title: "Export réussi",
         description: `Le profil a été exporté dans ${fileName}`,
-      });
+      };
     } catch (error) {
-      toast({
+      toast{
         title: "Erreur d'export",
         description: "Impossible d'exporter le profil",
         variant: "destructive",
-      )});
+      )};
     } finally {
       setExporting(false);
     }
@@ -485,7 +514,7 @@ export default function UserProfileEnhanced() : JSX.Element {
     return (
       <div className="text-center py-8">
         <p className="text-red-600">Erreur lors du chargement des profils utilisateurs</p>
-        <Button onClick={() => queryClient.invalidateQueries({ queryKey: ['user-profiles'] })}>
+        <Button onClick={() => queryClient.invalidateQueries{ queryKey: ['user-profiles'] }}>
           Réessayer
         </Button>
       </div>
@@ -503,7 +532,7 @@ export default function UserProfileEnhanced() : JSX.Element {
               Profils Utilisateurs
             </h2>
             <p className="text-gray-600">
-              Gestion avancée des profils clients ({filteredAndSortedUsers.length} utilisateurs)
+              Gestion avancée des profils clients {filteredAndSortedUsers.length} utilisateurs)
             </p>
           </div>
         </div>
@@ -604,7 +633,7 @@ export default function UserProfileEnhanced() : JSX.Element {
               </Button>
             </CardContent>
           </Card>
-        ))}
+        )}
       </div>
 
       {/* Pagination */}
@@ -613,7 +642,7 @@ export default function UserProfileEnhanced() : JSX.Element {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1)}
             disabled={currentPage === 1}
           >
             <ChevronLeft className="h-4 w-4" />
@@ -626,7 +655,7 @@ export default function UserProfileEnhanced() : JSX.Element {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1)}
             disabled={currentPage === totalPages}
           >
             <ChevronRight className="h-4 w-4" />
@@ -785,7 +814,7 @@ export default function UserProfileEnhanced() : JSX.Element {
 
                 <AccordionItem value="orders">
                   <AccordionTrigger className="text-lg font-semibold">
-                    Historique des commandes ({selectedUser.orderHistory.length})
+                    Historique des commandes {selectedUser.orderHistory.length}
                   </AccordionTrigger>
                   <AccordionContent>
                     <div className="space-y-3">
@@ -813,10 +842,10 @@ export default function UserProfileEnhanced() : JSX.Element {
                                 {item.quantity}x {item.name}
                                 {index < order.items.length - 1 ? ', ' : ''}
                               </span>
-                            ))}
+                            )}
                           </div>
                         </div>
-                      ))}
+                      )}
                       {selectedUser.orderHistory.length > 5 && (
                         <p className="text-sm text-gray-600 text-center">
                           ... et {selectedUser.orderHistory.length - 5)} autres commandes
@@ -828,7 +857,7 @@ export default function UserProfileEnhanced() : JSX.Element {
 
                 <AccordionItem value="addresses">
                   <AccordionTrigger className="text-lg font-semibold">
-                    Adresses ({selectedUser.addresses.length})
+                    Adresses {selectedUser.addresses.length}
                   </AccordionTrigger>
                   <AccordionContent>
                     <div className="space-y-3">
@@ -856,7 +885,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
-                      ))}
+                      )}
                       <Button
                         variant="outline"
                         size="sm"
@@ -907,7 +936,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                 <FormField
                   control={profileForm.control}
                   name="firstName"
-                  render={({ field )}) => (
+                  render={{ field )} => (
                     <FormItem>
                       <FormLabel>Prénom</FormLabel>
                       <FormControl>
@@ -920,7 +949,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                 <FormField
                   control={profileForm.control}
                   name="lastName"
-                  render={({ field )}) => (
+                  render={{ field )} => (
                     <FormItem>
                       <FormLabel>Nom</FormLabel>
                       <FormControl>
@@ -936,7 +965,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                 <FormField
                   control={profileForm.control}
                   name="email"
-                  render={({ field )}) => (
+                  render={{ field )} => (
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
@@ -949,7 +978,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                 <FormField
                   control={profileForm.control}
                   name="phone"
-                  render={({ field )}) => (
+                  render={{ field )} => (
                     <FormItem>
                       <FormLabel>Téléphone</FormLabel>
                       <FormControl>
@@ -964,7 +993,7 @@ export default function UserProfileEnhanced() : JSX.Element {
               <FormField
                 control={profileForm.control}
                 name="birthDate"
-                render={({ field )}) => (
+                render={{ field )} => (
                   <FormItem>
                     <FormLabel>Date de naissance</FormLabel>
                     <FormControl>
@@ -981,7 +1010,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                   <FormField
                     control={profileForm.control}
                     name="preferences.emailNotifications"
-                    render={({ field )}) => (
+                    render={{ field )} => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                         <div className="space-y-0.5">
                           <FormLabel>Notifications email</FormLabel>
@@ -998,7 +1027,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                   <FormField
                     control={profileForm.control}
                     name="preferences.smsNotifications"
-                    render={({ field )}) => (
+                    render={{ field )} => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                         <div className="space-y-0.5">
                           <FormLabel>Notifications SMS</FormLabel>
@@ -1043,7 +1072,7 @@ export default function UserProfileEnhanced() : JSX.Element {
               <FormField
                 control={addressForm.control}
                 name="street"
-                render={({ field )}) => (
+                render={{ field )} => (
                   <FormItem>
                     <FormLabel>Adresse</FormLabel>
                     <FormControl>
@@ -1058,7 +1087,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                 <FormField
                   control={addressForm.control}
                   name="city"
-                  render={({ field )}) => (
+                  render={{ field )} => (
                     <FormItem>
                       <FormLabel>Ville</FormLabel>
                       <FormControl>
@@ -1071,7 +1100,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                 <FormField
                   control={addressForm.control}
                   name="postalCode"
-                  render={({ field )}) => (
+                  render={{ field )} => (
                     <FormItem>
                       <FormLabel>Code postal</FormLabel>
                       <FormControl>
@@ -1087,7 +1116,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                 <FormField
                   control={addressForm.control}
                   name="country"
-                  render={({ field )}) => (
+                  render={{ field )} => (
                     <FormItem>
                       <FormLabel>Pays</FormLabel>
                       <FormControl>
@@ -1100,7 +1129,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                 <FormField
                   control={addressForm.control}
                   name="type"
-                  render={({ field )}) => (
+                  render={{ field )} => (
                     <FormItem>
                       <FormLabel>Type</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>

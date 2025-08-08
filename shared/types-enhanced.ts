@@ -253,3 +253,107 @@ export type ActivityLogType = z.infer<typeof ActivityLogSchema>;
 export type CustomerType = z.infer<typeof CustomerSchema>;
 export type MenuItemType = z.infer<typeof MenuItemSchema>;
 export type ReservationType = z.infer<typeof ReservationSchema>;
+
+// Types optimisés pour la gestion d'inventaire avancée
+export interface InventoryData {
+  alerts: InventoryAlert[];
+  statistics: InventoryStatistics;
+  categories: InventoryCategory[];
+  items: InventoryItemEnhanced[];
+  automaticOrders: AutomaticOrder[];
+  movements: InventoryMovement[];
+  suppliers: InventorySupplierEnhanced[];
+  predictions?: InventoryPrediction[];
+}
+
+export interface InventoryAlert {
+  id: string;
+  itemId: string;
+  itemName: string;
+  message: string;
+  priority: 'low' | 'medium' | 'high';
+  type: 'stock_low' | 'expiring' | 'out_of_stock';
+  createdAt: string;
+}
+
+export interface InventoryStatistics {
+  totalValue: number;
+  lowStockItems: number;
+  pendingOrders: number;
+  monthlyConsumption: number;
+  totalItems: number;
+}
+
+export interface InventoryCategory {
+  id: string;
+  name: string;
+  items: InventoryItemEnhanced[];
+}
+
+export interface InventoryItemEnhanced {
+  id: string;
+  name: string;
+  supplier: string;
+  status: 'critical' | 'warning' | 'normal';
+  currentStock: number;
+  minStock: number;
+  maxStock: number;
+  unit: string;
+  daysRemaining?: number;
+  cost: number;
+  categoryId: string;
+}
+
+export interface InventoryMovement {
+  id: string;
+  item: string;
+  type: 'in' | 'out' | 'adjustment';
+  quantity: number;
+  unit: string;
+  reason: string;
+  user: string;
+  date: string;
+}
+
+export interface InventorySupplierEnhanced {
+  id: string;
+  name: string;
+  categories: string[];
+  deliveryTime: string;
+  minimumOrder: number;
+  reliability: number;
+  rating: number;
+  lastOrder: string;
+}
+
+export interface InventoryPrediction {
+  name: string;
+  currentStock: number;
+  predictions: {
+    '7d': { remaining: number };
+    '14d': { remaining: number };
+    '30d': { remaining: number };
+  };
+  recommendations: {
+    urgency: 'high' | 'medium' | 'low';
+    reorderDate: string;
+    reorderQuantity: number;
+    estimatedCost: number;
+  };
+}
+
+export interface AutomaticOrder {
+  id: string;
+  supplierId: string;
+  supplierName: string;
+  items: Array<{
+    itemId: string;
+    itemName: string;
+    quantity: number;
+    unitCost: number;
+  }>;
+  totalCost: number;
+  status: 'pending' | 'approved' | 'ordered' | 'delivered';
+  createdAt: string;
+  estimatedDelivery: string;
+}

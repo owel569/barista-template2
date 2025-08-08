@@ -48,7 +48,12 @@ const StatCard: React.FC<StatCardProps> = ({
   };
 
   const getColorClasses = (colorName: string) => {
-    const colors = {
+    const colors: Record<string, {
+      bg: string;
+      border: string;
+      icon: string;
+      value: string;
+    }> = {
       blue: {
         bg: 'bg-blue-50 dark:bg-blue-950',
         border: 'border-blue-200 dark:border-blue-800',
@@ -116,7 +121,7 @@ const StatCard: React.FC<StatCardProps> = ({
 
   if (loading) {
     return (
-      <Card className={`${colorClasses.bg)} ${colorClasses.border} border`}>
+      <Card className={`${colorClasses?.bg || 'bg-gray-50'} ${colorClasses?.border || 'border-gray-200'} border`}>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
             {title}
@@ -136,17 +141,17 @@ const StatCard: React.FC<StatCardProps> = ({
   }
 
   return (
-    <Card className={`${colorClasses.bg} ${colorClasses.border} border hover:shadow-md transition-shadow duration-200`}>
+    <Card className={`${colorClasses?.bg || 'bg-gray-50'} ${colorClasses?.border || 'border-gray-200'} border hover:shadow-md transition-shadow duration-200`}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
           {title}
         </CardTitle>
         {Icon && (
-          <Icon className={`h-4 w-4 ${colorClasses.icon)}`} aria-hidden="true" />
+          <Icon className={`h-4 w-4 ${colorClasses?.icon || 'text-gray-600'}`} aria-hidden="true" />
         )}
       </CardHeader>
       <CardContent>
-        <div className={`text-2xl font-bold ${colorClasses.value} mb-1`}>
+        <div className={`text-2xl font-bold ${colorClasses?.value || 'text-gray-900'} mb-1`}>
           {formatValue(value)}
         </div>
         
