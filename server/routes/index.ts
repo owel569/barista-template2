@@ -13,6 +13,7 @@ import userProfileRouter from './user-profile';
 import tablesRouter from './tables';
 import databaseRouter from './database.routes';
 import inventoryAdvancedRouter from './inventory-management';
+import dashboardRoutes from './dashboard.routes';
 
 const router = Router();
 const logger = createLogger('MAIN_ROUTES');
@@ -726,6 +727,7 @@ router.use('/user-profile', userProfileRouter);
 router.use('/tables', tablesRouter);
 router.use('/database', databaseRouter);
 router.use('/admin/inventory', inventoryAdvancedRouter);
+router.use('/api/dashboard', dashboardRoutes);
 
 // Route WebSocket endpoint pour connexion
 router.get('/ws', (req, res) => {
