@@ -1,410 +1,442 @@
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DatePicker } from "@/components/ui/date-picker";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { 
+  Card, CardContent, CardDescription, CardHeader, CardTitle 
+} from '@/components/ui/card';
+import { 
+  Button 
+} from '@/components/ui/button';
+import { 
+  Input 
+} from '@/components/ui/input';
+import { 
+  Badge 
+} from '@/components/ui/badge';
+import { 
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow 
+} from '@/components/ui/table';
+import { 
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue 
+} from '@/components/ui/select';
+import { 
+  Tabs, TabsContent, TabsList, TabsTrigger 
+} from '@/components/ui/tabs';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { 
   Activity, 
-  Search, 
   User, 
-  ChevronLeft, 
-  ChevronRight, 
-  Download, 
-  Filter,
-  RefreshCw,
+  Settings, 
+  ShoppingCart, 
+  Calendar,
   AlertTriangle,
   CheckCircle,
-  Info,
+  Clock,
+  Search,
+  Filter,
+  Download,
+  RefreshCw,
+  Eye,
   Shield,
   Database,
-  Settings,
-  Eye,
-  Trash2
-} from "lucide-react";
-import { format, subDays, isValid } from "date-fns";
-import { fr } from "date-fns/locale";
+  Bell,
+  Trash2,
+  Lock,
+  Unlock,
+  Edit,
+  Plus,
+  Minus
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { format, subDays, startOfDay, endOfDay } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
+// Types
 interface ActivityLog {
-  id: number;
-  userId: number;
-  userName?: string;
-  userRole?: string;
+  id: string;
+  timestamp: Date;
+  userId: string;
+  userName: string;
+  userRole: string;
   action: string;
-  module: string;
-  details?: string;
-  metadata?: Record<string, unknown>;
-  ipAddress?: string;
+  category: ActivityCategory;
+  description: string;
+  severity: 'info' | 'warning' | 'error' | 'success';
+  ipAddress: string;
   userAgent?: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  createdAt: string;
+  metadata?: Record<string, unknown>;
+  affectedResource?: string;
+  previousValue?: string;
+  newValue?: string;
 }
 
-interface LogFilter {
-  search: string;
-  action: string;
-  module: string;
-  user: string;
-  severity: string;
-  startDate?: Date;
-  endDate?: Date;
+type ActivityCategory = 
+  | 'auth'
+  | 'user_management' 
+  | 'menu'
+  | 'order'
+  | 'reservation'
+  | 'settings'
+  | 'security'
+  | 'system';
+
+interface ActivityFilter {
+  category: ActivityCategory | 'all';
+  severity: ActivityLog['severity'] | 'all';
+  userId: string;
+  dateRange: {
+    start: Date;
+    end: Date;
+  };
+  searchTerm: string;
 }
 
-interface LogStats {
-  totalLogs: number;
-  todayLogs: number;
-  criticalAlerts: number;
-  uniqueUsers: number;
-  topActions: Array<{ action: string; count: number }>;
-  severityDistribution: Record<string, number>;
-}
+const CATEGORY_CONFIG = {
+  auth: { label: 'Authentification', icon: Lock, color: 'blue' },
+  user_management: { label: 'Gestion Utilisateurs', icon: User, color: 'green' },
+  menu: { label: 'Menu', icon: ShoppingCart, color: 'orange' },
+  order: { label: 'Commandes', icon: ShoppingCart, color: 'purple' },
+  reservation: { label: 'Réservations', icon: Calendar, color: 'indigo' },
+  settings: { label: 'Paramètres', icon: Settings, color: 'gray' },
+  security: { label: 'Sécurité', icon: Shield, color: 'red' },
+  system: { label: 'Système', icon: Database, color: 'cyan' }
+} as const;
 
-// Configuration des styles et icônes par type d'action
-const actionConfig: Record<string, { 
-  color: string; 
-  icon: React.ComponentType<{ className?: string }>; 
-  label: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-}> = {
-  LOGIN: { 
-    color: 'bg-green-100 text-green-800', 
-    icon: User, 
-    label: 'Connexion',
-    severity: 'low'
-  },
-  LOGOUT: { 
-    color: 'bg-gray-100 text-gray-800', 
-    icon: User, 
-    label: 'Déconnexion',
-    severity: 'low'
-  },
-  CREATE: { 
-    color: 'bg-blue-100 text-blue-800', 
-    icon: CheckCircle, 
-    label: 'Création',
-    severity: 'medium'
-  },
-  UPDATE: { 
-    color: 'bg-yellow-100 text-yellow-800', 
-    icon: Settings, 
-    label: 'Modification',
-    severity: 'medium'
-  },
-  DELETE: { 
-    color: 'bg-red-100 text-red-800', 
-    icon: Trash2, 
-    label: 'Suppression',
-    severity: 'high'
-  },
-  VIEW: { 
-    color: 'bg-purple-100 text-purple-800', 
-    icon: Eye, 
-    label: 'Consultation',
-    severity: 'low'
-  },
-  ERROR: { 
-    color: 'bg-red-100 text-red-800', 
-    icon: AlertTriangle, 
-    label: 'Erreur',
-    severity: 'critical'
-  },
-  SECURITY: { 
-    color: 'bg-orange-100 text-orange-800', 
-    icon: Shield, 
-    label: 'Sécurité',
-    severity: 'critical'
-  },
-  BACKUP: { 
-    color: 'bg-indigo-100 text-indigo-800', 
-    icon: Database, 
-    label: 'Sauvegarde',
-    severity: 'medium'
-  }
-};
-
-const MODULES = [
-  'Auth', 'Users', 'Orders', 'Menu', 'Inventory', 
-  'Reports', 'Settings', 'Payments', 'Analytics', 'System'
-];
-
-const SEVERITIES = [
-  { value: 'low', label: 'Faible', color: 'bg-green-100 text-green-800' },
-  { value: 'medium', label: 'Moyen', color: 'bg-yellow-100 text-yellow-800' },
-  { value: 'high', label: 'Élevé', color: 'bg-orange-100 text-orange-800' },
-  { value: 'critical', label: 'Critique', color: 'bg-red-100 text-red-800' }
-];
+const SEVERITY_CONFIG = {
+  info: { label: 'Info', color: 'blue', icon: CheckCircle },
+  success: { label: 'Succès', color: 'green', icon: CheckCircle },
+  warning: { label: 'Attention', color: 'yellow', icon: AlertTriangle },
+  error: { label: 'Erreur', color: 'red', icon: AlertTriangle }
+} as const;
 
 export default function ActivityLogs(): JSX.Element {
-  const [filters, setFilters] = useState<LogFilter>({
-    search: '',
-    action: 'all',
-    module: 'all',
-    user: 'all',
-    severity: 'all',
-    startDate: subDays(new Date(), 7),
-    endDate: new Date()
-  });
-  
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(25);
-  const [selectedLogs, setSelectedLogs] = useState<number[]>([]);
-
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  // Récupération des données
-  const { 
-    data: logsResponse, 
-    isLoading: logsLoading, 
-    error: logsError 
-  } = useQuery({
-    queryKey: ['/api/admin/activity-logs', filters, page, pageSize],
-    queryFn: async () => {
-      const params = new URLSearchParams({
-        page: page.toString(),
-        limit: pageSize.toString(),
-        search: filters.search,
-        action: filters.action,
-        module: filters.module,
-        user: filters.user,
-        severity: filters.severity,
-        ...(filters.startDate && { startDate: filters.startDate.toISOString() }),
-        ...(filters.endDate && { endDate: filters.endDate.toISOString() })
-      });
-
-      const response = await fetch(`/api/admin/activity-logs?${params.toString()}`);
-      if (!response.ok) throw new Error('Erreur lors du chargement des logs');
-      return response.json();
+  
+  // États
+  const [logs, setLogs] = useState<ActivityLog[]>([]);
+  const [filteredLogs, setFilteredLogs] = useState<ActivityLog[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedLog, setSelectedLog] = useState<ActivityLog | null>(null);
+  const [isRealTimeEnabled, setIsRealTimeEnabled] = useState(true);
+  
+  const [filters, setFilters] = useState<ActivityFilter>({
+    category: 'all',
+    severity: 'all',
+    userId: '',
+    dateRange: {
+      start: subDays(new Date(), 7),
+      end: new Date()
     },
-    retry: 2,
-    staleTime: 30000
+    searchTerm: ''
   });
 
-  const { data: stats } = useQuery<LogStats>({
-    queryKey: ['/api/admin/activity-logs/stats'],
-    queryFn: async () => {
-      const response = await fetch('/api/admin/activity-logs/stats');
-      if (!response.ok) throw new Error('Erreur lors du chargement des statistiques');
-      return response.json();
-    },
-    refetchInterval: 60000
-  });
-
-  // Mutation pour l'export
-  const exportMutation = useMutation({
-    mutationFn: async (format: 'csv' | 'excel' | 'json') => {
-      const params = new URLSearchParams({
-        format,
-        ...filters,
-        startDate: filters.startDate?.toISOString() || '',
-        endDate: filters.endDate?.toISOString() || ''
-      });
+  // Simulation de données en temps réel
+  useEffect(() => {
+    loadActivityLogs();
+    
+    if (isRealTimeEnabled) {
+      const interval = setInterval(() => {
+        generateMockActivity();
+      }, 30000); // Nouvelle activité toutes les 30 secondes
       
-      const response = await fetch(`/api/admin/activity-logs/export?${params}`);
-      if (!response.ok) throw new Error('Erreur lors de l\'export');
-      
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `activity-logs-${format}-${new Date().toISOString().split('T')[0]}.${format}`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    },
-    onSuccess: () => {
-      toast({
-        title: "Export réussi",
-        description: "Le fichier a été téléchargé avec succès",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Erreur d'export",
-        description: error.message,
-        variant: "destructive",
-      });
+      return () => clearInterval(interval);
     }
-  });
+  }, [isRealTimeEnabled]);
 
-  // Gestionnaires d'événements optimisés
-  const handleFilterChange = useCallback((key: keyof LogFilter, value: string | Date) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
-    setPage(1); // Reset à la première page
-  }, []);
+  // Filtrage des logs
+  useEffect(() => {
+    const filtered = logs.filter(log => {
+      const matchesCategory = filters.category === 'all' || log.category === filters.category;
+      const matchesSeverity = filters.severity === 'all' || log.severity === filters.severity;
+      const matchesUser = !filters.userId || log.userId.includes(filters.userId);
+      const matchesDate = log.timestamp >= startOfDay(filters.dateRange.start) && 
+                         log.timestamp <= endOfDay(filters.dateRange.end);
+      const matchesSearch = !filters.searchTerm || 
+        log.description.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+        log.userName.toLowerCase().includes(filters.searchTerm.toLowerCase());
+        
+      return matchesCategory && matchesSeverity && matchesUser && matchesDate && matchesSearch;
+    });
+    
+    setFilteredLogs(filtered.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()));
+  }, [logs, filters]);
 
-  const handleBulkAction = useCallback(async (action: string) => {
-    if (selectedLogs.length === 0) {
-      toast({
-        title: "Aucune sélection",
-        description: "Veuillez sélectionner des logs",
-        variant: "destructive",
-      });
-      return;
-    }
-
+  const loadActivityLogs = async (): Promise<void> => {
     try {
-      const response = await fetch('/api/admin/activity-logs/bulk', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action, logIds: selectedLogs })
-      });
-
-      if (!response.ok) throw new Error('Erreur lors de l\'action groupée');
-
-      toast({
-        title: "Action réussie",
-        description: `${action} appliqué à ${selectedLogs.length} logs`,
-      });
-
-      setSelectedLogs([]);
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/activity-logs'] });
+      setIsLoading(true);
+      
+      // Simulation de données réelles
+      const mockLogs: ActivityLog[] = [
+        {
+          id: '1',
+          timestamp: new Date(),
+          userId: 'admin-123',
+          userName: 'Admin Système',
+          userRole: 'admin',
+          action: 'LOGIN',
+          category: 'auth',
+          description: 'Connexion administrateur réussie',
+          severity: 'success',
+          ipAddress: '192.168.1.100',
+          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        },
+        {
+          id: '2',
+          timestamp: new Date(Date.now() - 300000),
+          userId: 'user-456',
+          userName: 'Marie Dubois',
+          userRole: 'manager',
+          action: 'UPDATE_MENU',
+          category: 'menu',
+          description: 'Modification du prix du café expresso',
+          severity: 'info',
+          ipAddress: '192.168.1.101',
+          affectedResource: 'menu_item_15',
+          previousValue: '2.50€',
+          newValue: '2.80€'
+        },
+        {
+          id: '3',
+          timestamp: new Date(Date.now() - 600000),
+          userId: 'user-789',
+          userName: 'Jean Martin',
+          userRole: 'employee',
+          action: 'FAILED_LOGIN',
+          category: 'security',
+          description: 'Tentative de connexion échouée - mot de passe incorrect',
+          severity: 'warning',
+          ipAddress: '192.168.1.102'
+        },
+        {
+          id: '4',
+          timestamp: new Date(Date.now() - 900000),
+          userId: 'system',
+          userName: 'Système',
+          userRole: 'system',
+          action: 'BACKUP_COMPLETED',
+          category: 'system',
+          description: 'Sauvegarde automatique de la base de données terminée',
+          severity: 'success',
+          ipAddress: '127.0.0.1'
+        }
+      ];
+      
+      setLogs(mockLogs);
     } catch (error) {
       toast({
         title: "Erreur",
-        description: error instanceof Error ? error.message : "Action échouée",
+        description: "Impossible de charger les journaux d'activité",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const generateMockActivity = (): void => {
+    const activities = [
+      {
+        action: 'ORDER_CREATED',
+        category: 'order' as ActivityCategory,
+        description: 'Nouvelle commande créée',
+        severity: 'info' as const,
+        userId: 'customer-' + Math.floor(Math.random() * 1000),
+        userName: 'Client ' + Math.floor(Math.random() * 1000)
+      },
+      {
+        action: 'RESERVATION_CONFIRMED',
+        category: 'reservation' as ActivityCategory,
+        description: 'Réservation confirmée pour ce soir',
+        severity: 'success' as const,
+        userId: 'manager-' + Math.floor(Math.random() * 10),
+        userName: 'Manager ' + Math.floor(Math.random() * 10)
+      },
+      {
+        action: 'INVENTORY_LOW',
+        category: 'system' as ActivityCategory,
+        description: 'Stock faible détecté - Grains de café',
+        severity: 'warning' as const,
+        userId: 'system',
+        userName: 'Système'
+      }
+    ];
+
+    const activity = activities[Math.floor(Math.random() * activities.length)];
+    const newLog: ActivityLog = {
+      id: Date.now().toString(),
+      timestamp: new Date(),
+      userRole: 'employee',
+      ipAddress: `192.168.1.${Math.floor(Math.random() * 255)}`,
+      ...activity
+    };
+
+    setLogs(prev => [newLog, ...prev].slice(0, 1000)); // Garder seulement les 1000 derniers logs
+  };
+
+  const exportLogs = useCallback((): void => {
+    try {
+      const dataToExport = filteredLogs.map(log => ({
+        Timestamp: format(log.timestamp, 'yyyy-MM-dd HH:mm:ss'),
+        Utilisateur: log.userName,
+        Rôle: log.userRole,
+        Action: log.action,
+        Catégorie: CATEGORY_CONFIG[log.category].label,
+        Description: log.description,
+        Sévérité: SEVERITY_CONFIG[log.severity].label,
+        'Adresse IP': log.ipAddress
+      }));
+
+      const csvContent = [
+        Object.keys(dataToExport[0] || {}).join(','),
+        ...dataToExport.map(row => Object.values(row).join(','))
+      ].join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `activity-logs-${format(new Date(), 'yyyy-MM-dd')}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "Export réussi",
+        description: "Les journaux ont été exportés avec succès",
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur d'export",
+        description: "Impossible d'exporter les journaux",
         variant: "destructive",
       });
     }
-  }, [selectedLogs, toast, queryClient]);
+  }, [filteredLogs, toast]);
 
-  const handleRefresh = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: ['/api/admin/activity-logs'] });
-    toast({
-      title: "Actualisation",
-      description: "Données mises à jour",
-    });
-  }, [queryClient, toast]);
+  const clearOldLogs = useCallback(async (): Promise<void> => {
+    try {
+      const thirtyDaysAgo = subDays(new Date(), 30);
+      const filteredLogs = logs.filter(log => log.timestamp >= thirtyDaysAgo);
+      setLogs(filteredLogs);
+      
+      toast({
+        title: "Nettoyage effectué",
+        description: `${logs.length - filteredLogs.length} anciens journaux supprimés`,
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de nettoyer les journaux",
+        variant: "destructive",
+      });
+    }
+  }, [logs, toast]);
 
-  // Formatage de date sécurisé
-  const formatDate = useCallback((dateString?: string) => {
-    if (!dateString) return 'Date invalide';
-    const date = new Date(dateString);
-    if (!isValid(date)) return 'Date invalide';
-    return format(date, 'dd/MM/yyyy HH:mm:ss', { locale: fr });
-  }, []);
+  const getSeverityBadgeVariant = (severity: ActivityLog['severity']) => {
+    switch (severity) {
+      case 'success': return 'default';
+      case 'info': return 'secondary';
+      case 'warning': return 'outline';
+      case 'error': return 'destructive';
+      default: return 'secondary';
+    }
+  };
 
-  // Données dérivées
-  const logs = logsResponse?.data || [];
-  const total = logsResponse?.total || 0;
-  const totalPages = Math.ceil(total / pageSize);
-
-  const filteredStats = useMemo(() => {
-    if (!stats) return null;
-    return {
-      ...stats,
-      filteredCount: total
-    };
-  }, [stats, total]);
-
-  if (logsError) {
+  if (isLoading) {
     return (
-      <Alert variant="destructive">
-        <AlertTriangle className="h-4 w-4" />
-        <AlertDescription>
-          Erreur lors du chargement des logs: {logsError instanceof Error ? logsError.message : 'Erreur inconnue'}
-        </AlertDescription>
-      </Alert>
+      <div className="flex items-center justify-center h-96">
+        <RefreshCw className="h-8 w-8 animate-spin" />
+      </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* En-tête avec statistiques */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="h-5 w-5" />
-              Logs d'activité
-            </CardTitle>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleRefresh}
-                disabled={logsLoading}
-              >
-                <RefreshCw className={`h-4 w-4 mr-2 ${logsLoading ? 'animate-spin' : ''}`} />
-                Actualiser
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => exportMutation.mutate('excel')}
-                disabled={exportMutation.isPending}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Exporter
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        
-        {filteredStats && (
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center">
-                <p className="text-2xl font-bold">{filteredStats.totalLogs.toLocaleString()}</p>
-                <p className="text-sm text-muted-foreground">Total logs</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-green-600">{filteredStats.todayLogs}</p>
-                <p className="text-sm text-muted-foreground">Aujourd'hui</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-red-600">{filteredStats.criticalAlerts}</p>
-                <p className="text-sm text-muted-foreground">Critiques</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-blue-600">{filteredStats.uniqueUsers}</p>
-                <p className="text-sm text-muted-foreground">Utilisateurs</p>
-              </div>
-            </div>
-          </CardContent>
-        )}
-      </Card>
+    <div className="space-y-6 p-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold">Journaux d'Activité</h1>
+          <p className="text-muted-foreground">
+            Surveillance et audit des activités système
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant={isRealTimeEnabled ? "default" : "outline"}
+            onClick={() => setIsRealTimeEnabled(!isRealTimeEnabled)}
+          >
+            <Activity className="h-4 w-4 mr-2" />
+            Temps réel {isRealTimeEnabled ? 'ON' : 'OFF'}
+          </Button>
+          <Button onClick={exportLogs} variant="outline">
+            <Download className="h-4 w-4 mr-2" />
+            Exporter
+          </Button>
+          <Button onClick={loadActivityLogs} variant="outline">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Actualiser
+          </Button>
+        </div>
+      </div>
+
+      {/* Statistiques rapides */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {Object.entries(SEVERITY_CONFIG).map(([severity, config]) => {
+          const count = filteredLogs.filter(log => log.severity === severity).length;
+          return (
+            <Card key={severity}>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">{config.label}</p>
+                    <p className="text-2xl font-bold">{count}</p>
+                  </div>
+                  <config.icon className={`h-8 w-8 text-${config.color}-600`} />
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
 
       <Tabs defaultValue="logs" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="logs">Logs d'activité</TabsTrigger>
+          <TabsTrigger value="logs">Journaux</TabsTrigger>
           <TabsTrigger value="analytics">Analyses</TabsTrigger>
-          <TabsTrigger value="security">Sécurité</TabsTrigger>
+          <TabsTrigger value="settings">Paramètres</TabsTrigger>
         </TabsList>
 
         <TabsContent value="logs" className="space-y-4">
-          {/* Filtres avancés */}
+          {/* Filtres */}
           <Card>
             <CardContent className="p-4">
-              <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div className="relative">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <Input
                     placeholder="Rechercher..."
-                    className="pl-8"
-                    value={filters.search}
-                    onChange={(e) => handleFilterChange('search', e.target.value)}
+                    value={filters.searchTerm}
+                    onChange={(e) => setFilters(prev => ({ ...prev, searchTerm: e.target.value }))}
+                    className="pl-10"
                   />
                 </div>
-
+                
                 <Select 
-                  value={filters.action} 
-                  onValueChange={(val) => handleFilterChange('action', val)}
+                  value={filters.category} 
+                  onValueChange={(value: ActivityCategory | 'all') => 
+                    setFilters(prev => ({ ...prev, category: value }))}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Action" />
+                    <SelectValue placeholder="Catégorie" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Toutes les actions</SelectItem>
-                    {Object.entries(actionConfig).map(([key, config]) => (
+                    <SelectItem value="all">Toutes les catégories</SelectItem>
+                    {Object.entries(CATEGORY_CONFIG).map(([key, config]) => (
                       <SelectItem key={key} value={key}>
                         {config.label}
                       </SelectItem>
@@ -413,312 +445,233 @@ export default function ActivityLogs(): JSX.Element {
                 </Select>
 
                 <Select 
-                  value={filters.module} 
-                  onValueChange={(val) => handleFilterChange('module', val)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Module" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tous les modules</SelectItem>
-                    {MODULES.map((module) => (
-                      <SelectItem key={module} value={module}>
-                        {module}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                <Select 
                   value={filters.severity} 
-                  onValueChange={(val) => handleFilterChange('severity', val)}
+                  onValueChange={(value: ActivityLog['severity'] | 'all') => 
+                    setFilters(prev => ({ ...prev, severity: value }))}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Gravité" />
+                    <SelectValue placeholder="Sévérité" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Toutes gravités</SelectItem>
-                    {SEVERITIES.map((severity) => (
-                      <SelectItem key={severity.value} value={severity.value}>
-                        {severity.label}
+                    <SelectItem value="all">Toutes les sévérités</SelectItem>
+                    {Object.entries(SEVERITY_CONFIG).map(([key, config]) => (
+                      <SelectItem key={key} value={key}>
+                        {config.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
 
-                <DatePicker
-                  date={filters.startDate}
-                  onDateChange={(date) => handleFilterChange('startDate', date || new Date())}
-                  placeholder="Date début"
+                <Input
+                  placeholder="ID Utilisateur"
+                  value={filters.userId}
+                  onChange={(e) => setFilters(prev => ({ ...prev, userId: e.target.value }))}
                 />
 
-                <DatePicker
-                  date={filters.endDate}
-                  onDateChange={(date) => handleFilterChange('endDate', date || new Date())}
-                  placeholder="Date fin"
-                />
+                <Button onClick={clearOldLogs} variant="outline">
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Nettoyer
+                </Button>
               </div>
-
-              {selectedLogs.length > 0 && (
-                <div className="flex items-center gap-2 mt-4 p-2 bg-blue-50 rounded">
-                  <span className="text-sm">{selectedLogs.length} logs sélectionnés</span>
-                  <Button size="sm" variant="outline" onClick={() => handleBulkAction('archive')}>
-                    Archiver
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    onClick={() => handleBulkAction('delete')}
-                    className="text-red-600"
-                  >
-                    Supprimer
-                  </Button>
-                </div>
-              )}
             </CardContent>
           </Card>
 
-          {/* Tableau des logs */}
-          <Card>
-            <CardContent>
-              {logsLoading ? (
-                <div className="flex items-center justify-center h-32">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-                  <span className="ml-2">Chargement...</span>
-                </div>
-              ) : logs.length === 0 ? (
-                <div className="text-center py-8">
-                  <Info className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-lg font-medium">Aucun log trouvé</p>
-                  <p className="text-muted-foreground">
-                    Essayez de modifier vos filtres de recherche
-                  </p>
-                </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-12">
-                        <input
-                          type="checkbox"
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedLogs(logs.map(log => log.id));
-                            } else {
-                              setSelectedLogs([]);
-                            }
-                          }}
-                          checked={selectedLogs.length === logs.length && logs.length > 0}
-                        />
-                      </TableHead>
-                      <TableHead>Utilisateur</TableHead>
-                      <TableHead>Action</TableHead>
-                      <TableHead>Module</TableHead>
-                      <TableHead>Détails</TableHead>
-                      <TableHead>Gravité</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>IP</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {logs.map((log) => {
-                      const config = actionConfig[log.action] || actionConfig.VIEW;
-                      const severityConfig = SEVERITIES.find(s => s.value === log.severity) || SEVERITIES[0];
-                      const IconComponent = config.icon;
-                      
-                      return (
-                        <TableRow key={log.id} className="hover:bg-muted/50">
-                          <TableCell>
-                            <input
-                              type="checkbox"
-                              checked={selectedLogs.includes(log.id)}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  setSelectedLogs([...selectedLogs, log.id]);
-                                } else {
-                                  setSelectedLogs(selectedLogs.filter(id => id !== log.id));
-                                }
-                              }}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <div>
-                              <p className="font-medium">{log.userName || `User ${log.userId}`}</p>
-                              {log.userRole && (
-                                <Badge variant="outline" className="text-xs">
-                                  {log.userRole}
-                                </Badge>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge className={config.color}>
-                              <div className="flex items-center gap-1">
-                                <IconComponent className="h-3 w-3" />
-                                <span>{config.label}</span>
-                              </div>
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="outline">{log.module}</Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="max-w-xs truncate" title={log.details}>
-                              {log.details || "-"}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge className={severityConfig.color}>
-                              {severityConfig.label}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="font-mono text-sm">
-                            {formatDate(log.createdAt)}
-                          </TableCell>
-                          <TableCell className="font-mono text-xs">
-                            {log.ipAddress || '-'}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              )}
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex items-center justify-between mt-4">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm text-muted-foreground">
-                      Affichage de {((page - 1) * pageSize) + 1} à {Math.min(page * pageSize, total)} sur {total} logs
-                    </span>
-                    <Select value={pageSize.toString()} onValueChange={(val) => setPageSize(Number(val))}>
-                      <SelectTrigger className="w-20">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="10">10</SelectItem>
-                        <SelectItem value="25">25</SelectItem>
-                        <SelectItem value="50">50</SelectItem>
-                        <SelectItem value="100">100</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={page === 1}
-                      onClick={() => setPage(p => p - 1)}
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                      Précédent
-                    </Button>
-                    
-                    <div className="flex items-center space-x-1">
-                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                        const pageNum = i + Math.max(1, page - 2);
-                        return (
-                          <Button
-                            key={pageNum}
-                            variant={pageNum === page ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setPage(pageNum)}
-                            className="w-8 h-8 p-0"
-                          >
-                            {pageNum}
-                          </Button>
-                        );
-                      })}
-                    </div>
-                    
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={page === totalPages}
-                      onClick={() => setPage(p => p + 1)}
-                    >
-                      Suivant
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="analytics">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Actions les plus fréquentes</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {stats?.topActions?.map((item, index) => (
-                    <div key={item.action} className="flex items-center justify-between p-2 rounded bg-muted">
-                      <span className="font-medium">{actionConfig[item.action]?.label || item.action}</span>
-                      <Badge variant="secondary">{item.count}</Badge>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Répartition par gravité</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {stats?.severityDistribution && Object.entries(stats.severityDistribution).map(([severity, count]) => {
-                    const config = SEVERITIES.find(s => s.value === severity);
-                    return (
-                      <div key={severity} className="flex items-center justify-between p-2 rounded bg-muted">
-                        <Badge className={config?.color}>{config?.label}</Badge>
-                        <span className="font-bold">{count}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="security">
+          {/* Table des logs */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5" />
-                Alertes de sécurité
-              </CardTitle>
+              <CardTitle>Journaux d'Activité ({filteredLogs.length})</CardTitle>
+              <CardDescription>
+                Activités récentes du système et des utilisateurs
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Timestamp</TableHead>
+                    <TableHead>Utilisateur</TableHead>
+                    <TableHead>Catégorie</TableHead>
+                    <TableHead>Action</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Sévérité</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredLogs.slice(0, 50).map((log) => {
+                    const categoryConfig = CATEGORY_CONFIG[log.category];
+                    const CategoryIcon = categoryConfig.icon;
+                    
+                    return (
+                      <TableRow key={log.id}>
+                        <TableCell>
+                          <div className="text-xs text-muted-foreground">
+                            {format(log.timestamp, 'dd/MM/yyyy', { locale: fr })}
+                          </div>
+                          <div className="text-sm">
+                            {format(log.timestamp, 'HH:mm:ss', { locale: fr })}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <User className="h-4 w-4 text-muted-foreground" />
+                            <div>
+                              <div className="text-sm font-medium">{log.userName}</div>
+                              <div className="text-xs text-muted-foreground">{log.userRole}</div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <CategoryIcon className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm">{categoryConfig.label}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <code className="text-xs bg-gray-100 px-2 py-1 rounded">
+                            {log.action}
+                          </code>
+                        </TableCell>
+                        <TableCell className="max-w-xs">
+                          <div className="text-sm truncate" title={log.description}>
+                            {log.description}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={getSeverityBadgeVariant(log.severity)}>
+                            {SEVERITY_CONFIG[log.severity].label}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => setSelectedLog(log)}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="analytics" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Analyses d'Activité</CardTitle>
+              <CardDescription>Tendances et statistiques des journaux</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <Activity className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">
+                  Analyses avancées en cours de développement
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="settings" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Configuration des Journaux</CardTitle>
+              <CardDescription>Paramètres de rétention et d'archivage</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {logs.filter(log => log.severity === 'critical' || log.action === 'SECURITY').map((log) => (
-                  <Alert key={log.id} variant="destructive">
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertDescription>
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="font-medium">{log.details}</p>
-                          <p className="text-sm">
-                            Utilisateur: {log.userName} - {formatDate(log.createdAt)}
-                          </p>
-                        </div>
-                        <Badge variant="destructive">Critique</Badge>
-                      </div>
-                    </AlertDescription>
-                  </Alert>
-                ))}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium">Journaux en temps réel</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Afficher les nouvelles activités automatiquement
+                    </p>
+                  </div>
+                  <Button
+                    variant={isRealTimeEnabled ? "default" : "outline"}
+                    onClick={() => setIsRealTimeEnabled(!isRealTimeEnabled)}
+                  >
+                    {isRealTimeEnabled ? <Unlock className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Dialog détails du log */}
+      <Dialog open={!!selectedLog} onOpenChange={() => setSelectedLog(null)}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Détails de l'Activité</DialogTitle>
+            <DialogDescription>
+              Informations complètes sur l'événement sélectionné
+            </DialogDescription>
+          </DialogHeader>
+          {selectedLog && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="font-medium">Timestamp</Label>
+                  <p className="text-sm">{format(selectedLog.timestamp, 'dd/MM/yyyy HH:mm:ss', { locale: fr })}</p>
+                </div>
+                <div>
+                  <Label className="font-medium">Sévérité</Label>
+                  <div className="mt-1">
+                    <Badge variant={getSeverityBadgeVariant(selectedLog.severity)}>
+                      {SEVERITY_CONFIG[selectedLog.severity].label}
+                    </Badge>
+                  </div>
+                </div>
+                <div>
+                  <Label className="font-medium">Utilisateur</Label>
+                  <p className="text-sm">{selectedLog.userName} ({selectedLog.userRole})</p>
+                </div>
+                <div>
+                  <Label className="font-medium">Catégorie</Label>
+                  <p className="text-sm">{CATEGORY_CONFIG[selectedLog.category].label}</p>
+                </div>
+                <div>
+                  <Label className="font-medium">Action</Label>
+                  <p className="text-sm font-mono bg-gray-100 px-2 py-1 rounded">{selectedLog.action}</p>
+                </div>
+                <div>
+                  <Label className="font-medium">Adresse IP</Label>
+                  <p className="text-sm">{selectedLog.ipAddress}</p>
+                </div>
+              </div>
+              <div>
+                <Label className="font-medium">Description</Label>
+                <p className="text-sm mt-1">{selectedLog.description}</p>
+              </div>
+              {selectedLog.affectedResource && (
+                <div>
+                  <Label className="font-medium">Ressource Affectée</Label>
+                  <p className="text-sm mt-1">{selectedLog.affectedResource}</p>
+                </div>
+              )}
+              {selectedLog.previousValue && selectedLog.newValue && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="font-medium">Ancienne Valeur</Label>
+                    <p className="text-sm mt-1">{selectedLog.previousValue}</p>
+                  </div>
+                  <div>
+                    <Label className="font-medium">Nouvelle Valeur</Label>
+                    <p className="text-sm mt-1">{selectedLog.newValue}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

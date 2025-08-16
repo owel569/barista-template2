@@ -1,444 +1,490 @@
 
-import React, { useState, useMemo, useCallback, memo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { 
+  Card, CardContent, CardDescription, CardHeader, CardTitle 
+} from '@/components/ui/card';
+import { 
+  Button 
+} from '@/components/ui/button';
+import { 
+  Input 
+} from '@/components/ui/input';
+import { 
+  Label 
+} from '@/components/ui/label';
+import { 
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue 
+} from '@/components/ui/select';
+import { 
+  Tabs, TabsContent, TabsList, TabsTrigger 
+} from '@/components/ui/tabs';
+import { 
+  Badge 
+} from '@/components/ui/badge';
+import { 
+  Progress 
+} from '@/components/ui/progress';
+import { 
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow 
+} from '@/components/ui/table';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { 
   Calculator, 
   TrendingUp, 
+  TrendingDown, 
   DollarSign, 
-  FileText, 
+  CreditCard,
+  Receipt,
+  FileText,
   Download,
-  Plus, 
-  Edit,
-  Trash2,
-  Calendar,
-  PieChart,
-  BarChart3,
+  Upload,
+  Settings,
   AlertTriangle,
   CheckCircle,
-  Clock
+  Clock,
+  Calendar,
+  Filter,
+  Search,
+  Plus,
+  Trash2,
+  Edit,
+  Eye,
+  RefreshCw
 } from 'lucide-react';
-import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
+import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
-// Types pour le système comptable
+// Types
 interface Transaction {
   id: string;
-  date: string;
-  description: string;
-  amount: number;
   type: 'income' | 'expense';
   category: string;
-  paymentMethod: string;
-  reference?: string;
+  amount: number;
+  description: string;
+  date: Date;
   status: 'pending' | 'completed' | 'cancelled';
-  createdBy: string;
+  paymentMethod: 'cash' | 'card' | 'transfer' | 'check';
+  reference?: string;
+  attachments?: string[];
 }
 
-interface Account {
+interface BudgetCategory {
   id: string;
   name: string;
-  type: 'asset' | 'liability' | 'equity' | 'revenue' | 'expense';
-  balance: number;
-  currency: string;
-  description?: string;
+  allocated: number;
+  spent: number;
+  type: 'income' | 'expense';
 }
 
 interface FinancialReport {
-  id: string;
-  name: string;
-  type: 'profit_loss' | 'balance_sheet' | 'cash_flow';
-  period: {
-    startDate: string;
-    endDate: string;
-  };
-  data: Record<string, number>;
-  generatedAt: string;
-}
-
-interface AccountingStats {
-  totalRevenue: number;
+  period: string;
+  totalIncome: number;
   totalExpenses: number;
   netProfit: number;
-  cashFlow: number;
-  monthlyGrowth: number;
-  pendingTransactions: number;
+  profitMargin: number;
+  topCategories: Array<{
+    category: string;
+    amount: number;
+    percentage: number;
+  }>;
 }
 
-const CATEGORIES = {
-  income: [
-    'Ventes - Boissons',
-    'Ventes - Nourriture',
-    'Services - Livraisons',
-    'Autres revenus'
-  ],
-  expense: [
-    'Achats - Matières premières',
-    'Salaires et charges',
-    'Loyer et charges',
-    'Marketing',
-    'Équipements',
-    'Maintenance',
-    'Autres dépenses'
-  ]
-};
+const EXPENSE_CATEGORIES = [
+  'Ingrédients',
+  'Personnel',
+  'Loyer',
+  'Électricité',
+  'Eau',
+  'Marketing',
+  'Équipement',
+  'Maintenance',
+  'Assurance',
+  'Licences',
+  'Autres'
+] as const;
 
-const PAYMENT_METHODS = [
-  'Espèces',
-  'Carte bancaire',
-  'Virement',
-  'Chèque',
-  'Paiement mobile'
-];
+const INCOME_CATEGORIES = [
+  'Ventes Café',
+  'Ventes Nourriture',
+  'Événements',
+  'Catering',
+  'Formations',
+  'Autres'
+] as const;
 
-export const AccountingSystem: React.FC = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState('month');
-  const [selectedAccount, setSelectedAccount] = useState<string>('all');
+export default function AccountingSystem(): JSX.Element {
+  const { toast } = useToast();
+  
+  // États
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [budgetCategories, setBudgetCategories] = useState<BudgetCategory[]>([]);
+  const [selectedPeriod, setSelectedPeriod] = useState('current-month');
+  const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
   const [showTransactionDialog, setShowTransactionDialog] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
 
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  // Récupération des données
-  const { data: stats, isLoading: statsLoading } = useQuery<AccountingStats>({
-    queryKey: ['/api/admin/accounting/stats', selectedPeriod],
-    queryFn: async () => {
-      const response = await fetch(`/api/admin/accounting/stats?period=${selectedPeriod}`);
-      if (!response.ok) throw new Error('Erreur lors du chargement des statistiques');
-      return response.json();
-    }
+  // Form states
+  const [transactionForm, setTransactionForm] = useState({
+    type: 'expense' as 'income' | 'expense',
+    category: '',
+    amount: '',
+    description: '',
+    paymentMethod: 'cash' as Transaction['paymentMethod'],
+    reference: ''
   });
 
-  const { data: transactions, isLoading: transactionsLoading } = useQuery<Transaction[]>({
-    queryKey: ['/api/admin/accounting/transactions', selectedPeriod, selectedAccount],
-    queryFn: async () => {
-      const params = new URLSearchParams({
-        period: selectedPeriod,
-        account: selectedAccount
-      });
-      const response = await fetch(`/api/admin/accounting/transactions?${params}`);
-      if (!response.ok) throw new Error('Erreur lors du chargement des transactions');
-      return response.json();
-    }
-  });
+  // Charger les données
+  useEffect(() => {
+    loadTransactions();
+    loadBudgetCategories();
+  }, []);
 
-  const { data: accounts } = useQuery<Account[]>({
-    queryKey: ['/api/admin/accounting/accounts'],
-    queryFn: async () => {
-      const response = await fetch('/api/admin/accounting/accounts');
-      if (!response.ok) throw new Error('Erreur lors du chargement des comptes');
-      return response.json();
-    }
-  });
-
-  // Mutations
-  const createTransactionMutation = useMutation({
-    mutationFn: async (transaction: Omit<Transaction, 'id' | 'createdBy'>) => {
-      const response = await fetch('/api/admin/accounting/transactions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(transaction)
-      });
-      if (!response.ok) throw new Error('Erreur lors de la création');
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/accounting'] });
-      toast({
-        title: "Succès",
-        description: "Transaction créée avec succès",
-      });
-      setShowTransactionDialog(false);
-      transactionForm.reset();
-    },
-    onError: (error) => {
+  const loadTransactions = async (): Promise<void> => {
+    try {
+      setIsLoading(true);
+      // Simulation de données réelles
+      const mockTransactions: Transaction[] = [
+        {
+          id: '1',
+          type: 'income',
+          category: 'Ventes Café',
+          amount: 1250.00,
+          description: 'Ventes journalières',
+          date: new Date(),
+          status: 'completed',
+          paymentMethod: 'card'
+        },
+        {
+          id: '2',
+          type: 'expense',
+          category: 'Ingrédients',
+          amount: 350.00,
+          description: 'Achat grains de café premium',
+          date: new Date(Date.now() - 86400000),
+          status: 'completed',
+          paymentMethod: 'transfer'
+        },
+        {
+          id: '3',
+          type: 'expense',
+          category: 'Personnel',
+          amount: 2800.00,
+          description: 'Salaires équipe',
+          date: new Date(Date.now() - 172800000),
+          status: 'pending',
+          paymentMethod: 'transfer'
+        }
+      ];
+      setTransactions(mockTransactions);
+    } catch (error) {
       toast({
         title: "Erreur",
-        description: error.message,
+        description: "Impossible de charger les transactions",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadBudgetCategories = async (): Promise<void> => {
+    try {
+      const mockBudget: BudgetCategory[] = [
+        { id: '1', name: 'Ingrédients', allocated: 2000, spent: 1450, type: 'expense' },
+        { id: '2', name: 'Personnel', allocated: 8000, spent: 7200, type: 'expense' },
+        { id: '3', name: 'Marketing', allocated: 500, spent: 320, type: 'expense' },
+        { id: '4', name: 'Ventes Café', allocated: 15000, spent: 12500, type: 'income' }
+      ];
+      setBudgetCategories(mockBudget);
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger le budget",
         variant: "destructive",
       });
     }
-  });
-
-  const updateTransactionMutation = useMutation({
-    mutationFn: async ({ id, ...transaction }: Transaction) => {
-      const response = await fetch(`/api/admin/accounting/transactions/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(transaction)
-      });
-      if (!response.ok) throw new Error('Erreur lors de la mise à jour');
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/accounting'] });
-      toast({
-        title: "Succès",
-        description: "Transaction mise à jour",
-      });
-      setShowTransactionDialog(false);
-      setEditingTransaction(null);
-      transactionForm.reset();
-    }
-  });
-
-  const deleteTransactionMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const response = await fetch(`/api/admin/accounting/transactions/${id}`, {
-        method: 'DELETE'
-      });
-      if (!response.ok) throw new Error('Erreur lors de la suppression');
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/accounting'] });
-      toast({
-        title: "Succès",
-        description: "Transaction supprimée",
-      });
-    }
-  });
-
-  // Formulaire de transaction
-  const transactionForm = useForm<Transaction>({
-    defaultValues: {
-      date: new Date().toISOString().split('T')[0],
-      description: '',
-      amount: 0,
-      type: 'income',
-      category: '',
-      paymentMethod: '',
-      reference: '',
-      status: 'completed'
-    }
-  });
-
-  // Gestionnaires d'événements
-  const handleCreateTransaction = (data: Transaction) => {
-    createTransactionMutation.mutate(data);
   };
 
-  const handleEditTransaction = (transaction: Transaction) => {
-    setEditingTransaction(transaction);
-    transactionForm.reset(transaction);
-    setShowTransactionDialog(true);
-  };
-
-  const handleDeleteTransaction = (id: string) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette transaction ?')) {
-      deleteTransactionMutation.mutate(id);
-    }
-  };
-
-  const handleExportData = useCallback((format: 'csv' | 'pdf' | 'excel') => {
-    const params = new URLSearchParams({
-      format,
-      period: selectedPeriod,
-      account: selectedAccount
-    });
-    
-    window.open(`/api/admin/accounting/export?${params}`, '_blank');
-    
-    toast({
-      title: "Export lancé",
-      description: `Export ${format.toUpperCase()} en cours de téléchargement`,
-    });
-  }, [selectedPeriod, selectedAccount]);
-
-  // Calculs dérivés
+  // Filtrer les transactions
   const filteredTransactions = useMemo(() => {
-    if (!transactions) return [];
-    return transactions.filter(t => 
-      selectedAccount === 'all' || t.category === selectedAccount
-    );
-  }, [transactions, selectedAccount]);
+    return transactions.filter(transaction => {
+      const matchesType = filterType === 'all' || transaction.type === filterType;
+      const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           transaction.category.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesType && matchesSearch;
+    });
+  }, [transactions, filterType, searchTerm]);
 
-  const categoryTotals = useMemo(() => {
-    if (!transactions) return {};
-    return transactions.reduce((acc, transaction) => {
-      acc[transaction.category] = (acc[transaction.category] || 0) + 
-        (transaction.type === 'income' ? transaction.amount : -transaction.amount);
-      return acc;
-    }, {} as Record<string, number>);
+  // Calculer les totaux
+  const financialSummary = useMemo(() => {
+    const totalIncome = transactions
+      .filter(t => t.type === 'income' && t.status === 'completed')
+      .reduce((sum, t) => sum + t.amount, 0);
+    
+    const totalExpenses = transactions
+      .filter(t => t.type === 'expense' && t.status === 'completed')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const netProfit = totalIncome - totalExpenses;
+    const profitMargin = totalIncome > 0 ? (netProfit / totalIncome) * 100 : 0;
+
+    return {
+      totalIncome,
+      totalExpenses,
+      netProfit,
+      profitMargin
+    };
   }, [transactions]);
 
-  if (statsLoading || transactionsLoading) {
+  // Handlers
+  const handleAddTransaction = useCallback(async (): Promise<void> => {
+    try {
+      const newTransaction: Transaction = {
+        id: Date.now().toString(),
+        type: transactionForm.type,
+        category: transactionForm.category,
+        amount: parseFloat(transactionForm.amount),
+        description: transactionForm.description,
+        date: new Date(),
+        status: 'completed',
+        paymentMethod: transactionForm.paymentMethod,
+        reference: transactionForm.reference || undefined
+      };
+
+      setTransactions(prev => [newTransaction, ...prev]);
+      setShowTransactionDialog(false);
+      resetForm();
+      
+      toast({
+        title: "Transaction ajoutée",
+        description: "La transaction a été enregistrée avec succès",
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible d'ajouter la transaction",
+        variant: "destructive",
+      });
+    }
+  }, [transactionForm, toast]);
+
+  const handleDeleteTransaction = useCallback(async (id: string): Promise<void> => {
+    try {
+      setTransactions(prev => prev.filter(t => t.id !== id));
+      setShowDeleteConfirm(null);
+      
+      toast({
+        title: "Transaction supprimée",
+        description: "La transaction a été supprimée avec succès",
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer la transaction",
+        variant: "destructive",
+      });
+    }
+  }, [toast]);
+
+  const resetForm = (): void => {
+    setTransactionForm({
+      type: 'expense',
+      category: '',
+      amount: '',
+      description: '',
+      paymentMethod: 'cash',
+      reference: ''
+    });
+  };
+
+  const exportData = useCallback((): void => {
+    try {
+      const data = {
+        transactions: filteredTransactions,
+        summary: financialSummary,
+        exportDate: new Date().toISOString()
+      };
+
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `comptabilite-${format(new Date(), 'yyyy-MM-dd')}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "Export réussi",
+        description: "Les données ont été exportées avec succès",
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur d'export",
+        description: "Impossible d'exporter les données",
+        variant: "destructive",
+      });
+    }
+  }, [filteredTransactions, financialSummary, toast]);
+
+  if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      <div className="flex items-center justify-center h-96">
+        <RefreshCw className="h-8 w-8 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* En-tête */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Système Comptable</h1>
+    <div className="space-y-6 p-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold">Système Comptable</h1>
+          <p className="text-muted-foreground">Gestion financière complète</p>
+        </div>
         <div className="flex gap-2">
-          <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-            <SelectTrigger className="w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="week">Cette semaine</SelectItem>
-              <SelectItem value="month">Ce mois</SelectItem>
-              <SelectItem value="quarter">Ce trimestre</SelectItem>
-              <SelectItem value="year">Cette année</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Button 
-            onClick={() => setShowTransactionDialog(true)}
-            className="gap-2"
-          >
-            <Plus className="h-4 w-4" />
-            Nouvelle transaction
+          <Button onClick={exportData} variant="outline">
+            <Download className="h-4 w-4 mr-2" />
+            Exporter
+          </Button>
+          <Button onClick={() => setShowTransactionDialog(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nouvelle Transaction
           </Button>
         </div>
       </div>
 
-      {/* Statistiques principales */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      {/* Résumé financier */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center">
-              <TrendingUp className="h-8 w-8 text-green-600" />
-              <div className="ml-4">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
                 <p className="text-sm font-medium text-muted-foreground">Revenus</p>
                 <p className="text-2xl font-bold text-green-600">
-                  {stats?.totalRevenue?.toLocaleString('fr-FR', {
-                    style: 'currency',
-                    currency: 'EUR'
-                  }) || '0 €'}
+                  {financialSummary.totalIncome.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
                 </p>
               </div>
+              <TrendingUp className="h-8 w-8 text-green-600" />
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center">
-              <TrendingUp className="h-8 w-8 text-red-600 rotate-180" />
-              <div className="ml-4">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
                 <p className="text-sm font-medium text-muted-foreground">Dépenses</p>
                 <p className="text-2xl font-bold text-red-600">
-                  {stats?.totalExpenses?.toLocaleString('fr-FR', {
-                    style: 'currency',
-                    currency: 'EUR'
-                  }) || '0 €'}
+                  {financialSummary.totalExpenses.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
                 </p>
               </div>
+              <TrendingDown className="h-8 w-8 text-red-600" />
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center">
-              <DollarSign className="h-8 w-8 text-blue-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-muted-foreground">Bénéfice net</p>
-                <p className={`text-2xl font-bold ${
-                  (stats?.netProfit || 0) >= 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {stats?.netProfit?.toLocaleString('fr-FR', {
-                    style: 'currency',
-                    currency: 'EUR'
-                  }) || '0 €'}
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Bénéfice Net</p>
+                <p className={`text-2xl font-bold ${financialSummary.netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {financialSummary.netProfit.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
                 </p>
               </div>
+              <DollarSign className={`h-8 w-8 ${financialSummary.netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`} />
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center">
-              <Calculator className="h-8 w-8 text-purple-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-muted-foreground">Cash Flow</p>
-                <p className={`text-2xl font-bold ${
-                  (stats?.cashFlow || 0) >= 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {stats?.cashFlow?.toLocaleString('fr-FR', {
-                    style: 'currency',
-                    currency: 'EUR'
-                  }) || '0 €'}
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Marge Bénéficiaire</p>
+                <p className={`text-2xl font-bold ${financialSummary.profitMargin >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {financialSummary.profitMargin.toFixed(1)}%
                 </p>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center">
-              <Clock className="h-8 w-8 text-orange-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-muted-foreground">En attente</p>
-                <p className="text-2xl font-bold">{stats?.pendingTransactions || 0}</p>
-              </div>
+              <Calculator className={`h-8 w-8 ${financialSummary.profitMargin >= 0 ? 'text-green-600' : 'text-red-600'}`} />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Contenu principal */}
       <Tabs defaultValue="transactions" className="space-y-4">
         <TabsList>
           <TabsTrigger value="transactions">Transactions</TabsTrigger>
+          <TabsTrigger value="budget">Budget</TabsTrigger>
           <TabsTrigger value="reports">Rapports</TabsTrigger>
-          <TabsTrigger value="accounts">Comptes</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
 
         <TabsContent value="transactions" className="space-y-4">
+          {/* Filtres */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex gap-4 items-center">
+                <div className="flex-1">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <Input
+                      placeholder="Rechercher une transaction..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+                <Select value={filterType} onValueChange={(value: 'all' | 'income' | 'expense') => setFilterType(value)}>
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tous</SelectItem>
+                    <SelectItem value="income">Revenus</SelectItem>
+                    <SelectItem value="expense">Dépenses</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Liste des transactions */}
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Liste des transactions</CardTitle>
-                <div className="flex gap-2">
-                  <Select value={selectedAccount} onValueChange={setSelectedAccount}>
-                    <SelectTrigger className="w-48">
-                      <SelectValue placeholder="Filtrer par compte" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Tous les comptes</SelectItem>
-                      {Object.entries(categoryTotals).map(([category, total]) => (
-                        <SelectItem key={category} value={category}>
-                          {category} ({total > 0 ? '+' : ''}{total.toFixed(2)}€)
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  
-                  <Button variant="outline" onClick={() => handleExportData('excel')}>
-                    <Download className="h-4 w-4 mr-2" />
-                    Exporter
-                  </Button>
-                </div>
-              </div>
+              <CardTitle>Transactions Récentes</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Date</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Catégorie</TableHead>
                     <TableHead>Type</TableHead>
+                    <TableHead>Catégorie</TableHead>
+                    <TableHead>Description</TableHead>
                     <TableHead>Montant</TableHead>
                     <TableHead>Statut</TableHead>
                     <TableHead>Actions</TableHead>
@@ -448,46 +494,40 @@ export const AccountingSystem: React.FC = () => {
                   {filteredTransactions.map((transaction) => (
                     <TableRow key={transaction.id}>
                       <TableCell>
-                        {format(new Date(transaction.date), 'dd/MM/yyyy', { locale: fr })}
+                        {format(transaction.date, 'dd/MM/yyyy', { locale: fr })}
                       </TableCell>
-                      <TableCell>{transaction.description}</TableCell>
-                      <TableCell>{transaction.category}</TableCell>
                       <TableCell>
                         <Badge variant={transaction.type === 'income' ? 'default' : 'secondary'}>
-                          {transaction.type === 'income' ? 'Recette' : 'Dépense'}
+                          {transaction.type === 'income' ? 'Revenu' : 'Dépense'}
                         </Badge>
                       </TableCell>
-                      <TableCell className={
-                        transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
-                      }>
-                        {transaction.type === 'income' ? '+' : '-'}
-                        {transaction.amount.toLocaleString('fr-FR', {
-                          style: 'currency',
-                          currency: 'EUR'
-                        })}
+                      <TableCell>{transaction.category}</TableCell>
+                      <TableCell>{transaction.description}</TableCell>
+                      <TableCell className={transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}>
+                        {(transaction.type === 'income' ? '+' : '-')}
+                        {transaction.amount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
                       </TableCell>
                       <TableCell>
                         <Badge variant={
                           transaction.status === 'completed' ? 'default' :
                           transaction.status === 'pending' ? 'secondary' : 'destructive'
                         }>
-                          {transaction.status === 'completed' ? 'Terminée' :
-                           transaction.status === 'pending' ? 'En attente' : 'Annulée'}
+                          {transaction.status === 'completed' ? 'Terminé' :
+                           transaction.status === 'pending' ? 'En attente' : 'Annulé'}
                         </Badge>
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleEditTransaction(transaction)}
-                          >
+                          <Button size="sm" variant="outline">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button size="sm" variant="outline">
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDeleteTransaction(transaction.id)}
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            onClick={() => setShowDeleteConfirm(transaction.id)}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -501,215 +541,165 @@ export const AccountingSystem: React.FC = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="reports">
-          <Card>
-            <CardHeader>
-              <CardTitle>Rapports financiers</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Button variant="outline" className="h-24 flex-col gap-2">
-                  <FileText className="h-6 w-6" />
-                  Compte de résultat
-                </Button>
-                <Button variant="outline" className="h-24 flex-col gap-2">
-                  <BarChart3 className="h-6 w-6" />
-                  Bilan comptable
-                </Button>
-                <Button variant="outline" className="h-24 flex-col gap-2">
-                  <TrendingUp className="h-6 w-6" />
-                  Tableau de flux
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="accounts">
-          <Card>
-            <CardHeader>
-              <CardTitle>Gestion des comptes</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {accounts?.map((account) => (
-                  <div key={account.id} className="flex items-center justify-between p-4 border rounded">
-                    <div>
-                      <h4 className="font-semibold">{account.name}</h4>
-                      <p className="text-sm text-muted-foreground">{account.type}</p>
+        <TabsContent value="budget" className="space-y-4">
+          <div className="grid gap-4">
+            {budgetCategories.map((category) => {
+              const percentage = (category.spent / category.allocated) * 100;
+              const isOverBudget = percentage > 100;
+              
+              return (
+                <Card key={category.id}>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-semibold">{category.name}</h3>
+                      <Badge variant={isOverBudget ? 'destructive' : 'default'}>
+                        {percentage.toFixed(1)}%
+                      </Badge>
                     </div>
-                    <div className="text-right">
-                      <p className="font-bold">
-                        {account.balance.toLocaleString('fr-FR', {
-                          style: 'currency',
-                          currency: account.currency
-                        })}
-                      </p>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Dépensé: {category.spent.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</span>
+                        <span>Budget: {category.allocated.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</span>
+                      </div>
+                      <Progress 
+                        value={Math.min(percentage, 100)} 
+                        className={`w-full ${isOverBudget ? 'bg-red-100' : ''}`} 
+                      />
+                      {isOverBudget && (
+                        <p className="text-sm text-red-600 flex items-center">
+                          <AlertTriangle className="h-4 w-4 mr-1" />
+                          Dépassement de budget de {(category.spent - category.allocated).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+                        </p>
+                      )}
                     </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="analytics">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Répartition des revenus</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-64 flex items-center justify-center">
-                  <PieChart className="h-16 w-16 text-muted-foreground" />
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Évolution mensuelle</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-64 flex items-center justify-center">
-                  <BarChart3 className="h-16 w-16 text-muted-foreground" />
-                </div>
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
+        </TabsContent>
+
+        <TabsContent value="reports" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Rapports Financiers</CardTitle>
+              <CardDescription>Analyses et insights financiers</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">
+                  Fonctionnalité de rapports en cours de développement
+                </p>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
 
-      {/* Dialog de création/modification de transaction */}
+      {/* Dialog Transaction */}
       <Dialog open={showTransactionDialog} onOpenChange={setShowTransactionDialog}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>
-              {editingTransaction ? 'Modifier' : 'Créer'} une transaction
-            </DialogTitle>
+            <DialogTitle>Nouvelle Transaction</DialogTitle>
+            <DialogDescription>
+              Ajouter une nouvelle transaction financière
+            </DialogDescription>
           </DialogHeader>
-          
-          <Form {...transactionForm}>
-            <form onSubmit={transactionForm.handleSubmit(handleCreateTransaction)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={transactionForm.control}
-                  name="date"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Date</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={transactionForm.control}
-                  name="type"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Type</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="income">Recette</SelectItem>
-                          <SelectItem value="expense">Dépense</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="type">Type</Label>
+                <Select value={transactionForm.type} onValueChange={(value: 'income' | 'expense') => 
+                  setTransactionForm(prev => ({ ...prev, type: value, category: '' }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="income">Revenu</SelectItem>
+                    <SelectItem value="expense">Dépense</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-
-              <FormField
-                control={transactionForm.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Description de la transaction" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+              <div>
+                <Label htmlFor="category">Catégorie</Label>
+                <Select value={transactionForm.category} onValueChange={(value) => 
+                  setTransactionForm(prev => ({ ...prev, category: value }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(transactionForm.type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES).map(cat => (
+                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="amount">Montant (€)</Label>
+              <Input
+                id="amount"
+                type="number"
+                step="0.01"
+                value={transactionForm.amount}
+                onChange={(e) => setTransactionForm(prev => ({ ...prev, amount: e.target.value }))}
+                placeholder="0.00"
               />
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={transactionForm.control}
-                  name="amount"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Montant (€)</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          step="0.01" 
-                          {...field} 
-                          onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={transactionForm.control}
-                  name="category"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Catégorie</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {(transactionForm.watch('type') === 'income' 
-                            ? CATEGORIES.income 
-                            : CATEGORIES.expense
-                          ).map((category) => (
-                            <SelectItem key={category} value={category}>
-                              {category}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="flex justify-end space-x-2">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setShowTransactionDialog(false)}
-                >
-                  Annuler
-                </Button>
-                <Button type="submit" disabled={createTransactionMutation.isPending}>
-                  {editingTransaction ? 'Modifier' : 'Créer'}
-                </Button>
-              </div>
-            </form>
-          </Form>
+            </div>
+            <div>
+              <Label htmlFor="description">Description</Label>
+              <Input
+                id="description"
+                value={transactionForm.description}
+                onChange={(e) => setTransactionForm(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Description de la transaction"
+              />
+            </div>
+            <div>
+              <Label htmlFor="paymentMethod">Mode de paiement</Label>
+              <Select value={transactionForm.paymentMethod} onValueChange={(value: Transaction['paymentMethod']) => 
+                setTransactionForm(prev => ({ ...prev, paymentMethod: value }))}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cash">Espèces</SelectItem>
+                  <SelectItem value="card">Carte</SelectItem>
+                  <SelectItem value="transfer">Virement</SelectItem>
+                  <SelectItem value="check">Chèque</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowTransactionDialog(false)}>
+              Annuler
+            </Button>
+            <Button onClick={handleAddTransaction}>
+              Ajouter
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Dialog Confirmation suppression */}
+      <AlertDialog open={!!showDeleteConfirm} onOpenChange={() => setShowDeleteConfirm(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action est irréversible. La transaction sera définitivement supprimée.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={() => showDeleteConfirm && handleDeleteTransaction(showDeleteConfirm)}>
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
-};
-
-export default AccountingSystem;
+}
