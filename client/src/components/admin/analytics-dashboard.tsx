@@ -1,23 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { exportToJSON, exportToCSV, exportToExcel } from './analytics/ExportUtils';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  Users, ShoppingCart, DollarSign, 
-  Target, Download 
-} from 'lucide-react';
+import { Users, ShoppingCart, DollarSign, Target, Download } from 'lucide-react';
 
-// Import des composants modulaires
+// Composants modulaires
 import MetricCard from './analytics/MetricCard';
 import RevenueView from './analytics/RevenueView';
 import ProductView from './analytics/ProductView';
 import HourView from './analytics/HourView';
 import TrendsView from './analytics/TrendsView';
 
-// Import des utilitaires
+// Utilitaires de données
 import { 
   generateRevenueData, 
   generateProductData, 
@@ -26,26 +22,41 @@ import {
   generateMetrics 
 } from './analytics/dataGenerators';
 
-export default function AnalyticsDashboard(): JSX.Element {
+// Types
+interface ExportData {
+  metrics: ReturnType<typeof generateMetrics>;
+  revenueData: ReturnType<typeof generateRevenueData>;
+  productData: ReturnType<typeof generateProductData>;
+  hourlyData: ReturnType<typeof generateHourlyData>;
+  trendsData: ReturnType<typeof generateTrendsData>;
+  timeRange: string;
+  exportDate: string;
+}
+
+export default function AnalyticsDashboard() {
   const [timeRange, setTimeRange] = useState('7d');
-  const [metrics, setMetrics] = useState(generateMetrics('7d'));
-  const [revenueData, setRevenueData] = useState(generateRevenueData('7d'));
-  const [productData, setProductData] = useState(generateProductData('7d'));
-  const [hourlyData, setHourlyData] = useState(generateHourlyData('7d'));
-  const [trendsData, setTrendsData] = useState(generateTrendsData('7d'));
+  const [metrics, setMetrics] = useState(() => generateMetrics(timeRange));
+  const [revenueData, setRevenueData] = useState(() => generateRevenueData(timeRange));
+  const [productData, setProductData] = useState(() => generateProductData(timeRange));
+  const [hourlyData, setHourlyData] = useState(() => generateHourlyData(timeRange));
+  const [trendsData, setTrendsData] = useState(() => generateTrendsData(timeRange));
 
   // Mise à jour des données quand la période change
   useEffect(() => {
-    setMetrics(generateMetrics(timeRange));
-    setRevenueData(generateRevenueData(timeRange));
-    setProductData(generateProductData(timeRange));
-    setHourlyData(generateHourlyData(timeRange));
-    setTrendsData(generateTrendsData(timeRange));
+    const updateData = () => {
+      setMetrics(generateMetrics(timeRange));
+      setRevenueData(generateRevenueData(timeRange));
+      setProductData(generateProductData(timeRange));
+      setHourlyData(generateHourlyData(timeRange));
+      setTrendsData(generateTrendsData(timeRange));
+    };
+
+    updateData();
   }, [timeRange]);
 
-  // Fonction d'export améliorée
+  // Gestion de l'export des données
   const handleExport = (format: 'json' | 'csv' | 'excel') => {
-    const exportData = {
+    const exportData: ExportData = {
       metrics,
       revenueData,
       productData,
@@ -55,34 +66,51 @@ export default function AnalyticsDashboard(): JSX.Element {
       exportDate: new Date().toISOString()
     };
 
-    const filename = `analytics-dashboard-${timeRange}-${new Date().toISOString().split('T')[0]}`;
+    const dateString = new Date().toISOString().split('T')[0];
+    const filename = `cafe-analytics-${timeRange}-${dateString}`;
 
     switch (format) {
       case 'json':
         exportToJSON(exportData, filename);
         break;
       case 'csv':
-        exportToCSV(revenueData, filename);
+        // Export plus complet pour CSV
+        exportToCSV({
+          metrics: [metrics],
+          revenueData,
+          productData,
+          hourlyData,
+          trendsData
+        }, filename);
         break;
       case 'excel':
-        exportToExcel(revenueData, filename);
+        exportToExcel({
+          metrics: [metrics],
+          revenueData,
+          productData,
+          hourlyData,
+          trendsData
+        }, filename);
         break;
+      default:
+        console.warn(`Format d'export non supporté: ${format}`);
     }
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Analytics Avancées</h2>
+          <h2 className="text-3xl font-bold tracking-tight">Tableau de Bord Analytique</h2>
           <p className="text-muted-foreground">
-            Analyse détaillée des performances de votre café
+            Analyse complète des performances de votre établissement
           </p>
         </div>
-        <div className="flex items-center space-x-2">
+
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-32">
-              <SelectValue />
+            <SelectTrigger className="w-full sm:w-32">
+              <SelectValue placeholder="Période" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="7d">7 jours</SelectItem>
@@ -90,15 +118,21 @@ export default function AnalyticsDashboard(): JSX.Element {
               <SelectItem value="90d">90 jours</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" size="sm" onClick={() => handleExport('json')}>
-            <Download className="h-4 w-4 mr-2" />
+
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => handleExport('json')}
+            className="gap-2"
+          >
+            <Download className="h-4 w-4" />
             Exporter
           </Button>
         </div>
       </div>
 
       {/* Métriques principales */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard
           title="Chiffre d'affaires"
           value={metrics.revenue.current}
@@ -108,7 +142,7 @@ export default function AnalyticsDashboard(): JSX.Element {
           format="currency"
         />
         <MetricCard
-          title="Nombre de commandes"
+          title="Commandes"
           value={metrics.orders.current}
           previousValue={metrics.orders.previous}
           growth={metrics.orders.growth}
@@ -132,27 +166,55 @@ export default function AnalyticsDashboard(): JSX.Element {
       </div>
 
       <Tabs defaultValue="revenue" className="space-y-4">
-        <TabsList>
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="revenue">Revenus</TabsTrigger>
           <TabsTrigger value="products">Produits</TabsTrigger>
-          <TabsTrigger value="hours">Heures de pointe</TabsTrigger>
+          <TabsTrigger value="hours">Fréquentation</TabsTrigger>
           <TabsTrigger value="trends">Tendances</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="revenue" className="space-y-4">
-          <RevenueView data={revenueData} timeRange={timeRange} />
+        <TabsContent value="revenue">
+          <Card>
+            <CardHeader>
+              <CardTitle>Analyse des revenus</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <RevenueView data={revenueData} timeRange={timeRange} />
+            </CardContent>
+          </Card>
         </TabsContent>
 
-        <TabsContent value="products" className="space-y-4">
-          <ProductView data={productData} timeRange={timeRange} />
+        <TabsContent value="products">
+          <Card>
+            <CardHeader>
+              <CardTitle>Performance des produits</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ProductView data={productData} timeRange={timeRange} />
+            </CardContent>
+          </Card>
         </TabsContent>
 
-        <TabsContent value="hours" className="space-y-4">
-          <HourView data={hourlyData} timeRange={timeRange} />
+        <TabsContent value="hours">
+          <Card>
+            <CardHeader>
+              <CardTitle>Heures d'affluence</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <HourView data={hourlyData} timeRange={timeRange} />
+            </CardContent>
+          </Card>
         </TabsContent>
 
-        <TabsContent value="trends" className="space-y-4">
-          <TrendsView data={trendsData} timeRange={timeRange} />
+        <TabsContent value="trends">
+          <Card>
+            <CardHeader>
+              <CardTitle>Tendances clés</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <TrendsView data={trendsData} timeRange={timeRange} />
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
