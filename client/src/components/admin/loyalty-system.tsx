@@ -108,7 +108,7 @@ export default function LoyaltySystem() : JSX.Element {
       setError(null);
       setIsRefreshing(true);
       const token = localStorage.getItem('token');
-      
+
       const [customersRes, rewardsRes, statsRes] = await Promise.all([
         fetch('/api/admin/loyalty/customers', {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -130,7 +130,7 @@ export default function LoyaltySystem() : JSX.Element {
         rewardsRes.json(),
         statsRes.json()
       ]);
-      
+
       // Process customers data
       const processedCustomers = (customersData || []).map((customer: any) => ({
         ...customer,
@@ -138,7 +138,7 @@ export default function LoyaltySystem() : JSX.Element {
         totalSpent: Number(customer.totalSpent) || 0,
         level: calculateLevel(Number(customer.totalSpent) || 0)
       }));
-      
+
       // Process stats data
       const processedStats = statsData ? {
         ...statsData,
@@ -156,11 +156,11 @@ export default function LoyaltySystem() : JSX.Element {
         pointsDistribution: [],
         rewardsPopularity: []
       };
-      
+
       setCustomers(processedCustomers);
       setRewards(rewardsData || []);
       setStats(processedStats);
-      
+
     } catch (error) {
       console.error('Erreur lors du chargement du système de fidélité:', error);
       setError('Impossible de charger les données. Veuillez réessayer.');
@@ -191,7 +191,7 @@ export default function LoyaltySystem() : JSX.Element {
 
   const filterCustomers = () => {
     let result = [...customers];
-    
+
     // Filter by search term
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
@@ -200,8 +200,9 @@ export default function LoyaltySystem() : JSX.Element {
         customer.lastName.toLowerCase().includes(term) ||
         customer.email.toLowerCase().includes(term) ||
         (customer.phone && customer.phone.includes(term))
+      );
     }
-    
+
     // Sort if sortConfig exists
     if (sortConfig) {
       result.sort((a, b) => {
@@ -214,7 +215,7 @@ export default function LoyaltySystem() : JSX.Element {
         return 0;
       });
     }
-    
+
     setFilteredCustomers(result);
   };
 
@@ -248,7 +249,7 @@ export default function LoyaltySystem() : JSX.Element {
     try {
       setIsAddingPoints(true);
       const token = localStorage.getItem('token');
-      
+
       const response = await fetch('/api/admin/loyalty/award-points', {
         method: 'POST',
         headers: {
@@ -708,7 +709,7 @@ export default function LoyaltySystem() : JSX.Element {
                               variant="outline"
                               onClick={() => {
                                 const points = parseInt(pointsToAdd);
-                                if (!isNaN(points) {
+                                if (!isNaN(points) && points > 0) {
                                   awardPoints(customer.id, points, 'Attribution manuelle');
                                 }
                               }}
@@ -801,7 +802,7 @@ export default function LoyaltySystem() : JSX.Element {
                         {reward.isActive ? 'Actif' : 'Inactif'}
                       </Badge>
                     </div>
-                    
+
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1">
                         <Star className="h-4 w-4 text-yellow-500" />

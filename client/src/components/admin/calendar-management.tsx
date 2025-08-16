@@ -42,9 +42,9 @@ export default function CalendarManagement() : JSX.Element {
   const fetchCalendarData = async () => {
     try {
       const token = localStorage.getItem('token');
-      
+
       const [eventsRes, statsRes] = await Promise.all([
-        fetch(`/api/admin/calendar/events?date=${currentDate.toISOString()]})}`, {
+        fetch(`/api/admin/calendar/events?date=${currentDate.toISOString()}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
         fetch('/api/admin/calendar/stats', {
@@ -54,10 +54,10 @@ export default function CalendarManagement() : JSX.Element {
 
       if (eventsRes.ok && statsRes.ok) {
         const [eventsData, statsData] = await Promise.all([
-          eventsRes.json()]),
+          eventsRes.json(),
           statsRes.json()
         ]);
-        
+
         setEvents(eventsData);
         setStats(statsData);
       }
@@ -140,7 +140,7 @@ export default function CalendarManagement() : JSX.Element {
 
   const navigateDate = (direction: 'prev' | 'next') => {
     const newDate = new Date(currentDate);
-    
+
     if (viewMode === 'month') {
       newDate.setMonth(currentDate.getMonth() + (direction === 'next' ? 1 : -1));
     } else if (viewMode === 'week') {
@@ -148,7 +148,7 @@ export default function CalendarManagement() : JSX.Element {
     } else {
       newDate.setDate(currentDate.getDate() + (direction === 'next' ? 1 : -1));
     }
-    
+
     setCurrentDate(newDate);
   };
 
@@ -161,30 +161,30 @@ export default function CalendarManagement() : JSX.Element {
     const startingDayOfWeek = firstDay.getDay();
 
     const days = [];
-    
+
     // Jours du mois précédent
     for (let i = startingDayOfWeek - 1; i >= 0; i--) {
       const prevDate = new Date(year, month, -i);
       days.push({ date: prevDate, isCurrentMonth: false });
     }
-    
+
     // Jours du mois actuel
     for (let day = 1; day <= daysInMonth; day++) {
-      days.push({ date: new Date(year, month, day)}), isCurrentMonth: true });
+      days.push({ date: new Date(year, month, day), isCurrentMonth: true });
     }
-    
+
     // Jours du mois suivant pour compléter la grille
     const remainingDays = 42 - days.length; // 6 semaines * 7 jours
     for (let day = 1; day <= remainingDays; day++) {
-      days.push({ date: new Date(year, month + 1, day)}), isCurrentMonth: false });
+      days.push({ date: new Date(year, month + 1, day), isCurrentMonth: false });
     }
-    
+
     return days;
   };
 
   const getDayEvents = (date: Date) => {
     return events.filter(event => {
-      const eventDate = new Date(event.date)});
+      const eventDate = new Date(event.date);
       return eventDate.toDateString() === date.toDateString();
     });
   };
@@ -260,7 +260,7 @@ export default function CalendarManagement() : JSX.Element {
                     Total Événements
                   </p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {stats.totalEvents)}
+                    {stats.totalEvents}
                   </p>
                 </div>
                 <Calendar className="h-8 w-8 text-blue-500" />
@@ -338,7 +338,7 @@ export default function CalendarManagement() : JSX.Element {
                   {currentDate.toLocaleDateString('fr-FR', { 
                     month: 'long', 
                     year: 'numeric' 
-                  )})}
+                  })}
                 </h3>
                 <Button variant="outline" onClick={() => navigateDate('next')}>
                   <ChevronRight className="h-4 w-4" />
@@ -357,12 +357,12 @@ export default function CalendarManagement() : JSX.Element {
                   </div>
                 ))}
               </div>
-              
+
               <div className="grid grid-cols-7 gap-2">
                 {monthDays.map((day, index) => {
                   const dayEvents = getDayEvents(day.date);
                   const isToday = day.date.toDateString() === new Date().toDateString();
-                  
+
                   return (
                     <div
                       key={index}
@@ -379,7 +379,7 @@ export default function CalendarManagement() : JSX.Element {
                       }`}>
                         {day.date.getDate()}
                       </div>
-                      
+
                       <div className="space-y-1">
                         {dayEvents.slice(0, 3).map((event) => (
                           <div
@@ -391,7 +391,7 @@ export default function CalendarManagement() : JSX.Element {
                         ))}
                         {dayEvents.length > 3 && (
                           <div className="text-xs text-gray-500 dark:text-gray-400">
-                            +{dayEvents.length - 3)} autres
+                            +{dayEvents.length - 3} autres
                           </div>
                         )}
                       </div>
@@ -413,7 +413,7 @@ export default function CalendarManagement() : JSX.Element {
                       <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${getTypeColor(event.type)}`}>
                         {getTypeIcon(event.type)}
                       </div>
-                      
+
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <h3 className="font-semibold text-gray-900 dark:text-white">
@@ -424,7 +424,7 @@ export default function CalendarManagement() : JSX.Element {
                           </Badge>
                           <Badge variant="outline">{getTypeText(event.type)}</Badge>
                         </div>
-                        
+
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                           <div>
                             <span className="text-gray-600 dark:text-gray-400">Date:</span>
@@ -447,7 +447,7 @@ export default function CalendarManagement() : JSX.Element {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-2">
                       <Button size="sm" variant="outline">
                         <Edit className="h-4 w-4" />
@@ -487,7 +487,7 @@ export default function CalendarManagement() : JSX.Element {
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600 dark:text-gray-400">
                       Événements actifs:
@@ -513,7 +513,7 @@ export default function CalendarManagement() : JSX.Element {
                   {['reservation', 'event', 'maintenance', 'staff', 'promotion'].map((type) => {
                     const typeEvents = events.filter(e => e.type === type);
                     const percentage = events.length > 0 ? (typeEvents.length / events.length) * 100 : 0;
-                    
+
                     return (
                       <div key={type} className="flex items-center justify-between">
                         <span className="font-medium capitalize">{getTypeText(type)}</span>

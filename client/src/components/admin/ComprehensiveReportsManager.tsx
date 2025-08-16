@@ -66,6 +66,11 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+// Interface pour le logger manquant
+const logger = {
+  error: (message: string, context?: any) => console.error(message, context)
+};
+
 interface Report {
   id: string;
   name: string;

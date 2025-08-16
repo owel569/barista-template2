@@ -23,6 +23,11 @@ import { TimePicker } from '@/components/ui/time-picker';
 import { Skeleton } from '@/components/ui/skeleton';
 import { debounce } from 'lodash';
 
+// Interface pour logger manquant
+const logger = {
+  error: (message: string, context?: any) => console.error(message, context)
+};
+
 interface SettingsProps {
   userRole: 'directeur' | 'employe';
 }
@@ -210,7 +215,7 @@ export default function Settings({ userRole }: SettingsProps) {
   // Debounced save for auto-save functionality
   const debouncedSave = useCallback(
     debounce((settingsToSave: RestaurantSettings) => {
-      if (hasPermission('settings', 'edit') {
+      if (hasPermission('settings', 'edit')) {
         saveMutation.mutate(settingsToSave);
         setSettings(settingsToSave);
       }

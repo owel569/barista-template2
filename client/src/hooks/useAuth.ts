@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 
 // Types professionnels pour l'authentification
@@ -48,7 +47,7 @@ export function useAuth(): AuthContextType {
     isAuthenticated: false,
     isLoading: true,
     error: null
-  )});
+  });
 
   // Vérification du token au démarrage
   useEffect(() => {
@@ -56,7 +55,7 @@ export function useAuth(): AuthContextType {
       try {
         const token = localStorage.getItem('auth_token');
         if (!token) {
-          setAuthState(prev => ({ ...prev, isLoading: false });
+          setAuthState(prev => ({ ...prev, isLoading: false }));
           return;
         }
 
@@ -77,15 +76,15 @@ export function useAuth(): AuthContextType {
           });
         } else {
           localStorage.removeItem('auth_token');
-          setAuthState(prev => ({ ...prev, isLoading: false });
+          setAuthState(prev => ({ ...prev, isLoading: false }));
         }
       } catch (error) {
         console.error('Erreur vérification auth:', error);
-        setAuthState(prev => ({ 
-          ...prev, 
+        setAuthState(prev => ({
+          ...prev,
           isLoading: false,
           error: 'Erreur de connexion'
-        });
+        }));
       }
     };
 
@@ -93,14 +92,14 @@ export function useAuth(): AuthContextType {
   }, []);
 
   const login = useCallback(async (credentials: LoginCredentials): Promise<void> => {
-    setAuthState(prev => ({ ...prev, isLoading: true, error: null )});
-    
+    setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
+
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
-        )},
+        },
         body: JSON.stringify(credentials)
       });
 
@@ -122,20 +121,20 @@ export function useAuth(): AuthContextType {
         ...prev,
         isLoading: false,
         error: error instanceof Error ? error.message : 'Erreur de connexion'
-      )});
+      }));
       throw error;
     }
   }, []);
 
   const register = useCallback(async (data: RegisterData): Promise<void> => {
-    setAuthState(prev => ({ ...prev, isLoading: true, error: null )});
-    
+    setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
+
     try {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
-        )},
+        },
         body: JSON.stringify(data)
       });
 
@@ -157,7 +156,7 @@ export function useAuth(): AuthContextType {
         ...prev,
         isLoading: false,
         error: error instanceof Error ? error.message : 'Erreur d\'inscription'
-      )});
+      }));
       throw error;
     }
   }, []);
@@ -193,7 +192,7 @@ export function useAuth(): AuthContextType {
         setAuthState(prev => ({
           ...prev,
           user: updatedUser
-        });
+        }));
       } else {
         throw new Error('Erreur lors de la mise à jour');
       }
@@ -201,13 +200,13 @@ export function useAuth(): AuthContextType {
       setAuthState(prev => ({
         ...prev,
         error: error instanceof Error ? error.message : 'Erreur de mise à jour'
-      )});
+      }));
       throw error;
     }
   }, []);
 
   const clearError = useCallback((): void => {
-    setAuthState(prev => ({ ...prev, error: null )});
+    setAuthState(prev => ({ ...prev, error: null }));
   }, []);
 
   return {

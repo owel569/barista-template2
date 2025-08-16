@@ -62,7 +62,7 @@ export const useUsers = () => {
   // Récupérer tous les utilisateurs
   const { data: users, isLoading, error } = useQuery<User[]>({
     queryKey: ['users',],
-    queryFn: async (}) => {
+    queryFn: async () => {
       const response = await apiRequest('/api/admin/users');
       return response.json();
     },
@@ -74,7 +74,7 @@ export const useUsers = () => {
   const useUserPermissions = (userId: number) => {
     return useQuery<Permission[]>({
       queryKey: ['users', userId, 'permissions'],
-      queryFn: async (}) => {
+      queryFn: async () => {
         const response = await apiRequest(`/api/admin/users/${userId}/permissions`);
         return response.json();
       },
@@ -85,89 +85,89 @@ export const useUsers = () => {
 
   // Créer un utilisateur
   const createUserMutation = useMutation({
-    mutationFn: async (userData: CreateUserData})}) => {
+    mutationFn: async (userData: CreateUserData) => {
       const response = await apiRequest('/api/admin/users', {
         method: 'POST',
-        body: JSON.stringify(userData)}),
+        body: JSON.stringify(userData),
       });
       return response.json();
     },
     onSuccess: (newUser) => {
-      queryClient.invalidateQueries({ queryKey: ['users'] )});
+      queryClient.invalidateQueries({ queryKey: ['users'] });
       queryClient.setQueryData(['users'], (oldUsers: User[] | undefined) => {
         return oldUsers ? [...oldUsers, newUser] : [newUser];
       });
     },
     onError: (error) => {
-      logger.error('Erreur lors de la création de l\'utilisateur:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      logger.error('Erreur lors de la création de l\'utilisateur:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     },
   });
 
   // Mettre à jour un utilisateur
   const updateUserMutation = useMutation({
-    mutationFn: async ({ userId, userData })}: { userId: number; userData: UpdateUserData }) => {
-      const response = await apiRequest(`/api/admin/users/${userId)}`, {
+    mutationFn: async ({ userId, userData }:{ userId: number; userData: UpdateUserData }) => {
+      const response = await apiRequest(`/api/admin/users/${userId}`, {
         method: 'PUT',
         body: JSON.stringify(userData),
       });
       return response.json();
     },
     onSuccess: (updatedUser, { userId }) => {
-      queryClient.invalidateQueries({ queryKey: ['users'] )});
+      queryClient.invalidateQueries({ queryKey: ['users'] });
       queryClient.setQueryData(['users'], (oldUsers: User[] | undefined) => {
         return oldUsers?.map(user => 
-          user.id === userId ? { ...user, ...updatedUser )} : user
+          user.id === userId ? { ...user, ...updatedUser } : user
         ) || [];
       });
     },
     onError: (error) => {
-      logger.error('Erreur lors de la mise à jour de l\'utilisateur:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      logger.error('Erreur lors de la mise à jour de l\'utilisateur:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     },
   });
 
   // Supprimer un utilisateur
   const deleteUserMutation = useMutation({
-    mutationFn: async (userId: number})}) => {
-      const response = await apiRequest(`/api/admin/users/${userId)}`, {
+    mutationFn: async (userId: number) => {
+      const response = await apiRequest(`/api/admin/users/${userId}`, {
         method: 'DELETE',
       });
       return response.json();
     },
     onSuccess: (_, userId) => {
-      queryClient.invalidateQueries({ queryKey: ['users'] )});
+      queryClient.invalidateQueries({ queryKey: ['users'] });
       queryClient.setQueryData(['users'], (oldUsers: User[] | undefined) => {
         return oldUsers?.filter(user => user.id !== userId) || [];
       });
     },
     onError: (error) => {
-      logger.error('Erreur lors de la suppression de l\'utilisateur:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      logger.error('Erreur lors de la suppression de l\'utilisateur:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     },
   });
 
   // Mettre à jour les permissions d'un utilisateur
   const updatePermissionMutation = useMutation({
-    mutationFn: async (permissionData: UpdatePermissionData})}) => {
+    mutationFn: async (permissionData: UpdatePermissionData) => {
       const response = await apiRequest('/api/admin/permissions', {
         method: 'PUT',
-        body: JSON.stringify(permissionData)}),
+        body: JSON.stringify(permissionData),
       });
       return response.json();
     },
     onSuccess: (_, { userId }) => {
-      queryClient.invalidateQueries({ queryKey: ['users', userId, 'permissions'] )});
+      queryClient.invalidateQueries({ queryKey: ['users', userId, 'permissions'] });
       queryClient.invalidateQueries({ queryKey: ['users'] });
     },
     onError: (error) => {
-      logger.error('Erreur lors de la mise à jour des permissions:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      logger.error('Erreur lors de la mise à jour des permissions:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     },
   });
 
   // Activer/désactiver un utilisateur
   const toggleUserStatusMutation = useMutation({
-    mutationFn: async ({ userId, isActive })}: { userId: number; isActive: boolean }) => {
-      const response = await apiRequest(`/api/admin/users/${userId)}`, {
+    mutationFn: async ({ userId, isActive }:{ userId: number; isActive: boolean }) => {
+      const response = await apiRequest(`/api/admin/users/${userId}`, {
         method: 'PUT',
-        body: JSON.stringify({ isActive )}),
+        body: JSON.stringify({ isActive }),
       });
       return response.json();
     },
@@ -179,12 +179,12 @@ export const useUsers = () => {
       });
     },
     onError: (error) => {
-      logger.error('Erreur lors du changement de statut:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      logger.error('Erreur lors du changement de statut:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     },
   });
 
   return {
-    users: users || [,],
+    users: users || [],
     isLoading,
     error,
     useUserPermissions,
