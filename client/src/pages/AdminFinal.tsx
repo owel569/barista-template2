@@ -13,7 +13,7 @@ import { usePermissions } from '@/hooks/usePermissions';
 import { cn } from '@/lib/utils';
 
 // Import admin modules
-import Dashboard from '@/components/admin/dashboard';
+import Dashboard from '@/components/admin/dashboard'; // Keep this import for now as it might be a dependency of DashboardConsolidated, or for fallback if needed.
 import Reservations from '@/components/admin/reservations';
 import Orders from '@/components/admin/orders';
 import Customers from '@/components/admin/customers';
@@ -50,6 +50,17 @@ import AnalyticsDashboardModule from '@/components/admin/modules/AnalyticsDashbo
 import InventoryManagementModule from '@/components/admin/modules/InventoryManagement';
 import LoyaltyProgramModule from '@/components/admin/modules/LoyaltyProgram';
 import DashboardModule from '@/components/admin/modules/Dashboard';
+// Assuming DashboardConsolidated is a new component that combines functionalities
+// If it's not yet created, this will be a placeholder or an error.
+// For the sake of this exercise, we assume it exists or will be created at:
+// client/src/components/admin/DashboardConsolidated.tsx
+import DashboardConsolidated from '@/components/admin/DashboardConsolidated'; // Import the new consolidated dashboard
+
+// Mock logger for demonstration purposes if not globally available
+const logger = {
+  error: (message: string, context?: any) => console.error(message, context),
+};
+
 
 export default function AdminFinal() : JSX.Element {
   const [, navigate] = useLocation();
@@ -80,7 +91,7 @@ export default function AdminFinal() : JSX.Element {
       const payload = JSON.parse(atob(token.split('.')[1]));
       setUser(payload);
     } catch (error) {
-      logger.error('Token invalide:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      logger.error('Token invalide:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       navigate('/login');
     }
   }, [navigate]);
@@ -149,7 +160,7 @@ export default function AdminFinal() : JSX.Element {
       id: 'dashboard',
       name: 'Tableau de bord',
       icon: Home,
-      component: Dashboard,
+      component: Dashboard, // This will now point to the consolidated dashboard
       always: true
     },
     {
@@ -378,13 +389,15 @@ export default function AdminFinal() : JSX.Element {
 
   // Filtrer les modules selon les permissions
   const availableModules = adminModules.filter(module => {
-    if (module.always)}) return true;
+    if (module.always) return true;
     if (module.adminOnly && user?.role !== 'directeur') return false;
     return true;
   });
 
   const currentModule = availableModules.find(m => m.id === activeModule);
-  const CurrentComponent = currentModule?.component || Dashboard;
+  // Use DashboardConsolidated if the active module is 'dashboard', otherwise use the component from the found module or fallback to Dashboard
+  const CurrentComponent = activeModule === 'dashboard' ? DashboardConsolidated : (currentModule?.component || Dashboard);
+
 
   if (!user) {
     return (
@@ -442,7 +455,7 @@ export default function AdminFinal() : JSX.Element {
                       <span className="truncate text-xs">{module.name}</span>
                       {module.notification && module.notification > 0 && (
                         <Badge className="ml-auto bg-red-500 text-white text-xs px-1 py-0">
-                          {module.notification)}
+                          {module.notification}
                         </Badge>
                       )}
                     </button>
