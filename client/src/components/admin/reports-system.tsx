@@ -1,21 +1,22 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  BarChart3, Download, Calendar, Users, DollarSign, TrendingUp, FileText, Filter
+  BarChart3, Download, Calendar, Users, DollarSign, TrendingUp, FileText, Filter,
+  Loader2, ChevronDown, Plus, Clock, AlertCircle, CheckCircle
 } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 interface Report {
   id: string;
   name: string;
-  type: 'sales' | 'customers' | 'inventory' | 'financial';
+  type: 'sales' | 'customers' | 'inventory' | 'financial' | 'performance';
   description: string;
   lastGenerated: string;
   format: 'PDF' | 'Excel' | 'CSV';
-  icon: unknown;
+  icon: React.ComponentType<{ className?: string }>;
 }
 
 interface ReportData {
@@ -26,17 +27,35 @@ interface ReportData {
   salesTrend: Array<{ date: string; amount: number }>;
 }
 
-export default function ReportsSystem() : JSX.Element {
+interface ScheduledReport {
+  id: string;
+  name: string;
+  frequency: 'daily' | 'weekly' | 'monthly' | 'quarterly';
+  nextRun: string;
+  status: 'active' | 'paused';
+}
+
+export default function ReportsSystem() {
   const [reportData, setReportData] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(true);
   const [generatingReport, setGeneratingReport] = useState<string | null>(null);
+  const [scheduledReports, setScheduledReports] = useState<ScheduledReport[]>([]);
+  const [selectedMetrics, setSelectedMetrics] = useState<string[]>([]);
+  const [selectedFormat, setSelectedFormat] = useState<'PDF' | 'Excel' | 'CSV'>('PDF');
+  const [newSchedule, setNewSchedule] = useState({
+    name: '',
+    frequency: 'weekly' as 'daily' | 'weekly' | 'monthly' | 'quarterly',
+    reportType: 'sales' as Report['type']
+  });
 
   useEffect(() => {
     fetchReportData();
+    fetchScheduledReports();
   }, []);
 
   const fetchReportData = async () => {
     try {
+      setLoading(true);
       const token = localStorage.getItem('token');
       
       const response = await fetch('/api/admin/reports/data', {
@@ -46,11 +65,34 @@ export default function ReportsSystem() : JSX.Element {
       if (response.ok) {
         const data = await response.json();
         setReportData(data);
+      } else {
+        throw new Error('Failed to fetch report data');
       }
     } catch (error) {
       console.error('Erreur lors du chargement des données de rapport:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les données des rapports",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchScheduledReports = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/admin/reports/scheduled', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setScheduledReports(data);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des rapports programmés:', error);
     }
   };
 
@@ -60,7 +102,7 @@ export default function ReportsSystem() : JSX.Element {
       name: 'Rapport de Ventes Mensuel',
       type: 'sales',
       description: 'Analyse détaillée des ventes du mois avec tendances et comparaisons',
-      lastGenerated: '2025-01-09',
+      lastGenerated: new Date().toISOString(),
       format: 'PDF',
       icon: BarChart3
     },
@@ -69,7 +111,7 @@ export default function ReportsSystem() : JSX.Element {
       name: 'Analyse Clients',
       type: 'customers',
       description: 'Profil des clients, fidélité et comportements d\'achat',
-      lastGenerated: '2025-01-08',
+      lastGenerated: new Date(Date.now() - 86400000).toISOString(),
       format: 'Excel',
       icon: Users
     },
@@ -78,7 +120,7 @@ export default function ReportsSystem() : JSX.Element {
       name: 'État des Stocks',
       type: 'inventory',
       description: 'Niveau des stocks, alertes et prévisions de réapprovisionnement',
-      lastGenerated: '2025-01-09',
+      lastGenerated: new Date().toISOString(),
       format: 'CSV',
       icon: FileText
     },
@@ -87,27 +129,18 @@ export default function ReportsSystem() : JSX.Element {
       name: 'Résumé Financier',
       type: 'financial',
       description: 'Bilan financier avec revenus, dépenses et rentabilité',
-      lastGenerated: '2025-01-07',
+      lastGenerated: new Date(Date.now() - 2 * 86400000).toISOString(),
       format: 'PDF',
       icon: DollarSign
     },
     {
       id: 'performance-dashboard',
       name: 'Tableau de Bord Performance',
-      type: 'sales',
+      type: 'performance',
       description: 'KPIs principaux et indicateurs de performance',
-      lastGenerated: '2025-01-09',
+      lastGenerated: new Date().toISOString(),
       format: 'PDF',
       icon: TrendingUp
-    },
-    {
-      id: 'customer-satisfaction',
-      name: 'Satisfaction Client',
-      type: 'customers',
-      description: 'Enquêtes, avis et niveau de satisfaction des clients',
-      lastGenerated: '2025-01-06',
-      format: 'Excel',
-      icon: Users
     }
   ];
 
@@ -126,16 +159,130 @@ export default function ReportsSystem() : JSX.Element {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${reportId}_${new Date().toISOString().split('T')[0]}.pdf`;
+        
+        const report = reports.find(r => r.id === reportId);
+        const extension = report?.format.toLowerCase() || 'pdf';
+        a.download = `${reportId}_${new Date().toISOString().split('T')[0]}.${extension}`;
+        
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
+
+        toast({
+          title: "Succès",
+          description: "Rapport généré avec succès",
+          variant: "default"
+        });
+      } else {
+        throw new Error('Failed to generate report');
       }
     } catch (error) {
       console.error('Erreur lors de la génération du rapport:', error);
+      toast({
+        title: "Erreur",
+        description: "Échec de la génération du rapport",
+        variant: "destructive"
+      });
     } finally {
       setGeneratingReport(null);
+    }
+  };
+
+  const createCustomReport = async () => {
+    if (selectedMetrics.length === 0) {
+      toast({
+        title: "Avertissement",
+        description: "Veuillez sélectionner au moins une métrique",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/admin/reports/custom', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          metrics: selectedMetrics,
+          format: selectedFormat
+        })
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `custom_report_${new Date().toISOString().split('T')[0]}.${selectedFormat.toLowerCase()}`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+        toast({
+          title: "Succès",
+          description: "Rapport personnalisé généré avec succès",
+          variant: "default"
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors de la création du rapport personnalisé:', error);
+      toast({
+        title: "Erreur",
+        description: "Échec de la génération du rapport personnalisé",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const scheduleReport = async () => {
+    if (!newSchedule.name) {
+      toast({
+        title: "Avertissement",
+        description: "Veuillez donner un nom à votre rapport programmé",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/admin/reports/schedule', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newSchedule)
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setScheduledReports(prev => [...prev, data]);
+        setNewSchedule({
+          name: '',
+          frequency: 'weekly',
+          reportType: 'sales'
+        });
+
+        toast({
+          title: "Succès",
+          description: "Rapport programmé avec succès",
+          variant: "default"
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors de la programmation du rapport:', error);
+      toast({
+        title: "Erreur",
+        description: "Échec de la programmation du rapport",
+        variant: "destructive"
+      });
     }
   };
 
@@ -149,6 +296,8 @@ export default function ReportsSystem() : JSX.Element {
         return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
       case 'financial':
         return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400';
+      case 'performance':
+        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400';
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
     }
@@ -160,8 +309,17 @@ export default function ReportsSystem() : JSX.Element {
       case 'customers': return 'Clients';
       case 'inventory': return 'Inventaire';
       case 'financial': return 'Financier';
+      case 'performance': return 'Performance';
       default: return 'Général';
     }
+  };
+
+  const toggleMetric = (metric: string) => {
+    setSelectedMetrics(prev => 
+      prev.includes(metric) 
+        ? prev.filter(m => m !== metric) 
+        : [...prev, metric]
+    );
   };
 
   if (loading) {
@@ -319,7 +477,7 @@ export default function ReportsSystem() : JSX.Element {
                         disabled={generatingReport === report.id}
                       >
                         {generatingReport === report.id ? (
-                          <TrendingUp className="h-4 w-4 mr-2 animate-spin" />
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                         ) : (
                           <Download className="h-4 w-4 mr-2" />
                         )}
@@ -346,7 +504,12 @@ export default function ReportsSystem() : JSX.Element {
                     <div className="space-y-2">
                       {['Ventes par période', 'Top produits', 'Analyse clients', 'Rentabilité', 'Stocks', 'Réservations'].map((metric) => (
                         <label key={metric} className="flex items-center space-x-2">
-                          <input type="checkbox" className="rounded" />
+                          <input 
+                            type="checkbox" 
+                            className="rounded" 
+                            checked={selectedMetrics.includes(metric)}
+                            onChange={() => toggleMetric(metric)}
+                          />
                           <span className="text-sm">{metric}</span>
                         </label>
                       ))}
@@ -360,14 +523,24 @@ export default function ReportsSystem() : JSX.Element {
                     <div className="space-y-2">
                       {['PDF', 'Excel', 'CSV'].map((format) => (
                         <label key={format} className="flex items-center space-x-2">
-                          <input type="radio" name="format" className="rounded" />
+                          <input 
+                            type="radio" 
+                            name="format" 
+                            className="rounded" 
+                            checked={selectedFormat === format}
+                            onChange={() => setSelectedFormat(format as 'PDF' | 'Excel' | 'CSV')}
+                          />
                           <span className="text-sm">{format}</span>
                         </label>
                       ))}
                     </div>
                   </div>
                   
-                  <Button className="w-full">
+                  <Button 
+                    className="w-full"
+                    onClick={createCustomReport}
+                    disabled={selectedMetrics.length === 0}
+                  >
                     Créer le Rapport
                   </Button>
                 </div>
@@ -384,18 +557,23 @@ export default function ReportsSystem() : JSX.Element {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {[
-                    { name: 'Rapport Hebdomadaire', frequency: 'Chaque lundi', nextRun: '2025-01-13' },
-                    { name: 'Bilan Mensuel', frequency: 'Le 1er de chaque mois', nextRun: '2025-02-01' },
-                    { name: 'Analyse Trimestrielle', frequency: 'Chaque trimestre', nextRun: '2025-04-01' }
-                  ].map((scheduled, index) => (
-                    <div key={index} className="p-4 border rounded-lg">
+                  {scheduledReports.map((scheduled) => (
+                    <div key={scheduled.id} className="p-4 border rounded-lg">
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="font-semibold">{scheduled.name}</h4>
-                        <Badge className="bg-blue-100 text-blue-800">Actif</Badge>
+                        <Badge 
+                          className={scheduled.status === 'active' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-yellow-100 text-yellow-800'}
+                        >
+                          {scheduled.status === 'active' ? 'Actif' : 'En pause'}
+                        </Badge>
                       </div>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                        {scheduled.frequency}
+                        {scheduled.frequency === 'daily' && 'Quotidien'}
+                        {scheduled.frequency === 'weekly' && 'Hebdomadaire'}
+                        {scheduled.frequency === 'monthly' && 'Mensuel'}
+                        {scheduled.frequency === 'quarterly' && 'Trimestriel'}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-500">
                         Prochaine exécution: {new Date(scheduled.nextRun).toLocaleDateString('fr-FR')}
@@ -414,20 +592,49 @@ export default function ReportsSystem() : JSX.Element {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium mb-1">Nom du rapport</label>
-                    <input type="text" className="w-full border rounded-lg px-3 py-2" placeholder="Mon rapport personnalisé" />
+                    <input 
+                      type="text" 
+                      className="w-full border rounded-lg px-3 py-2" 
+                      placeholder="Mon rapport personnalisé"
+                      value={newSchedule.name}
+                      onChange={(e) => setNewSchedule({...newSchedule, name: e.target.value})}
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Type de rapport</label>
+                    <select 
+                      className="w-full border rounded-lg px-3 py-2"
+                      value={newSchedule.reportType}
+                      onChange={(e) => setNewSchedule({...newSchedule, reportType: e.target.value as Report['type']})}
+                    >
+                      <option value="sales">Ventes</option>
+                      <option value="customers">Clients</option>
+                      <option value="inventory">Inventaire</option>
+                      <option value="financial">Financier</option>
+                      <option value="performance">Performance</option>
+                    </select>
                   </div>
                   
                   <div>
                     <label className="block text-sm font-medium mb-1">Fréquence</label>
-                    <select className="w-full border rounded-lg px-3 py-2">
-                      <option>Quotidien</option>
-                      <option>Hebdomadaire</option>
-                      <option>Mensuel</option>
-                      <option>Trimestriel</option>
+                    <select 
+                      className="w-full border rounded-lg px-3 py-2"
+                      value={newSchedule.frequency}
+                      onChange={(e) => setNewSchedule({...newSchedule, frequency: e.target.value as any})}
+                    >
+                      <option value="daily">Quotidien</option>
+                      <option value="weekly">Hebdomadaire</option>
+                      <option value="monthly">Mensuel</option>
+                      <option value="quarterly">Trimestriel</option>
                     </select>
                   </div>
                   
-                  <Button className="w-full">
+                  <Button 
+                    className="w-full"
+                    onClick={scheduleReport}
+                    disabled={!newSchedule.name}
+                  >
                     Programmer le Rapport
                   </Button>
                 </div>
@@ -454,10 +661,10 @@ export default function ReportsSystem() : JSX.Element {
                       </div>
                       <div className="text-right">
                         <p className="font-bold text-green-600">{product.sales}€</p>
-                        <p className="text-xs text-gray-600 dark: text-gray-400">ventes</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">ventes</p>
                       </div>
                     </div>
-                  )) || [,]}
+                  ))}
                 </div>
               </CardContent>
             </Card>
@@ -473,7 +680,7 @@ export default function ReportsSystem() : JSX.Element {
                       <span className="text-sm">{new Date(day.date).toLocaleDateString('fr-FR')}</span>
                       <span className="font-semibold">{day.amount.toFixed(2)}€</span>
                     </div>
-                  )) || []}
+                  ))}
                 </div>
               </CardContent>
             </Card>

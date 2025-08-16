@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-// Types pour les données d'inventaire optimisées
+// Types améliorés avec des interfaces plus complètes
 interface InventoryAlert {
   id: string;
   itemId: string;
@@ -78,6 +78,12 @@ interface InventoryPrediction {
   };
 }
 
+interface InventoryCategory {
+  id: string;
+  name: string;
+  items: InventoryItemEnhanced[];
+}
+
 interface InventoryData {
   alerts: InventoryAlert[];
   statistics: {
@@ -87,89 +93,10 @@ interface InventoryData {
     monthlyConsumption: number;
     totalItems: number;
   };
-  categories: Array<{
-    id: string;
-    name: string;
-    items: InventoryItemEnhanced[];
-  }>;
+  categories: InventoryCategory[];
 }
 
-// Composants extraits pour une meilleure maintenabilité
-const InventoryItemCard = ({ item }: { item: InventoryItemEnhanced }) => {
-  const stockPercentage = Math.min(100, (item.currentStock / item.maxStock) * 100);
-  
-  return (
-    <div className="flex items-center justify-between p-3 border rounded-lg">
-      <div className="flex-1">
-        <div className="flex items-center gap-3">
-          <div>
-            <h4 className="font-medium">{item.name}</h4>
-            <p className="text-sm text-gray-600">{item.supplier}</p>
-          </div>
-          <Badge variant={
-            item.status === 'critical' ? 'destructive' :
-            item.status === 'warning' ? 'secondary' : 'default'
-          }>
-            {item.status}
-          </Badge>
-        </div>
-      </div>
-      
-      <div className="flex items-center gap-6">
-        <div className="text-center">
-          <div className="text-lg font-bold">{item.currentStock}</div>
-          <div className="text-xs text-gray-500">{item.unit}</div>
-        </div>
-        
-        <div className="w-32">
-          <div className="flex justify-between text-xs text-gray-500 mb-1">
-            <span>Min: {item.minStock}</span>
-            <span>Max: {item.maxStock}</span>
-          </div>
-          <Progress 
-            value={stockPercentage}
-            className={`w-full ${
-              stockPercentage < 20 ? 'bg-red-500' :
-              stockPercentage < 50 ? 'bg-yellow-500' : 'bg-green-500'
-            }`}
-          />
-        </div>
-        
-        {item.daysRemaining && (
-          <div className="text-center">
-            <div className={`text-sm font-medium ${
-              item.daysRemaining < 7 ? 'text-red-600' :
-              item.daysRemaining < 14 ? 'text-yellow-600' : 'text-green-600'
-            }`}>
-              {item.daysRemaining}j
-            </div>
-            <div className="text-xs text-gray-500">restants</div>
-          </div>
-        )}
-        
-        <div className="text-center">
-          <div className="text-sm font-medium">
-            {new Intl.NumberFormat('fr-FR', {
-              style: 'currency',
-              currency: 'EUR'
-            }).format(item.cost)}
-          </div>
-          <div className="text-xs text-gray-500">/{item.unit}</div>
-        </div>
-        
-        <div className="flex gap-1">
-          <Button size="sm" variant="outline">
-            <Minus className="h-3 w-3" />
-          </Button>
-          <Button size="sm" variant="outline">
-            <Plus className="h-3 w-3" />
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
+// Composant StatsCard séparé avec typage propre
 const StatsCard = ({ 
   title, 
   value, 
@@ -177,7 +104,7 @@ const StatsCard = ({
   description 
 }: {
   title: string;
-  value: number;
+  value: string | number;
   icon: React.ReactNode;
   description?: string;
 }) => (
@@ -199,13 +126,89 @@ const StatsCard = ({
   </Card>
 );
 
+// Composant InventoryItemCard optimisé
+const InventoryItemCard = ({ item }: { item: InventoryItemEnhanced }) => {
+  const stockPercentage = Math.min(100, (item.currentStock / item.maxStock) * 100);
+  
+  return (
+    <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+      <div className="flex-1">
+        <div className="flex items-center gap-3">
+          <div>
+            <h4 className="font-medium">{item.name}</h4>
+            <p className="text-sm text-muted-foreground">{item.supplier}</p>
+          </div>
+          <Badge variant={
+            item.status === 'critical' ? 'destructive' :
+            item.status === 'warning' ? 'secondary' : 'default'
+          }>
+            {item.status}
+          </Badge>
+        </div>
+      </div>
+      
+      <div className="flex items-center gap-6">
+        <div className="text-center">
+          <div className="text-lg font-bold">{item.currentStock}</div>
+          <div className="text-xs text-muted-foreground">{item.unit}</div>
+        </div>
+        
+        <div className="w-32">
+          <div className="flex justify-between text-xs text-muted-foreground mb-1">
+            <span>Min: {item.minStock}</span>
+            <span>Max: {item.maxStock}</span>
+          </div>
+          <Progress 
+            value={stockPercentage}
+            className={`w-full ${
+              stockPercentage < 20 ? 'bg-red-500' :
+              stockPercentage < 50 ? 'bg-yellow-500' : 'bg-green-500'
+            }`}
+          />
+        </div>
+        
+        {item.daysRemaining !== undefined && (
+          <div className="text-center">
+            <div className={`text-sm font-medium ${
+              item.daysRemaining < 7 ? 'text-red-600' :
+              item.daysRemaining < 14 ? 'text-yellow-600' : 'text-green-600'
+            }`}>
+              {item.daysRemaining}j
+            </div>
+            <div className="text-xs text-muted-foreground">restants</div>
+          </div>
+        )}
+        
+        <div className="text-center">
+          <div className="text-sm font-medium">
+            {new Intl.NumberFormat('fr-FR', {
+              style: 'currency',
+              currency: 'EUR'
+            }).format(item.cost)}
+          </div>
+          <div className="text-xs text-muted-foreground">/{item.unit}</div>
+        </div>
+        
+        <div className="flex gap-1">
+          <Button size="sm" variant="outline" aria-label="Diminuer stock">
+            <Minus className="h-3 w-3" />
+          </Button>
+          <Button size="sm" variant="outline" aria-label="Augmenter stock">
+            <Plus className="h-3 w-3" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const InventoryManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const queryClient = useQueryClient();
 
-  // Requêtes optimisées avec typage et gestion d'erreur
+  // Requêtes optimisées avec gestion d'erreur améliorée
   const { 
     data: inventory, 
     isLoading, 
@@ -214,10 +217,11 @@ const InventoryManagement = () => {
     queryKey: ['inventory', 'overview'],
     queryFn: async () => {
       const res = await fetch('/api/admin/inventory/overview');
-      if (!res.ok) throw new Error('Échec du chargement');
+      if (!res.ok) throw new Error('Échec du chargement des données d\'inventaire');
       return res.json();
     },
-    refetchInterval: 60000
+    refetchInterval: 60000,
+    staleTime: 30000
   });
 
   const { data: predictions } = useQuery<InventoryPrediction[]>({
@@ -259,7 +263,7 @@ const InventoryManagement = () => {
         },
         body: JSON.stringify(params)
       });
-      if (!response.ok) throw new Error('Échec de la génération');
+      if (!response.ok) throw new Error('Échec de la génération des commandes');
       return response.json();
     },
     onSuccess: () => {
@@ -274,14 +278,14 @@ const InventoryManagement = () => {
     }
   });
 
-  // Filtrage optimisé avec useMemo
+  // Filtrage optimisé avec useMemo et typage correct
   const filteredCategories = useMemo(() => {
     if (!inventory?.categories) return [];
     
     return inventory.categories
-      .map(category => ({
+      .map((category) => ({
         ...category,
-        items: category.items.filter(item => {
+        items: category.items.filter((item) => {
           const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
           const matchesCategory = selectedCategory === 'all' || category.id === selectedCategory;
           const matchesStatus = selectedStatus === 'all' || item.status === selectedStatus;
@@ -326,7 +330,7 @@ const InventoryManagement = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Gestion des Stocks</h1>
-          <p className="text-gray-600">Suivi intelligent avec prédictions IA</p>
+          <p className="text-muted-foreground">Suivi intelligent avec prédictions IA</p>
         </div>
         <div className="flex gap-2">
           <Button 
@@ -346,7 +350,7 @@ const InventoryManagement = () => {
       </div>
 
       {/* Alertes */}
-      {inventory && inventory.alerts && inventory.alerts.length > 0 && (
+      {inventory?.alerts && inventory.alerts.length > 0 && (
         <div className="space-y-2">
           {inventory.alerts.map((alert) => (
             <Alert key={alert.id} variant={alert.priority === 'high' ? 'destructive' : 'default'}>
@@ -402,7 +406,7 @@ const InventoryManagement = () => {
           {/* Filtres */}
           <div className="flex gap-4 items-center">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Rechercher un article..."
                 value={searchTerm}
@@ -478,8 +482,8 @@ const InventoryManagement = () => {
             <CardContent>
               {predictions && predictions.length > 0 ? (
                 <div className="space-y-4">
-                  {predictions.map((prediction, index) => (
-                    <div key={index} className="border rounded-lg p-4">
+                  {predictions.map((prediction) => (
+                    <div key={prediction.name} className="border rounded-lg p-4">
                       <div className="flex justify-between items-center mb-2">
                         <h3 className="font-medium">{prediction.name}</h3>
                         <Badge variant={

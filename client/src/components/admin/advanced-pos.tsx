@@ -1,16 +1,15 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  ShoppingCart, 
-  CreditCard, 
-  DollarSign, 
-  Plus, 
-  Minus, 
+import {
+  ShoppingCart,
+  CreditCard,
+  DollarSign,
+  Plus,
+  Minus,
   Trash2,
   Receipt,
   Calculator,
@@ -21,10 +20,6 @@ import {
   Check,
   X,
   Search,
-  Filter,
-  Clock,
-  User,
-  Star
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
@@ -64,7 +59,7 @@ interface PaymentMethod {
   processingFee?: number;
 }
 
-export default function AdvancedPOS() : JSX.Element {
+export default function AdvancedPOS(): JSX.Element {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [currentOrder, setCurrentOrder] = useState<Order | null>(null);
@@ -83,7 +78,7 @@ export default function AdvancedPOS() : JSX.Element {
     { id: 'card', name: 'Carte', icon: CreditCard, enabled: true, processingFee: 0.025 },
     { id: 'contactless', name: 'Sans contact', icon: Zap, enabled: true },
     { id: 'mobile', name: 'Mobile', icon: Smartphone, enabled: true },
-    { id: 'qr', name: 'QR Code', icon: QrCode, enabled: true }
+    { id: 'qr', name: 'QR Code', icon: QrCode, enabled: true },
   ];
 
   const categories = ['all', 'Cafés', 'Pâtisseries', 'Boissons', 'Plats'];
@@ -100,32 +95,32 @@ export default function AdvancedPOS() : JSX.Element {
         setMenuItems(data.menu || []);
       }
     } catch (error) {
-      logger.error('Erreur lors du chargement du menu:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      console.error('Erreur lors du chargement du menu:', error);
       // Données par défaut
       setMenuItems([
         { id: 1, name: 'Espresso', price: 2.50, category: 'Cafés', stock: 50 },
         { id: 2, name: 'Cappuccino', price: 3.50, category: 'Cafés', stock: 30 },
         { id: 3, name: 'Croissant', price: 2.00, category: 'Pâtisseries', stock: 20 },
-        { id: 4, name: 'Sandwich Club', price: 8.50, category: 'Plats', stock: 15 }
+        { id: 4, name: 'Sandwich Club', price: 8.50, category: 'Plats', stock: 15 },
       ]);
     }
   };
 
   const addToCart = useCallback((item: MenuItem) => {
     setCart(prev => {
-      const existing = prev.find(cartItem => cartItem.id === item.id)});
+      const existing = prev.find(cartItem => cartItem.id === item.id);
       if (existing) {
-        return prev.map(cartItem =>
+        return prev.map(cartItem => 
           cartItem.id === item.id
-            ? { ...cartItem, quantity: cartItem.quantity + 1 )}
+            ? { ...cartItem, quantity: cartItem.quantity + 1 }
             : cartItem
         );
       }
-      return [...prev, { ...item, quantity: 1 });
+      return [...prev, { ...item, quantity: 1 }];
     });
     toast({
       title: "Ajouté au panier",
-      description: `${item.name} ajouté avec succès`
+      description: `${item.name} ajouté avec succès`,
     });
   }, []);
 
@@ -138,8 +133,8 @@ export default function AdvancedPOS() : JSX.Element {
       removeFromCart(itemId);
       return;
     }
-    setCart(prev =>
-      prev.map(item =>
+    setCart(prev => 
+      prev.map(item => 
         item.id === itemId ? { ...item, quantity: newQuantity } : item
       )
     );
@@ -162,7 +157,7 @@ export default function AdvancedPOS() : JSX.Element {
 
       const order: Order = {
         id: `ORD-${Date.now()}`,
-        items: [...cart,],
+        items: [...cart],
         total: finalTotal,
         tax: totals.tax,
         subtotal: totals.subtotal,
@@ -170,7 +165,7 @@ export default function AdvancedPOS() : JSX.Element {
         customerName: customerName || undefined,
         tableNumber: tableNumber || undefined,
         timestamp: new Date(),
-        status: 'completed'
+        status: 'completed',
       };
 
       // Simulation du traitement
@@ -184,18 +179,17 @@ export default function AdvancedPOS() : JSX.Element {
 
       toast({
         title: "Paiement réussi",
-        description: `Commande ${order.id} traitée avec succès`
+        description: `Commande ${order.id} traitée avec succès`,
       });
 
       // Auto-impression du reçu (simulation)
       setTimeout(() => printReceipt(order), 500);
-
     } catch (error) {
       toast({
         title: "Erreur de paiement",
         description: "Une erreur est survenue lors du traitement",
-        variant: "destructive"
-      )});
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -206,12 +200,12 @@ export default function AdvancedPOS() : JSX.Element {
     console.log('Impression du reçu:', order);
     toast({
       title: "Reçu imprimé",
-      description: `Reçu pour la commande ${order.id}`
+      description: `Reçu pour la commande ${order.id}`,
     });
   };
 
   const filteredItems = menuItems.filter(item => {
-    const matchesSearch = item.name.toLowerCase()}).includes(searchTerm.toLowerCase());
+    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -246,8 +240,8 @@ export default function AdvancedPOS() : JSX.Element {
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="px-3 py-2 border rounded-md"
               >
-                {categories.map(category => (
-                  <option key={category)} value={category}>
+                {categories.map((category) => (
+                  <option key={category} value={category}>
                     {category === 'all' ? 'Toutes catégories' : category}
                   </option>
                 ))}
@@ -256,16 +250,16 @@ export default function AdvancedPOS() : JSX.Element {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {filteredItems.map(item => (
+            {filteredItems.map((item) => (
               <Card
-                key={item.id)}
+                key={item.id}
                 className="cursor-pointer hover:shadow-lg transition-shadow"
                 onClick={() => addToCart(item)}
               >
                 <CardContent className="p-4">
                   <div className="aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg mb-3 flex items-center justify-center">
                     {item.image ? (
-                      <img src={item.image)} alt={item.name} className="w-full h-full object-cover rounded-lg" />
+                      <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded-lg" />
                     ) : (
                       <div className="text-gray-400 text-2xl">🍽️</div>
                     )}
@@ -273,7 +267,7 @@ export default function AdvancedPOS() : JSX.Element {
                   <h3 className="font-semibold text-sm mb-1 truncate">{item.name}</h3>
                   <p className="text-lg font-bold text-primary">{item.price.toFixed(2)}€</p>
                   {item.stock !== undefined && (
-                    <p className="text-xs text-gray-500">Stock: {item.stock)}</p>
+                    <p className="text-xs text-gray-500">Stock: {item.stock}</p>
                   )}
                 </CardContent>
               </Card>
@@ -438,12 +432,12 @@ export default function AdvancedPOS() : JSX.Element {
               <CardTitle className="text-green-600">Paiement réussi !</CardTitle>
             </CardHeader>
             <CardContent className="text-center space-y-4">
-              <p>Commande #{currentOrder.id)}</p>
+              <p>Commande #{currentOrder.id}</p>
               <p className="text-2xl font-bold">{currentOrder.total.toFixed(2)}€</p>
               <p className="text-sm text-gray-500">
                 Payé par {paymentMethods.find(m => m.id === currentOrder.paymentMethod)?.name}
               </p>
-              
+
               <div className="flex space-x-2">
                 <Button
                   variant="outline"

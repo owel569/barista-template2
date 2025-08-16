@@ -39,7 +39,7 @@ export const generateProductData = (timeRange: string) => {
   
   const totalOrders = timeRange === '7d' ? 300 : timeRange === '30d' ? 1200 : 3600;
   
-  return products.map(product => {
+  return products.map((product) => {
     const variance = (Math.random() - 0.5) * 0.1; // ±5% variance
     const actualShare = Math.max(0.01, product.baseShare + variance);
     const sales = Math.round(totalOrders * actualShare);
@@ -71,7 +71,7 @@ export const generateHourlyData = (timeRange: string) => {
     { hour: '19h', baseOrders: 15, peakMultiplier: 0.5 }
   ];
   
-  return hours.map(hourData => {
+  return hours.map((hourData) => {
     const variance = Math.random() * 0.4 - 0.2; // ±20% variance
     const orders = Math.round(hourData.baseOrders * (1 + variance));
     const revenue = orders * (30 + Math.random() * 20); // 30-50€ par commande

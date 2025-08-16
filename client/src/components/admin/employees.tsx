@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { Employee, WorkShift } from '@/types/admin';
@@ -7,6 +7,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CardDescription,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,6 +27,7 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogDescription,
+  DialogFooter,
 } from '@/components/ui/dialog';
 import {
   Form,
@@ -45,21 +47,41 @@ import {
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Plus, Pencil, Trash2, Eye, Users, UserCheck, Clock, Mail } from 'lucide-react';
+import { 
+  Plus, 
+  Pencil, 
+  Trash2, 
+  Eye, 
+  Users, 
+  UserCheck, 
+  Clock, 
+  Mail,
+  RefreshCw,
+  Calendar,
+  DollarSign
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { InternationalPhoneInput } from '@/components/ui/international-phone-input';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const employeeSchema = z.object({
-  firstName: z.string()}).min(2, 'Le prénom doit contenir au moins 2 caractères'),
+  firstName: z.string().min(2, 'Le prénom doit contenir au moins 2 caractères'),
   lastName: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
   email: z.string().email('Email invalide'),
   position: z.string().min(2, 'Le poste doit contenir au moins 2 caractères'),
   department: z.string().min(2, 'Le département doit contenir au moins 2 caractères'),
-  phone: z.string().min(8, 'Le téléphone doit contenir au moins 8 chiffres').regex(/^(\+212|0)[0-9]{8,9}$|^(\+33|0)[0-9]{9}$|^(\+|00)[1-9][0-9]{1,14}$/, 'Format invalide. Utilisez +212XXXXXXXXX (Maroc), +33XXXXXXXXX (France) ou format international'),
+  phone: z.string().min(8, 'Le téléphone doit contenir au moins 8 chiffres')
+    .regex(/^(\+212|0)[0-9]{8,9}$|^(\+33|0)[0-9]{9}$|^(\+|00)[1-9][0-9]{1,14}$/, 
+      'Format invalide. Utilisez +212XXXXXXXXX (Maroc), +33XXXXXXXXX (France) ou format international'),
   hireDate: z.string(),
-  salary: z.coerce.number().positive('Le salaire doit être supérieur à 0').min(1000, 'Salaire minimum : 1000 DH').max(50000, 'Salaire maximum : 50000 DH'),
-  status: z.enum(['active', 'inactive']).optional(),
+  salary: z.coerce.number()
+    .positive('Le salaire doit être supérieur à 0')
+    .min(1000, 'Salaire minimum : 1000 DH')
+    .max(50000, 'Salaire maximum : 50000 DH'),
+  status: z.enum(['active', 'inactive']).default('active'),
 });
 
 type EmployeeFormData = z.infer<typeof employeeSchema>;
@@ -86,53 +108,42 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
       position: '',
       department: '',
       phone: '',
-      hireDate: new Date().toISOString().split('T')[0,],
-      salary: 0,
+      hireDate: format(new Date(), 'yyyy-MM-dd'),
+      salary: 3000,
       status: 'active',
     },
   });
 
-  const { data: employees = [,], isLoading } = useQuery<Employee[]>({
-    queryKey: ['/api/admin/employees',],
-    retry: 3,
-    retryDelay: 1000,
+  const { data: employees = [], isLoading, refetch } = useQuery<Employee[]>({
+    queryKey: ['employees'],
+    queryFn: () => apiRequest('/api/admin/employees'),
   });
 
   const { data: workShifts = [] } = useQuery<WorkShift[]>({
-    queryKey: ['/api/admin/work-shifts',],
-    retry: 3,
-    retryDelay: 1000,
+    queryKey: ['work-shifts'],
+    queryFn: () => apiRequest('/api/admin/work-shifts'),
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: EmployeeFormData})}) => apiRequest('/api/admin/employees', {
-      method: 'POST',
-      body: JSON.stringify(data)}),
-    }),
+    mutationFn: (data: EmployeeFormData) => 
+      apiRequest('/api/admin/employees', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/employees'] )});
+      queryClient.invalidateQueries({ queryKey: ['employees'] });
       setIsDialogOpen(false);
       setEditingEmployee(null);
-      form.reset({
-        firstName: '',
-        lastName: '',
-        email: '',
-        position: '',
-        department: '',
-        phone: '',
-        hireDate: new Date()}).toISOString().split('T')[0],
-        salary: 0,
-        status: 'active',
-      });
+      form.reset();
       toast({
         title: 'Succès',
         description: 'Employé créé avec succès',
       });
     },
-    onError: () => {
+    onError: (error: Error) => {
       toast({
         title: 'Erreur',
-        description: 'Erreur lors de la création de l\'employé',
+        description: error.message || 'Erreur lors de la création de l\'employé',
         variant: 'destructive',
       });
     },
@@ -145,49 +156,40 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
         body: JSON.stringify(data),
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/employees'] });
+      queryClient.invalidateQueries({ queryKey: ['employees'] });
       setIsDialogOpen(false);
       setEditingEmployee(null);
-      form.reset({
-        firstName: '',
-        lastName: '',
-        email: '',
-        position: '',
-        department: '',
-        phone: '',
-        hireDate: new Date().toISOString().split('T')[0],
-        salary: 0,
-        status: 'active',
-      });
+      form.reset();
       toast({
         title: 'Succès',
         description: 'Employé mis à jour avec succès',
       });
     },
-    onError: () => {
+    onError: (error: Error) => {
       toast({
         title: 'Erreur',
-        description: 'Erreur lors de la mise à jour de l\'employé',
+        description: error.message || 'Erreur lors de la mise à jour de l\'employé',
         variant: 'destructive',
       });
     },
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => apiRequest(`/api/admin/employees/${id}`, {
-      method: 'DELETE',
-    }),
+    mutationFn: (id: number) => 
+      apiRequest(`/api/admin/employees/${id}`, {
+        method: 'DELETE',
+      }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/employees'] });
+      queryClient.invalidateQueries({ queryKey: ['employees'] });
       toast({
         title: 'Succès',
         description: 'Employé supprimé avec succès',
       });
     },
-    onError: () => {
+    onError: (error: Error) => {
       toast({
         title: 'Erreur',
-        description: 'Erreur lors de la suppression de l\'employé',
+        description: error.message || 'Erreur lors de la suppression de l\'employé',
         variant: 'destructive',
       });
     },
@@ -201,18 +203,11 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
     }
   };
 
-  const handleEdit = (employee: { id: number; firstName: string; lastName: string; email: string; position: string; department?: string; phone?: string; hireDate?: string; salary?: number | string; status?: string }) => {
+  const handleEdit = (employee: Employee) => {
     setEditingEmployee(employee);
     form.reset({
-      firstName: employee.firstName,
-      lastName: employee.lastName,
-      email: employee.email,
-      position: employee.position,
-      department: employee.department || '',
-      phone: employee.phone || '',
-      hireDate: employee.hireDate ? new Date(employee.hireDate).toISOString().split('T')[0] : '',
-      salary: employee.salary ? employee.salary.toString() : '0',
-      status: employee.status || 'active',
+      ...employee,
+      hireDate: employee.hireDate ? format(new Date(employee.hireDate), 'yyyy-MM-dd') : '',
     });
     setIsDialogOpen(true);
   };
@@ -223,32 +218,53 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
     }
   };
 
-  const openNewDialog = () => {
-    setEditingEmployee(null);
-    form.reset({
-      firstName: '',
-      lastName: '',
-      email: '',
-      position: '',
-      department: '',
-      phone: '',
-      hireDate: new Date().toISOString().split('T')[0],
-      salary: 0,
-      status: 'active',
+  const handleRefresh = () => {
+    refetch();
+    toast({
+      title: "Actualisation",
+      description: "Liste des employés actualisée",
     });
-    setIsDialogOpen(true);
   };
 
   // Calculer les statistiques
   const totalEmployees = employees.length;
-  const activeEmployees = employees.filter((emp: { id: number; firstName: string; lastName: string; email: string; position: string; status: string }) => emp.status === 'active').length;
-  const todayShifts = workShifts.filter((shift: unknown) => {
-    const today = new Date().toISOString().split('T')[0];
+  const activeEmployees = employees.filter(emp => emp.status === 'active').length;
+  const todayShifts = workShifts.filter(shift => {
+    const today = format(new Date(), 'yyyy-MM-dd');
     return shift.date === today;
   }).length;
 
   if (isLoading) {
-    return <div className="p-6">Chargement...</div>;
+    return (
+      <div className="p-6 space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <Skeleton className="h-8 w-48 mb-2" />
+            <Skeleton className="h-4 w-64" />
+          </div>
+          <Skeleton className="h-10 w-40" />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <Card key={i}>
+              <CardContent className="p-6">
+                <Skeleton className="h-24 w-full" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-48" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-96 w-full" />
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
@@ -257,50 +273,87 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold">Gestion des Employés</h1>
-          <p className="text-muted-foreground">Gérez votre équipe et leurs informations</p>
+          <p className="text-muted-foreground">
+            {totalEmployees} employé(s) - {activeEmployees} actif(s)
+          </p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={(open) => {
-          if (!open) {
-            // Reset form when dialog closes
-            setEditingEmployee(null);
-            form.reset({
-              firstName: '',
-              lastName: '',
-              email: '',
-              position: '',
-              department: '',
-              phone: '',
-              hireDate: new Date(}).toISOString().split('T')[0],
-              salary: 0,
-              status: 'active',
-            });
-          }
-          setIsDialogOpen(open);
-        }}>
-          <DialogTrigger asChild>
-            <Button onClick={openNewDialog}>
-              <Plus className="h-4 w-4 mr-2" />
-              Nouvel Employé
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>
-                {editingEmployee ? 'Modifier l\'employé' : 'Nouvel employé'}
-              </DialogTitle>
-              <DialogDescription>
-                {editingEmployee ? 'Modifiez les informations de cet employé' : 'Ajoutez un nouvel employé à votre équipe'}
-              </DialogDescription>
-            </DialogHeader>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit((data: EmployeeFormData) => onSubmit(data))} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleRefresh}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Actualiser
+          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={() => {
+                setEditingEmployee(null);
+                form.reset();
+              }}>
+                <Plus className="h-4 w-4 mr-2" />
+                Nouvel Employé
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>
+                  {editingEmployee ? 'Modifier l\'employé' : 'Nouvel employé'}
+                </DialogTitle>
+                <DialogDescription>
+                  {editingEmployee 
+                    ? 'Modifiez les informations de cet employé' 
+                    : 'Ajoutez un nouvel employé à votre équipe'}
+                </DialogDescription>
+              </DialogHeader>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="firstName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Prénom</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="lastName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nom</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
                   <FormField
                     control={form.control}
-                    name="firstName"
-                    render={({ field )}) => (
+                    name="email"
+                    render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Prénom</FormLabel>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input type="email" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="position"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Poste</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -308,12 +361,13 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                       </FormItem>
                     )}
                   />
+
                   <FormField
                     control={form.control}
-                    name="lastName"
-                    render={({ field )}) => (
+                    name="department"
+                    render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Nom</FormLabel>
+                        <FormLabel>Département</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -321,153 +375,118 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                       </FormItem>
                     )}
                   />
-                </div>
 
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field )}) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input type="email" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="position"
-                  render={({ field )}) => (
-                    <FormItem>
-                      <FormLabel>Poste</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="department"
-                  render={({ field )}) => (
-                    <FormItem>
-                      <FormLabel>Département</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field )}) => (
-                    <FormItem>
-                      <FormLabel>Téléphone</FormLabel>
-                      <FormControl>
-                        <InternationalPhoneInput
-                          value={field.value}
-                          onChange={field.onChange}
-                          placeholder="Numéro de téléphone"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
-                    name="hireDate"
-                    render={({ field )}) => (
+                    name="phone"
+                    render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Date d'embauche</FormLabel>
+                        <FormLabel>Téléphone</FormLabel>
                         <FormControl>
-                          <Input type="date" {...field} />
+                          <InternationalPhoneInput
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder="Numéro de téléphone"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="hireDate"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Date d'embauche</FormLabel>
+                          <FormControl>
+                            <Input type="date" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="salary"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Salaire (DH)</FormLabel>
+                          <FormControl>
+                            <div>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                min="1000"
+                                max="50000"
+                                {...field}
+                                placeholder="2500.50"
+                              />
+                              <p className="text-xs text-gray-500 mt-1">
+                                💰 Salaire en dirhams marocains (DH). Min: 1000 DH, Max: 50000 DH
+                              </p>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
                   <FormField
                     control={form.control}
-                    name="salary"
-                    render={({ field )}) => (
+                    name="status"
+                    render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Salaire (DH)</FormLabel>
-                        <FormControl>
-                          <div>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              min="0"
-                              max="99999.99"
-                              {...field}
-                              placeholder="2500.50"
-                              onChange={(e) => field.onChange(Number(e.target.value))}
-                            />
-                            <p className="text-xs text-gray-500 mt-1">💰 Salaire en dirhams marocains (DH). Min: 1000 DH, Max: 50000 DH</p>
-                          </div>
-                        </FormControl>
+                        <FormLabel>Statut</FormLabel>
+                        <Select 
+                          onValueChange={field.onChange} 
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="active">Actif</SelectItem>
+                            <SelectItem value="inactive">Inactif</SelectItem>
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                </div>
 
-                <FormField
-                  control={form.control}
-                  name="status"
-                  render={({ field )}) => (
-                    <FormItem>
-                      <FormLabel>Statut</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="active">Actif</SelectItem>
-                          <SelectItem value="inactive">Inactif</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="flex justify-end space-x-2 pt-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setIsDialogOpen(false)}
-                  >
-                    Annuler
-                  </Button>
-                  <Button
-                    type="submit"
-                    disabled={createMutation.isPending || updateMutation.isPending}
-                  >
-                    {createMutation.isPending || updateMutation.isPending
-                      ? 'Enregistrement...'
-                      : editingEmployee
-                      ? 'Modifier'
-                      : 'Créer'}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </DialogContent>
-        </Dialog>
+                  <DialogFooter>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setIsDialogOpen(false)}
+                    >
+                      Annuler
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={createMutation.isPending || updateMutation.isPending}
+                    >
+                      {createMutation.isPending || updateMutation.isPending ? (
+                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                      ) : editingEmployee ? (
+                        <Pencil className="h-4 w-4 mr-2" />
+                      ) : (
+                        <Plus className="h-4 w-4 mr-2" />
+                      )}
+                      {editingEmployee ? 'Modifier' : 'Créer'}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* Statistiques */}
@@ -479,6 +498,9 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalEmployees}</div>
+            <p className="text-xs text-muted-foreground">
+              +5% depuis le mois dernier
+            </p>
           </CardContent>
         </Card>
 
@@ -489,6 +511,9 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">{activeEmployees}</div>
+            <p className="text-xs text-muted-foreground">
+              {Math.round((activeEmployees / totalEmployees) * 100)}% de l'effectif
+            </p>
           </CardContent>
         </Card>
 
@@ -499,6 +524,9 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">{todayShifts}</div>
+            <p className="text-xs text-muted-foreground">
+              {todayShifts > 0 ? 'En service' : 'Aucun service aujourd\'hui'}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -507,6 +535,9 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
       <Card>
         <CardHeader>
           <CardTitle>Liste des Employés</CardTitle>
+          <CardDescription>
+            Gestion complète de votre équipe
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -516,59 +547,78 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                 <TableHead>Email</TableHead>
                 <TableHead>Poste</TableHead>
                 <TableHead>Date d'embauche</TableHead>
+                <TableHead>Salaire</TableHead>
                 <TableHead>Statut</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {employees.map((employee: { id: number; firstName: string; lastName: string; email: string; position: string; hireDate?: string; status: string )}) => (
-                <TableRow key={employee.id}>
-                  <TableCell className="font-medium">
-                    {employee.firstName} {employee.lastName}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center">
-                      <Mail className="h-4 w-4 mr-2 text-muted-foreground" />
-                      {employee.email}
-                    </div>
-                  </TableCell>
-                  <TableCell>{employee.position}</TableCell>
-                  <TableCell>
-                    {employee.hireDate 
-                      ? new Date(employee.hireDate).toLocaleDateString('fr-FR')
-                      : '-'
-                    }
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={employee.status === 'active' ? 'default' : 'secondary'}>
-                      {employee.status === 'active' ? 'Actif' : 'Inactif'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleEdit(employee)}
+              {employees.length > 0 ? (
+                employees.map((employee) => (
+                  <TableRow key={employee.id}>
+                    <TableCell className="font-medium">
+                      {employee.firstName} {employee.lastName}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <Mail className="h-4 w-4 mr-2 text-muted-foreground" />
+                        {employee.email}
+                      </div>
+                    </TableCell>
+                    <TableCell>{employee.position}</TableCell>
+                    <TableCell>
+                      {employee.hireDate 
+                        ? format(new Date(employee.hireDate), 'dd/MM/yyyy', { locale: fr })
+                        : '-'
+                      }
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <DollarSign className="h-4 w-4 mr-1 text-muted-foreground" />
+                        {employee.salary?.toLocaleString('fr-FR')} DH
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge 
+                        variant={employee.status === 'active' ? 'default' : 'secondary'}
+                        className={employee.status === 'active' 
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                          : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
+                        }
                       >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleDelete(employee.id)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {employees.length === 0 && (
+                        {employee.status === 'active' ? 'Actif' : 'Inactif'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleEdit(employee)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        {userRole === 'directeur' && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleDelete(employee.id)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
                 <TableRow>
-                  <TableCell colSpan={6)} className="text-center text-muted-foreground">
-                    Aucun employé trouvé
+                  <TableCell colSpan={7} className="text-center py-8">
+                    <Users className="h-12 w-12 mx-auto text-gray-400" />
+                    <p className="mt-2 text-gray-500">
+                      Aucun employé trouvé
+                    </p>
                   </TableCell>
                 </TableRow>
               )}

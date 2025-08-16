@@ -178,8 +178,8 @@ export default function CustomerFeedback() : JSX.Element {
     }
   };
 
-  const filteredFeedbacks = feedbacks.filter(feedback => {
-    if (selectedCategory !== 'all' && feedback.category !== selectedCategory)}) return false;
+  const filteredFeedbacks = feedbacks.filter((feedback) => {
+    if (selectedCategory !== 'all' && feedback.category !== selectedCategory) return false;
     if (selectedStatus !== 'all' && feedback.status !== selectedStatus) return false;
     if (selectedSentiment !== 'all' && feedback.sentiment !== selectedSentiment) return false;
     return true;
@@ -514,7 +514,7 @@ export default function CustomerFeedback() : JSX.Element {
                         {!feedback.response && (
                           <Button
                             size="sm"
-                            onClick={()}) => {
+                            onClick={() => {
                               setSelectedFeedback(feedback);
                               setShowResponseDialog(true);
                             }}
@@ -559,7 +559,7 @@ export default function CustomerFeedback() : JSX.Element {
                         <Smile className="h-4 w-4 text-green-600" />
                         <span>Positif</span>
                       </div>
-                      <span className="font-bold">{stats.sentimentDistribution.positive)}%</span>
+                      <span className="font-bold">{stats.sentimentDistribution.positive}%</span>
                     </div>
                     <Progress value={stats.sentimentDistribution.positive} className="h-2" />
                     

@@ -275,7 +275,7 @@ const LoyaltyProgram = () => {
                   <div className="flex justify-between">
                     <span>Panier moyen VIP</span>
                     <span className="font-medium">
-                      {analytics?.revenue?.averageOrderValue?.toFixed(2) || 0}€
+                      {analytics?.revenue?.averageOrderValue?.toFixed(2) || '0'}€
                     </span>
                   </div>
                 </div>
@@ -316,7 +316,7 @@ const LoyaltyProgram = () => {
         <TabsContent value="levels" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {levels.map((level: LoyaltyLevel, index: number) => (
-              <Card key={index} className="border-2" style={{ borderColor: level.color + '40' }}>
+              <Card key={index} className="border-2" style={{ borderColor: `${level.color}40` }}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Crown className="h-5 w-5" style={{ color: level.color }} />
@@ -497,7 +497,7 @@ const LoyaltyProgram = () => {
                   <div className="flex justify-between">
                     <span>Revenus membres fidèles</span>
                     <span className="font-medium">
-                      {analytics?.revenue?.fromLoyalMembers?.toLocaleString() || 0}€
+                      {analytics?.revenue?.fromLoyalMembers?.toLocaleString() || '0'}€
                     </span>
                   </div>
                   <div className="flex justify-between">

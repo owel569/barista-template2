@@ -43,7 +43,9 @@ import {
   Users,
   Filter,
   Eye,
-  EyeOff
+  EyeOff,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { useToast } from '../../hooks/use-toast';
 
@@ -64,7 +66,7 @@ enum ModuleName {
   SETTINGS = 'settings'
 }
 
-const MODULE_LABELS = {
+const MODULE_LABELS: Record<ModuleName, string> = {
   [ModuleName.DASHBOARD]: 'Tableau de bord',
   [ModuleName.RESERVATIONS]: 'Réservations',
   [ModuleName.ORDERS]: 'Commandes',
@@ -94,7 +96,20 @@ interface FormErrors {
   phone?: string;
 }
 
-export function PermissionsManagementImproved() : JSX.Element {
+interface User {
+  id: number;
+  username: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  role: UserRole;
+  isActive: boolean;
+  lastLogin?: string;
+  permissions?: Record<string, any>;
+}
+
+export function PermissionsManagementImproved(): JSX.Element {
   const { user: currentUser } = useAuth();
   const { 
     users, 
@@ -117,9 +132,10 @@ export function PermissionsManagementImproved() : JSX.Element {
   const [roleFilter, setRoleFilter] = useState<UserRole | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [editingUser, setEditingUser] = useState<any>(null);
-  const [userToDelete, setUserToDelete] = useState<any>(null);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [showInactiveUsers, setShowInactiveUsers] = useState(false);
+  const [expandedUserId, setExpandedUserId] = useState<number | null>(null);
 
   // État du formulaire avec validation
   const [formData, setFormData] = useState<UserFormData>({
@@ -178,12 +194,12 @@ export function PermissionsManagementImproved() : JSX.Element {
 
   // Filtrage et recherche des utilisateurs (mémorisé pour performance)
   const filteredUsers = useMemo(() => {
-    return users.filter(user => {
+    return users.filter((user) => {
       const matchesSearch = !searchTerm || 
-        user.username.toLowerCase()}).includes(searchTerm.toLowerCase()) ||
-        user.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email?.toLowerCase().includes(searchTerm.toLowerCase());
+        user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (user.firstName?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (user.lastName?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (user.email?.toLowerCase().includes(searchTerm.toLowerCase()));
 
       const matchesRole = roleFilter === 'all' || user.role === roleFilter;
       
@@ -199,11 +215,11 @@ export function PermissionsManagementImproved() : JSX.Element {
 
   // Gestion des changements de formulaire
   const handleFormChange = useCallback((field: keyof UserFormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value )});
+    setFormData(prev => ({ ...prev, [field]: value }));
     
     // Effacer l'erreur du champ modifié
     if (formErrors[field]) {
-      setFormErrors(prev => ({ ...prev, [field]: undefined )});
+      setFormErrors(prev => ({ ...prev, [field]: undefined }));
     }
   }, [formErrors]);
 
@@ -240,7 +256,7 @@ export function PermissionsManagementImproved() : JSX.Element {
         title: "Erreur",
         description: "Impossible de créer l'utilisateur. Vérifiez les données saisies.",
         variant: "destructive",
-      )});
+      });
     }
   }, [formData, validateForm, createUser, toast]);
 
@@ -260,14 +276,14 @@ export function PermissionsManagementImproved() : JSX.Element {
         title: "Erreur",
         description: "Impossible de supprimer l'utilisateur.",
         variant: "destructive",
-      )});
+      });
     }
   }, [userToDelete, deleteUser, toast]);
 
   // Activer/désactiver un utilisateur
   const handleToggleUserStatus = useCallback(async (userId: number, isActive: boolean) => {
     try {
-      await toggleUserStatus({ userId, isActive )});
+      await toggleUserStatus({ userId, isActive });
       toast({
         title: "Statut modifié",
         description: `L'utilisateur a été ${isActive ? 'activé' : 'désactivé'}.`,
@@ -277,14 +293,14 @@ export function PermissionsManagementImproved() : JSX.Element {
         title: "Erreur",
         description: "Impossible de modifier le statut de l'utilisateur.",
         variant: "destructive",
-      )});
+      });
     }
   }, [toggleUserStatus, toast]);
 
   // Mettre à jour une permission
   const handleUpdatePermission = useCallback(async (
     userId: number, 
-    module: string, 
+    module: ModuleName, 
     permission: string, 
     value: boolean
   ) => {
@@ -293,18 +309,18 @@ export function PermissionsManagementImproved() : JSX.Element {
         userId,
         module,
         [permission]: value
-      )});
+      });
       
       toast({
         title: "Permission mise à jour",
-        description: `Permission ${permission} pour le module ${MODULE_LABELS[module as ModuleName]} mise à jour.`,
+        description: `Permission ${permission} pour le module ${MODULE_LABELS[module]} mise à jour.`,
       });
     } catch (error) {
       toast({
         title: "Erreur",
         description: "Impossible de mettre à jour la permission.",
         variant: "destructive",
-      )});
+      });
     }
   }, [updatePermission, toast]);
 
@@ -312,6 +328,22 @@ export function PermissionsManagementImproved() : JSX.Element {
   const canPerform = useCallback((action: string) => {
     return currentUser?.role === UserRole.DIRECTEUR;
   }, [currentUser]);
+
+  const toggleUserExpansion = (userId: number) => {
+    setExpandedUserId(expandedUserId === userId ? null : userId);
+  };
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "Jamais connecté";
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
 
   if (isLoading) {
     return (
@@ -362,7 +394,7 @@ export function PermissionsManagementImproved() : JSX.Element {
                       className={formErrors.firstName ? 'border-red-500' : ''}
                     />
                     {formErrors.firstName && (
-                      <p className="text-red-500 text-sm mt-1">{formErrors.firstName)}</p>
+                      <p className="text-red-500 text-sm mt-1">{formErrors.firstName}</p>
                     )}
                   </div>
                   <div>
@@ -375,7 +407,7 @@ export function PermissionsManagementImproved() : JSX.Element {
                       className={formErrors.lastName ? 'border-red-500' : ''}
                     />
                     {formErrors.lastName && (
-                      <p className="text-red-500 text-sm mt-1">{formErrors.lastName)}</p>
+                      <p className="text-red-500 text-sm mt-1">{formErrors.lastName}</p>
                     )}
                   </div>
                 </div>
@@ -390,7 +422,7 @@ export function PermissionsManagementImproved() : JSX.Element {
                     className={formErrors.username ? 'border-red-500' : ''}
                   />
                   {formErrors.username && (
-                    <p className="text-red-500 text-sm mt-1">{formErrors.username)}</p>
+                    <p className="text-red-500 text-sm mt-1">{formErrors.username}</p>
                   )}
                 </div>
                 
@@ -405,7 +437,7 @@ export function PermissionsManagementImproved() : JSX.Element {
                     className={formErrors.password ? 'border-red-500' : ''}
                   />
                   {formErrors.password && (
-                    <p className="text-red-500 text-sm mt-1">{formErrors.password)}</p>
+                    <p className="text-red-500 text-sm mt-1">{formErrors.password}</p>
                   )}
                 </div>
                 
@@ -420,7 +452,7 @@ export function PermissionsManagementImproved() : JSX.Element {
                     className={formErrors.email ? 'border-red-500' : ''}
                   />
                   {formErrors.email && (
-                    <p className="text-red-500 text-sm mt-1">{formErrors.email)}</p>
+                    <p className="text-red-500 text-sm mt-1">{formErrors.email}</p>
                   )}
                 </div>
                 
@@ -434,7 +466,7 @@ export function PermissionsManagementImproved() : JSX.Element {
                     className={formErrors.phone ? 'border-red-500' : ''}
                   />
                   {formErrors.phone && (
-                    <p className="text-red-500 text-sm mt-1">{formErrors.phone)}</p>
+                    <p className="text-red-500 text-sm mt-1">{formErrors.phone}</p>
                   )}
                 </div>
                 
@@ -442,7 +474,7 @@ export function PermissionsManagementImproved() : JSX.Element {
                   <Label htmlFor="role">Rôle</Label>
                   <Select 
                     value={formData.role} 
-                    onValueChange={(value) => handleFormChange('role', value)}
+                    onValueChange={(value) => handleFormChange('role', value as UserRole)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Sélectionner un rôle" />
@@ -498,7 +530,7 @@ export function PermissionsManagementImproved() : JSX.Element {
               </div>
             </div>
             
-            <Select value={roleFilter} onValueChange={(value) => setRoleFilter(value as any)}>
+            <Select value={roleFilter} onValueChange={(value) => setRoleFilter(value as UserRole | 'all')}>
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Filtrer par rôle" />
               </SelectTrigger>
@@ -509,7 +541,7 @@ export function PermissionsManagementImproved() : JSX.Element {
               </SelectContent>
             </Select>
             
-            <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as any)}>
+            <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as 'all' | 'active' | 'inactive')}>
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Filtrer par statut" />
               </SelectTrigger>
@@ -556,70 +588,137 @@ export function PermissionsManagementImproved() : JSX.Element {
               </TableHeader>
               <TableBody>
                 {filteredUsers.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="flex-shrink-0">
-                          <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                            <User className="h-5 w-5 text-blue-600" />
+                  <React.Fragment key={user.id}>
+                    <TableRow>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <div className="flex-shrink-0">
+                            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                              <User className="h-5 w-5 text-blue-600" />
+                            </div>
+                          </div>
+                          <div>
+                            <div className="font-medium">
+                              {user.firstName} {user.lastName}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {user.username} • {user.email}
+                            </div>
                           </div>
                         </div>
-                        <div>
-                          <div className="font-medium">
-                            {user.firstName} {user.lastName}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {user.username} • {user.email}
-                          </div>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={user.role === UserRole.DIRECTEUR ? "default" : "secondary"}>
-                        {user.role === UserRole.DIRECTEUR ? "Directeur" : "Employé"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Switch
-                          checked={user.isActive}
-                          onCheckedChange={(checked) => handleToggleUserStatus(user.id, checked)}
-                          disabled={isTogglingStatus || user.id === currentUser?.id}
-                        />
-                        <Badge variant={user.isActive ? "default" : "secondary"}>
-                          {user.isActive ? "Actif" : "Inactif"}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={user.role === UserRole.DIRECTEUR ? "default" : "secondary"}>
+                          {user.role === UserRole.DIRECTEUR ? "Directeur" : "Employé"}
                         </Badge>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {user.lastLogin 
-                        ? new Date(user.lastLogin).toLocaleDateString('fr-FR')
-                        : "Jamais connecté"
-                      }
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        {canPerform('update') && (
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            checked={user.isActive}
+                            onCheckedChange={(checked) => handleToggleUserStatus(user.id, checked)}
+                            disabled={isTogglingStatus || user.id === currentUser?.id}
+                          />
+                          <Badge variant={user.isActive ? "default" : "secondary"}>
+                            {user.isActive ? "Actif" : "Inactif"}
+                          </Badge>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {formatDate(user.lastLogin)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
                           <Button
-                            variant="outline"
+                            variant="ghost"
                             size="sm"
-                            onClick={() => setEditingUser(user)}
+                            onClick={() => toggleUserExpansion(user.id)}
                           >
-                            <Edit2 className="h-4 w-4" />
+                            {expandedUserId === user.id ? (
+                              <ChevronUp className="h-4 w-4" />
+                            ) : (
+                              <ChevronDown className="h-4 w-4" />
+                            )}
                           </Button>
-                        )}
-                        {canPerform('delete') && user.id !== currentUser?.id && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setUserToDelete(user)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
+                          {canPerform('update') && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setEditingUser(user)}
+                            >
+                              <Edit2 className="h-4 w-4" />
+                            </Button>
+                          )}
+                          {canPerform('delete') && user.id !== currentUser?.id && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setUserToDelete(user)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                    {expandedUserId === user.id && (
+                      <TableRow>
+                        <TableCell colSpan={5} className="bg-gray-50 dark:bg-gray-800 p-4">
+                          <div className="space-y-4">
+                            <h4 className="font-medium">Permissions</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                              {Object.entries(MODULE_LABELS).map(([module, label]) => (
+                                <Card key={module}>
+                                  <CardHeader className="p-4">
+                                    <CardTitle className="text-sm font-medium">
+                                      {label}
+                                    </CardTitle>
+                                  </CardHeader>
+                                  <CardContent className="p-4 pt-0 space-y-2">
+                                    <div className="flex items-center justify-between">
+                                      <Label htmlFor={`${module}-view`}>Voir</Label>
+                                      <Switch
+                                        id={`${module}-view`}
+                                        checked={user.permissions?.[module]?.view ?? false}
+                                        onCheckedChange={(checked) => 
+                                          handleUpdatePermission(user.id, module as ModuleName, 'view', checked)
+                                        }
+                                        disabled={!canPerform('update')}
+                                      />
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                      <Label htmlFor={`${module}-edit`}>Modifier</Label>
+                                      <Switch
+                                        id={`${module}-edit`}
+                                        checked={user.permissions?.[module]?.edit ?? false}
+                                        onCheckedChange={(checked) => 
+                                          handleUpdatePermission(user.id, module as ModuleName, 'edit', checked)
+                                        }
+                                        disabled={!canPerform('update')}
+                                      />
+                                    </div>
+                                    {user.role === UserRole.DIRECTEUR && (
+                                      <div className="flex items-center justify-between">
+                                        <Label htmlFor={`${module}-admin`}>Admin</Label>
+                                        <Switch
+                                          id={`${module}-admin`}
+                                          checked={user.permissions?.[module]?.admin ?? false}
+                                          onCheckedChange={(checked) => 
+                                            handleUpdatePermission(user.id, module as ModuleName, 'admin', checked)
+                                          }
+                                          disabled={!canPerform('update')}
+                                        />
+                                      </div>
+                                    )}
+                                  </CardContent>
+                                </Card>
+                              ))}
+                            </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </React.Fragment>
                 ))}
               </TableBody>
             </Table>

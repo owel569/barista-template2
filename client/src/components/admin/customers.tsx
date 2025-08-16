@@ -17,6 +17,11 @@ import {
 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
+import { useWebSocket } from '@/hooks/useWebSocket';
+import { usePermissions } from '@/hooks/usePermissions';
+import { User } from '@/types/admin';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 interface Customer {
   id: number;
@@ -42,13 +47,6 @@ interface Customer {
   totalOrders: number;
 }
 
-import { useWebSocket } from '@/hooks/useWebSocket';
-import { usePermissions } from '@/hooks/usePermissions';
-// import { PhoneInput } from '@/components/ui/phone-input'; // Remplacé par Input standard
-import { User } from '@/types/admin';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
-
 interface CustomersProps {
   userRole: 'directeur' | 'employe';
   user: User | null;
@@ -62,6 +60,8 @@ export default function Customers({ userRole, user }: CustomersProps) {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [currentCustomer, setCurrentCustomer] = useState<Customer | null>(null);
 
   const { hasPermission } = usePermissions(user);
   const [newCustomer, setNewCustomer] = useState({
@@ -71,7 +71,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
     phone: '',
     address: '',
     dateOfBirth: '',
-    preferredContactMethod: 'email',
+    preferredContactMethod: 'email' as const,
     notes: ''
   });
   const { toast } = useToast();
@@ -96,6 +96,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
 
   const fetchCustomers = async () => {
     try {
+      setLoading(true);
       const token = localStorage.getItem('token');
       const response = await fetch('/api/admin/customers', {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -104,9 +105,11 @@ export default function Customers({ userRole, user }: CustomersProps) {
       if (response.ok) {
         const data = await response.json();
         setCustomers(data);
+      } else {
+        throw new Error('Erreur lors du chargement des clients');
       }
     } catch (error) {
-      logger.error('Erreur lors du chargement des clients:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      console.error('Erreur lors du chargement des clients:', error);
       toast({
         title: "Erreur",
         description: "Impossible de charger les clients",
@@ -126,7 +129,6 @@ export default function Customers({ userRole, user }: CustomersProps) {
         customer.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (customer.phone && customer.phone.includes(searchTerm))
-      );
     }
 
     // Sort by total spent (highest first)
@@ -137,6 +139,54 @@ export default function Customers({ userRole, user }: CustomersProps) {
     });
 
     setFilteredCustomers(filtered);
+  };
+
+  const handleEditCustomer = (customer: Customer) => {
+    setCurrentCustomer(customer);
+    setIsEditDialogOpen(true);
+  };
+
+  const updateCustomer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentCustomer) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/admin/customers/${currentCustomer.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(currentCustomer)
+      });
+
+      if (response.ok) {
+        const updatedCustomer = await response.json();
+        setCustomers(prev => 
+          prev.map(c => c.id === updatedCustomer.id ? updatedCustomer : c)
+        );
+        setIsEditDialogOpen(false);
+        toast({
+          title: "Succès",
+          description: "Client mis à jour avec succès",
+        });
+      } else {
+        const errorData = await response.json();
+        toast({
+          title: "Erreur",
+          description: errorData.message || "Erreur lors de la mise à jour du client",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour le client",
+        variant: "destructive",
+      });
+    }
   };
 
   const addCustomer = async (e: React.FormEvent) => {
@@ -165,8 +215,6 @@ export default function Customers({ userRole, user }: CustomersProps) {
         dateOfBirth: newCustomer.dateOfBirth || undefined,
         notes: newCustomer.notes.trim() || undefined
       };
-
-      console.log('Données envoyées:', customerData);
 
       const response = await fetch('/api/admin/customers', {
         method: 'POST',
@@ -197,7 +245,6 @@ export default function Customers({ userRole, user }: CustomersProps) {
         });
       } else {
         const errorData = await response.json();
-        logger.error('Erreur détaillée:', errorData);
         toast({
           title: "Erreur",
           description: errorData.message || "Erreur lors de l'ajout du client",
@@ -205,7 +252,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
         });
       }
     } catch (error) {
-      logger.error('Erreur lors de l\'ajout:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      console.error('Erreur lors de l\'ajout:', error);
       toast({
         title: "Erreur",
         description: "Impossible d'ajouter le client",
@@ -250,7 +297,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
         });
       }
     } catch (error) {
-      logger.error('Erreur lors de la suppression:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      console.error('Erreur lors de la suppression:', error);
       toast({
         title: "Erreur",
         description: "Erreur de connexion lors de la suppression",
@@ -299,7 +346,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
             {userRole === 'directeur' ? 'Directeur' : 'Employé'}
           </Badge>
           {!isReadOnly && (
-            <Dialog open={isAddDialogOpen)} onOpenChange={setIsAddDialogOpen}>
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
                 <Button>
                   <UserPlus className="h-4 w-4 mr-2" />
@@ -320,7 +367,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                       <Input
                         id="firstName"
                         value={newCustomer.firstName}
-                        onChange={(e) => setNewCustomer(prev => ({ ...prev, firstName: e.target.value });}
+                        onChange={(e) => setNewCustomer(prev => ({ ...prev, firstName: e.target.value }))}
                         required
                       />
                     </div>
@@ -329,7 +376,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                       <Input
                         id="lastName"
                         value={newCustomer.lastName}
-                        onChange={(e) => setNewCustomer(prev => ({ ...prev, lastName: e.target.value });}
+                        onChange={(e) => setNewCustomer(prev => ({ ...prev, lastName: e.target.value }))}
                         required
                       />
                     </div>
@@ -340,7 +387,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                       id="email"
                       type="email"
                       value={newCustomer.email}
-                      onChange={(e) => setNewCustomer(prev => ({ ...prev, email: e.target.value });}
+                      onChange={(e) => setNewCustomer(prev => ({ ...prev, email: e.target.value }))}
                       required
                     />
                   </div>
@@ -350,7 +397,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                       id="phone"
                       type="tel"
                       value={newCustomer.phone}
-                      onChange={(e) => setNewCustomer(prev => ({ ...prev, phone: e.target.value });}
+                      onChange={(e) => setNewCustomer(prev => ({ ...prev, phone: e.target.value }))}
                       placeholder="Ex: +33612345678"
                     />
                     <p className="text-xs text-gray-500">📞 Exemple : +33612345678</p>
@@ -360,7 +407,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                     <Input
                       id="address"
                       value={newCustomer.address}
-                      onChange={(e) => setNewCustomer(prev => ({ ...prev, address: e.target.value });}
+                      onChange={(e) => setNewCustomer(prev => ({ ...prev, address: e.target.value }))}
                     />
                   </div>
                   <div className="space-y-2">
@@ -369,15 +416,15 @@ export default function Customers({ userRole, user }: CustomersProps) {
                       id="dateOfBirth"
                       type="date"
                       value={newCustomer.dateOfBirth}
-                      onChange={(e) => setNewCustomer(prev => ({ ...prev, dateOfBirth: e.target.value });}
+                      onChange={(e) => setNewCustomer(prev => ({ ...prev, dateOfBirth: e.target.value }))}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="notes">Notes</Label>
-                    <Input
+                    <Textarea
                       id="notes"
                       value={newCustomer.notes}
-                      onChange={(e) => setNewCustomer(prev => ({ ...prev, notes: e.target.value });}
+                      onChange={(e) => setNewCustomer(prev => ({ ...prev, notes: e.target.value }))}
                     />
                   </div>
                   <div className="flex gap-2">
@@ -453,12 +500,16 @@ export default function Customers({ userRole, user }: CustomersProps) {
                         {customer.phone && (
                           <div className="flex items-center gap-2">
                             <Phone className="h-4 w-4" />
-                            <span>{customer.phone)}</span>
+                            <span>{customer.phone}</span>
                           </div>
                         )}
                         <div className="flex items-center gap-2">
                           <Euro className="h-4 w-4" />
-                          <span className="font-semibold">{typeof customer.totalSpent === 'string' ? parseFloat(customer.totalSpent).toFixed(2) : (customer.totalSpent || 0).toFixed(2)}€ dépensés</span>
+                          <span className="font-semibold">
+                            {typeof customer.totalSpent === 'string' 
+                              ? parseFloat(customer.totalSpent).toFixed(2) 
+                              : (customer.totalSpent || 0).toFixed(2)}€ dépensés
+                          </span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4" />
@@ -485,7 +536,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
 
                       {customer.notes && (
                         <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-800 rounded text-sm">
-                          <span className="font-medium">Note:</span> {customer.notes)}
+                          <span className="font-medium">Note:</span> {customer.notes}
                         </div>
                       )}
                     </div>
@@ -502,7 +553,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                             Détails
                           </Button>
                         </DialogTrigger>
-                        <DialogContent>
+                        <DialogContent className="max-w-2xl">
                           <DialogHeader>
                             <DialogTitle>
                               Profil de {selectedCustomer?.firstName} {selectedCustomer?.lastName}
@@ -514,7 +565,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                                 <div>
                                   <Label>Nom complet</Label>
                                   <p className="text-sm font-medium">
-                                    {selectedCustomer.firstName)} {selectedCustomer.lastName}
+                                    {selectedCustomer.firstName} {selectedCustomer.lastName}
                                   </p>
                                 </div>
                                 <div>
@@ -530,12 +581,16 @@ export default function Customers({ userRole, user }: CustomersProps) {
                                 {selectedCustomer.phone && (
                                   <div>
                                     <Label>Téléphone</Label>
-                                    <p className="text-sm">{selectedCustomer.phone)}</p>
+                                    <p className="text-sm">{selectedCustomer.phone}</p>
                                   </div>
                                 )}
                                 <div>
                                   <Label>Total dépensé</Label>
-                                  <p className="text-sm font-semibold">{typeof selectedCustomer.totalSpent === 'number' ? selectedCustomer.totalSpent.toFixed(2) : parseFloat(selectedCustomer.totalSpent || '0').toFixed(2)}€</p>
+                                  <p className="text-sm font-semibold">
+                                    {typeof selectedCustomer.totalSpent === 'number' 
+                                      ? selectedCustomer.totalSpent.toFixed(2) 
+                                      : parseFloat(selectedCustomer.totalSpent || '0').toFixed(2)}€
+                                  </p>
                                 </div>
                                 <div>
                                   <Label>Nombre de commandes</Label>
@@ -558,7 +613,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                               {selectedCustomer.notes && (
                                 <div>
                                   <Label>Notes</Label>
-                                  <p className="text-sm">{selectedCustomer.notes)}</p>
+                                  <p className="text-sm">{selectedCustomer.notes}</p>
                                 </div>
                               )}
                             </div>
@@ -571,6 +626,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                           <Button
                             size="sm"
                             variant="outline"
+                            onClick={() => handleEditCustomer(customer)}
                           >
                             <Edit className="h-4 w-4 mr-1" />
                             Modifier
@@ -594,6 +650,73 @@ export default function Customers({ userRole, user }: CustomersProps) {
           })
         )}
       </div>
+
+      {/* Edit Customer Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Modifier le client</DialogTitle>
+          </DialogHeader>
+          {currentCustomer && (
+            <form onSubmit={updateCustomer} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-firstName">Prénom *</Label>
+                  <Input
+                    id="edit-firstName"
+                    value={currentCustomer.firstName}
+                    onChange={(e) => setCurrentCustomer(prev => prev ? {...prev, firstName: e.target.value} : null)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-lastName">Nom *</Label>
+                  <Input
+                    id="edit-lastName"
+                    value={currentCustomer.lastName}
+                    onChange={(e) => setCurrentCustomer(prev => prev ? {...prev, lastName: e.target.value} : null)}
+                    required
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-email">Email *</Label>
+                <Input
+                  id="edit-email"
+                  type="email"
+                  value={currentCustomer.email}
+                  onChange={(e) => setCurrentCustomer(prev => prev ? {...prev, email: e.target.value} : null)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-phone">Téléphone</Label>
+                <Input
+                  id="edit-phone"
+                  type="tel"
+                  value={currentCustomer.phone}
+                  onChange={(e) => setCurrentCustomer(prev => prev ? {...prev, phone: e.target.value} : null)}
+                  placeholder="Ex: +33612345678"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-notes">Notes</Label>
+                <Textarea
+                  id="edit-notes"
+                  value={currentCustomer.notes || ''}
+                  onChange={(e) => setCurrentCustomer(prev => prev ? {...prev, notes: e.target.value} : null)}
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button type="submit">Enregistrer</Button>
+                <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                  Annuler
+                </Button>
+              </div>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

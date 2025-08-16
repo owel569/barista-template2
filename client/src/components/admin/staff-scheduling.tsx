@@ -1,3 +1,4 @@
+pour staff scheduling corrige,complete, optimise , et ajoute les fonctionalite 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -38,7 +39,7 @@ interface Shift {
 }
 
 export default function StaffScheduling() : JSX.Element {
-  const [selectedWeek, setSelectedWeek] = useState(new Date());
+  const [selectedWeek, setSelectedWeek] = useState(new Date();
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
@@ -120,24 +121,23 @@ export default function StaffScheduling() : JSX.Element {
 
   const getShiftsForDay = (date: Date) => {
     const dateStr = date.toISOString().split('T')[0];
-    return shifts.filter(shift => shift.date?.startsWith(dateStr || ''));
+    return shifts.filter((shift: any) => shift.date?.startsWith(dateStr || '');
   };
 
   const calculateHours = (startTime?: string, endTime?: string) => {
     if (!startTime || !endTime) return 0;
     const start = new Date(`2000-01-01T${startTime}`);
     const end = new Date(`2000-01-01T${endTime}`);
-    return (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+    return (end.getTime() - start.getTime() / (1000 * 60 * 60);
   };
 
   const getEmployeeWeeklyHours = (employeeId: number) => {
     const weekDates = getWeekDates(selectedWeek);
-    const employeeShifts = shifts.filter(shift => 
+    const employeeShifts = shifts.filter((shift => 
       shift.employeeId === employeeId &&
-      weekDates.some(date => shift.date?.startsWith(date.toISOString().split('T')[0] || ''))
-    );
+      weekDates.some(date => shift.date?.startsWith(date.toISOString().split('T')[0] || '');
     
-    return employeeShifts.reduce((total, shift) => {
+    return employeeShifts.reduce((total, shift): any) => {
       return total + calculateHours(shift.startTime, shift.endTime);
     }, 0);
   };
@@ -259,14 +259,14 @@ export default function StaffScheduling() : JSX.Element {
               size="sm"
               onClick={() => updateShiftStatus(shift.id, 
                 shift.status === 'scheduled' ? 'confirmed' : 'scheduled'
-              )}
+              }
             >
               <CheckCircle className="h-3 w-3" />
             </Button>
             <Button 
               variant="ghost" 
               size="sm"
-              onClick={() => deleteShift(shift.id)}
+              onClick={() => deleteShift(shift.id}
             >
               <Trash2 className="h-3 w-3" />
             </Button>
@@ -315,7 +315,7 @@ export default function StaffScheduling() : JSX.Element {
         <CardHeader>
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle>Semaine du {selectedWeek.toLocaleDateString()}</CardTitle>
+              <CardTitle>Semaine du {selectedWeek.toLocaleDateString(}</CardTitle>
               <CardDescription>Planning hebdomadaire du personnel</CardDescription>
             </div>
             <div className="flex items-center space-x-2">
@@ -333,7 +333,7 @@ export default function StaffScheduling() : JSX.Element {
               <Button 
                 variant="outline" 
                 size="sm"
-                onClick={() => setSelectedWeek(new Date())}
+                onClick={() => setSelectedWeek(new Date(}
               >
                 Aujourd'hui
               </Button>
@@ -367,22 +367,22 @@ export default function StaffScheduling() : JSX.Element {
               <div className="grid grid-cols-8 gap-2">
                 {/* Header avec heures */}
                 <div className="text-xs font-medium p-2">Heures</div>
-                {getWeekDates(selectedWeek).map((date, index) => (
+                {getWeekDates(selectedWeek).map(((date, index) => (
                   <div key={index} className="text-xs font-medium p-2 text-center">
                     <div>{weekDays[index]}</div>
-                    <div className="text-muted-foreground">{date.getDate()}</div>
+                    <div className="text-muted-foreground">{date.getDate(}</div>
                   </div>
-                ))}
+                }
 
                 {/* Grille des créneaux */}
                 {timeSlots.map(timeSlot => (
-                  <React.Fragment key={timeSlot)}>
+                  <React.Fragment key={timeSlot}>
                     <div className="text-xs p-2 text-muted-foreground border-r">
                       {timeSlot}
                     </div>
                     {getWeekDates(selectedWeek).map((date, dayIndex) => {
                       const dayShifts = getShiftsForDay(date);
-                      const timeShifts = dayShifts.filter(shift => 
+                      const timeShifts = dayShifts.filter((shift => 
                         shift.startTime <= timeSlot && shift.endTime > timeSlot
                       );
                       
@@ -390,19 +390,19 @@ export default function StaffScheduling() : JSX.Element {
                         <div key={`${timeSlot}-${dayIndex}`} className="min-h-12 border border-gray-100 p-1">
                           {timeShifts.map(shift => (
                             <div 
-                              key={shift.id)}
+                              key={shift.id}
                               className="text-xs bg-blue-100 rounded p-1 mb-1 cursor-pointer"
-                              onClick={() => setSelectedEmployee(employees.find(emp => emp.id === shift.employeeId) || null)}
+                              onClick={(): any) => setSelectedEmployee(employees.find(emp: any) => emp.id === shift.employeeId) || null}
                             >
                               <div className="font-medium truncate">{shift.employeeName}</div>
                               <div className="text-muted-foreground">{shift.position}</div>
                             </div>
-                          ))}
+                          }
                         </div>
                       );
-                    })}
+                    }}
                   </React.Fragment>
-                ))}
+                }
               </div>
             </CardContent>
           </Card>
@@ -410,8 +410,8 @@ export default function StaffScheduling() : JSX.Element {
 
         <TabsContent value="employees">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {employees.map(employee => {
-              const weeklyHours = getEmployeeWeeklyHours(employee.id)});
+            {employees.map((employee: any) => {
+              const weeklyHours = getEmployeeWeeklyHours(employee.id});
               const isOvertime = weeklyHours > employee.maxHours;
               
               return (
@@ -433,22 +433,22 @@ export default function StaffScheduling() : JSX.Element {
                         <strong>Département:</strong> {employee.department}
                       </div>
                       <div className="text-xs">
-                        <strong>Compétences:</strong> {employee.skills.join(', ')}
+                        <strong>Compétences:</strong> {employee.skills.join(', '}
                       </div>
                       <div className="text-xs">
-                        <strong>Disponibilités:</strong> {employee.availableDays.join(', ')}
+                        <strong>Disponibilités:</strong> {employee.availableDays.join(', '}
                       </div>
                       {isOvertime && (
                         <div className="flex items-center space-x-2 text-red-600 text-xs">
                           <AlertCircle className="h-3 w-3" />
                           <span>Heures supplémentaires</span>
                         </div>
-                      )}
+                      }
                     </div>
                   </CardContent>
                 </Card>
               );
-            })}
+            }}
           </div>
         </TabsContent>
 
@@ -463,9 +463,9 @@ export default function StaffScheduling() : JSX.Element {
                   <div className="flex justify-between">
                     <span>Total heures planifiées:</span>
                     <span className="font-semibold">
-                      {shifts.reduce((total, shift) => 
+                      {shifts.reduce((total: any, shift: any) => 
                         total + calculateHours(shift.startTime, shift.endTime), 0
-                      ).toFixed(1)}h
+                      ).toFixed(1}h
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -475,14 +475,14 @@ export default function StaffScheduling() : JSX.Element {
                   <div className="flex justify-between">
                     <span>Créneaux confirmés:</span>
                     <span className="font-semibold">
-                      {shifts.filter(s => s.status === 'confirmed').length}
+                      {shifts.filter((s: any) => s.status === 'confirmed').length}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Moyenne heures/employé:</span>
                     <span className="font-semibold">
                       {employees.length > 0 ? (
-                        shifts.reduce((total, shift) => 
+                        shifts.reduce((total: any, shift: any) => 
                           total + calculateHours(shift.startTime, shift.endTime), 0
                         ) / employees.length
                       ).toFixed(1) : 0}h
@@ -498,15 +498,15 @@ export default function StaffScheduling() : JSX.Element {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {['Service', 'Caisse', 'Cuisine', 'Nettoyage'].map(position => {
-                    const count = shifts.filter(s => s.position === position)}).length;
+                  {['Service', 'Caisse', 'Cuisine', 'Nettoyage'].map((position: any) => {
+                    const count = shifts.filter((s: any) => s.position === position}).length;
                     return (
                       <div key={position} className="flex justify-between">
                         <span>{position}:</span>
                         <span className="font-semibold">{count}</span>
                       </div>
                     );
-                  })}
+                  }}
                 </div>
               </CardContent>
             </Card>
@@ -523,8 +523,8 @@ export default function StaffScheduling() : JSX.Element {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {employees.map(employee => {
-                  const weeklyHours = getEmployeeWeeklyHours(employee.id)});
+                {employees.map((employee: any) => {
+                  const weeklyHours = getEmployeeWeeklyHours(employee.id});
                   const isOvertime = weeklyHours > employee.maxHours;
                   
                   if (!isOvertime) return null;
@@ -540,14 +540,14 @@ export default function StaffScheduling() : JSX.Element {
                       </div>
                     </div>
                   );
-                })}
+                }}
                 
                 {employees.every(emp => getEmployeeWeeklyHours(emp.id) <= emp.maxHours) && (
                   <div className="flex items-center space-x-2 p-3 bg-green-50 rounded-lg">
                     <CheckCircle className="h-4 w-4 text-green-500" />
                     <span className="text-green-700">Aucun conflit détecté</span>
                   </div>
-                )}
+                }
               </div>
             </CardContent>
           </Card>
@@ -565,7 +565,7 @@ const AddShiftForm = ({ onSubmit, employees }: { onSubmit: (data: Record<string,
     endTime: '17:00',
     position: 'Service',
     notes: ''
-  })});
+  }});
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -586,11 +586,11 @@ const AddShiftForm = ({ onSubmit, employees }: { onSubmit: (data: Record<string,
             <SelectValue placeholder="Sélectionner un employé" />
           </SelectTrigger>
           <SelectContent>
-            {employees.map(emp => (
-              <SelectItem key={emp.id)} value={emp.id.toString()}>
+            {employees.map((emp => (
+              <SelectItem key={emp.id} value={emp.id.toString(}>
                 {emp.name} - {emp.position}
               </SelectItem>
-            ))}
+            }
           </SelectContent>
         </Select>
       </div>
@@ -600,7 +600,7 @@ const AddShiftForm = ({ onSubmit, employees }: { onSubmit: (data: Record<string,
         <Input
           type="date"
           value={formData.date}
-          onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+          onChange={(e): any) => setFormData({ ...formData, date: e.target.value }}
           required
         />
       </div>
@@ -611,7 +611,7 @@ const AddShiftForm = ({ onSubmit, employees }: { onSubmit: (data: Record<string,
           <Input
             type="time"
             value={formData.startTime}
-            onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+            onChange={(e) => setFormData({ ...formData, startTime: e.target.value }}
             required
           />
         </div>
@@ -620,7 +620,7 @@ const AddShiftForm = ({ onSubmit, employees }: { onSubmit: (data: Record<string,
           <Input
             type="time"
             value={formData.endTime}
-            onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+            onChange={(e) => setFormData({ ...formData, endTime: e.target.value }}
             required
           />
         </div>
@@ -648,7 +648,7 @@ const AddShiftForm = ({ onSubmit, employees }: { onSubmit: (data: Record<string,
         <Label>Notes (optionnel)</Label>
         <Textarea
           value={formData.notes}
-          onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+          onChange={(e) => setFormData({ ...formData, notes: e.target.value }}
           placeholder="Notes ou instructions particulières..."
         />
       </div>

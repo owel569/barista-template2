@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -60,9 +59,6 @@ const IoTDashboard: React.FC = () => {
     const interval = setInterval(fetchIoTData, 5000);
     return () => clearInterval(interval);
   }, []);
-
-  // Vérification et renforcement de la robustesse métier et du typage strict
-  // Correction potentielle : gestion des erreurs réseau, typage des données, et fallback pour les valeurs undefined
 
   const fetchIoTData = async () => {
     try {
@@ -145,12 +141,10 @@ const IoTDashboard: React.FC = () => {
         setSensors(sensorsData);
         setEquipment(equipmentData);
       } else {
-        // Gestion professionnelle des erreurs réseau
         setSensors([]);
         setEquipment([]);
       }
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error('Erreur lors du chargement des données IoT:', error);
       setSensors([]);
       setEquipment([]);

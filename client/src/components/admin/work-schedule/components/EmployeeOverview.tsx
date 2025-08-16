@@ -1,22 +1,28 @@
 import React, { useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { 
-  User, 
-  Clock, 
-  DollarSign, 
-  Calendar, 
-  MapPin, 
-  Phone,
-  Mail,
-  TrendingUp,
-  TrendingDown,
-  AlertCircle
+  Card, CardContent, CardHeader, CardTitle,
+  Badge, Button, Avatar, AvatarImage, AvatarFallback 
+} from '@/components/ui';
+import { 
+  User, Clock, DollarSign, Calendar, MapPin, 
+  Phone, Mail, TrendingUp, TrendingDown, AlertCircle 
 } from 'lucide-react';
 import { EmployeeOverviewProps, Employee, Shift } from '../types/schedule.types';
-import { formatDuration, formatCurrency, DEPARTMENTS, POSITIONS } from '../utils/schedule.utils';
+import { formatDuration, formatCurrency } from '../utils/schedule.utils';
+
+interface EmployeeStats {
+  employee: Employee;
+  totalShifts: number;
+  totalHours: number;
+  totalPay: number;
+  overtimeHours: number;
+  completedShifts: number;
+  noShowShifts: number;
+  reliabilityScore: number;
+  upcomingShifts: Shift[];
+  averageHoursPerShift: number;
+  lastShiftDate: number | null;
+}
 
 const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
   employees,
@@ -25,7 +31,7 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
   selectedPeriod
 }) => {
   // Calcul des statistiques par employé
-  const employeeStats = useMemo(() => {
+  const employeeStats = useMemo<EmployeeStats[]>(() => {
     return employees.map(employee => {
       const employeeShifts = shifts.filter(shift => shift.employeeId === employee.id);
       const totalHours = employeeShifts.reduce((sum, shift) => sum + shift.totalHours, 0);
@@ -36,15 +42,18 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
       const completedShifts = employeeShifts.filter(shift => shift.status === 'completed').length;
       const noShowShifts = employeeShifts.filter(shift => shift.status === 'no_show').length;
       const reliabilityScore = employeeShifts.length > 0 
-        ? ((completedShifts / employeeShifts.length) * 100) 
+        ? Math.round((completedShifts / employeeShifts.length) * 100)
         : 100;
       
       // Prochains shifts
-      const upcomingShifts = employeeShifts.filter(shift => {
-        const shiftDate = new Date(shift.date);
-        const today = new Date();
-        return shiftDate >= today && shift.status === 'scheduled';
-      }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      const upcomingShifts = employeeShifts
+        .filter(shift => {
+          const shiftDate = new Date(shift.date);
+          const today = new Date();
+          return shiftDate >= today && shift.status === 'scheduled';
+        })
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        .slice(0, 3); // Prochains 3 shifts
       
       return {
         employee,
@@ -55,9 +64,11 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
         completedShifts,
         noShowShifts,
         reliabilityScore,
-        upcomingShifts: upcomingShifts.slice(0, 3), // Prochains 3 shifts
-        averageHoursPerShift: employeeShifts.length > 0 ? totalHours / employeeShifts.length : 0,
-        lastShiftDate: employeeShifts.length > 0 
+        upcomingShifts,
+        averageHoursPerShift: employeeShifts.length > 0 
+          ? totalHours / employeeShifts.length 
+          : 0,
+        lastShiftDate: employeeShifts.length > 0
           ? Math.max(...employeeShifts.map(s => new Date(s.date).getTime()))
           : null
       };
@@ -70,28 +81,24 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
   }, [employeeStats]);
 
   // Composant EmployeeCard
-  const EmployeeCard: React.FC<{ stats: typeof employeeStats[0] }> = ({ stats }) => {
+  const EmployeeCard = ({ stats }: { stats: EmployeeStats }) => {
     const { employee } = stats;
-      const department = DEPARTMENTS.find((d: { id: string; name: string; color: string }) => d.id === employee.department);
-  const position = POSITIONS.find((p: { id: string; name: string; color: string }) => p.id === employee.position);
-    
     const isHighPerformer = stats.reliabilityScore >= 95 && stats.totalHours > 0;
     const needsAttention = stats.reliabilityScore < 80 || stats.noShowShifts > 0;
     
     return (
       <Card 
-        className={`
-          cursor-pointer hover:shadow-lg transition-all duration-200
-          ${needsAttention ? 'border-red-200 dark:border-red-800' : ''}
-          ${isHighPerformer ? 'border-green-200 dark:border-green-800' : ''}
-        `}
+        className={`cursor-pointer hover:shadow-lg transition-all duration-200 ${
+          needsAttention ? 'border-red-200 dark:border-red-800' : 
+          isHighPerformer ? 'border-green-200 dark:border-green-800' : ''
+        }`}
         onClick={() => onEmployeeClick(employee)}
       >
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <Avatar className="h-12 w-12">
-                <AvatarImage src={employee.avatar} alt={employee.firstName} />
+                <AvatarImage src={employee.avatar} alt={`${employee.firstName} ${employee.lastName}`} />
                 <AvatarFallback>
                   {employee.firstName[0]}{employee.lastName[0]}
                 </AvatarFallback>
@@ -103,7 +110,7 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
                 </h3>
                 <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300">
                   <MapPin className="h-4 w-4" />
-                  <span>{position?.name || employee.position}</span>
+                  <span>{employee.position}</span>
                 </div>
               </div>
             </div>
@@ -142,10 +149,10 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
             </div>
             <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
               <div 
-                className="w-3 h-3 rounded-full"
-                style={{ backgroundColor: department?.color }}
+                className="w-3 h-3 rounded-full" 
+                style={{ backgroundColor: employee.departmentColor }}
               />
-              <span>{department?.name || employee.department}</span>
+              <span>{employee.department}</span>
             </div>
           </div>
           
@@ -178,7 +185,7 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
                 stats.reliabilityScore >= 80 ? 'text-yellow-600 dark:text-yellow-400' :
                 'text-red-600 dark:text-red-400'
               }`}>
-                {stats.reliabilityScore.toFixed(0)}%
+                {stats.reliabilityScore}%
               </div>
               <div className="text-xs text-gray-500">Fiabilité</div>
             </div>
@@ -205,15 +212,17 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
               <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Prochains shifts
               </div>
-              {stats.upcomingShifts.map((shift, index) => (
+              {stats.upcomingShifts.map(shift => (
                 <div key={shift.id} className="flex items-center justify-between text-sm">
                   <div className="flex items-center space-x-2">
                     <Calendar className="h-3 w-3 text-gray-400" />
-                    <span>{new Date(shift.date).toLocaleDateString('fr-FR', { 
-                      weekday: 'short', 
-                      day: 'numeric', 
-                      month: 'short' 
-                    })}</span>
+                    <span>
+                      {new Date(shift.date).toLocaleDateString('fr-FR', { 
+                        weekday: 'short', 
+                        day: 'numeric', 
+                        month: 'short' 
+                      })}
+                    </span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Clock className="h-3 w-3 text-gray-400" />
@@ -225,7 +234,7 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
           )}
           
           {/* Compétences */}
-          {employee.skills.length > 0 && (
+          {employee.skills?.length > 0 && (
             <div className="space-y-2">
               <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Compétences
@@ -255,7 +264,7 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
     const totalHours = employeeStats.reduce((sum, stat) => sum + stat.totalHours, 0);
     const totalPay = employeeStats.reduce((sum, stat) => sum + stat.totalPay, 0);
     const averageReliability = employeeStats.length > 0 
-      ? employeeStats.reduce((sum, stat) => sum + stat.reliabilityScore, 0) / employeeStats.length 
+      ? Math.round(employeeStats.reduce((sum, stat) => sum + stat.reliabilityScore, 0) / employeeStats.length)
       : 0;
     
     return {
@@ -274,10 +283,10 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
       {/* Statistiques générales */}
       <Card>
         <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-          <User className="h-5 w-5" />
-          <span>Vue d'ensemble des employés</span>
-        </CardTitle>
+          <CardTitle className="flex items-center space-x-2">
+            <User className="h-5 w-5" />
+            <span>Vue d'ensemble des employés</span>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -304,7 +313,7 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
             
             <div className="text-center">
               <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">
-                {overallStats.averageReliability.toFixed(0)}%
+                {overallStats.averageReliability}%
               </div>
               <div className="text-sm text-gray-500">Fiabilité moyenne</div>
             </div>
@@ -330,7 +339,7 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
 
       {/* Grille des employés */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {sortedEmployeeStats.map((stats) => (
+        {sortedEmployeeStats.map(stats => (
           <EmployeeCard key={stats.employee.id} stats={stats} />
         ))}
       </div>
@@ -349,4 +358,4 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
   );
 };
 
-export default EmployeeOverview;
+export default React.memo(EmployeeOverview);

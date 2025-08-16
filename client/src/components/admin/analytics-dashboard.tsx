@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { exportStatistics } from '@/lib/excel-export';
-import { exportCustomerProfiles } from '@/lib/excel-export';
-import { exportToExcel, exportCustomerProfiles, exportStatistics } from '@/lib/excel-export';;
+import React, { useState, useEffect } from 'react';
+import { exportToJSON, exportToCSV, exportToExcel } from './analytics/ExportUtils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Users, ShoppingCart, DollarSign, 
-  Calendar, Clock, Target, Activity, Zap, Filter, Download
+  Target, Download 
 } from 'lucide-react';
 
 // Import des composants modulaires
@@ -27,9 +25,8 @@ import {
   generateTrendsData,
   generateMetrics 
 } from './analytics/dataGenerators';
-import { exportToJSON, exportToCSV, exportToExcel } from './analytics/ExportUtils';
 
-export default function AnalyticsDashboard() : JSX.Element {
+export default function AnalyticsDashboard(): JSX.Element {
   const [timeRange, setTimeRange] = useState('7d');
   const [metrics, setMetrics] = useState(generateMetrics('7d'));
   const [revenueData, setRevenueData] = useState(generateRevenueData('7d'));

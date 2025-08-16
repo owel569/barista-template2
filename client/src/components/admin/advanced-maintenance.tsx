@@ -1,82 +1,45 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import React, { useEffect, useState, useCallback } from 'react';
+import {
+  Card, CardContent, CardHeader, CardTitle,
+  Badge, Button, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+  Form, FormField, FormItem, FormLabel, FormControl, FormMessage,
+  Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem,
+  Textarea,
+} from '@/components/ui'; // Adapte selon ton UI kit
+import { Edit, Plus } from 'lucide-react'; // ou ton set d'icônes
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { 
-  Wrench, AlertTriangle, CheckCircle, Clock, Plus, Edit, Trash2, 
-  Coffee, Thermometer, Zap, Wifi, Settings, Calendar, DollarSign,
-  FileText, Camera, MapPin, Star, TrendingUp
-} from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 
-interface MaintenanceTask {
-  id: number;
+type MaintenanceTask = {
+  id: string;
   title: string;
-  description: string;
-  equipmentId: number;
-  equipmentName: string;
+  equipmentId: string;
   priority: 'low' | 'medium' | 'high' | 'urgent';
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
   assignedTo: string;
-  scheduledDate: string;
-  completedDate?: string;
+  scheduledDate: string; // ISO date
   estimatedCost: number;
-  actualCost?: number;
-  notes?: string;
-  images?: string[];
-  duration?: number;
   category: 'preventive' | 'corrective' | 'emergency';
-  recurrence?: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly';
-  createdAt: string;
-  updatedAt: string;
-}
+  recurrence?: string;
+  notes?: string;
+};
 
-interface Equipment {
-  id: number;
+type Equipment = {
+  id: string;
   name: string;
   type: string;
   brand: string;
   model: string;
-  serialNumber: string;
+  serialNumber?: string;
   location: string;
-  status: 'operational' | 'maintenance' | 'out_of_order' | 'retired';
-  lastMaintenance?: string;
-  nextMaintenance?: string;
+  status: 'operational' | 'out_of_service' | 'maintenance';
+  purchaseDate?: string;
+  purchasePrice?: number;
+  supplier?: string;
   warrantyExpiry?: string;
-  purchaseDate: string;
-  purchasePrice: number;
-  supplier: string;
-  specifications: Record<string, any>;
   manualUrl?: string;
-  maintenanceHistory: MaintenanceRecord[];
-  createdAt: string;
-  updatedAt: string;
-}
+};
 
-interface MaintenanceRecord {
-  id: number;
-  taskId: number;
-  description: string;
-  date: string;
-  technician: string;
-  cost: number;
-  duration: number;
-  partsUsed: string[];
-  notes?: string;
-  images?: string[];
-}
-
-interface MaintenanceStats {
+type MaintenanceStats = {
   totalEquipment: number;
   operationalEquipment: number;
   pendingTasks: number;
@@ -85,69 +48,112 @@ interface MaintenanceStats {
   averageResolutionTime: number;
   uptime: number;
   criticalAlerts: number;
+};
+
+function getPriorityColor(priority: string) {
+  switch (priority) {
+    case 'low': return 'bg-green-100 text-green-800';
+    case 'medium': return 'bg-blue-100 text-blue-800';
+    case 'high': return 'bg-yellow-100 text-yellow-800';
+    case 'urgent': return 'bg-red-100 text-red-800';
+    default: return 'bg-gray-100 text-gray-800';
+  }
 }
 
-const taskSchema = z.object({
-  title: z.string()}).min(3, "Titre requis (minimum 3 caractères)"),
-  description: z.string().min(10, "Description requise (minimum 10 caractères)"),
-  equipmentId: z.number().min(1, "Équipement requis"),
-  priority: z.string().min(1, "Priorité requise"),
-  assignedTo: z.string().min(2, "Technicien requis"),
-  scheduledDate: z.string().min(1, "Date de programmation requise"),
-  estimatedCost: z.number().min(0, "Coût estimé requis"),
-  category: z.string().min(1, "Catégorie requise"),
-  recurrence: z.string().optional(),
-  notes: z.string().optional(),
-});
+function getStatusColor(status: string) {
+  switch (status) {
+    case 'operational': return 'bg-green-100 text-green-800';
+    case 'maintenance': return 'bg-yellow-100 text-yellow-800';
+    case 'out_of_service': return 'bg-red-100 text-red-800';
+    default: return 'bg-gray-100 text-gray-800';
+  }
+}
 
-const equipmentSchema = z.object({
-  name: z.string()}).min(2, "Nom requis (minimum 2 caractères)"),
-  type: z.string().min(1, "Type requis"),
-  brand: z.string().min(1, "Marque requise"),
-  model: z.string().min(1, "Modèle requis"),
-  serialNumber: z.string().min(1, "Numéro de série requis"),
-  location: z.string().min(1, "Emplacement requis"),
-  purchaseDate: z.string().min(1, "Date d'achat requise"),
-  purchasePrice: z.number().min(0, "Prix d'achat requis"),
-  supplier: z.string().min(1, "Fournisseur requis"),
-  warrantyExpiry: z.string().optional(),
-  manualUrl: z.string().optional(),
-});
+function getEquipmentIcon(type: string) {
+  // Exemple simple, adapte selon ton set d'icônes
+  switch (type.toLowerCase()) {
+    case 'printer': return <i className="fas fa-print mr-2" />;
+    case 'computer': return <i className="fas fa-desktop mr-2" />;
+    default: return <i className="fas fa-cogs mr-2" />;
+  }
+}
 
-export default function AdvancedMaintenance() : JSX.Element {
-  const [stats, setStats] = useState<MaintenanceStats | null>(null);
-  const [equipment, setEquipment] = useState<Equipment[]>([]);
+export default function MaintenanceDashboard() {
   const [tasks, setTasks] = useState<MaintenanceTask[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isCreating, setIsCreating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
-  const [showTaskDialog, setShowTaskDialog] = useState(false);
-  const [showEquipmentDialog, setShowEquipmentDialog] = useState(false);
-  const [selectedTask, setSelectedTask] = useState<MaintenanceTask | null>(null);
-  const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null);
-  const [filterStatus, setFilterStatus] = useState('all');
-  const [filterPriority, setFilterPriority] = useState('all');
-  const { toast } = useToast();
+  const [equipment, setEquipment] = useState<Equipment[]>([]);
+  const [stats, setStats] = useState<MaintenanceStats | null>(null);
 
-  const taskForm = useForm<z.infer<typeof taskSchema>>({
-    resolver: zodResolver(taskSchema),
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [filterPriority, setFilterPriority] = useState<string>('all');
+
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const [showTaskDialog, setShowTaskDialog] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<MaintenanceTask | null>(null);
+
+  const [showEquipmentDialog, setShowEquipmentDialog] = useState(false);
+  const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null);
+
+  const token = localStorage.getItem('token');
+
+  // Fetch API helper with error handling
+  const apiFetch = useCallback(async (url: string, options: RequestInit = {}) => {
+    if (!token) throw new Error('Non authentifié');
+    const res = await fetch(url, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        ...(options.headers || {}),
+      },
+    });
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.message || `Erreur HTTP ${res.status}`);
+    }
+    return res.json();
+  }, [token]);
+
+  // Chargement initial
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
+
+    Promise.all([
+      apiFetch('/api/admin/maintenance/tasks'),
+      apiFetch('/api/admin/maintenance/equipment'),
+      apiFetch('/api/admin/maintenance/stats'),
+    ])
+      .then(([tasksData, equipmentData, statsData]) => {
+        setTasks(tasksData);
+        setEquipment(equipmentData);
+        setStats(statsData);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError(err.message);
+      })
+      .finally(() => setLoading(false));
+  }, [apiFetch]);
+
+  // Formulaires react-hook-form
+  const taskForm = useForm<MaintenanceTask>({
     defaultValues: {
       title: '',
-      description: '',
-      equipmentId: 0,
+      equipmentId: '',
       priority: 'medium',
+      status: 'pending',
       assignedTo: '',
       scheduledDate: '',
       estimatedCost: 0,
       category: 'preventive',
       recurrence: '',
-      notes: ''
-    }
+      notes: '',
+    },
   });
 
-  const equipmentForm = useForm<z.infer<typeof equipmentSchema>>({
-    resolver: zodResolver(equipmentSchema),
+  const equipmentForm = useForm<Equipment>({
     defaultValues: {
       name: '',
       type: '',
@@ -155,854 +161,623 @@ export default function AdvancedMaintenance() : JSX.Element {
       model: '',
       serialNumber: '',
       location: '',
+      status: 'operational',
       purchaseDate: '',
       purchasePrice: 0,
       supplier: '',
       warrantyExpiry: '',
-      manualUrl: ''
-    }
+      manualUrl: '',
+    },
   });
 
-  useEffect(() => {
-    fetchMaintenanceData();
-  }, []);
-
-  const fetchMaintenanceData = async () => {
+  // Soumission formulaire tâche
+  const handleTaskSubmit = async (data: MaintenanceTask) => {
     try {
-      const token = localStorage.getItem('token');
+      setLoading(true);
+      setError(null);
 
-      const [tasksRes, equipmentRes, statsRes] = await Promise.all([
-        fetch('/api/admin/maintenance/tasks', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })]),
-        fetch('/api/admin/maintenance/equipment', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('/api/admin/maintenance/stats', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
-      ]);
-
-      if (tasksRes.ok && equipmentRes.ok && statsRes.ok) {
-        const [tasksData, equipmentData, statsData] = await Promise.all([
-          tasksRes.json()]),
-          equipmentRes.json(),
-          statsRes.json()
-        ]);
-
-        setTasks(Array.isArray(tasksData) ? tasksData : []);
-        setEquipment(Array.isArray(equipmentData) ? equipmentData : []);
-        setStats(statsData);
+      if (selectedTask) {
+        // Modifier tâche
+        const updated = await apiFetch(`/api/admin/maintenance/tasks/${selectedTask.id}`, {
+          method: 'PUT',
+          body: JSON.stringify(data),
+        });
+        setTasks((prev) =>
+          prev.map((t) => (t.id === updated.id ? updated : t))
+        );
+      } else {
+        // Créer tâche
+        const created = await apiFetch('/api/admin/maintenance/tasks', {
+          method: 'POST',
+          body: JSON.stringify(data),
+        });
+        setTasks((prev) => [...prev, created]);
       }
-    } catch (error) {
-      logger.error('Erreur lors du chargement des données de maintenance:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
 
-      // Données d'exemple pour la démonstration
-      const sampleTasks: MaintenanceTask[] = [
-        {
-          id: 1,
-          title: 'Détartrage machine espresso',
-          description: 'Nettoyage et détartrage complet de la machine espresso principale',
-          equipmentId: 1,
-          equipmentName: 'Machine Espresso Pro',
-          priority: 'high',
-          status: 'pending',
-          assignedTo: 'Marc Technicien',
-          scheduledDate: '2024-07-15',
-          estimatedCost: 150.00,
-          category: 'preventive',
-          recurrence: 'monthly',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        },
-        {
-          id: 2,
-          title: 'Réparation broyeur café',
-          description: 'Remplacement des lames du broyeur et calibrage',
-          equipmentId: 2,
-          equipmentName: 'Broyeur Professionnel',
-          priority: 'urgent',
-          status: 'in_progress',
-          assignedTo: 'Sophie Maintenance',
-          scheduledDate: '2024-07-12',
-          estimatedCost: 300.00,
-          actualCost: 275.00,
-          category: 'corrective',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        }
-      ];
-
-      const sampleEquipment: Equipment[] = [
-        {
-          id: 1,
-          name: 'Machine Espresso Pro',
-          type: 'Machine à café',
-          brand: 'La Marzocco',
-          model: 'Linea PB',
-          serialNumber: 'LM2024001',
-          location: 'Comptoir principal',
-          status: 'operational',
-          lastMaintenance: '2024-06-15',
-          nextMaintenance: '2024-07-15',
-          warrantyExpiry: '2026-01-15',
-          purchaseDate: '2024-01-15',
-          purchasePrice: 8500.00,
-          supplier: 'Café Equipment Pro',
-          specifications: {
-            groups: 3,
-            power: '4.5kW',
-            pressure: '9 bars',
-            capacity: '11L'
-          },
-          maintenanceHistory: [,],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        },
-        {
-          id: 2,
-          name: 'Broyeur Professionnel',
-          type: 'Broyeur à café',
-          brand: 'Mahlkönig',
-          model: 'EK43',
-          serialNumber: 'MK2024002',
-          location: 'Station de préparation',
-          status: 'maintenance',
-          lastMaintenance: '2024-07-10',
-          nextMaintenance: '2024-08-10',
-          warrantyExpiry: '2025-03-20',
-          purchaseDate: '2024-03-20',
-          purchasePrice: 2200.00,
-          supplier: 'Café Equipment Pro',
-          specifications: {
-            capacity: '1.5kg',
-            speed: '1400rpm',
-            burrs: 'Steel'
-          },
-          maintenanceHistory: [,],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        }
-      ];
-
-      const sampleStats: MaintenanceStats = {
-        totalEquipment: 12,
-        operationalEquipment: 10,
-        pendingTasks: 3,
-        completedThisMonth: 8,
-        totalCostThisMonth: 1250.00,
-        averageResolutionTime: 48,
-        uptime: 97.5,
-        criticalAlerts: 1
-      };
-
-      setTasks(sampleTasks);
-      setEquipment(sampleEquipment);
-      setStats(sampleStats);
+      setShowTaskDialog(false);
+      taskForm.reset();
+      setSelectedTask(null);
+    } catch (err: any) {
+      setError(err.message || 'Erreur lors de la sauvegarde de la tâche');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleTaskSubmit = async (data: z.infer<typeof taskSchema>) => {
+  // Soumission formulaire équipement
+  const handleEquipmentSubmit = async (data: Equipment) => {
     try {
-      const token = localStorage.getItem('token');
-      const url = selectedTask ? `/api/admin/maintenance/tasks/${selectedTask.id}` : '/api/admin/maintenance/tasks';
-      const method = selectedTask ? 'PUT' : 'POST';
+      setLoading(true);
+      setError(null);
 
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(data)
-      });
-
-      if (response.ok) {
-        toast({
-          title: selectedTask ? "Tâche modifiée" : "Tâche créée",
-          description: selectedTask ? "La tâche a été modifiée avec succès" : "La tâche a été créée avec succès"
-        )});
-        setShowTaskDialog(false);
-        setSelectedTask(null);
-        taskForm.reset();
-        fetchMaintenanceData();
+      if (selectedEquipment) {
+        // Modifier équipement
+        const updated = await apiFetch(`/api/admin/maintenance/equipment/${selectedEquipment.id}`, {
+          method: 'PUT',
+          body: JSON.stringify(data),
+        });
+        setEquipment((prev) =>
+          prev.map((eq) => (eq.id === updated.id ? updated : eq))
+        );
+      } else {
+        // Créer équipement
+        const created = await apiFetch('/api/admin/maintenance/equipment', {
+          method: 'POST',
+          body: JSON.stringify(data),
+        });
+        setEquipment((prev) => [...prev, created]);
       }
-    } catch (error) {
-      logger.error('Erreur lors de la sauvegarde de la tâche:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
-      toast({
-        title: "Erreur",
-        description: "Impossible de sauvegarder la tâche",
-        variant: "destructive"
-      });
+
+      setShowEquipmentDialog(false);
+      equipmentForm.reset();
+      setSelectedEquipment(null);
+    } catch (err: any) {
+      setError(err.message || 'Erreur lors de la sauvegarde de l\'équipement');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleEquipmentSubmit = async (data: z.infer<typeof equipmentSchema>) => {
-    try {
-      const token = localStorage.getItem('token');
-      const url = selectedEquipment ? `/api/admin/maintenance/equipment/${selectedEquipment.id}` : '/api/admin/maintenance/equipment';
-      const method = selectedEquipment ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(data)
-      });
-
-      if (response.ok) {
-        toast({
-          title: selectedEquipment ? "Équipement modifié" : "Équipement ajouté",
-          description: selectedEquipment ? "L'équipement a été modifié avec succès" : "L'équipement a été ajouté avec succès"
-        )});
-        setShowEquipmentDialog(false);
-        setSelectedEquipment(null);
-        equipmentForm.reset();
-        fetchMaintenanceData();
-      }
-    } catch (error) {
-      logger.error('Erreur lors de la sauvegarde de l\'équipement:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
-      toast({
-        title: "Erreur",
-        description: "Impossible de sauvegarder l'équipement",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'low': return 'bg-green-100 text-green-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'high': return 'bg-orange-100 text-orange-800';
-      case 'urgent': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'operational': return 'bg-green-100 text-green-800';
-      case 'maintenance': return 'bg-yellow-100 text-yellow-800';
-      case 'out_of_order': return 'bg-red-100 text-red-800';
-      case 'retired': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getEquipmentIcon = (type: string) => {
-    switch (type.toLowerCase()) {
-      case 'machine à café': return <Coffee className="h-5 w-5" />;
-      case 'broyeur': return <Settings className="h-5 w-5" />;
-      case 'réfrigérateur': return <Thermometer className="h-5 w-5" />;
-      case 'électrique': return <Zap className="h-5 w-5" />;
-      case 'wifi': return <Wifi className="h-5 w-5" />;
-      default: return <Wrench className="h-5 w-5" />;
-    }
-  };
-
-  const filteredTasks = tasks.filter(task => {
-    const statusMatch = filterStatus === 'all' || task.status === filterStatus;
-    const priorityMatch = filterPriority === 'all' || task.priority === filterPriority;
-    return statusMatch && priorityMatch;
+  // Filtrage des tâches
+  const filteredTasks = tasks.filter((task) => {
+    if (filterStatus !== 'all' && task.status !== filterStatus) return false;
+    if (filterPriority !== 'all' && task.priority !== filterPriority) return false;
+    return true;
   });
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Maintenance Avancée</h2>
-        <div className="flex space-x-2">
-          <Dialog open={showTaskDialog} onOpenChange={setShowTaskDialog}>
-            <DialogTrigger asChild>
-              <Button onClick={() => setSelectedTask(null)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Nouvelle Tâche
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>
-                  {selectedTask ? "Modifier la tâche" : "Créer une tâche"}
-                </DialogTitle>
-                <DialogDescription>
-                  Configurez une tâche de maintenance pour votre équipement
-                </DialogDescription>
-              </DialogHeader>
-              <Form {...taskForm}>
-                <form onSubmit={taskForm.handleSubmit(handleTaskSubmit)} className="space-y-4">
-                  <FormField
-                    control={taskForm.control}
-                    name="title"
-                    render={({ field )}) => (
-                      <FormItem>
-                        <FormLabel>Titre</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Titre de la tâche" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={taskForm.control}
-                    name="description"
-                    render={({ field )}) => (
-                      <FormItem>
-                        <FormLabel>Description</FormLabel>
-                        <FormControl>
-                          <Textarea placeholder="Description détaillée" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={taskForm.control}
-                      name="equipmentId"
-                      render={({ field )}) => (
-                        <FormItem>
-                          <FormLabel>Équipement</FormLabel>
-                          <Select onValueChange={(value) => field.onChange(parseInt(value))}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Sélectionner un équipement" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {equipment.map(eq => (
-                                <SelectItem key={eq.id)} value={eq.id.toString()}>
-                                  {eq.name} - {eq.location}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={taskForm.control}
-                      name="priority"
-                      render={({ field )}) => (
-                        <FormItem>
-                          <FormLabel>Priorité</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Sélectionner la priorité" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="low">Faible</SelectItem>
-                              <SelectItem value="medium">Moyenne</SelectItem>
-                              <SelectItem value="high">Haute</SelectItem>
-                              <SelectItem value="urgent">Urgente</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={taskForm.control}
-                      name="assignedTo"
-                      render={({ field )}) => (
-                        <FormItem>
-                          <FormLabel>Assigné à</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Nom du technicien" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={taskForm.control}
-                      name="scheduledDate"
-                      render={({ field )}) => (
-                        <FormItem>
-                          <FormLabel>Date programmée</FormLabel>
-                          <FormControl>
-                            <Input type="date" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={taskForm.control}
-                      name="estimatedCost"
-                      render={({ field )}) => (
-                        <FormItem>
-                          <FormLabel>Coût estimé (€)</FormLabel>
-                          <FormControl>
-                            <Input 
-                              type="number" 
-                              step="0.01" 
-                              {...field} 
-                              onChange={e => field.onChange(parseFloat(e.target.value))}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={taskForm.control}
-                      name="category"
-                      render={({ field )}) => (
-                        <FormItem>
-                          <FormLabel>Catégorie</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Sélectionner la catégorie" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="preventive">Préventive</SelectItem>
-                              <SelectItem value="corrective">Corrective</SelectItem>
-                              <SelectItem value="emergency">Urgence</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="flex justify-end space-x-2">
-                    <Button type="button" variant="outline" onClick={() => setShowTaskDialog(false)}>
-                      Annuler
-                    </Button>
-                    <Button type="submit">
-                      {selectedTask ? "Modifier" : "Créer"}
-                    </Button>
-                  </div>
-                </form>
-              </Form>
-            </DialogContent>
-          </Dialog>
-          <Dialog open={showEquipmentDialog} onOpenChange={setShowEquipmentDialog}>
-            <DialogTrigger asChild>
-              <Button variant="outline" onClick={() => setSelectedEquipment(null)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Nouvel Équipement
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>
-                  {selectedEquipment ? "Modifier l'équipement" : "Ajouter un équipement"}
-                </DialogTitle>
-                <DialogDescription>
-                  Enregistrez un nouvel équipement dans votre inventaire
-                </DialogDescription>
-              </DialogHeader>
-              <Form {...equipmentForm}>
-                <form onSubmit={equipmentForm.handleSubmit(handleEquipmentSubmit)} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={equipmentForm.control}
-                      name="name"
-                      render={({ field )}) => (
-                        <FormItem>
-                          <FormLabel>Nom</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Nom de l'équipement" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={equipmentForm.control}
-                      name="type"
-                      render={({ field )}) => (
-                        <FormItem>
-                          <FormLabel>Type</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Type d'équipement" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={equipmentForm.control}
-                      name="brand"
-                      render={({ field )}) => (
-                        <FormItem>
-                          <FormLabel>Marque</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Marque" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={equipmentForm.control}
-                      name="model"
-                      render={({ field )}) => (
-                        <FormItem>
-                          <FormLabel>Modèle</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Modèle" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={equipmentForm.control}
-                      name="serialNumber"
-                      render={({ field )}) => (
-                        <FormItem>
-                          <FormLabel>Numéro de série</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Numéro de série" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={equipmentForm.control}
-                      name="location"
-                      render={({ field )}) => (
-                        <FormItem>
-                          <FormLabel>Emplacement</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Emplacement" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={equipmentForm.control}
-                      name="purchaseDate"
-                      render={({ field )}) => (
-                        <FormItem>
-                          <FormLabel>Date d'achat</FormLabel>
-                          <FormControl>
-                            <Input type="date" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={equipmentForm.control}
-                      name="purchasePrice"
-                      render={({ field )}) => (
-                        <FormItem>
-                          <FormLabel>Prix d'achat (€)</FormLabel>
-                          <FormControl>
-                            <Input 
-                              type="number" 
-                              step="0.01" 
-                              {...field} 
-                              onChange={e => field.onChange(parseFloat(e.target.value))}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+    <div className="p-4 max-w-screen-xl mx-auto">
+      <h1 className="text-2xl font-bold mb-6">Gestion Maintenance</h1>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 text-red-800 rounded">
+          Erreur : {error}
+        </div>
+      )}
+
+      {loading && (
+        <div className="mb-4 p-3 bg-gray-100 text-gray-700 rounded text-center">
+          Chargement en cours...
+        </div>
+      )}
+
+      <div className="flex flex-wrap justify-between items-center mb-6">
+        <Dialog open={showTaskDialog} onOpenChange={setShowTaskDialog}>
+          <DialogTrigger asChild>
+            <Button variant="secondary" onClick={() => {
+              setSelectedTask(null);
+              taskForm.reset();
+            }}>
+              <Plus className="h-4 w-4 mr-2" /> Nouvelle tâche
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>{selectedTask ? 'Modifier tâche' : 'Créer une tâche'}</DialogTitle>
+              <DialogDescription>Remplissez les informations de la tâche</DialogDescription>
+            </DialogHeader>
+            <Form {...taskForm}>
+              <form onSubmit={taskForm.handleSubmit(handleTaskSubmit)} className="space-y-4">
+                <FormField
+                  control={taskForm.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Titre</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Titre de la tâche" {...field} required />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={taskForm.control}
+                  name="equipmentId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Équipement</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                        required
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionnez un équipement" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {equipment.map((eq) => (
+                            <SelectItem key={eq.id} value={eq.id}>
+                              {eq.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={taskForm.control}
+                  name="priority"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Priorité</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value} required>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionnez une priorité" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Faible</SelectItem>
+                          <SelectItem value="medium">Moyenne</SelectItem>
+                          <SelectItem value="high">Haute</SelectItem>
+                          <SelectItem value="urgent">Urgente</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={taskForm.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Statut</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value} required>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionnez un statut" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pending">En attente</SelectItem>
+                          <SelectItem value="in_progress">En cours</SelectItem>
+                          <SelectItem value="completed">Terminée</SelectItem>
+                          <SelectItem value="cancelled">Annulée</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={taskForm.control}
+                  name="assignedTo"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Assigné à</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Nom de l'utilisateur assigné" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={taskForm.control}
+                  name="scheduledDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Date programmée</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={taskForm.control}
+                  name="estimatedCost"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Coût estimé (€)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={0}
+                          step={0.01}
+                          {...field}
+                          onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={taskForm.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Catégorie</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value} required>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionnez une catégorie" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="preventive">Préventive</SelectItem>
+                          <SelectItem value="corrective">Corrective</SelectItem>
+                          <SelectItem value="emergency">Urgence</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={taskForm.control}
+                  name="recurrence"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Récurrence (optionnelle)</FormLabel>
+                      <FormControl>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value || ''}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Sélectionnez une récidive" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="">Aucune</SelectItem>
+                            <SelectItem value="daily">Quotidienne</SelectItem>
+                            <SelectItem value="weekly">Hebdomadaire</SelectItem>
+                            <SelectItem value="monthly">Mensuelle</SelectItem>
+                            <SelectItem value="quarterly">Trimestrielle</SelectItem>
+                            <SelectItem value="yearly">Annuelle</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={taskForm.control}
+                  name="notes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Notes</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="Notes supplémentaires" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="flex justify-end space-x-2">
+                  <Button variant="outline" onClick={() => setShowTaskDialog(false)}>
+                    Annuler
+                  </Button>
+                  <Button type="submit" disabled={loading}>
+                    {selectedTask ? 'Modifier' : 'Créer'}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Dialog équipement */}
+        <Dialog open={showEquipmentDialog} onOpenChange={setShowEquipmentDialog}>
+          <DialogTrigger asChild>
+            <Button variant="secondary" onClick={() => {
+              setSelectedEquipment(null);
+              equipmentForm.reset();
+            }}>
+              <Plus className="h-4 w-4 mr-2" /> Nouvel équipement
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>{selectedEquipment ? 'Modifier équipement' : 'Ajouter un équipement'}</DialogTitle>
+              <DialogDescription>Configurez les informations de votre équipement</DialogDescription>
+            </DialogHeader>
+            <Form {...equipmentForm}>
+              <form onSubmit={equipmentForm.handleSubmit(handleEquipmentSubmit)} className="space-y-4">
+                <FormField
+                  control={equipmentForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nom</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Nom de l'équipement" {...field} required />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={equipmentForm.control}
-                    name="supplier"
-                    render={({ field )}) => (
+                    name="type"
+                    render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Fournisseur</FormLabel>
+                        <FormLabel>Type</FormLabel>
                         <FormControl>
-                          <Input placeholder="Nom du fournisseur" {...field} />
+                          <Input placeholder="Type d'équipement" {...field} required />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  <div className="flex justify-end space-x-2">
-                    <Button type="button" variant="outline" onClick={() => setShowEquipmentDialog(false)}>
-                      Annuler
-                    </Button>
-                    <Button type="submit">
-                      {selectedEquipment ? "Modifier" : "Ajouter"}
-                    </Button>
-                  </div>
-                </form>
-              </Form>
-            </DialogContent>
-          </Dialog>
+                  <FormField
+                    control={equipmentForm.control}
+                    name="brand"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Marque</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Marque" {...field} required />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={equipmentForm.control}
+                    name="model"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Modèle</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Modèle" {...field} required />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={equipmentForm.control}
+                    name="serialNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Numéro de série</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Numéro de série" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <FormField
+                  control={equipmentForm.control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Localisation</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Localisation" {...field} required />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={equipmentForm.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Statut</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value} required>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionnez un statut" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="operational">Opérationnel</SelectItem>
+                          <SelectItem value="maintenance">En maintenance</SelectItem>
+                          <SelectItem value="out_of_service">Hors service</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={equipmentForm.control}
+                    name="purchaseDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Date d'achat</FormLabel>
+                        <FormControl>
+                          <Input type="date" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={equipmentForm.control}
+                    name="purchasePrice"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Prix d'achat (€)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min={0}
+                            step={0.01}
+                            {...field}
+                            onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <FormField
+                  control={equipmentForm.control}
+                  name="supplier"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Fournisseur</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Fournisseur" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={equipmentForm.control}
+                  name="warrantyExpiry"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Fin de garantie</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={equipmentForm.control}
+                  name="manualUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>URL du manuel</FormLabel>
+                      <FormControl>
+                        <Input type="url" placeholder="https://..." {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="flex justify-end space-x-2">
+                  <Button variant="outline" onClick={() => setShowEquipmentDialog(false)}>
+                    Annuler
+                  </Button>
+                  <Button type="submit" disabled={loading}>
+                    {selectedEquipment ? 'Modifier' : 'Ajouter'}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Filtres */}
+        <div className="flex space-x-4 mb-4">
+          <select
+            className="border rounded p-1"
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+          >
+            <option value="all">Tous les statuts</option>
+            <option value="pending">En attente</option>
+            <option value="in_progress">En cours</option>
+            <option value="completed">Terminée</option>
+            <option value="cancelled">Annulée</option>
+          </select>
+          <select
+            className="border rounded p-1"
+            value={filterPriority}
+            onChange={(e) => setFilterPriority(e.target.value)}
+          >
+            <option value="all">Toutes priorités</option>
+            <option value="low">Faible</option>
+            <option value="medium">Moyenne</option>
+            <option value="high">Haute</option>
+            <option value="urgent">Urgente</option>
+          </select>
         </div>
       </div>
 
       {/* Statistiques */}
       {stats && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-3 gap-4 mb-8">
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-2">
-                <Settings className="h-5 w-5 text-blue-500" />
-                <div>
-                  <p className="text-sm text-gray-600">Équipements</p>
-                  <p className="text-2xl font-bold">{stats.totalEquipment)}</p>
-                  <p className="text-xs text-green-600">{stats.operationalEquipment} opérationnels</p>
-                </div>
-              </div>
+            <CardHeader>
+              <CardTitle>Équipements</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>Total : {stats.totalEquipment}</p>
+              <p>Opérationnels : {stats.operationalEquipment}</p>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-2">
-                <Clock className="h-5 w-5 text-orange-500" />
-                <div>
-                  <p className="text-sm text-gray-600">Tâches en attente</p>
-                  <p className="text-2xl font-bold">{stats.pendingTasks}</p>
-                  <p className="text-xs text-gray-500">{stats.completedThisMonth} terminées ce mois</p>
-                </div>
-              </div>
+            <CardHeader>
+              <CardTitle>Tâches</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>En attente : {stats.pendingTasks}</p>
+              <p>Terminées ce mois : {stats.completedThisMonth}</p>
+              <p>Coût total ce mois : {stats.totalCostThisMonth} €</p>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-2">
-                <DollarSign className="h-5 w-5 text-green-500" />
-                <div>
-                  <p className="text-sm text-gray-600">Coût mensuel</p>
-                  <p className="text-2xl font-bold">{stats.totalCostThisMonth.toFixed(0)}€</p>
-                  <p className="text-xs text-gray-500">{stats.averageResolutionTime}h résolution moy.</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-2">
-                <TrendingUp className="h-5 w-5 text-purple-500" />
-                <div>
-                  <p className="text-sm text-gray-600">Taux de disponibilité</p>
-                  <p className="text-2xl font-bold">{stats.uptime}%</p>
-                  <p className="text-xs text-red-600">{stats.criticalAlerts} alertes critiques</p>
-                </div>
-              </div>
+            <CardHeader>
+              <CardTitle>Performances</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>Temps moyen résolution : {stats.averageResolutionTime} h</p>
+              <p>Taux disponibilité : {stats.uptime} %</p>
+              <p>Alerte critiques : {stats.criticalAlerts}</p>
             </CardContent>
           </Card>
         </div>
       )}
 
-      <Tabs defaultValue="tasks" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="tasks">Tâches ({tasks.length})</TabsTrigger>
-          <TabsTrigger value="equipment">Équipements ({equipment.length})</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="tasks" className="space-y-4">
-          {/* Filtres */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Filtres</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Statut</label>
-                  <Select value={filterStatus} onValueChange={setFilterStatus}>
-                    <SelectTrigger className="w-40">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Tous</SelectItem>
-                      <SelectItem value="pending">En attente</SelectItem>
-                      <SelectItem value="in_progress">En cours</SelectItem>
-                      <SelectItem value="completed">Terminées</SelectItem>
-                      <SelectItem value="cancelled">Annulées</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Priorité</label>
-                  <Select value={filterPriority} onValueChange={setFilterPriority}>
-                    <SelectTrigger className="w-40">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Toutes</SelectItem>
-                      <SelectItem value="low">Faible</SelectItem>
-                      <SelectItem value="medium">Moyenne</SelectItem>
-                      <SelectItem value="high">Haute</SelectItem>
-                      <SelectItem value="urgent">Urgente</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Liste des tâches */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filteredTasks.map(task => (
-              <Card key={task.id)} className="hover:shadow-md transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <Badge className={getPriorityColor(task.priority)}>
-                      {task.priority === 'low' ? 'Faible' : 
-                       task.priority === 'medium' ? 'Moyenne' : 
-                       task.priority === 'high' ? 'Haute' : 'Urgente'}
-                    </Badge>
-                    <Badge variant="outline">
-                      {task.category === 'preventive' ? 'Préventive' : 
-                       task.category === 'corrective' ? 'Corrective' : 'Urgence'}
-                    </Badge>
-                  </div>
-                  <CardTitle className="text-lg">{task.title}</CardTitle>
-                  <CardDescription>{task.description}</CardDescription>
+      {/* Liste des tâches */}
+      <div className="space-y-4">
+        {filteredTasks.length === 0 ? (
+          <p>Aucune tâche trouvée avec les filtres appliqués.</p>
+        ) : (
+          filteredTasks.map((task) => {
+            const eq = equipment.find((eq) => eq.id === task.equipmentId);
+            return (
+              <Card key={task.id} className="cursor-pointer" onClick={() => {
+                setSelectedTask(task);
+                taskForm.reset(task);
+                setShowTaskDialog(true);
+              }}>
+                <CardHeader className="flex justify-between items-center">
+                  <CardTitle className="flex items-center gap-2">
+                    {getEquipmentIcon(eq?.type || '')}
+                    {task.title}
+                    <Badge className={getPriorityColor(task.priority)}>{task.priority}</Badge>
+                  </CardTitle>
+                  <Badge className={getStatusColor(task.status)}>{task.status.replace('_', ' ')}</Badge>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2">
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Settings className="h-4 w-4 mr-2" />
-                      {task.equipmentName}
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      {new Date(task.scheduledDate).toLocaleDateString('fr-FR')}
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <DollarSign className="h-4 w-4 mr-2" />
-                      {task.actualCost ? `${task.actualCost}€ (réel)` : `${task.estimatedCost}€ (estimé)`}
-                    </div>
-                    <div className="flex items-center justify-between pt-2">
-                      <span className="text-sm text-gray-500">
-                        Assigné à: {task.assignedTo}
-                      </span>
-                      <div className="flex space-x-1">
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => {
-                            setSelectedTask(task);
-                            taskForm.reset({
-                              ...task,
-                              equipmentId: task.equipmentId || 0
-                            });
-                            setShowTaskDialog(true);
-                          }}
-                        >
-                          <Edit className="h-3 w-3" />
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          <FileText className="h-3 w-3" />
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          <Camera className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
+                  <p><strong>Équipement :</strong> {eq?.name || 'Non défini'}</p>
+                  <p><strong>Assigné à :</strong> {task.assignedTo || '-'}</p>
+                  <p><strong>Date programmée :</strong> {new Date(task.scheduledDate).toLocaleDateString()}</p>
+                  <p><strong>Coût estimé :</strong> {task.estimatedCost} €</p>
+                  <p><strong>Catégorie :</strong> {task.category}</p>
                 </CardContent>
               </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="equipment" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {equipment.map(eq => (
-              <Card key={eq.id)} className="hover:shadow-md transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <Badge className={getStatusColor(eq.status)}>
-                      {eq.status === 'operational' ? 'Opérationnel' : 
-                       eq.status === 'maintenance' ? 'Maintenance' : 
-                       eq.status === 'out_of_order' ? 'Hors service' : 'Retiré'}
-                    </Badge>
-                    <div className="flex items-center space-x-1">
-                      {getEquipmentIcon(eq.type)}
-                      <span className="text-sm text-gray-600">{eq.type}</span>
-                    </div>
-                  </div>
-                  <CardTitle className="text-lg">{eq.name}</CardTitle>
-                  <CardDescription>{eq.brand} {eq.model}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <div className="flex items-center text-sm text-gray-600">
-                      <MapPin className="h-4 w-4 mr-2" />
-                      {eq.location}
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <FileText className="h-4 w-4 mr-2" />
-                      S/N: {eq.serialNumber}
-                    </div>
-                    {eq.lastMaintenance && (
-                      <div className="flex items-center text-sm text-gray-600">
-                        <Calendar className="h-4 w-4 mr-2" />
-                        Dernière maintenance: {new Date(eq.lastMaintenance).toLocaleDateString('fr-FR')}
-                      </div>
-                    )}
-                    {eq.nextMaintenance && (
-                      <div className="flex items-center text-sm text-gray-600">
-                        <Clock className="h-4 w-4 mr-2" />
-                        Prochaine maintenance: {new Date(eq.nextMaintenance).toLocaleDateString('fr-FR')}
-                      </div>
-                    )}
-                    <div className="flex items-center justify-between pt-2">
-                      <span className="text-sm font-medium text-gray-900">
-                        {eq.purchasePrice.toFixed(0)}€
-                      </span>
-                      <div className="flex space-x-1">
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => {
-                            setSelectedEquipment(eq);
-                            equipmentForm.reset(eq);
-                            setShowEquipmentDialog(true);
-                          }}
-                        >
-                          <Edit className="h-3 w-3" />
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          <FileText className="h-3 w-3" />
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          <Star className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-      </Tabs>
+            );
+          })
+        )}
+      </div>
     </div>
   );
 }

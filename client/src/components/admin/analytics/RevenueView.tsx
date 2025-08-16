@@ -36,7 +36,7 @@ const RevenueView: React.FC<RevenueViewProps> = ({ data, timeRange }) => {
             <CardTitle className="text-sm font-medium">Commandes totales</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalOrders}</div>
+            <div className="text-2xl font-bold">{totalOrders.toLocaleString()}</div>
           </CardContent>
         </Card>
         
@@ -68,10 +68,10 @@ const RevenueView: React.FC<RevenueViewProps> = ({ data, timeRange }) => {
                 axisLine={false}
                 tickLine={false}
                 fontSize={12}
-                tickFormatter={(value) => `€${value}`}
+                tickFormatter={(value) => `€${value.toLocaleString()}`}
               />
               <Tooltip 
-                formatter={(value: number) => [`€${value}`, 'Revenus']}
+                formatter={(value: number) => [`€${value.toLocaleString()}`, 'Revenus']}
                 labelFormatter={(label) => `Date: ${label}`}
               />
               <Line 
@@ -105,9 +105,10 @@ const RevenueView: React.FC<RevenueViewProps> = ({ data, timeRange }) => {
                 axisLine={false}
                 tickLine={false}
                 fontSize={12}
+                tickFormatter={(value) => value.toLocaleString()}
               />
               <Tooltip 
-                formatter={(value: number) => [value, 'Commandes']}
+                formatter={(value: number) => [value.toLocaleString(), 'Commandes']}
                 labelFormatter={(label) => `Date: ${label}`}
               />
               <Bar 

@@ -1,24 +1,184 @@
 import React, { useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { 
-  ChevronLeft, 
-  ChevronRight, 
-  Plus,
-  Clock,
-  User,
-  MapPin,
-  AlertTriangle
+  Card, CardContent, CardHeader, CardTitle,
+  Button, Badge 
+} from '@/components/ui';
+import { 
+  ChevronLeft, ChevronRight, Plus,
+  Clock, User, MapPin, AlertTriangle 
 } from 'lucide-react';
-import { CalendarViewProps, Shift, TimePeriod } from '../types/schedule.types';
+import { CalendarViewProps, Shift } from '../types/schedule.types';
 import { 
-  formatDuration, 
-  formatCurrency, 
-  getWeekDates, 
-  getMonthDates,
+  formatDuration, formatCurrency, 
+  getWeekDates, getMonthDates,
   SHIFT_STATUS_COLORS 
 } from '../utils/schedule.utils';
+
+interface DayColumnProps {
+  date: string;
+  shifts: Shift[];
+  isSelected: boolean;
+  onDateClick: (date: string) => void;
+  onShiftClick: (shift: Shift) => void;
+  onShiftCreate: (newShift: Partial<Shift>) => void;
+  compact?: boolean;
+  employees: { id: number; firstName: string; lastName: string }[];
+}
+
+interface ShiftItemProps {
+  shift: Shift;
+  employee?: { firstName: string; lastName: string };
+  compact?: boolean;
+  onClick: () => void;
+}
+
+const ShiftItem: React.FC<ShiftItemProps> = ({ 
+  shift, 
+  employee,
+  compact = false,
+  onClick 
+}) => {
+  const statusColor = SHIFT_STATUS_COLORS[shift.status];
+  
+  return (
+    <div
+      onClick={onClick}
+      className={`
+        p-2 rounded-lg border cursor-pointer transition-all duration-200
+        hover:shadow-md hover:scale-[1.02]
+        ${compact ? 'text-xs' : 'text-sm'}
+      `}
+      style={{ 
+        backgroundColor: `${statusColor}20`,
+        borderColor: `${statusColor}40`
+      }}
+    >
+      <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center space-x-1">
+          <User className="h-3 w-3" />
+          <span className="font-medium">
+            {employee ? `${employee.firstName} ${employee.lastName}` : 'Inconnu'}
+          </span>
+        </div>
+        {shift.notes && (
+          <AlertTriangle className="h-3 w-3 text-yellow-500" />
+        )}
+      </div>
+      
+      <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
+        <Clock className="h-3 w-3" />
+        <span>{shift.startTime} - {shift.endTime}</span>
+      </div>
+      
+      <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
+        <MapPin className="h-3 w-3" />
+        <span>{shift.position}</span>
+      </div>
+      
+      <div className="flex items-center justify-between mt-2">
+        <Badge 
+          variant="outline" 
+          className="text-xs"
+          style={{ color: statusColor }}
+        >
+          {shift.status}
+        </Badge>
+        <span className="text-xs font-medium">
+          {formatDuration(shift.totalHours)}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+const DayColumn: React.FC<DayColumnProps> = ({ 
+  date, 
+  shifts, 
+  isSelected,
+  onDateClick,
+  onShiftClick,
+  onShiftCreate,
+  compact = false,
+  employees
+}) => {
+  const dayDate = new Date(date);
+  const isToday = date === new Date().toISOString().split('T')[0];
+  
+  return (
+    <div
+      onClick={() => onDateClick(date)}
+      className={`
+        border rounded-lg p-2 min-h-[200px] 
+        ${isSelected ? 'ring-2 ring-blue-500' : ''}
+        ${isToday ? 'bg-blue-50 dark:bg-blue-950' : 'bg-white dark:bg-gray-900'}
+        hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors
+        cursor-pointer
+      `}
+    >
+      <div className="flex items-center justify-between mb-3">
+        <div className="text-center">
+          <div className="text-xs text-gray-500 dark:text-gray-400">
+            {dayDate.toLocaleDateString('fr-FR', { weekday: 'short' })}
+          </div>
+          <div className={`
+            text-lg font-semibold 
+            ${isToday ? 'text-blue-600 dark:text-blue-400' : 'text-gray-900 dark:text-gray-100'}
+          `}>
+            {dayDate.getDate()}
+          </div>
+        </div>
+        
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={(e) => {
+            e.stopPropagation();
+            onShiftCreate({
+              employeeId: employees[0]?.id || 0,
+              date,
+              startTime: '09:00',
+              endTime: '17:00',
+              position: 'serveur',
+              department: 'service',
+              status: 'scheduled',
+              hourlyRate: 15,
+              totalHours: 8,
+              totalPay: 120,
+              isRecurring: false
+            });
+          }}
+          className="opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          <Plus className="h-4 w-4" />
+        </Button>
+      </div>
+      
+      <div className="space-y-2">
+        {shifts.map((shift) => {
+          const employee = employees.find(e => e.id === shift.employeeId);
+          return (
+            <ShiftItem 
+              key={shift.id} 
+              shift={shift}
+              employee={employee}
+              compact={compact}
+              onClick={(e) => {
+                e.stopPropagation();
+                onShiftClick(shift);
+              }}
+            />
+          );
+        })}
+      </div>
+      
+      {shifts.length === 0 && (
+        <div className="text-center text-gray-400 dark:text-gray-600 text-sm mt-8">
+          Aucun shift programmé
+        </div>
+      )}
+    </div>
+  );
+};
 
 const CalendarView: React.FC<CalendarViewProps> = ({
   shifts,
@@ -27,55 +187,44 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   onDateClick,
   onShiftCreate,
   selectedDate,
-  viewMode
+  viewMode = 'week'
 }) => {
-  const [currentDate, setCurrentDate] = useState(selectedDate || new Date().toISOString().split('T')[0]!);
+  const [currentDate, setCurrentDate] = useState(selectedDate || new Date().toISOString().split('T')[0]);
 
   // Générer les dates selon le mode de vue
   const dates = useMemo(() => {
+    const dateObj = new Date(currentDate);
     switch (viewMode) {
-      case 'week':
-        return getWeekDates(new Date(currentDate));
-      case 'month':
-        return getMonthDates(new Date(currentDate));
-      case 'day':
-        return [new Date(currentDate)];
-      default:
-        return getWeekDates(new Date(currentDate));
+      case 'week': return getWeekDates(dateObj);
+      case 'month': return getMonthDates(dateObj);
+      case 'day': return [dateObj];
+      default: return getWeekDates(dateObj);
     }
   }, [currentDate, viewMode]);
 
   // Grouper les shifts par date
   const shiftsByDate = useMemo(() => {
     const grouped: Record<string, Shift[]> = {};
-    
     shifts.forEach(shift => {
-      if (!grouped[shift.date]) {
-        grouped[shift.date] = [];
-      }
-      grouped[shift.date]!.push(shift);
+      const dateKey = shift.date;
+      if (!grouped[dateKey]) grouped[dateKey] = [];
+      grouped[dateKey].push(shift);
     });
-    
     return grouped;
   }, [shifts]);
 
   // Navigation
   const navigateDate = (direction: 'prev' | 'next') => {
     const current = new Date(currentDate);
+    const increment = direction === 'next' ? 1 : -1;
     
     switch (viewMode) {
-      case 'day':
-        current.setDate(current.getDate() + (direction === 'next' ? 1 : -1));
-        break;
-      case 'week':
-        current.setDate(current.getDate() + (direction === 'next' ? 7 : -7));
-        break;
-      case 'month':
-        current.setMonth(current.getMonth() + (direction === 'next' ? 1 : -1));
-        break;
+      case 'day': current.setDate(current.getDate() + increment); break;
+      case 'week': current.setDate(current.getDate() + (increment * 7)); break;
+      case 'month': current.setMonth(current.getMonth() + increment); break;
     }
     
-    setCurrentDate(current.toISOString().split('T')[0]!);
+    setCurrentDate(current.toISOString().split('T')[0]);
   };
 
   // Formatage des titres
@@ -91,10 +240,10 @@ const CalendarView: React.FC<CalendarViewProps> = ({
           day: 'numeric' 
         });
       case 'week':
-        const weekDates = getWeekDates(new Date(currentDate));
-        const startDate = weekDates[0]!;
-        const endDate = weekDates[weekDates.length - 1]!;
-        return `${startDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} - ${endDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+        const weekDates = getWeekDates(date);
+        const start = weekDates[0];
+        const end = weekDates[weekDates.length - 1];
+        return `${start.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} - ${end.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}`;
       case 'month':
         return date.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long' });
       default:
@@ -102,151 +251,24 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     }
   };
 
-  // Composant ShiftItem
-  const ShiftItem: React.FC<{ shift: Shift; compact?: boolean }> = ({ shift, compact = false }) => {
-    const employee = employees.find(e => e.id === shift.employeeId);
-    const statusColor = SHIFT_STATUS_COLORS[shift.status];
-    
-    return (
-      <div
-        onClick={() => onShiftClick(shift)}
-        className={`
-          p-2 rounded-lg border cursor-pointer transition-all duration-200
-          hover:shadow-md hover:scale-105
-          ${compact ? 'text-xs' : 'text-sm'}
-        `}
-        style={{ 
-          backgroundColor: statusColor + '20',
-          borderColor: statusColor + '40'
-        }}
-      >
-        <div className="flex items-center justify-between mb-1">
-          <div className="flex items-center space-x-1">
-            <User className="h-3 w-3" />
-            <span className="font-medium">
-              {employee ? `${employee.firstName} ${employee.lastName}` : 'Inconnu'}
-            </span>
-          </div>
-          {shift.notes && (
-            <AlertTriangle className="h-3 w-3 text-yellow-500" />
-          )}
-        </div>
-        
-        <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
-          <Clock className="h-3 w-3" />
-          <span>{shift.startTime} - {shift.endTime}</span>
-        </div>
-        
-        <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
-          <MapPin className="h-3 w-3" />
-          <span>{shift.position}</span>
-        </div>
-        
-        <div className="flex items-center justify-between mt-2">
-          <Badge 
-            variant="outline" 
-            className="text-xs"
-            style={{ color: statusColor }}
-          >
-            {shift.status}
-          </Badge>
-          <span className="text-xs font-medium">
-            {formatDuration(shift.totalHours)}
-          </span>
-        </div>
-      </div>
-    );
-  };
-
-  // Composant DayColumn
-  const DayColumn: React.FC<{ date: string; shifts: Shift[] }> = ({ date, shifts: dayShifts }) => {
-    const dayDate = new Date(date);
-    const isToday = date === new Date().toISOString().split('T')[0];
-    const isSelected = date === selectedDate;
-    
-    return (
-      <div className={`
-        border rounded-lg p-2 min-h-[200px] 
-        ${isSelected ? 'ring-2 ring-blue-500' : ''}
-        ${isToday ? 'bg-blue-50 dark:bg-blue-950' : 'bg-white dark:bg-gray-900'}
-        hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors
-      `}>
-        <div className="flex items-center justify-between mb-3">
-          <div className="text-center">
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              {dayDate.toLocaleDateString('fr-FR', { weekday: 'short' })}
-            </div>
-            <div className={`
-              text-lg font-semibold 
-              ${isToday ? 'text-blue-600 dark:text-blue-400' : 'text-gray-900 dark:text-gray-100'}
-            `}>
-              {dayDate.getDate()}
-            </div>
-          </div>
-          
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => {
-              onDateClick(date);
-              onShiftCreate({
-                employeeId: 0,
-                date,
-                startTime: '09:00',
-                endTime: '17:00',
-                position: 'serveur',
-                department: 'service',
-                status: 'scheduled',
-                hourlyRate: 15,
-                totalHours: 8,
-                totalPay: 120,
-                isRecurring: false
-              });
-            }}
-            className="opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
-        </div>
-        
-        <div className="space-y-2">
-          {dayShifts.map(shift => (
-            <ShiftItem 
-              key={shift.id} 
-              shift={shift} 
-              compact={viewMode === 'month'} 
-            />
-          ))}
-        </div>
-        
-        {dayShifts.length === 0 && (
-          <div className="text-center text-gray-400 dark:text-gray-600 text-sm mt-8">
-            Aucun shift programmé
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  // Statistiques rapides pour la période
+  // Statistiques pour la période
   const periodStats = useMemo(() => {
-    const periodShifts = shifts.filter(shift => dates.includes(shift.date));
-    const totalHours = periodShifts.reduce((sum, shift) => sum + shift.totalHours, 0);
-    const totalCost = periodShifts.reduce((sum, shift) => sum + shift.totalPay, 0);
-    const uniqueEmployees = new Set(periodShifts.map(s => s.employeeId)).size;
+    const periodShifts = shifts.filter(shift => 
+      dates.some(d => d.toISOString().split('T')[0] === shift.date)
+    );
     
     return {
       totalShifts: periodShifts.length,
-      totalHours,
-      totalCost,
-      uniqueEmployees
+      totalHours: periodShifts.reduce((sum, shift) => sum + shift.totalHours, 0),
+      totalCost: periodShifts.reduce((sum, shift) => sum + shift.totalPay, 0),
+      uniqueEmployees: new Set(periodShifts.map(s => s.employeeId)).size
     };
   }, [shifts, dates]);
 
   return (
     <Card className="w-full">
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <CardTitle className="text-xl font-bold">
             {getTitle()}
           </CardTitle>
@@ -279,7 +301,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
         </div>
         
         {/* Statistiques rapides */}
-        <div className="flex items-center space-x-6 text-sm text-gray-600 dark:text-gray-300">
+        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-300 mt-2">
           <div className="flex items-center space-x-1">
             <span>{periodStats.totalShifts} shifts</span>
           </div>
@@ -299,25 +321,32 @@ const CalendarView: React.FC<CalendarViewProps> = ({
       
       <CardContent>
         {viewMode === 'day' ? (
-          // Vue journalière détaillée
-          <div className="space-y-4">
-            <DayColumn 
-              date={currentDate} 
-              shifts={shiftsByDate[currentDate] || []} 
-            />
-          </div>
+          <DayColumn 
+            date={currentDate} 
+            shifts={shiftsByDate[currentDate] || []}
+            isSelected={true}
+            onDateClick={onDateClick}
+            onShiftClick={onShiftClick}
+            onShiftCreate={onShiftCreate}
+            employees={employees}
+          />
         ) : (
-          // Vue semaine/mois en grille
           <div className={`
             grid gap-4 
-            ${viewMode === 'week' ? 'grid-cols-7' : 'grid-cols-7'}
+            ${viewMode === 'week' ? 'grid-cols-1 sm:grid-cols-7' : 'grid-cols-1 sm:grid-cols-7'}
             ${viewMode === 'month' ? 'grid-rows-5' : ''}
           `}>
             {dates.map((date, index) => (
-              <DayColumn 
-                key={index} 
-                date={date.toISOString().split('T')[0]!} 
-                shifts={shiftsByDate[date.toISOString().split('T')[0]!] || []} 
+              <DayColumn
+                key={index}
+                date={date.toISOString().split('T')[0]}
+                shifts={shiftsByDate[date.toISOString().split('T')[0]] || []}
+                isSelected={date.toISOString().split('T')[0] === selectedDate}
+                onDateClick={onDateClick}
+                onShiftClick={onShiftClick}
+                onShiftCreate={onShiftCreate}
+                compact={viewMode === 'month'}
+                employees={employees}
               />
             ))}
           </div>
@@ -327,4 +356,4 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   );
 };
 
-export default CalendarView;
+export default React.memo(CalendarView);

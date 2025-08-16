@@ -21,7 +21,8 @@ import {
   DialogHeader, 
   DialogTitle, 
   DialogTrigger,
-  DialogDescription 
+  DialogDescription,
+  DialogFooter
 } from '@/components/ui/dialog';
 import { 
   Select, 
@@ -30,7 +31,19 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
-import { Settings, Users, Shield, Plus, Edit, Trash2, Save, UserPlus } from 'lucide-react';
+import { 
+  Settings, 
+  Users, 
+  Shield, 
+  Plus, 
+  Edit, 
+  Trash2, 
+  Save, 
+  UserPlus,
+  Loader2,
+  CheckCircle,
+  XCircle
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface Permission {
@@ -48,8 +61,10 @@ interface User {
   email: string;
   role: 'directeur' | 'employe';
   permissions: number[];
-  lastLogin: string;
+  lastLogin?: string;
   active: boolean;
+  firstName?: string;
+  lastName?: string;
 }
 
 interface UserPermission {
@@ -60,20 +75,29 @@ interface UserPermission {
   grantedAt: string;
 }
 
-export default function PermissionsManagement() : JSX.Element {
+const MODULES = [
+  'dashboard', 'reservations', 'orders', 'customers', 'menu', 
+  'messages', 'employees', 'settings', 'statistics', 'reports'
+] as const;
+
+const ACTIONS = ['view', 'create', 'edit', 'delete'] as const;
+
+export default function PermissionsManagement(): JSX.Element {
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [users, setUsers] = useState<User[]>([]);
-  const [userPermissions, setUserPermissions] = useState<UserPermission[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [showAddUserDialog, setShowAddUserDialog] = useState(false);
-  const [showPermissionDialog, setShowPermissionDialog] = useState(false);
   const [newUser, setNewUser] = useState({
     username: '',
     email: '',
     password: '',
-    role: 'employe' as 'directeur' | 'employe'
+    role: 'employe' as const,
+    firstName: '',
+    lastName: ''
   });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -82,12 +106,13 @@ export default function PermissionsManagement() : JSX.Element {
 
   const fetchData = async () => {
     try {
-      const token = localStorage.getItem('token');
+      setLoading(true);
+      const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
       
       const [permissionsRes, usersRes] = await Promise.all([
         fetch('/api/admin/permissions', {
           headers: { 'Authorization': `Bearer ${token}` }
-        })]),
+        }),
         fetch('/api/admin/users', {
           headers: { 'Authorization': `Bearer ${token}` }
         })
@@ -95,26 +120,57 @@ export default function PermissionsManagement() : JSX.Element {
 
       if (permissionsRes.ok && usersRes.ok) {
         const [permissionsData, usersData] = await Promise.all([
-          permissionsRes.json()]),
+          permissionsRes.json(),
           usersRes.json()
         ]);
 
         setPermissions(permissionsData || []);
         setUsers(usersData || []);
+      } else {
+        throw new Error('Failed to fetch data');
       }
     } catch (error) {
       console.error('Erreur lors du chargement:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les données",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
   };
 
+  const validateUserForm = () => {
+    const errors: Record<string, string> = {};
+    
+    if (!newUser.username.trim()) {
+      errors.username = "Le nom d'utilisateur est requis";
+    } else if (newUser.username.length < 3) {
+      errors.username = "Le nom d'utilisateur doit contenir au moins 3 caractères";
+    }
+
+    if (!newUser.email.trim()) {
+      errors.email = "L'email est requis";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newUser.email)) {
+      errors.email = "Format d'email invalide";
+    }
+
+    if (!newUser.password) {
+      errors.password = "Le mot de passe est requis";
+    } else if (newUser.password.length < 8) {
+      errors.password = "Le mot de passe doit contenir au moins 8 caractères";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const updateUserPermission = async (userId: number, permissionId: number, granted: boolean) => {
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
       const targetUser = users.find(u => u.id === userId);
       
-      // Vérifier si c'est un directeur (ne peut pas être modifié)
       if (targetUser?.role === 'directeur') {
         toast({
           title: "Modification interdite",
@@ -139,26 +195,21 @@ export default function PermissionsManagement() : JSX.Element {
       });
 
       if (response.ok) {
-        // Mettre à jour l'état local IMMÉDIATEMENT
         setUsers(users.map(user => 
           user.id === userId 
             ? {
                 ...user,
                 permissions: granted 
                   ? [...user.permissions, permissionId]
-                  : user.permissions.filter(p => p !== permissionId)})
+                  : user.permissions.filter(p => p !== permissionId)
               }
             : user
         ));
         
-        // Émettre un événement pour notifier les autres composants
-        window.dispatchEvent(new CustomEvent('permissions-updated', { 
-          detail: { userId, permissionId, granted } 
-        });
-        
         toast({
           title: "Permission mise à jour",
-          description: `Permission ${granted ? 'accordée' : 'révoquée'} avec succès - Effet immédiat`
+          description: `Permission ${granted ? 'accordée' : 'révoquée'} avec succès`,
+          action: <CheckCircle className="h-5 w-5 text-green-500" />
         });
       } else {
         throw new Error('Erreur lors de la mise à jour');
@@ -168,14 +219,18 @@ export default function PermissionsManagement() : JSX.Element {
       toast({
         title: "Erreur",
         description: "Impossible de mettre à jour la permission",
-        variant: "destructive"
+        variant: "destructive",
+        action: <XCircle className="h-5 w-5 text-red-500" />
       });
     }
   };
 
   const createUser = async () => {
+    if (!validateUserForm()) return;
+
     try {
-      const token = localStorage.getItem('token');
+      setIsProcessing(true);
+      const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
       
       const response = await fetch('/api/admin/users', {
         method: 'POST',
@@ -193,13 +248,17 @@ export default function PermissionsManagement() : JSX.Element {
           username: '',
           email: '',
           password: '',
-          role: 'employe'
+          role: 'employe',
+          firstName: '',
+          lastName: ''
         });
         setShowAddUserDialog(false);
+        setFormErrors({});
         
         toast({
           title: "Utilisateur créé",
-          description: "L'utilisateur a été créé avec succès"
+          description: "L'utilisateur a été créé avec succès",
+          action: <CheckCircle className="h-5 w-5 text-green-500" />
         });
       } else {
         throw new Error('Erreur lors de la création');
@@ -209,14 +268,17 @@ export default function PermissionsManagement() : JSX.Element {
       toast({
         title: "Erreur",
         description: "Impossible de créer l'utilisateur",
-        variant: "destructive"
+        variant: "destructive",
+        action: <XCircle className="h-5 w-5 text-red-500" />
       });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   const toggleUserStatus = async (userId: number, active: boolean) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
       
       const response = await fetch(`/api/admin/users/${userId}/status`, {
         method: 'PUT',
@@ -229,28 +291,45 @@ export default function PermissionsManagement() : JSX.Element {
 
       if (response.ok) {
         setUsers(users.map(user => 
-          user.id === userId ? { ...user, active )} : user
+          user.id === userId ? { ...user, active } : user
         ));
         
         toast({
           title: "Statut mis à jour",
-          description: `Utilisateur ${active ? 'activé' : 'désactivé'} avec succès`
+          description: `Utilisateur ${active ? 'activé' : 'désactivé'} avec succès`,
+          action: <CheckCircle className="h-5 w-5 text-green-500" />
         });
+      } else {
+        throw new Error('Erreur lors de la mise à jour');
       }
     } catch (error) {
       console.error('Erreur:', error);
       toast({
         title: "Erreur",
         description: "Impossible de mettre à jour le statut",
-        variant: "destructive"
+        variant: "destructive",
+        action: <XCircle className="h-5 w-5 text-red-500" />
       });
     }
   };
 
-  const modules = [
-    'dashboard', 'reservations', 'orders', 'customers', 'menu', 
-    'messages', 'employees', 'settings', 'statistics', 'reports'
-  ];
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'Jamais';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const getUserName = (user: User) => {
+    return user.firstName && user.lastName 
+      ? `${user.firstName} ${user.lastName}` 
+      : user.username;
+  };
 
   if (loading) {
     return (
@@ -259,7 +338,9 @@ export default function PermissionsManagement() : JSX.Element {
           <Shield className="h-6 w-6" />
           <h2 className="text-2xl font-bold">Gestion des Permissions</h2>
         </div>
-        <div className="text-center py-8">Chargement...</div>
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
       </div>
     );
   }
@@ -286,38 +367,73 @@ export default function PermissionsManagement() : JSX.Element {
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="firstName">Prénom</Label>
+                  <Input
+                    id="firstName"
+                    value={newUser.firstName}
+                    onChange={(e) => setNewUser({...newUser, firstName: e.target.value})}
+                    placeholder="Prénom"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="lastName">Nom</Label>
+                  <Input
+                    id="lastName"
+                    value={newUser.lastName}
+                    onChange={(e) => setNewUser({...newUser, lastName: e.target.value})}
+                    placeholder="Nom"
+                  />
+                </div>
+              </div>
               <div>
-                <Label htmlFor="username">Nom d'utilisateur</Label>
+                <Label htmlFor="username">Nom d'utilisateur *</Label>
                 <Input
                   id="username"
                   value={newUser.username}
                   onChange={(e) => setNewUser({...newUser, username: e.target.value})}
                   placeholder="Nom d'utilisateur"
+                  className={formErrors.username ? 'border-red-500' : ''}
                 />
+                {formErrors.username && (
+                  <p className="text-red-500 text-sm mt-1">{formErrors.username}</p>
+                )}
               </div>
               <div>
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">Email *</Label>
                 <Input
                   id="email"
                   type="email"
                   value={newUser.email}
                   onChange={(e) => setNewUser({...newUser, email: e.target.value})}
                   placeholder="email@example.com"
+                  className={formErrors.email ? 'border-red-500' : ''}
                 />
+                {formErrors.email && (
+                  <p className="text-red-500 text-sm mt-1">{formErrors.email}</p>
+                )}
               </div>
               <div>
-                <Label htmlFor="password">Mot de passe</Label>
+                <Label htmlFor="password">Mot de passe *</Label>
                 <Input
                   id="password"
                   type="password"
                   value={newUser.password}
                   onChange={(e) => setNewUser({...newUser, password: e.target.value})}
                   placeholder="Mot de passe"
+                  className={formErrors.password ? 'border-red-500' : ''}
                 />
+                {formErrors.password && (
+                  <p className="text-red-500 text-sm mt-1">{formErrors.password}</p>
+                )}
               </div>
               <div>
                 <Label htmlFor="role">Rôle</Label>
-                <Select value={newUser.role} onValueChange={(value: 'directeur' | 'employe') => setNewUser({...newUser, role: value})}>
+                <Select 
+                  value={newUser.role} 
+                  onValueChange={(value) => setNewUser({...newUser, role: value as 'directeur' | 'employe'})}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Sélectionner un rôle" />
                   </SelectTrigger>
@@ -327,14 +443,22 @@ export default function PermissionsManagement() : JSX.Element {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+            <DialogFooter>
               <Button 
                 onClick={createUser} 
-                className="w-full"
-                disabled={!newUser.username || !newUser.email || !newUser.password}
+                disabled={isProcessing || !newUser.username || !newUser.email || !newUser.password}
               >
-                Créer l'utilisateur
+                {isProcessing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Création...
+                  </>
+                ) : (
+                  "Créer l'utilisateur"
+                )}
               </Button>
-            </div>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
@@ -368,7 +492,7 @@ export default function PermissionsManagement() : JSX.Element {
                     <TableRow key={user.id}>
                       <TableCell>
                         <div>
-                          <div className="font-medium">{user.username}</div>
+                          <div className="font-medium">{getUserName(user)}</div>
                           <div className="text-sm text-gray-500">{user.email}</div>
                         </div>
                       </TableCell>
@@ -383,13 +507,19 @@ export default function PermissionsManagement() : JSX.Element {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Jamais'}
+                        {formatDate(user.lastLogin)}
                       </TableCell>
                       <TableCell>
-                        <Switch
-                          checked={user.active}
-                          onCheckedChange={(checked) => toggleUserStatus(user.id, checked)}
-                        />
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            checked={user.active}
+                            onCheckedChange={(checked) => toggleUserStatus(user.id, checked)}
+                            disabled={user.role === 'directeur'}
+                          />
+                          <Badge variant={user.active ? 'default' : 'secondary'}>
+                            {user.active ? 'Actif' : 'Inactif'}
+                          </Badge>
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Button
@@ -415,20 +545,31 @@ export default function PermissionsManagement() : JSX.Element {
             </CardHeader>
             <CardContent>
               <div className="grid gap-4">
-                {modules.map((module) => (
+                {MODULES.map((module) => (
                   <Card key={module}>
                     <CardHeader className="pb-3">
                       <CardTitle className="text-lg capitalize">{module}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-4 gap-4">
-                        {['view', 'create', 'edit', 'delete'].map((action) => (
-                          <div key={action} className="flex items-center space-x-2">
-                            <Badge variant="outline" className="capitalize">
-                              {action}
-                            </Badge>
-                          </div>
-                        ))}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                        {ACTIONS.map((action) => {
+                          const permission = permissions.find(p => 
+                            p.module === module && p.actions.includes(action)
+                          );
+                          
+                          return (
+                            <div key={action} className="flex items-center space-x-2">
+                              <Badge variant="outline" className="capitalize">
+                                {action}
+                              </Badge>
+                              {permission ? (
+                                <CheckCircle className="h-4 w-4 text-green-500" />
+                              ) : (
+                                <XCircle className="h-4 w-4 text-gray-400" />
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     </CardContent>
                   </Card>
@@ -449,8 +590,8 @@ export default function PermissionsManagement() : JSX.Element {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Utilisateur</TableHead>
-                      {modules.map((module) => (
-                        <TableHead key={module} className="capitalize">
+                      {MODULES.map((module) => (
+                        <TableHead key={module} className="capitalize text-center">
                           {module}
                         </TableHead>
                       ))}
@@ -460,26 +601,28 @@ export default function PermissionsManagement() : JSX.Element {
                     {users.map((user) => (
                       <TableRow key={user.id}>
                         <TableCell className="font-medium">
-                          {user.username}
+                          {getUserName(user)}
                         </TableCell>
-                        {modules.map((module) => (
+                        {MODULES.map((module) => (
                           <TableCell key={module}>
-                            <div className="space-y-1">
-                              {['view', 'create', 'edit', 'delete'].map((action) => {
-                                const permissionId = permissions.find(p => 
+                            <div className="flex flex-wrap gap-2 justify-center">
+                              {ACTIONS.map((action) => {
+                                const permission = permissions.find(p => 
                                   p.module === module && p.actions.includes(action)
-                                )?.id;
-                                const hasPermission = permissionId && user.permissions?.includes(permissionId);
+                                );
+                                const hasPermission = permission && user.permissions?.includes(permission.id);
                                 
                                 return (
-                                  <Switch
-                                    key={action}
-                                    checked={hasPermission || false}
-                                    onCheckedChange={(checked) => 
-                                      permissionId && updateUserPermission(user.id, permissionId, checked)
-                                    }
-                                    disabled={!permissionId}
-                                  />
+                                  <div key={action} className="flex flex-col items-center">
+                                    <Switch
+                                      checked={hasPermission || false}
+                                      onCheckedChange={(checked) => 
+                                        permission && updateUserPermission(user.id, permission.id, checked)
+                                      }
+                                      disabled={!permission || user.role === 'directeur'}
+                                    />
+                                    <span className="text-xs mt-1 capitalize">{action}</span>
+                                  </div>
                                 );
                               })}
                             </div>
@@ -496,38 +639,43 @@ export default function PermissionsManagement() : JSX.Element {
       </Tabs>
 
       {selectedUser && (
-        <Dialog open={!!selectedUser)} onOpenChange={() => setSelectedUser(null)}>
+        <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>Permissions de {selectedUser.username}</DialogTitle>
+              <DialogTitle>Permissions de {getUserName(selectedUser)}</DialogTitle>
               <DialogDescription>
                 Gérer les permissions spécifiques pour cet utilisateur
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
-              {modules.map((module) => (
+              {MODULES.map((module) => (
                 <Card key={module}>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-lg capitalize">{module}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-2 gap-4">
-                      {['view', 'create', 'edit', 'delete'].map((action) => {
-                        const permissionId = permissions.find(p => 
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {ACTIONS.map((action) => {
+                        const permission = permissions.find(p => 
                           p.module === module && p.actions.includes(action)
-                        )?.id;
-                        const hasPermission = permissionId && selectedUser.permissions?.includes(permissionId);
+                        );
+                        const hasPermission = permission && selectedUser.permissions?.includes(permission.id);
                         
                         return (
                           <div key={action} className="flex items-center space-x-2">
                             <Switch
                               checked={hasPermission || false}
                               onCheckedChange={(checked) => 
-                                permissionId && updateUserPermission(selectedUser.id, permissionId, checked)
+                                permission && updateUserPermission(selectedUser.id, permission.id, checked)
                               }
-                              disabled={!permissionId}
+                              disabled={!permission || selectedUser.role === 'directeur'}
                             />
                             <Label className="capitalize">{action}</Label>
+                            {!permission && (
+                              <Badge variant="outline" className="text-xs">
+                                Non configuré
+                              </Badge>
+                            )}
                           </div>
                         );
                       })}

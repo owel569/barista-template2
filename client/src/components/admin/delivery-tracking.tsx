@@ -6,6 +6,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CardDescription,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,6 +26,7 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogDescription,
+  DialogFooter,
 } from '@/components/ui/dialog';
 import {
   Form,
@@ -44,9 +46,24 @@ import {
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Plus, MapPin, Clock, Truck, CheckCircle, AlertCircle, Phone, Navigation } from 'lucide-react';
+import { 
+  Plus, 
+  MapPin, 
+  Clock, 
+  Truck, 
+  CheckCircle, 
+  AlertCircle, 
+  Phone, 
+  Navigation,
+  RefreshCw,
+  User,
+  Package,
+  ArrowRight,
+  ChevronRight
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useWebSocket } from '@/hooks/useWebSocket';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface Delivery {
   id: number;
@@ -65,6 +82,7 @@ interface Delivery {
   totalAmount: number;
   createdAt: string;
   updatedAt: string;
+  orderItems: { name: string; quantity: number }[];
 }
 
 interface Driver {
@@ -76,20 +94,27 @@ interface Driver {
   currentDeliveries: number;
 }
 
+interface Order {
+  id: number;
+  customerName: string;
+  totalAmount: number;
+  items: { name: string; quantity: number }[];
+}
+
 const deliverySchema = z.object({
-  orderId: z.number()}).min(1, "Commande requise"),
+  orderId: z.number().min(1, "Commande requise"),
   driverId: z.number().optional(),
   estimatedTime: z.string().min(1, "Temps estimé requis"),
   notes: z.string().optional(),
 });
 
 const statusColors = {
-  pending: 'bg-yellow-100 text-yellow-800',
-  assigned: 'bg-blue-100 text-blue-800',
-  picked_up: 'bg-purple-100 text-purple-800',
-  in_transit: 'bg-orange-100 text-orange-800',
-  delivered: 'bg-green-100 text-green-800',
-  failed: 'bg-red-100 text-red-800',
+  pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
+  assigned: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400',
+  picked_up: 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400',
+  in_transit: 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400',
+  delivered: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
+  failed: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400',
 };
 
 const statusLabels = {
@@ -104,40 +129,67 @@ const statusLabels = {
 export default function DeliveryTracking() : JSX.Element {
   const [selectedDelivery, setSelectedDelivery] = useState<Delivery | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   useWebSocket();
 
-  const { data: deliveries = [,], isLoading } = useQuery({
-    queryKey: ['/api/admin/deliveries',],
+  const { data: deliveries = [], isLoading, refetch } = useQuery<Delivery[]>({
+    queryKey: ['deliveries'],
+    queryFn: () => apiRequest('/api/admin/deliveries'),
   });
 
-  const { data: drivers = [] } = useQuery({
-    queryKey: ['/api/admin/drivers',],
+  const { data: drivers = [] } = useQuery<Driver[]>({
+    queryKey: ['drivers'],
+    queryFn: () => apiRequest('/api/admin/drivers'),
   });
 
-  const { data: orders = [] } = useQuery({
-    queryKey: ['/api/admin/orders-for-delivery',],
+  const { data: orders = [] } = useQuery<Order[]>({
+    queryKey: ['orders-for-delivery'],
+    queryFn: () => apiRequest('/api/admin/orders-for-delivery'),
   });
 
   const createDeliveryMutation = useMutation({
-    mutationFn: (data: Record<string, unknown>})}) => apiRequest('/api/admin/deliveries', { method: 'POST', data }),
+    mutationFn: (data: Record<string, unknown>) => 
+      apiRequest('/api/admin/deliveries', { method: 'POST', data }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/deliveries'] )});
-      toast({ title: "Livraison créée avec succès" });
+      queryClient.invalidateQueries({ queryKey: ['deliveries'] });
+      toast({ 
+        title: "Livraison créée", 
+        description: "La livraison a été créée avec succès",
+      });
+      setIsDialogOpen(false);
     },
+    onError: () => {
+      toast({
+        title: "Erreur",
+        description: "Impossible de créer la livraison",
+        variant: "destructive",
+      });
+    }
   });
 
   const updateDeliveryMutation = useMutation({
-    mutationFn: ({ id, ...data })}: unknown) => apiRequest(`/api/admin/deliveries/${id}`, { method: 'PUT', data }),
+    mutationFn: ({ id, ...data }: { id: number; [key: string]: unknown }) => 
+      apiRequest(`/api/admin/deliveries/${id}`, { method: 'PUT', data }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/deliveries'] )});
-      toast({ title: "Livraison mise à jour" });
+      queryClient.invalidateQueries({ queryKey: ['deliveries'] });
+      toast({ 
+        title: "Statut mis à jour", 
+        description: "Le statut de la livraison a été modifié",
+      });
     },
+    onError: () => {
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour la livraison",
+        variant: "destructive",
+      });
+    }
   });
 
   const form = useForm({
-    resolver: zodResolver(deliverySchema})}),
+    resolver: zodResolver(deliverySchema),
     defaultValues: {
       orderId: 0,
       driverId: undefined,
@@ -146,12 +198,12 @@ export default function DeliveryTracking() : JSX.Element {
     },
   });
 
-  const onSubmit = (data: Record<string, unknown>) => {
+  const onSubmit = (data: z.infer<typeof deliverySchema>) => {
     createDeliveryMutation.mutate(data);
   };
 
   const updateDeliveryStatus = (id: number, status: string) => {
-    updateDeliveryMutation.mutate({ id, status )});
+    updateDeliveryMutation.mutate({ id, status });
   };
 
   const filteredDeliveries = deliveries.filter((delivery: Delivery) => 
@@ -170,115 +222,206 @@ export default function DeliveryTracking() : JSX.Element {
     }
   };
 
+  const handleRefresh = () => {
+    refetch();
+    toast({
+      title: "Actualisation",
+      description: "Liste des livraisons actualisée",
+    });
+  };
+
   if (isLoading) {
-    return <div className="flex justify-center p-8">Chargement...</div>;
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-10 w-40" />
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <Card key={i}>
+              <CardContent className="p-4">
+                <Skeleton className="h-24 w-full" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-32" />
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <Skeleton key={i} className="h-10 w-24" />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-48" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-96 w-full" />
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Suivi des Livraisons</h2>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Nouvelle Livraison
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Créer une Livraison</DialogTitle>
-              <DialogDescription>
-                Assignez une commande à un livreur pour la livraison.
-              </DialogDescription>
-            </DialogHeader>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="orderId"
-                  render={({ field )}) => (
-                    <FormItem>
-                      <FormLabel>Commande</FormLabel>
-                      <Select onValueChange={(value) => field.onChange(parseInt(value))}>
+        <div>
+          <h2 className="text-2xl font-bold">Suivi des Livraisons</h2>
+          <p className="text-sm text-gray-500">
+            {filteredDeliveries.length} livraison(s) trouvée(s)
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleRefresh}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Actualiser
+          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Nouvelle Livraison
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Créer une Livraison</DialogTitle>
+                <DialogDescription>
+                  Assignez une commande à un livreur pour la livraison
+                </DialogDescription>
+              </DialogHeader>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="orderId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Commande</FormLabel>
+                        <Select 
+                          onValueChange={(value) => field.onChange(parseInt(value))}
+                          defaultValue={field.value?.toString()}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Sélectionner une commande" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {orders.map((order) => (
+                              <SelectItem 
+                                key={order.id} 
+                                value={order.id.toString()}
+                              >
+                                Commande #{order.id} - {order.customerName} ({order.totalAmount}€)
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="driverId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Livreur (optionnel)</FormLabel>
+                        <Select 
+                          onValueChange={(value) => field.onChange(value ? parseInt(value) : undefined)}
+                          defaultValue={field.value?.toString()}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Sélectionner un livreur" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="">Non assigné</SelectItem>
+                            {drivers
+                              .filter((driver) => driver.isAvailable)
+                              .map((driver) => (
+                                <SelectItem 
+                                  key={driver.id} 
+                                  value={driver.id.toString()}
+                                >
+                                  {driver.name} ({driver.vehicleType})
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="estimatedTime"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Temps estimé (minutes)</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Sélectionner une commande" />
-                          </SelectTrigger>
+                          <Input 
+                            {...field} 
+                            type="number" 
+                            placeholder="30" 
+                            min="1"
+                          />
                         </FormControl>
-                        <SelectContent>
-                          {orders.map((order: { id: number; customerName: string; address: string; city: string; postalCode: string; driverName?: string; status: string; estimatedTime: string; totalAmount: number )}) => (
-                            <SelectItem key={order.id} value={order.id.toString()}>
-                              Commande #{order.id} - {order.customerName}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="driverId"
-                  render={({ field )}) => (
-                    <FormItem>
-                      <FormLabel>Livreur (optionnel)</FormLabel>
-                      <Select onValueChange={(value) => field.onChange(parseInt(value))}>
+                  <FormField
+                    control={form.control}
+                    name="notes"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Notes</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Sélectionner un livreur" />
-                          </SelectTrigger>
+                          <Input 
+                            {...field} 
+                            placeholder="Instructions spéciales..." 
+                          />
                         </FormControl>
-                        <SelectContent>
-                          {drivers.filter((d: Driver) => d.isAvailable).map((driver: Driver) => (
-                            <SelectItem key={driver.id} value={driver.id.toString()}>
-                              {driver.name} - {driver.vehicleType}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="estimatedTime"
-                  render={({ field )}) => (
-                    <FormItem>
-                      <FormLabel>Temps estimé (minutes)</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="30" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="notes"
-                  render={({ field )}) => (
-                    <FormItem>
-                      <FormLabel>Notes</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Instructions spéciales..." />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <Button type="submit" className="w-full">
-                  Créer la Livraison
-                </Button>
-              </form>
-            </Form>
-          </DialogContent>
-        </Dialog>
+                  <DialogFooter>
+                    <Button 
+                      type="submit" 
+                      disabled={createDeliveryMutation.isPending}
+                    >
+                      {createDeliveryMutation.isPending ? (
+                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <Plus className="h-4 w-4 mr-2" />
+                      )}
+                      Créer la Livraison
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* Statistiques rapides */}
@@ -289,7 +432,9 @@ export default function DeliveryTracking() : JSX.Element {
               <Clock className="h-5 w-5 text-yellow-500" />
               <div>
                 <p className="text-sm text-gray-600">En attente</p>
-                <p className="text-2xl font-bold">{deliveries.filter((d: Delivery) => d.status === 'pending').length}</p>
+                <p className="text-2xl font-bold">
+                  {deliveries.filter((d) => d.status === 'pending').length}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -302,7 +447,9 @@ export default function DeliveryTracking() : JSX.Element {
               <div>
                 <p className="text-sm text-gray-600">En cours</p>
                 <p className="text-2xl font-bold">
-                  {deliveries.filter((d: Delivery) => ['assigned', 'picked_up', 'in_transit'].includes(d.status)).length}
+                  {deliveries.filter((d) => 
+                    ['assigned', 'picked_up', 'in_transit'].includes(d.status)
+                  ).length}
                 </p>
               </div>
             </div>
@@ -315,7 +462,9 @@ export default function DeliveryTracking() : JSX.Element {
               <CheckCircle className="h-5 w-5 text-green-500" />
               <div>
                 <p className="text-sm text-gray-600">Livrées</p>
-                <p className="text-2xl font-bold">{deliveries.filter((d: Delivery) => d.status === 'delivered').length}</p>
+                <p className="text-2xl font-bold">
+                  {deliveries.filter((d) => d.status === 'delivered').length}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -327,7 +476,9 @@ export default function DeliveryTracking() : JSX.Element {
               <AlertCircle className="h-5 w-5 text-red-500" />
               <div>
                 <p className="text-sm text-gray-600">Échecs</p>
-                <p className="text-2xl font-bold">{deliveries.filter((d: Delivery) => d.status === 'failed').length}</p>
+                <p className="text-2xl font-bold">
+                  {deliveries.filter((d) => d.status === 'failed').length}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -366,6 +517,9 @@ export default function DeliveryTracking() : JSX.Element {
       <Card>
         <CardHeader>
           <CardTitle>Livraisons Actives</CardTitle>
+          <CardDescription>
+            Liste des livraisons en cours et récentes
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -374,6 +528,7 @@ export default function DeliveryTracking() : JSX.Element {
                 <TableHead>ID</TableHead>
                 <TableHead>Client</TableHead>
                 <TableHead>Adresse</TableHead>
+                <TableHead>Contenu</TableHead>
                 <TableHead>Livreur</TableHead>
                 <TableHead>Statut</TableHead>
                 <TableHead>Temps estimé</TableHead>
@@ -382,72 +537,174 @@ export default function DeliveryTracking() : JSX.Element {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredDeliveries.map((delivery: Delivery) => (
-                <TableRow key={delivery.id}>
-                  <TableCell>#{delivery.id}</TableCell>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{delivery.customerName}</p>
-                      <p className="text-sm text-gray-500">{delivery.customerPhone}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <p>{delivery.address}</p>
-                      <p className="text-sm text-gray-500">{delivery.city} {delivery.postalCode}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {delivery.driverName || 'Non assigné'}
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={statusColors[delivery.status]}>
-                      <div className="flex items-center space-x-1">
-                        {getStatusIcon(delivery.status)}
-                        <span>{statusLabels[delivery.status]}</span>
+              {filteredDeliveries.length > 0 ? (
+                filteredDeliveries.map((delivery) => (
+                  <TableRow key={delivery.id}>
+                    <TableCell>#{delivery.id}</TableCell>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{delivery.customerName}</p>
+                        <p className="text-sm text-gray-500 flex items-center">
+                          <Phone className="h-3 w-3 mr-1" />
+                          {delivery.customerPhone}
+                        </p>
                       </div>
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{delivery.estimatedTime} min</TableCell>
-                  <TableCell>{delivery.totalAmount}€</TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      {delivery.status === 'pending' && (
-                        <Button
-                          size="sm"
-                          onClick={() => updateDeliveryStatus(delivery.id, 'assigned')}
-                        >
-                          Assigner
-                        </Button>
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        <p>{delivery.address}</p>
+                        <p className="text-sm text-gray-500">
+                          {delivery.city} {delivery.postalCode}
+                        </p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        {delivery.orderItems?.slice(0, 2).map((item, index) => (
+                          <p key={index} className="text-sm">
+                            {item.quantity}x {item.name}
+                          </p>
+                        ))}
+                        {delivery.orderItems?.length > 2 && (
+                          <p className="text-xs text-gray-500">
+                            +{delivery.orderItems.length - 2} autres articles
+                          </p>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {delivery.driverName ? (
+                        <div className="flex items-center gap-2">
+                          <User className="h-4 w-4 text-gray-500" />
+                          <span>{delivery.driverName}</span>
+                        </div>
+                      ) : (
+                        <span className="text-gray-500">Non assigné</span>
                       )}
-                      {delivery.status === 'assigned' && (
-                        <Button
-                          size="sm"
-                          onClick={() => updateDeliveryStatus(delivery.id, 'picked_up')}
-                        >
-                          Récupérée
-                        </Button>
-                      )}
-                      {delivery.status === 'picked_up' && (
-                        <Button
-                          size="sm"
-                          onClick={() => updateDeliveryStatus(delivery.id, 'in_transit')}
-                        >
-                          En route
-                        </Button>
-                      )}
-                      {delivery.status === 'in_transit' && (
-                        <Button
-                          size="sm"
-                          onClick={() => updateDeliveryStatus(delivery.id, 'delivered')}
-                        >
-                          Livrée
-                        </Button>
-                      )}
-                    </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={statusColors[delivery.status]}>
+                        <div className="flex items-center space-x-1">
+                          {getStatusIcon(delivery.status)}
+                          <span>{statusLabels[delivery.status]}</span>
+                        </div>
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{delivery.estimatedTime} min</TableCell>
+                    <TableCell>{delivery.totalAmount.toFixed(2)}€</TableCell>
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => setSelectedDelivery(delivery)}
+                            >
+                              <ChevronRight className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>
+                                Détails de la livraison #{delivery.id}
+                              </DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <div>
+                                <h4 className="font-medium">Client</h4>
+                                <p>{delivery.customerName}</p>
+                                <p className="text-sm text-gray-500">
+                                  {delivery.customerPhone}
+                                </p>
+                              </div>
+                              
+                              <div>
+                                <h4 className="font-medium">Adresse</h4>
+                                <p>{delivery.address}</p>
+                                <p className="text-sm text-gray-500">
+                                  {delivery.city} {delivery.postalCode}
+                                </p>
+                              </div>
+                              
+                              <div>
+                                <h4 className="font-medium">Articles</h4>
+                                <ul className="space-y-1">
+                                  {delivery.orderItems?.map((item, index) => (
+                                    <li key={index} className="flex justify-between">
+                                      <span>{item.quantity}x {item.name}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                              
+                              <div>
+                                <h4 className="font-medium">Statut</h4>
+                                <Badge className={statusColors[delivery.status]}>
+                                  {statusLabels[delivery.status]}
+                                </Badge>
+                              </div>
+                              
+                              {delivery.notes && (
+                                <div>
+                                  <h4 className="font-medium">Notes</h4>
+                                  <p className="text-sm">{delivery.notes}</p>
+                                </div>
+                              )}
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+
+                        {delivery.status === 'pending' && (
+                          <Button
+                            size="sm"
+                            onClick={() => updateDeliveryStatus(delivery.id, 'assigned')}
+                            disabled={updateDeliveryMutation.isPending}
+                          >
+                            Assigner
+                          </Button>
+                        )}
+                        {delivery.status === 'assigned' && (
+                          <Button
+                            size="sm"
+                            onClick={() => updateDeliveryStatus(delivery.id, 'picked_up')}
+                            disabled={updateDeliveryMutation.isPending}
+                          >
+                            Récupérée
+                          </Button>
+                        )}
+                        {delivery.status === 'picked_up' && (
+                          <Button
+                            size="sm"
+                            onClick={() => updateDeliveryStatus(delivery.id, 'in_transit')}
+                            disabled={updateDeliveryMutation.isPending}
+                          >
+                            En route
+                          </Button>
+                        )}
+                        {delivery.status === 'in_transit' && (
+                          <Button
+                            size="sm"
+                            onClick={() => updateDeliveryStatus(delivery.id, 'delivered')}
+                            disabled={updateDeliveryMutation.isPending}
+                          >
+                            Livrée
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={9} className="text-center py-8">
+                    <Package className="h-12 w-12 mx-auto text-gray-400" />
+                    <p className="mt-2 text-gray-500">
+                      Aucune livraison trouvée
+                    </p>
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </CardContent>

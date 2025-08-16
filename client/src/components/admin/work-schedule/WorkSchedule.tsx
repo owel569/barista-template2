@@ -37,8 +37,8 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
 }) => {
   // État local pour la période sélectionnée
   const [dateRange, setDateRange] = useState({
-    start: new Date(})}).toISOString().split('T')[0]!,
-    end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]!
+    start: new Date().toISOString().split('T')[0],
+    end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
   });
 
   // Hooks de gestion des données
@@ -56,8 +56,8 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
     updatingShift,
     deletingShift
   } = useScheduleData({
-    start: dateRange.start || '',
-    end: dateRange.end || ''
+    start: dateRange.start,
+    end: dateRange.end
   });
 
   // Hook de gestion des shifts
@@ -79,23 +79,27 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
     handleFilterChange,
     validateShiftData,
     navigateTime
-  } = useShiftManagement(shifts, employees, {
-    employees: selectedEmployee ? [selectedEmployee] : [,],
-    dateRange
+  } = useShiftManagement({
+    shifts,
+    employees,
+    initialFilters: {
+      employees: selectedEmployee ? [selectedEmployee] : [],
+      dateRange
+    }
   });
 
   // Gestion des actions sur les shifts
-  const handleShiftCreate = (shiftData: unknown) => {
+  const handleShiftCreate = (shiftData: any) => {
     const validation = validateShiftData(shiftData);
     if (validation.isValid) {
       createShift(shiftData);
     } else {
-      logger.error('Validation échouée:', validation.conflicts);
+      console.error('Validation échouée:', validation.conflicts);
     }
   };
 
-  const handleShiftEdit = (shift: unknown) => {
-    updateShift({ id: shift.id, data: shift )});
+  const handleShiftEdit = (shift: any) => {
+    updateShift({ id: shift.id, data: shift });
   };
 
   const handleShiftDelete = (shiftId: number) => {
@@ -104,12 +108,18 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
     }
   };
 
-  const handleEmployeeClick = (employee: { id: number; firstName: string; lastName: string; position: string; department: string; isActive: boolean }) => {
+  const handleEmployeeClick = (employee: { 
+    id: number; 
+    firstName: string; 
+    lastName: string; 
+    position: string; 
+    department: string; 
+    isActive: boolean 
+  }) => {
     handleEmployeeSelect(employee);
   };
 
   const handleExportData = () => {
-    // Logique d'exportation des données
     console.log('Export des données d\'horaires...');
   };
 
@@ -121,7 +131,11 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
 
   // Composant de navigation des vues
   const ViewNavigation = () => (
-    <Tabs value={viewModeState} onValueChange={(value) => handleViewModeChange(value as any)} className="w-full">
+    <Tabs 
+      value={viewModeState} 
+      onValueChange={(value) => handleViewModeChange(value as ViewMode)} 
+      className="w-full"
+    >
       <TabsList className="grid w-full grid-cols-4">
         <TabsTrigger value="calendar" className="flex items-center space-x-2">
           <Calendar className="h-4 w-4" />
@@ -145,7 +159,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
       
       <TabsContent value="calendar" className="space-y-4">
         <CalendarView
-          shifts={filteredShifts as any}
+          shifts={filteredShifts}
           employees={employees}
           onShiftClick={handleShiftSelect}
           onDateClick={handleDateSelect}
@@ -157,7 +171,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
       
       <TabsContent value="list" className="space-y-4">
         <ShiftListView
-          shifts={filteredShifts as any}
+          shifts={filteredShifts}
           employees={employees}
           onShiftEdit={handleShiftEdit}
           onShiftDelete={handleShiftDelete}
@@ -169,7 +183,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
       <TabsContent value="employee" className="space-y-4">
         <EmployeeOverview
           employees={employees}
-          shifts={filteredShifts as any}
+          shifts={filteredShifts}
           onEmployeeClick={handleEmployeeClick}
           selectedPeriod={timePeriod}
         />
@@ -186,7 +200,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
               overtimeHours: 0,
               totalPayroll: 0,
               averageHoursPerEmployee: 0,
-              departmentStats: [,],
+              departmentStats: [],
               costAnalysis: {
                 regularHours: 0,
                 overtimeHours: 0,
@@ -194,7 +208,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
                 overtimeCost: 0,
                 totalCost: 0,
                 projectedMonthlyCost: 0
-              )}
+              }
             }}
             reports={[]}
             period={timePeriod}
@@ -243,7 +257,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
         </Badge>
         {conflicts.length > 0 && (
           <Badge variant="destructive">
-            {conflicts.length)} conflits
+            {conflicts.length} conflits
           </Badge>
         )}
         
@@ -354,12 +368,12 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span>Demandes en attente</span>
-              <Badge variant="outline">{shiftRequests.length)}</Badge>
+              <Badge variant="outline">{shiftRequests.length}</Badge>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {shiftRequests.slice(0, 3).map(request => (
+              {shiftRequests.slice(0, 3).map((request: any) => (
                 <div key={request.id} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-900 rounded">
                   <div>
                     <span className="font-medium">{request.employee?.firstName} {request.employee?.lastName}</span>

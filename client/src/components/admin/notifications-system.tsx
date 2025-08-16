@@ -51,11 +51,12 @@ import {
   Bookmark,
   Share2
 } from 'lucide-react';
-import { ApiClient } from '@/lib/auth-utils';
 import { useWebSocket } from '@/hooks/useWebSocket';
-import { useUser } from '@/hooks/use-user';
+import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
-import { StorageManager, STORAGE_KEYS } from '@/constants/storage-optimized';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // Types optimisés
 interface Notification {
@@ -68,7 +69,7 @@ interface Notification {
   status: 'unread' | 'read' | 'archived';
   createdAt: string;
   readAt?: string;
-  userId?: number;
+  userId?: string;
   metadata?: Record<string, any>;
   actions?: NotificationAction[];
   scheduledFor?: string;
@@ -111,7 +112,7 @@ interface NotificationTemplate {
   variables: string[];
 }
 
-export default function NotificationsSystem() : JSX.Element {
+export default function NotificationsSystem(): JSX.Element {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [filter, setFilter] = useState<'all' | 'unread' | 'read'>('all');
   const [loading, setLoading] = useState(true);
@@ -138,15 +139,16 @@ export default function NotificationsSystem() : JSX.Element {
   const { sendMessage, lastMessage, isConnected } = useWebSocket();
 
   // Requêtes optimisées
-  const { data: notificationData = [,], isLoading, refetch } = useQuery({
-    queryKey: ['/api/notifications',],
-    queryFn: async (})}) => {
+  const { data: notificationData = [], isLoading, refetch } = useQuery<Notification[]>({
+    queryKey: ['notifications'],
+    queryFn: async () => {
       try {
         const response = await fetch('/api/notifications');
+        if (!response.ok) throw new Error('Erreur de réseau');
         const data = await response.json();
         return data.notifications || [];
       } catch (error) {
-        logger.error('Erreur notifications:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+        setError(error instanceof Error ? error.message : 'Erreur inconnue');
         return [];
       }
     },
@@ -154,11 +156,12 @@ export default function NotificationsSystem() : JSX.Element {
     staleTime: 10000
   });
 
-  const { data: settings, isLoading: settingsLoading } = useQuery({
-    queryKey: ['/api/notifications/settings',],
-    queryFn: async (})}) => {
+  const { data: settings, isLoading: settingsLoading } = useQuery<NotificationSettings>({
+    queryKey: ['notificationSettings'],
+    queryFn: async () => {
       try {
         const response = await fetch('/api/notifications/settings');
+        if (!response.ok) throw new Error('Erreur de réseau');
         const data = await response.json();
         return data.settings || getDefaultSettings();
       } catch (error) {
@@ -167,11 +170,12 @@ export default function NotificationsSystem() : JSX.Element {
     }
   });
 
-  const { data: templates = [] } = useQuery({
-    queryKey: ['/api/notifications/templates',],
-    queryFn: async (})}) => {
+  const { data: templates = [] } = useQuery<NotificationTemplate[]>({
+    queryKey: ['notificationTemplates'],
+    queryFn: async () => {
       try {
         const response = await fetch('/api/notifications/templates');
+        if (!response.ok) throw new Error('Erreur de réseau');
         const data = await response.json();
         return data.templates || [];
       } catch (error) {
@@ -182,44 +186,62 @@ export default function NotificationsSystem() : JSX.Element {
 
   // Mutations optimisées
   const markAsReadMutation = useMutation({
-    mutationFn: async (notificationIds: string[]})}) => {
-      await fetch('/api/notifications/mark-read', {
+    mutationFn: async (notificationIds: string[]) => {
+      const response = await fetch('/api/notifications/mark-read', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' )},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids: notificationIds })
       });
+      if (!response.ok) throw new Error('Erreur lors de la mise à jour');
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/notifications'] )});
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
       toast({ title: 'Notifications marquées comme lues' });
+    },
+    onError: () => {
+      toast({
+        title: 'Erreur',
+        description: 'Échec de la mise à jour des notifications',
+        variant: 'destructive'
+      });
     }
   });
 
   const archiveNotificationsMutation = useMutation({
-    mutationFn: async (notificationIds: string[]})}) => {
-      await fetch('/api/notifications/archive', {
+    mutationFn: async (notificationIds: string[]) => {
+      const response = await fetch('/api/notifications/archive', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' )},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids: notificationIds })
       });
+      if (!response.ok) throw new Error('Erreur lors de l\'archivage');
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/notifications'] )});
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
       setSelectedNotifications([]);
       toast({ title: 'Notifications archivées' });
+    },
+    onError: () => {
+      toast({
+        title: 'Erreur',
+        description: 'Échec de l\'archivage des notifications',
+        variant: 'destructive'
+      });
     }
   });
 
   const createNotificationMutation = useMutation({
-    mutationFn: async (notification: Partial<Notification>})}) => {
-      await fetch('/api/notifications', {
+    mutationFn: async (notification: Partial<Notification>) => {
+      const response = await fetch('/api/notifications', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' )},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(notification)
       });
+      if (!response.ok) throw new Error('Erreur lors de la création');
+      return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/notifications'] )});
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
       setIsCreating(false);
       setNewNotification({
         title: '',
@@ -230,28 +252,41 @@ export default function NotificationsSystem() : JSX.Element {
         channel: 'web'
       });
       toast({ title: 'Notification créée avec succès' });
+    },
+    onError: () => {
+      toast({
+        title: 'Erreur',
+        description: 'Échec de la création de la notification',
+        variant: 'destructive'
+      });
     }
   });
 
   const updateSettingsMutation = useMutation({
-    mutationFn: async (newSettings: NotificationSettings})}) => {
-      await fetch('/api/notifications/settings', {
+    mutationFn: async (newSettings: NotificationSettings) => {
+      const response = await fetch('/api/notifications/settings', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' )},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newSettings)
       });
+      if (!response.ok) throw new Error('Erreur lors de la mise à jour');
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/notifications/settings'] )});
+      queryClient.invalidateQueries({ queryKey: ['notificationSettings'] });
       toast({ title: 'Paramètres mis à jour' });
+    },
+    onError: () => {
+      toast({
+        title: 'Erreur',
+        description: 'Échec de la mise à jour des paramètres',
+        variant: 'destructive'
+      });
     }
   });
 
   // Notifications filtrées et optimisées
   const filteredNotifications = useMemo(() => {
-    if (!notificationData) return [];
-
-    return notificationData.filter((notification: Notification) => {
+    return notificationData.filter((notification) => {
       const matchesSearch = !searchTerm || 
         notification.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         notification.message.toLowerCase().includes(searchTerm.toLowerCase());
@@ -265,12 +300,10 @@ export default function NotificationsSystem() : JSX.Element {
 
   // Statistiques
   const stats = useMemo(() => {
-    if (!notificationData) return { total: 0, unread: 0, urgent: 0 };
-
     return {
       total: notificationData.length,
-      unread: notificationData.filter((n: Notification) => n.status === 'unread').length,
-      urgent: notificationData.filter((n: Notification) => n.priority === 'urgent').length
+      unread: notificationData.filter(n => n.status === 'unread').length,
+      urgent: notificationData.filter(n => n.priority === 'urgent').length
     };
   }, [notificationData]);
 
@@ -312,14 +345,14 @@ export default function NotificationsSystem() : JSX.Element {
       try {
         const data = JSON.parse(lastMessage.data);
         if (data.type === 'notification') {
-          queryClient.invalidateQueries({ queryKey: ['/api/notifications'] });
+          queryClient.invalidateQueries({ queryKey: ['notifications'] });
 
           // Notification système si activée
-          if (settings?.desktop && 'Notification' in window) {
+          if (settings?.desktop && 'Notification' in window && Notification.permission === 'granted') {
             new Notification(data.title, {
               body: data.message,
               icon: '/favicon.ico'
-            )});
+            });
           }
 
           // Son si activé
@@ -329,10 +362,17 @@ export default function NotificationsSystem() : JSX.Element {
           }
         }
       } catch (error) {
-        logger.error('Erreur parsing WebSocket:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+        console.error('Erreur parsing WebSocket:', error);
       }
     }
   }, [lastMessage, settings, queryClient]);
+
+  // Demander la permission pour les notifications
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission !== 'denied') {
+      Notification.requestPermission();
+    }
+  }, []);
 
   // Actions
   const handleMarkAsRead = useCallback((ids: string[]) => {
@@ -347,14 +387,14 @@ export default function NotificationsSystem() : JSX.Element {
     if (newNotification.title && newNotification.message) {
       createNotificationMutation.mutate({
         ...newNotification,
-        id: `notif_${Date.now()})}`,
+        id: `notif_${Date.now()}`,
         createdAt: new Date().toISOString(),
         status: 'unread'
       });
     }
   }, [newNotification, createNotificationMutation]);
 
-  const handleBulkAction = useCallback((action: 'read' | 'archive' | 'delete') => {
+  const handleBulkAction = useCallback((action: 'read' | 'archive') => {
     if (selectedNotifications.length === 0) return;
 
     switch (action) {
@@ -363,9 +403,6 @@ export default function NotificationsSystem() : JSX.Element {
         break;
       case 'archive':
         handleArchive(selectedNotifications);
-        break;
-      case 'delete':
-        // Implémentation suppression
         break;
     }
     setSelectedNotifications([]);
@@ -400,7 +437,7 @@ export default function NotificationsSystem() : JSX.Element {
           <h1 className="text-2xl font-bold">Notifications</h1>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {Array.from({ length: 6 )}).map((_, i) => (
+          {Array.from({ length: 3 }).map((_, i) => (
             <Card key={i} className="animate-pulse">
               <CardContent className="p-4">
                 <div className="h-4 bg-gray-200 rounded mb-2"></div>
@@ -409,7 +446,29 @@ export default function NotificationsSystem() : JSX.Element {
             </Card>
           ))}
         </div>
+        <div className="space-y-4">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Card key={i} className="animate-pulse">
+              <CardContent className="p-4">
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded w-full mb-1"></div>
+                <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <Alert variant="destructive">
+        <AlertTriangle className="h-4 w-4" />
+        <AlertDescription>
+          Erreur lors du chargement des notifications: {error}
+        </AlertDescription>
+      </Alert>
     );
   }
 
@@ -429,14 +488,14 @@ export default function NotificationsSystem() : JSX.Element {
           {stats.urgent > 0 && (
             <Badge variant="destructive" className="flex items-center space-x-1">
               <AlertTriangle className="w-3 h-3" />
-              <span>{stats.urgent)} urgentes</span>
+              <span>{stats.urgent} urgentes</span>
             </Badge>
           )}
         </div>
 
         <div className="flex items-center space-x-2">
-          <Badge variant={connectionStatus === 'Connected' ? 'default' : 'destructive'}>
-            {connectionStatus === 'Connected' ? 'En ligne' : 'Hors ligne'}
+          <Badge variant={isConnected ? 'default' : 'destructive'}>
+            {isConnected ? 'En ligne' : 'Hors ligne'}
           </Badge>
           <Button
             onClick={() => refetch()}
@@ -552,7 +611,7 @@ export default function NotificationsSystem() : JSX.Element {
           {selectedNotifications.length > 0 && (
             <div className="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg">
               <span className="text-sm text-blue-700">
-                {selectedNotifications.length)} notification(s) sélectionnée(s)
+                {selectedNotifications.length} notification(s) sélectionnée(s)
               </span>
               <Button
                 onClick={() => handleBulkAction('read')}
@@ -583,7 +642,7 @@ export default function NotificationsSystem() : JSX.Element {
           {/* Liste des notifications */}
           <ScrollArea className="h-[600px]">
             <div className="space-y-2">
-              {filteredNotifications.map((notification: Notification) => (
+              {filteredNotifications.map((notification) => (
                 <Card
                   key={notification.id}
                   className={`transition-all hover:shadow-md cursor-pointer ${
@@ -622,7 +681,7 @@ export default function NotificationsSystem() : JSX.Element {
                           <div className="flex items-center space-x-4 text-xs text-gray-500">
                             <span className="flex items-center space-x-1">
                               <Clock className="w-3 h-3" />
-                              <span>{new Date(notification.createdAt).toLocaleString()}</span>
+                              <span>{format(new Date(notification.createdAt), 'dd/MM/yyyy HH:mm', { locale: fr })}</span>
                             </span>
                             <span className="flex items-center space-x-1">
                               <Monitor className="w-3 h-3" />
@@ -635,7 +694,7 @@ export default function NotificationsSystem() : JSX.Element {
                       <div className="flex items-center space-x-2">
                         {notification.status === 'unread' && (
                           <Button
-                            onClick={(e)}) => {
+                            onClick={(e) => {
                               e.stopPropagation();
                               handleMarkAsRead([notification.id]);
                             }}
@@ -809,7 +868,7 @@ export default function NotificationsSystem() : JSX.Element {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {templates.map((template: NotificationTemplate) => (
+                {templates.map((template) => (
                   <Card key={template.id} className="cursor-pointer hover:shadow-md">
                     <CardContent className="p-4">
                       <div className="space-y-2">
@@ -919,7 +978,7 @@ export default function NotificationsSystem() : JSX.Element {
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium">Catégories</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {Object.entries(settings?.categories || {)}).map(([category, enabled]) => (
+                    {Object.entries(settings?.categories || {}).map(([category, enabled]) => (
                       <div key={category} className="flex items-center justify-between">
                         <Label className="capitalize">{category}</Label>
                         <Switch
@@ -942,7 +1001,7 @@ export default function NotificationsSystem() : JSX.Element {
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium">Priorités</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {Object.entries(settings?.priorities || {)}).map(([priority, enabled]) => (
+                    {Object.entries(settings?.priorities || {}).map(([priority, enabled]) => (
                       <div key={priority} className="flex items-center justify-between">
                         <Label className="capitalize">{priority}</Label>
                         <Switch
@@ -986,7 +1045,7 @@ export default function NotificationsSystem() : JSX.Element {
                         <Label>Début</Label>
                         <Input
                           type="time"
-                          value={settings.quietHours.start)}
+                          value={settings.quietHours.start}
                           onChange={(e) => {
                             updateSettingsMutation.mutate({
                               ...settings,

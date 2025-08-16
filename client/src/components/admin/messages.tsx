@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { ContactMessage } from '@/types/admin';
@@ -25,8 +25,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogDescription,
+  DialogFooter,
 } from '@/components/ui/dialog';
 import {
   Select,
@@ -35,16 +35,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Mail, MessageSquare, Eye, Reply, Trash2, Search, Filter } from 'lucide-react';
+import { Mail, MessageSquare, Eye, Reply, Trash2, Search, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { usePermissions } from '@/hooks/usePermissions';
+import { useAuth } from '@/hooks/useAuth';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationNext } from '@/components/ui/pagination';
 
 interface MessagesProps {
   userRole?: 'directeur' | 'employe';
 }
+
+const ITEMS_PER_PAGE = 10;
 
 export default function Messages({ userRole = 'directeur' }: MessagesProps) {
   const { user } = useAuth();
@@ -54,20 +59,23 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [response, setResponse] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
   // Initialiser WebSocket pour les notifications temps réel
   useWebSocket();
 
-  const { data: messages = [,], isLoading } = useQuery<ContactMessage[]>({
-    queryKey: ['/api/admin/messages',],
+  const { data: messages = [], isLoading, isError } = useQuery<ContactMessage[]>({
+    queryKey: ['messages'],
+    queryFn: () => apiRequest('/api/admin/messages'),
     retry: 3,
     retryDelay: 1000,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   const updateStatusMutation = useMutation({
-    mutationFn: async ({ id, status })}: { id: number; status: string }) => {
+    mutationFn: async ({ id, status }: { id: number; status: string }) => {
       const token = localStorage.getItem('token');
       const response = await fetch(`/api/admin/messages/${id}/status`, {
         method: 'PUT',
@@ -84,8 +92,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/messages'] )});
-      queryClient.refetchQueries({ queryKey: ['/api/admin/messages'] });
+      queryClient.invalidateQueries({ queryKey: ['messages'] });
       toast({
         title: 'Succès',
         description: 'Statut du message mis à jour',
@@ -96,18 +103,18 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
         title: 'Erreur',
         description: 'Erreur lors de la mise à jour du statut',
         variant: 'destructive',
-      )});
+      });
     },
   });
 
   const replyMutation = useMutation({
-    mutationFn: ({ id, response })}: { id: number; response: string }) =>
+    mutationFn: ({ id, response }: { id: number; response: string }) =>
       apiRequest(`/api/admin/messages/${id}/reply`, {
         method: 'POST',
-        body: JSON.stringify({ response )}),
+        body: JSON.stringify({ response }),
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/messages'] )});
+      queryClient.invalidateQueries({ queryKey: ['messages'] });
       setResponse('');
       setIsDialogOpen(false);
       toast({
@@ -120,16 +127,16 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
         title: 'Erreur',
         description: 'Erreur lors de l\'envoi de la réponse',
         variant: 'destructive',
-      )});
+      });
     },
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number})}) => apiRequest(`/api/admin/messages/${id}`, {
+    mutationFn: (id: number) => apiRequest(`/api/admin/messages/${id}`, {
       method: 'DELETE',
     }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/messages'] )});
+      queryClient.invalidateQueries({ queryKey: ['messages'] });
       toast({
         title: 'Succès',
         description: 'Message supprimé avec succès',
@@ -140,17 +147,17 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
         title: 'Erreur',
         description: 'Erreur lors de la suppression du message',
         variant: 'destructive',
-      )});
+      });
     },
   });
 
   const handleStatusChange = (messageId: number, newStatus: string) => {
-    updateStatusMutation.mutate({ id: messageId, status: newStatus )});
+    updateStatusMutation.mutate({ id: messageId, status: newStatus });
   };
 
   const handleReply = () => {
     if (!selectedMessage || !response.trim()) return;
-    replyMutation.mutate({ id: selectedMessage.id, response: response.trim(}) });
+    replyMutation.mutate({ id: selectedMessage.id, response: response.trim() });
   };
 
   const handleDelete = (id: number) => {
@@ -170,24 +177,62 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
     }
   };
 
-  const filteredMessages = messages.filter(message => {
-    const matchesSearch = !searchTerm || 
-      message.name?.toLowerCase()}).includes(searchTerm.toLowerCase()) ||
-      message.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      message.subject.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = statusFilter === 'all' || message.status === statusFilter;
-    
-    return matchesSearch && matchesStatus;
-  });
+  const filteredMessages = useMemo(() => {
+    return messages.filter((message) => {
+      const matchesSearch = !searchTerm || 
+        message.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        message.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        message.subject.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesStatus = statusFilter === 'all' || message.status === statusFilter;
+      
+      return matchesSearch && matchesStatus;
+    });
+  }, [messages, searchTerm, statusFilter]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredMessages.length / ITEMS_PER_PAGE);
+  const paginatedMessages = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredMessages.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredMessages, currentPage]);
 
   // Calculer les statistiques
-  const totalMessages = messages.length;
-  const unreadMessages = messages.filter(msg => msg.status === 'nouveau' || msg.status === 'non_lu').length;
-  const treatedMessages = messages.filter(msg => msg.status === 'traite').length;
+  const stats = useMemo(() => {
+    return {
+      total: messages.length,
+      unread: messages.filter(msg => msg.status === 'nouveau' || msg.status === 'non_lu').length,
+      treated: messages.filter(msg => msg.status === 'traite').length,
+    };
+  }, [messages]);
+
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   if (isLoading) {
-    return <div className="p-6">Chargement des messages...</div>;
+    return (
+      <div className="p-6 space-y-6">
+        <Skeleton className="h-10 w-1/3" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[...Array(3)].map((_, i) => (
+            <Skeleton key={i} className="h-24" />
+          ))}
+        </div>
+        <Skeleton className="h-16" />
+        <Skeleton className="h-64" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="p-6 text-center text-red-500">
+        Erreur lors du chargement des messages. Veuillez réessayer.
+      </div>
+    );
   }
 
   return (
@@ -210,7 +255,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalMessages}</div>
+            <div className="text-2xl font-bold">{stats.total}</div>
           </CardContent>
         </Card>
         <Card>
@@ -221,7 +266,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{unreadMessages}</div>
+            <div className="text-2xl font-bold text-red-600">{stats.unread}</div>
           </CardContent>
         </Card>
         <Card>
@@ -232,7 +277,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{treatedMessages}</div>
+            <div className="text-2xl font-bold text-green-600">{stats.treated}</div>
           </CardContent>
         </Card>
       </div>
@@ -290,7 +335,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredMessages.map((message) => (
+              {paginatedMessages.map((message) => (
                 <TableRow key={message.id}>
                   <TableCell>
                     <div>
@@ -306,7 +351,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                       isNaN(new Date(message.createdAt).getTime()) ? 
                         'Date invalide' : 
                         format(new Date(message.createdAt), 'dd/MM/yyyy HH:mm', { locale: fr })
-                    ) : 'Pas de date'}
+                      : 'Pas de date'}
                   </TableCell>
                   <TableCell>
                     <Badge className={getStatusColor(message.status)}>
@@ -362,19 +407,52 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
               ))}
               {filteredMessages.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={5)} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                     Aucun message trouvé
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-4 flex justify-end">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <Button
+                      variant="ghost"
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                  </PaginationItem>
+                  <PaginationItem>
+                    <span className="px-4">
+                      Page {currentPage} sur {totalPages}
+                    </span>
+                  </PaginationItem>
+                  <PaginationItem>
+                    <Button
+                      variant="ghost"
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
         </CardContent>
       </Card>
 
       {/* Dialog de détails et réponse */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Message de {selectedMessage?.name || 'Anonyme'}</DialogTitle>
             <DialogDescription>
@@ -386,10 +464,10 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <h3 className="font-semibold">Expéditeur</h3>
-                  <p>{selectedMessage.name || 'Anonyme')}</p>
+                  <p>{selectedMessage.name || 'Anonyme'}</p>
                   <p className="text-sm text-muted-foreground">{selectedMessage.email}</p>
                   {selectedMessage.phone && (
-                    <p className="text-sm text-muted-foreground">{selectedMessage.phone)}</p>
+                    <p className="text-sm text-muted-foreground">{selectedMessage.phone}</p>
                   )}
                 </div>
                 <div>
@@ -411,25 +489,42 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                 </div>
               </div>
 
-              {hasPermission('messages', 'edit') && (
+              {selectedMessage.response && (
                 <div>
-                  <h3 className="font-semibold">Réponse</h3>
-                  <Textarea
-                    value={response}
-                    onChange={(e) => setResponse(e.target.value)}
-                    placeholder="Tapez votre réponse ici..."
-                    rows={4}
-                  />
-                  <div className="flex justify-end gap-2 mt-3">
+                  <h3 className="font-semibold">Réponse précédente</h3>
+                  <div className="p-3 bg-muted/50 rounded-md">
+                    <p className="whitespace-pre-wrap">{selectedMessage.response}</p>
+                  </div>
+                </div>
+              )}
+
+              {hasPermission('messages', 'edit') && (
+                <>
+                  <div>
+                    <h3 className="font-semibold">Réponse</h3>
+                    <Textarea
+                      value={response}
+                      onChange={(e) => setResponse(e.target.value)}
+                      placeholder="Tapez votre réponse ici..."
+                      rows={4}
+                    />
+                  </div>
+                  <DialogFooter>
                     <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                       Annuler
                     </Button>
-                    <Button onClick={handleReply} disabled={!response.trim()}>
-                      <Reply className="h-4 w-4 mr-2" />
-                      Envoyer la réponse
+                    <Button onClick={handleReply} disabled={!response.trim() || replyMutation.isPending}>
+                      {replyMutation.isPending ? (
+                        'Envoi en cours...'
+                      ) : (
+                        <>
+                          <Reply className="h-4 w-4 mr-2" />
+                          Envoyer la réponse
+                        </>
+                      )}
                     </Button>
-                  </div>
-                </div>
+                  </DialogFooter>
+                </>
               )}
             </div>
           )}

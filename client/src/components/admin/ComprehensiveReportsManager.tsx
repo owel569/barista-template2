@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
@@ -62,7 +61,8 @@ import {
   Eye,
   Edit,
   Trash2,
-  Star
+  Star,
+  RefreshCw
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -75,7 +75,7 @@ interface Report {
   lastGenerated: string;
   frequency?: 'daily' | 'weekly' | 'monthly';
   recipients?: string[];
-  parameters?: unknown;
+  parameters?: Record<string, unknown>;
   favorite?: boolean;
 }
 
@@ -87,6 +87,17 @@ interface ReportTemplate {
   fields: string[];
   charts: string[];
   aiInsights: boolean;
+}
+
+interface ReportData {
+  salesData?: Array<{ date: string; revenue: number }>;
+  categoryData?: Array<{ name: string; value: number }>;
+  metrics?: {
+    revenue?: string;
+    customers?: string;
+    orders?: string;
+    growth?: string;
+  };
 }
 
 const REPORT_TEMPLATES: ReportTemplate[] = [
@@ -137,24 +148,24 @@ export const ComprehensiveReportsManager: React.FC = () => {
   const [selectedFields, setSelectedFields] = useState<string[]>([]);
   const [selectedCharts, setSelectedCharts] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState({
-    startDate: new Date(Date.now(}) - 30 * 24 * 60 * 60 * 1000),
+    startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
     endDate: new Date()
   });
-  const [reportData, setReportData] = useState<any>(null);
+  const [reportData, setReportData] = useState<ReportData | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   // Récupérer les rapports existants
-  const { data: existingReports, isLoading } = useQuery({
-    queryKey: ['/api/admin/reports',],
-    queryFn: (})}) => apiRequest('/api/admin/reports')
+  const { data: existingReports, isLoading } = useQuery<{ automated: Report[] }>({
+    queryKey: ['/api/admin/reports'],
+    queryFn: () => apiRequest('/api/admin/reports')
   });
 
   // Génération de rapport
   const generateReportMutation = useMutation({
-    mutationFn: async (reportConfig: unknown})}) => {
+    mutationFn: async (reportConfig: unknown) => {
       setIsGenerating(true);
       
       // Simuler la génération avec IA
@@ -175,7 +186,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
       });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/reports'] });
     },
-    onError: (error) => {
+    onError: () => {
       setIsGenerating(false);
       toast({
         title: "Erreur",
@@ -187,7 +198,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
 
   // Planification automatique
   const scheduleReportMutation = useMutation({
-    mutationFn: (scheduleConfig: unknown})}) => 
+    mutationFn: (scheduleConfig: unknown) => 
       apiRequest('/api/admin/reports/schedule', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -197,7 +208,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
       toast({
         title: "Rapport planifié",
         description: "Le rapport sera généré automatiquement",
-      )});
+      });
     }
   });
 
@@ -218,12 +229,12 @@ export const ComprehensiveReportsManager: React.FC = () => {
     generateReportMutation.mutate(config);
   };
 
-  const handleScheduleReport = (frequency: string, recipients: string[]) => {
+  const handleScheduleReport = (frequency: 'daily' | 'weekly' | 'monthly', recipients: string[]) => {
     scheduleReportMutation.mutate({
       templateId: selectedTemplate,
       frequency,
       recipients,
-      nextRun: new Date(Date.now()}) + 24 * 60 * 60 * 1000).toISOString()
+      nextRun: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
     });
   };
 
@@ -303,7 +314,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
                         if (checked) {
                           setSelectedFields([...selectedFields, field]);
                         } else {
-                          setSelectedFields(selectedFields.filter(f => f !== field));
+                          setSelectedFields(selectedFields.filter(f => f !== field);
                         }
                       }}
                     />
@@ -325,7 +336,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
                         if (checked) {
                           setSelectedCharts([...selectedCharts, chart]);
                         } else {
-                          setSelectedCharts(selectedCharts.filter(c => c !== chart));
+                          setSelectedCharts(selectedCharts.filter(c => c !== chart);
                         }
                       }}
                     />
@@ -355,7 +366,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {existingReports?.automated?.map((report: Report) => (
+            {existingReports?.automated?.map((report) => (
               <div key={report.id} className="flex items-center justify-between p-4 border rounded-lg">
                 <div>
                   <h4 className="font-medium">{report.name}</h4>
@@ -455,7 +466,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
                         dataKey="value"
                         label
                       >
-                        {(reportData.categoryData || []).map((entry: unknown, index: number) => (
+                        {(reportData.categoryData || []).map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>

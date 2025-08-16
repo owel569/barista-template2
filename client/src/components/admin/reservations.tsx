@@ -88,7 +88,7 @@ export default function ReservationsFixed() : JSX.Element {
           title: 'Erreur',
           description: 'Impossible de charger les réservations',
           variant: 'destructive',
-        )});
+        });
       }
     } catch (error) {
       console.error('Erreur lors du chargement des réservations:', error);
@@ -242,7 +242,7 @@ export default function ReservationsFixed() : JSX.Element {
   };
 
   const filteredReservations = reservations.filter(reservation => {
-    if (filter === 'all')}) return true;
+    if (filter === 'all') return true;
     return reservation.status === filter;
   });
 
@@ -436,7 +436,7 @@ export default function ReservationsFixed() : JSX.Element {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label className="text-sm font-medium">Client</Label>
-                  <p className="text-sm">{selectedReservation.customerName)}</p>
+                  <p className="text-sm">{selectedReservation.customerName}</p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Email</Label>
@@ -472,7 +472,7 @@ export default function ReservationsFixed() : JSX.Element {
               {selectedReservation.notes && (
                 <div>
                   <Label className="text-sm font-medium">Notes</Label>
-                  <p className="text-sm">{selectedReservation.notes)}</p>
+                  <p className="text-sm">{selectedReservation.notes}</p>
                 </div>
               )}
             </div>
@@ -495,7 +495,7 @@ export default function ReservationsFixed() : JSX.Element {
                 <div>
                   <Label>Nom du client</Label>
                   <Input
-                    value={editForm.customerName || '')}
+                    value={editForm.customerName || ''}
                     onChange={(e) => setEditForm({...editForm, customerName: e.target.value})}
                   />
                 </div>
@@ -550,7 +550,7 @@ export default function ReservationsFixed() : JSX.Element {
                   <Input
                     type="number"
                     value={editForm.guests || ''}
-                    onChange={(e) => setEditForm({...editForm, guests: parseInt(e.target.value})})}
+                    onChange={(e) => setEditForm({...editForm, guests: parseInt(e.target.value)})}
                   />
                 </div>
               </div>

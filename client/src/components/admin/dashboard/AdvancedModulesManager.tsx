@@ -170,96 +170,97 @@ const ModuleCard: React.FC<ModuleCardProps> = ({ module, onToggle, onConfigure }
 
 // Données par défaut sécurisées
 const getDefaultModules = (): Module[] => [
-    {
+  {
     id: 'ai-chatbot',
     title: 'Chatbot IA',
-      description: 'Assistant virtuel pour réservations et commandes',
+    description: 'Assistant virtuel pour réservations et commandes',
     icon: <Brain className="w-6 h-6 text-purple-600" />,
-      status: 'active',
+    status: 'active',
     category: 'ai',
     priority: 'high',
     metrics: { performance: 92, usage: 78, satisfaction: 85 },
     data: { 'Utilisateurs actifs': '156', 'Conversations/jour': '89', 'Taux de satisfaction': '92%' }
-    },
-    {
-      id: 'predictive-analytics',
+  },
+  {
+    id: 'predictive-analytics',
     title: 'Analytics Prédictives',
-      description: 'Prédictions IA pour stock et demande',
+    description: 'Prédictions IA pour stock et demande',
     icon: <TrendingUp className="w-6 h-6 text-blue-600" />,
-      status: 'active',
+    status: 'active',
     category: 'ai',
     priority: 'high',
     metrics: { performance: 95, usage: 85, satisfaction: 88 },
     data: { 'Précision': '94%', 'Prédictions/jour': '245', 'Économies générées': '€2,450' }
   },
-    {
+  {
     id: 'real-time-kpi',
     title: 'KPI en Temps Réel',
-      description: 'Revenus, commandes, satisfaction client',
+    description: 'Revenus, commandes, satisfaction client',
     icon: <BarChart3 className="w-6 h-6 text-green-600" />,
-      status: 'active',
+    status: 'active',
     category: 'analytics',
     priority: 'high',
     metrics: { performance: 91, usage: 89, satisfaction: 87 },
     data: { 'Mise à jour': 'Temps réel', 'Métriques': '15', 'Alertes actives': '3' }
   },
-    {
-      id: 'automated-reports',
+  {
+    id: 'automated-reports',
     title: 'Rapports Automatiques',
-      description: 'Génération et envoi automatique',
+    description: 'Génération et envoi automatique',
     icon: <FileText className="w-6 h-6 text-orange-600" />,
-      status: 'active',
+    status: 'active',
     category: 'analytics',
     priority: 'medium',
     metrics: { performance: 94, usage: 82, satisfaction: 90 },
     data: { 'Rapports/jour': '12', 'Destinataires': '8', 'Formats': 'PDF, Excel' }
-    }
+  }
 ];
 
 // Fonction sécurisée pour récupérer les modules
 const fetchModulesStatus = async (): Promise<Module[]> => {
-    try {
+  try {
     const token = localStorage.getItem('barista_token');
 
-      if (!token) {
-        console.warn('Token d\'authentification manquant');
+    if (!token) {
+      console.warn('Token d\'authentification manquant');
       return getDefaultModules();
+    }
+
+    const response = await fetch('/api/advanced-features/modules-status', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       }
+    });
 
-      const response = await fetch('/api/advanced-features/modules-status', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+    if (response.ok) {
+      const result = await response.json();
 
-      if (response.ok) {
-        const result = await response.json();
-
-        // Validation de la réponse
+      // Validation de la réponse
       if (result.success && Array.isArray(result.data)) {
         const validModules = result.data.filter(isValidModule);
         return validModules.length > 0 ? validModules : getDefaultModules();
-        } else {
-          console.warn('Réponse API invalide:', result);
-        return getDefaultModules();
-        }
       } else {
+        console.warn('Réponse API invalide:', result);
+        return getDefaultModules();
+      }
+    } else {
       console.error(`Erreur API ${response.status}:`, await response.text());
       return getDefaultModules();
-      }
-    } catch (error) {
+    }
+  } catch (error) {
     console.error('Erreur lors du chargement des modules:', { 
       error: error instanceof Error ? error.message : 'Erreur inconnue' 
     });
     return getDefaultModules();
-    }
-  };
+  }
+};
 
 export default function AdvancedModulesManager(): JSX.Element {
   const [modules, setModules] = useState<Module[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   // Query pour récupérer les modules
   const { data: modulesData, isLoading, refetch } = useQuery({
@@ -298,10 +299,11 @@ export default function AdvancedModulesManager(): JSX.Element {
       return response.json();
     },
     onSuccess: () => {
-      refetch(); // Rafraîchir les données
+      queryClient.invalidateQueries({ queryKey: ['modules-status'] });
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       console.error('Erreur lors de la modification du module:', error);
+      setError(error.message);
     }
   });
 
@@ -318,7 +320,7 @@ export default function AdvancedModulesManager(): JSX.Element {
     console.log('Configuration du module:', moduleId);
   };
 
-  if (loading) {
+  if (isLoading || loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
@@ -343,7 +345,7 @@ export default function AdvancedModulesManager(): JSX.Element {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-    <div>
+        <div>
           <h1 className="text-3xl font-bold">Gestionnaire de Modules Avancés</h1>
           <p className="text-muted-foreground">
             Gérez et surveillez les modules avancés de votre système
@@ -387,7 +389,7 @@ export default function AdvancedModulesManager(): JSX.Element {
                   onToggle={handleToggleModule}
                   onConfigure={handleConfigureModule}
                 />
-          ))}
+              ))}
           </div>
         </TabsContent>
 

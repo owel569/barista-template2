@@ -3,7 +3,7 @@
  * Optimisé pour la longévité du système
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -16,7 +16,6 @@ import {
   Settings,
   Zap,
   TrendingUp,
-  Users,
   AlertTriangle,
   CheckCircle,
   Clock,
@@ -25,38 +24,49 @@ import {
 import { useQuery } from '@tanstack/react-query';
 
 // Types sécurisés pour les données
+type InsightType = 'opportunity' | 'warning' | 'info';
+type ImpactLevel = 'low' | 'medium' | 'high';
+
+interface Insight {
+  type: InsightType;
+  title: string;
+  description: string;
+  impact: ImpactLevel;
+  confidence: number;
+}
+
+interface ChatbotQuestion {
+  question: string;
+  count: number;
+}
+
+interface ChatbotStats {
+  totalInteractions?: number;
+  activeConversations?: number;
+  satisfactionRate?: number;
+  averageResponseTime?: string;
+  autoResolutionRate?: number;
+  topQuestions?: ChatbotQuestion[];
+}
+
+interface ReportStats {
+  generated?: number;
+  scheduled?: number;
+  pending?: number;
+}
+
 interface DashboardStats {
   aiInsights?: {
     newInsights?: number;
     efficiency?: number;
-    insights?: Array<{
-      type: string;
-      title: string;
-      description: string;
-      impact: string;
-      confidence: number;
-    }>;
+    insights?: Insight[];
   };
-  chatbot?: {
-    totalInteractions?: number;
-    activeConversations?: number;
-    satisfactionRate?: number;
-    averageResponseTime?: string;
-    autoResolutionRate?: number;
-    topQuestions?: Array<{
-      question: string;
-      count: number;
-    }>;
-  };
-  reports?: {
-    generated?: number;
-    scheduled?: number;
-    pending?: number;
-  };
+  chatbot?: ChatbotStats;
+  reports?: ReportStats;
 }
 
 interface AIAlert {
-  severity: string;
+  severity: 'low' | 'medium' | 'high';
   message: string;
 }
 
@@ -66,22 +76,28 @@ interface ReportData {
   nextRun: string;
 }
 
+const QUERY_KEYS = {
+  DASHBOARD_STATS: ['dashboard', 'stats'],
+  AI_ALERTS: ['dashboard', 'ai-alerts'],
+  AUTOMATED_REPORTS: ['dashboard', 'automated-reports']
+};
+
 const DashboardModule: React.FC = () => {
   // Récupérer les statistiques du tableau de bord
-  const { data: stats, isLoading } = useQuery<DashboardStats>({
-    queryKey: ['/api/admin/advanced/dashboard-stats'],
+  const { data: stats, isLoading, error } = useQuery<DashboardStats>({
+    queryKey: QUERY_KEYS.DASHBOARD_STATS,
     refetchInterval: 30000
   });
 
   // Récupérer les alertes IA
   const { data: aiAlerts } = useQuery<{ alerts?: AIAlert[] }>({
-    queryKey: ['/api/admin/advanced/ai-alerts'],
+    queryKey: QUERY_KEYS.AI_ALERTS,
     refetchInterval: 60000
   });
 
   // Récupérer les rapports automatiques
   const { data: reports } = useQuery<{ upcoming?: ReportData[] }>({
-    queryKey: ['/api/admin/advanced/automated-reports'],
+    queryKey: QUERY_KEYS.AUTOMATED_REPORTS,
     refetchInterval: 300000
   });
 
@@ -96,9 +112,46 @@ const DashboardModule: React.FC = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div className="p-6">
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            Erreur lors du chargement des données: {(error as Error).message}
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
   const aiInsights = stats?.aiInsights || {};
   const chatbotStats = stats?.chatbot || {};
   const automatedReports = stats?.reports || {};
+
+  const getInsightIcon = (type: InsightType) => {
+    switch (type) {
+      case 'opportunity':
+        return <TrendingUp className="h-5 w-5 text-green-600" />;
+      case 'warning':
+        return <AlertTriangle className="h-5 w-5 text-yellow-600" />;
+      case 'info':
+      default:
+        return <CheckCircle className="h-5 w-5 text-blue-600" />;
+    }
+  };
+
+  const getInsightBgColor = (type: InsightType) => {
+    switch (type) {
+      case 'opportunity':
+        return 'bg-green-100';
+      case 'warning':
+        return 'bg-yellow-100';
+      case 'info':
+      default:
+        return 'bg-blue-100';
+    }
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -116,7 +169,7 @@ const DashboardModule: React.FC = () => {
       {/* Alertes critiques IA */}
       {aiAlerts?.alerts && aiAlerts.alerts.length > 0 && (
         <div className="space-y-2">
-          {aiAlerts.alerts.map((alert: AIAlert, index: number) => (
+          {aiAlerts.alerts.map((alert, index) => (
             <Alert key={index} variant={alert.severity === 'high' ? 'destructive' : 'default'}>
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
@@ -231,12 +284,14 @@ const DashboardModule: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {chatbotStats.topQuestions?.slice(0, 5).map((question, index: number) => (
-                    <div key={index} className="flex justify-between items-center">
-                      <span className="text-sm">{question.question}</span>
-                      <Badge variant="outline">{question.count}</Badge>
-                    </div>
-                  )) || (
+                  {chatbotStats.topQuestions ? (
+                    chatbotStats.topQuestions.slice(0, 5).map((question, index) => (
+                      <div key={index} className="flex justify-between items-center">
+                        <span className="text-sm">{question.question}</span>
+                        <Badge variant="outline">{question.count}</Badge>
+                      </div>
+                    ))
+                  ) : (
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="text-sm">Heures d'ouverture</span>
@@ -315,18 +370,20 @@ const DashboardModule: React.FC = () => {
 
                 <div className="space-y-2">
                   <h4 className="font-medium">Prochains rapports</h4>
-                  {reports?.upcoming?.map((report: ReportData, index: number) => (
-                    <div key={index} className="flex justify-between items-center p-3 border rounded">
-                      <div>
-                        <span className="font-medium">{report.name}</span>
-                        <span className="text-sm text-gray-500 ml-2">- {report.type}</span>
+                  {reports?.upcoming ? (
+                    reports.upcoming.map((report, index) => (
+                      <div key={index} className="flex justify-between items-center p-3 border rounded">
+                        <div>
+                          <span className="font-medium">{report.name}</span>
+                          <span className="text-sm text-gray-500 ml-2">- {report.type}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4 text-gray-400" />
+                          <span className="text-sm">{report.nextRun}</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-gray-400" />
-                        <span className="text-sm">{report.nextRun}</span>
-                      </div>
-                    </div>
-                  )) || (
+                    ))
+                  ) : (
                     <div className="space-y-2">
                       <div className="flex justify-between items-center p-3 border rounded">
                         <div>
@@ -366,36 +423,29 @@ const DashboardModule: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {aiInsights.insights?.slice(0, 3).map((insight, index: number) => (
-                  <div key={index} className="p-4 border rounded-lg">
-                    <div className="flex items-start gap-3">
-                      <div className={`p-2 rounded ${
-                        insight.type === 'opportunity' ? 'bg-green-100' :
-                        insight.type === 'warning' ? 'bg-yellow-100' : 'bg-blue-100'
-                      }`}>
-                        {insight.type === 'opportunity' ? (
-                          <TrendingUp className="h-5 w-5 text-green-600" />
-                        ) : insight.type === 'warning' ? (
-                          <AlertTriangle className="h-5 w-5 text-yellow-600" />
-                        ) : (
-                          <CheckCircle className="h-5 w-5 text-blue-600" />
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-medium">{insight.title}</h4>
-                        <p className="text-sm text-gray-600 mt-1">{insight.description}</p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Badge variant="outline">
-                            Impact: {insight.impact}
-                          </Badge>
-                          <Badge variant="outline">
-                            Confiance: {insight.confidence}%
-                          </Badge>
+                {aiInsights.insights ? (
+                  aiInsights.insights.slice(0, 3).map((insight, index) => (
+                    <div key={index} className="p-4 border rounded-lg">
+                      <div className="flex items-start gap-3">
+                        <div className={`p-2 rounded ${getInsightBgColor(insight.type)}`}>
+                          {getInsightIcon(insight.type)}
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-medium">{insight.title}</h4>
+                          <p className="text-sm text-gray-600 mt-1">{insight.description}</p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Badge variant="outline">
+                              Impact: {insight.impact}
+                            </Badge>
+                            <Badge variant="outline">
+                              Confiance: {insight.confidence}%
+                            </Badge>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                )) || (
+                  ))
+                ) : (
                   <div className="space-y-3">
                     <div className="p-4 border rounded-lg">
                       <div className="flex items-start gap-3">

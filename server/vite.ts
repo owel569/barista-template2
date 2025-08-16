@@ -25,7 +25,7 @@ export async function setupVite(app: Express, server: Server) {
     configFile: false,
     customLogger: {
       ...viteLogger,
-      error: (msg, options)}) => {
+      error: (msg, options) => {
         viteLogger.error(msg, options);
         process.exit(1);
       },
@@ -58,20 +58,20 @@ export async function setupVite(app: Express, server: Server) {
         );
 
         if (!fs.existsSync(clientTemplate)) {
-          logger.error('Template HTML non trouvé:', clientTemplate);
+          console.error('Template HTML non trouvé:', clientTemplate);
           return next();
         }
 
         let template = await fs.promises.readFile(clientTemplate, "utf-8");
         template = template.replace(
           `src="/src/main.tsx"`,
-          `src="/src/main.tsx?v=${nanoid()})}"`,
+          `src="/src/main.tsx?v=${nanoid()}"`,
         );
 
         const page = await vite.transformIndexHtml(url, template);
         res.status(200).set({ "Content-Type": "text/html" }).end(page);
       } catch (e) {
-        logger.error('Erreur transformation HTML:', e);
+        console.error('Erreur transformation HTML:', e);
         if (vite?.ssrFixStacktrace) {
           vite.ssrFixStacktrace(e as Error);
         }
@@ -101,9 +101,9 @@ export function serveStatic(app: Express) {
 
     const indexPath = path.resolve(distPath, "index.html");
     if (fs.existsSync(indexPath)) {
-      res.sendFile(indexPath);
+      return res.sendFile(indexPath);
     } else {
-      res.status(404).send('Index file not found');
+      return res.status(404).send('Index file not found');
     }
   });
 }

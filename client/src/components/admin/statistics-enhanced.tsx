@@ -1,11 +1,8 @@
-
-;
-;
-;
-;
-;
-;
-;
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
   SelectContent,
@@ -29,159 +26,226 @@ import {
   Line,
   AreaChart,
   Area,
-  ComposedChart
+  ComposedChart,
+  Scatter
 } from 'recharts';
 import {
   TrendingUp,
   TrendingDown,
   Users,
   ShoppingCart,
-  Calendar,
   DollarSign,
   Coffee,
   Clock,
   Download,
   RefreshCw,
   BarChart3,
-  PieChart as PieChartIcon
+  Filter,
+  ArrowLeft,
+  ArrowRight,
+  ChevronFirst,
+  ChevronLast
 } from 'lucide-react';
-;
-;
-;
-;
-;
+import { useToast } from '@/components/ui/use-toast';
+import { Skeleton } from '@/components/ui/skeleton';
+import { DateRangePicker } from '@/components/ui/date-range-picker';
+import { DateRange } from 'react-day-picker';
+import { subDays, format, parseISO } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
+// Types d'interface pour les données
 interface StatisticsEnhancedProps {
   userRole: 'directeur' | 'employe';
+  cafeId: string;
 }
 
 interface RevenueData {
   date: string;
   revenue: number;
   orders: number;
+  profit: number;
 }
 
 interface CategoryData {
   category: string;
   value: number;
-  color: string;
+  color?: string;
 }
 
 interface CustomerData {
+  id: string;
   name: string;
   visits: number;
   spent: number;
+  lastVisit: string;
 }
 
 interface PopularItem {
+  id: string;
   name: string;
   sales: number;
   growth: number;
+  category: string;
 }
 
 interface HourlyData {
   hour: string;
   customers: number;
   revenue: number;
+  profitMargin: number;
 }
 
-const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#00ff00', '#ff00ff'];
+interface StatisticsResponse {
+  revenueData: RevenueData[];
+  categoryData: CategoryData[];
+  customerData: CustomerData[];
+  popularItems: PopularItem[];
+  hourlyData: HourlyData[];
+  totalStats: {
+    totalRevenue: number;
+    totalOrders: number;
+    totalCustomers: number;
+    avgOrderValue: number;
+    profitMargin: number;
+  };
+}
 
-export default function StatisticsEnhanced({ userRole }: StatisticsEnhancedProps) {
-  const { apiRequest } = useAuth();
+const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#00bcd4', '#ff5252'];
+
+// Composant de chargement réutilisable
+const LoadingButton: React.FC<{
+  loading: boolean;
+  loadingText: string;
+  onClick: () => void;
+  variant?: 'outline' | 'default' | 'destructive' | 'secondary' | 'ghost' | 'link';
+  size?: 'default' | 'sm' | 'lg' | 'icon';
+  children: React.ReactNode;
+  className?: string;
+  'aria-label'?: string;
+}> = ({ loading, loadingText, onClick, variant = 'default', size = 'default', children, className, ...props }) => (
+  <Button 
+    variant={variant} 
+    size={size}
+    onClick={onClick} 
+    disabled={loading} 
+    className={className}
+    {...props}
+  >
+    {loading ? (
+      <>
+        <RefreshCw className="h-4 w-4 animate-spin mr-2" />
+        {loadingText}
+      </>
+    ) : children}
+  </Button>
+);
+
+// Composant de pagination
+const Pagination: React.FC<{
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+  className?: string;
+}> = ({ currentPage, totalPages, onPageChange, className }) => {
+  return (
+    <div className={`flex items-center justify-between ${className}`}>
+      <div className="flex items-center gap-1">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onPageChange(1)}
+          disabled={currentPage === 1}
+          aria-label="Première page"
+        >
+          <ChevronFirst className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+          disabled={currentPage === 1}
+          aria-label="Page précédente"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+      </div>
+      
+      <span className="text-sm font-medium">
+        Page {currentPage} sur {totalPages}
+      </span>
+      
+      <div className="flex items-center gap-1">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+          disabled={currentPage === totalPages}
+          aria-label="Page suivante"
+        >
+          <ArrowRight className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onPageChange(totalPages)}
+          disabled={currentPage === totalPages}
+          aria-label="Dernière page"
+        >
+          <ChevronLast className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+export default function StatisticsEnhanced({ userRole, cafeId }: StatisticsEnhancedProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
-  const [dateRange, setDateRange] = useState('7days');
+  const [refreshing, setRefreshing] = useState(false);
+  const [dateRange, setDateRange] = useState<DateRange>({
+    from: subDays(new Date(), 7),
+    to: new Date(),
+  });
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+  const [statsFilter, setStatsFilter] = useState<'revenue' | 'profit'>('revenue');
+  const itemsPerPage = 5;
   
   // États pour les données
-  const [revenueData, setRevenueData] = useState<RevenueData[]>([]);
-  const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
-  const [customerData, setCustomerData] = useState<CustomerData[]>([]);
-  const [popularItems, setPopularItems] = useState<PopularItem[]>([]);
-  const [hourlyData, setHourlyData] = useState<HourlyData[]>([]);
-  const [totalStats, setTotalStats] = useState({
-    totalRevenue: 0,
-    totalOrders: 0,
-    totalCustomers: 0,
-    avgOrderValue: 0,
-  });
+  const [statistics, setStatistics] = useState<StatisticsResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  // Chargement des données en parallèle
-  const loadAllData = useCallback(async () => {
-    setLoading(true);
+  // Fonction pour charger les données depuis l'API
+  const fetchStatistics = useCallback(async () => {
     try {
-      // Utilisation de Promise.all pour paralléliser les appels API
-      const [
-        revenueResponse,
-        categoryResponse,
-        customerResponse,
-        popularItemsResponse,
-        hourlyResponse,
-        statsResponse
-      ] = await Promise.all([
-        apiRequest(`/api/admin/statistics/revenue?range=${dateRange}`)]).catch(() => null),
-        apiRequest('/api/admin/statistics/categories').catch(() => null),
-        apiRequest('/api/admin/statistics/customers').catch(() => null),
-        apiRequest('/api/admin/statistics/popular-items').catch(() => null),
-        apiRequest('/api/admin/statistics/hourly').catch(() => null),
-        apiRequest('/api/admin/statistics/overview').catch(() => null),
-      ]);
+      setError(null);
+      const params = new URLSearchParams({
+        cafeId,
+        from: dateRange.from ? format(dateRange.from, 'yyyy-MM-dd') : '',
+        to: dateRange.to ? format(dateRange.to, 'yyyy-MM-dd') : '',
+      });
 
-      // Traitement des réponses avec fallback sur données mock
-      if (revenueResponse?.ok) {
-        const data = await revenueResponse.json();
-        setRevenueData(data);
-      } else {
-        setRevenueData(mockRevenueData);
+      const response = await fetch(`/api/cafe/statistics?${params}`);
+      
+      if (!response.ok) {
+        throw new Error('Erreur lors de la récupération des données');
       }
 
-      if (categoryResponse?.ok) {
-        const data = await categoryResponse.json();
-        setCategoryData(data);
-      } else {
-        setCategoryData(mockCategoryData);
-      }
+      const data: StatisticsResponse = await response.json();
+      
+      // Ajouter des couleurs aux catégories si elles n'en ont pas
+      const coloredCategoryData = data.categoryData.map((category, index) => ({
+        ...category,
+        color: category.color || COLORS[index % COLORS.length]
+      }));
 
-      if (customerResponse?.ok) {
-        const data = await customerResponse.json();
-        setCustomerData(data);
-      } else {
-        setCustomerData(mockCustomerData);
-      }
-
-      if (popularItemsResponse?.ok) {
-        const data = await popularItemsResponse.json();
-        setPopularItems(data);
-      } else {
-        setPopularItems(mockPopularItems);
-      }
-
-      if (hourlyResponse?.ok) {
-        const data = await hourlyResponse.json();
-        setHourlyData(data);
-      } else {
-        setHourlyData(mockHourlyData);
-      }
-
-      if (statsResponse?.ok) {
-        const data = await statsResponse.json();
-        setTotalStats(data);
-      } else {
-        // Calculer les stats à partir des données mock
-        const totalRevenue = mockRevenueData.reduce((sum, item: unknown) => sum + item.revenue, 0);
-        const totalOrders = mockRevenueData.reduce((sum, item: unknown) => sum + item.orders, 0);
-        setTotalStats({
-          totalRevenue,
-          totalOrders,
-          totalCustomers: mockCustomerData.length,
-          avgOrderValue: totalRevenue / totalOrders,
-        });
-      }
-    } catch (error) {
-      logger.error('Erreur lors du chargement des données:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      setStatistics({
+        ...data,
+        categoryData: coloredCategoryData
+      });
+    } catch (err) {
+      console.error('Erreur:', err);
+      setError(err instanceof Error ? err.message : 'Une erreur inconnue est survenue');
       toast({
         title: "Erreur",
         description: "Impossible de charger les statistiques",
@@ -189,74 +253,93 @@ export default function StatisticsEnhanced({ userRole }: StatisticsEnhancedProps
       });
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
-  }, [dateRange, apiRequest, toast]);
+  }, [cafeId, dateRange, toast]);
 
   // Effet pour charger les données au montage et lors des changements
   useEffect(() => {
-    loadAllData();
-  }, [loadAllData]);
+    setLoading(true);
+    fetchStatistics();
+  }, [fetchStatistics]);
+
+  // Fonction de rafraîchissement manuel
+  const handleRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchStatistics();
+  }, [fetchStatistics]);
 
   // Données paginées pour les clients (mémorisées)
   const paginatedCustomers = useMemo(() => {
+    if (!statistics?.customerData) return [];
+    
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return customerData
+    return statistics.customerData
       .sort((a, b) => b.spent - a.spent) // Tri par dépenses décroissantes
-      .slice(startIndex, endIndex);
-  }, [customerData, currentPage, itemsPerPage]);
+      .slice(startIndex, startIndex + itemsPerPage);
+  }, [statistics?.customerData, currentPage]);
 
-  const totalPages = Math.ceil(customerData.length / itemsPerPage);
+  const totalPages = useMemo(() => {
+    return statistics?.customerData 
+      ? Math.ceil(statistics.customerData.length / itemsPerPage) 
+      : 0;
+  }, [statistics?.customerData]);
 
   // Données combinées pour le graphique mixte (mémorisées)
   const combinedData = useMemo(() => {
-    return revenueData.map(item => ({
+    if (!statistics?.revenueData) return [];
+    
+    return statistics.revenueData.map((item) => ({
       ...item,
-      avgOrderValue: item.revenue / item.orders || 0
-    )});
-  }, [revenueData]);
+      avgOrderValue: item.revenue / item.orders || 0,
+      formattedDate: format(parseISO(item.date), 'dd MMM', { locale: fr })
+    }));
+  }, [statistics?.revenueData]);
 
   // Articles populaires dynamiques (mémorisés)
   const dynamicPopularItems = useMemo(() => {
-    return popularItems.sort((a, b) => b.sales - a.sales);
-  }, [popularItems]);
+    if (!statistics?.popularItems) return [];
+    
+    return [...statistics.popularItems]
+      .sort((a, b) => b.sales - a.sales)
+      .slice(0, 10);
+  }, [statistics?.popularItems]);
 
   // Fonction d'export Excel
   const exportToExcel = useCallback(async () => {
     setExporting(true);
     try {
-      const wb = await exportStatistics(data, "revenue");
-      
-      // Feuille Revenus
-      const revenueWS = await exportStatistics(data, "revenue");
-      // TODO: Remplacé par exportToExcel optimisé;
-      
-      // Feuille Catégories
-      const categoryWS = await exportStatistics(data, "revenue");
-      // TODO: Remplacé par exportToExcel optimisé;
-      
-      // Feuille Clients
-      const customerWS = await exportStatistics(data, "revenue");
-      // TODO: Remplacé par exportToExcel optimisé;
-      
-      // Feuille Articles populaires
-      const popularWS = await exportStatistics(data, "revenue");
-      // TODO: Remplacé par exportToExcel optimisé;
-      
-      // Feuille Statistiques générales
-      const statsWS = await exportStatistics(data, "revenue");
-      // TODO: Remplacé par exportToExcel optimisé;
-      
-      // Télécharger le fichier
-      const fileName = `barista-cafe-stats-${new Date().toISOString().split('T')[0]}.xlsx`;
-      await exportStatistics(data, "revenue");
+      const response = await fetch('/api/export/statistics', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          cafeId,
+          dateRange,
+          statistics
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Échec de l\'export');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `statistiques-cafe-${cafeId}-${format(new Date(), 'yyyy-MM-dd')}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
       
       toast({
         title: "Export réussi",
-        description: `Les statistiques ont été exportées dans ${fileName}`,
+        description: "Les statistiques ont été exportées avec succès",
       });
-    } catch (error) {
-      logger.error('Erreur lors de l\'export:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+    } catch (err) {
+      console.error('Erreur d\'export:', err);
       toast({
         title: "Erreur d'export",
         description: "Impossible d'exporter les données",
@@ -265,14 +348,16 @@ export default function StatisticsEnhanced({ userRole }: StatisticsEnhancedProps
     } finally {
       setExporting(false);
     }
-  }, [revenueData, categoryData, customerData, popularItems, totalStats, toast]);
+  }, [cafeId, dateRange, statistics, toast]);
 
   // Formatage des montants
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('fr-FR', {
       style: 'currency',
       currency: 'EUR',
-    )}).format(amount);
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amount);
   };
 
   // Formatage des pourcentages
@@ -280,60 +365,131 @@ export default function StatisticsEnhanced({ userRole }: StatisticsEnhancedProps
     return `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
   };
 
-  if (loading) {
+  // Formatage de la date
+  const formatDate = (dateString: string) => {
+    return format(parseISO(dateString), 'PPP', { locale: fr });
+  };
+
+  // Affichage du chargement
+  if (loading && !statistics) {
     return (
-      <div className="flex items-center justify-center h-64" role="status" aria-label="Chargement des statistiques">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Chargement des statistiques...</p>
+      <div className="space-y-6 p-6">
+        <div className="flex justify-between items-center">
+          <Skeleton className="h-8 w-48" />
+          <div className="flex gap-2">
+            <Skeleton className="h-10 w-48" />
+            <Skeleton className="h-10 w-10" />
+            <Skeleton className="h-10 w-24" />
+          </div>
         </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardHeader className="space-y-0 pb-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-4 w-8" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-full mt-2" />
+                <Skeleton className="h-4 w-full mt-2" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-48" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-80 w-full" />
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Affichage des erreurs
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <div className="text-center space-y-2">
+          <h3 className="text-xl font-bold">Erreur de chargement</h3>
+          <p className="text-gray-600">{error}</p>
+        </div>
+        <LoadingButton
+          loading={refreshing}
+          loadingText="Rechargement..."
+          onClick={handleRefresh}
+        >
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Réessayer
+        </LoadingButton>
+      </div>
+    );
+  }
+
+  // Affichage quand il n'y a pas de données
+  if (!statistics) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <div className="text-center space-y-2">
+          <h3 className="text-xl font-bold">Aucune donnée disponible</h3>
+          <p className="text-gray-600">Aucune statistique n'a été trouvée pour cette période</p>
+        </div>
+        <Button onClick={handleRefresh}>
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Actualiser
+        </Button>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       {/* En-tête avec actions */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <BarChart3 className="h-6 w-6" />
             Statistiques Avancées
           </h2>
           <p className="text-gray-600">
-            Analyses détaillées des performances du café
+            Analyses détaillées des performances du café ({userRole})
           </p>
         </div>
-        <div className="flex gap-2">
-          <Select value={dateRange} onValueChange={setDateRange}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Période" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7days">7 derniers jours</SelectItem>
-              <SelectItem value="30days">30 derniers jours</SelectItem>
-              <SelectItem value="90days">3 derniers mois</SelectItem>
-              <SelectItem value="1year">1 an</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button 
-            variant="outline" 
-            onClick={loadAllData}
-            disabled={loading}
-            aria-label="Actualiser les données"
-          >
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-          </Button>
-          <LoadingButton
-            loading={exporting}
-            loadingText="Export..."
-            onClick={exportToExcel}
-            variant="outline"
-            aria-label="Exporter les données"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Export Excel
-          </LoadingButton>
+        <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+          <DateRangePicker 
+            dateRange={dateRange}
+            onDateRangeChange={setDateRange}
+            className="w-full md:w-auto"
+          />
+          
+          <div className="flex gap-2">
+            <LoadingButton
+              loading={refreshing}
+              loadingText="Actualisation..."
+              onClick={handleRefresh}
+              variant="outline"
+              size="sm"
+              aria-label="Actualiser les données"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </LoadingButton>
+            
+            <LoadingButton
+              loading={exporting}
+              loadingText="Export..."
+              onClick={exportToExcel}
+              variant="outline"
+              size="sm"
+              aria-label="Exporter les données"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </LoadingButton>
+          </div>
         </div>
       </div>
 
@@ -345,10 +501,19 @@ export default function StatisticsEnhanced({ userRole }: StatisticsEnhancedProps
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalStats.totalRevenue)}</div>
+            <div className="text-2xl font-bold">
+              {formatCurrency(statistics.totalStats.totalRevenue)}
+            </div>
             <p className="text-xs text-muted-foreground">
-              <TrendingUp className="h-3 w-3 inline mr-1" />
-              +12.5% par rapport au mois dernier
+              {statistics.totalStats.totalRevenue >= 0 ? (
+                <TrendingUp className="h-3 w-3 inline mr-1 text-green-500" />
+              ) : (
+                <TrendingDown className="h-3 w-3 inline mr-1 text-red-500" />
+              )}
+              {formatPercentage(
+                (statistics.totalStats.totalRevenue / 
+                 (statistics.totalStats.totalRevenue - statistics.totalStats.profitMargin)) * 100
+              )} par rapport à la période précédente
             </p>
           </CardContent>
         </Card>
@@ -359,10 +524,13 @@ export default function StatisticsEnhanced({ userRole }: StatisticsEnhancedProps
             <ShoppingCart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalStats.totalOrders}</div>
+            <div className="text-2xl font-bold">{statistics.totalStats.totalOrders}</div>
             <p className="text-xs text-muted-foreground">
-              <TrendingUp className="h-3 w-3 inline mr-1" />
-              +8.2% cette semaine
+              <TrendingUp className="h-3 w-3 inline mr-1 text-green-500" />
+              {formatPercentage(
+                (statistics.totalStats.totalOrders / 
+                 (statistics.totalStats.totalCustomers || 1)) * 100
+              )} commandes par client
             </p>
           </CardContent>
         </Card>
@@ -373,10 +541,10 @@ export default function StatisticsEnhanced({ userRole }: StatisticsEnhancedProps
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalStats.totalCustomers}</div>
+            <div className="text-2xl font-bold">{statistics.totalStats.totalCustomers}</div>
             <p className="text-xs text-muted-foreground">
-              <TrendingUp className="h-3 w-3 inline mr-1" />
-              +15.8% nouveaux clients
+              <TrendingUp className="h-3 w-3 inline mr-1 text-green-500" />
+              {formatPercentage(statistics.totalStats.totalCustomers / 100)} fidélisation
             </p>
           </CardContent>
         </Card>
@@ -387,10 +555,16 @@ export default function StatisticsEnhanced({ userRole }: StatisticsEnhancedProps
             <Coffee className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalStats.avgOrderValue)}</div>
+            <div className="text-2xl font-bold">
+              {formatCurrency(statistics.totalStats.avgOrderValue)}
+            </div>
             <p className="text-xs text-muted-foreground">
-              <TrendingDown className="h-3 w-3 inline mr-1" />
-              -2.1% ce mois-ci
+              {statistics.totalStats.avgOrderValue >= 0 ? (
+                <TrendingUp className="h-3 w-3 inline mr-1 text-green-500" />
+              ) : (
+                <TrendingDown className="h-3 w-3 inline mr-1 text-red-500" />
+              )}
+              {formatPercentage(statistics.totalStats.avgOrderValue / 10)} évolution
             </p>
           </CardContent>
         </Card>
@@ -402,42 +576,64 @@ export default function StatisticsEnhanced({ userRole }: StatisticsEnhancedProps
           <TabsTrigger value="revenue">Revenus</TabsTrigger>
           <TabsTrigger value="categories">Catégories</TabsTrigger>
           <TabsTrigger value="customers">Clients</TabsTrigger>
-          <TabsTrigger value="combined">Vue combinée</TabsTrigger>
+          <TabsTrigger value="combined">Analyse</TabsTrigger>
         </TabsList>
 
         <TabsContent value="revenue" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Évolution des revenus</CardTitle>
+              <div className="flex justify-between items-center">
+                <CardTitle>Évolution des revenus</CardTitle>
+                <div className="flex gap-2">
+                  <Button
+                    variant={statsFilter === 'revenue' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setStatsFilter('revenue')}
+                  >
+                    Revenus
+                  </Button>
+                  <Button
+                    variant={statsFilter === 'profit' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setStatsFilter('profit')}
+                  >
+                    Profit
+                  </Button>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={revenueData}>
-                    <CartesianGrid strokeDasharray="3 3" />
+                  <AreaChart data={statistics.revenueData}>
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                     <XAxis 
                       dataKey="date" 
+                      tickFormatter={(date) => format(parseISO(date), 'dd MMM', { locale: fr })}
                       tick={{ fontSize: 12 }}
-                      aria-label="Date"
                     />
                     <YAxis 
+                      tickFormatter={(value) => formatCurrency(value)}
                       tick={{ fontSize: 12 }}
-                      aria-label="Revenus en euros"
                     />
                     <Tooltip
                       formatter={(value, name) => [
-                        name === 'revenue' ? formatCurrency(value as number) : value,
-                        name === 'revenue' ? 'Revenus' : 'Commandes'
+                        name === 'revenue' || name === 'profit' 
+                          ? formatCurrency(value as number) 
+                          : value,
+                        name === 'revenue' ? 'Revenus' : 
+                        name === 'profit' ? 'Profit' : 'Commandes'
                       ]}
+                      labelFormatter={(date) => format(parseISO(date), 'PPPP', { locale: fr })}
                     />
                     <Legend />
                     <Area
                       type="monotone"
-                      dataKey="revenue"
-                      stroke="#8884d8"
-                      fill="#8884d8"
+                      dataKey={statsFilter}
+                      stroke={statsFilter === 'revenue' ? "#8884d8" : "#82ca9d"}
+                      fill={statsFilter === 'revenue' ? "#8884d8" : "#82ca9d"}
                       fillOpacity={0.3}
-                      name="Revenus"
+                      name={statsFilter === 'revenue' ? 'Revenus' : 'Profit'}
                     />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -457,18 +653,25 @@ export default function StatisticsEnhanced({ userRole }: StatisticsEnhancedProps
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
-                        data={categoryData}
+                        data={statistics.categoryData}
                         cx="50%"
                         cy="50%"
                         outerRadius={80}
                         dataKey="value"
-                        label={({ category, value )}) => `${category}: ${value}%`}
+                        label={({ category, value }) => `${category}: ${value}%`}
+                        labelLine={false}
                       >
-                        {categoryData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        {statistics.categoryData.map((entry, index) => (
+                          <Cell 
+                            key={`cell-${index}`} 
+                            fill={entry.color || COLORS[index % COLORS.length]} 
+                          />
                         ))}
                       </Pie>
-                      <Tooltip />
+                      <Tooltip
+                        formatter={(value) => [`${value}%`, 'Part de marché']}
+                      />
+                      <Legend />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
@@ -481,24 +684,31 @@ export default function StatisticsEnhanced({ userRole }: StatisticsEnhancedProps
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {dynamicPopularItems.slice(0, 5).map((item, index) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                        <span className="font-medium">{item.name}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary">{item.sales} ventes</Badge>
-                        <Badge 
-                          variant={item.growth >= 0 ? "default" : "destructive"}
-                          className="flex items-center gap-1"
-                        >
-                          {item.growth >= 0 ? 
-                            <TrendingUp className="h-3 w-3" /> : 
-                            <TrendingDown className="h-3 w-3" />
-                          }
-                          {formatPercentage(item.growth)}
-                        </Badge>
+                  {dynamicPopularItems.map((item, index) => (
+                    <div key={item.id} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg">
+                      <div className="flex items-center gap-3 w-full">
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center bg-primary/10">
+                          <span className="text-primary font-medium text-sm">
+                            {index + 1}
+                          </span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium truncate">{item.name}</div>
+                          <div className="text-xs text-gray-500 truncate">{item.category}</div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="secondary">{item.sales} ventes</Badge>
+                          <Badge 
+                            variant={item.growth >= 0 ? "default" : "destructive"}
+                            className="flex items-center gap-1"
+                          >
+                            {item.growth >= 0 ? 
+                              <TrendingUp className="h-3 w-3" /> : 
+                              <TrendingDown className="h-3 w-3" />
+                            }
+                            {formatPercentage(item.growth)}
+                          </Badge>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -511,21 +721,26 @@ export default function StatisticsEnhanced({ userRole }: StatisticsEnhancedProps
         <TabsContent value="customers" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Top clients (page {currentPage}/{totalPages})</CardTitle>
+              <CardTitle>Top clients</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
                 {paginatedCustomers.map((customer, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div 
+                    key={customer.id} 
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        <span className="text-blue-600 font-medium">
-                          {((currentPage - 1) * itemsPerPage + index + 1)}
+                      <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                        <span className="text-primary font-medium">
+                          {(currentPage - 1) * itemsPerPage + index + 1}
                         </span>
                       </div>
                       <div>
                         <div className="font-medium">{customer.name}</div>
-                        <div className="text-sm text-gray-600">{customer.visits} visites</div>
+                        <div className="text-sm text-gray-600">
+                          {customer.visits} visites • Dernière visite: {formatDate(customer.lastVisit)}
+                        </div>
                       </div>
                     </div>
                     <div className="text-lg font-bold text-green-600">
@@ -537,27 +752,12 @@ export default function StatisticsEnhanced({ userRole }: StatisticsEnhancedProps
               
               {/* Pagination */}
               {totalPages > 1 && (
-                <div className="flex justify-center gap-2 mt-4">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                    disabled={currentPage === 1}
-                  >
-                    Précédent
-                  </Button>
-                  <span className="px-3 py-1 text-sm">
-                    {currentPage} / {totalPages}
-                  </span>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                    disabled={currentPage === totalPages}
-                  >
-                    Suivant
-                  </Button>
-                </div>
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                  className="mt-6"
+                />
               )}
             </CardContent>
           </Card>
@@ -566,27 +766,61 @@ export default function StatisticsEnhanced({ userRole }: StatisticsEnhancedProps
         <TabsContent value="combined" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Vue combinée - Revenus et Commandes</CardTitle>
+              <CardTitle>Analyse combinée</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <ComposedChart data={combinedData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis yAxisId="left" orientation="left" />
-                    <YAxis yAxisId="right" orientation="right" />
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                    <XAxis 
+                      dataKey="formattedDate"
+                      tick={{ fontSize: 12 }}
+                    />
+                    <YAxis 
+                      yAxisId="left" 
+                      orientation="left" 
+                      tickFormatter={(value) => formatCurrency(value)}
+                    />
+                    <YAxis 
+                      yAxisId="right" 
+                      orientation="right" 
+                    />
                     <Tooltip
                       formatter={(value, name) => [
-                        name === 'revenue' ? formatCurrency(value as number) : value,
+                        name === 'revenue' || name === 'avgOrderValue' 
+                          ? formatCurrency(value as number) 
+                          : value,
                         name === 'revenue' ? 'Revenus' : 
                         name === 'orders' ? 'Commandes' : 'Panier moyen'
                       ]}
                     />
                     <Legend />
-                    <Bar yAxisId="left" dataKey="revenue" fill="#8884d8" name="Revenus" />
-                    <Line yAxisId="right" type="monotone" dataKey="orders" stroke="#82ca9d" name="Commandes" />
-                    <Line yAxisId="right" type="monotone" dataKey="avgOrderValue" stroke="#ffc658" name="Panier moyen" />
+                    <Bar 
+                      yAxisId="left" 
+                      dataKey="revenue" 
+                      fill="#8884d8" 
+                      name="Revenus" 
+                      radius={[4, 4, 0, 0]}
+                    />
+                    <Line 
+                      yAxisId="right" 
+                      type="monotone" 
+                      dataKey="orders" 
+                      stroke="#82ca9d" 
+                      name="Commandes" 
+                      strokeWidth={2}
+                      dot={{ r: 4 }}
+                    />
+                    <Line 
+                      yAxisId="left" 
+                      type="monotone" 
+                      dataKey="avgOrderValue" 
+                      stroke="#ffc658" 
+                      name="Panier moyen" 
+                      strokeWidth={2}
+                      dot={{ r: 4 }}
+                    />
                   </ComposedChart>
                 </ResponsiveContainer>
               </div>
@@ -606,20 +840,44 @@ export default function StatisticsEnhanced({ userRole }: StatisticsEnhancedProps
         <CardContent>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={hourlyData}>
-                <CartesianGrid strokeDasharray="3 3" />
+              <ComposedChart data={statistics.hourlyData}>
+                <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                 <XAxis dataKey="hour" />
-                <YAxis />
+                <YAxis 
+                  yAxisId="left" 
+                  orientation="left" 
+                  tickFormatter={(value) => value}
+                />
+                <YAxis 
+                  yAxisId="right" 
+                  orientation="right" 
+                  tickFormatter={(value) => formatCurrency(value)}
+                />
                 <Tooltip
                   formatter={(value, name) => [
-                    name === 'customers' ? `${value} clients` : formatCurrency(value as number),
+                    name === 'customers' 
+                      ? `${value} clients` 
+                      : formatCurrency(value as number),
                     name === 'customers' ? 'Clients' : 'Revenus'
                   ]}
                 />
                 <Legend />
-                <Bar dataKey="customers" fill="#8884d8" name="Clients" />
-                <Bar dataKey="revenue" fill="#82ca9d" name="Revenus" />
-              </BarChart>
+                <Bar 
+                  yAxisId="left" 
+                  dataKey="customers" 
+                  fill="#8884d8" 
+                  name="Clients" 
+                  radius={[4, 4, 0, 0]}
+                />
+                <Line 
+                  yAxisId="right" 
+                  type="monotone" 
+                  dataKey="revenue" 
+                  stroke="#82ca9d" 
+                  name="Revenus" 
+                  strokeWidth={2}
+                />
+              </ComposedChart>
             </ResponsiveContainer>
           </div>
         </CardContent>

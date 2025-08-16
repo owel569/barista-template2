@@ -53,8 +53,8 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
 
   // Filtrage par recherche
-  const filteredShifts = shifts.filter(shift => {
-    const employee = employees.find(e => e.id === shift.employeeId);
+  const filteredShifts = shifts.filter((shift) => {
+    const employee = employees.find((e: any) => e.id === shift.employeeId);
     const employeeName = employee ? `${employee.firstName} ${employee.lastName}`.toLowerCase() : '';
     const searchLower = searchTerm.toLowerCase();
     
@@ -63,8 +63,7 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
       shift.position.toLowerCase().includes(searchLower) ||
       shift.department.toLowerCase().includes(searchLower) ||
       shift.status.toLowerCase().includes(searchLower) ||
-      shift.date.includes(searchTerm)
-    );
+      shift.date.includes(searchTerm);
   });
 
   // Formatage des colonnes
@@ -128,10 +127,10 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
   // Statistiques de la liste
   const listStats = {
     total: filteredShifts.length,
-    totalHours: filteredShifts.reduce((sum, shift) => sum + shift.totalHours, 0),
-    totalCost: filteredShifts.reduce((sum, shift) => sum + shift.totalPay, 0),
-    uniqueEmployees: new Set(filteredShifts.map(s => s.employeeId)).size,
-    byStatus: filteredShifts.reduce((acc, shift) => {
+    totalHours: filteredShifts.reduce((sum: any, shift: any) => sum + shift.totalHours, 0),
+    totalCost: filteredShifts.reduce((sum: any, shift: any) => sum + shift.totalPay, 0),
+    uniqueEmployees: new Set(filteredShifts.map((s: any) => s.employeeId)).size,
+    byStatus: filteredShifts.reduce((acc: any, shift: any) => {
       acc[shift.status] = (acc[shift.status] || 0) + 1;
       return acc;
     }, {} as Record<string, number>)
@@ -340,7 +339,7 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredShifts.map((shift) => {
+              {filteredShifts.map((shift: any) => {
                 const employee = getEmployeeInfo(shift.employeeId);
                 const department = DEPARTMENTS.find((d: { id: string; name: string; color: string }) => d.id === shift.department);
                 const position = POSITIONS.find((p: { id: string; name: string; color: string }) => p.id === shift.position);
