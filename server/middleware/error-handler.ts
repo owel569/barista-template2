@@ -12,7 +12,7 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { ZodError } from 'zod';
 import { logger } from '../utils/logger';
-import { metrics } from '@/lib/metrics';
+// import { metrics } from '@/lib/metrics'; // Removed - not available in server context
 
 // Types sécurisés pour les erreurs
 interface AppError extends Error {
