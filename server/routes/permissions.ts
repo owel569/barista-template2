@@ -213,7 +213,7 @@ router.get('/user/:userId', authenticateUser, requireRoles(['admin']), validateP
     logger.error('Erreur permissions utilisateur', { 
       userId, 
       error: error instanceof Error ? error.message : 'Erreur inconnue' 
-    )});
+    });
     res.status(500).json({
       success: false,
       message: 'Erreur lors de la récupération des permissions'
