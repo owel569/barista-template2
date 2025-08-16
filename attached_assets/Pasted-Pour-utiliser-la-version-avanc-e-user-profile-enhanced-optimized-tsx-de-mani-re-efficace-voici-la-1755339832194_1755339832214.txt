@@ -1,0 +1,105 @@
+Pour utiliser la version avancée (user-profile-enhanced-optimized.tsx) de manière efficace, voici la démarche recommandée :
+
+1. Préparation de l'environnement
+Vérifiez les dépendances :
+
+bash
+npm install qrcode.react react-to-print @tanstack/react-query zod @hookform/resolvers
+Créez les hooks manquants (si nécessaire) :
+
+ts
+// src/hooks/useAuth.ts
+export const useAuth = () => ({ apiRequest: yourApiRequestFunction });
+2. Structure des fichiers
+Organisez votre dossier components/admin ainsi :
+
+text
+components/
+  admin/
+    user-profile/               # Nouveau dossier dédié
+      UserCard.tsx              # Sous-composant extrait
+      AddressForm.tsx           # Formulaire d'adresse
+      PaymentMethodForm.tsx     # Formulaire de paiement
+      utils.ts                 # Fonctions utilitaires
+      index.tsx                 # Composant principal (ex-user-profile-enhanced-optimized)
+3. Adaptation du composant
+Personnalisez les schémas dans utils.ts :
+
+ts
+// Exemple de customisation
+export const userProfileSchema = z.object({
+  // ... votre schéma personnalisé
+});
+Configurez l'API :
+Modifiez les endpoints dans les mutations :
+
+ts
+const updateUserMutation = useMutation({
+  mutationFn: async (data) => {
+    const response = await apiRequest(`/votre-endpoint/${data.id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data.updates)
+    });
+    return response.json();
+  }
+});
+4. Intégration dans votre application
+Dans votre page admin :
+
+tsx
+import UserProfile from '@/components/admin/user-profile';
+
+export default function AdminUsersPage() {
+  return (
+    <div className="container mx-auto p-4">
+      <UserProfile />
+    </div>
+  );
+}
+5. Personnalisations recommandées
+Thème : Adaptez les couleurs dans getLoyaltyLevelColor()
+
+Données : Modifiez les tableaux de filtres :
+
+tsx
+// Dans les préférences
+const DIETARY_OPTIONS = [
+  { value: 'vegetarian', label: 'Végétarien' },
+  // ... autres options
+];
+6. Optimisations complémentaires
+Chargement asynchrone :
+
+tsx
+const UserProfile = dynamic(
+  () => import('@/components/admin/user-profile'),
+  { ssr: false, loading: () => <LoadingSpinner /> }
+);
+Tests : Ajoutez des tests E2E avec Cypress pour les workflows critiques.
+
+7. Migration depuis l'ancienne version
+Remplacez l'import dans tous les fichiers :
+
+diff
+- import UserProfile from './user-profile-enhanced';
++ import UserProfile from './user-profile';
+Mettez à jour les appels API pour matcher votre backend
+
+Vérifiez les permissions avec votre système d'authentification
+
+Points clés à vérifier :
+Compatibilité backend : Assurez-vous que votre API renvoie bien le format de données attendu
+
+Styles : Vérifiez que les classes CSS sont compatibles avec votre système de design
+
+Traductions : Internationalisez les textes si nécessaire
+
+Cette version apporte des avantages significatifs :
+
+⚡ Performances optimisées avec memoisation
+
+📊 Dashboard analytique intégré
+
+📱 Meilleure expérience mobile
+
+🔄 Gestion optimale des états avec React Query
