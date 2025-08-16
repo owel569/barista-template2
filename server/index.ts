@@ -1,78 +1,31 @@
 import express from 'express';
 import cors from 'cors';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-import { createLogger } from './middleware/logging';
-import { errorHandler } from './middleware/error-handler';
-
-// Routes
 import apiRoutes from './routes/index';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
 const app = express();
-const PORT = parseInt(process.env.PORT || '5000', 10);
-const logger = createLogger('SERVER');
+const PORT = 5000; // Backend sur port 5000, séparé du Vite sur port 3000
 
-// Configuration CORS optimisée
-const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://your-domain.com'] 
-    : ['http://localhost:3000', 'http://localhost:5173'],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-};
+// CORS pour permettre les requêtes du frontend Vite (port 3000)
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true
+}));
 
-// Middlewares globaux
-app.use(cors(corsOptions));
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Servir les fichiers statiques
-app.use('/images', express.static(path.join(__dirname, '../client/src/assets')));
-app.use(express.static(path.join(__dirname, '../dist/public')));
+// Middleware pour parsing JSON
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Routes API
 app.use('/api', apiRoutes);
 
-// Route pour servir l'app React
-app.get('*', (req, res) => {
-  const indexPath = path.join(__dirname, '../dist/public/index.html');
-  res.sendFile(indexPath, (err) => {
-    if (err) {
-      logger.error('Erreur lors du service du fichier index.html', { error: (err as Error).message });
-      res.status(500).send('Erreur serveur');
-    }
-  });
+// Route de santé
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', message: 'API Barista Café fonctionne' });
 });
 
-// Middleware de gestion d'erreurs (doit être en dernier)
-app.use(errorHandler);
-
-// Démarrage du serveur
-const server = app.listen(PORT, '0.0.0.0', () => {
-  logger.info(`🚀 Serveur Barista Café démarré sur le port ${PORT}`);
-  logger.info(`📊 Dashboard admin: http://localhost:${PORT}/admin`);
-  logger.info(`🔌 API disponible: http://localhost:${PORT}/api`);
-  logger.info(`📈 Analytics: http://localhost:${PORT}/api/analytics`);
-  logger.info(`🔧 Mode ${process.env.NODE_ENV || 'development'} activé`);
-
-  if (process.env.NODE_ENV === 'development') {
-    logger.info('📝 Logs détaillés activés');
-  }
-});
-
-// Configuration WebSocket
-import { setupWebSocket } from './websocket-server.js';
-setupWebSocket(server);
-
-// Gestion gracieuse de l'arrêt
-process.on('SIGTERM', () => {
-  logger.info('Signal SIGTERM reçu, arrêt du serveur...');
-  process.exit(0);
+app.listen(PORT, () => {
+  console.log(`🚀 API Barista Café démarrée sur http://localhost:${PORT}`);
+  console.log(`🔌 Routes API disponibles sur http://localhost:${PORT}/api`);
 });
 
 process.on('SIGINT', () => {
