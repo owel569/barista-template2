@@ -185,7 +185,7 @@ export default function UserProfileEnhanced(): JSX.Element {
   const permissions = usePermissions();
   const printRef = React.useRef<HTMLDivElement>(null);
   const { lastMessage } = useWebSocket('/ws/user-profiles');
-  
+
   // États locaux pour la gestion UI
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -201,7 +201,7 @@ export default function UserProfileEnhanced(): JSX.Element {
   const [isBulkAction, setIsBulkAction] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   const [isImporting, setIsImporting] = useState(false);
-  
+
   const usersPerPage = 12;
 
   // Effet pour les mises à jour en temps réel via WebSocket
@@ -462,9 +462,9 @@ export default function UserProfileEnhanced(): JSX.Element {
         user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.phone?.toLowerCase().includes(searchTerm.toLowerCase());
-      
+
       const matchesStatus = showInactive ? true : user.isActive;
-      
+
       return matchesSearch && matchesStatus;
     });
   }, [users, searchTerm, showInactive]);
@@ -552,7 +552,7 @@ export default function UserProfileEnhanced(): JSX.Element {
   // Gestion de la soumission des formulaires
   const onSubmitProfile = async (values: z.infer<typeof userProfileSchema>) => {
     if (!selectedUser) return;
-    
+
     await updateUserMutation.mutateAsync({
       id: selectedUser.id,
       updates: values
@@ -561,7 +561,7 @@ export default function UserProfileEnhanced(): JSX.Element {
 
   const onSubmitAddress = async (values: z.infer<typeof addressSchema>) => {
     if (!selectedUser) return;
-    
+
     if (editingAddress) {
       await updateAddressMutation.mutateAsync({
         addressId: editingAddress.id,
@@ -611,7 +611,7 @@ export default function UserProfileEnhanced(): JSX.Element {
             Gérez et analysez les profils de vos clients fidèles
           </p>
         </div>
-        
+
         <div className="flex flex-wrap gap-2">
           <Button 
             onClick={handleImport} 
@@ -621,7 +621,7 @@ export default function UserProfileEnhanced(): JSX.Element {
             <HardDriveDownload className="w-4 h-4 mr-2" />
             {isImporting ? 'Import...' : 'Importer'}
           </Button>
-          
+
           <Button 
             onClick={handleExportExcel} 
             variant="outline"
@@ -630,7 +630,7 @@ export default function UserProfileEnhanced(): JSX.Element {
             <HardDriveUpload className="w-4 h-4 mr-2" />
             {exporting ? 'Export...' : 'Exporter'}
           </Button>
-          
+
           {permissions.canCreate && (
             <Button onClick={() => {
               setSelectedUser(null);
@@ -659,7 +659,7 @@ export default function UserProfileEnhanced(): JSX.Element {
             />
           </div>
         </div>
-        
+
         <Select 
           value={sortBy} 
           onValueChange={(value) => {
@@ -677,7 +677,7 @@ export default function UserProfileEnhanced(): JSX.Element {
             <SelectItem value="totalSpent">Total dépensé</SelectItem>
           </SelectContent>
         </Select>
-        
+
         <Button
           variant={showInactive ? "default" : "outline"}
           onClick={() => setShowInactive(!showInactive)}
@@ -693,7 +693,7 @@ export default function UserProfileEnhanced(): JSX.Element {
           <div className="text-sm">
             {selectedUsers.length} {selectedUsers.length > 1 ? 'utilisateurs sélectionnés' : 'utilisateur sélectionné'}
           </div>
-          
+
           <Select defaultValue="actions">
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Actions" />
@@ -705,7 +705,7 @@ export default function UserProfileEnhanced(): JSX.Element {
               <SelectItem value="export">Exporter sélection</SelectItem>
             </SelectContent>
           </Select>
-          
+
           <Button 
             variant="outline"
             onClick={() => {
@@ -717,7 +717,7 @@ export default function UserProfileEnhanced(): JSX.Element {
           >
             Appliquer
           </Button>
-          
+
           <Button 
             variant="ghost" 
             onClick={() => {
@@ -743,7 +743,7 @@ export default function UserProfileEnhanced(): JSX.Element {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
@@ -755,7 +755,7 @@ export default function UserProfileEnhanced(): JSX.Element {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
@@ -763,13 +763,13 @@ export default function UserProfileEnhanced(): JSX.Element {
               <div>
                 <p className="text-sm font-medium">Points Moyens</p>
                 <p className="text-2xl font-bold">
-                  {Math.round(users.reduce((sum, u) => sum + (u.loyalty?.points || 0), 0) / users.length || 0}
+                  {Math.round(users.reduce((sum, u) => sum + (u.loyalty?.points || 0), 0) / users.length || 0)}
                 </p>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
@@ -821,7 +821,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                 )}
               </div>
             </CardHeader>
-            
+
             <CardContent className="pt-0">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -830,7 +830,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                     {user.loyalty?.level || 'Nouveau'}
                   </Badge>
                 </div>
-                
+
                 {user.loyalty?.nextLevelPoints && (
                   <div className="space-y-1">
                     <div className="flex justify-between text-xs text-muted-foreground">
@@ -843,17 +843,17 @@ export default function UserProfileEnhanced(): JSX.Element {
                     />
                   </div>
                 )}
-                
+
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">Total dépensé</span>
                   <span className="text-sm font-medium">{formatCurrency(user.loyalty?.totalSpent || 0)}</span>
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">Visites</span>
                   <span className="text-sm font-medium">{user.loyalty?.visitsCount || 0}</span>
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">Statut</span>
                   <Badge variant={user.isActive ? "default" : "secondary"}>
@@ -861,7 +861,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                   </Badge>
                 </div>
               </div>
-              
+
               <div className="flex space-x-1 mt-4">
                 <Button
                   size="sm"
@@ -914,11 +914,11 @@ export default function UserProfileEnhanced(): JSX.Element {
           >
             <ChevronLeft className="w-4 h-4" />
           </Button>
-          
+
           <span className="text-sm">
             Page {currentPage} sur {totalPages}
           </span>
-          
+
           <Button
             variant="outline"
             size="sm"
@@ -1401,7 +1401,7 @@ export default function UserProfileEnhanced(): JSX.Element {
               {selectedUser ? 'Modifier le profil' : 'Créer un nouveau profil'}
             </DialogTitle>
           </DialogHeader>
-          
+
           <Form {...profileForm}>
             <form onSubmit={profileForm.handleSubmit(onSubmitProfile)} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1418,7 +1418,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={profileForm.control}
                   name="lastName"
@@ -1432,7 +1432,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={profileForm.control}
                   name="email"
@@ -1446,7 +1446,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={profileForm.control}
                   name="phone"
@@ -1460,7 +1460,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={profileForm.control}
                   name="birthDate"
@@ -1475,7 +1475,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                   )}
                 />
               </div>
-              
+
               <div>
                 <h4 className="font-medium mb-4">Préférences</h4>
                 <div className="space-y-4">
@@ -1494,7 +1494,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={profileForm.control}
                     name="preferences.smsNotifications"
@@ -1510,7 +1510,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={profileForm.control}
                     name="preferences.promotionalEmails"
@@ -1528,7 +1528,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                   />
                 </div>
               </div>
-              
+
               <DialogFooter>
                 <Button 
                   variant="outline" 
@@ -1556,7 +1556,7 @@ export default function UserProfileEnhanced(): JSX.Element {
               {editingAddress ? 'Modifier l\'adresse' : 'Ajouter une adresse'}
             </DialogTitle>
           </DialogHeader>
-          
+
           <Form {...addressForm}>
             <form onSubmit={addressForm.handleSubmit(onSubmitAddress)} className="space-y-4">
               <FormField
@@ -1581,7 +1581,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={addressForm.control}
                 name="street"
@@ -1595,7 +1595,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                   </FormItem>
                 )}
               />
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={addressForm.control}
@@ -1610,7 +1610,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={addressForm.control}
                   name="city"
@@ -1625,7 +1625,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                   )}
                 />
               </div>
-              
+
               <FormField
                 control={addressForm.control}
                 name="country"
@@ -1639,7 +1639,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={addressForm.control}
                 name="isDefault"
@@ -1655,7 +1655,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                   </FormItem>
                 )}
               />
-              
+
               <DialogFooter>
                 <Button 
                   variant="outline" 

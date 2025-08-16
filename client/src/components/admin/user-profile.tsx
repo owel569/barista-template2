@@ -719,3 +719,5 @@ export default function UserProfile() : JSX.Element {
     </div>
   );
 }
+// Export de la version optimisée du profil utilisateur
+export { default } from './user-profile-enhanced-optimized';
