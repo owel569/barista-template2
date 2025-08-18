@@ -1,97 +1,71 @@
-
 import express from 'express';
-import cors from 'cors';
 import { createServer as createViteServer } from 'vite';
-import apiRoutes from './routes/index';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import apiRoutes from './routes/index';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const PORT = process.env.PORT || 3000; // Replit utilise process.env.PORT
+const HOST = '0.0.0.0'; // Nécessaire pour Replit
 
 async function startServer() {
   const app = express();
-  const PORT = parseInt(process.env.PORT || '5000'); // Port unique pour tout
 
-  // CORS configuration simplifiée
-  app.use(cors({
-    origin: '*',
-    credentials: true
-  }));
-
-  // Middlewares de base
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
-
-  // Routes API - prioritaires
-  app.use('/api', apiRoutes);
-
-  // Route de santé
-  app.get('/health', (req, res) => {
-    res.json({ 
-      status: 'OK', 
-      message: 'API Barista Café fonctionne',
-      port: PORT,
-      mode: process.env.NODE_ENV || 'development'
-    });
-  });
-
-  // Configuration Vite selon l'environnement
+  // Middleware CORS seulement en développement
   if (process.env.NODE_ENV !== 'production') {
-    // En développement : Vite en mode middleware
+    const cors = await import('cors');
+    app.use(cors.default({ origin: '*' }));
+  }
+
+  // Configuration Vite en développement
+  if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { 
         middlewareMode: true,
         hmr: {
-          port: PORT,
-          protocol: 'ws'
+          port: 443, // Port WebSocket spécial pour Replit
+          clientPort: 443
         }
       },
-      root: path.join(__dirname, '../client'),
+      root: path.resolve(__dirname, '../client'),
       appType: 'spa'
     });
-
-    // Middleware Vite pour toutes les routes non-API
-    app.use('*', (req, res, next) => {
-      // Laisser passer les routes API et health
-      if (req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/health')) {
-        return next();
-      }
-      
-      // Déléguer à Vite pour le frontend
-      vite.middlewares(req, res, next);
-    });
-
+    app.use(vite.middlewares);
   } else {
-    // En production : servir les fichiers statiques
-    app.use(express.static(path.join(__dirname, '../client/dist')));
-    
-    // Gestion des routes frontend pour SPA
-    app.get('*', (req, res) => {
-      // Éviter de servir l'index pour les routes API
-      if (req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/health')) {
-        return res.status(404).json({ error: 'Route API non trouvée' });
-      }
-      res.sendFile(path.join(__dirname, '../client/dist/index.html'));
-    });
+    app.use(express.static(path.resolve(__dirname, '../client/dist')));
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`✅ Base de données connectée avec succès`);
-    console.log(`🚀 Serveur Barista Café démarré sur http://0.0.0.0:${PORT}`);
-    console.log(`🔌 Routes API disponibles sur http://0.0.0.0:${PORT}/api`);
-    console.log(`📱 Frontend disponible sur http://0.0.0.0:${PORT}`);
+  // Routes API
+  app.use('/api', apiRoutes);
+
+  // Route de santé
+  app.get('/health', (req, res) => {
+    res.json({ status: 'OK', timestamp: new Date() });
+  });
+
+  // Gestion des routes frontend
+  app.get('*', async (req, res) => {
     if (process.env.NODE_ENV !== 'production') {
-      console.log(`🔄 Hot Module Replacement (HMR) intégré`);
+      const vite = await createViteServer({
+        server: { middlewareMode: true },
+        root: path.resolve(__dirname, '../client'),
+        appType: 'spa'
+      });
+      const html = await vite.transformIndexHtml(
+        req.url,
+        '<div id="root"></div><script type="module" src="/src/main.tsx"></script>'
+      );
+      res.send(html);
+    } else {
+      res.sendFile(path.resolve(__dirname, '../client/dist/index.html'));
     }
+  });
+
+  app.listen(PORT, HOST, () => {
+    console.log(`🚀 Serveur démarré sur http://${HOST}:${PORT}`);
+    console.log(`⚡ API disponible sur http://${HOST}:${PORT}/api`);
   });
 }
 
 startServer().catch(err => {
   console.error('Erreur démarrage serveur:', err);
   process.exit(1);
-});
-
-process.on('SIGINT', () => {
-  console.log('Signal SIGINT reçu, arrêt du serveur...');
-  process.exit(0);
 });
