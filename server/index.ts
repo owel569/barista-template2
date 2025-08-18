@@ -1,3 +1,4 @@
+
 import express from 'express';
 import cors from 'cors';
 import { createServer as createViteServer } from 'vite';
@@ -9,16 +10,15 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 async function startServer() {
   const app = express();
-  const SERVER_PORT = parseInt(process.env.PORT || '5000'); // Port serveur Express
-  const VITE_PORT = 3000; // Port Vite séparé
+  const PORT = parseInt(process.env.PORT || '5000'); // Port unique pour tout
 
-  // CORS configuration pour permettre les requêtes cross-origin
+  // CORS configuration simplifiée
   app.use(cors({
-    origin: [`http://localhost:${VITE_PORT}`, `http://0.0.0.0:${VITE_PORT}`],
+    origin: '*',
     credentials: true
   }));
 
-  // Middleware
+  // Middlewares de base
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
@@ -30,26 +30,29 @@ async function startServer() {
     res.json({ 
       status: 'OK', 
       message: 'API Barista Café fonctionne',
-      port: SERVER_PORT,
-      vitePort: VITE_PORT
+      port: PORT,
+      mode: process.env.NODE_ENV || 'development'
     });
   });
 
-  // En mode développement : proxy vers Vite
+  // Configuration Vite selon l'environnement
   if (process.env.NODE_ENV !== 'production') {
-    // Création du serveur Vite en mode middleware
+    // En développement : Vite en mode middleware
     const vite = await createViteServer({
       server: { 
         middlewareMode: true,
-        hmr: { port: 3001 } // Port HMR séparé
+        hmr: {
+          port: PORT,
+          protocol: 'ws'
+        }
       },
       root: path.join(__dirname, '../client'),
       appType: 'spa'
     });
 
-    // Utilisation des middlewares Vite pour les routes non-API
+    // Middleware Vite pour toutes les routes non-API
     app.use('*', (req, res, next) => {
-      // Laisser passer les routes API
+      // Laisser passer les routes API et health
       if (req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/health')) {
         return next();
       }
@@ -57,11 +60,14 @@ async function startServer() {
       // Déléguer à Vite pour le frontend
       vite.middlewares(req, res, next);
     });
+
   } else {
     // En production : servir les fichiers statiques
     app.use(express.static(path.join(__dirname, '../client/dist')));
     
+    // Gestion des routes frontend pour SPA
     app.get('*', (req, res) => {
+      // Éviter de servir l'index pour les routes API
       if (req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/health')) {
         return res.status(404).json({ error: 'Route API non trouvée' });
       }
@@ -69,13 +75,13 @@ async function startServer() {
     });
   }
 
-  app.listen(SERVER_PORT, '0.0.0.0', () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`✅ Base de données connectée avec succès`);
-    console.log(`🚀 Serveur Express démarré sur http://0.0.0.0:${SERVER_PORT}`);
-    console.log(`🔌 Routes API disponibles sur http://0.0.0.0:${SERVER_PORT}/api`);
+    console.log(`🚀 Serveur Barista Café démarré sur http://0.0.0.0:${PORT}`);
+    console.log(`🔌 Routes API disponibles sur http://0.0.0.0:${PORT}/api`);
+    console.log(`📱 Frontend disponible sur http://0.0.0.0:${PORT}`);
     if (process.env.NODE_ENV !== 'production') {
-      console.log(`📱 Frontend Vite disponible sur http://0.0.0.0:${VITE_PORT}`);
-      console.log(`🔄 Hot Module Replacement (HMR) sur le port 3001`);
+      console.log(`🔄 Hot Module Replacement (HMR) intégré`);
     }
   });
 }
