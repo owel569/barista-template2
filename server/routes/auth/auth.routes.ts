@@ -1,10 +1,11 @@
 import { Router } from 'express';
 import { authenticateUser, generateToken, hashPassword, comparePassword } from '../../middleware/auth';
+import { validateBody, rateLimiter, LoginSchema, RegisterSchema } from '../../middleware/security';
 
 const router = Router();
 
-// Connexion
-router.post('/login', async (req, res) => {
+// Connexion - Rate limiting appliqué pour éviter les attaques par force brute
+router.post('/login', rateLimiter(5, 15 * 60 * 1000), validateBody(LoginSchema), async (req, res) => {
   try {
     const { username, password } = req.body;
     
@@ -23,8 +24,10 @@ router.post('/login', async (req, res) => {
       res.json({
         success: true,
         message: 'Connexion réussie',
-        token,
-        user
+        data: {
+          token,
+          user
+        }
       });
     } else {
       res.status(401).json({
@@ -40,8 +43,8 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Inscription
-router.post('/register', async (req, res) => {
+// Inscription - Rate limiting pour éviter le spam
+router.post('/register', rateLimiter(3, 60 * 60 * 1000), validateBody(RegisterSchema), async (req, res) => {
   try {
     const { username, password, email } = req.body;
     

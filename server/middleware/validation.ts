@@ -75,7 +75,8 @@ export const validateQuery = <T>(schema: z.ZodSchema<T>) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     try {
       const validatedData = schema.parse(req.query);
-      req.query = validatedData;
+      // Type assertion car Express query est toujours string-based
+      (req.query as any) = validatedData;
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -96,7 +97,8 @@ export const validateParams = <T>(schema: z.ZodSchema<T>) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     try {
       const validatedData = schema.parse(req.params);
-      req.params = validatedData;
+      // Type assertion car Express params sont toujours string-based
+      (req.params as any) = validatedData;
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {

@@ -1,9 +1,33 @@
 import { Router } from 'express';
+import { requireRoleHierarchy } from '../../middleware/security';
+import { validateBody } from '../../middleware/validation';
+import { z } from 'zod';
 
 const router = Router();
 
-// Configuration du restaurant
-router.get('/settings', async (req, res) => {
+// Schémas de validation pour l'admin
+const SettingsSchema = z.object({
+  restaurantName: z.string().min(1).max(100),
+  address: z.string().min(1).max(200),
+  phone: z.string().regex(/^(\+33|0)[1-9](\d{8})$/),
+  email: z.string().email(),
+  openingHours: z.record(z.object({
+    open: z.string().regex(/^\d{2}:\d{2}$/),
+    close: z.string().regex(/^\d{2}:\d{2}$/)
+  })),
+  taxRate: z.number().min(0).max(100),
+  currency: z.string().length(3)
+});
+
+const UserCreateSchema = z.object({
+  username: z.string().min(3).max(50),
+  email: z.string().email(),
+  password: z.string().min(8).max(100),
+  role: z.enum(['employee', 'manager', 'admin'])
+});
+
+// Configuration du restaurant - Seuls les managers+ peuvent voir
+router.get('/settings', requireRoleHierarchy('manager'), async (req, res) => {
   try {
     // TODO: Récupérer depuis la base de données
     const settings = {
@@ -36,8 +60,8 @@ router.get('/settings', async (req, res) => {
   }
 });
 
-// Mettre à jour la configuration
-router.put('/settings', async (req, res) => {
+// Mettre à jour la configuration - Seuls les admins peuvent modifier
+router.put('/settings', requireRoleHierarchy('admin'), validateBody(SettingsSchema), async (req, res) => {
   try {
     const settings = req.body;
     
@@ -55,8 +79,8 @@ router.put('/settings', async (req, res) => {
   }
 });
 
-// Gestion des utilisateurs
-router.post('/users', async (req, res) => {
+// Gestion des utilisateurs - Seuls les admins peuvent créer des utilisateurs
+router.post('/users', requireRoleHierarchy('admin'), validateBody(UserCreateSchema), async (req, res) => {
   try {
     const { username, email, password, role } = req.body;
     

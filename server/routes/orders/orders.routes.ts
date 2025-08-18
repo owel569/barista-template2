@@ -1,9 +1,23 @@
 import { Router } from 'express';
+import { requireRoleHierarchy, OrderSchema } from '../../middleware/security';
+import { validateBody } from '../../middleware/validation';
+import { z } from 'zod';
 
 const router = Router();
 
-// Récupérer toutes les commandes
-router.get('/', async (req, res) => {
+// Schémas de validation spécifiques aux commandes
+const OrderStatusSchema = z.object({
+  status: z.enum(['en_attente', 'en_preparation', 'pret', 'livre', 'annule'])
+});
+
+const OrderQuerySchema = z.object({
+  status: z.enum(['en_attente', 'en_preparation', 'pret', 'livre', 'annule']).optional(),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  limit: z.string().regex(/^\d+$/).transform(val => parseInt(val)).optional()
+});
+
+// Récupérer toutes les commandes - Employees+ peuvent voir
+router.get('/', requireRoleHierarchy('employee'), async (req, res) => {
   try {
     // TODO: Récupérer depuis la base de données
     const orders = [
@@ -32,8 +46,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Créer une nouvelle commande
-router.post('/', async (req, res) => {
+// Créer une nouvelle commande - Validation stricte des données
+router.post('/', validateBody(OrderSchema), async (req, res) => {
   try {
     const { customerName, items, notes } = req.body;
     
@@ -67,8 +81,8 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Mettre à jour le statut d'une commande
-router.patch('/:id/status', async (req, res) => {
+// Mettre à jour le statut d'une commande - Seuls employees+ peuvent modifier
+router.patch('/:id/status', requireRoleHierarchy('employee'), validateBody(OrderStatusSchema), async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
@@ -87,8 +101,8 @@ router.patch('/:id/status', async (req, res) => {
   }
 });
 
-// Récupérer une commande spécifique
-router.get('/:id', async (req, res) => {
+// Récupérer une commande spécifique - Employees+ peuvent consulter
+router.get('/:id', requireRoleHierarchy('employee'), async (req, res) => {
   try {
     const { id } = req.params;
     

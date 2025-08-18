@@ -1,4 +1,18 @@
 import { Router } from 'express';
+import { requireRoleHierarchy } from '../../middleware/security';
+import { validateBody } from '../../middleware/validation';
+import { z } from 'zod';
+
+// Schémas de validation pour le menu
+const MenuItemSchema = z.object({
+  name: z.string().min(1).max(100),
+  description: z.string().min(1).max(500),
+  price: z.number().positive().max(1000),
+  category: z.string().min(1).max(50),
+  available: z.boolean().optional()
+});
+
+const MenuItemUpdateSchema = MenuItemSchema.partial();
 
 const router = Router();
 
@@ -72,8 +86,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Ajouter un article au menu (admin uniquement)
-router.post('/', async (req, res) => {
+// Ajouter un article au menu - Seuls les managers+ peuvent ajouter
+router.post('/', requireRoleHierarchy('manager'), validateBody(MenuItemSchema), async (req, res) => {
   try {
     const { name, description, price, category } = req.body;
     
@@ -100,8 +114,8 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Mettre à jour un article du menu
-router.put('/:id', async (req, res) => {
+// Mettre à jour un article du menu - Seuls les managers+ peuvent modifier
+router.put('/:id', requireRoleHierarchy('manager'), validateBody(MenuItemUpdateSchema), async (req, res) => {
   try {
     const { id } = req.params;
     const updates = req.body;
@@ -120,8 +134,8 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Supprimer un article du menu
-router.delete('/:id', async (req, res) => {
+// Supprimer un article du menu - Seuls les admins peuvent supprimer
+router.delete('/:id', requireRoleHierarchy('admin'), async (req, res) => {
   try {
     const { id } = req.params;
     
