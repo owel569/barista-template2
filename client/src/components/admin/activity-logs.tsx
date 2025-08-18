@@ -52,6 +52,7 @@ import {
   Plus,
   Minus
 } from 'lucide-react';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -69,7 +70,7 @@ interface ActivityLog {
   severity: 'info' | 'warning' | 'error' | 'success';
   ipAddress: string;
   userAgent?: string;
-  metadata?: Record<string, unknown>;
+  metadata?: Record<string, any>;
   affectedResource?: string;
   previousValue?: string;
   newValue?: string;
@@ -125,8 +126,8 @@ export default function ActivityLogs(): JSX.Element {
   const [isRealTimeEnabled, setIsRealTimeEnabled] = useState(true);
   
   const [filters, setFilters] = useState<ActivityFilter>({
-    category: 'all',
-    severity: 'all',
+    category: 'all' as ActivityCategory | 'all',
+    severity: 'all' as ActivityLog['severity'] | 'all',
     userId: '',
     dateRange: {
       start: subDays(new Date(), 7),
@@ -338,7 +339,7 @@ export default function ActivityLogs(): JSX.Element {
     }
   }, [logs, toast]);
 
-  const getSeverityBadgeVariant = (severity: ActivityLog['severity']) => {
+  const getSeverityBadgeVariant = (severity: ActivityLog['severity']): "default" | "destructive" | "outline" | "secondary" => {
     switch (severity) {
       case 'success': return 'default';
       case 'info': return 'secondary';
