@@ -30,12 +30,25 @@ async function createServer() {
   app.use('*', async (req, res) => {
     try {
       const url = req.originalUrl;
-      if (url.startsWith('/api')) return res.status(404).send('Not found');
+      if (url.startsWith('/api')) {
+        return res.status(404).send('Not found');
+      }
 
-      const html = await vite.transformIndexHtml(
-        url,
-        '<div id="root"></div>'
-      );
+      const template = `
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>Restaurant App</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+      `;
+      const html = await vite.transformIndexHtml(url, template);
       res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
     } catch (e) {
       vite.ssrFixStacktrace(e as Error);
