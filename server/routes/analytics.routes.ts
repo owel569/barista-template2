@@ -1,4 +1,3 @@
-
 import { Router } from 'express';
 import { z } from 'zod';
 import { asyncHandler } from '../middleware/error-handler';
@@ -6,8 +5,9 @@ import { createLogger } from '../middleware/logging';
 import { authenticateUser, requireRoles } from '../middleware/auth';
 import { validateBody, validateParams, validateQuery } from '../middleware/validation';
 import { getDb } from '../db';
-import { orders, customers, menuItems } from '../../shared/schema';
-import { eq, and, gte, lte, desc, sql, count, sum } from 'drizzle-orm';
+import { orders, customers, menuItems, orderItems } from '../../shared/schema';
+import { and, between, count, desc, eq, gte, lte, sql, sum } from 'drizzle-orm';
+import { addDays, addMonths, addWeeks, addYears, format, startOfDay, startOfMonth, startOfWeek, startOfYear, subDays } from 'date-fns';
 
 const router = Router();
 const logger = createLogger('ANALYTICS');
@@ -16,14 +16,20 @@ const logger = createLogger('ANALYTICS');
 // TYPES ET INTERFACES
 // ==========================================
 
-export interface AnalyticsPeriod {
-  startDate: string;
-  endDate: string;
-  period: 'day' | 'week' | 'month' | 'year';
+interface AnalyticsPeriod {
+  startDate: Date;
+  endDate: Date;
+  period: 'day' | 'week' | 'month' | 'year' | 'custom';
 }
 
-export interface CustomerBehavior {
-  peakHours: string[];
+interface TimePeriod {
+  label: string;
+  start: Date;
+  end: Date;
+}
+
+interface CustomerBehavior {
+  peakHours: TimePeriod[];
   averageStayTime: number;
   repeatCustomerRate: number;
   seasonalTrends: Record<string, number>;
@@ -34,8 +40,9 @@ export interface CustomerBehavior {
   };
 }
 
-export interface ProductPerformance {
+interface ProductPerformance {
   topSellers: Array<{
+    id: string;
     name: string;
     sales: number;
     revenue: number;
@@ -49,23 +56,26 @@ export interface ProductPerformance {
   }>;
 }
 
-export interface AIInsights {
-  recommendations: string[];
-  predictions: {
-    tomorrowRevenue: number;
-    weeklyGrowth: number;
-    customerInflux: string;
-    riskFactors: string[];
-  };
-  anomalies: Array<{
-    type: 'sales' | 'inventory' | 'staffing';
-    description: string;
-    severity: 'low' | 'medium' | 'high';
-    suggestedAction: string;
-  }>;
+interface AIInsight {
+  type: 'sales' | 'inventory' | 'staffing' | 'customer' | 'marketing';
+  description: string;
+  severity: 'low' | 'medium' | 'high';
+  suggestedAction: string;
+  confidence?: number;
 }
 
-export interface TrendData {
+interface AIInsights {
+  recommendations: string[];
+  predictions: {
+    revenue: number;
+    customerCount: number;
+    bestSellingProduct: string;
+  };
+  anomalies: AIInsight[];
+  opportunities: AIInsight[];
+}
+
+interface TrendData {
   trend: 'upward' | 'downward' | 'stable';
   percentage: number;
   period: string;
@@ -76,7 +86,7 @@ export interface TrendData {
   }>;
 }
 
-export interface CustomerSegment {
+interface CustomerSegment {
   id: string;
   name: string;
   description: string;
@@ -85,22 +95,29 @@ export interface CustomerSegment {
   frequency: number;
   lifetimeValue: number;
   characteristics: string[];
+  lastPurchase?: Date;
 }
 
-export interface RevenueAnalytics {
+interface RevenueAnalytics {
   totalRevenue: number;
   averageOrderValue: number;
   revenueByPeriod: Array<{
     period: string;
     revenue: number;
     orders: number;
+    average: number;
   }>;
   topProducts: Array<{
+    id: string;
     name: string;
     revenue: number;
     quantity: number;
   }>;
-  paymentMethods: Record<string, number>;
+  paymentMethods: Record<string, {
+    count: number;
+    percentage: number;
+    average: number;
+  }>;
 }
 
 // ==========================================
@@ -108,17 +125,18 @@ export interface RevenueAnalytics {
 // ==========================================
 
 const AnalyticsQuerySchema = z.object({
-  startDate: z.string()}).datetime().optional(),
+  startDate: z.string().datetime().optional(),
   endDate: z.string().datetime().optional(),
-  period: z.enum(['day', 'week', 'month', 'year']).default('month'),
-  groupBy: z.enum(['hour', 'day', 'week', 'month']).optional(),
+  period: z.enum(['day', 'week', 'month', 'year', 'custom']).default('month'),
+  groupBy: z.enum(['hour', 'day', 'week', 'month', 'year']).optional(),
   filters: z.record(z.unknown()).optional()
 });
 
 const CustomerSegmentQuerySchema = z.object({
-  minSpend: z.coerce.number()}).min(0).optional(),
+  minSpend: z.coerce.number().min(0).optional(),
   maxSpend: z.coerce.number().min(0).optional(),
-  frequency: z.coerce.number().min(0).optional()
+  frequency: z.coerce.number().min(0).optional(),
+  lastPurchaseDays: z.coerce.number().min(0).optional()
 });
 
 // ==========================================
@@ -127,7 +145,7 @@ const CustomerSegmentQuerySchema = z.object({
 
 class AnalyticsService {
   /**
-   * Calcule la période d'analyse
+   * Calcule la période d'analyse avec gestion des fuseaux horaires
    */
   static calculatePeriod(period: string, startDate?: string, endDate?: string): AnalyticsPeriod {
     const now = new Date();
@@ -137,257 +155,463 @@ class AnalyticsService {
     if (startDate && endDate) {
       start = new Date(startDate);
       end = new Date(endDate);
-    } else {
-      switch (period) {
-        case 'day':
-          start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-          break;
-        case 'week':
-          const dayOfWeek = now.getDay();
-          const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-          start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - daysToSubtract);
-          break;
-        case 'month':
-          start = new Date(now.getFullYear(), now.getMonth(), 1);
-          break;
-        case 'year':
-          start = new Date(now.getFullYear(), 0, 1);
-          break;
-        default:
-          start = new Date(now.getFullYear(), now.getMonth(), 1);
-      }
+      return { startDate: start, endDate: end, period: 'custom' };
     }
 
+    switch (period) {
+      case 'day':
+        start = startOfDay(now);
+        break;
+      case 'week':
+        start = startOfWeek(now);
+        break;
+      case 'month':
+        start = startOfMonth(now);
+        break;
+      case 'year':
+        start = startOfYear(now);
+        break;
+      default:
+        start = startOfMonth(now);
+    }
+
+    return { startDate: start, endDate: end, period: period as 'day' | 'week' | 'month' | 'year' | 'custom' };
+  }
+
+  /**
+   * Formate les données pour les graphiques
+   */
+  static formatChartData(data: any[], groupBy: string = 'day') {
+    return data.map(item => {
+      const date = new Date(item.date || item.createdAt);
+      let periodLabel: string;
+
+      switch (groupBy) {
+        case 'hour':
+          periodLabel = format(date, 'HH:mm');
+          break;
+        case 'week':
+          periodLabel = `Semaine ${format(date, 'ww')}`;
+          break;
+        case 'month':
+          periodLabel = format(date, 'MMMM', { locale: { code: 'fr' } });
+          break;
+        case 'year':
+          periodLabel = format(date, 'yyyy');
+          break;
+        default:
+          periodLabel = format(date, 'dd/MM');
+      }
+
+      return {
+        ...item,
+        period: periodLabel,
+        date: date.toISOString()
+      };
+    });
+  }
+
+  /**
+   * Récupère les données de revenus depuis la base de données
+   */
+  static async getRevenueAnalytics(period: AnalyticsPeriod): Promise<RevenueAnalytics> {
+    const db = await getDb();
+
+    // Requête pour le revenu total et la valeur moyenne des commandes
+    const revenueResult = await db.select({
+      totalRevenue: sum(orders.totalAmount),
+      orderCount: count(orders.id),
+      averageOrderValue: sql<number>`COALESCE(${sum(orders.totalAmount)} / NULLIF(${count(orders.id)}, 0), 0)`
+    })
+    .from(orders)
+    .where(
+      and(
+        gte(orders.createdAt, period.startDate),
+        lte(orders.createdAt, period.endDate),
+        eq(orders.status, 'completed')
+      )
+    );
+
+    const { totalRevenue = 0, orderCount = 0, averageOrderValue = 0 } = revenueResult[0] || {};
+
+    // Requête pour les revenus par période (jour/semaine/mois)
+    let groupByClause;
+    switch (period.period) {
+      case 'day':
+        groupByClause = sql`DATE_TRUNC('hour', ${orders.createdAt})`;
+        break;
+      case 'week':
+        groupByClause = sql`DATE_TRUNC('day', ${orders.createdAt})`;
+        break;
+      case 'month':
+        groupByClause = sql`DATE_TRUNC('week', ${orders.createdAt})`;
+        break;
+      case 'year':
+        groupByClause = sql`DATE_TRUNC('month', ${orders.createdAt})`;
+        break;
+      default:
+        groupByClause = sql`DATE_TRUNC('day', ${orders.createdAt})`;
+    }
+
+    const revenueByPeriod = await db.select({
+      period: groupByClause,
+      revenue: sum(orders.totalAmount),
+      orderCount: count(orders.id),
+      average: sql<number>`COALESCE(${sum(orders.totalAmount)} / NULLIF(${count(orders.id)}, 0), 0)`
+    })
+    .from(orders)
+    .where(
+      and(
+        gte(orders.createdAt, period.startDate),
+        lte(orders.createdAt, period.endDate),
+        eq(orders.status, 'completed')
+      )
+    )
+    .groupBy(groupByClause)
+    .orderBy(groupByClause);
+
+    // Requête pour les produits les plus vendus
+    const topProducts = await db.select({
+      id: menuItems.id,
+      name: menuItems.name,
+      revenue: sum(sql<number>`${orderItems.quantity} * ${orderItems.price}`),
+      quantity: sum(orderItems.quantity)
+    })
+    .from(orderItems)
+    .innerJoin(orders, eq(orderItems.orderId, orders.id))
+    .innerJoin(menuItems, eq(orderItems.menuItemId, menuItems.id))
+    .where(
+      and(
+        gte(orders.createdAt, period.startDate),
+        lte(orders.createdAt, period.endDate),
+        eq(orders.status, 'completed')
+      )
+    )
+    .groupBy(menuItems.id, menuItems.name)
+    .orderBy(desc(sum(sql<number>`${orderItems.quantity} * ${orderItems.price}`)))
+    .limit(5);
+
+    // Requête pour les méthodes de paiement
+    const paymentMethods = await db.select({
+      method: orders.paymentMethod,
+      count: count(orders.id),
+      total: sum(orders.totalAmount),
+      average: sql<number>`COALESCE(${sum(orders.totalAmount)} / NULLIF(${count(orders.id)}, 0), 0)`
+    })
+    .from(orders)
+    .where(
+      and(
+        gte(orders.createdAt, period.startDate),
+        lte(orders.createdAt, period.endDate),
+        eq(orders.status, 'completed')
+      )
+    )
+    .groupBy(orders.paymentMethod);
+
+    const paymentMethodsSummary = paymentMethods.reduce((acc, item) => {
+      acc[item.method] = {
+        count: item.count,
+        percentage: orderCount > 0 ? (item.count / orderCount) * 100 : 0,
+        average: item.average
+      };
+      return acc;
+    }, {} as Record<string, { count: number; percentage: number; average: number }>);
+
     return {
-      startDate: start.toISOString(),
-      endDate: end.toISOString(),
-      period: period as 'day' | 'week' | 'month' | 'year'
+      totalRevenue: Number(totalRevenue) || 0,
+      averageOrderValue: Number(averageOrderValue) || 0,
+      revenueByPeriod: revenueByPeriod.map(item => ({
+        period: format(new Date(item.period), period.period === 'day' ? 'HH:mm' : 'dd/MM'),
+        revenue: Number(item.revenue) || 0,
+        orders: item.orderCount,
+        average: Number(item.average) || 0
+      })),
+      topProducts: topProducts.map(item => ({
+        id: item.id,
+        name: item.name,
+        revenue: Number(item.revenue) || 0,
+        quantity: Number(item.quantity) || 0
+      })),
+      paymentMethods: paymentMethodsSummary
     };
   }
 
   /**
-   * Génère des données de tendance
+   * Analyse le comportement des clients
    */
-  static generateTrendData(type: string, days: number = 30): Array<{ date: string; value: number; change: number }> {
-    const data: Array<{ date: string; value: number; change: number }> = [];
-    const now = new Date();
-    
-    for (let i = days - 1; i >= 0; i--) {
-      const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
-      const baseValue = type === 'revenue' ? 2500 : type === 'customers' ? 150 : 45;
-      const randomFactor = 0.8 + Math.random() * 0.4; // ±20% variation
-      const value = Math.round(baseValue * randomFactor);
-      
-      const dateString = date.toISOString().split('T')[0];
-      if (dateString) {
-        data.push({
-          date: dateString,
-          value,
-          change: data.length > 0 ? Math.round((value - data[data.length - 1].value}) / data[data.length - 1].value * 100) : 0
-        });
+  static async analyzeCustomerBehavior(period: AnalyticsPeriod): Promise<CustomerBehavior> {
+    const db = await getDb();
+
+    // Heures d'affluence
+    const peakHours = await db.select({
+      hour: sql<string>`TO_CHAR(${orders.createdAt}, 'HH24')`,
+      count: count(orders.id)
+    })
+    .from(orders)
+    .where(
+      and(
+        gte(orders.createdAt, period.startDate),
+        lte(orders.createdAt, period.endDate)
+      )
+    )
+    .groupBy(sql`TO_CHAR(${orders.createdAt}, 'HH24')`)
+    .orderBy(desc(count(orders.id)))
+    .limit(3);
+
+    // Taux de clients récurrents
+    const repeatCustomers = await db.select({
+      repeatCount: count(customers.id)
+    })
+    .from(customers)
+    .where(
+      sql`${customers.id} IN (
+        SELECT customer_id FROM orders 
+        WHERE ${and(
+          gte(orders.createdAt, period.startDate),
+          lte(orders.createdAt, period.endDate)
+        )}
+        GROUP BY customer_id 
+        HAVING COUNT(*) > 1
+      )`
+    );
+
+    const totalCustomers = await db.select({
+      totalCount: count(customers.id)
+    })
+    .from(customers)
+    .where(
+      sql`${customers.id} IN (
+        SELECT customer_id FROM orders 
+        WHERE ${and(
+          gte(orders.createdAt, period.startDate),
+          lte(orders.createdAt, period.endDate)
+        )}
+      )`
+    );
+
+    const repeatCustomerRate = totalCustomers[0]?.totalCount 
+      ? (repeatCustomers[0]?.repeatCount || 0) / totalCustomers[0].totalCount * 100 
+      : 0;
+
+    // Démographiques (exemple simplifié)
+    const demographics = await db.select({
+      ageGroup: sql<string>`CASE
+        WHEN EXTRACT(YEAR FROM AGE(${customers.birthDate})) < 25 THEN '18-25'
+        WHEN EXTRACT(YEAR FROM AGE(${customers.birthDate})) < 35 THEN '26-35'
+        WHEN EXTRACT(YEAR FROM AGE(${customers.birthDate})) < 45 THEN '36-45'
+        ELSE '46+'
+      END`,
+      gender: customers.gender,
+      location: sql<string>`CASE
+        WHEN ${customers.postalCode} LIKE '75%' THEN 'Paris'
+        WHEN ${customers.postalCode} LIKE '92%' THEN 'Hauts-de-Seine'
+        ELSE 'Autre'
+      END`,
+      count: count(customers.id)
+    })
+    .from(customers)
+    .where(
+      sql`${customers.id} IN (
+        SELECT customer_id FROM orders 
+        WHERE ${and(
+          gte(orders.createdAt, period.startDate),
+          lte(orders.createdAt, period.endDate)
+        )}
+      )`
+    )
+    .groupBy(sql`CASE
+      WHEN EXTRACT(YEAR FROM AGE(${customers.birthDate})) < 25 THEN '18-25'
+      WHEN EXTRACT(YEAR FROM AGE(${customers.birthDate})) < 35 THEN '26-35'
+      WHEN EXTRACT(YEAR FROM AGE(${customers.birthDate})) < 45 THEN '36-45'
+      ELSE '46+'
+    END`, customers.gender, sql`CASE
+      WHEN ${customers.postalCode} LIKE '75%' THEN 'Paris'
+      WHEN ${customers.postalCode} LIKE '92%' THEN 'Hauts-de-Seine'
+      ELSE 'Autre'
+    END`);
+
+    const ageGroups = demographics.reduce((acc, item) => {
+      acc[item.ageGroup] = (acc[item.ageGroup] || 0) + item.count;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const genderDistribution = demographics.reduce((acc, item) => {
+      acc[item.gender] = (acc[item.gender] || 0) + item.count;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const locationData = demographics.reduce((acc, item) => {
+      acc[item.location] = (acc[item.location] || 0) + item.count;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return {
+      peakHours: peakHours.map(item => ({
+        label: `${item.hour}:00-${Number(item.hour) + 1}:00`,
+        start: new Date(`1970-01-01T${item.hour}:00:00`),
+        end: new Date(`1970-01-01T${Number(item.hour) + 1}:00:00`)
+      })),
+      averageStayTime: 45, // Valeur simulée - à implémenter avec des données réelles
+      repeatCustomerRate,
+      seasonalTrends: {
+        spring: 85,
+        summer: 92,
+        autumn: 78,
+        winter: 71
+      },
+      demographics: {
+        ageGroups,
+        genderDistribution,
+        locationData
       }
-    }
-    
-    return data;
+    };
   }
 
   /**
-   * Génère des insights IA
+   * Génère des insights IA basés sur les données
    */
-  static generateAIInsights(data: { revenue?: number; orders?: number }): AIInsights {
-    const revenue = data?.revenue || 2500;
-    
+  static async generateAIInsights(period: AnalyticsPeriod): Promise<AIInsights> {
+    const db = await getDb();
+
+    // Analyse des tendances
+    const currentRevenue = await db.select({
+      total: sum(orders.totalAmount)
+    })
+    .from(orders)
+    .where(
+      and(
+        gte(orders.createdAt, period.startDate),
+        lte(orders.createdAt, period.endDate),
+        eq(orders.status, 'completed')
+      )
+    );
+
+    const previousPeriodStart = this.getPreviousPeriodStart(period);
+    const previousRevenue = await db.select({
+      total: sum(orders.totalAmount)
+    })
+    .from(orders)
+    .where(
+      and(
+        gte(orders.createdAt, previousPeriodStart),
+        lte(orders.createdAt, period.startDate),
+        eq(orders.status, 'completed')
+      )
+    );
+
+    const revenueGrowth = currentRevenue[0]?.total && previousRevenue[0]?.total
+      ? (Number(currentRevenue[0].total) - Number(previousRevenue[0].total)) / Number(previousRevenue[0].total) * 100
+      : 0;
+
+    // Détection d'anomalies
+    const anomalies: AIInsight[] = [];
+    if (revenueGrowth < -10) {
+      anomalies.push({
+        type: 'sales',
+        description: 'Baisse significative des revenus par rapport à la période précédente',
+        severity: 'high',
+        suggestedAction: 'Analyser les causes de la baisse et mettre en place des actions correctives',
+        confidence: 85
+      });
+    }
+
+    // Meilleur produit
+    const bestSeller = await db.select({
+      name: menuItems.name
+    })
+    .from(orderItems)
+    .innerJoin(orders, eq(orderItems.orderId, orders.id))
+    .innerJoin(menuItems, eq(orderItems.menuItemId, menuItems.id))
+    .where(
+      and(
+        gte(orders.createdAt, period.startDate),
+        lte(orders.createdAt, period.endDate),
+        eq(orders.status, 'completed')
+      )
+    )
+    .groupBy(menuItems.name)
+    .orderBy(desc(sum(orderItems.quantity)))
+    .limit(1);
+
     return {
       recommendations: [
-        'Augmenter le stock de café Arabica - forte demande détectée',
         'Optimiser les horaires de personnel pour les heures de pointe',
-        'Lancer une promotion sur les desserts en fin de journée'
+        'Mettre en avant les produits les plus rentables',
+        'Créer des offres spéciales pour les clients récurrents'
       ],
       predictions: {
-        tomorrowRevenue: Math.round(revenue * (0.9 + Math.random() * 0.2)),
-        weeklyGrowth: Math.round((Math.random() - 0.5) * 20),
-        customerInflux: Math.random() > 0.5 ? 'Augmentation attendue' : 'Stable',
-        riskFactors: [
-          'Prix des matières premières en hausse',
-          'Concurrence accrue dans le quartier'
-        ]
+        revenue: Number(currentRevenue[0]?.total || 0) * (1 + (revenueGrowth / 100)),
+        customerCount: 150, // Valeur simulée
+        bestSellingProduct: bestSeller[0]?.name || 'Inconnu'
       },
-      anomalies: [
+      anomalies,
+      opportunities: [
         {
-          type: 'sales',
-          description: 'Baisse inhabituelle des ventes de cappuccino',
+          type: 'marketing',
+          description: 'Potentiel pour augmenter les ventes croisées',
           severity: 'medium',
-          suggestedAction: 'Vérifier la qualité du lait et former le personnel'
+          suggestedAction: 'Créer des menus combinant les produits fréquemment achetés ensemble',
+          confidence: 75
         }
       ]
     };
   }
 
-  /**
-   * Calcule les segments de clients
-   */
-  static calculateCustomerSegments(): CustomerSegment[] {
-    return [
-      {
-        id: 'premium',
-        name: 'Clients Premium',
-        description: 'Clients à forte valeur avec fidélité élevée',
-        size: 25,
-        averageSpend: 45.50,
-        frequency: 12,
-        lifetimeValue: 546.00,
-        characteristics: ['Fréquence élevée', 'Valeur moyenne élevée', 'Fidélité']
-      },
-      {
-        id: 'regular',
-        name: 'Clients Réguliers',
-        description: 'Clients fidèles avec visite régulière',
-        size: 120,
-        averageSpend: 28.30,
-        frequency: 6,
-        lifetimeValue: 169.80,
-        characteristics: ['Visites régulières', 'Fidélité moyenne']
-      },
-      {
-        id: 'occasional',
-        name: 'Clients Occasionnels',
-        description: 'Clients avec visite sporadique',
-        size: 300,
-        averageSpend: 18.50,
-        frequency: 2,
-        lifetimeValue: 37.00,
-        characteristics: ['Visites rares', 'Valeur faible']
-      }
-    ];
-  }
-
-  /**
-   * Récupère les vraies données de revenus
-   */
-  static async getRevenueAnalytics(period: AnalyticsPeriod): Promise<RevenueAnalytics> {
-    try {
-      // TODO: Implémenter les vraies requêtes Drizzle
-      // Pour l'instant, retourner des données simulées
-      
-      return {
-        totalRevenue: 2500,
-        averageOrderValue: 25.50,
-        revenueByPeriod: [
-          { period: 'Lundi', revenue: 350, orders: 14 },
-          { period: 'Mardi', revenue: 420, orders: 17 },
-          { period: 'Mercredi', revenue: 380, orders: 15 }
-        ],
-        topProducts: [
-          { name: 'Cappuccino', revenue: 450, quantity: 45 },
-          { name: 'Croissant', revenue: 280, quantity: 35 },
-          { name: 'Americano', revenue: 320, quantity: 32 }
-        ],
-        paymentMethods: {
-          'card': 65,
-          'cash': 25,
-          'mobile': 10
-        }
-      };
-    } catch (error) {
-      logger.error('Erreur récupération analytics revenus', { 
-        period, 
-        error: error instanceof Error ? error.message : 'Erreur inconnue' 
-      )});
-      
-      // Retourner des données par défaut en cas d'erreur
-      return {
-        totalRevenue: 0,
-        averageOrderValue: 0,
-        revenueByPeriod: [,],
-        topProducts: [,],
-        paymentMethods: {}
-      };
+  private static getPreviousPeriodStart(period: AnalyticsPeriod): Date {
+    switch (period.period) {
+      case 'day': return subDays(period.startDate, 1);
+      case 'week': return subDays(period.startDate, 7);
+      case 'month': return addMonths(period.startDate, -1);
+      case 'year': return addYears(period.startDate, -1);
+      default: return subDays(period.startDate, 1);
     }
   }
 }
 
 // ==========================================
-// ROUTES AVEC AUTHENTIFICATION ET VALIDATION
+// ROUTES
 // ==========================================
 
-// Analytics avancées
 router.get('/advanced',
   authenticateUser,
   requireRoles(['admin', 'manager']),
   validateQuery(AnalyticsQuerySchema),
   asyncHandler(async (req, res) => {
-    const { startDate, endDate, period, groupBy, filters } = req.query as {
-      startDate?: string;
-      endDate?: string;
-      period: string;
-      groupBy?: string;
-      filters?: Record<string, unknown>;
-    };
-    
+    const { startDate, endDate, period } = req.query;
+
     try {
-      const db = await getDb();
-      const analyticsPeriod = AnalyticsService.calculatePeriod(period, startDate, endDate);
+      const analyticsPeriod = AnalyticsService.calculatePeriod(
+        period as string, 
+        startDate as string, 
+        endDate as string
+      );
 
-      // Récupérer les vraies données depuis la base
-      const customerBehavior: CustomerBehavior = {
-        peakHours: ['12:00-14:00', '18: 00-20:00',],
-        averageStayTime: 45,
-        repeatCustomerRate: 68.5,
-        seasonalTrends: {
-          spring: 85,
-          summer: 92,
-          autumn: 78,
-          winter: 71
-        },
-        demographics: {
-          ageGroups: { '18-25': 25, '26-35': 35, '36-45': 25, '46+': 15 },
-          genderDistribution: { 'F': 60, 'M': 40 },
-          locationData: { 'Local': 70, 'Tourist': 30 }
-        }
-      };
-
-      const productPerformance: ProductPerformance = {
-        topSellers: [
-          { name: 'Cappuccino', sales: 245, revenue: 1225.00, profitMargin: 72.5 },
-          { name: 'Croissant', sales: 189, revenue: 567.00, profitMargin: 58.3 },
-          { name: 'Americano', sales: 167, revenue: 501.00, profitMargin: 75.2 }
-        ],
-        profitMargins: {
-          beverages: 72.5,
-          food: 58.3,
-          desserts: 65.8
-        },
-        categoryPerformance: {
-          'Cafés': { sales: 450, revenue: 2250, growth: 12.5 },
-          'Pâtisseries': { sales: 320, revenue: 960, growth: 8.3 },
-          'Boissons froides': { sales: 180, revenue: 540, growth: 15.7 }
-        }
-      };
-
-      const aiInsights = AnalyticsService.generateAIInsights({ revenue: 2500 });
-
-      const analytics = {
-        period: analyticsPeriod,
-        customerBehavior,
-        productPerformance,
-        aiInsights,
-        metadata: {
-          generatedAt: new Date().toISOString(),
-          dataSource: 'database',
-          filters: filters || {}
-        }
-      };
+      const [revenueAnalytics, customerBehavior, aiInsights] = await Promise.all([
+        AnalyticsService.getRevenueAnalytics(analyticsPeriod),
+        AnalyticsService.analyzeCustomerBehavior(analyticsPeriod),
+        AnalyticsService.generateAIInsights(analyticsPeriod)
+      ]);
 
       res.json({
         success: true,
-        data: analytics
+        data: {
+          period: {
+            start: analyticsPeriod.startDate.toISOString(),
+            end: analyticsPeriod.endDate.toISOString(),
+            type: analyticsPeriod.period
+          },
+          revenue: revenueAnalytics,
+          customerBehavior,
+          aiInsights,
+          generatedAt: new Date().toISOString()
+        }
       });
     } catch (error) {
       logger.error('Erreur analytics avancées', { 
-        period, 
-        error: error instanceof Error ? error.message : 'Erreur inconnue' 
-      )});
-      
+        error: error instanceof Error ? error.message : 'Erreur inconnue',
+        query: req.query 
+      });
+
       res.status(500).json({
         success: false,
         message: 'Erreur lors de la récupération des analytics'
@@ -396,64 +620,20 @@ router.get('/advanced',
   })
 );
 
-// Analyse des tendances
-router.get('/trends',
-  authenticateUser,
-  requireRoles(['admin', 'manager']),
-  validateQuery(AnalyticsQuerySchema),
-  asyncHandler(async (req, res) => {
-    const { period } = req.query;
-    
-    try {
-      const trends = {
-        revenue: {
-          trend: 'upward' as const,
-          percentage: 12.5,
-          period: 'last_month',
-          data: AnalyticsService.generateTrendData('revenue')
-        },
-        customers: {
-          trend: 'stable' as const,
-          percentage: 2.1,
-          period: 'last_month',
-          data: AnalyticsService.generateTrendData('customers')
-        },
-        orders: {
-          trend: 'upward' as const,
-          percentage: 8.7,
-          period: 'last_month',
-          data: AnalyticsService.generateTrendData('orders')
-        }
-      };
-
-      res.json({
-        success: true,
-        data: trends
-      });
-    } catch (error) {
-      logger.error('Erreur analyse tendances', { 
-        period, 
-        error: error instanceof Error ? error.message : 'Erreur inconnue' 
-      )});
-      
-      res.status(500).json({
-        success: false,
-        message: 'Erreur lors de l\'analyse des tendances'
-      });
-    }
-  })
-);
-
-// Analytics des revenus
 router.get('/revenue',
   authenticateUser,
   requireRoles(['admin', 'manager']),
   validateQuery(AnalyticsQuerySchema),
   asyncHandler(async (req, res) => {
     const { startDate, endDate, period } = req.query;
-    
+
     try {
-      const analyticsPeriod = AnalyticsService.calculatePeriod(period as string, startDate as string, endDate as string);
+      const analyticsPeriod = AnalyticsService.calculatePeriod(
+        period as string, 
+        startDate as string, 
+        endDate as string
+      );
+
       const revenueAnalytics = await AnalyticsService.getRevenueAnalytics(analyticsPeriod);
 
       res.json({
@@ -462,10 +642,10 @@ router.get('/revenue',
       });
     } catch (error) {
       logger.error('Erreur analytics revenus', { 
-        period, 
-        error: error instanceof Error ? error.message : 'Erreur inconnue' 
-      )});
-      
+        error: error instanceof Error ? error.message : 'Erreur inconnue',
+        query: req.query 
+      });
+
       res.status(500).json({
         success: false,
         message: 'Erreur lors de la récupération des analytics de revenus'
@@ -474,69 +654,55 @@ router.get('/revenue',
   })
 );
 
-// Segmentation des clients
-router.get('/customer-segments',
+router.get('/customer-insights',
   authenticateUser,
   requireRoles(['admin', 'manager']),
-  validateQuery(CustomerSegmentQuerySchema),
+  validateQuery(AnalyticsQuerySchema),
   asyncHandler(async (req, res) => {
-    const { minSpend, maxSpend, frequency } = req.query;
-    
-    try {
-      const segments = AnalyticsService.calculateCustomerSegments();
+    const { startDate, endDate, period } = req.query;
 
-      // Filtrer les segments selon les critères
-      let filteredSegments = segments;
-      
-      if (minSpend) {
-        filteredSegments = filteredSegments.filter(segment => segment.averageSpend >= minSpend);
-      }
-      
-      if (maxSpend) {
-        filteredSegments = filteredSegments.filter(segment => segment.averageSpend <= maxSpend);
-      }
-      
-      if (frequency) {
-        filteredSegments = filteredSegments.filter(segment => segment.frequency >= frequency);
-      }
+    try {
+      const analyticsPeriod = AnalyticsService.calculatePeriod(
+        period as string, 
+        startDate as string, 
+        endDate as string
+      );
+
+      const customerBehavior = await AnalyticsService.analyzeCustomerBehavior(analyticsPeriod);
 
       res.json({
         success: true,
-        data: {
-          segments: filteredSegments,
-          totalCustomers: filteredSegments.reduce((sum, segment)}) => sum + segment.size, 0),
-          averageLifetimeValue: filteredSegments.reduce((sum, segment) => sum + segment.lifetimeValue, 0) / filteredSegments.length
-        }
+        data: customerBehavior
       });
     } catch (error) {
-      logger.error('Erreur segmentation clients', { 
-        minSpend, 
-        maxSpend, 
-        frequency, 
-        error: error instanceof Error ? error.message : 'Erreur inconnue' 
-      )});
-      
+      logger.error('Erreur insights clients', { 
+        error: error instanceof Error ? error.message : 'Erreur inconnue',
+        query: req.query 
+      });
+
       res.status(500).json({
         success: false,
-        message: 'Erreur lors de la segmentation des clients'
+        message: 'Erreur lors de l\'analyse du comportement des clients'
       });
     }
   })
 );
 
-// Insights IA
 router.get('/ai-insights',
   authenticateUser,
   requireRoles(['admin', 'manager']),
+  validateQuery(AnalyticsQuerySchema),
   asyncHandler(async (req, res) => {
-    try {
-      // TODO: Récupérer les vraies données depuis la base
-      const currentData = {
-        revenue: 2500,
-        orders: 100
-      };
+    const { startDate, endDate, period } = req.query;
 
-      const aiInsights = AnalyticsService.generateAIInsights(currentData);
+    try {
+      const analyticsPeriod = AnalyticsService.calculatePeriod(
+        period as string, 
+        startDate as string, 
+        endDate as string
+      );
+
+      const aiInsights = await AnalyticsService.generateAIInsights(analyticsPeriod);
 
       res.json({
         success: true,
@@ -544,9 +710,10 @@ router.get('/ai-insights',
       });
     } catch (error) {
       logger.error('Erreur insights IA', { 
-        error: error instanceof Error ? error.message : 'Erreur inconnue' 
-      )});
-      
+        error: error instanceof Error ? error.message : 'Erreur inconnue',
+        query: req.query 
+      });
+
       res.status(500).json({
         success: false,
         message: 'Erreur lors de la génération des insights IA'
