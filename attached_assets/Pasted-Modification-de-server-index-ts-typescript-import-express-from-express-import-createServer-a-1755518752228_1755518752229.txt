@@ -1,0 +1,82 @@
+Modification de server/index.ts
+typescript
+import express from 'express';
+import { createServer as createViteServer } from 'vite';
+import path from 'path';
+import apiRoutes from './routes/index';
+
+async function startServer() {
+  const app = express();
+  const PORT = process.env.PORT || 3000; // Port unique
+
+  // Middlewares de base
+  app.use(express.json());
+  
+  // Création du serveur Vite en développement
+  if (process.env.NODE_ENV !== 'production') {
+    const vite = await createViteServer({
+      server: { middlewareMode: true },
+      root: path.join(__dirname, '../client'),
+      appType: 'spa'
+    });
+    
+    app.use(vite.middlewares);
+  } else {
+    // En production, servir les fichiers statiques
+    app.use(express.static(path.join(__dirname, '../client/dist')));
+  }
+
+  // Routes API
+  app.use('/api', apiRoutes);
+
+  // Gestion des routes frontend
+  app.get('*', async (req, res) => {
+    if (process.env.NODE_ENV !== 'production') {
+      const vite = await createViteServer({
+        server: { middlewareMode: true },
+        root: path.join(__dirname, '../client'),
+        appType: 'spa'
+      });
+      const html = await vite.transformIndexHtml(
+        req.url,
+        '<div id="root"></div>'
+      );
+      res.send(html);
+    } else {
+      res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+    }
+  });
+
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`⚡ API available at http://localhost:${PORT}/api`);
+  });
+}
+
+startServer();
+2. Configuration Vite adaptée (vite.config.ts)
+typescript
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    port: 3000,
+    strictPort: true,
+    hmr: {
+      port: 3000, // Même port que le serveur
+      protocol: 'ws'
+    }
+  },
+  build: {
+    outDir: '../client/dist',
+    emptyOutDir: true
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src')
+    }
+  }
+});
