@@ -13,7 +13,11 @@ async function createServer() {
 
   // 1. Créer le serveur Vite en mode middleware
   const vite = await createViteServer({
-    server: { middlewareMode: true },
+    server: { 
+      middlewareMode: true,
+      hmr: { port: 443 },
+      allowedHosts: true
+    },
     root: path.resolve(__dirname, '../client'),
     appType: 'spa',
     logLevel: 'info'
