@@ -1,0 +1,111 @@
+Modifiez votre package.json :
+
+json
+{
+  "scripts": {
+    "dev": "NODE_ENV=development vite-inject && tsx watch server/index.ts",
+    "build": "npm run build:client && npm run build:server",
+    "start": "NODE_ENV=production node dist/server/index.js",
+    // Conservez vos autres scripts...
+  }
+}
+Créez vite-inject.js à la racine :
+
+javascript
+// vite-inject.js
+import { writeFileSync } from 'fs';
+import { join } from 'path';
+
+const config = {
+  server: {
+    middlewareMode: true,
+    hmr: process.env.NODE_ENV === 'development' ? {
+      port: process.env.VITE_HMR_PORT || 3001,
+      protocol: process.env.NODE_ENV === 'production' ? 'wss' : 'ws'
+    } : false
+  }
+};
+
+writeFileSync(
+  join(process.cwd(), 'client', 'vite.config.generated.ts'),
+  `export default ${JSON.stringify(config, null, 2)}`
+);
+Modifiez server/index.ts :
+
+typescript
+import express from 'express';
+import { createServer as createViteServer } from 'vite';
+import path from 'path';
+
+const PORT = process.env.PORT || 3000;
+
+async function start() {
+  const app = express();
+  
+  // 1. Setup Vite
+  const vite = await createViteServer({
+    configFile: path.resolve(__dirname, '../client/vite.config.generated.ts'),
+    root: path.resolve(__dirname, '../client'),
+    server: { middlewareMode: true }
+  });
+
+  // 2. Middlewares
+  app.use(vite.middlewares);
+  app.use(express.json());
+
+  // 3. Routes (conservez vos routes existantes)
+  app.use('/api', apiRoutes);
+
+  // 4. Fallback SPA
+  app.use('*', async (req, res) => {
+    try {
+      const html = await vite.transformIndexHtml(
+        req.originalUrl,
+        '<div id="root"></div>'
+      );
+      res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
+    } catch (e) {
+      vite.ssrFixStacktrace(e);
+      res.status(500).end(e.message);
+    }
+  });
+
+  app.listen(PORT, () => {
+    console.log(`🚀 Server+Client: http://localhost:${PORT}`);
+  });
+}
+
+start();
+Adaptez client/vite.config.ts :
+
+typescript
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+  build: {
+    outDir: '../dist/client'
+  }
+});
+Clés de la Solution :
+Un seul port (3000) pour tout :
+
+Frontend
+
+Backend API
+
+HMR via WebSocket (3001 ou 443 sur Replit)
+
+Workflow universel :
+
+bash
+npm run dev   # Développement (intègre Vite)
+npm start     # Production
+Configuration Replit (.replit) :
+
+ini
+run = "npm run dev"
+[env]
+PORT = "3000"
+VITE_HMR_PORT = "443"  # Uniquement pour Replit
