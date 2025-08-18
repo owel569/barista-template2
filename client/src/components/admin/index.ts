@@ -8,3 +8,4 @@ export { default as AnalyticsDashboard } from './analytics/analytics-dashboard';
 export { default as ReportsSystem } from './reports/reports-system';
 export { default as SettingsPanel } from './settings/settings-panel';
 export { default as PermissionsManagement } from './permissions/permissions-management';
+export { default as LoyaltySystem } from './loyalty-system';
