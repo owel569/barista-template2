@@ -1,137 +1,171 @@
 import React from 'react';
-import { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { insertReservationSchema } from "@shared/schema";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { Calendar, Clock, Users, ShoppingCart, Plus, Minus, Coffee, Utensils, Cake, Sandwich } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-// import { PhoneInput } from "@/components/ui/phone-input"; // Commenté si non disponible
-import { apiRequest } from "@/lib/queryClient";
-import { z } from "zod";
-import { getItemImageUrl } from "@/lib/image-mapping";
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { insertReservationSchema } from '@shared/schema';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
+import { Calendar, Clock, Users, ShoppingCart, Plus, Minus, Coffee, Utensils, Cake, Sandwich } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
+import { z } from 'zod';
+import { getItemImageUrl } from '@/lib/image-mapping';
 
+// Types
+type MenuItem = {
+  id: number;
+  name: string;
+  price: string;
+  description: string;
+  categoryId: number;
+  category?: string;
+};
+
+type MenuCategory = {
+  id: number;
+  name: string;
+  slug: string;
+};
+
+type CartItem = {
+  menuItem: MenuItem;
+  quantity: number;
+  notes?: string;
+};
+
+// Schéma de validation étendu
 const reservationSchema = insertReservationSchema.extend({
-  customerName: z.string()}).min(2, "Le nom doit contenir au moins 2 caractères"),
-  customerEmail: z.string().email("Email invalide"),
-  customerPhone: z.string().min(10, "Numéro de téléphone invalide"),
-  date: z.string().min(1, "Date requise"),
-  time: z.string().min(1, "Heure requise"),
-  guests: z.number().min(1, "Au moins 1 invité requis").max(12, "Maximum 12 invités"),
+  customerName: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
+  customerEmail: z.string().email('Email invalide'),
+  customerPhone: z.string().min(10, 'Numéro de téléphone invalide'),
+  date: z.string().min(1, 'Date requise'),
+  time: z.string().min(1, 'Heure requise'),
+  guests: z.number()
+    .min(1, 'Au moins 1 invité requis')
+    .max(12, 'Maximum 12 invités'),
 });
 
 type ReservationFormData = z.infer<typeof reservationSchema>;
 
-interface CartItem {
-  menuItem: {
-    id: number;
-    name: string;
-    price: string;
-    description: string;
-    categoryId: number;
-  };
-  quantity: number;
-  notes?: string;
-}
-
-export default function InteractiveReservation() : JSX.Element {
+export default function InteractiveReservation() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
-  const [itemNotes, setItemNotes] = useState<{[key: number]: string}>({});
+  const [itemNotes, setItemNotes] = useState<Record<number, string>>({});
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: categories = [] } = useQuery<Array<{ id: number; name: string; slug: string }>>({
-    queryKey: ['/api/menu/categories',],
+  // Récupération des catégories
+  const { data: categories = [] } = useQuery<MenuCategory[]>({
+    queryKey: ['/api/menu/categories'],
+    queryFn: () => apiRequest('GET', '/api/menu/categories'),
+    staleTime: 60 * 1000 // 1 minute
   });
 
-  const { data: menuItems = [] } = useQuery<Array<{ id: number; name: string; price: string; description: string; categoryId: number }>>({
-    queryKey: ['/api/menu/items',],
+  // Récupération des articles du menu
+  const { data: menuItems = [], isLoading: isMenuLoading } = useQuery<MenuItem[]>({
+    queryKey: ['/api/menu/items'],
+    queryFn: () => apiRequest('GET', '/api/menu/items'),
+    staleTime: 60 * 1000 // 1 minute
   });
 
+  // Mutation pour la réservation
   const reservationMutation = useMutation({
-    mutationFn: async (data: Record<string, unknown>})}) => {
-      return apiRequest('POST', '/api/reservations', data);
+    mutationFn: (data: ReservationFormData) => {
+      const reservationData = {
+        ...data,
+        status: 'pending',
+        cartItems: cart.length > 0 ? cart : undefined
+      };
+      return apiRequest('POST', '/api/reservations', reservationData);
     },
     onSuccess: () => {
       toast({
-        title: "Réservation confirmée!",
-        description: "Votre réservation a été enregistrée avec succès.",
-      )});
+        title: 'Réservation confirmée!',
+        description: 'Votre réservation a été enregistrée avec succès.',
+      });
       queryClient.invalidateQueries({ queryKey: ['/api/reservations'] });
       form.reset();
       setCart([]);
+      setItemNotes({});
     },
     onError: (error: Error) => {
       toast({
-        title: "Erreur",
-        description: error.message || "Une erreur est survenue",
-        variant: "destructive",
-      )});
+        title: 'Erreur',
+        description: error.message || 'Une erreur est survenue',
+        variant: 'destructive',
+      });
     },
   });
 
+  // Formulaire
   const form = useForm<ReservationFormData>({
     resolver: zodResolver(reservationSchema),
     defaultValues: {
-      customerName: "",
-      customerEmail: "",
-      customerPhone: "",
-      date: "",
-      time: "",
+      customerName: '',
+      customerEmail: '',
+      customerPhone: '',
+      date: '',
+      time: '',
       guests: 2,
-      specialRequests: "",
-      status: "pending",
+      specialRequests: '',
+      status: 'pending',
     },
   });
 
-  const addToCart = (item: unknown) => {
-    const existingItem = cart.find(cartItem => cartItem.menuItem.id === item.id);
-    
-    if (existingItem) {
-      setCart(cart.map(cartItem =>
-        cartItem.menuItem.id === item.id
-          ? { ...cartItem, quantity: cartItem.quantity + 1 }
-          : cartItem
-      ));
-    } else {
-      setCart([...cart, {
-        menuItem: item,
-        quantity: 1,
-        notes: itemNotes[item.id] || ""
-      )}]);
-    }
+  // Gestion du panier
+  const addToCart = (item: MenuItem) => {
+    setCart(prevCart => {
+      const existingItem = prevCart.find(cartItem => cartItem.menuItem.id === item.id);
+
+      if (existingItem) {
+        return prevCart.map(cartItem =>
+          cartItem.menuItem.id === item.id
+            ? { ...cartItem, quantity: cartItem.quantity + 1 }
+            : cartItem
+        );
+      } else {
+        return [...prevCart, {
+          menuItem: item,
+          quantity: 1,
+          notes: itemNotes[item.id] || ''
+        }];
+      }
+    });
   };
 
   const removeFromCart = (itemId: number) => {
-    const existingItem = cart.find(cartItem => cartItem.menuItem.id === itemId);
-    
-    if (existingItem && existingItem.quantity > 1) {
-      setCart(cart.map(cartItem =>
-        cartItem.menuItem.id === itemId
-          ? { ...cartItem, quantity: cartItem.quantity - 1 }
-          : cartItem
-      ));
-    } else {
-      setCart(cart.filter(cartItem => cartItem.menuItem.id !== itemId));
-    }
+    setCart(prevCart => {
+      const existingItem = prevCart.find(cartItem => cartItem.menuItem.id === itemId);
+
+      if (existingItem && existingItem.quantity > 1) {
+        return prevCart.map(cartItem =>
+          cartItem.menuItem.id === itemId
+            ? { ...cartItem, quantity: cartItem.quantity - 1 }
+            : cartItem
+        );
+      } else {
+        return prevCart.filter(cartItem => cartItem.menuItem.id !== itemId);
+      }
+    });
   };
 
   const updateItemNotes = (itemId: number, notes: string) => {
-    setItemNotes(prev => ({ ...prev, [itemId]: notes )});
-    setCart(cart.map(cartItem =>
-      cartItem.menuItem.id === itemId
-        ? { ...cartItem, notes }
-        : cartItem
-    ));
+    setItemNotes(prev => ({ ...prev, [itemId]: notes }));
+    setCart(prevCart =>
+      prevCart.map(cartItem =>
+        cartItem.menuItem.id === itemId
+          ? { ...cartItem, notes }
+          : cartItem
+      )
+    );
   };
 
+  // Calculs
   const cartTotal = cart.reduce((total, item) => 
     total + (parseFloat(item.menuItem.price) * item.quantity), 0
   );
@@ -142,31 +176,33 @@ export default function InteractiveReservation() : JSX.Element {
   };
 
   const filteredItems = activeCategory 
-    ? menuItems.filter((item: { id: number; name: string; price: string; description: string; categoryId?: number; category_id?: number }) => item.categoryId === activeCategory || item.category_id === activeCategory)
+    ? menuItems.filter(item => item.categoryId === activeCategory)
     : menuItems;
 
+  // Soumission du formulaire
   const onSubmit = (data: ReservationFormData) => {
-    console.log("Données du formulaire:", data);
-    console.log("Erreurs du formulaire:", form.formState.errors);
-    
-    const reservationData = {
-      ...data,
-      status: "pending", // Assurer que le statut est correct
-      cartItems: cart.length > 0 ? cart : undefined,
-    };
-    
-    console.log("Données envoyées à l'API:", reservationData);
-    reservationMutation.mutate(reservationData);
+    reservationMutation.mutate(data);
   };
 
+  // Icônes par catégorie
   const getCategoryIcon = (categoryName: string) => {
     switch (categoryName.toLowerCase()) {
-      case 'cafés': return Coffee;
-      case 'boissons': return Coffee;
-      case 'pâtisseries': return Cake;
-      case 'plats': return Utensils;
-      default: return Sandwich;
+      case 'cafés':
+      case 'boissons':
+        return Coffee;
+      case 'pâtisseries':
+        return Cake;
+      case 'plats':
+        return Utensils;
+      default:
+        return Sandwich;
     }
+  };
+
+  // Image de fallback
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>, item: MenuItem) => {
+    const target = e.currentTarget;
+    target.src = getItemImageUrl('default', item.category?.toLowerCase());
   };
 
   return (
@@ -195,18 +231,18 @@ export default function InteractiveReservation() : JSX.Element {
               <CardContent>
                 <div className="flex flex-wrap gap-2 mb-6">
                   <Button
-                    variant={activeCategory === null ? "default" : "outline"}
+                    variant={activeCategory === null ? 'default' : 'outline'}
                     onClick={() => setActiveCategory(null)}
                     className="bg-coffee-accent hover:bg-coffee-dark"
                   >
                     Tout voir
                   </Button>
-                  {categories.map((category: MenuCategory) => {
+                  {categories.map(category => {
                     const Icon = getCategoryIcon(category.name);
                     return (
                       <Button
                         key={category.id}
-                        variant={activeCategory === category.id ? "default" : "outline"}
+                        variant={activeCategory === category.id ? 'default' : 'outline'}
                         onClick={() => setActiveCategory(category.id)}
                         className="bg-coffee-accent hover:bg-coffee-dark"
                       >
@@ -218,66 +254,73 @@ export default function InteractiveReservation() : JSX.Element {
                 </div>
 
                 {/* Grille des produits */}
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                  {filteredItems.map((item: unknown) => {
-                    const quantity = getItemQuantity(item.id);
-                    
-                    return (
-                      <Card key={item.id} className="bg-white/90 backdrop-blur-sm border-coffee-light/30 hover:shadow-lg transition-all duration-300">
-                        <CardContent className="p-4">
-                          <div className="aspect-square mb-3 rounded-lg overflow-hidden bg-coffee-light/20">
-                            <img 
-                              src={getItemImageUrl(item.name, item.category?.toLowerCase())}
-                              alt={item.name}
-                              className="w-full h-full object-cover rounded-lg"
-                              onError={(e) => {
-                                try {
-                                  const target = e.currentTarget as HTMLImageElement;
-                                  target.src = getItemImageUrl('default', item.category?.toLowerCase());
-                                } catch (error) {
-                                  console.warn('Erreur lors du chargement de l\'image de fallback:', error);
-                                }
-                              }}
-                            />
-                          </div>
-                          
-                          <h3 className="font-semibold text-coffee-dark mb-1">{item.name}</h3>
-                          <p className="text-sm text-coffee-medium mb-2 line-clamp-2">{item.description}</p>
-                          <div className="flex items-center justify-between">
-                            <span className="text-lg font-bold text-coffee-accent">{item.price}€</span>
-                            
-                            <div className="flex items-center gap-2">
-                              {quantity > 0 && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => removeFromCart(item.id)}
-                                  className="h-8 w-8 p-0"
-                                >
-                                  <Minus className="h-4 w-4" />
-                                </Button>
-                              )}
-                              
-                              {quantity > 0 && (
-                                <Badge variant="secondary" className="px-2 py-1">
-                                  {quantity)}
-                                </Badge>
-                              )}
-                              
-                              <Button
-                                size="sm"
-                                onClick={() => addToCart(item)}
-                                className="h-8 w-8 p-0 bg-coffee-accent hover:bg-coffee-dark"
-                              >
-                                <Plus className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
+                {isMenuLoading ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                    {[...Array(6)].map((_, index) => (
+                      <Card key={index} className="bg-white/90 backdrop-blur-sm border-coffee-light/30">
+                        <CardContent className="p-4 space-y-3">
+                          <div className="aspect-square bg-coffee-light/20 rounded-lg animate-pulse" />
+                          <div className="h-4 bg-coffee-light/20 rounded animate-pulse" />
+                          <div className="h-3 bg-coffee-light/20 rounded animate-pulse" />
+                          <div className="h-4 bg-coffee-light/20 rounded animate-pulse" />
                         </CardContent>
                       </Card>
-                    );
-                  })}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                    {filteredItems.map(item => {
+                      const quantity = getItemQuantity(item.id);
+
+                      return (
+                        <Card key={item.id} className="bg-white/90 backdrop-blur-sm border-coffee-light/30 hover:shadow-lg transition-all duration-300">
+                          <CardContent className="p-4">
+                            <div className="aspect-square mb-3 rounded-lg overflow-hidden bg-coffee-light/20">
+                              <img 
+                                src={getItemImageUrl(item.name, item.category?.toLowerCase())}
+                                alt={item.name}
+                                className="w-full h-full object-cover rounded-lg"
+                                onError={(e) => handleImageError(e, item)}
+                              />
+                            </div>
+
+                            <h3 className="font-semibold text-coffee-dark mb-1">{item.name}</h3>
+                            <p className="text-sm text-coffee-medium mb-2 line-clamp-2">{item.description}</p>
+                            <div className="flex items-center justify-between">
+                              <span className="text-lg font-bold text-coffee-accent">{item.price}€</span>
+
+                              <div className="flex items-center gap-2">
+                                {quantity > 0 && (
+                                  <>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => removeFromCart(item.id)}
+                                      className="h-8 w-8 p-0"
+                                    >
+                                      <Minus className="h-4 w-4" />
+                                    </Button>
+                                    <Badge variant="secondary" className="px-2 py-1">
+                                      {quantity}
+                                    </Badge>
+                                  </>
+                                )}
+
+                                <Button
+                                  size="sm"
+                                  onClick={() => addToCart(item)}
+                                  className="h-8 w-8 p-0 bg-coffee-accent hover:bg-coffee-dark"
+                                >
+                                  <Plus className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -294,7 +337,7 @@ export default function InteractiveReservation() : JSX.Element {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {cart.map((item) => (
+                  {cart.map(item => (
                     <div key={item.menuItem.id} className="flex justify-between items-start p-3 bg-coffee-light/10 rounded-lg">
                       <div className="flex-1">
                         <h4 className="font-medium text-coffee-dark">{item.menuItem.name}</h4>
@@ -303,7 +346,7 @@ export default function InteractiveReservation() : JSX.Element {
                         </p>
                         <Input
                           placeholder="Notes spéciales..."
-                          value={item.notes || ""}
+                          value={item.notes || ''}
                           onChange={(e) => updateItemNotes(item.menuItem.id, e.target.value)}
                           className="mt-2 text-xs"
                         />
@@ -327,7 +370,7 @@ export default function InteractiveReservation() : JSX.Element {
                       </div>
                     </div>
                   ))}
-                  
+
                   <div className="border-t pt-4">
                     <div className="flex justify-between items-center text-lg font-bold text-coffee-dark">
                       <span>Total:</span>
@@ -352,13 +395,13 @@ export default function InteractiveReservation() : JSX.Element {
                     <div>
                       <Label htmlFor="customerName">Nom complet</Label>
                       <Input
-                        {...form.register("customerName")}
+                        {...form.register('customerName')}
                         placeholder="Votre nom"
                         className="mt-1"
                       />
                       {form.formState.errors.customerName && (
                         <p className="text-sm text-red-600 mt-1">
-                          {form.formState.errors.customerName.message)}
+                          {form.formState.errors.customerName.message}
                         </p>
                       )}
                     </div>
@@ -366,14 +409,14 @@ export default function InteractiveReservation() : JSX.Element {
                     <div>
                       <Label htmlFor="customerEmail">Email</Label>
                       <Input
-                        {...form.register("customerEmail")}
+                        {...form.register('customerEmail')}
                         type="email"
                         placeholder="votre@email.com"
                         className="mt-1"
                       />
                       {form.formState.errors.customerEmail && (
                         <p className="text-sm text-red-600 mt-1">
-                          {form.formState.errors.customerEmail.message)}
+                          {form.formState.errors.customerEmail.message}
                         </p>
                       )}
                     </div>
@@ -381,13 +424,13 @@ export default function InteractiveReservation() : JSX.Element {
                     <div>
                       <Label htmlFor="customerPhone">Téléphone</Label>
                       <Input
-                        {...form.register("customerPhone")}
+                        {...form.register('customerPhone')}
                         placeholder="Ex: +33612345678"
                         className="mt-1"
                       />
                       {form.formState.errors.customerPhone && (
                         <p className="text-sm text-red-600 mt-1">
-                          {form.formState.errors.customerPhone.message)}
+                          {form.formState.errors.customerPhone.message}
                         </p>
                       )}
                     </div>
@@ -396,14 +439,14 @@ export default function InteractiveReservation() : JSX.Element {
                       <div>
                         <Label htmlFor="date">Date</Label>
                         <Input
-                          {...form.register("date")}
+                          {...form.register('date')}
                           type="date"
                           min={new Date().toISOString().split('T')[0]}
                           className="mt-1"
                         />
                         {form.formState.errors.date && (
                           <p className="text-sm text-red-600 mt-1">
-                            {form.formState.errors.date.message)}
+                            {form.formState.errors.date.message}
                           </p>
                         )}
                       </div>
@@ -411,63 +454,64 @@ export default function InteractiveReservation() : JSX.Element {
                       <div>
                         <Label htmlFor="time">Heure</Label>
                         <Input
-                          {...form.register("time")}
+                          {...form.register('time')}
                           type="time"
+                          min="07:00"
+                          max="22:00"
                           className="mt-1"
                         />
                         {form.formState.errors.time && (
                           <p className="text-sm text-red-600 mt-1">
-                            {form.formState.errors.time.message)}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="guests">Nombre d'invités</Label>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Users className="h-4 w-4 text-coffee-medium" />
-                        <Input
-                          {...form.register("guests", { valueAsNumber: true )})}
-                          type="number"
-                          min="1"
-                          max="12"
-                          className="flex-1"
-                        />
-                      </div>
-                      {form.formState.errors.guests && (
-                        <p className="text-sm text-red-600 mt-1">
-                          {form.formState.errors.guests.message)}
+                            {form.formState.errors.time.message}
                         </p>
                       )}
                     </div>
-
-                    <div>
-                      <Label htmlFor="specialRequests">Demandes spéciales</Label>
-                      <Textarea
-                        {...form.register("specialRequests")}
-                        placeholder="Allergies, préférences..."
-                        className="mt-1"
-                        rows={3}
-                      />
-                    </div>
                   </div>
 
-                  <Button
-                    type="submit"
-                    className="w-full bg-coffee-accent hover:bg-coffee-dark"
-                    disabled={reservationMutation.isPending}
-                  >
-                    {reservationMutation.isPending ? (
-                      "Confirmation en cours..."
-                    ) : (
-                      `Confirmer la réservation${}cart.length > 0 ? ` (${cartTotal.toFixed(2)}€)` : ""}`
+                  <div>
+                    <Label htmlFor="guests">Nombre d'invités</Label>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Users className="h-4 w-4 text-coffee-medium" />
+                      <Input
+                        {...form.register('guests', { valueAsNumber: true })}
+                        type="number"
+                        min="1"
+                        max="12"
+                        className="flex-1"
+                      />
+                    </div>
+                    {form.formState.errors.guests && (
+                      <p className="text-sm text-red-600 mt-1">
+                        {form.formState.errors.guests.message}
+                      </p>
                     )}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="specialRequests">Demandes spéciales</Label>
+                    <Textarea
+                      {...form.register('specialRequests')}
+                      placeholder="Allergies, préférences..."
+                      className="mt-1"
+                      rows={3}
+                    />
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full bg-coffee-accent hover:bg-coffee-dark"
+                  disabled={reservationMutation.isPending}
+                >
+                  {reservationMutation.isPending ? (
+                    "Confirmation en cours..."
+                  ) : (
+                    `Confirmer la réservation${cart.length > 0 ? ` (${cartTotal.toFixed(2)}€)` : ''}`
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
