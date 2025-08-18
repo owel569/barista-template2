@@ -10,8 +10,8 @@ export const queryClient = new QueryClient({
   },
 });
 
-// Configuration de l'API base URL
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// Configuration de l'API base URL - utilise les routes relatives pour Replit
+const API_BASE_URL = '/api';
 
 export async function apiRequest(endpoint: string, options: RequestInit = {}) {
   const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
