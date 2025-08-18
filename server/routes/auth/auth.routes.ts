@@ -5,7 +5,12 @@ import jwt from 'jsonwebtoken';
 import { db } from '../../db';
 import { users } from '../../../shared/schema';
 import { eq } from 'drizzle-orm';
-import { logger } from '../../utils/logger';
+// Temporary logger replacement
+const logger = {
+  error: (message: string, meta?: any) => console.error(`[ERROR] ${message}`, meta),
+  info: (message: string, meta?: any) => console.log(`[INFO] ${message}`, meta),
+  warn: (message: string, meta?: any) => console.warn(`[WARN] ${message}`, meta)
+};
 
 const router = Router();
 
@@ -13,6 +18,8 @@ const router = Router();
 router.post('/login', async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
+
+    console.log('Login attempt:', { email, password: password?.substring(0, 3) + '...' });
 
     if (!email || !password) {
       return res.status(400).json({
@@ -26,6 +33,8 @@ router.post('/login', async (req: Request, res: Response) => {
       .from(users)
       .where(eq(users.email, email))
       .limit(1);
+    
+    console.log('User found:', user.length > 0, user[0]?.email);
 
     if (user.length === 0) {
       return res.status(401).json({
@@ -34,8 +43,12 @@ router.post('/login', async (req: Request, res: Response) => {
       });
     }
 
+    const foundUser = user[0];
+    console.log('Found user password hash:', foundUser.password?.substring(0, 10) + '...');
+    
     // Vérifier le mot de passe
-    const isValidPassword = await bcrypt.compare(password, user[0].password);
+    const isValidPassword = await bcrypt.compare(password, foundUser.password);
+    console.log('Password validation result:', isValidPassword);
 
     if (!isValidPassword) {
       return res.status(401).json({
@@ -47,9 +60,9 @@ router.post('/login', async (req: Request, res: Response) => {
     // Générer le token JWT
     const token = jwt.sign(
       {
-        id: user[0].id,
-        email: user[0].email,
-        role: user[0].role
+        id: foundUser.id,
+        email: foundUser.email,
+        role: foundUser.role
       },
       process.env.JWT_SECRET || 'default-secret',
       { expiresIn: '24h' }
@@ -60,12 +73,12 @@ router.post('/login', async (req: Request, res: Response) => {
       data: {
         token,
         user: {
-          id: user[0].id,
-          email: user[0].email,
-          username: user[0].username,
-          role: user[0].role,
-          firstName: user[0].firstName,
-          lastName: user[0].lastName
+          id: foundUser.id,
+          email: foundUser.email,
+          username: foundUser.username,
+          role: foundUser.role,
+          firstName: foundUser.firstName,
+          lastName: foundUser.lastName
         }
       }
     });
@@ -105,16 +118,17 @@ router.get('/me', async (req: Request, res: Response) => {
       });
     }
 
+    const userInfo = user[0];
     res.json({
       success: true,
       data: {
         user: {
-          id: user[0].id,
-          email: user[0].email,
-          username: user[0].username,
-          role: user[0].role,
-          firstName: user[0].firstName,
-          lastName: user[0].lastName
+          id: userInfo.id,
+          email: userInfo.email,
+          username: userInfo.username,
+          role: userInfo.role,
+          firstName: userInfo.firstName,
+          lastName: userInfo.lastName
         }
       }
     });

@@ -29,7 +29,7 @@ app.listen(PORT, () => {
 });
 
 process.on('SIGINT', () => {
-  logger.info('Signal SIGINT reçu, arrêt du serveur...');
+  console.log('Signal SIGINT reçu, arrêt du serveur...');
   process.exit(0);
 });
 

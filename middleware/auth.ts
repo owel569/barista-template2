@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import type { User } from '../shared/schema'; // Doit contenir le champ "role"
-import { LRUCache } from 'lru-cache';
+// Import corrigé pour lru-cache
 
 // Typage strict des rôles
 export type AppRole = 'customer' | 'waiter' | 'chef' | 'manager' | 'admin';
@@ -14,11 +14,8 @@ const ROLE_HIERARCHY: Record<AppRole, number> = {
   admin: 5
 };
 
-// Cache pour limiter les tentatives d'accès non autorisées
-const authAttemptCache = new LRUCache<string, number>({
-  max: 100,
-  ttl: 1000 * 60 * 15 // 15 minutes
-});
+// Cache pour limiter les tentatives d'accès non autorisées (simplifié)
+const authAttemptCache = new Map<string, { count: number; lastAttempt: number }>();
 
 /**
  * Middleware de contrôle d'accès par rôle (avec options avancées)

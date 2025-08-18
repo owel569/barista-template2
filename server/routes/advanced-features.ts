@@ -1,5 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
-// import { storage } from '../storage'; // Non utilisé pour l'instant
+import { createLogger } from '../middleware/logging';
+import jwt from 'jsonwebtoken';
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -10,25 +11,55 @@ interface AuthenticatedRequest extends Request {
 }
 
 const router = Router();
-const logger = createLogger('ROUTES');
+const logger = createLogger('ADVANCED_FEATURES_ROUTES');
+
+// Configuration
+const JWT_SECRET = process.env.JWT_SECRET || 'barista-secret-key-ultra-secure-2025';
 
 // Middleware d'authentification
 const authenticateUser = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  const token = authHeader?.split(' ')[1];
 
   if (!token) {
-    return res.status(401).json({ error: 'Token manquant' });
+    return res.status(401).json({ 
+      success: false,
+      error: 'Token manquant' 
+    });
   }
 
   try {
-    const jwt = require('jsonwebtoken');
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'barista-secret-key-ultra-secure-2025');
-    (req as AuthenticatedRequest).user = decoded as { id: number; username: string; role: string };
+    const decoded = jwt.verify(token, JWT_SECRET) as { id: number; username: string; role: string };
+    (req as AuthenticatedRequest).user = decoded;
     next();
   } catch (error) {
-    return res.status(403).json({ error: 'Token invalide' });
+    logger.error('Erreur de vérification du token', { error });
+    return res.status(403).json({ 
+      success: false,
+      error: 'Token invalide ou expiré' 
+    });
   }
+};
+
+// Schémas de validation
+const chatbotSchema = {
+  respond: {
+    body: {
+      message: 'string|required|min:3|max:500'
+    }
+  }
+};
+
+// === UTILITAIRES ===
+const handleError = (res: Response, error: unknown, context: string) => {
+  const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+  logger.error(`Erreur dans ${context}`, { error: errorMessage });
+
+  return res.status(500).json({ 
+    success: false,
+    error: `Erreur lors de ${context}`,
+    details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+  });
 };
 
 // === INTELLIGENCE ARTIFICIELLE ===
@@ -37,18 +68,41 @@ const authenticateUser = (req: Request, res: Response, next: NextFunction) => {
 router.get('/ai/chatbot/conversations', authenticateUser, async (req, res) => {
   try {
     const conversations = [
-      { id: 1, customer: 'Client A', message: 'Bonjour, je voudrais réserver une table', response: 'Bien sûr! Pour combien de personnes?', timestamp: new Date().toISOString() },
-      { id: 2, customer: 'Client B', message: 'Avez-vous des options végétariennes?', response: 'Oui, nous avons plusieurs plats végétariens délicieux', timestamp: new Date().toISOString() }
+      { 
+        id: 1, 
+        customer: 'Client A', 
+        message: 'Bonjour, je voudrais réserver une table', 
+        response: 'Bien sûr! Pour combien de personnes?', 
+        timestamp: new Date().toISOString() 
+      },
+      { 
+        id: 2, 
+        customer: 'Client B', 
+        message: 'Avez-vous des options végétariennes?', 
+        response: 'Oui, nous avons plusieurs plats végétariens délicieux', 
+        timestamp: new Date().toISOString() 
+      }
     ];
-    res.json(conversations);
+
+    res.json({ 
+      success: true,
+      data: conversations 
+    });
   } catch (error) {
-    res.status(500).json([]);
+    handleError(res, error, 'la récupération des conversations du chatbot');
   }
 });
 
 router.post('/ai/chatbot/respond', authenticateUser, async (req, res) => {
   try {
     const { message } = req.body;
+
+    if (!message || typeof message !== 'string') {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Message invalide' 
+      });
+    }
 
     // Simulation réponse IA
     let response = "Je suis désolé, je n'ai pas compris votre demande.";
@@ -61,9 +115,15 @@ router.post('/ai/chatbot/respond', authenticateUser, async (req, res) => {
       response = "Nous sommes ouverts tous les jours de 7h à 22h.";
     }
 
-    res.json({ response, timestamp: new Date()}).toISOString() });
+    res.json({ 
+      success: true,
+      data: { 
+        response, 
+        timestamp: new Date().toISOString() 
+      }
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Erreur de traitement' });
+    handleError(res, error, 'la génération de réponse du chatbot');
   }
 });
 
@@ -75,9 +135,13 @@ router.get('/ai/vision/quality-checks', authenticateUser, async (req, res) => {
       { id: 2, dish: 'Croissant', quality: 'Bon', score: 87, issues: ['Légèrement trop doré'] },
       { id: 3, dish: 'Sandwich', quality: 'Excellent', score: 92, issues: [] }
     ];
-    res.json(checks);
+
+    res.json({ 
+      success: true,
+      data: checks 
+    });
   } catch (error) {
-    res.status(500).json([]);
+    handleError(res, error, 'la récupération des contrôles qualité');
   }
 });
 
@@ -87,7 +151,7 @@ router.get('/ai/prediction/demand', authenticateUser, async (req, res) => {
     const predictions = {
       tomorrow: {
         expectedCustomers: 125,
-        peakHours: ['12:00-14:00', '19: 00-21:00',],
+        peakHours: ['12:00-14:00', '19:00-21:00'],
         recommendedStaff: 8,
         stockNeeded: {
           coffee: '5kg',
@@ -101,9 +165,13 @@ router.get('/ai/prediction/demand', authenticateUser, async (req, res) => {
         quietDays: ['Lundi', 'Mardi']
       }
     };
-    res.json(predictions);
+
+    res.json({ 
+      success: true,
+      data: predictions 
+    });
   } catch (error) {
-    res.status(500).json({ expectedCustomers: 0, peakHours: [,], recommendedStaff: 0, stockNeeded: {} });
+    handleError(res, error, 'la récupération des prédictions de demande');
   }
 });
 
@@ -113,12 +181,26 @@ router.get('/ai/prediction/demand', authenticateUser, async (req, res) => {
 router.get('/mobile/staff/notifications', authenticateUser, async (req, res) => {
   try {
     const notifications = [
-      { id: 1, type: 'shift', message: 'Votre service commence dans 30 minutes', timestamp: new Date().toISOString() },
-      { id: 2, type: 'urgent', message: 'Table 5 demande assistance', timestamp: new Date().toISOString() }
+      { 
+        id: 1, 
+        type: 'shift', 
+        message: 'Votre service commence dans 30 minutes', 
+        timestamp: new Date().toISOString() 
+      },
+      { 
+        id: 2, 
+        type: 'urgent', 
+        message: 'Table 5 demande assistance', 
+        timestamp: new Date().toISOString() 
+      }
     ];
-    res.json(notifications);
+
+    res.json({ 
+      success: true,
+      data: notifications 
+    });
   } catch (error) {
-    res.status(500).json([]);
+    handleError(res, error, 'la récupération des notifications staff');
   }
 });
 
@@ -132,9 +214,13 @@ router.get('/mobile/manager/dashboard', authenticateUser, async (req, res) => {
       tablesOccupied: 12,
       alerts: 2
     };
-    res.json(dashboard);
+
+    res.json({ 
+      success: true,
+      data: dashboard 
+    });
   } catch (error) {
-    res.status(500).json({ todayRevenue: 0, activeOrders: 0, staffPresent: 0, tablesOccupied: 0, alerts: 0 });
+    handleError(res, error, 'la récupération du dashboard manager');
   }
 });
 
@@ -144,12 +230,28 @@ router.get('/mobile/manager/dashboard', authenticateUser, async (req, res) => {
 router.get('/digital/social/posts', authenticateUser, async (req, res) => {
   try {
     const posts = [
-      { id: 1, platform: 'Instagram', content: 'Nouveau latte art spécial automne!', likes: 245, comments: 18 },
-      { id: 2, platform: 'Facebook', content: 'Promotion happy hour 14h-16h', likes: 89, comments: 12 }
+      { 
+        id: 1, 
+        platform: 'Instagram', 
+        content: 'Nouveau latte art spécial automne!', 
+        likes: 245, 
+        comments: 18 
+      },
+      { 
+        id: 2, 
+        platform: 'Facebook', 
+        content: 'Promotion happy hour 14h-16h', 
+        likes: 89, 
+        comments: 12 
+      }
     ];
-    res.json(posts);
+
+    res.json({ 
+      success: true,
+      data: posts 
+    });
   } catch (error) {
-    res.status(500).json([]);
+    handleError(res, error, 'la récupération des posts réseaux sociaux');
   }
 });
 
@@ -164,13 +266,27 @@ router.get('/digital/reviews/summary', authenticateUser, async (req, res) => {
         facebook: { rating: 4.6, count: 78 }
       },
       recent: [
-        { platform: 'Google', rating: 5, comment: 'Excellent service!', date: '2024-01-15' },
-        { platform: 'Facebook', rating: 4, comment: 'Très bon café', date: '2024-01-14' }
+        { 
+          platform: 'Google', 
+          rating: 5, 
+          comment: 'Excellent service!', 
+          date: '2024-01-15' 
+        },
+        { 
+          platform: 'Facebook', 
+          rating: 4, 
+          comment: 'Très bon café', 
+          date: '2024-01-14' 
+        }
       ]
     };
-    res.json(reviews);
+
+    res.json({ 
+      success: true,
+      data: reviews 
+    });
   } catch (error) {
-    res.status(500).json({ average: 0, total: 0, platforms: {}, recent: [] });
+    handleError(res, error, 'la récupération du résumé des avis');
   }
 });
 
@@ -185,9 +301,13 @@ router.get('/fintech/payments/methods', authenticateUser, async (req, res) => {
       { id: 3, name: 'Samsung Pay', enabled: true, usage: 17 },
       { id: 4, name: 'PayPal', enabled: false, usage: 0 }
     ];
-    res.json(methods);
+
+    res.json({ 
+      success: true,
+      data: methods 
+    });
   } catch (error) {
-    res.status(500).json([]);
+    handleError(res, error, 'la récupération des méthodes de paiement');
   }
 });
 
@@ -209,9 +329,13 @@ router.get('/sustainability/waste/tracking', authenticateUser, async (req, res) 
       },
       reduction: -15 // Pourcentage de réduction
     };
-    res.json(waste);
+
+    res.json({ 
+      success: true,
+      data: waste 
+    });
   } catch (error) {
-    res.status(500).json({ daily: {}, monthly: {}, reduction: 0 });
+    handleError(res, error, 'la récupération des données de déchets');
   }
 });
 
@@ -225,9 +349,13 @@ router.get('/iot/sensors/status', authenticateUser, async (req, res) => {
       { id: 2, name: 'Humidité', value: 65, unit: '%', status: 'normal' },
       { id: 3, name: 'Pression machine', value: 9.1, unit: 'bar', status: 'normal' }
     ];
-    res.json(sensors);
+
+    res.json({ 
+      success: true,
+      data: sensors 
+    });
   } catch (error) {
-    res.status(500).json([]);
+    handleError(res, error, 'la récupération du statut des capteurs IoT');
   }
 });
 
@@ -237,12 +365,28 @@ router.get('/iot/sensors/status', authenticateUser, async (req, res) => {
 router.get('/marketing/campaigns/automated', authenticateUser, async (req, res) => {
   try {
     const campaigns = [
-      { id: 1, name: 'Bienvenue nouveaux clients', trigger: 'Première visite', sent: 156, opened: 89 },
-      { id: 2, name: 'Rappel fidélité', trigger: 'Inactivité 30 jours', sent: 78, opened: 45 }
+      { 
+        id: 1, 
+        name: 'Bienvenue nouveaux clients', 
+        trigger: 'Première visite', 
+        sent: 156, 
+        opened: 89 
+      },
+      { 
+        id: 2, 
+        name: 'Rappel fidélité', 
+        trigger: 'Inactivité 30 jours', 
+        sent: 78, 
+        opened: 45 
+      }
     ];
-    res.json(campaigns);
+
+    res.json({ 
+      success: true,
+      data: campaigns 
+    });
   } catch (error) {
-    res.status(500).json([]);
+    handleError(res, error, 'la récupération des campagnes automatisées');
   }
 });
 
@@ -260,9 +404,13 @@ router.get('/security/gdpr/compliance', authenticateUser, async (req, res) => {
       lastAudit: '2024-01-01',
       score: 98
     };
-    res.json(compliance);
+
+    res.json({ 
+      success: true,
+      data: compliance 
+    });
   } catch (error) {
-    res.status(500).json({ score: 0 });
+    handleError(res, error, 'la récupération de la conformité RGPD');
   }
 });
 
@@ -276,22 +424,25 @@ router.get('/multi-site/overview', authenticateUser, async (req, res) => {
       { id: 2, name: 'Barista Gare', revenue: 12890.75, customers: 1098, staff: 6 },
       { id: 3, name: 'Barista Campus', revenue: 8950.25, customers: 856, staff: 5 }
     ];
-    res.json(sites);
+
+    res.json({ 
+      success: true,
+      data: sites 
+    });
   } catch (error) {
-    res.status(500).json([]);
+    handleError(res, error, 'la récupération de la vue multi-sites');
   }
 });
 
 // Route pour les insights IA temps réel
-router.get('/ai-insights', async (req, res) => {
+router.get('/ai-insights', authenticateUser, async (req, res) => {
   try {
-    // Génération d'insights IA simulés mais réalistes
     const insights = [
       {
         id: '1',
         type: 'prediction',
         title: 'Pic de demande prévu demain',
-        description: 'L\'IA prévoit une augmentation de 35% de la demande demain entre 12h et 14h. Recommandation: augmenter le stock de sandwichs et prévoir un barista supplémentaire.',
+        description: 'L\'IA prévoit une augmentation de 35% de la demande demain entre 12h et 14h.',
         confidence: 89,
         impact: 'high',
         category: 'sales',
@@ -302,61 +453,44 @@ router.get('/ai-insights', async (req, res) => {
         id: '2',
         type: 'optimization',
         title: 'Optimisation des prix détectée',
-        description: 'Le prix du cappuccino peut être augmenté de 0,30€ sans impact significatif sur la demande, générant +15% de marge.',
+        description: 'Le prix du cappuccino peut être augmenté de 0,30€ sans impact significatif sur la demande.',
         confidence: 82,
         impact: 'medium',
         category: 'sales',
         actionable: true,
         timestamp: new Date().toISOString()
-      },
-      {
-        id: '3',
-        type: 'alert',
-        title: 'Stock critique: Grains de café',
-        description: 'Les grains de café Arabica atteignent un niveau critique. Commande automatique recommandée dans les 48h.',
-        confidence: 95,
-        impact: 'high',
-        category: 'inventory',
-        actionable: true,
-        timestamp: new Date().toISOString()
-      },
-      {
-        id: '4',
-        type: 'recommendation',
-        title: 'Nouveau produit suggéré',
-        description: 'Basé sur les tendances, introduire un "Matcha Latte" pourrait attirer 12% de nouveaux clients.',
-        confidence: 76,
-        impact: 'medium',
-        category: 'customer',
-        actionable: true,
-        timestamp: new Date().toISOString()
       }
     ];
 
-    res.json({ insights });
+    res.json({ 
+      success: true,
+      data: insights 
+    });
   } catch (error) {
-    logger.error('Erreur récupération insights IA:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
-    res.status(500).json({ message: 'Erreur serveur' });
+    handleError(res, error, 'la récupération des insights IA');
   }
 });
 
 // Route pour les métriques de performance IA
-router.get('/ai-metrics', async (req, res) => {
+router.get('/ai-metrics', authenticateUser, async (req, res) => {
   try {
-      const metrics = {
-          chatbotEffectiveness: 0.85,
-          visionAccuracy: 0.92,
-          demandPredictionAccuracy: 0.78
-      };
-      res.json(metrics);
+    const metrics = {
+      chatbotEffectiveness: 0.85,
+      visionAccuracy: 0.92,
+      demandPredictionAccuracy: 0.78
+    };
+
+    res.json({ 
+      success: true,
+      data: metrics 
+    });
   } catch (error) {
-      logger.error('Erreur récupération des métriques IA:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
-      res.status(500).json({ message: 'Erreur serveur' });
+    handleError(res, error, 'la récupération des métriques IA');
   }
 });
 
 // Route pour les rapports complets
-router.get('/reports', async (req, res) => {
+router.get('/reports', authenticateUser, async (req, res) => {
   try {
     const reports = [
       {
@@ -367,57 +501,32 @@ router.get('/reports', async (req, res) => {
         category: 'sales',
         format: 'pdf',
         status: 'ready',
-        lastGenerated: '2025-07-16T10:30:00Z',
+        lastGenerated: new Date().toISOString(),
         size: '2.3 MB'
-      },
-      {
-        id: 'inventory-stock',
-        name: 'État des Stocks',
-        description: 'Inventaire complet avec alertes et recommandations',
-        type: 'predefined',
-        category: 'inventory',
-        format: 'excel',
-        status: 'ready',
-        lastGenerated: '2025-07-16T08:15:00Z',
-        size: '1.8 MB'
-      },
-      {
-        id: 'customer-analytics',
-        name: 'Analytics Clientèle',
-        description: 'Segmentation et comportement des clients',
-        type: 'predefined',
-        category: 'customers',
-        format: 'pdf',
-        status: 'generating',
-        lastGenerated: '2025-07-15T16:45:00Z',
-        size: '3.1 MB'
-      },
-      {
-        id: 'ai-insights-report',
-        name: 'Rapport Insights IA',
-        description: 'Compilation des recommandations IA du mois',
-        type: 'automated',
-        category: 'ai',
-        format: 'pdf',
-        status: 'ready',
-        lastGenerated: '2025-07-16T12:00:00Z',
-        size: '4.2 MB'
       }
     ];
 
-    res.json({ reports });
+    res.json({ 
+      success: true,
+      data: reports 
+    });
   } catch (error) {
-    logger.error('Erreur récupération rapports:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
-    res.status(500).json({ message: 'Erreur serveur' });
+    handleError(res, error, 'la récupération des rapports');
   }
 });
 
 // Route pour générer un rapport
-router.post('/reports/:reportId/generate', async (req, res) => {
+router.post('/reports/:reportId/generate', authenticateUser, async (req, res) => {
   try {
     const { reportId } = req.params;
 
-    // Simulation génération de rapport
+    if (!reportId) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'ID de rapport manquant' 
+      });
+    }
+
     const reportData = {
       id: reportId,
       status: 'generating',
@@ -425,26 +534,19 @@ router.post('/reports/:reportId/generate', async (req, res) => {
       estimatedTime: 30
     };
 
-    // Simuler le processus de génération
-    setTimeout(() => {
-      reportData.status = 'ready';
-      reportData.progress = 100;
-      (reportData as any).downloadUrl = `/api/advanced/reports/${reportId}/download`;
-      (reportData as any).filename = `rapport-${reportId}-${new Date().toISOString().split('T')[0]}.pdf`;
-    }, 2000);
-
-    res.json(reportData);
+    res.json({ 
+      success: true,
+      data: reportData 
+    });
   } catch (error) {
-    logger.error('Erreur génération rapport:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
-    res.status(500).json({ message: 'Erreur serveur' });
+    handleError(res, error, 'la génération de rapport');
   }
 });
 
 // Route pour récupérer les modules avancés
-router.get('/modules', async (req, res) => {
+router.get('/modules', authenticateUser, async (req, res) => {
   try {
     const modules = [
-      // Intelligence Artificielle
       {
         id: 'ai-chatbot',
         name: 'Chatbot IA',
@@ -452,245 +554,15 @@ router.get('/modules', async (req, res) => {
         category: 'ai',
         enabled: true,
         metrics: { usage: 89, satisfaction: 4.7, performance: 95 }
-      },
-      {
-        id: 'ai-predictive-analytics',
-        name: 'Analytics Prédictives',
-        description: 'Prédictions IA pour stock et demande',
-        category: 'ai',
-        enabled: true,
-        metrics: { accuracy: 94, predictions: 156, performance: 92 }
-      },
-      {
-        id: 'ai-voice-recognition',
-        name: 'Reconnaissance Vocale',
-        description: 'Prise de commande mains libres',
-        category: 'ai',
-        enabled: true,
-        metrics: { accuracy: 92, orders: 156, performance: 88 }
-      },
-      {
-        id: 'ai-vision-quality',
-        name: 'Vision par Ordinateur',
-        description: 'Contrôle qualité automatique des plats',
-        category: 'ai',
-        enabled: true,
-        metrics: { accuracy: 96, controls: 892, performance: 91 }
-      },
-
-      // Applications Mobiles
-      {
-        id: 'mobile-staff-app',
-        name: 'App Staff Mobile',
-        description: 'Application dédiée pour le personnel',
-        category: 'mobile',
-        enabled: true,
-        metrics: { users: 12, sessions: 48, performance: 94 }
-      },
-      {
-        id: 'mobile-customer-app',
-        name: 'App Client Mobile',
-        description: 'Application de commande pour clients',
-        category: 'mobile',
-        enabled: true,
-        metrics: { downloads: 3456, orders: 167, performance: 93 }
-      },
-      {
-        id: 'mobile-manager-dashboard',
-        name: 'Dashboard Manager Mobile',
-        description: 'Tableau de bord pour managers',
-        category: 'mobile',
-        enabled: true,
-        metrics: { managers: 3, reports: 124, performance: 89 }
-      },
-
-      // Présence Digitale
-      {
-        id: 'digital-social-media',
-        name: 'Gestion Réseaux Sociaux',
-        description: 'Automatisation posts et engagement',
-        category: 'digital',
-        enabled: true,
-        metrics: { posts: 156, engagement: 34, performance: 87 }
-      },
-      {
-        id: 'digital-reputation',
-        name: 'E-reputation',
-        description: 'Monitoring avis et réputation',
-        category: 'digital',
-        enabled: true,
-        metrics: { rating: 4.7, reviews: 234, performance: 91 }
-      },
-      {
-        id: 'digital-website-optimization',
-        name: 'Optimisation Site Web',
-        description: 'SEO et performance automatisés',
-        category: 'digital',
-        enabled: true,
-        metrics: { seoScore: 94, speed: 2.1, performance: 88 }
-      },
-
-      // Paiements & Fintech
-      {
-        id: 'fintech-mobile-payments',
-        name: 'Paiements Mobiles',
-        description: 'Apple Pay, Google Pay, Samsung Pay',
-        category: 'fintech',
-        enabled: true,
-        metrics: { transactions: 1234, adoption: 67, performance: 96 }
-      },
-      {
-        id: 'fintech-cryptocurrency',
-        name: 'Paiements Crypto',
-        description: 'Bitcoin, Ethereum et stablecoins',
-        category: 'fintech',
-        enabled: false,
-        metrics: { payments: 0, wallets: 0, performance: 0 }
-      },
-      {
-        id: 'fintech-loyalty-tokens',
-        name: 'Tokens de Fidélité',
-        description: 'Système de fidélité blockchain',
-        category: 'fintech',
-        enabled: true,
-        metrics: { tokens: 12456, clients: 789, performance: 85 }
-      },
-
-      // Durabilité & RSE
-      {
-        id: 'sustainability-waste-tracking',
-        name: 'Suivi Déchets',
-        description: 'Monitoring et réduction déchets',
-        category: 'sustainability',
-        enabled: true,
-        metrics: { wasteReduced: 67, co2Saved: 2.1, performance: 92 }
-      },
-      {
-        id: 'sustainability-carbon-footprint',
-        name: 'Empreinte Carbone',
-        description: 'Calcul et compensation automatique',
-        category: 'sustainability',
-        enabled: true,
-        metrics: { emissions: 145, compensation: 156, performance: 88 }
-      },
-      {
-        id: 'sustainability-local-suppliers',
-        name: 'Fournisseurs Locaux',
-        description: 'Priorité aux producteurs locaux',
-        category: 'sustainability',
-        enabled: true,
-        metrics: { localSuppliers: 78, distance: 45, performance: 90 }
-      },
-
-      // Technologies Émergentes (IoT)
-      {
-        id: 'iot-sensors',
-        name: 'Capteurs IoT',
-        description: 'Monitoring température, humidité, stock',
-        category: 'iot',
-        enabled: true,
-        metrics: { sensors: 24, alerts: 3, performance: 94 }
-      },
-      {
-        id: 'iot-smart-equipment',
-        name: 'Équipements Connectés',
-        description: 'Machines à café et fours intelligents',
-        category: 'iot',
-        enabled: true,
-        metrics: { equipment: 8, alerts: 12, performance: 91 }
-      },
-      {
-        id: 'iot-energy-management',
-        name: 'Gestion Énergétique',
-        description: 'Optimisation consommation automatique',
-        category: 'iot',
-        enabled: true,
-        metrics: { savings: 23, cost: 456, performance: 89 }
-      },
-
-      // Marketing & CRM Avancé
-      {
-        id: 'marketing-automation',
-        name: 'Marketing Automatisé',
-        description: 'Campagnes personnalisées par IA',
-        category: 'marketing',
-        enabled: true,
-        metrics: { campaigns: 8, conversion: 23.5, performance: 93 }
-      },
-      {
-        id: 'marketing-customer-segmentation',
-        name: 'Segmentation Clients',
-        description: 'Analyse comportementale avancée',
-        category: 'marketing',
-        enabled: true,
-        metrics: { segments: 12, precision: 94, performance: 90 }
-      },
-      {
-        id: 'marketing-loyalty-gamification',
-        name: 'Gamification Fidélité',
-        description: 'Système de récompenses gamifié',
-        category: 'marketing',
-        enabled: true,
-        metrics: { players: 567, challenges: 1234, performance: 87 }
-      },
-
-      // Sécurité & Conformité
-      {
-        id: 'security-gdpr-compliance',
-        name: 'Conformité RGPD',
-        description: 'Audit automatique et conformité',
-        category: 'security',
-        enabled: true,
-        metrics: { compliance: 98, audits: 12, performance: 98 }
-      },
-      {
-        id: 'security-fraud-detection',
-        name: 'Détection Fraude',
-        description: 'IA anti-fraude temps réel',
-        category: 'security',
-        enabled: true,
-        metrics: { blocked: 23, precision: 97.8, performance: 96 }
-      },
-      {
-        id: 'security-data-encryption',
-        name: 'Chiffrement Données',
-        description: 'Chiffrement bout en bout automatique',
-        category: 'security',
-        enabled: true,
-        metrics: { encrypted: 100, rotations: 24, performance: 99 }
-      },
-
-      // Multi-établissements
-      {
-        id: 'multisite-central-management',
-        name: 'Gestion Centralisée',
-        description: 'Pilotage multi-sites unifié',
-        category: 'multisite',
-        enabled: true,
-        metrics: { sites: 3, sync: 99.9, performance: 92 }
-      },
-      {
-        id: 'multisite-performance-comparison',
-        name: 'Comparaison Performance',
-        description: 'Benchmarking entre établissements',
-        category: 'multisite',
-        enabled: true,
-        metrics: { metrics: 45, reports: 156, performance: 89 }
-      },
-      {
-        id: 'multisite-resource-sharing',
-        name: 'Partage Ressources',
-        description: 'Optimisation stocks inter-sites',
-        category: 'multisite',
-        enabled: true,
-        metrics: { transfers: 45, savings: 2340, performance: 88 }
       }
     ];
 
-    res.json({ modules });
+    res.json({ 
+      success: true,
+      data: modules 
+    });
   } catch (error) {
-    logger.error('Erreur récupération modules:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
-    res.status(500).json({ message: 'Erreur serveur' });
+    handleError(res, error, 'la récupération des modules');
   }
 });
 
@@ -699,18 +571,23 @@ router.post('/modules/:moduleId/activate', authenticateUser, async (req, res) =>
   try {
     const { moduleId } = req.params;
 
-    // Simulation activation module
-    console.log(`Activation du module: ${moduleId}`);
+    if (!moduleId) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'ID de module manquant' 
+      });
+    }
 
     res.json({ 
-      success: true, 
-      message: `Module ${moduleId} activé avec succès`,
-      moduleId,
-      status: 'active'
+      success: true,
+      data: { 
+        moduleId,
+        status: 'active' 
+      },
+      message: `Module ${moduleId} activé avec succès`
     });
   } catch (error) {
-    logger.error('Erreur activation module:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
-    res.status(500).json({ message: 'Erreur serveur' });
+    handleError(res, error, 'l\'activation du module');
   }
 });
 
@@ -718,18 +595,23 @@ router.post('/modules/:moduleId/deactivate', authenticateUser, async (req, res) 
   try {
     const { moduleId } = req.params;
 
-    // Simulation désactivation module
-    console.log(`Désactivation du module: ${moduleId}`);
+    if (!moduleId) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'ID de module manquant' 
+      });
+    }
 
     res.json({ 
-      success: true, 
-      message: `Module ${moduleId} désactivé avec succès`,
-      moduleId,
-      status: 'inactive'
+      success: true,
+      data: { 
+        moduleId,
+        status: 'inactive' 
+      },
+      message: `Module ${moduleId} désactivé avec succès`
     });
   } catch (error) {
-    logger.error('Erreur désactivation module:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
-    res.status(500).json({ message: 'Erreur serveur' });
+    handleError(res, error, 'la désactivation du module');
   }
 });
 
@@ -739,23 +621,28 @@ router.post('/modules/:moduleId/configure', authenticateUser, async (req, res) =
     const { moduleId } = req.params;
     const { config } = req.body;
 
-    // Simulation configuration module
-    console.log(`Configuration du module: ${moduleId}`, config);
+    if (!moduleId || !config) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Données de configuration manquantes' 
+      });
+    }
 
     res.json({ 
-      success: true, 
-      message: `Module ${moduleId} configuré avec succès`,
-      moduleId,
-      config
+      success: true,
+      data: { 
+        moduleId,
+        config 
+      },
+      message: `Module ${moduleId} configuré avec succès`
     });
   } catch (error) {
-    logger.error('Erreur configuration module:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
-    res.status(500).json({ message: 'Erreur serveur' });
+    handleError(res, error, 'la configuration du module');
   }
 });
 
 // Route pour les KPIs temps réel
-router.get('/kpis', async (req, res) => {
+router.get('/kpis', authenticateUser, async (req, res) => {
   try {
     const kpis = {
       dailyRevenue: 654.50,
@@ -766,46 +653,33 @@ router.get('/kpis', async (req, res) => {
       staffEfficiency: 92
     };
 
-    res.json(kpis);
+    res.json({ 
+      success: true,
+      data: kpis 
+    });
   } catch (error) {
-    logger.error('Erreur récupération KPIs:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
-    res.status(500).json({ message: 'Erreur serveur' });
+    handleError(res, error, 'la récupération des KPIs');
   }
 });
 
 // Routes pour les fonctionnalités avancées
 router.get('/modules-status', authenticateUser, async (req, res) => {
   try {
-    // Simuler la récupération du statut des modules avec validation
-    // Fonction simulée pour le statut des modules
-    const getModulesStatus = async () => ({
+    const modulesStatus = {
       inventory: { active: true, lastSync: new Date().toISOString() },
       analytics: { active: true, lastUpdate: new Date().toISOString() },
       loyalty: { active: true, members: 145 },
       delivery: { active: false, reason: 'Configuration required' }
-    });
-    
-    const modulesStatus = await getModulesStatus();
+    };
 
-    // Validation des données avant envoi
-    if (!modulesStatus || typeof modulesStatus !== 'object') {
-      throw new Error('Données de modules invalides');
-    }
-
-    res.json({
+    res.json({ 
       success: true,
       data: modulesStatus,
-      timestamp: new Date()}).toISOString()
+      timestamp: new Date().toISOString()
     });
-  } catch (error: unknown) {
-    logger.error('Erreur lors de la récupération du statut des modules:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
-    res.status(500).json({ 
-      success: false,
-      error: 'Erreur lors de la récupération du statut des modules',
-      message: (error as Error)}).message || 'Erreur inconnue'
-    });
+  } catch (error) {
+    handleError(res, error, 'la récupération du statut des modules');
   }
 });
 
-export const advancedFeaturesRouter = router;
 export default router;
