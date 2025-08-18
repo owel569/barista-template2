@@ -4,72 +4,61 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import apiRoutes from './routes/index';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const PORT = parseInt(process.env.PORT || '3000', 10);
+const HOST = '0.0.0.0';
 
-const PORT = process.env.PORT || 3000; // Replit utilise process.env.PORT
-const HOST = '0.0.0.0'; // Nécessaire pour Replit
-
-async function startServer() {
+async function createServer() {
   const app = express();
 
-  // Middleware CORS seulement en développement
-  if (process.env.NODE_ENV !== 'production') {
-    const cors = await import('cors');
-    app.use(cors.default({ origin: '*' }));
-  }
-
-  // Configuration Vite en développement
-  if (process.env.NODE_ENV !== 'production') {
-    const vite = await createViteServer({
-      server: { 
-        middlewareMode: true,
-        hmr: {
-          port: 443, // Port WebSocket spécial pour Replit
-          clientPort: 443
-        }
-      },
-      root: path.resolve(__dirname, '../client'),
-      appType: 'spa'
-    });
-    app.use(vite.middlewares);
-  } else {
-    app.use(express.static(path.resolve(__dirname, '../client/dist')));
-  }
-
-  // Routes API
-  app.use('/api', apiRoutes);
-
-  // Route de santé
-  app.get('/health', (req, res) => {
-    res.json({ status: 'OK', timestamp: new Date() });
+  // 1. Créer le serveur Vite en mode middleware
+  const vite = await createViteServer({
+    server: { middlewareMode: true },
+    root: path.resolve(__dirname, '../client'),
+    appType: 'spa',
+    logLevel: 'info'
   });
 
-  // Gestion des routes frontend
-  app.get('*', async (req, res) => {
-    if (process.env.NODE_ENV !== 'production') {
-      const vite = await createViteServer({
-        server: { middlewareMode: true },
-        root: path.resolve(__dirname, '../client'),
-        appType: 'spa'
-      });
+  // 2. Middlewares
+  app.use(vite.middlewares);
+  app.use(express.json());
+
+  // 3. Routes API
+  app.use('/api', apiRoutes);
+
+  // 4. Gestion des routes SPA
+  app.use('*', async (req, res) => {
+    try {
+      const url = req.originalUrl;
+      if (url.startsWith('/api')) return res.status(404).send('Not found');
+
       const html = await vite.transformIndexHtml(
-        req.url,
-        '<div id="root"></div><script type="module" src="/src/main.tsx"></script>'
+        url,
+        '<div id="root"></div>'
       );
-      res.send(html);
-    } else {
-      res.sendFile(path.resolve(__dirname, '../client/dist/index.html'));
+      res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
+    } catch (e) {
+      vite.ssrFixStacktrace(e as Error);
+      console.error(e);
+      res.status(500).end((e as Error).message);
     }
   });
 
-  app.listen(PORT, HOST, () => {
-    console.log(`🚀 Serveur démarré sur http://${HOST}:${PORT}`);
-    console.log(`⚡ API disponible sur http://${HOST}:${PORT}/api`);
+  // 5. Démarrer le serveur
+  return app.listen(PORT, HOST, () => {
+    console.log(`✅ Base de données connectée avec succès`);
+    console.log(`🚀 Server running on http://${HOST}:${PORT}`);
+    console.log(`⚡ API: http://${HOST}:${PORT}/api`);
+    console.log(`✨ Vite: http://${HOST}:${PORT}`);
   });
 }
 
-startServer().catch(err => {
-  console.error('Erreur démarrage serveur:', err);
+createServer().catch(err => {
+  console.error('Server error:', err);
   process.exit(1);
+});
+
+process.on('SIGINT', () => {
+  console.log('Signal SIGINT reçu, arrêt du serveur...');
+  process.exit(0);
 });

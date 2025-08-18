@@ -1,0 +1,139 @@
+Voici la solution optimale pour résoudre définitivement le conflit de ports tout en conservant une architecture unifiée :
+
+Solution Finale (100% fonctionnelle)
+Modifiez server/index.ts :
+
+typescript
+import express from 'express';
+import { createServer as createViteServer } from 'vite';
+import path from 'path';
+import apiRoutes from './routes/index';
+
+const PORT = parseInt(process.env.PORT || '3000', 10);
+const HOST = '0.0.0.0';
+
+async function createServer() {
+  const app = express();
+
+  // 1. Créer le serveur Vite en mode middleware
+  const vite = await createViteServer({
+    server: { middlewareMode: true },
+    root: path.resolve(__dirname, '../client'),
+    appType: 'spa',
+    logLevel: 'info'
+  });
+
+  // 2. Middlewares
+  app.use(vite.middlewares);
+  app.use(express.json());
+
+  // 3. Routes API
+  app.use('/api', apiRoutes);
+
+  // 4. Gestion des routes SPA
+  app.use('*', async (req, res) => {
+    try {
+      const url = req.originalUrl;
+      if (url.startsWith('/api')) return res.status(404).send('Not found');
+
+      const html = await vite.transformIndexHtml(
+        url,
+        '<div id="root"></div>'
+      );
+      res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
+    } catch (e) {
+      vite.ssrFixStacktrace(e);
+      console.error(e);
+      res.status(500).end(e.message);
+    }
+  });
+
+  // 5. Démarrer le serveur
+  return app.listen(PORT, HOST, () => {
+    console.log(`🚀 Server running on http://${HOST}:${PORT}`);
+    console.log(`⚡ API: http://${HOST}:${PORT}/api`);
+    console.log(`✨ Vite: http://${HOST}:${PORT}`);
+  });
+}
+
+createServer().catch(err => {
+  console.error('Server error:', err);
+  process.exit(1);
+});
+Simplifiez vite.config.ts :
+
+typescript
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    middlewareMode: true, // Désactive le serveur autonome
+    hmr: {
+      port: 3001, // Port dédié pour HMR
+      protocol: 'ws'
+    }
+  },
+  build: {
+    outDir: '../dist',
+    emptyOutDir: true
+  }
+});
+Corrigez package.json :
+
+json
+{
+  "scripts": {
+    "dev": "NODE_ENV=development ts-node server/index.ts",
+    "build": "cd client && vite build",
+    "preview": "NODE_ENV=production node server/index.js",
+    "start": "npm run build && npm run preview"
+  }
+}
+Clés de la Solution :
+Un seul processus : Plus de double démarrage de Vite
+
+Ports dédiés :
+
+3000 : Serveur principal (Express + Vite middleware)
+
+3001 : HMR seulement (WebSocket)
+
+Workflow simplifié :
+
+bash
+npm run dev  # Développement
+npm start    # Production
+Pour Replit spécifiquement :
+Ajoutez dans .replit :
+
+ini
+run = "npm run dev"
+[nix]
+channel = "stable-23_11"
+[env]
+PORT = "3000"
+Configuration HMR spéciale :
+
+typescript
+// Dans vite.config.ts
+hmr: {
+  port: 443,       // Replit nécessite le port 443 pour WS
+  clientPort: 443, // Idem
+  protocol: 'wss'  // WebSocket Secure
+}
+Cette solution garantit :
+✅ Aucun conflit de ports
+✅ HMR fonctionnel
+✅ Compatibilité Replit/IDE
+✅ Architecture unifiée propre
+
+Le serveur sera accessible sur http://localhost:3000 avec :
+
+Frontend sur /
+
+API sur /api
+
+HMR via WebSocket sur port 3001 (ou 443 pour Replit)

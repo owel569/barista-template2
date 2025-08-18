@@ -6,6 +6,11 @@ Barista Café is a comprehensive restaurant management system built with React, 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+- **18 Aug 2025**: Migration terminée vers architecture unifiée Express + Vite
+- Configuration serveur unique sur port 3000 résolvant les conflits de ports
+- Intégration Vite middleware pour hot-reloading optimal sur Replit
+
 ## System Architecture
 
 ### Frontend
