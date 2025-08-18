@@ -139,4 +139,50 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// Récupérer les catégories du menu
+router.get('/categories', async (req, res) => {
+  try {
+    const categories = [
+      {
+        id: '1',
+        name: 'Boissons chaudes',
+        description: 'Cafés, thés et chocolats chauds',
+        items: [
+          { id: '1', name: 'Espresso', price: 2.50 },
+          { id: '2', name: 'Cappuccino', price: 3.50 },
+          { id: '3', name: 'Latte', price: 4.00 }
+        ]
+      },
+      {
+        id: '2', 
+        name: 'Viennoiseries',
+        description: 'Pâtisseries et viennoiseries fraîches',
+        items: [
+          { id: '4', name: 'Croissant', price: 2.00 },
+          { id: '5', name: 'Pain au chocolat', price: 2.50 }
+        ]
+      },
+      {
+        id: '3',
+        name: 'Boissons froides', 
+        description: 'Boissons glacées et rafraîchissantes',
+        items: [
+          { id: '6', name: 'Frappuccino', price: 4.50 },
+          { id: '7', name: 'Thé glacé', price: 3.00 }
+        ]
+      }
+    ];
+    
+    res.json({
+      success: true,
+      data: categories
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la récupération des catégories'
+    });
+  }
+});
+
 export default router;

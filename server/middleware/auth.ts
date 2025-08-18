@@ -8,17 +8,8 @@ if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
   throw new Error('JWT_SECRET environment variable is required in production');
 }
 
-interface AuthRequest extends Request {
-  user?: {
-    id: string;
-    username: string;
-    email: string;
-    role: string;
-  };
-}
-
 // Middleware d'authentification principal (remplace authMiddleware)
-export const authenticateUser = (req: AuthRequest, res: Response, next: NextFunction): void => {
+export const authenticateUser = (req: Request, res: Response, next: NextFunction): void => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
 
   if (!token) {
@@ -46,7 +37,7 @@ export const authenticateUser = (req: AuthRequest, res: Response, next: NextFunc
 export const authMiddleware = authenticateUser;
 
 export const requireRole = (role: string) => {
-  return (req: AuthRequest, res: Response, next: NextFunction): void => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     const user = req.user;
     if (!user || user.role !== role) {
       res.status(403).json({ message: 'Accès refusé - rôle insuffisant' });
@@ -57,7 +48,7 @@ export const requireRole = (role: string) => {
 };
 
 export const requireRoles = (roles: string[]) => {
-  return (req: AuthRequest, res: Response, next: NextFunction): void => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     const user = req.user;
     if (!user || !roles.includes(user.role)) {
       res.status(403).json({ message: 'Accès refusé - rôle insuffisant' });
