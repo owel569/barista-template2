@@ -35,20 +35,10 @@ async function createServer() {
         return;
       }
 
-      const template = `
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <title>Restaurant App</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
-      `;
+      // Utiliser le vrai fichier index.html du client
+      const fs = await import('fs');
+      const templatePath = path.resolve(__dirname, '../client/index.html');
+      const template = fs.readFileSync(templatePath, 'utf-8');
       const html = await vite.transformIndexHtml(url, template);
       res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
     } catch (e) {
