@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authMiddleware } from '../middleware/auth';
+import { authenticateUser } from '../middleware/auth';
 
 // Import des routes modulaires
 import authRoutes from './auth/auth.routes';
@@ -22,14 +22,14 @@ router.use('/auth', authRoutes);
 router.use('/menu', menuRoutes); // Menu public pour consultation
 
 // Routes protégées
-router.use('/users', authMiddleware, userRoutes);
-router.use('/orders', authMiddleware, orderRoutes);
-router.use('/analytics', authMiddleware, analyticsRoutes);
-router.use('/dashboard', authMiddleware, dashboardRoutes);
-router.use('/admin', authMiddleware, adminRoutes);
-router.use('/delivery', authMiddleware, deliveryRoutes);
-router.use('/tables', authMiddleware, tableRoutes);
-router.use('/events', authMiddleware, eventRoutes);
+router.use('/users', authenticateUser, userRoutes);
+router.use('/orders', authenticateUser, orderRoutes);
+router.use('/analytics', authenticateUser, analyticsRoutes);
+router.use('/dashboard', authenticateUser, dashboardRoutes);
+router.use('/admin', authenticateUser, adminRoutes);
+router.use('/delivery', authenticateUser, deliveryRoutes);
+router.use('/tables', authenticateUser, tableRoutes);
+router.use('/events', authenticateUser, eventRoutes);
 
 // Routes semi-publiques (certaines routes publiques, d'autres protégées)
 router.use('/reservations', reservationRoutes);

@@ -10,3 +10,7 @@ const connection = postgres(connectionString, { max: 1 });
 export const db = drizzle(connection, { schema });
 
 console.log('✅ Base de données connectée avec succès');
+
+// Export par défaut et named export
+export const getDb = () => db;
+export default db;

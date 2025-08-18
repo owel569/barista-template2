@@ -16,11 +16,9 @@ async function createServer() {
     server: { 
       middlewareMode: true,
       hmr: {
-        port: PORT + 1,
+        port: 24678,
         host: '0.0.0.0'
-      },
-      allowedHosts: true,
-      origin: `http://0.0.0.0:${PORT}`
+      }
     },
     root: path.resolve(__dirname, '../client'),
     appType: 'spa',
