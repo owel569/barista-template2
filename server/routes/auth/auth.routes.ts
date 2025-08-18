@@ -14,6 +14,7 @@ router.post('/login', async (req, res) => {
       const user = {
         id: '1',
         username: 'admin',
+        email: 'admin@barista.com',
         role: 'admin'
       };
       
