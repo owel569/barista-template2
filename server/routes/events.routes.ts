@@ -1,6 +1,9 @@
-
 import { Router } from 'express';
+import { z } from 'zod';
+import { asyncHandler } from '../middleware/error-handler';
+import { createLogger } from '../middleware/logging';
 import { authenticateUser, requireRoles } from '../middleware/auth';
+import { validateBody, validateParams, validateQuery } from '../middleware/validation';
 
 const router = Router();
 

@@ -1,4 +1,3 @@
-
 import { Router } from 'express';
 import { z } from 'zod';
 import { asyncHandler } from '../middleware/error-handler';
@@ -72,7 +71,7 @@ const TABLE_LOCATIONS = ['Terrasse', 'Intérieur', 'Bar', 'Salle privée'] as co
 const TableStatusSchema = z.enum(['available', 'occupied', 'reserved', 'maintenance']);
 
 const tableSchema = z.object({
-  number: z.number()}).positive('Numéro de table doit être positif'),
+  number: z.number().positive('Numéro de table doit être positif'),
   capacity: z.number().min(1, 'Capacité minimum 1').max(20, 'Capacité maximum 20'),
   status: TableStatusSchema.default('available'),
   location: z.string().min(1, 'Emplacement requis')
@@ -80,12 +79,12 @@ const tableSchema = z.object({
 
 const statusUpdateSchema = z.object({
   status: TableStatusSchema,
-  reservationId: z.number()}).optional(),
+  reservationId: z.number().optional(),
   notes: z.string().optional()
 });
 
 const reservationSchema = z.object({
-  customerName: z.string()}).min(1, 'Nom du client requis'),
+  customerName: z.string().min(1, 'Nom du client requis'),
   partySize: z.number().min(1, 'Taille du groupe minimum 1').max(20, 'Taille du groupe maximum 20'),
   date: z.string().datetime('Date invalide'),
   time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Format heure invalide (HH:MM)'),
@@ -93,14 +92,14 @@ const reservationSchema = z.object({
 });
 
 const TableQuerySchema = z.object({
-  status: TableStatusSchema.optional()}),
+  status: TableStatusSchema.optional(),
   location: z.string().optional(),
   limit: z.coerce.number().min(1).max(100).default(10),
   offset: z.coerce.number().min(0).default(0)
 });
 
 const AvailabilityQuerySchema = z.object({
-  capacity: z.coerce.number()}).min(1).optional(),
+  capacity: z.coerce.number().min(1).optional(),
   date: z.string().datetime().optional(),
   time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/).optional()
 });
@@ -164,7 +163,7 @@ class TableService {
   ): Promise<boolean> {
     try {
       const db = await getDb();
-      
+
       const existingReservations = await db.select()
         .from(reservations)
         .where(and(
@@ -181,7 +180,7 @@ class TableService {
         date, 
         time, 
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
-      )});
+      });
       return false;
     }
   }
@@ -200,8 +199,8 @@ class TableService {
 
     const locationBreakdown = TABLE_LOCATIONS.map(location => ({
       location,
-      count: tables.filter(t => t.location === location}).length
-    });
+      count: tables.filter(t => t.location === location).length
+    }));
 
     return {
       totalTables,
@@ -227,7 +226,7 @@ tablesRouter.get('/',
   validateQuery(TableQuerySchema),
   asyncHandler(async (req, res) => {
     const { status, location, limit, offset } = req.query;
-    
+
     try {
       let filteredTables = tables;
 
@@ -241,12 +240,12 @@ tablesRouter.get('/',
 
       const paginated = filteredTables.slice(offset, offset + limit);
 
-  res.json({
+      res.json({
         success: true,
         data: {
           tables: paginated,
-    pagination: {
-      total: filteredTables.length,
+          pagination: {
+            total: filteredTables.length,
             limit,
             offset,
             hasMore: offset + limit < filteredTables.length
@@ -258,7 +257,7 @@ tablesRouter.get('/',
         status, 
         location, 
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
-      )});
+      });
       res.status(500).json({ 
         success: false,
         message: 'Erreur lors de la récupération des tables' 
@@ -282,7 +281,7 @@ tablesRouter.get('/stats',
     } catch (error) {
       logger.error('Erreur statistiques tables', { 
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
-      )});
+      });
       res.status(500).json({ 
         success: false,
         message: 'Erreur lors de la récupération des statistiques' 
@@ -298,7 +297,7 @@ tablesRouter.get('/available',
   validateQuery(AvailabilityQuerySchema),
   asyncHandler(async (req, res) => {
     const { capacity, date, time } = req.query;
-    
+
     try {
       let availableTables = tables.filter(table => table.status === 'available');
 
@@ -327,7 +326,7 @@ tablesRouter.get('/available',
         date, 
         time, 
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
-      )});
+      });
       res.status(500).json({ 
         success: false,
         message: 'Erreur lors de la récupération des tables disponibles' 
@@ -340,15 +339,15 @@ tablesRouter.get('/available',
 tablesRouter.get('/:id', 
   authenticateUser,
   requireRoles(['admin', 'manager', 'staff']),
-  validateParams(z.object({ id: z.string()}).regex(/^\d+$/) })),
+  validateParams(z.object({ id: z.string().regex(/^\d+$/, 'ID doit être un nombre') })),
   asyncHandler(async (req, res) => {
     const { id } = req.params;
     const idNum = parseInt(id);
-    
+
     try {
-  const table = tables.find(t => t.id === idNum);
-      
-  if (!table) {
+      const table = tables.find(t => t.id === idNum);
+
+      if (!table) {
         return res.status(404).json({ 
           success: false,
           message: 'Table non trouvée' 
@@ -363,7 +362,7 @@ tablesRouter.get('/:id',
       logger.error('Erreur récupération table', { 
         id, 
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
-      )});
+      });
       res.status(500).json({ 
         success: false,
         message: 'Erreur lors de la récupération de la table' 
@@ -379,7 +378,7 @@ tablesRouter.post('/',
   validateBody(tableSchema),
   asyncHandler(async (req, res) => {
     const { number, capacity, status, location } = req.body;
-    
+
     try {
       // Vérifier l'unicité du numéro de table
       const exists = tables.some(t => t.number === number);
@@ -390,18 +389,18 @@ tablesRouter.post('/',
         });
       }
 
-  const newTable: Table = {
-    id: tables.length + 1,
+      const newTable: Table = {
+        id: tables.length > 0 ? Math.max(...tables.map(t => t.id)) + 1 : 1,
         number,
         capacity,
         status: status || 'available',
         location,
-    currentReservation: null,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  };
+        currentReservation: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
 
-  tables.push(newTable);
+      tables.push(newTable);
 
       logger.info('Nouvelle table créée', { 
         tableId: newTable.id,
@@ -418,7 +417,7 @@ tablesRouter.post('/',
         number, 
         capacity, 
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
-      )});
+      });
       res.status(500).json({ 
         success: false,
         message: 'Erreur lors de la création de la table' 
@@ -431,37 +430,38 @@ tablesRouter.post('/',
 tablesRouter.patch('/:id/status', 
   authenticateUser,
   requireRoles(['admin', 'manager', 'staff']),
-  validateParams(z.object({ id: z.string()}).regex(/^\d+$/) })),
+  validateParams(z.object({ id: z.string().regex(/^\d+$/, 'ID doit être un nombre') })),
   validateBody(statusUpdateSchema),
   asyncHandler(async (req, res) => {
     const { id } = req.params;
-  const { status, reservationId, notes } = req.body;
+    const { status, reservationId, notes } = req.body;
     const idNum = parseInt(id);
-  
+
     try {
-  const table = tables.find(t => t.id === idNum);
-      
-  if (!table) {
+      const table = tables.find(t => t.id === idNum);
+
+      if (!table) {
         return res.status(404).json({ 
           success: false,
           message: 'Table non trouvée' 
         });
-  }
+      }
 
       const previousStatus = table.status;
       table.status = status;
       table.updatedAt = new Date().toISOString();
-  
-  // Gérer les réservations selon le statut
-  if (status === 'available') {
-    table.currentReservation = null;
-  } else if (status === 'reserved' && reservationId) {
-    table.currentReservation = {
-      id: reservationId,
-      customerName: 'Client Réservé',
-      partySize: 2,
-      time: '19:00',
-          date: new Date().toISOString(),
+
+      // Gérer les réservations selon le statut
+      if (status === 'available') {
+        table.currentReservation = null;
+      } else if (status === 'reserved' && reservationId) {
+        // Placeholder for fetching reservation details if needed, or creating a basic one
+        table.currentReservation = {
+          id: reservationId,
+          customerName: 'Client Réservé', // Should ideally come from reservationId lookup
+          partySize: 2, // Should ideally come from reservationId lookup
+          time: '19:00', // Should ideally come from reservationId lookup
+          date: new Date().toISOString(), // Should ideally come from reservationId lookup
           notes
         };
       }
@@ -482,7 +482,7 @@ tablesRouter.patch('/:id/status',
         id, 
         status, 
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
-      )});
+      });
       res.status(500).json({ 
         success: false,
         message: 'Erreur lors de la mise à jour du statut' 
@@ -495,24 +495,24 @@ tablesRouter.patch('/:id/status',
 tablesRouter.post('/:id/reserve', 
   authenticateUser,
   requireRoles(['admin', 'manager', 'staff']),
-  validateParams(z.object({ id: z.string()}).regex(/^\d+$/) })),
+  validateParams(z.object({ id: z.string().regex(/^\d+$/, 'ID doit être un nombre') })),
   validateBody(reservationSchema),
   asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { customerName, partySize, date, time, notes } = req.body;
     const idNum = parseInt(id);
-    
+
     try {
-  const table = tables.find(t => t.id === idNum);
-  
-  if (!table) {
+      const table = tables.find(t => t.id === idNum);
+
+      if (!table) {
         return res.status(404).json({ 
           success: false,
           message: 'Table non trouvée' 
         });
-  }
-  
-  if (table.status !== 'available') {
+      }
+
+      if (table.status !== 'available') {
         return res.status(400).json({ 
           success: false,
           message: 'Table non disponible' 
@@ -530,7 +530,7 @@ tablesRouter.post('/:id/reserve',
 
       // Créer la réservation
       const reservation: TableReservation = {
-    id: Date.now(),
+        id: tables.reduce((maxId, table) => Math.max(maxId, ...(table.currentReservation ? [table.currentReservation.id] : [])), 0) + 1,
         customerName,
         partySize,
         date,
@@ -540,8 +540,8 @@ tablesRouter.post('/:id/reserve',
 
       table.currentReservation = reservation;
       table.status = 'reserved';
-  table.updatedAt = new Date().toISOString();
-  
+      table.updatedAt = new Date().toISOString();
+
       logger.info('Table réservée', { 
         tableId: table.id,
         customerName,
@@ -562,7 +562,7 @@ tablesRouter.post('/:id/reserve',
         id, 
         customerName, 
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
-      )});
+      });
       res.status(500).json({ 
         success: false,
         message: 'Erreur lors de la réservation' 
@@ -575,17 +575,17 @@ tablesRouter.post('/:id/reserve',
 tablesRouter.put('/:id', 
   authenticateUser,
   requireRoles(['admin', 'manager']),
-  validateParams(z.object({ id: z.string()}).regex(/^\d+$/) })),
+  validateParams(z.object({ id: z.string().regex(/^\d+$/, 'ID doit être un nombre') })),
   validateBody(tableSchema),
   asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { number, capacity, status, location } = req.body;
     const idNum = parseInt(id);
-    
+
     try {
-  const table = tables.find(t => t.id === idNum);
-  
-  if (!table) {
+      const table = tables.find(t => t.id === idNum);
+
+      if (!table) {
         return res.status(404).json({ 
           success: false,
           message: 'Table non trouvée' 
@@ -622,7 +622,7 @@ tablesRouter.put('/:id',
       logger.error('Erreur mise à jour table', { 
         id, 
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
-      )});
+      });
       res.status(500).json({ 
         success: false,
         message: 'Erreur lors de la mise à jour de la table' 
@@ -635,14 +635,14 @@ tablesRouter.put('/:id',
 tablesRouter.delete('/:id', 
   authenticateUser,
   requireRoles(['admin']),
-  validateParams(z.object({ id: z.string()}).regex(/^\d+$/) })),
+  validateParams(z.object({ id: z.string().regex(/^\d+$/, 'ID doit être un nombre') })),
   asyncHandler(async (req, res) => {
     const { id } = req.params;
     const idNum = parseInt(id);
-    
+
     try {
       const tableIndex = tables.findIndex(t => t.id === idNum);
-      
+
       if (tableIndex === -1) {
         return res.status(404).json({ 
           success: false,
@@ -666,7 +666,7 @@ tablesRouter.delete('/:id',
       logger.error('Erreur suppression table', { 
         id, 
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
-      )});
+      });
       res.status(500).json({ 
         success: false,
         message: 'Erreur lors de la suppression de la table' 

@@ -9,6 +9,11 @@ import orderRoutes from './orders/orders.routes';
 import analyticsRoutes from './analytics/analytics.routes';
 import dashboardRoutes from './dashboard/dashboard.routes';
 import adminRoutes from './admin/admin.routes';
+import deliveryRoutes from './delivery';
+import reservationRoutes from './reservations';
+import tableRoutes from './tables';
+import feedbackRoutes from './feedback.routes';
+import eventRoutes from './events.routes';
 
 const router = Router();
 
@@ -22,6 +27,13 @@ router.use('/orders', authMiddleware, orderRoutes);
 router.use('/analytics', authMiddleware, analyticsRoutes);
 router.use('/dashboard', authMiddleware, dashboardRoutes);
 router.use('/admin', authMiddleware, adminRoutes);
+router.use('/delivery', authMiddleware, deliveryRoutes);
+router.use('/tables', authMiddleware, tableRoutes);
+router.use('/events', authMiddleware, eventRoutes);
+
+// Routes semi-publiques (certaines routes publiques, d'autres protégées)
+router.use('/reservations', reservationRoutes);
+router.use('/feedback', feedbackRoutes);
 
 // Health check
 router.get('/health', (req, res) => {

@@ -4,6 +4,7 @@ import { asyncHandler } from '../middleware/error-handler';
 import { createLogger } from '../middleware/logging';
 import { authenticateUser, requireRoles } from '../middleware/auth';
 import { validateBody, validateParams, validateQuery } from '../middleware/validation';
+import { validateBody, validateParams, validateQuery } from '../middleware/validation';
 import { getDb } from '../db';
 import { contactMessages, customers, staffMembers } from '../../shared/schema';
 import { eq, and, gte, lte, desc, sql, count, avg, isNotNull } from 'drizzle-orm';
