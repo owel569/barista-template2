@@ -6,7 +6,7 @@ import { authenticateUser, requireRoles } from '../middleware/auth';
 import { validateBody, validateParams, validateQuery } from '../middleware/validation';
 import { validateBody, validateParams, validateQuery } from '../middleware/validation';
 import { getDb } from '../db';
-import { contactMessages, customers, staffMembers } from '../../shared/schema';
+import { contactMessages, customers } from '../../shared/schema';
 import { eq, and, gte, lte, desc, sql, count, avg, isNotNull } from 'drizzle-orm';
 
 const router = Router();

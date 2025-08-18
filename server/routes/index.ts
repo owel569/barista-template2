@@ -21,7 +21,7 @@ const router = Router();
 router.use('/auth', authRoutes);
 router.use('/menu', menuRoutes); // Menu public pour consultation
 
-// Routes protégées
+// Routes protégées (nécessitent une authentification)
 router.use('/users', authenticateUser, userRoutes);
 router.use('/orders', authenticateUser, orderRoutes);
 router.use('/analytics', authenticateUser, analyticsRoutes);
@@ -31,9 +31,9 @@ router.use('/delivery', authenticateUser, deliveryRoutes);
 router.use('/tables', authenticateUser, tableRoutes);
 router.use('/events', authenticateUser, eventRoutes);
 
-// Routes semi-publiques (certaines routes publiques, d'autres protégées)
-router.use('/reservations', reservationRoutes);
-router.use('/feedback', feedbackRoutes);
+// Routes avec authentification mixte (certaines publiques, certaines protégées)
+router.use('/reservations', reservationRoutes); // POST public, GET/PUT/DELETE protégées
+router.use('/feedback', feedbackRoutes); // POST public, GET/DELETE protégées
 
 // Health check
 router.get('/health', (req, res) => {
