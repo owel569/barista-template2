@@ -6,33 +6,23 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  plugins: [
-    react(),
-  ],
+  plugins: [react()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "src"),
+      '@': path.resolve(__dirname, './src'),
       "@shared": path.resolve(__dirname, "..", "shared"),
       "@assets": path.resolve(__dirname, "..", "attached_assets"),
-    },
-  },
-  build: {
-    outDir: '../dist',
-    emptyOutDir: true,
+    }
   },
   server: {
     port: 3000,
-    host: '0.0.0.0',
     strictPort: true,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:5000',
-        changeOrigin: true,
-        secure: false,
-      },
-    },
+    hmr: {
+      clientPort: 3000
+    }
   },
-  preview: {
-    port: 3000,
-  },
+  build: {
+    outDir: '../server/public',
+    emptyOutDir: true
+  }
 });

@@ -1,0 +1,150 @@
+Solution optimisée :
+Modifiez votre server/index.ts pour intégrer Vite :
+
+typescript
+import express from 'express';
+import cors from 'cors';
+import { createServer as createViteServer } from 'vite';
+import apiRoutes from './routes/index';
+import path from 'path';
+
+async function startServer() {
+  const app = express();
+  const PORT = process.env.PORT || 3000; // Un seul port pour tout
+
+  // CORS configuration
+  app.use(cors({
+    origin: '*', // À restreindre en production
+    credentials: true
+  }));
+
+  // Middleware
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+
+  // Création du serveur Vite en mode middleware
+  const vite = await createViteServer({
+    server: { middlewareMode: true },
+    root: path.join(__dirname, '../client'),
+    appType: 'spa'
+  });
+
+  // Utilisation des middlewares Vite
+  app.use(vite.middlewares);
+
+  // Routes API
+  app.use('/api', apiRoutes);
+
+  // Route de santé
+  app.get('/health', (req, res) => {
+    res.json({ status: 'OK', message: 'API Barista Café fonctionne' });
+  });
+
+  // Gestion des routes frontend
+  app.get('*', async (req, res, next) => {
+    try {
+      const url = req.originalUrl;
+      
+      // Ignore les routes API
+      if (url.startsWith('/api')) return next();
+
+      const template = await vite.transformIndexHtml(
+        url,
+        '<div id="root"></div><script type="module" src="/src/main.tsx"></script>'
+      );
+      
+      res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
+    } catch (e) {
+      vite.ssrFixStacktrace(e);
+      next(e);
+    }
+  });
+
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`✅ Serveur démarré sur http://localhost:${PORT}`);
+  });
+}
+
+startServer().catch(err => {
+  console.error('Erreur démarrage serveur:', err);
+  process.exit(1);
+});
+Simplifiez votre configuration Vite (vite.config.ts) :
+
+typescript
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
+
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src')
+    }
+  },
+  server: {
+    port: 3000,
+    strictPort: true,
+    hmr: {
+      clientPort: 3000
+    }
+  },
+  build: {
+    outDir: '../server/public',
+    emptyOutDir: true
+  }
+});
+Structure recommandée :
+
+text
+/
+├── client/       # Frontend (React + Vite)
+│   ├── src/
+│   ├── index.html
+│   └── vite.config.ts
+└── server/       # Backend (Express)
+    ├── index.ts  # Serveur principal
+    ├── routes/
+    └── public/   # Fichiers construits
+Points clés corrigés :
+Un seul port (3000) pour le frontend et backend
+
+Intégration de Vite directement dans Express
+
+Routage correct des requêtes API vs frontend
+
+Configuration HMR fonctionnelle
+
+Build output dirigé vers server/public
+
+Pour démarrer :
+En développement :
+
+bash
+cd server && ts-node index.ts
+En production :
+
+bash
+cd client && vite build
+cd server && ts-node index.ts
+Avantages de cette solution :
+Plus de problèmes de CORS
+
+Hot-reloading fonctionnel
+
+Meilleure gestion des routes
+
+Configuration simplifiée
+
+Compatible avec Replit
+
+Si vous avez toujours des problèmes, vérifiez :
+
+Que tous les fichiers sont bien à leur place
+
+Les logs d'erreur dans la console
+
+Que le port 3000 est bien disponible
+
+Les éventuelles erreurs dans la console du navigateur (F12)
