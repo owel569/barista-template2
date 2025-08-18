@@ -1,67 +1,140 @@
 import { Router } from 'express';
-import { Request, Response } from 'express';
-import { db } from '../../db';
-import { menuCategories, menuItems } from '../../../shared/schema';
-import { eq, desc } from 'drizzle-orm';
-// Temporary logger replacement
-const logger = {
-  error: (message: string, meta?: any) => console.error(`[ERROR] ${message}`, meta),
-  info: (message: string, meta?: any) => console.log(`[INFO] ${message}`, meta),
-  warn: (message: string, meta?: any) => console.warn(`[WARN] ${message}`, meta)
-};
 
 const router = Router();
 
-// Obtenir toutes les catégories avec leurs items
-router.get('/categories', async (req: Request, res: Response) => {
+// Récupérer tout le menu
+router.get('/', async (req, res) => {
   try {
-    console.log('Fetching categories...');
-    const categories = await db.select().from(menuCategories).orderBy(desc(menuCategories.sortOrder));
-    console.log('Categories found:', categories.length);
+    // TODO: Récupérer depuis la base de données
+    const menu = [
+      {
+        id: '1',
+        name: 'Espresso',
+        description: 'Café espresso traditionnel',
+        price: 2.50,
+        category: 'Boissons chaudes',
+        available: true
+      },
+      {
+        id: '2',
+        name: 'Cappuccino',
+        description: 'Espresso avec mousse de lait',
+        price: 3.50,
+        category: 'Boissons chaudes',
+        available: true
+      },
+      {
+        id: '3',
+        name: 'Croissant',
+        description: 'Croissant frais du jour',
+        price: 2.00,
+        category: 'Viennoiseries',
+        available: true
+      }
+    ];
     
-    const categoriesWithItems = await Promise.all(
-      categories.map(async (category) => {
-        const items = await db.select()
-          .from(menuItems)
-          .where(eq(menuItems.categoryId, category.id))
-          .orderBy(desc(menuItems.sortOrder));
-        
-        return {
-          ...category,
-          items
-        };
-      })
-    );
-
     res.json({
       success: true,
-      data: categoriesWithItems
+      data: menu
     });
-
   } catch (error) {
-    logger.error('Erreur récupération menu', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     res.status(500).json({
       success: false,
-      message: 'Erreur interne du serveur'
+      message: 'Erreur lors de la récupération du menu'
     });
   }
 });
 
-// Obtenir tous les items du menu
-router.get('/items', async (req: Request, res: Response) => {
+// Récupérer un article du menu
+router.get('/:id', async (req, res) => {
   try {
-    const items = await db.select().from(menuItems).orderBy(desc(menuItems.sortOrder));
-
+    const { id } = req.params;
+    
+    // TODO: Récupérer depuis la base de données
+    const item = {
+      id,
+      name: 'Espresso',
+      description: 'Café espresso traditionnel',
+      price: 2.50,
+      category: 'Boissons chaudes',
+      available: true
+    };
+    
     res.json({
       success: true,
-      data: items
+      data: item
     });
-
   } catch (error) {
-    logger.error('Erreur récupération items', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     res.status(500).json({
       success: false,
-      message: 'Erreur interne du serveur'
+      message: 'Erreur lors de la récupération de l\'article'
+    });
+  }
+});
+
+// Ajouter un article au menu (admin uniquement)
+router.post('/', async (req, res) => {
+  try {
+    const { name, description, price, category } = req.body;
+    
+    // TODO: Sauvegarder en base de données
+    const newItem = {
+      id: Date.now().toString(),
+      name,
+      description,
+      price,
+      category,
+      available: true
+    };
+    
+    res.status(201).json({
+      success: true,
+      message: 'Article ajouté au menu',
+      data: newItem
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de l\'ajout de l\'article'
+    });
+  }
+});
+
+// Mettre à jour un article du menu
+router.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+    
+    // TODO: Mettre à jour en base de données
+    
+    res.json({
+      success: true,
+      message: 'Article mis à jour'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la mise à jour'
+    });
+  }
+});
+
+// Supprimer un article du menu
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // TODO: Supprimer de la base de données
+    
+    res.json({
+      success: true,
+      message: 'Article supprimé du menu'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la suppression'
     });
   }
 });

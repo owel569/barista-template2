@@ -31,7 +31,8 @@ async function createServer() {
     try {
       const url = req.originalUrl;
       if (url.startsWith('/api')) {
-        return res.status(404).send('Not found');
+        res.status(404).send('Not found');
+        return;
       }
 
       const template = `
