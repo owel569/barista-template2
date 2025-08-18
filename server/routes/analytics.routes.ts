@@ -5,9 +5,9 @@ import { createLogger } from '../middleware/logging';
 import { authenticateUser, requireRoles } from '../middleware/auth';
 import { validateBody, validateParams, validateQuery } from '../middleware/validation';
 import { getDb } from '../db';
-import { orders, customers, menuItems, orderItems } from '../../shared/schema';
+import { orders, customers, menuItems, orderItems } from '../db';
 import { and, between, count, desc, eq, gte, lte, sql, sum } from 'drizzle-orm';
-import { addDays, addMonths, addWeeks, addYears, format, startOfDay, startOfMonth, startOfWeek, startOfYear, subDays } from 'date-fns';
+import { format, startOfDay, startOfMonth, startOfWeek, startOfYear, subDays, addMonths, addYears } from 'date-fns';
 
 const router = Router();
 const logger = createLogger('ANALYTICS');

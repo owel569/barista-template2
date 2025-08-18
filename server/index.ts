@@ -1,7 +1,11 @@
 import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import apiRoutes from './routes/index';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const PORT = process.env.PORT || 3000; // Replit utilise process.env.PORT
 const HOST = '0.0.0.0'; // Nécessaire pour Replit
