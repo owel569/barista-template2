@@ -14,10 +14,26 @@ const badgeVariants = cva(
         destructive:
           "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
         outline: "text-foreground",
+        success:
+          "border-transparent bg-green-600 text-white hover:bg-green-700",
+        warning:
+          "border-transparent bg-yellow-600 text-white hover:bg-yellow-700",
+        info:
+          "border-transparent bg-blue-600 text-white hover:bg-blue-700",
+        purple:
+          "border-transparent bg-purple-600 text-white hover:bg-purple-700",
+        pink:
+          "border-transparent bg-pink-600 text-white hover:bg-pink-700",
+      },
+      size: {
+        default: "px-2.5 py-0.5 text-xs",
+        sm: "px-2 py-0.5 text-[10px]",
+        lg: "px-3 py-1 text-sm",
       },
     },
     defaultVariants: {
       variant: "default",
+      size: "default",
     },
   }
 )
@@ -25,12 +41,26 @@ const badgeVariants = cva(
 export interface BadgeProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof badgeVariants> {
-  variant?: "default" | "destructive" | "outline" | "secondary";
+  dot?: boolean;
+  removable?: boolean;
+  onRemove?: () => void;
 }
 
-function Badge({ className, variant, ...props }: BadgeProps) {
+function Badge({ className, variant, size, dot, removable, onRemove, children, ...props }: BadgeProps) {
   return (
-    <div className={cn(badgeVariants({ variant }), className)} {...props} />
+    <div className={cn(badgeVariants({ variant, size }), className)} {...props}>
+      {dot && <span className="mr-1 h-1.5 w-1.5 rounded-full bg-current" />}
+      {children}
+      {removable && (
+        <button
+          type="button"
+          className="ml-1 -mr-1 h-4 w-4 rounded-full hover:bg-black/10 flex items-center justify-center"
+          onClick={onRemove}
+        >
+          ×
+        </button>
+      )}
+    </div>
   )
 }
 
