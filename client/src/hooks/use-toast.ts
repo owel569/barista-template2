@@ -1,18 +1,22 @@
+
 import { toast as sonnerToast } from 'sonner';
 
-export type ToastVariant = "default" | "destructive" | "success" | "warning";
+export type ToastVariant = "default" | "destructive" | "success" | "warning" | "error";
 
 export interface ToastProps {
-  id: string;
+  id?: string;
   title?: string;
   description?: string;
-  action?: React.ReactNode;
+  action?: {
+    label: string;
+    onClick: () => void;
+  };
   variant?: ToastVariant;
   duration?: number;
 }
 
 export interface UseToastReturn {
-  toast: (props: ToastProps | string) => void;
+  toast: (props: Omit<ToastProps, 'id'> | string) => void;
   success: (message: string) => void;
   error: (message: string) => void;
   warning: (message: string) => void;
@@ -22,10 +26,10 @@ export interface UseToastReturn {
 
 /**
  * Hook optimisé pour les notifications toast utilisant sonner
- * Plus léger et plus performant que react-hot-toast
+ * Compatible avec tous les variants et entièrement typé
  */
 export const useToast = (): UseToastReturn => {
-  const toast = (props: ToastProps | string) => {
+  const toast = (props: Omit<ToastProps, 'id'> | string) => {
     if (typeof props === 'string') {
       sonnerToast(props);
       return;
@@ -34,51 +38,30 @@ export const useToast = (): UseToastReturn => {
     const { title, description, variant = 'default', duration, action } = props;
     const message = title && description ? `${title}: ${description}` : title || description || '';
 
+    const toastOptions = {
+      duration,
+      action: action ? {
+        label: action.label,
+        onClick: action.onClick
+      } : undefined
+    };
+
     switch (variant) {
       case 'success':
-        sonnerToast.success(message, {
-          duration,
-          action: action ? {
-            label: action.label,
-            onClick: action.onClick
-          } : undefined
-        });
+        sonnerToast.success(message, toastOptions);
         break;
       case 'error':
-        sonnerToast.error(message, {
-          duration,
-          action: action ? {
-            label: action.label,
-            onClick: action.onClick
-          } : undefined
-        });
+      case 'destructive':
+        sonnerToast.error(message, toastOptions);
         break;
       case 'warning':
-        sonnerToast.warning(message, {
-          duration,
-          action: action ? {
-            label: action.label,
-            onClick: action.onClick
-          } : undefined
-        });
+        sonnerToast.warning(message, toastOptions);
         break;
       case 'info':
-        sonnerToast.info(message, {
-          duration,
-          action: action ? {
-            label: action.label,
-            onClick: action.onClick
-          } : undefined
-        });
+        sonnerToast.info(message, toastOptions);
         break;
       default:
-        sonnerToast(message, {
-          duration,
-          action: action ? {
-            label: action.label,
-            onClick: action.onClick
-          } : undefined
-        });
+        sonnerToast(message, toastOptions);
     }
   };
 
@@ -97,3 +80,6 @@ export const useToast = (): UseToastReturn => {
     dismiss
   };
 };
+
+// Export par défaut pour compatibilité
+export default useToast;
