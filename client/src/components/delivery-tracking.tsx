@@ -36,7 +36,7 @@ const DeliveryTracking: React.FC = () => {
 
   const updateStatusMutation = useMutation({
     mutationFn: async ({ id, status })}: { id: number; status: string }) => {
-      const response = await fetch(`/api/deliveries/${id)}/status`, {
+      const response = await fetch(`/api/deliveries/${id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
@@ -48,7 +48,7 @@ const DeliveryTracking: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['/api/deliveries'] )});
       toast({ title: 'Statut mis à jour', description: 'Le statut de livraison a été modifié.' });
     },
-  });
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
