@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 import apiRoutes from './routes/index';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PORT = parseInt(process.env.PORT || '3000', 10);
+const PORT = parseInt(process.env.PORT || '5000', 10);
 const HOST = '0.0.0.0';
 
 async function createServer() {
