@@ -6,8 +6,8 @@ export interface Employee {
   lastName: string;
   email: string;
   phone: string;
-  position: string;
-  department: string;
+  position: Position;
+  department: Department;
   salary: number;
   hireDate: string;
   isActive: boolean;
@@ -24,8 +24,8 @@ export interface Shift {
   date: string;
   startTime: string;
   endTime: string;
-  position: string;
-  department: string;
+  position: Position;
+  department: Department;
   status: ShiftStatus;
   notes?: string;
   break?: BreakTime;
@@ -108,8 +108,8 @@ export interface TimeSlot {
   endTime: string;
   employeeId?: number;
   employee?: Employee;
-  position: string;
-  department: string;
+  position: Position;
+  department: Department;
   status: ShiftStatus;
 }
 
@@ -120,8 +120,8 @@ export interface CalendarEvent {
   end: Date;
   employeeId: number;
   employee?: Employee;
-  position: string;
-  department: string;
+  position: Position;
+  department: Department;
   status: ShiftStatus;
   notes?: string;
   backgroundColor?: string;
@@ -261,6 +261,7 @@ export interface RuleViolation {
   suggestion: string;
 }
 
+// String literal unions pour la sécurité des types
 export type ShiftStatus = 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show';
 
 export type ViewMode = 'calendar' | 'list' | 'employee' | 'analytics';
@@ -270,6 +271,16 @@ export type TimePeriod = 'day' | 'week' | 'month';
 export type Department = 'service' | 'cuisine' | 'management' | 'maintenance' | 'all';
 
 export type Position = 'serveur' | 'barista' | 'chef' | 'manager' | 'caissier' | 'nettoyage' | 'all';
+
+export type InventoryStatus = 'ok' | 'low' | 'critical' | 'out';
+
+export type UserRole = 'directeur' | 'manager' | 'employee' | 'admin';
+
+export type Priority = 'low' | 'medium' | 'high' | 'urgent';
+
+export type RequestStatus = 'pending' | 'approved' | 'rejected' | 'cancelled';
+
+export type ConflictSeverity = 'low' | 'medium' | 'high';
 
 // Utilitaires pour la validation
 export interface ScheduleValidation {

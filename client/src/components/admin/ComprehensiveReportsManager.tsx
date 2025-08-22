@@ -8,8 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
-import { DatePicker } from '@/components/ui/date-picker';
+// import { Checkbox } from '@/components/ui/checkbox';
+// import { DatePicker } from '@/components/ui/date-picker';
 import { 
   Table, 
   TableBody, 
@@ -94,6 +94,21 @@ interface ReportTemplate {
   aiInsights: boolean;
 }
 
+interface ReportConfiguration {
+  id: string;
+  type: 'predefined' | 'custom' | 'automated';
+  name: string;
+  dateRange: {
+    start: string;
+    end: string;
+  };
+  categories: string[];
+  metrics: string[];
+  format: 'pdf' | 'excel' | 'json';
+  aiInsights: boolean;
+  filters?: Record<string, unknown>;
+}
+
 interface ReportData {
   salesData?: Array<{ date: string; revenue: number }>;
   categoryData?: Array<{ name: string; value: number }>;
@@ -103,6 +118,8 @@ interface ReportData {
     orders?: string;
     growth?: string;
   };
+  generatedAt?: string;
+  reportConfig?: ReportConfiguration;
 }
 
 const REPORT_TEMPLATES: ReportTemplate[] = [
@@ -170,8 +187,13 @@ export const ComprehensiveReportsManager: React.FC = () => {
 
   // Génération de rapport
   const generateReportMutation = useMutation({
-    mutationFn: async (reportConfig: unknown) => {
+    mutationFn: async (reportConfig: ReportConfiguration) => {
       setIsGenerating(true);
+      
+      // Validation de la configuration du rapport
+      if (!reportConfig.id || !reportConfig.name || !reportConfig.dateRange) {
+        throw new Error('Configuration du rapport invalide');
+      }
       
       // Simuler la génération avec IA
       await new Promise(resolve => setTimeout(resolve, 3000));
@@ -221,14 +243,22 @@ export const ComprehensiveReportsManager: React.FC = () => {
     const template = REPORT_TEMPLATES.find(t => t.id === selectedTemplate);
     if (!template) return;
 
-    const config = {
-      templateId: selectedTemplate,
+    const config: ReportConfiguration = {
+      id: selectedTemplate,
+      type: 'custom',
       name: customReportName || template.name,
-      dateRange,
-      fields: selectedFields.length > 0 ? selectedFields : template.fields,
-      charts: selectedCharts.length > 0 ? selectedCharts : template.charts,
+      dateRange: {
+        start: dateRange.start,
+        end: dateRange.end
+      },
+      categories: [template.category],
+      metrics: selectedFields.length > 0 ? selectedFields : template.fields,
+      format: 'pdf',
       aiInsights: true,
-      timestamp: new Date().toISOString()
+      filters: {
+        charts: selectedCharts.length > 0 ? selectedCharts : template.charts,
+        timestamp: new Date().toISOString()
+      }
     };
 
     generateReportMutation.mutate(config);
@@ -312,16 +342,18 @@ export const ComprehensiveReportsManager: React.FC = () => {
               <div className="space-y-2 mt-2">
                 {['revenue', 'orders', 'customers', 'inventory', 'staff'].map((field) => (
                   <div key={field} className="flex items-center space-x-2">
-                    <Checkbox
+                    <input
+                      type="checkbox"
                       id={field}
                       checked={selectedFields.includes(field)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
+                      onChange={(e) => {
+                        if (e.target.checked) {
                           setSelectedFields([...selectedFields, field]);
                         } else {
-                          setSelectedFields(selectedFields.filter(f => f !== field);
+                          setSelectedFields(selectedFields.filter(f => f !== field));
                         }
                       }}
+                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
                     />
                     <Label htmlFor={field} className="capitalize">{field}</Label>
                   </div>
@@ -334,16 +366,18 @@ export const ComprehensiveReportsManager: React.FC = () => {
               <div className="space-y-2 mt-2">
                 {['bar_chart', 'line_chart', 'pie_chart', 'area_chart'].map((chart) => (
                   <div key={chart} className="flex items-center space-x-2">
-                    <Checkbox
+                    <input
+                      type="checkbox"
                       id={chart}
                       checked={selectedCharts.includes(chart)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
+                      onChange={(e) => {
+                        if (e.target.checked) {
                           setSelectedCharts([...selectedCharts, chart]);
                         } else {
-                          setSelectedCharts(selectedCharts.filter(c => c !== chart);
+                          setSelectedCharts(selectedCharts.filter(c => c !== chart));
                         }
                       }}
+                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
                     />
                     <Label htmlFor={chart} className="capitalize">
                       {chart.replace('_', ' ')}

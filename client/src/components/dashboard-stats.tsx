@@ -13,59 +13,105 @@ import {
 import { useLanguage } from "@/contexts/LanguageContext";
 import DashboardCharts from "./dashboard-charts";
 
-export default function DashboardStats() : JSX.Element {
+// Types pour les données
+interface TodayReservations {
+  count: number;
+}
+
+interface OccupancyRate {
+  rate: number;
+}
+
+interface OrderStatus {
+  status: string;
+  count: number;
+}
+
+interface Customer {
+  id: number;
+  name: string;
+  email: string;
+  // autres propriétés...
+}
+
+interface MenuItem {
+  id: number;
+  name: string;
+  price: string;
+  description: string;
+  categoryId?: number;
+  category_id?: number;
+}
+
+export default function DashboardStats(): JSX.Element {
   const { t } = useLanguage();
 
-  const { data: todayReservations = { count: 0 } } = useQuery({
-    queryKey: ['/api/admin/stats/today-reservations',],
+  const { data: todayReservations = { count: 0 } } = useQuery<TodayReservations>({
+    queryKey: ['/api/admin/stats/today-reservations'],
   });
 
-  const { data: occupancyRate = { rate: 0 } } = useQuery({
-    queryKey: ['/api/admin/stats/occupancy-rate',],
+  const { data: occupancyRate = { rate: 0 } } = useQuery<OccupancyRate>({
+    queryKey: ['/api/admin/stats/occupancy-rate'],
   });
 
-  const { data: ordersByStatus = [] } = useQuery({
-    queryKey: ['/api/admin/stats/orders-by-status',],
+  const { data: ordersByStatus = [] } = useQuery<OrderStatus[]>({
+    queryKey: ['/api/admin/stats/orders-by-status'],
   });
 
-  const { data: customers = [] } = useQuery({
-    queryKey: ['/api/admin/customers',],
+  const { data: customers = [] } = useQuery<Customer[]>({
+    queryKey: ['/api/admin/customers'],
   });
 
-  const { data: menuItems = [] } = useQuery({
-    queryKey: ['/api/menu/items',],
+  const { data: menuItems = [] } = useQuery<MenuItem[]>({
+    queryKey: ['/api/menu/items'],
   });
+
+  // Trouver les commandes en cours (statut 'pending')
+  const pendingOrdersCount = ordersByStatus.find(
+    (o: OrderStatus) => o.status === 'pending'
+  )?.count || 0;
 
   const stats = [
     {
-      title: "Réservations Aujourd'hui",
-      value: todayReservations.count || 0,
+      title: t('dashboard.todayReservations', "Réservations Aujourd'hui"),
+      value: todayReservations.count,
       icon: Calendar,
       color: "text-blue-600",
       bgColor: "bg-blue-50"
     },
     {
-      title: "Commandes en Cours",
-      value: ordersByStatus.find((o: { status: string; count: number )}) => o.status === 'pending')?.count || 0,
+      title: t('dashboard.pendingOrders', "Commandes en Cours"),
+      value: pendingOrdersCount,
       icon: Clock,
       color: "text-orange-600",
       bgColor: "bg-orange-50"
     },
     {
-      title: "Clients Actifs",
-      value: customers.length || 0,
+      title: t('dashboard.activeCustomers', "Clients Actifs"),
+      value: customers.length,
       icon: Users,
       color: "text-green-600",
       bgColor: "bg-green-50"
     },
     {
-      title: "Taux d'Occupation",
-      value: `${Math.round(occupancyRate.rate || 0)}%`,
+      title: t('dashboard.occupancyRate', "Taux d'Occupation"),
+      value: `${Math.round(occupancyRate.rate)}%`,
       icon: TrendingUp,
       color: "text-purple-600",
       bgColor: "bg-purple-50"
     }
   ];
+
+  // Fonction pour traduire les statuts de commande
+  const translateOrderStatus = (status: string): string => {
+    const statusTranslations: Record<string, string> = {
+      'pending': t('orderStatus.pending', 'En Attente'),
+      'confirmed': t('orderStatus.confirmed', 'Confirmées'),
+      'completed': t('orderStatus.completed', 'Terminées'),
+      'cancelled': t('orderStatus.cancelled', 'Annulées')
+    };
+    return statusTranslations[status] || status;
+  };
 
   return (
     <div className="space-y-6">
@@ -74,7 +120,7 @@ export default function DashboardStats() : JSX.Element {
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
-            <Card key={stat.title} className="hover:shadow-lg transition-shadow">
+            <Card key={stat.title} className="hover:shadow-lg transition-shadow duration-300">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-gray-600">
                   {stat.title}
@@ -97,12 +143,12 @@ export default function DashboardStats() : JSX.Element {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Coffee className="h-5 w-5" />
-              Produits les Plus Vendus
+              {t('dashboard.topProducts', 'Produits les Plus Vendus')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {menuItems?.slice(0, 5).map((item: { id: number; name: string; price: string; description: string; categoryId?: number; category_id?: number }, index: number) => (
+              {menuItems.slice(0, 5).map((item: MenuItem, index: number) => (
                 <div key={item.id} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <span className="w-6 h-6 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center text-sm font-medium">
@@ -113,6 +159,11 @@ export default function DashboardStats() : JSX.Element {
                   <span className="text-sm text-gray-500">{item.price}€</span>
                 </div>
               ))}
+              {menuItems.length === 0 && (
+                <p className="text-gray-500 text-center py-4">
+                  {t('dashboard.noProducts', 'Aucun produit disponible')}
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -121,24 +172,26 @@ export default function DashboardStats() : JSX.Element {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5" />
-              État des Commandes
+              {t('dashboard.orderStatus', 'État des Commandes')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {ordersByStatus?.map((status: { status: string; count: number )}) => (
+              {ordersByStatus.map((status: OrderStatus) => (
                 <div key={status.status} className="flex items-center justify-between">
-                  <span className="capitalize font-medium">
-                    {status.status === 'pending' ? 'En Attente' :
-                     status.status === 'confirmed' ? 'Confirmées' :
-                     status.status === 'completed' ? 'Terminées' :
-                     status.status === 'cancelled' ? 'Annulées' : status.status}
+                  <span className="font-medium">
+                    {translateOrderStatus(status.status)}
                   </span>
-                  <span className="bg-gray-100 px-2 py-1 rounded-full text-sm font-medium">
+                  <span className="bg-gray-100 px-3 py-1 rounded-full text-sm font-medium">
                     {status.count}
                   </span>
                 </div>
               ))}
+              {ordersByStatus.length === 0 && (
+                <p className="text-gray-500 text-center py-4">
+                  {t('dashboard.noOrders', 'Aucune commande')}
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>

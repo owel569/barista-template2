@@ -40,7 +40,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from 'sonner';
-import { InventoryItemForm } from './inventory-item-form';
+// import { InventoryItemForm } from './inventory-item-form';
+
+type InventoryStatus = 'ok' | 'low' | 'critical' | 'out';
 
 interface InventoryItem {
   id: number;
@@ -53,10 +55,12 @@ interface InventoryItem {
   unitCost: number;
   supplier: string;
   lastRestocked: string;
-  status: 'ok' | 'low' | 'critical' | 'out';
+  status: InventoryStatus;
   barcode?: string;
   location?: string;
 }
+
+type AlertSeverity = 'low' | 'critical' | 'out';
 
 interface StockAlert {
   id: number;
@@ -64,7 +68,7 @@ interface StockAlert {
   itemName: string;
   currentStock: number;
   minStock: number;
-  severity: 'low' | 'critical' | 'out';
+  severity: AlertSeverity;
   createdAt: string;
   resolved?: boolean;
 }
@@ -155,7 +159,7 @@ export default function InventoryManagement() : JSX.Element {
     }
   };
 
-  const calculateStatus = (currentStock: number, minStock: number): 'ok' | 'low' | 'critical' | 'out' => {
+  const calculateStatus = (currentStock: number, minStock: number): InventoryStatus => {
     if (currentStock === 0) return 'out';
     if (currentStock <= minStock * 0.2) return 'critical';
     if (currentStock <= minStock * 0.5) return 'low';
@@ -174,17 +178,24 @@ export default function InventoryManagement() : JSX.Element {
     if (!sortConfig) return filteredItems;
     
     return [...filteredItems].sort((a, b) => {
-      if (a[sortConfig.key] < b[sortConfig.key]) {
+      const aValue = a[sortConfig.key];
+      const bValue = b[sortConfig.key];
+      
+      if (aValue === undefined || bValue === undefined) {
+        return 0;
+      }
+      
+      if (aValue < bValue) {
         return sortConfig.direction === 'ascending' ? -1 : 1;
       }
-      if (a[sortConfig.key] > b[sortConfig.key]) {
+      if (aValue > bValue) {
         return sortConfig.direction === 'ascending' ? 1 : -1;
       }
       return 0;
     });
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: InventoryStatus) => {
     switch (status) {
       case 'ok':
         return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
@@ -199,7 +210,7 @@ export default function InventoryManagement() : JSX.Element {
     }
   };
 
-  const getStatusText = (status: string) => {
+  const getStatusText = (status: InventoryStatus) => {
     switch (status) {
       case 'ok': return 'Stock OK';
       case 'low': return 'Stock Faible';
