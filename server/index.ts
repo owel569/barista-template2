@@ -15,6 +15,7 @@ async function createServer() {
   const vite = await createViteServer({
     server: { 
       middlewareMode: true,
+      allowedHosts: 'all',
       hmr: {
         port: 24678,
         host: '0.0.0.0'
