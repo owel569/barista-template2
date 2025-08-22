@@ -41,11 +41,22 @@ async function createServer() {
         return;
       }
 
-      // Utiliser le vrai fichier index.html du client
-      const fs = await import('fs');
-      const templatePath = path.resolve(__dirname, '../client/index.html');
-      const template = fs.readFileSync(templatePath, 'utf-8');
-      const html = await vite.transformIndexHtml(url, template);
+      // Servir l'application React principale via Vite
+      const html = await vite.transformIndexHtml(url, `
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Barista Café</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+      `);
       res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
     } catch (e) {
       vite.ssrFixStacktrace(e as Error);
