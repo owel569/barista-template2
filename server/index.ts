@@ -11,12 +11,18 @@ const HOST = '0.0.0.0';
 async function createServer() {
   const app = express();
 
-  // 1. Créer le serveur Vite en mode middleware
+  // 1. Créer le serveur Vite en mode middleware avec détection Replit
+  const isReplit = !!process.env.REPL_ID;
   const vite = await createViteServer({
     server: { 
       middlewareMode: true,
-      allowedHosts: 'all',
-      hmr: {
+      allowedHosts: isReplit ? true : ['localhost'],
+      hmr: isReplit ? {
+        port: 24678,
+        host: '0.0.0.0',
+        clientPort: 443,
+        protocol: 'wss'
+      } : {
         port: 24678,
         host: '0.0.0.0'
       }
