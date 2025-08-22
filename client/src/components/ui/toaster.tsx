@@ -38,3 +38,16 @@ export function Toaster(): JSX.Element {
     </ToastProvider>
   )
 }
+import { Toaster as SonnerToaster } from 'sonner';
+
+export function Toaster() {
+  return (
+    <SonnerToaster
+      position="top-right"
+      richColors
+      closeButton
+      expand={true}
+      visibleToasts={5}
+    />
+  );
+}

@@ -1,4 +1,8 @@
 
+/**
+ * Hook optimisé pour les notifications toast utilisant sonner
+ * Compatible avec tous les variants et entièrement typé
+ */
 import { toast as sonnerToast } from 'sonner';
 
 export type ToastVariant = "default" | "destructive" | "success" | "warning" | "error";
@@ -24,10 +28,6 @@ export interface UseToastReturn {
   dismiss: (toastId?: string) => void;
 }
 
-/**
- * Hook optimisé pour les notifications toast utilisant sonner
- * Compatible avec tous les variants et entièrement typé
- */
 export const useToast = (): UseToastReturn => {
   const toast = (props: Omit<ToastProps, 'id'> | string) => {
     if (typeof props === 'string') {
@@ -81,5 +81,4 @@ export const useToast = (): UseToastReturn => {
   };
 };
 
-// Export par défaut pour compatibilité
 export default useToast;

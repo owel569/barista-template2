@@ -1,4 +1,3 @@
-import React from 'react';
 import * as React from "react"
 import * as ToastPrimitives from "@radix-ui/react-toast"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -46,8 +45,8 @@ const Toast = React.forwardRef<
 >(({ className, variant, ...props }, ref) => {
   return (
     <ToastPrimitives.Root
-      ref={ref)}
-      className={cn(toastVariants({ variant )}), className)}
+      ref={ref}
+      className={cn(toastVariants({ variant }), className)}
       {...props}
     />
   )
