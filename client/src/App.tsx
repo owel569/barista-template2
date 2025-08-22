@@ -5,20 +5,26 @@ import { queryClient } from "./lib/queryClient";
 
 // Composants simples pour tester
 function Home() {
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch('/api/menu/categories')
       .then(res => res.json())
       .then(data => {
-        if (data.success) {
+        console.log('Categories API response:', data);
+        if (data.success && Array.isArray(data.data)) {
           setCategories(data.data);
+        } else if (Array.isArray(data)) {
+          setCategories(data);
+        } else {
+          setCategories([]);
         }
         setLoading(false);
       })
       .catch(err => {
-        console.error(err);
+        console.error('Error fetching categories:', err);
+        setCategories([]);
         setLoading(false);
       });
   }, []);

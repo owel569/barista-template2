@@ -15,10 +15,8 @@ async function createServer() {
   const vite = await createViteServer({
     server: { 
       middlewareMode: true,
-      hmr: {
-        port: 24678,
-        host: '0.0.0.0'
-      }
+      hmr: false, // Désactiver HMR pour éviter les problèmes WebSocket sur Replit
+      allowedHosts: true
     },
     root: path.resolve(__dirname, '../client'),
     appType: 'spa',
@@ -26,13 +24,15 @@ async function createServer() {
   });
 
   // 2. Middlewares
-  app.use(vite.middlewares);
   app.use(express.json());
 
-  // 3. Routes API
+  // 3. Routes API (avant Vite pour éviter l'interception)
   app.use('/api', apiRoutes);
+  
+  // 4. Vite middleware (après les routes API)
+  app.use(vite.middlewares);
 
-  // 4. Gestion des routes SPA
+  // 5. Gestion des routes SPA
   app.use('*', async (req, res) => {
     try {
       const url = req.originalUrl;
