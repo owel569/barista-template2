@@ -113,7 +113,7 @@ export default function ActivityLogs(): JSX.Element {
 
       return () => clearInterval(interval);
     }
-  }, [isRealTimeEnabled]);
+  }, [isRealTimeEnabled, generateMockActivity]);
 
   // Filtrage des logs
   useEffect(() => {
@@ -221,8 +221,8 @@ export default function ActivityLogs(): JSX.Element {
     }
   };
 
-  const generateMockActivity = (): void => {
-    const activities = [
+  const generateMockActivity = useCallback((): void => {
+    const activities: Omit<ActivityLog, 'id' | 'timestamp'>[] = [
       {
         action: 'ORDER_CREATED',
         category: 'order' as ActivityCategory,
@@ -278,7 +278,7 @@ export default function ActivityLogs(): JSX.Element {
     };
 
     setLogs(prev => [newLog, ...prev].slice(0, 1000)); // Garder seulement les 1000 derniers logs
-  };
+  }, []);
 
   const exportLogs = useCallback((): void => {
     try {
@@ -302,9 +302,18 @@ export default function ActivityLogs(): JSX.Element {
         'Adresse IP': log.ipAddress
       }));
 
+      if (dataToExport.length === 0) {
+        toast({
+          title: "Aucune donnée",
+          description: "Aucun journal à exporter",
+          variant: "warning",
+        });
+        return;
+      }
+
       const csvContent = [
-        Object.keys(dataToExport[0]).join(','),
-        ...dataToExport.map(row => Object.values(row).join(','))
+        Object.keys(dataToExport[0]!).join(','),
+        ...dataToExport.map(row => Object.values(row).map(value => `"${value}"`).join(','))
       ].join('\n');
 
       const blob = new Blob([csvContent], { type: 'text/csv' });
