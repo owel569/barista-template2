@@ -55,48 +55,15 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import type { 
+  ActivityLog, 
+  ActivityCategory, 
+  ActivityFilter, 
+  CategoryConfig, 
+  SeverityConfig 
+} from '@/types/activity';
 
-// Types
-interface ActivityLog {
-  id: string;
-  timestamp: Date;
-  userId: string;
-  userName: string;
-  userRole: string;
-  action: string;
-  category: ActivityCategory;
-  description: string;
-  severity: 'info' | 'warning' | 'error' | 'success';
-  ipAddress: string;
-  userAgent?: string;
-  metadata?: Record<string, any>;
-  affectedResource?: string;
-  previousValue?: string;
-  newValue?: string;
-}
-
-type ActivityCategory = 
-  | 'auth'
-  | 'user_management' 
-  | 'menu'
-  | 'order'
-  | 'reservation'
-  | 'settings'
-  | 'security'
-  | 'system';
-
-interface ActivityFilter {
-  category: ActivityCategory | 'all';
-  severity: ActivityLog['severity'] | 'all';
-  userId: string;
-  dateRange: {
-    start: Date;
-    end: Date;
-  };
-  searchTerm: string;
-}
-
-const CATEGORY_CONFIG = {
+const CATEGORY_CONFIG: Record<ActivityCategory, CategoryConfig> = {
   auth: { label: 'Authentification', icon: Lock, color: 'blue' },
   user_management: { label: 'Gestion Utilisateurs', icon: User, color: 'green' },
   menu: { label: 'Menu', icon: ShoppingCart, color: 'orange' },
@@ -105,14 +72,14 @@ const CATEGORY_CONFIG = {
   settings: { label: 'Paramètres', icon: Settings, color: 'gray' },
   security: { label: 'Sécurité', icon: Shield, color: 'red' },
   system: { label: 'Système', icon: Database, color: 'cyan' }
-} as const;
+};
 
-const SEVERITY_CONFIG = {
+const SEVERITY_CONFIG: Record<ActivityLog['severity'], SeverityConfig> = {
   info: { label: 'Info', color: 'blue', icon: CheckCircle },
   success: { label: 'Succès', color: 'green', icon: CheckCircle },
   warning: { label: 'Attention', color: 'yellow', icon: AlertTriangle },
   error: { label: 'Erreur', color: 'red', icon: AlertTriangle }
-} as const;
+};
 
 export default function ActivityLogs(): JSX.Element {
   const { toast } = useToast();

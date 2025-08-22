@@ -5,6 +5,17 @@ export default {
   content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
+      colors: {
+        blue: { 600: '#2563eb' },
+        green: { 600: '#16a34a' },
+        yellow: { 600: '#ca8a04' },
+        red: { 600: '#dc2626' },
+        orange: { 600: '#ea580c' },
+        purple: { 600: '#9333ea' },
+        indigo: { 600: '#4f46e5' },
+        gray: { 600: '#525252' },
+        cyan: { 600: '#0891b2' }
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",

@@ -1,14 +1,14 @@
 import { toast as sonnerToast } from 'sonner';
 
+export type ToastVariant = "default" | "destructive" | "success" | "warning";
+
 export interface ToastProps {
+  id: string;
   title?: string;
   description?: string;
-  variant?: 'default' | 'success' | 'error' | 'warning' | 'info';
+  action?: React.ReactNode;
+  variant?: ToastVariant;
   duration?: number;
-  action?: {
-    label: string;
-    onClick: () => void;
-  };
 }
 
 export interface UseToastReturn {
