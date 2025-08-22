@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     port: 3000,
     host: '0.0.0.0',
-    allowedHosts: true,
+    allowedHosts: 'all',
     hmr: false  // Désactiver complètement HMR sur Replit
   },
   resolve: {

@@ -1,6 +1,8 @@
 import React from 'react';
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Spinner } from "@/components/ui/spinner";
 import { 
   Calendar, 
   Users, 
@@ -46,23 +48,38 @@ interface MenuItem {
 export default function DashboardStats(): JSX.Element {
   const { t } = useLanguage();
 
-  const { data: todayReservations = { count: 0 } } = useQuery<TodayReservations>({
+  const { 
+    data: todayReservations = { count: 0 }, 
+    isLoading: loadingReservations 
+  } = useQuery<TodayReservations>({
     queryKey: ['/api/admin/stats/today-reservations'],
   });
 
-  const { data: occupancyRate = { rate: 0 } } = useQuery<OccupancyRate>({
+  const { 
+    data: occupancyRate = { rate: 0 }, 
+    isLoading: loadingOccupancy 
+  } = useQuery<OccupancyRate>({
     queryKey: ['/api/admin/stats/occupancy-rate'],
   });
 
-  const { data: ordersByStatus = [] } = useQuery<OrderStatus[]>({
+  const { 
+    data: ordersByStatus = [], 
+    isLoading: loadingOrders 
+  } = useQuery<OrderStatus[]>({
     queryKey: ['/api/admin/stats/orders-by-status'],
   });
 
-  const { data: customers = [] } = useQuery<Customer[]>({
+  const { 
+    data: customers = [], 
+    isLoading: loadingCustomers 
+  } = useQuery<Customer[]>({
     queryKey: ['/api/admin/customers'],
   });
 
-  const { data: menuItems = [] } = useQuery<MenuItem[]>({
+  const { 
+    data: menuItems = [], 
+    isLoading: loadingMenu 
+  } = useQuery<MenuItem[]>({
     queryKey: ['/api/menu/items'],
   });
 
@@ -130,7 +147,12 @@ export default function DashboardStats(): JSX.Element {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
+                <div className="flex items-center gap-2">
+                  <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
+                  {(loadingReservations || loadingOccupancy || loadingOrders || loadingCustomers) && (
+                    <Spinner className="h-4 w-4" />
+                  )}
+                </div>
               </CardContent>
             </Card>
           );
@@ -182,9 +204,12 @@ export default function DashboardStats(): JSX.Element {
                   <span className="font-medium">
                     {translateOrderStatus(status.status)}
                   </span>
-                  <span className="bg-gray-100 px-3 py-1 rounded-full text-sm font-medium">
+                  <Badge 
+                    variant={status.status === 'pending' ? 'warning' : status.status === 'completed' ? 'success' : 'default'}
+                    className="text-sm font-medium"
+                  >
                     {status.count}
-                  </span>
+                  </Badge>
                 </div>
               ))}
               {ordersByStatus.length === 0 && (
