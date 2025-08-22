@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Shift, Employee, ScheduleStats, ShiftRequest } from '../types/schedule.types';
-import { generateScheduleStats } from '../utils/schedule.utils';
+// import { generateScheduleStats } from '../utils/schedule.utils';
 
 export const useScheduleData = (dateRange?: { start: string; end: string }) => {
   const { apiRequest } = useAuth();
@@ -43,6 +43,40 @@ export const useScheduleData = (dateRange?: { start: string; end: string }) => {
   });
 
   // Calcul des statistiques
+  const generateScheduleStats = (shifts: Shift[], employees: Employee[], start: string, end: string): ScheduleStats => {
+    const totalShifts = shifts.length;
+    const activeEmployees = employees.filter(emp => emp.isActive).length;
+    const totalHours = shifts.reduce((sum, shift) => {
+      const duration = calculateShiftDuration(shift.startTime, shift.endTime);
+      return sum + duration;
+    }, 0);
+    
+    return {
+      totalEmployees: employees.length,
+      activeEmployees,
+      totalShifts,
+      scheduledHours: totalHours,
+      overtimeHours: 0,
+      totalPayroll: 0,
+      averageHoursPerEmployee: activeEmployees > 0 ? totalHours / activeEmployees : 0,
+      departmentStats: [],
+      costAnalysis: {
+        regularHours: totalHours,
+        overtimeHours: 0,
+        regularCost: 0,
+        overtimeCost: 0,
+        totalCost: 0,
+        projectedMonthlyCost: 0
+      }
+    };
+  };
+
+  const calculateShiftDuration = (startTime: string, endTime: string): number => {
+    const start = new Date(`1970-01-01T${startTime}`);
+    const end = new Date(`1970-01-01T${endTime}`);
+    return (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+  };
+
   const stats: ScheduleStats | null = React.useMemo(() => {
     if (!shifts.length || !employees.length || !dateRange) return null;
     return generateScheduleStats(shifts, employees, dateRange.start, dateRange.end);

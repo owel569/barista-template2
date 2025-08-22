@@ -94,6 +94,7 @@ interface FormErrors {
   lastName?: string;
   email?: string;
   phone?: string;
+  role?: string;
 }
 
 interface User {
@@ -106,7 +107,7 @@ interface User {
   role: UserRole;
   isActive: boolean;
   lastLogin?: string;
-  permissions?: Record<string, any>;
+  permissions?: Record<string, boolean>;
 }
 
 export function PermissionsManagementImproved(): JSX.Element {
