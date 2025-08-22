@@ -9,10 +9,7 @@ export default defineConfig({
     port: 3000,
     host: '0.0.0.0',
     allowedHosts: true,
-    hmr: {
-      port: 24678,
-      host: '0.0.0.0'
-    }
+    hmr: false  // Désactiver complètement HMR sur Replit
   },
   resolve: {
     alias: {
@@ -24,8 +21,21 @@ export default defineConfig({
   build: {
     outDir: '../dist/client',
     emptyOutDir: true,
+    rollupOptions: {
+      onwarn(warning, warn) {
+        // Ignorer les avertissements de module circulaire
+        if (warning.code === 'CIRCULAR_DEPENDENCY') return;
+        warn(warning);
+      }
+    }
   },
   preview: {
     port: 3000,
   },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'lucide-react', '@radix-ui/react-dialog']
+  },
+  define: {
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
+  }
 });

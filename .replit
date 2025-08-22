@@ -36,7 +36,7 @@ localPort = 24678
 externalPort = 3002
 
 [workflows]
-runButton = "Project"
+runButton = "Barista Café Final"
 
 [[workflows.workflow]]
 name = "Project"
@@ -246,6 +246,19 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run fix:auto"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+
+[[workflows.workflow]]
+name = "Barista Café Final"
+author = 46754144
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"

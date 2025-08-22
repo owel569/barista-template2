@@ -15,12 +15,15 @@ async function createServer() {
   const vite = await createViteServer({
     server: { 
       middlewareMode: true,
-      hmr: false, // Désactiver HMR pour éviter les problèmes WebSocket sur Replit
-      allowedHosts: true
+      hmr: false
     },
     root: path.resolve(__dirname, '../client'),
     appType: 'spa',
-    logLevel: 'info'
+    logLevel: 'warn',
+    clearScreen: false,
+    optimizeDeps: {
+      include: ['react', 'react-dom']
+    }
   });
 
   // 2. Middlewares
