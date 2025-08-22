@@ -20,7 +20,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { CheckCircle } from "lucide-react"; // Seulement ce que tu utilises
+import { CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 
@@ -31,12 +31,10 @@ import {
   Mail,
   MapPin,
   Phone,
-} from "lucide-react"; // Import des icônes nécessaires
-// Type Zod
-type ReservationFormData = z.infer<typeof insertReservationSchema>;
+} from "lucide-react";
 
 const reservationSchema = z.object({
-  date: z.string()}).min(1, "La date est requise"),
+  date: z.string().min(1, "La date est requise"),
   time: z.string().min(1, "L'heure est requise"),
   partySize: z.number().min(1, "Le nombre de personnes doit être au moins 1"),
   guests: z.number().min(1, "Le nombre d'invités est requis"),
@@ -46,6 +44,8 @@ const reservationSchema = z.object({
   specialRequests: z.string().optional(),
   notes: z.string().optional(),
 });
+
+type ReservationFormData = z.infer<typeof reservationSchema>;
 
 export default function Reservation() : JSX.Element {
   const { toast } = useToast();
@@ -60,30 +60,30 @@ export default function Reservation() : JSX.Element {
     setValue,
     control,
   } = useForm<ReservationFormData>({
-    resolver: zodResolver(insertReservationSchema),
+    resolver: zodResolver(reservationSchema),
     defaultValues: {
       guests: 2,
     },
   });
 
   const reservationMutation = useMutation({
-    mutationFn: (data: ReservationFormData})}) =>
+    mutationFn: (data: ReservationFormData) =>
       apiRequest("POST", "/api/reservations", data),
     onSuccess: () => {
       toast({
         title: "Réservation confirmée !",
         description: "Votre table a été réservée avec succès.",
-      )});
+      });
       reset();
       queryClient.invalidateQueries({ queryKey: ["/api/reservations"] });
     },
-    onError: (error: unknown) => {
+    onError: (error: any) => {
       toast({
         title: "Erreur de réservation",
         description:
-          error.message || "Une erreur est survenue lors de la réservation.",
+          error?.message || "Une erreur est survenue lors de la réservation.",
         variant: "destructive",
-      )});
+      });
     },
   });
 
@@ -138,7 +138,7 @@ export default function Reservation() : JSX.Element {
                     className="focus:border-coffee-accent"
                   />
                   {errors.date && (
-                    <p className="text-red-500 text-sm mt-1">{errors.date.message)}</p>
+                    <p className="text-red-500 text-sm mt-1">{errors.date.message}</p>
                   )}
                 </div>
 
@@ -149,13 +149,13 @@ export default function Reservation() : JSX.Element {
                   <Controller
                     name="time"
                     control={control}
-                    render={({ field )}) => (
+                    render={({ field }) => (
                       <Select value={field.value || ""} onValueChange={field.onChange}>
                         <SelectTrigger className="focus:border-coffee-accent">
                           <SelectValue placeholder="Choisir l'heure" />
                         </SelectTrigger>
                         <SelectContent>
-                          {Array.from({ length: 26 )}, (_, i) => {
+                          {Array.from({ length: 26 }, (_, i) => {
                             const hour = Math.floor(i / 2) + 8;
                             const minutes = i % 2 === 0 ? "00" : "30";
                             const time = `${hour.toString().padStart(2, "0")}:${minutes}`;
@@ -171,7 +171,7 @@ export default function Reservation() : JSX.Element {
                     )}
                   />
                   {errors.time && (
-                    <p className="text-red-500 text-sm mt-1">{errors.time.message)}</p>
+                    <p className="text-red-500 text-sm mt-1">{errors.time.message}</p>
                   )}
                 </div>
               </div>
@@ -183,13 +183,13 @@ export default function Reservation() : JSX.Element {
                 <Controller
                   name="guests"
                   control={control}
-                  render={({ field )}) => (
+                  render={({ field }) => (
                     <Select value={field.value?.toString() || ""} onValueChange={(val) => field.onChange(parseInt(val))}>
                       <SelectTrigger className="focus:border-coffee-accent">
                         <SelectValue placeholder="Choisir le nombre de personnes" />
                       </SelectTrigger>
                       <SelectContent>
-                        {Array.from({ length: 8 )}, (_, i) => (
+                        {Array.from({ length: 8 }, (_, i) => (
                           <SelectItem key={i + 1} value={(i + 1).toString()}>
                             {i + 1} personne{i > 0 ? "s" : ""}
                           </SelectItem>
@@ -199,7 +199,7 @@ export default function Reservation() : JSX.Element {
                   )}
                 />
                 {errors.guests && (
-                  <p className="text-red-500 text-sm mt-1">{errors.guests.message)}</p>
+                  <p className="text-red-500 text-sm mt-1">{errors.guests.message}</p>
                 )}
               </div>
 
@@ -215,7 +215,7 @@ export default function Reservation() : JSX.Element {
                     className="focus:border-coffee-accent"
                   />
                   {errors.customerName && (
-                    <p className="text-red-500 text-sm mt-1">{errors.customerName.message)}</p>
+                    <p className="text-red-500 text-sm mt-1">{errors.customerName.message}</p>
                   )}
                 </div>
                 <div>
@@ -230,7 +230,7 @@ export default function Reservation() : JSX.Element {
                     className="focus:border-coffee-accent"
                   />
                   {errors.customerEmail && (
-                    <p className="text-red-500 text-sm mt-1">{errors.customerEmail.message)}</p>
+                    <p className="text-red-500 text-sm mt-1">{errors.customerEmail.message}</p>
                   )}
                 </div>
               </div>
@@ -247,7 +247,7 @@ export default function Reservation() : JSX.Element {
                   className="focus:border-coffee-accent"
                 />
                 {errors.customerPhone && (
-                  <p className="text-red-500 text-sm mt-1">{errors.customerPhone.message)}</p>
+                  <p className="text-red-500 text-sm mt-1">{errors.customerPhone.message}</p>
                 )}
               </div>
 
@@ -266,11 +266,12 @@ export default function Reservation() : JSX.Element {
 
               <Button
                 type="submit"
-                disabled={reservationMutation.isPending}
+                isLoading={reservationMutation.isPending}
+                loadingText="Confirmation..."
+                leftIcon={<CheckCircle className="h-5 w-5" />}
                 className="w-full bg-coffee-accent hover:bg-coffee-primary text-white font-semibold py-4 px-6 rounded-lg transition duration-300 transform hover:scale-105 shadow-lg"
               >
-                <CheckCircle className="mr-2 h-5 w-5" />
-                {reservationMutation.isPending ? "Confirmation..." : "Confirmer la réservation"}
+                Confirmer la réservation
               </Button>
             </form>
           </div>
