@@ -129,7 +129,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
         customer.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (customer.phone && customer.phone.includes(searchTerm))
-    }
+      );
 
     // Sort by total spent (highest first)
     filtered.sort((a, b) => {

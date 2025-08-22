@@ -1,102 +1,144 @@
 import React from 'react';
+import { Router, Route, Switch } from 'wouter';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from '@/components/ui/toaster';
+import { AuthProvider } from '@/components/auth/AuthProvider';
+
+// Pages
+import HomePage from '@/pages/HomePage';
+import LoginSimple from '@/pages/LoginSimple';
+
+// Layout
+import AdminLayout from '@/layouts/AdminLayout';
+import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
+
+// Admin Components
+import Dashboard from '@/components/admin/dashboard';
+import MenuManagement from '@/components/admin/menu-management';
+import Orders from '@/components/admin/orders';
+import Reservations from '@/components/admin/reservations';
+import Customers from '@/components/admin/customers';
+import Statistics from '@/components/admin/statistics';
+import InventoryManagement from '@/components/admin/inventory-management';
+import WorkSchedule from '@/components/admin/work-schedule/WorkSchedule';
+import { PermissionsManagementImproved } from '@/components/admin/permissions-management-improved';
+import ComprehensiveReportsManager from '@/components/admin/ComprehensiveReportsManager';
+import UserProfileEnhanced from '@/components/admin/user-profile/UserProfileEnhanced';
+
+// Configuration React Query
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000,
+    },
+  },
+});
+
+// Page simple pour les routes manquantes
+const SimplePage = ({ title, description }: { title: string; description: string }) => (
+  <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+    <div className="text-center">
+      <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">{title}</h1>
+      <p className="text-xl text-gray-600 dark:text-gray-300">{description}</p>
+    </div>
+  </div>
+);
 
 function App() {
   return (
-    <div style={{ 
-      padding: '40px', 
-      fontFamily: 'Arial, sans-serif',
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #8B4513 0%, #D2691E 50%, #F4A460 100%)'
-    }}>
-      <div style={{
-        maxWidth: '900px',
-        margin: '0 auto',
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        borderRadius: '20px',
-        padding: '40px',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
-      }}>
-        <h1 style={{ 
-          color: '#8B4513', 
-          textAlign: 'center',
-          fontSize: '3rem',
-          marginBottom: '20px',
-          fontWeight: 'bold'
-        }}>
-          ☕ Barista Café - Application Professionnelle
-        </h1>
-        
-        <div style={{ 
-          backgroundColor: '#d4edda', 
-          padding: '30px', 
-          borderRadius: '15px', 
-          color: '#155724',
-          marginBottom: '30px',
-          border: '2px solid #c3e6cb'
-        }}>
-          <h2 style={{ margin: '0 0 20px 0', fontSize: '1.5rem' }}>
-            ✅ Succès ! Votre Application Professionnelle est Maintenant Chargée
-          </h2>
-          <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '1.1rem', lineHeight: '1.8' }}>
-            <li>✅ <strong>Fichier de test remplacé</strong> - L'ancien App.tsx de test a été remplacé</li>
-            <li>✅ <strong>Architecture professionnelle activée</strong> - Votre vraie application est maintenant chargée</li>
-            <li>✅ <strong>Routing wouter configuré</strong> - Navigation entre pages mise en place</li>
-            <li>✅ <strong>Système complet disponible</strong> - Gestion restaurant avec tous les modules</li>
-          </ul>
-        </div>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <Router>
+          <div className="min-h-screen bg-background flex flex-col">
+            <Switch>
+              {/* ========== ROUTES ADMIN (sans navbar/footer) ========== */}
+              <Route path="/admin" nest>
+                <AdminLayout>
+                  <Switch>
+                    <Route path="/" component={Dashboard} />
+                    <Route path="/dashboard" component={Dashboard} />
+                    <Route path="/menu" component={MenuManagement} />
+                    <Route path="/orders" component={Orders} />
+                    <Route path="/reservations" component={Reservations} />
+                    <Route path="/customers">
+                      {(user: any) => <Customers userRole="directeur" user={user} />}
+                    </Route>
+                    <Route path="/statistics">
+                      <Statistics userRole="directeur" />
+                    </Route>
+                    <Route path="/inventory" component={InventoryManagement} />
+                    <Route path="/schedule">
+                      <WorkSchedule userRole="directeur" />
+                    </Route>
+                    <Route path="/permissions" component={PermissionsManagementImproved} />
+                    <Route path="/reports" component={ComprehensiveReportsManager} />
+                    <Route path="/profile" component={UserProfileEnhanced} />
+                  </Switch>
+                </AdminLayout>
+              </Route>
 
-        <div style={{ 
-          backgroundColor: '#fff3cd', 
-          padding: '25px', 
-          borderRadius: '15px',
-          color: '#856404',
-          marginBottom: '30px',
-          border: '2px solid #ffeaa7'
-        }}>
-          <h3 style={{ margin: '0 0 15px 0', fontSize: '1.3rem' }}>
-            🔧 Prochaines Étapes - Correction des Erreurs TypeScript
-          </h3>
-          <p style={{ margin: '0', fontSize: '1rem', lineHeight: '1.6' }}>
-            Votre application professionnelle est maintenant configurée ! Il y a quelques erreurs TypeScript 
-            dans les composants UI qui empêchent temporairement l'affichage complet. Ces erreurs sont simples 
-            à corriger (parenthèses mal fermées). Une fois corrigées, vous aurez accès à :
-          </p>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '30px' }}>
-          <div style={{ backgroundColor: '#e3f2fd', padding: '20px', borderRadius: '10px', textAlign: 'center' }}>
-            <h4 style={{ color: '#1976d2', margin: '0 0 10px 0' }}>🏠 Interface Publique</h4>
-            <p style={{ margin: 0, fontSize: '0.9rem' }}>Hero, Menu, Réservations, Contact, Galerie</p>
+              {/* ========== ROUTES PUBLIQUES (avec navbar/footer) ========== */}
+              <Route>
+                <Navbar />
+                <main className="flex-1">
+                  <Switch>
+                    {/* Page d'accueil */}
+                    <Route path="/" component={HomePage} />
+                    
+                    {/* Authentification */}
+                    <Route path="/login" component={LoginSimple} />
+                    
+                    {/* Pages simples pour développement */}
+                    <Route path="/menu">
+                      <SimplePage 
+                        title="Menu du Restaurant" 
+                        description="Découvrez notre carte de spécialités" 
+                      />
+                    </Route>
+                    
+                    <Route path="/reservations">
+                      <SimplePage 
+                        title="Réservations" 
+                        description="Réservez votre table en ligne" 
+                      />
+                    </Route>
+                    
+                    <Route path="/contact">
+                      <SimplePage 
+                        title="Contact" 
+                        description="Contactez-nous pour plus d'informations" 
+                      />
+                    </Route>
+                    
+                    <Route path="/register">
+                      <SimplePage 
+                        title="Inscription" 
+                        description="Créez votre compte" 
+                      />
+                    </Route>
+                    
+                    {/* 404 */}
+                    <Route>
+                      <SimplePage 
+                        title="Page non trouvée" 
+                        description="La page que vous cherchez n'existe pas" 
+                      />
+                    </Route>
+                  </Switch>
+                </main>
+                <Footer />
+              </Route>
+            </Switch>
+            
+            {/* Notifications Toast */}
+            <Toaster />
           </div>
-          <div style={{ backgroundColor: '#f3e5f5', padding: '20px', borderRadius: '10px', textAlign: 'center' }}>
-            <h4 style={{ color: '#7b1fa2', margin: '0 0 10px 0' }}>👥 Administration</h4>
-            <p style={{ margin: 0, fontSize: '0.9rem' }}>Dashboard, Gestion complète, Analytics</p>
-          </div>
-          <div style={{ backgroundColor: '#e8f5e8', padding: '20px', borderRadius: '10px', textAlign: 'center' }}>
-            <h4 style={{ color: '#388e3c', margin: '0 0 10px 0' }}>📊 Modules Pro</h4>
-            <p style={{ margin: 0, fontSize: '0.9rem' }}>Inventaire, Staff, Comptabilité, Qualité</p>
-          </div>
-        </div>
-
-        <div style={{ 
-          backgroundColor: '#f8f9fa', 
-          padding: '25px', 
-          borderRadius: '15px',
-          border: '2px solid #dee2e6',
-          textAlign: 'center'
-        }}>
-          <h3 style={{ color: '#495057', margin: '0 0 15px 0' }}>
-            📋 Architecture Détaillée Selon Votre Guide
-          </h3>
-          <div style={{ fontSize: '0.95rem', color: '#666', lineHeight: '1.6' }}>
-            <p><strong>Frontend:</strong> React + TypeScript + Wouter + Tailwind + Shadcn/ui</p>
-            <p><strong>Backend:</strong> Express + Drizzle ORM + PostgreSQL + JWT</p>
-            <p><strong>Modules:</strong> 15+ composants d'administration professionnels</p>
-            <p><strong>Sécurité:</strong> Authentification, rôles, permissions, validation</p>
-          </div>
-        </div>
-      </div>
-    </div>
+        </Router>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 

@@ -611,9 +611,11 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                           {item.available ? 'Disponible' : 'Indisponible'}
                         </Badge>
                         {canEditItem && (
-                          <Switch
+                          <input
+                            type="checkbox"
                             checked={item.available}
-                            onCheckedChange={(checked) => toggleAvailableMutation.mutate({ id: item.id, available: checked })}
+                            onChange={(e) => toggleAvailableMutation.mutate({ id: item.id, available: e.target.checked })}
+                            className="h-4 w-4 rounded border-gray-300"
                           />
                         )}
                       </div>
