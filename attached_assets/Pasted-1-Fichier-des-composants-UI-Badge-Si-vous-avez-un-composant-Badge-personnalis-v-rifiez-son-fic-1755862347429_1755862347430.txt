@@ -1,0 +1,81 @@
+1. Fichier des composants UI (Badge)
+Si vous avez un composant Badge personnalisé, vérifiez son fichier badge.tsx :
+
+typescript
+// @/components/ui/badge.tsx
+export type BadgeVariant = "default" | "destructive" | "outline" | "secondary";
+
+export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: BadgeVariant;
+}
+
+export const Badge: React.FC<BadgeProps> = ({ variant = "default", ...props }) => {
+  // Votre implémentation Badge
+};
+2. Fichier de configuration des couleurs Tailwind
+Assurez-vous que les couleurs utilisées dans les icônes sont définies dans votre tailwind.config.js :
+
+javascript
+// tailwind.config.js
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        blue: { 600: '#2563eb' },
+        green: { 600: '#16a34a' },
+        yellow: { 600: '#ca8a04' },
+        red: { 600: '#dc2626' },
+        orange: { 600: '#ea580c' },
+        purple: { 600: '#9333ea' },
+        indigo: { 600: '#4f46e5' },
+        gray: { 600: '#525252' },
+        cyan: { 600: '#0891b2' }
+      }
+    }
+  }
+}
+3. Fichier de hooks use-toast
+Vérifiez que votre hook useToast supporte le variant "destructive" :
+
+typescript
+// @/hooks/use-toast.ts
+export type ToastVariant = "default" | "destructive" | "success" | "warning";
+
+export interface Toast {
+  title: string;
+  description?: string;
+  variant?: ToastVariant;
+  // ... autres props
+}
+4. Fichier de types globaux (optionnel)
+Si vous voulez centraliser les types, créez un fichier de types :
+
+typescript
+// @/types/activity.ts
+export interface ActivityLog {
+  id: string;
+  timestamp: Date;
+  userId: string;
+  userName: string;
+  userRole: string;
+  action: string;
+  category: ActivityCategory;
+  description: string;
+  severity: 'info' | 'warning' | 'error' | 'success';
+  ipAddress: string;
+  userAgent?: string;
+  metadata?: Record<string, any>;
+  affectedResource?: string;
+  previousValue?: string;
+  newValue?: string;
+}
+
+export type ActivityCategory = 
+  | 'auth'
+  | 'user_management' 
+  | 'menu'
+  | 'order'
+  | 'reservation'
+  | 'settings'
+  | 'security'
+  | 'system';

@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Card, CardContent, CardDescription, CardHeader, CardTitle 
 } from '@/components/ui/card';
@@ -117,17 +116,17 @@ const SEVERITY_CONFIG = {
 
 export default function ActivityLogs(): JSX.Element {
   const { toast } = useToast();
-  
+
   // États
   const [logs, setLogs] = useState<ActivityLog[]>([]);
   const [filteredLogs, setFilteredLogs] = useState<ActivityLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedLog, setSelectedLog] = useState<ActivityLog | null>(null);
   const [isRealTimeEnabled, setIsRealTimeEnabled] = useState(true);
-  
+
   const [filters, setFilters] = useState<ActivityFilter>({
-    category: 'all' as ActivityCategory | 'all',
-    severity: 'all' as ActivityLog['severity'] | 'all',
+    category: 'all',
+    severity: 'all',
     userId: '',
     dateRange: {
       start: subDays(new Date(), 7),
@@ -139,12 +138,12 @@ export default function ActivityLogs(): JSX.Element {
   // Simulation de données en temps réel
   useEffect(() => {
     loadActivityLogs();
-    
+
     if (isRealTimeEnabled) {
       const interval = setInterval(() => {
         generateMockActivity();
       }, 30000); // Nouvelle activité toutes les 30 secondes
-      
+
       return () => clearInterval(interval);
     }
   }, [isRealTimeEnabled]);
@@ -160,17 +159,17 @@ export default function ActivityLogs(): JSX.Element {
       const matchesSearch = !filters.searchTerm || 
         log.description.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
         log.userName.toLowerCase().includes(filters.searchTerm.toLowerCase());
-        
+
       return matchesCategory && matchesSeverity && matchesUser && matchesDate && matchesSearch;
     });
-    
+
     setFilteredLogs(filtered.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()));
   }, [logs, filters]);
 
   const loadActivityLogs = async (): Promise<void> => {
     try {
       setIsLoading(true);
-      
+
       // Simulation de données réelles
       const mockLogs: ActivityLog[] = [
         {
@@ -184,7 +183,11 @@ export default function ActivityLogs(): JSX.Element {
           description: 'Connexion administrateur réussie',
           severity: 'success',
           ipAddress: '192.168.1.100',
-          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          metadata: {},
+          affectedResource: '',
+          previousValue: '',
+          newValue: ''
         },
         {
           id: '2',
@@ -199,7 +202,9 @@ export default function ActivityLogs(): JSX.Element {
           ipAddress: '192.168.1.101',
           affectedResource: 'menu_item_15',
           previousValue: '2.50€',
-          newValue: '2.80€'
+          newValue: '2.80€',
+          userAgent: '',
+          metadata: {}
         },
         {
           id: '3',
@@ -211,7 +216,12 @@ export default function ActivityLogs(): JSX.Element {
           category: 'security',
           description: 'Tentative de connexion échouée - mot de passe incorrect',
           severity: 'warning',
-          ipAddress: '192.168.1.102'
+          ipAddress: '192.168.1.102',
+          userAgent: '',
+          metadata: {},
+          affectedResource: '',
+          previousValue: '',
+          newValue: ''
         },
         {
           id: '4',
@@ -223,10 +233,15 @@ export default function ActivityLogs(): JSX.Element {
           category: 'system',
           description: 'Sauvegarde automatique de la base de données terminée',
           severity: 'success',
-          ipAddress: '127.0.0.1'
+          ipAddress: '127.0.0.1',
+          userAgent: '',
+          metadata: {},
+          affectedResource: '',
+          previousValue: '',
+          newValue: ''
         }
       ];
-      
+
       setLogs(mockLogs);
     } catch (error) {
       toast({
@@ -247,7 +262,14 @@ export default function ActivityLogs(): JSX.Element {
         description: 'Nouvelle commande créée',
         severity: 'info' as const,
         userId: 'customer-' + Math.floor(Math.random() * 1000),
-        userName: 'Client ' + Math.floor(Math.random() * 1000)
+        userName: 'Client ' + Math.floor(Math.random() * 1000),
+        userRole: 'customer',
+        ipAddress: `192.168.1.${Math.floor(Math.random() * 255)}`,
+        userAgent: '',
+        metadata: {},
+        affectedResource: '',
+        previousValue: '',
+        newValue: ''
       },
       {
         action: 'RESERVATION_CONFIRMED',
@@ -255,7 +277,14 @@ export default function ActivityLogs(): JSX.Element {
         description: 'Réservation confirmée pour ce soir',
         severity: 'success' as const,
         userId: 'manager-' + Math.floor(Math.random() * 10),
-        userName: 'Manager ' + Math.floor(Math.random() * 10)
+        userName: 'Manager ' + Math.floor(Math.random() * 10),
+        userRole: 'manager',
+        ipAddress: `192.168.1.${Math.floor(Math.random() * 255)}`,
+        userAgent: '',
+        metadata: {},
+        affectedResource: '',
+        previousValue: '',
+        newValue: ''
       },
       {
         action: 'INVENTORY_LOW',
@@ -263,7 +292,14 @@ export default function ActivityLogs(): JSX.Element {
         description: 'Stock faible détecté - Grains de café',
         severity: 'warning' as const,
         userId: 'system',
-        userName: 'Système'
+        userName: 'Système',
+        userRole: 'system',
+        ipAddress: `192.168.1.${Math.floor(Math.random() * 255)}`,
+        userAgent: '',
+        metadata: {},
+        affectedResource: '',
+        previousValue: '',
+        newValue: ''
       }
     ];
 
@@ -271,8 +307,6 @@ export default function ActivityLogs(): JSX.Element {
     const newLog: ActivityLog = {
       id: Date.now().toString(),
       timestamp: new Date(),
-      userRole: 'employee',
-      ipAddress: `192.168.1.${Math.floor(Math.random() * 255)}`,
       ...activity
     };
 
@@ -281,6 +315,15 @@ export default function ActivityLogs(): JSX.Element {
 
   const exportLogs = useCallback((): void => {
     try {
+      if (filteredLogs.length === 0) {
+        toast({
+          title: "Aucune donnée",
+          description: "Aucun journal à exporter",
+          variant: "warning",
+        });
+        return;
+      }
+
       const dataToExport = filteredLogs.map(log => ({
         Timestamp: format(log.timestamp, 'yyyy-MM-dd HH:mm:ss'),
         Utilisateur: log.userName,
@@ -293,7 +336,7 @@ export default function ActivityLogs(): JSX.Element {
       }));
 
       const csvContent = [
-        Object.keys(dataToExport[0] || {}).join(','),
+        Object.keys(dataToExport[0]).join(','),
         ...dataToExport.map(row => Object.values(row).join(','))
       ].join('\n');
 
@@ -325,7 +368,7 @@ export default function ActivityLogs(): JSX.Element {
       const thirtyDaysAgo = subDays(new Date(), 30);
       const filteredLogs = logs.filter(log => log.timestamp >= thirtyDaysAgo);
       setLogs(filteredLogs);
-      
+
       toast({
         title: "Nettoyage effectué",
         description: `${logs.length - filteredLogs.length} anciens journaux supprimés`,
@@ -426,11 +469,11 @@ export default function ActivityLogs(): JSX.Element {
                     className="pl-10"
                   />
                 </div>
-                
+
                 <Select 
                   value={filters.category} 
-                  onValueChange={(value: ActivityCategory | 'all') => 
-                    setFilters(prev => ({ ...prev, category: value }))}
+                  onValueChange={(value: string) => 
+                    setFilters(prev => ({ ...prev, category: value as ActivityCategory | 'all' }))}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Catégorie" />
@@ -447,8 +490,8 @@ export default function ActivityLogs(): JSX.Element {
 
                 <Select 
                   value={filters.severity} 
-                  onValueChange={(value: ActivityLog['severity'] | 'all') => 
-                    setFilters(prev => ({ ...prev, severity: value }))}
+                  onValueChange={(value: string) => 
+                    setFilters(prev => ({ ...prev, severity: value as ActivityLog['severity'] | 'all' }))}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Sévérité" />
@@ -502,7 +545,7 @@ export default function ActivityLogs(): JSX.Element {
                   {filteredLogs.slice(0, 50).map((log) => {
                     const categoryConfig = CATEGORY_CONFIG[log.category];
                     const CategoryIcon = categoryConfig.icon;
-                    
+
                     return (
                       <TableRow key={log.id}>
                         <TableCell>
