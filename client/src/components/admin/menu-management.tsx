@@ -42,7 +42,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
+// import { Switch } from '@/components/ui/switch';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -78,7 +78,7 @@ interface MenuManagementProps {
 
 export default function MenuManagement({ userRole = 'directeur' }: MenuManagementProps) {
   const { user } = useAuth();
-  const { canCreate, canEdit, canDelete: canDeleteFn } = usePermissions(user);
+  const { canCreate, canEdit, canDelete: canDeleteFn } = usePermissions(user as any);
   const canCreateItem = canCreate('menu');
   const canEditItem = canEdit('menu');
   const canDeleteItem = canDeleteFn('menu');
@@ -434,7 +434,12 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                         <div className="text-xs text-muted-foreground">Marquez l'article comme disponible/indisponible</div>
                       </div>
                       <FormControl>
-                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                        <input 
+                          type="checkbox" 
+                          checked={field.value} 
+                          onChange={(e) => field.onChange(e.target.checked)}
+                          className="h-4 w-4 rounded border-gray-300"
+                        />
                       </FormControl>
                     </FormItem>
                   )}
