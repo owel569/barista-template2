@@ -8,7 +8,9 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Trash2, Plus, Edit, Eye, Save, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { MenuItem } from '@shared/schema';
+import type { menuItems } from '@shared/schema';
+
+type MenuItem = typeof menuItems.$inferSelect;
 
 interface MenuItemImage {
   id: number;
@@ -36,7 +38,7 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
   const queryClient = useQueryClient();
 
   // Data fetching with mock data
-  const { data: images = [], isLoading } = useQuery<MenuItemImage[]>({
+  const { data: images = [], isPending } = useQuery<MenuItemImage[]>({
     queryKey: ['menu-item-images', menuItem.id],
     queryFn: async () => {
       // Mock data
@@ -85,7 +87,7 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
       toast({ 
         title: 'Erreur', 
         description: "Impossible d'ajouter l'image", 
-        variant: 'destructive' 
+        variant: 'error' 
       });
     }
   });
@@ -105,7 +107,7 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
       toast({ 
         title: 'Erreur', 
         description: "Impossible de supprimer l'image", 
-        variant: 'destructive' 
+        variant: 'error' 
       });
     }
   });
@@ -129,7 +131,7 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
       toast({ 
         title: 'Erreur', 
         description: "Impossible de mettre à jour l'image", 
-        variant: 'destructive' 
+        variant: 'error' 
       });
     }
   });
@@ -139,7 +141,7 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
       toast({ 
         title: 'Erreur', 
         description: 'URL d\'image requise', 
-        variant: 'destructive' 
+        variant: 'error' 
       });
       return;
     }
@@ -166,7 +168,7 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
     });
   };
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <Card className="w-full max-w-4xl">
         <CardHeader>
@@ -329,10 +331,10 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
               <div className="flex space-x-2">
                 <Button 
                   onClick={handleAddImage}
-                  disabled={addImageMutation.isLoading}
+                  disabled={addImageMutation.isPending}
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  {addImageMutation.isLoading ? 'Ajout...' : 'Ajouter'}
+                  {addImageMutation.isPending ? 'Ajout...' : 'Ajouter'}
                 </Button>
                 <Button 
                   variant="outline" 

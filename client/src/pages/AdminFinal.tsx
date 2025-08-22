@@ -38,7 +38,7 @@ import DeliveryTracking from '@/components/admin/delivery-tracking';
 import OnlineOrdering from '@/components/admin/online-ordering';
 import TableManagement from '@/components/admin/table-management';
 import EventsPromotions from '@/components/admin/events-promotions';
-import UserProfile from '@/components/admin/user-profile';
+import { UserProfileEnhanced } from '@/components/admin';
 import AnalyticsDashboard from '@/components/admin/analytics-dashboard';
 import AdvancedPOS from '@/components/admin/advanced-pos';
 import StaffScheduling from '@/components/admin/staff-scheduling';
@@ -54,7 +54,7 @@ import DashboardModule from '@/components/admin/modules/Dashboard';
 // If it's not yet created, this will be a placeholder or an error.
 // For the sake of this exercise, we assume it exists or will be created at:
 // client/src/components/admin/DashboardConsolidated.tsx
-import DashboardConsolidated from '@/components/admin/DashboardConsolidated'; // Import the new consolidated dashboard
+import { DashboardConsolidated } from '@/components/admin'; // Import the new consolidated dashboard
 
 // Mock logger for demonstration purposes if not globally available
 const logger = {
@@ -88,7 +88,11 @@ export default function AdminFinal() : JSX.Element {
 
     // Décoder le token pour obtenir les infos utilisateur
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
+      const tokenParts = token.split('.');
+      if (tokenParts.length < 2 || !tokenParts[1]) {
+        throw new Error('Token invalide');
+      }
+      const payload = JSON.parse(atob(tokenParts[1]));
       setUser(payload);
     } catch (error) {
       logger.error('Token invalide:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
@@ -332,7 +336,7 @@ export default function AdminFinal() : JSX.Element {
       id: 'user-profiles',
       name: 'Profils Clients',
       icon: Users,
-      component: UserProfile
+      component: UserProfileEnhanced
     },
     {
       id: 'analytics',
@@ -499,7 +503,7 @@ export default function AdminFinal() : JSX.Element {
       <main className="p-4">
         {/* Affichage du composant actuel */}
         <div className="h-[calc(100vh-80px)] overflow-y-auto">
-          <CurrentComponent />
+          <CurrentComponent userRole={user?.role} user={user} />
         </div>
       </main>
     </div>

@@ -11,7 +11,7 @@ export { default as PermissionsManagement } from './permissions-management';
 export { default as LoyaltySystem } from './loyalty-system';
 
 // Composants avancés
-export { default as AdvancedAnalytics } from './analytics/AdvancedAnalyticsDashboard';
+export { AdvancedAnalyticsDashboard as AdvancedAnalytics } from './analytics/AdvancedAnalyticsDashboard';
 export { default as WorkSchedule } from './work-schedule/WorkSchedule';
 export { default as StatisticsEnhanced } from './statistics-enhanced';
 export { default as UserProfileEnhanced } from './user-profile-enhanced-optimized';
@@ -37,7 +37,7 @@ export { default as SuppliersManagement } from './suppliers-management';
 export { default as CalendarManagement } from './calendar-management';
 export { default as AdvancedPOS } from './advanced-pos';
 export { default as AccountingSystem } from './accounting-system';
-export { default as ImageManagement } from './image-management';
+export { ImageManagement } from './image-management';
 export { default as RealTimeUpdates } from './real-time-updates';
 export { default as ComprehensiveReports } from './ComprehensiveReportsManager';
 
