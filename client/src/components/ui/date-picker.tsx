@@ -1,65 +1,9 @@
+"use client"
 
-<old_str>
 import * as React from "react"
-import { format } from "date-fns"
-import { Calendar as CalendarIcon } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-
-export interface DatePickerProps {
-  date?: Date
-  onSelect?: (date: Date | undefined) => void
-  placeholder?: string
-  disabled?: boolean
-  className?: string
-}
-
-export function DatePicker({
-  date,
-  onSelect,
-  placeholder = "Pick a date",
-  disabled = false,
-  className,
-}: DatePickerProps) {
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant={"outline"}
-          className={cn(
-            "w-full justify-start text-left font-normal",
-            !date && "text-muted-foreground",
-            className
-          )}
-          disabled={disabled}
-        >
-          <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "PPP") : <span>{placeholder}</span>}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0">
-        <Calendar
-          mode="single"
-          selected={date}
-          onSelect={onSelect}
-          initialFocus
-        />
-      </PopoverContent>
-    </Popover>
-  )
-}
-</old_str>
-<new_str>
-import * as React from "react"
-import { format, addDays, subDays } from "date-fns"
+import { format, addDays, subDays, isToday, isTomorrow, isYesterday } from "date-fns"
 import { fr } from "date-fns/locale"
-import { Calendar as CalendarIcon, ChevronDown, X } from "lucide-react"
+import { Calendar as CalendarIcon, ChevronDown, X, Clock } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -82,42 +26,64 @@ export interface DatePickerProps {
   placeholder?: string
   disabled?: boolean
   className?: string
-  clearable?: boolean
+  showTime?: boolean
   minDate?: Date
   maxDate?: Date
-  locale?: Locale
-  showPresets?: boolean
-  presets?: { label: string; date: Date }[]
-  formatStr?: string
+  presets?: boolean
+  clearable?: boolean
+  format?: string
 }
 
-const defaultPresets = [
-  { label: "Aujourd'hui", date: new Date() },
-  { label: "Demain", date: addDays(new Date(), 1) },
-  { label: "Dans 3 jours", date: addDays(new Date(), 3) },
-  { label: "Dans une semaine", date: addDays(new Date(), 7) },
-  { label: "Dans un mois", date: addDays(new Date(), 30) },
+const DATE_PRESETS = [
+  { label: "Aujourd'hui", value: new Date() },
+  { label: "Demain", value: addDays(new Date(), 1) },
+  { label: "Dans 3 jours", value: addDays(new Date(), 3) },
+  { label: "Dans une semaine", value: addDays(new Date(), 7) },
 ]
 
 export function DatePicker({
   date,
   onSelect,
-  placeholder = "Choisir une date",
+  placeholder = "Sélectionner une date",
   disabled = false,
   className,
-  clearable = false,
+  showTime = false,
   minDate,
   maxDate,
-  locale = fr,
-  showPresets = false,
-  presets = defaultPresets,
-  formatStr = "PPP",
+  presets = false,
+  clearable = false,
+  format: dateFormat = "PPP",
 }: DatePickerProps) {
-  const [open, setOpen] = React.useState(false)
+  const [isOpen, setIsOpen] = React.useState(false)
+  const [time, setTime] = React.useState("12:00")
 
-  const handleSelect = (selectedDate: Date | undefined) => {
+  const formatDisplayDate = (selectedDate: Date) => {
+    if (isToday(selectedDate)) return "Aujourd'hui"
+    if (isTomorrow(selectedDate)) return "Demain"
+    if (isYesterday(selectedDate)) return "Hier"
+    return format(selectedDate, dateFormat, { locale: fr })
+  }
+
+  const handleDateSelect = (selectedDate: Date | undefined) => {
+    if (!selectedDate) {
+      onSelect?.(undefined)
+      return
+    }
+
+    if (showTime && time) {
+      const [hours, minutes] = time.split(":")
+      selectedDate.setHours(parseInt(hours), parseInt(minutes))
+    }
+
     onSelect?.(selectedDate)
-    setOpen(false)
+    if (!showTime) {
+      setIsOpen(false)
+    }
+  }
+
+  const handlePresetSelect = (presetDate: Date) => {
+    handleDateSelect(presetDate)
+    setIsOpen(false)
   }
 
   const handleClear = (e: React.MouseEvent) => {
@@ -125,13 +91,8 @@ export function DatePicker({
     onSelect?.(undefined)
   }
 
-  const handlePresetSelect = (presetDate: Date) => {
-    onSelect?.(presetDate)
-    setOpen(false)
-  }
-
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -143,42 +104,73 @@ export function DatePicker({
           disabled={disabled}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, formatStr, { locale }) : <span>{placeholder}</span>}
+          {date ? (
+            <span className="flex-1">
+              {formatDisplayDate(date)}
+              {showTime && time && ` à ${time}`}
+            </span>
+          ) : (
+            <span className="flex-1">{placeholder}</span>
+          )}
           {clearable && date && (
             <X
-              className="ml-auto h-4 w-4 opacity-50 hover:opacity-100"
+              className="ml-2 h-4 w-4 hover:text-destructive"
               onClick={handleClear}
             />
           )}
+          <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
         <div className="flex">
-          <div className="flex-1">
+          <div className="p-3">
             <Calendar
               mode="single"
               selected={date}
-              onSelect={handleSelect}
+              onSelect={handleDateSelect}
               disabled={(date) => {
                 if (minDate && date < minDate) return true
                 if (maxDate && date > maxDate) return true
                 return false
               }}
               initialFocus
-              locale={locale}
             />
+            
+            {showTime && (
+              <div className="mt-3 border-t pt-3">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  <Select value={time} onValueChange={setTime}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 24 }, (_, i) => {
+                        const hour = i.toString().padStart(2, '0')
+                        return ['00', '30'].map(minute => (
+                          <SelectItem key={`${hour}:${minute}`} value={`${hour}:${minute}`}>
+                            {hour}:{minute}
+                          </SelectItem>
+                        ))
+                      }).flat()}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
           </div>
-          {showPresets && (
+          
+          {presets && (
             <div className="border-l p-3 w-48">
-              <h4 className="font-medium text-sm mb-2">Raccourcis</h4>
+              <h4 className="text-sm font-medium mb-2">Raccourcis</h4>
               <div className="space-y-1">
-                {presets.map((preset, index) => (
+                {DATE_PRESETS.map((preset, index) => (
                   <Button
                     key={index}
                     variant="ghost"
                     size="sm"
                     className="w-full justify-start"
-                    onClick={() => handlePresetSelect(preset.date)}
+                    onClick={() => handlePresetSelect(preset.value)}
                   >
                     {preset.label}
                   </Button>
@@ -192,95 +184,120 @@ export function DatePicker({
   )
 }
 
-// Date Range Picker
+// Range Date Picker
 export interface DateRangePickerProps {
-  from?: Date
-  to?: Date
-  onSelect?: (range: { from?: Date; to?: Date }) => void
+  dateRange?: { from: Date; to?: Date }
+  onSelect?: (range: { from: Date; to?: Date } | undefined) => void
   placeholder?: string
   disabled?: boolean
   className?: string
+  presets?: boolean
   clearable?: boolean
-  minDate?: Date
-  maxDate?: Date
-  locale?: Locale
-  numberOfMonths?: number
 }
 
+const RANGE_PRESETS = [
+  {
+    label: "7 derniers jours",
+    value: { from: subDays(new Date(), 6), to: new Date() }
+  },
+  {
+    label: "30 derniers jours", 
+    value: { from: subDays(new Date(), 29), to: new Date() }
+  },
+  {
+    label: "Ce mois-ci",
+    value: { 
+      from: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+      to: new Date()
+    }
+  },
+]
+
 export function DateRangePicker({
-  from,
-  to,
+  dateRange,
   onSelect,
-  placeholder = "Choisir une période",
+  placeholder = "Sélectionner une période",
   disabled = false,
   className,
+  presets = false,
   clearable = false,
-  minDate,
-  maxDate,
-  locale = fr,
-  numberOfMonths = 2,
 }: DateRangePickerProps) {
-  const [open, setOpen] = React.useState(false)
+  const [isOpen, setIsOpen] = React.useState(false)
 
-  const handleSelect = (range: { from?: Date; to?: Date } | undefined) => {
-    onSelect?.(range || {})
+  const formatRange = (range: { from: Date; to?: Date }) => {
+    if (!range.to) {
+      return format(range.from, "PPP", { locale: fr })
+    }
+    return `${format(range.from, "PPP", { locale: fr })} - ${format(range.to, "PPP", { locale: fr })}`
   }
 
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation()
-    onSelect?.({})
-  }
-
-  const formatRange = () => {
-    if (from && to) {
-      return `${format(from, "dd MMM", { locale })} - ${format(to, "dd MMM yyyy", { locale })}`
-    }
-    if (from) {
-      return format(from, "dd MMM yyyy", { locale })
-    }
-    return placeholder
+    onSelect?.(undefined)
   }
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
           className={cn(
             "w-full justify-start text-left font-normal",
-            !from && !to && "text-muted-foreground",
+            !dateRange && "text-muted-foreground",
             className
           )}
           disabled={disabled}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {formatRange()}
-          {clearable && (from || to) && (
+          {dateRange ? (
+            <span className="flex-1">{formatRange(dateRange)}</span>
+          ) : (
+            <span className="flex-1">{placeholder}</span>
+          )}
+          {clearable && dateRange && (
             <X
-              className="ml-auto h-4 w-4 opacity-50 hover:opacity-100"
+              className="ml-2 h-4 w-4 hover:text-destructive"
               onClick={handleClear}
             />
           )}
+          <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
-        <Calendar
-          mode="range"
-          selected={{ from, to }}
-          onSelect={handleSelect}
-          disabled={(date) => {
-            if (minDate && date < minDate) return true
-            if (maxDate && date > maxDate) return true
-            return false
-          }}
-          numberOfMonths={numberOfMonths}
-          initialFocus
-          locale={locale}
-        />
+        <div className="flex">
+          <div className="p-3">
+            <Calendar
+              mode="range"
+              selected={dateRange}
+              onSelect={onSelect}
+              numberOfMonths={2}
+              initialFocus
+            />
+          </div>
+          
+          {presets && (
+            <div className="border-l p-3 w-48">
+              <h4 className="text-sm font-medium mb-2">Raccourcis</h4>
+              <div className="space-y-1">
+                {RANGE_PRESETS.map((preset, index) => (
+                  <Button
+                    key={index}
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start"
+                    onClick={() => {
+                      onSelect?.(preset.value)
+                      setIsOpen(false)
+                    }}
+                  >
+                    {preset.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </PopoverContent>
     </Popover>
   )
 }
-
-export { DatePicker as default }
-</new_str>
