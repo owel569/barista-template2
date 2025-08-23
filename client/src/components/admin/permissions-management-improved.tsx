@@ -156,37 +156,37 @@ export function PermissionsManagementImproved(): JSX.Element {
     const errors: FormErrors = {};
 
     // Validation username
-    if (!data.username.trim();{
+          if (!data.username.trim()) {
       errors.username = 'Le nom d\'utilisateur est requis';
     } else if (data.username.length < 3) {
       errors.username = 'Le nom d\'utilisateur doit contenir au moins 3 caractères';
     }
 
     // Validation password
-    if (!data.password.trim();{
+          if (!data.password.trim()) {
       errors.password = 'Le mot de passe est requis';
     } else if (data.password.length < 8) {
       errors.password = 'Le mot de passe doit contenir au moins 8 caractères';
-    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(data.password);{
+    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(data.password)) {
       errors.password = 'Le mot de passe doit contenir au moins une majuscule, une minuscule et un chiffre';
     }
 
     // Validation email
-    if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email);{
+    if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
       errors.email = 'Format d\'email invalide';
     }
 
     // Validation téléphone
-    if (data.phone && !/^(\+33|0)[1-9](\d{8})$/.test(data.phone);{
+    if (data.phone && !/^(\+33|0)[1-9](\d{8})$/.test(data.phone)) {
       errors.phone = 'Format téléphone invalide (ex: +33612345678 ou 0612345678)';
     }
 
     // Validation champs requis
-    if (!data.firstName.trim();{
+    if (!data.firstName.trim()) {
       errors.firstName = 'Le prénom est requis';
     }
 
-    if (!data.lastName.trim();{
+    if (!data.lastName.trim()) {
       errors.lastName = 'Le nom est requis';
     }
 
@@ -197,10 +197,10 @@ export function PermissionsManagementImproved(): JSX.Element {
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
       const matchesSearch = !searchTerm || 
-        user.username.toLowerCase().includes(searchTerm.toLowerCase();||
-        (user.firstName?.toLowerCase().includes(searchTerm.toLowerCase();||
-        (user.lastName?.toLowerCase().includes(searchTerm.toLowerCase();||
-        (user.email?.toLowerCase().includes(searchTerm.toLowerCase();
+        user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (user.firstName?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (user.lastName?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (user.email?.toLowerCase().includes(searchTerm.toLowerCase()));
 
       const matchesRole = roleFilter === 'all' || user.role === roleFilter;
       
@@ -216,11 +216,11 @@ export function PermissionsManagementImproved(): JSX.Element {
 
   // Gestion des changements de formulaire
   const handleFormChange = useCallback((field: keyof UserFormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value });
+    setFormData(prev => ({ ...prev, [field]: value }));
     
     // Effacer l'erreur du champ modifié
     if (formErrors[field]) {
-      setFormErrors(prev => ({ ...prev, [field]: undefined });
+      setFormErrors(prev => ({ ...prev, [field]: undefined }));
     }
   }, [formErrors]);
 

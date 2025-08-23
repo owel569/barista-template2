@@ -158,9 +158,10 @@ export default function ReservationsFixed() : JSX.Element {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(editForm});
-      
-      if (response.ok) {
+                            body: JSON.stringify(editForm)
+        });
+
+        if (response.ok) {
         await fetchReservations();
         setIsEditModalOpen(false);
         toast({
@@ -253,7 +254,7 @@ export default function ReservationsFixed() : JSX.Element {
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
               <div key={i} className="h-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
-            );}
+            ))}
           </div>
         </div>
       </div>
@@ -283,28 +284,28 @@ export default function ReservationsFixed() : JSX.Element {
         <Button
           variant={filter === 'all' ? 'default' : 'outline'}
           size="sm"
-          onClick={() => setFilter('all'}
+          onClick={() => setFilter('all')}
         >
           Toutes ({reservations.length})
         </Button>
         <Button
           variant={filter === 'pending' ? 'default' : 'outline'}
           size="sm"
-          onClick={() => setFilter('pending'}
+          onClick={() => setFilter('pending')}
         >
           En attente ({reservations.filter(r => r.status === 'pending').length})
         </Button>
         <Button
           variant={filter === 'confirmed' ? 'default' : 'outline'}
           size="sm"
-          onClick={() => setFilter('confirmed'}
+          onClick={() => setFilter('confirmed')}
         >
           Confirmées ({reservations.filter(r => r.status === 'confirmed').length})
         </Button>
         <Button
           variant={filter === 'cancelled' ? 'default' : 'outline'}
           size="sm"
-          onClick={() => setFilter('cancelled'}
+          onClick={() => setFilter('cancelled')}
         >
           Annulées ({reservations.filter(r => r.status === 'cancelled').length})
         </Button>
@@ -329,8 +330,8 @@ export default function ReservationsFixed() : JSX.Element {
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-3">
                       <div className="flex items-center gap-2">
-                        <Badge className={`${getStatusColor(reservation.status} flex items-center gap-1`}>
-                          {getStatusIcon(reservation.status}
+                        <Badge className={`${getStatusColor(reservation.status)} flex items-center gap-1`}>
+                          {getStatusIcon(reservation.status)}
                           {reservation.status}
                         </Badge>
                         <span className="text-sm text-gray-500">

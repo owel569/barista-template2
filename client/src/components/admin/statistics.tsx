@@ -120,7 +120,7 @@ export default function Statistics({ userRole }: StatisticsProps) {
         setTotalStats(prev => ({
           ...prev,
           totalCustomers: customerStats.total || 156
-        });
+        }));
       } else {
         setCustomerData(generateMockCustomerData());
       }
@@ -195,7 +195,7 @@ export default function Statistics({ userRole }: StatisticsProps) {
                 <div className="h-8 bg-gray-200 rounded w-1/2"></div>
               </CardContent>
             </Card>
-          );}
+          ))}
         </div>
       </div>
     );
@@ -241,7 +241,7 @@ export default function Statistics({ userRole }: StatisticsProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {totalStats.totalRevenue.toLocaleString(}€
+                              {totalStats.totalRevenue.toLocaleString()}€
             </div>
             <div className="flex items-center gap-1 text-sm">
               <TrendingUp className="h-3 w-3 text-green-500" />

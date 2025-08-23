@@ -182,7 +182,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
   // Récupérer les rapports existants
   const { data: existingReports, isLoading } = useQuery<{ automated: Report[] }>({
     queryKey: ['/api/admin/reports'],
-    queryFn: () => apiRequest('/api/admin/reports'});
+          queryFn: () => apiRequest('/api/admin/reports')
 
   // Génération de rapport
   const generateReportMutation = useMutation({

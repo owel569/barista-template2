@@ -262,7 +262,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
     setEditingItem(item);
     const imageUrl = item.imageUrl || getImageUrlByName(item.name);
     setPreviewUrl(imageUrl);
-    const priceNumber = typeof item.price === 'number' ? item.price : parseFloat(String(item.price);
+          const priceNumber = typeof item.price === 'number' ? item.price : parseFloat(String(item.price));
     form.reset({
       name: item.name,
       description: item.description,
@@ -275,7 +275,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
   };
 
   const handleDelete = (id: number) => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cet article ?');{
+          if (confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) {
       deleteMutation.mutate(id);
     }
   };
@@ -290,7 +290,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
   const filteredItems: MenuItem[] = useMemo(() => {
     const byCategory = selectedCategory === 'all'
       ? menuItems
-      : menuItems.filter(item => item.categoryId === parseInt(selectedCategory, 10);
+              : menuItems.filter(item => item.categoryId === parseInt(selectedCategory, 10))
     const term = search.trim().toLowerCase();
     if (!term) return byCategory;
     return byCategory.filter(i =>

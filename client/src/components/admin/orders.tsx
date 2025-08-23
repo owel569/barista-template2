@@ -287,7 +287,7 @@ export default function Orders(): JSX.Element {
         <Button
           variant={filter === 'annulé' ? 'default' : 'outline'}
           size="sm"
-          onClick={() => setFilter('annulé'}
+                      onClick={() => setFilter('annulé')}
         >
           Annulées ({orders.filter((o) => o.status === 'annulé').length})
         </Button>

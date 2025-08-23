@@ -132,7 +132,7 @@ export default function InventoryManagement() : JSX.Element {
           status: calculateStatus(
             Number(item.currentStock) || 0,
             Number(item.minStock) || 0
-          }););
+          })
         setItems(processedItems);
       }
 
@@ -142,7 +142,7 @@ export default function InventoryManagement() : JSX.Element {
           ...alert,
           currentStock: Number(alert.currentStock) || 0,
           minStock: Number(alert.minStock) || 0
-        });: [];
+        })) : [];
         setAlerts(processedAlerts);
       }
 
@@ -553,7 +553,7 @@ export default function InventoryManagement() : JSX.Element {
                       setColumnVisibility(prev => ({
                         ...prev,
                         [key]: checked
-                      });
+                      })
                     }}
                   >
                     {key === 'description' && 'Description'}

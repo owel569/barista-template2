@@ -271,7 +271,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
       return;
     }
 
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce client ? Cette action est irréversible.');{
+          if (!confirm('Êtes-vous sûr de vouloir supprimer ce client ? Cette action est irréversible.')) {
       return;
     }
 

@@ -103,7 +103,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
   };
 
   const handleShiftDelete = (shiftId: number) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce shift ?');{
+          if (window.confirm('Êtes-vous sûr de vouloir supprimer ce shift ?')) {
       deleteShift(shiftId);
     }
   };

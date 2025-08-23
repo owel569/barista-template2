@@ -206,7 +206,7 @@ export default function UserProfileEnhanced() : JSX.Element {
       try {
         const response = await fetch('/api/admin/user-profiles', {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token'}`,
+                          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
             'Content-Type': 'application/json'
           }
         });
