@@ -1,49 +1,5 @@
+"use client"
 
-<old_str>
-import * as React from "react"
-import * as RadioGroupPrimitive from "@radix-ui/react-radio-group"
-import { Circle } from "lucide-react"
-
-import { cn } from "@/lib/utils"
-
-const RadioGroup = React.forwardRef<
-  React.ElementRef<typeof RadioGroupPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>
->(({ className, ...props }, ref) => {
-  return (
-    <RadioGroupPrimitive.Root
-      className={cn("grid gap-2", className)}
-      {...props}
-      ref={ref}
-    />
-  )
-})
-RadioGroup.displayName = RadioGroupPrimitive.Root.displayName
-
-const RadioGroupItem = React.forwardRef<
-  React.ElementRef<typeof RadioGroupPrimitive.Item>,
-  React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>
->(({ className, ...props }, ref) => {
-  return (
-    <RadioGroupPrimitive.Item
-      ref={ref}
-      className={cn(
-        "aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-        className
-      )}
-      {...props}
-    >
-      <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
-        <Circle className="h-2.5 w-2.5 fill-current text-current" />
-      </RadioGroupPrimitive.Indicator>
-    </RadioGroupPrimitive.Item>
-  )
-})
-RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName
-
-export { RadioGroup, RadioGroupItem }
-</old_str>
-<new_str>
 import * as React from "react"
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -58,38 +14,14 @@ const radioGroupVariants = cva(
         vertical: "grid-cols-1",
         horizontal: "grid-flow-col auto-cols-max gap-4",
       },
-      size: {
-        sm: "gap-1",
-        default: "gap-2", 
-        lg: "gap-3",
-      },
     },
     defaultVariants: {
       orientation: "vertical",
-      size: "default",
     },
   }
 )
 
-export interface RadioGroupProps
-  extends React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>,
-    VariantProps<typeof radioGroupVariants> {}
-
-const RadioGroup = React.forwardRef<
-  React.ElementRef<typeof RadioGroupPrimitive.Root>,
-  RadioGroupProps
->(({ className, orientation, size, ...props }, ref) => {
-  return (
-    <RadioGroupPrimitive.Root
-      className={cn(radioGroupVariants({ orientation, size }), className)}
-      {...props}
-      ref={ref}
-    />
-  )
-})
-RadioGroup.displayName = RadioGroupPrimitive.Root.displayName
-
-const radioItemVariants = cva(
+const radioGroupItemVariants = cva(
   "aspect-square rounded-full border text-primary ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
   {
     variants: {
@@ -97,10 +29,11 @@ const radioItemVariants = cva(
         default: "border-primary",
         destructive: "border-destructive text-destructive",
         outline: "border-input",
+        secondary: "border-secondary text-secondary",
       },
       size: {
         sm: "h-3 w-3",
-        default: "h-4 w-4",
+        default: "h-4 w-4", 
         lg: "h-5 w-5",
       },
     },
@@ -111,113 +44,129 @@ const radioItemVariants = cva(
   }
 )
 
+export interface RadioGroupProps
+  extends React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>,
+    VariantProps<typeof radioGroupVariants> {
+  error?: string
+}
+
+const RadioGroup = React.forwardRef<
+  React.ElementRef<typeof RadioGroupPrimitive.Root>,
+  RadioGroupProps
+>(({ className, orientation, error, ...props }, ref) => {
+  return (
+    <div className="space-y-1">
+      <RadioGroupPrimitive.Root
+        className={cn(radioGroupVariants({ orientation }), className)}
+        {...props}
+        ref={ref}
+      />
+      {error && (
+        <p className="text-xs text-destructive">{error}</p>
+      )}
+    </div>
+  )
+})
+RadioGroup.displayName = RadioGroupPrimitive.Root.displayName
+
 export interface RadioGroupItemProps
   extends React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>,
-    VariantProps<typeof radioItemVariants> {}
+    VariantProps<typeof radioGroupItemVariants> {
+  label?: string
+  description?: string
+}
 
 const RadioGroupItem = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitive.Item>,
   RadioGroupItemProps
->(({ className, variant, size, ...props }, ref) => {
+>(({ className, variant, size, label, description, children, ...props }, ref) => {
+  const itemId = props.id || React.useId()
+  
+  if (label || description) {
+    return (
+      <div className="flex items-start space-x-2">
+        <RadioGroupPrimitive.Item
+          ref={ref}
+          id={itemId}
+          className={cn(radioGroupItemVariants({ variant, size }), "mt-0.5", className)}
+          {...props}
+        >
+          <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
+            <Circle className="h-2.5 w-2.5 fill-current text-current" />
+          </RadioGroupPrimitive.Indicator>
+        </RadioGroupPrimitive.Item>
+        <div className="grid gap-1.5 leading-none">
+          {label && (
+            <label
+              htmlFor={itemId}
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+            >
+              {label}
+            </label>
+          )}
+          {description && (
+            <p className="text-xs text-muted-foreground">
+              {description}
+            </p>
+          )}
+          {children}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <RadioGroupPrimitive.Item
       ref={ref}
-      className={cn(radioItemVariants({ variant, size }), className)}
+      className={cn(radioGroupItemVariants({ variant, size }), className)}
       {...props}
     >
       <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
-        <Circle className={cn(
-          "fill-current text-current",
-          size === "sm" && "h-1.5 w-1.5",
-          size === "default" && "h-2.5 w-2.5", 
-          size === "lg" && "h-3 w-3"
-        )} />
+        <Circle className="h-2.5 w-2.5 fill-current text-current" />
       </RadioGroupPrimitive.Indicator>
+      {children}
     </RadioGroupPrimitive.Item>
   )
 })
 RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName
 
-// Radio Group avec label
-export interface RadioGroupWithLabelProps extends RadioGroupProps {
-  label?: string;
-  description?: string;
-  required?: boolean;
-  error?: string;
-  options: Array<{
-    value: string;
-    label: string;
-    description?: string;
-    disabled?: boolean;
-  }>;
+// Composant Radio Group avec options prédéfinies
+export interface RadioOption {
+  value: string
+  label: string
+  description?: string
+  disabled?: boolean
 }
 
-const RadioGroupWithLabel = React.forwardRef<
-  React.ElementRef<typeof RadioGroupPrimitive.Root>,
-  RadioGroupWithLabelProps
->(({ 
-  label, 
-  description, 
-  required, 
-  error, 
-  options, 
-  className,
-  orientation,
-  size,
-  ...props 
-}, ref) => {
-  return (
-    <div className="space-y-2">
-      {label && (
-        <div className="space-y-1">
-          <label className="text-sm font-medium leading-none">
-            {label}
-            {required && <span className="text-destructive ml-1">*</span>}
-          </label>
-          {description && (
-            <p className="text-xs text-muted-foreground">{description}</p>
-          )}
-        </div>
-      )}
-      
-      <RadioGroup
-        ref={ref}
-        className={cn(error && "border-destructive", className)}
-        orientation={orientation}
-        size={size}
-        {...props}
-      >
-        {options.map((option) => (
-          <div key={option.value} className="flex items-start space-x-2">
-            <RadioGroupItem 
-              value={option.value} 
-              disabled={option.disabled}
-              size={size}
-            />
-            <div className="grid gap-1.5 leading-none">
-              <label
-                htmlFor={option.value}
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                {option.label}
-              </label>
-              {option.description && (
-                <p className="text-xs text-muted-foreground">
-                  {option.description}
-                </p>
-              )}
-            </div>
-          </div>
-        ))}
-      </RadioGroup>
-      
-      {error && (
-        <p className="text-xs text-destructive">{error}</p>
-      )}
-    </div>
-  );
-});
-RadioGroupWithLabel.displayName = "RadioGroupWithLabel";
+export interface RadioGroupWithOptionsProps extends Omit<RadioGroupProps, 'children'> {
+  options: RadioOption[]
+  value?: string
+  onValueChange?: (value: string) => void
+  variant?: VariantProps<typeof radioGroupItemVariants>['variant']
+  size?: VariantProps<typeof radioGroupItemVariants>['size']
+}
 
-export { RadioGroup, RadioGroupItem, RadioGroupWithLabel, radioGroupVariants, radioItemVariants }
-</new_str>
+const RadioGroupWithOptions = React.forwardRef<
+  React.ElementRef<typeof RadioGroupPrimitive.Root>,
+  RadioGroupWithOptionsProps
+>(({ options, variant, size, ...props }, ref) => {
+  return (
+    <RadioGroup {...props} ref={ref}>
+      {options.map((option) => (
+        <RadioGroupItem
+          key={option.value}
+          value={option.value}
+          variant={variant}
+          size={size}
+          label={option.label}
+          description={option.description}
+          disabled={option.disabled}
+        />
+      ))}
+    </RadioGroup>
+  )
+})
+
+RadioGroupWithOptions.displayName = "RadioGroupWithOptions"
+
+export { RadioGroup, RadioGroupItem, RadioGroupWithOptions, radioGroupVariants }

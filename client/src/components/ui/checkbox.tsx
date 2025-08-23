@@ -1,35 +1,5 @@
+"use client"
 
-<old_str>
-import * as React from "react"
-import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
-import { Check } from "lucide-react"
-
-import { cn } from "@/lib/utils"
-
-const Checkbox = React.forwardRef<
-  React.ElementRef<typeof CheckboxPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
->(({ className, ...props }, ref) => (
-  <CheckboxPrimitive.Root
-    ref={ref}
-    className={cn(
-      "peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground",
-      className
-    )}
-    {...props}
-  >
-    <CheckboxPrimitive.Indicator
-      className={cn("flex items-center justify-center text-current")}
-    >
-      <Check className="h-4 w-4" />
-    </CheckboxPrimitive.Indicator>
-  </CheckboxPrimitive.Root>
-))
-Checkbox.displayName = CheckboxPrimitive.Root.displayName
-
-export { Checkbox }
-</old_str>
-<new_str>
 import * as React from "react"
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -41,10 +11,11 @@ const checkboxVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground",
-        destructive: "border-destructive data-[state=checked]:bg-destructive data-[state=checked]:text-destructive-foreground",
-        outline: "border-input data-[state=checked]:bg-accent data-[state=checked]:text-accent-foreground",
-        secondary: "border-secondary data-[state=checked]:bg-secondary data-[state=checked]:text-secondary-foreground",
+        default: "border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground",
+        destructive: "border-destructive data-[state=checked]:bg-destructive data-[state=checked]:text-destructive-foreground data-[state=indeterminate]:bg-destructive data-[state=indeterminate]:text-destructive-foreground",
+        outline: "border-input data-[state=checked]:bg-accent data-[state=checked]:text-accent-foreground data-[state=indeterminate]:bg-accent data-[state=indeterminate]:text-accent-foreground",
+        secondary: "border-secondary data-[state=checked]:bg-secondary data-[state=checked]:text-secondary-foreground data-[state=indeterminate]:bg-secondary data-[state=indeterminate]:text-secondary-foreground",
+        success: "border-green-600 data-[state=checked]:bg-green-600 data-[state=checked]:text-white data-[state=indeterminate]:bg-green-600 data-[state=indeterminate]:text-white",
       },
       size: {
         default: "h-4 w-4",
@@ -62,114 +33,153 @@ const checkboxVariants = cva(
 export interface CheckboxProps
   extends React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>,
     VariantProps<typeof checkboxVariants> {
-  indeterminate?: boolean;
+  label?: string
+  description?: string
+  error?: string
+  indeterminate?: boolean
 }
 
 const Checkbox = React.forwardRef<
   React.ElementRef<typeof CheckboxPrimitive.Root>,
   CheckboxProps
->(({ className, variant, size, indeterminate, ...props }, ref) => (
-  <CheckboxPrimitive.Root
-    ref={ref}
-    className={cn(checkboxVariants({ variant, size }), className)}
-    {...props}
-  >
-    <CheckboxPrimitive.Indicator
-      className={cn("flex items-center justify-center text-current")}
+>(({ className, variant, size, label, description, error, indeterminate, ...props }, ref) => {
+  const checkboxId = props.id || React.useId()
+  
+  const checkbox = (
+    <CheckboxPrimitive.Root
+      ref={ref}
+      id={checkboxId}
+      className={cn(checkboxVariants({ variant, size }), className)}
+      {...props}
+      checked={indeterminate ? "indeterminate" : props.checked}
     >
-      {indeterminate ? (
-        <Minus className={cn(
-          size === "sm" && "h-2 w-2",
-          size === "default" && "h-3 w-3",
-          size === "lg" && "h-4 w-4"
-        )} />
-      ) : (
-        <Check className={cn(
-          size === "sm" && "h-2 w-2",
-          size === "default" && "h-3 w-3",
-          size === "lg" && "h-4 w-4"
-        )} />
-      )}
-    </CheckboxPrimitive.Indicator>
-  </CheckboxPrimitive.Root>
-))
-Checkbox.displayName = CheckboxPrimitive.Root.displayName
-
-// Groupe de Checkboxes
-export interface CheckboxGroupProps {
-  children: React.ReactNode;
-  orientation?: "horizontal" | "vertical";
-  className?: string;
-  spacing?: "sm" | "md" | "lg";
-}
-
-const CheckboxGroup = React.forwardRef<HTMLDivElement, CheckboxGroupProps>(
-  ({ children, orientation = "vertical", className, spacing = "md", ...props }, ref) => {
-    return (
-      <div
-        ref={ref}
-        className={cn(
-          "flex",
-          orientation === "vertical" ? "flex-col" : "flex-row flex-wrap",
-          spacing === "sm" && (orientation === "vertical" ? "space-y-1" : "gap-2"),
-          spacing === "md" && (orientation === "vertical" ? "space-y-2" : "gap-3"),
-          spacing === "lg" && (orientation === "vertical" ? "space-y-3" : "gap-4"),
-          className
+      <CheckboxPrimitive.Indicator className="flex items-center justify-center text-current">
+        {indeterminate ? (
+          <Minus className={cn(
+            size === "sm" && "h-2 w-2",
+            size === "default" && "h-3 w-3",
+            size === "lg" && "h-4 w-4"
+          )} />
+        ) : (
+          <Check className={cn(
+            size === "sm" && "h-2 w-2",
+            size === "default" && "h-3 w-3",
+            size === "lg" && "h-4 w-4"
+          )} />
         )}
-        {...props}
-      >
-        {children}
-      </div>
-    );
-  }
-);
-CheckboxGroup.displayName = "CheckboxGroup";
+      </CheckboxPrimitive.Indicator>
+    </CheckboxPrimitive.Root>
+  )
 
-// Checkbox avec label
-export interface CheckboxWithLabelProps extends CheckboxProps {
-  label: string;
-  description?: string;
-  required?: boolean;
-  error?: string;
-}
-
-const CheckboxWithLabel = React.forwardRef<
-  React.ElementRef<typeof CheckboxPrimitive.Root>,
-  CheckboxWithLabelProps
->(({ label, description, required, error, className, id, ...props }, ref) => {
-  const checkboxId = id || React.useId();
-
-  return (
-    <div className="space-y-1">
+  if (label || description) {
+    return (
       <div className="flex items-start space-x-2">
-        <Checkbox
-          ref={ref}
-          id={checkboxId}
-          className={cn(error && "border-destructive", className)}
-          {...props}
-        />
+        {checkbox}
         <div className="grid gap-1.5 leading-none">
-          <label
-            htmlFor={checkboxId}
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-          >
-            {label}
-            {required && <span className="text-destructive ml-1">*</span>}
-          </label>
+          {label && (
+            <label
+              htmlFor={checkboxId}
+              className={cn(
+                "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer",
+                error && "text-destructive"
+              )}
+            >
+              {label}
+            </label>
+          )}
           {description && (
-            <p className="text-xs text-muted-foreground">
+            <p className={cn(
+              "text-xs text-muted-foreground",
+              error && "text-destructive"
+            )}>
               {description}
             </p>
           )}
+          {error && (
+            <p className="text-xs text-destructive">{error}</p>
+          )}
         </div>
       </div>
+    )
+  }
+
+  return checkbox
+})
+
+Checkbox.displayName = CheckboxPrimitive.Root.displayName
+
+// Composant Checkbox Group pour gérer plusieurs checkboxes
+export interface CheckboxOption {
+  value: string
+  label: string
+  description?: string
+  disabled?: boolean
+}
+
+export interface CheckboxGroupProps {
+  options: CheckboxOption[]
+  value?: string[]
+  onValueChange?: (value: string[]) => void
+  variant?: VariantProps<typeof checkboxVariants>['variant']
+  size?: VariantProps<typeof checkboxVariants>['size']
+  className?: string
+  orientation?: 'horizontal' | 'vertical'
+  error?: string
+}
+
+const CheckboxGroup = React.forwardRef<
+  HTMLDivElement,
+  CheckboxGroupProps
+>(({ 
+  options, 
+  value = [], 
+  onValueChange, 
+  variant, 
+  size, 
+  className, 
+  orientation = 'vertical',
+  error,
+  ...props 
+}, ref) => {
+  const handleCheckboxChange = (optionValue: string, checked: boolean) => {
+    if (checked) {
+      onValueChange?.([...value, optionValue])
+    } else {
+      onValueChange?.(value.filter(v => v !== optionValue))
+    }
+  }
+
+  return (
+    <div 
+      ref={ref}
+      className={cn(
+        "space-y-2",
+        orientation === 'horizontal' && "flex flex-wrap gap-4 space-y-0",
+        className
+      )}
+      {...props}
+    >
+      {options.map((option) => (
+        <Checkbox
+          key={option.value}
+          variant={variant}
+          size={size}
+          label={option.label}
+          description={option.description}
+          disabled={option.disabled}
+          checked={value.includes(option.value)}
+          onCheckedChange={(checked) => 
+            handleCheckboxChange(option.value, checked as boolean)
+          }
+        />
+      ))}
       {error && (
         <p className="text-xs text-destructive">{error}</p>
       )}
     </div>
-  );
-});
-CheckboxWithLabel.displayName = "CheckboxWithLabel";
+  )
+})
 
-export { Checkbox, CheckboxGroup, CheckboxWithLabel, checkboxVariants }
-</new_str>
+CheckboxGroup.displayName = "CheckboxGroup"
+
+export { Checkbox, CheckboxGroup, checkboxVariants }
