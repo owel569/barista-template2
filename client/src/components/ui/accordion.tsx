@@ -1,166 +1,288 @@
+"use client"
+
 import * as React from "react"
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
-import { ChevronDown } from "lucide-react"
+import { cva, type VariantProps } from "class-variance-authority"
+import { ChevronDown, Plus, Minus } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { sanitizeString } from "@/lib/security"
 
 const Accordion = AccordionPrimitive.Root
 
+const accordionItemVariants = cva(
+  "border-b transition-colors",
+  {
+    variants: {
+      variant: {
+        default: "border-border",
+        bordered: "border border-border rounded-lg mb-2 last:mb-0",
+        filled: "bg-muted/50 border border-border rounded-lg mb-2 last:mb-0 px-4",
+        ghost: "border-transparent",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+)
+
 const AccordionItem = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Item>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item>
->(({ className, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item> &
+    VariantProps<typeof accordionItemVariants>
+>(({ className, variant, ...props }, ref) => (
   <AccordionPrimitive.Item
     ref={ref}
-    className={cn("border-b last:border-b-0", className)}
+    className={cn(accordionItemVariants({ variant }), className)}
     {...props}
   />
 ))
 AccordionItem.displayName = "AccordionItem"
 
+const accordionTriggerVariants = cva(
+  "flex flex-1 items-center justify-between py-4 text-sm font-medium transition-all hover:underline text-left [&[data-state=open]>svg]:rotate-180",
+  {
+    variants: {
+      size: {
+        sm: "py-2 text-xs",
+        default: "py-4 text-sm",
+        lg: "py-6 text-base",
+      },
+    },
+    defaultVariants: {
+      size: "default",
+    },
+  }
+)
+
 const AccordionTrigger = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>
->(({ className, children, ...props }, ref) => (
-  <AccordionPrimitive.Header className="flex">
+  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger> &
+    VariantProps<typeof accordionTriggerVariants> & {
+      iconType?: 'chevron' | 'plus-minus'
+      hideIcon?: boolean
+    }
+>(({ className, children, size, iconType = 'chevron', hideIcon = false, ...props }, ref) => {
+  // Sanitisation du contenu pour la sécurité
+  const sanitizedChildren = typeof children === 'string' 
+    ? sanitizeString(children, { maxLength: 500 }) 
+    : children
+
+  const IconComponent = iconType === 'plus-minus' ? Plus : ChevronDown
+
+  return (
     <AccordionPrimitive.Trigger
       ref={ref}
-      className={cn(
-        "flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-        "disabled:cursor-not-allowed disabled:opacity-50",
-        className
-      )}
+      className={cn(accordionTriggerVariants({ size }), className)}
       {...props}
     >
-      {children}
-      <ChevronDown 
-        className="h-4 w-4 shrink-0 transition-transform duration-200" 
-        aria-hidden="true"
-      />
+      {sanitizedChildren}
+      {!hideIcon && (
+        <div className="flex items-center">
+          {iconType === 'plus-minus' ? (
+            <>
+              <Plus className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-45 group-data-[state=open]:opacity-0" />
+              <Minus className="h-4 w-4 shrink-0 transition-transform duration-200 absolute group-data-[state=closed]:rotate-45 group-data-[state=closed]:opacity-0" />
+            </>
+          ) : (
+            <IconComponent className="h-4 w-4 shrink-0 transition-transform duration-200" />
+          )}
+        </div>
+      )}
     </AccordionPrimitive.Trigger>
-  </AccordionPrimitive.Header>
-))
+  )
+})
 AccordionTrigger.displayName = AccordionPrimitive.Trigger.displayName
+
+const accordionContentVariants = cva(
+  "overflow-hidden text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down",
+  {
+    variants: {
+      padding: {
+        none: "",
+        sm: "pb-2",
+        default: "pb-4 pt-0",
+        lg: "pb-6 pt-0",
+      },
+    },
+    defaultVariants: {
+      padding: "default",
+    },
+  }
+)
 
 const AccordionContent = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content>
->(({ className, children, ...props }, ref) => (
-  <AccordionPrimitive.Content
-    ref={ref}
-    className="overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
-    {...props}
-  >
-    <div className={cn("pb-4 pt-0", className)}>{children}</div>
-  </AccordionPrimitive.Content>
-))
+  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content> &
+    VariantProps<typeof accordionContentVariants>
+>(({ className, children, padding, ...props }, ref) => {
+  // Sanitisation du contenu pour la sécurité
+  const sanitizedChildren = typeof children === 'string' 
+    ? sanitizeString(children, { maxLength: 5000 }) 
+    : children
 
-AccordionContent.displayName = AccordionPrimitive.Content.displayName
-
-// Nouveau composant: Accordion avec valeurs par défaut pratiques
-interface AccordionProps extends React.ComponentPropsWithoutRef<typeof Accordion> {
-  variant?: "default" | "compact" | "separated"
-  collapsible?: boolean
-}
-
-const AccordionWithDefaults = React.forwardRef<
-  React.ElementRef<typeof Accordion>,
-  AccordionProps
->(({ 
-  className, 
-  variant = "default", 
-  collapsible = true, 
-  type = collapsible ? "single" : "multiple",
-  ...props 
-}, ref) => {
   return (
-    <Accordion
+    <AccordionPrimitive.Content
       ref={ref}
-      type={type}
-      collapsible={collapsible}
-      className={cn(
-        "w-full",
-        variant === "separated" && "space-y-2",
-        className
-      )}
+      className={cn(accordionContentVariants({ padding }), className)}
       {...props}
-    />
+    >
+      <div className={cn(padding !== 'none' && 'pb-4 pt-0')}>
+        {sanitizedChildren}
+      </div>
+    </AccordionPrimitive.Content>
   )
 })
-AccordionWithDefaults.displayName = "AccordionWithDefaults"
+AccordionContent.displayName = AccordionPrimitive.Content.displayName
 
-// Nouveau composant: AccordionGroup pour grouper plusieurs accordéons
-const AccordionGroup: React.FC<{ children: React.ReactNode; className?: string }> = ({ 
-  children, 
-  className 
+// Composant Accordion avec configuration par défaut
+export interface AccordionItemData {
+  id: string
+  trigger: string
+  content: React.ReactNode
+  disabled?: boolean
+  defaultOpen?: boolean
+}
+
+export interface AccordionWithDefaultsProps {
+  items: AccordionItemData[]
+  type?: 'single' | 'multiple'
+  variant?: VariantProps<typeof accordionItemVariants>['variant']
+  size?: VariantProps<typeof accordionTriggerVariants>['size']
+  iconType?: 'chevron' | 'plus-minus'
+  collapsible?: boolean
+  className?: string
+  onValueChange?: (value: string | string[]) => void
+  defaultValue?: string | string[]
+}
+
+const AccordionWithDefaults: React.FC<AccordionWithDefaultsProps> = ({
+  items,
+  type = 'single',
+  variant,
+  size,
+  iconType,
+  collapsible = true,
+  className,
+  onValueChange,
+  defaultValue,
 }) => {
   return (
-    <div className={cn("space-y-2", className)}>
-      {children}
+    <Accordion
+      type={type}
+      collapsible={type === 'single' ? collapsible : undefined}
+      className={className}
+      onValueChange={onValueChange}
+      defaultValue={defaultValue}
+    >
+      {items.map((item) => (
+        <AccordionItem
+          key={item.id}
+          value={item.id}
+          variant={variant}
+          disabled={item.disabled}
+        >
+          <AccordionTrigger size={size} iconType={iconType}>
+            {item.trigger}
+          </AccordionTrigger>
+          <AccordionContent>
+            {item.content}
+          </AccordionContent>
+        </AccordionItem>
+      ))}
+    </Accordion>
+  )
+}
+
+// Composant pour grouper plusieurs accordéons
+export interface AccordionGroupProps {
+  accordions: {
+    title?: string
+    items: AccordionItemData[]
+    props?: Omit<AccordionWithDefaultsProps, 'items'>
+  }[]
+  className?: string
+}
+
+const AccordionGroup: React.FC<AccordionGroupProps> = ({
+  accordions,
+  className,
+}) => {
+  return (
+    <div className={cn("space-y-6", className)}>
+      {accordions.map((accordion, index) => (
+        <div key={index} className="space-y-2">
+          {accordion.title && (
+            <h3 className="text-lg font-semibold">{accordion.title}</h3>
+          )}
+          <AccordionWithDefaults
+            items={accordion.items}
+            {...accordion.props}
+          />
+        </div>
+      ))}
     </div>
   )
 }
-AccordionGroup.displayName = "AccordionGroup"
 
-export { 
-  Accordion, 
-  AccordionItem, 
-  AccordionTrigger, 
+// Hook pour contrôler l'état de l'accordion
+export function useAccordion(
+  type: 'single' | 'multiple' = 'single',
+  defaultValue?: string | string[]
+) {
+  const [value, setValue] = React.useState<string | string[]>(
+    defaultValue ?? (type === 'single' ? '' : [])
+  )
+
+  const toggle = React.useCallback((itemValue: string) => {
+    if (type === 'single') {
+      setValue(current => current === itemValue ? '' : itemValue)
+    } else {
+      setValue(current => {
+        const currentArray = Array.isArray(current) ? current : []
+        return currentArray.includes(itemValue)
+          ? currentArray.filter(v => v !== itemValue)
+          : [...currentArray, itemValue]
+      })
+    }
+  }, [type])
+
+  const isOpen = React.useCallback((itemValue: string) => {
+    if (type === 'single') {
+      return value === itemValue
+    } else {
+      return Array.isArray(value) && value.includes(itemValue)
+    }
+  }, [value, type])
+
+  const openAll = React.useCallback((itemValues: string[]) => {
+    if (type === 'multiple') {
+      setValue(itemValues)
+    }
+  }, [type])
+
+  const closeAll = React.useCallback(() => {
+    setValue(type === 'single' ? '' : [])
+  }, [type])
+
+  return {
+    value,
+    setValue,
+    toggle,
+    isOpen,
+    openAll,
+    closeAll,
+  }
+}
+
+export {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
   AccordionContent,
   AccordionWithDefaults,
-  AccordionGroup
+  AccordionGroup,
+  accordionItemVariants,
+  accordionTriggerVariants,
+  accordionContentVariants,
 }
-import * as React from "react";
-import * as AccordionPrimitive from "@radix-ui/react-accordion";
-import { ChevronDownIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
-
-const Accordion = AccordionPrimitive.Root;
-
-const AccordionItem = React.forwardRef<
-  React.ElementRef<typeof AccordionPrimitive.Item>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item>
->(({ className, ...props }, ref) => (
-  <AccordionPrimitive.Item
-    ref={ref}
-    className={cn("border-b", className)}
-    {...props}
-  />
-));
-AccordionItem.displayName = "AccordionItem";
-
-const AccordionTrigger = React.forwardRef<
-  React.ElementRef<typeof AccordionPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>
->(({ className, children, ...props }, ref) => (
-  <AccordionPrimitive.Header className="flex">
-    <AccordionPrimitive.Trigger
-      ref={ref}
-      className={cn(
-        "flex flex-1 items-center justify-between py-4 text-sm font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180",
-        className
-      )}
-      {...props}
-    >
-      {children}
-      <ChevronDownIcon className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200" />
-    </AccordionPrimitive.Trigger>
-  </AccordionPrimitive.Header>
-));
-AccordionTrigger.displayName = AccordionPrimitive.Trigger.displayName;
-
-const AccordionContent = React.forwardRef<
-  React.ElementRef<typeof AccordionPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content>
->(({ className, children, ...props }, ref) => (
-  <AccordionPrimitive.Content
-    ref={ref}
-    className="overflow-hidden text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
-    {...props}
-  >
-    <div className={cn("pb-4 pt-0", className)}>{children}</div>
-  </AccordionPrimitive.Content>
-));
-AccordionContent.displayName = AccordionPrimitive.Content.displayName;
-
-export { Accordion, AccordionItem, AccordionTrigger, AccordionContent };
