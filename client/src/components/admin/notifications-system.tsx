@@ -117,7 +117,7 @@ export default function NotificationsSystem(): JSX.Element {
   const [filter, setFilter] = useState<'all' | 'unread' | 'read'>('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+  const [lastUpdate, setLastUpdate] = useState<Date>(new Date();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('notifications');
@@ -190,8 +190,7 @@ export default function NotificationsSystem(): JSX.Element {
       const response = await fetch('/api/notifications/mark-read', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids: notificationIds })
-      });
+        body: JSON.stringify({ ids: notificationIds }});
       if (!response.ok) throw new Error('Erreur lors de la mise à jour');
     },
     onSuccess: () => {
@@ -212,8 +211,7 @@ export default function NotificationsSystem(): JSX.Element {
       const response = await fetch('/api/notifications/archive', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids: notificationIds })
-      });
+        body: JSON.stringify({ ids: notificationIds }});
       if (!response.ok) throw new Error('Erreur lors de l\'archivage');
     },
     onSuccess: () => {
@@ -235,8 +233,7 @@ export default function NotificationsSystem(): JSX.Element {
       const response = await fetch('/api/notifications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(notification)
-      });
+        body: JSON.stringify(notification});
       if (!response.ok) throw new Error('Erreur lors de la création');
       return response.json();
     },
@@ -267,8 +264,7 @@ export default function NotificationsSystem(): JSX.Element {
       const response = await fetch('/api/notifications/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newSettings)
-      });
+        body: JSON.stringify(newSettings});
       if (!response.ok) throw new Error('Erreur lors de la mise à jour');
     },
     onSuccess: () => {
@@ -288,8 +284,8 @@ export default function NotificationsSystem(): JSX.Element {
   const filteredNotifications = useMemo(() => {
     return notificationData.filter((notification) => {
       const matchesSearch = !searchTerm || 
-        notification.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        notification.message.toLowerCase().includes(searchTerm.toLowerCase());
+        notification.title.toLowerCase().includes(searchTerm.toLowerCase();||
+        notification.message.toLowerCase().includes(searchTerm.toLowerCase();
 
       const matchesType = filterType === 'all' || notification.type === filterType;
       const matchesStatus = filterStatus === 'all' || notification.status === filterStatus;
@@ -387,7 +383,7 @@ export default function NotificationsSystem(): JSX.Element {
     if (newNotification.title && newNotification.message) {
       createNotificationMutation.mutate({
         ...newNotification,
-        id: `notif_${Date.now()}`,
+        id: `notif_${Date.now(}`,
         createdAt: new Date().toISOString(),
         status: 'unread'
       });
@@ -444,7 +440,7 @@ export default function NotificationsSystem(): JSX.Element {
                 <div className="h-3 bg-gray-200 rounded"></div>
               </CardContent>
             </Card>
-          ))}
+          );}
         </div>
         <div className="space-y-4">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -455,7 +451,7 @@ export default function NotificationsSystem(): JSX.Element {
                 <div className="h-3 bg-gray-200 rounded w-5/6"></div>
               </CardContent>
             </Card>
-          ))}
+          );}
         </div>
       </div>
     );
@@ -498,7 +494,7 @@ export default function NotificationsSystem(): JSX.Element {
             {isConnected ? 'En ligne' : 'Hors ligne'}
           </Badge>
           <Button
-            onClick={() => refetch()}
+            onClick={() => refetch(}
             variant="outline"
             size="sm"
             disabled={isLoading}
@@ -506,7 +502,7 @@ export default function NotificationsSystem(): JSX.Element {
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
           </Button>
           <Button
-            onClick={() => setIsCreating(true)}
+            onClick={() => setIsCreating(true}
             size="sm"
           >
             <Send className="w-4 h-4 mr-2" />
@@ -538,7 +534,7 @@ export default function NotificationsSystem(): JSX.Element {
         <Card>
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-green-600">
-              {Math.round((stats.total - stats.unread) / Math.max(stats.total, 1) * 100)}%
+              {Math.round((stats.total - stats.unread) / Math.max(stats.total, 1) * 100}%
             </div>
             <div className="text-sm text-gray-500">Taux de lecture</div>
           </CardContent>
@@ -574,7 +570,7 @@ export default function NotificationsSystem(): JSX.Element {
                 <Input
                   placeholder="Rechercher dans les notifications..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => setSearchTerm(e.target.value}
                   className="pl-10"
                 />
               </div>
@@ -614,7 +610,7 @@ export default function NotificationsSystem(): JSX.Element {
                 {selectedNotifications.length} notification(s) sélectionnée(s)
               </span>
               <Button
-                onClick={() => handleBulkAction('read')}
+                onClick={() => handleBulkAction('read'}
                 variant="outline"
                 size="sm"
               >
@@ -622,7 +618,7 @@ export default function NotificationsSystem(): JSX.Element {
                 Marquer comme lues
               </Button>
               <Button
-                onClick={() => handleBulkAction('archive')}
+                onClick={() => handleBulkAction('archive'}
                 variant="outline"
                 size="sm"
               >
@@ -630,7 +626,7 @@ export default function NotificationsSystem(): JSX.Element {
                 Archiver
               </Button>
               <Button
-                onClick={() => setSelectedNotifications([])}
+                onClick={() => setSelectedNotifications([]}
                 variant="ghost"
                 size="sm"
               >
@@ -649,8 +645,8 @@ export default function NotificationsSystem(): JSX.Element {
                     notification.status === 'unread' ? 'border-l-4 border-l-blue-500 bg-blue-50/50' : ''
                   } ${selectedNotifications.includes(notification.id) ? 'ring-2 ring-blue-300' : ''}`}
                   onClick={() => {
-                    if (selectedNotifications.includes(notification.id)) {
-                      setSelectedNotifications(prev => prev.filter(id => id !== notification.id));
+                    if (selectedNotifications.includes(notification.id);{
+                      setSelectedNotifications(prev => prev.filter(id => id !== notification.id);
                     } else {
                       setSelectedNotifications(prev => [...prev, notification.id]);
                     }
@@ -660,8 +656,8 @@ export default function NotificationsSystem(): JSX.Element {
                     <div className="flex items-start justify-between">
                       <div className="flex items-start space-x-3 flex-1">
                         <div className="flex items-center space-x-2">
-                          {getTypeIcon(notification.type)}
-                          <div className={`w-2 h-2 rounded-full ${getPriorityColor(notification.priority)}`}></div>
+                          {getTypeIcon(notification.type}
+                          <div className={`w-2 h-2 rounded-full ${getPriorityColor(notification.priority}`}></div>
                         </div>
 
                         <div className="flex-1 space-y-1">
@@ -734,19 +730,19 @@ export default function NotificationsSystem(): JSX.Element {
                           >
                             {action.label}
                           </Button>
-                        ))}
+                        );}
                       </div>
                     )}
                   </CardContent>
                 </Card>
-              ))}
+              );}
 
               {filteredNotifications.length === 0 && (
                 <div className="text-center py-12">
                   <Bell className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-500">Aucune notification trouvée</p>
                 </div>
-              )}
+              }
             </div>
           </ScrollArea>
         </TabsContent>
@@ -764,7 +760,7 @@ export default function NotificationsSystem(): JSX.Element {
                     id="title"
                     placeholder="Titre de la notification"
                     value={newNotification.title || ''}
-                    onChange={(e) => setNewNotification(prev => ({ ...prev, title: e.target.value }))}
+                    onChange={(e) => setNewNotification(prev => ({ ...prev, title: e.target.value });}
                   />
                 </div>
 
@@ -772,7 +768,7 @@ export default function NotificationsSystem(): JSX.Element {
                   <Label htmlFor="type">Type</Label>
                   <Select
                     value={newNotification.type}
-                    onValueChange={(value) => setNewNotification(prev => ({ ...prev, type: value as any }))}
+                    onValueChange={(value) => setNewNotification(prev => ({ ...prev, type: value as any });}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -791,7 +787,7 @@ export default function NotificationsSystem(): JSX.Element {
                   <Label htmlFor="priority">Priorité</Label>
                   <Select
                     value={newNotification.priority}
-                    onValueChange={(value) => setNewNotification(prev => ({ ...prev, priority: value as any }))}
+                    onValueChange={(value) => setNewNotification(prev => ({ ...prev, priority: value as any });}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -809,7 +805,7 @@ export default function NotificationsSystem(): JSX.Element {
                   <Label htmlFor="category">Catégorie</Label>
                   <Select
                     value={newNotification.category}
-                    onValueChange={(value) => setNewNotification(prev => ({ ...prev, category: value as any }))}
+                    onValueChange={(value) => setNewNotification(prev => ({ ...prev, category: value as any });}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -833,14 +829,14 @@ export default function NotificationsSystem(): JSX.Element {
                   id="message"
                   placeholder="Contenu de la notification"
                   value={newNotification.message || ''}
-                  onChange={(e) => setNewNotification(prev => ({ ...prev, message: e.target.value }))}
+                  onChange={(e) => setNewNotification(prev => ({ ...prev, message: e.target.value });}
                   rows={4}
                 />
               </div>
 
               <div className="flex justify-end space-x-2">
                 <Button
-                  onClick={() => setIsCreating(false)}
+                  onClick={() => setIsCreating(false}
                   variant="outline"
                 >
                   Annuler
@@ -853,7 +849,7 @@ export default function NotificationsSystem(): JSX.Element {
                     <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
                   ) : (
                     <Send className="w-4 h-4 mr-2" />
-                  )}
+                  }
                   Envoyer
                 </Button>
               </div>
@@ -899,7 +895,7 @@ export default function NotificationsSystem(): JSX.Element {
                       </div>
                     </CardContent>
                   </Card>
-                ))}
+                );}
               </div>
             </CardContent>
           </Card>
@@ -993,7 +989,7 @@ export default function NotificationsSystem(): JSX.Element {
                           }}
                         />
                       </div>
-                    ))}
+                    );}
                   </div>
                 </div>
 
@@ -1016,7 +1012,7 @@ export default function NotificationsSystem(): JSX.Element {
                           }}
                         />
                       </div>
-                    ))}
+                    );}
                   </div>
                 </div>
 

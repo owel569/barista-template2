@@ -80,12 +80,11 @@ const Avatar = React.forwardRef<
           status === "offline" && "bg-gray-400",
           status === "away" && "bg-yellow-500",
           status === "busy" && "bg-red-500"
-        )}
+        }
       />
     )}
   </div>
-))
-Avatar.displayName = AvatarPrimitive.Root.displayName
+);Avatar.displayName = AvatarPrimitive.Root.displayName
 
 const AvatarImage = React.forwardRef<
   React.ElementRef<typeof AvatarPrimitive.Image>,
@@ -93,11 +92,10 @@ const AvatarImage = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AvatarPrimitive.Image
     ref={ref}
-    className={cn("aspect-square h-full w-full object-cover", className)}
+    className={cn("aspect-square h-full w-full object-cover", className}
     {...props}
   />
-))
-AvatarImage.displayName = AvatarPrimitive.Image.displayName
+);AvatarImage.displayName = AvatarPrimitive.Image.displayName
 
 interface AvatarFallbackProps 
   extends React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Fallback> {
@@ -113,13 +111,12 @@ const AvatarFallback = React.forwardRef<
     className={cn(
       "flex h-full w-full items-center justify-center rounded-full bg-muted text-muted-foreground",
       className
-    )}
+    }
     {...props}
   >
-    {children || (showIcon && <User className="h-4 w-4" />)}
+    {children || (showIcon && <User className="h-4 w-4" />}
   </AvatarPrimitive.Fallback>
-))
-AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName
+);AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName
 
 // Composant groupe d'avatars
 export interface AvatarGroupProps {
@@ -140,14 +137,14 @@ const AvatarGroup = React.forwardRef<
   return (
     <div 
       ref={ref}
-      className={cn("flex -space-x-2", className)} 
+      className={cn("flex -space-x-2", className} 
       {...props}
     >
       {visibleChildren.map((child, index) => (
         <div key={index} className="ring-2 ring-background rounded-full">
           {child}
         </div>
-      ))}
+      );}
       {remainingCount > 0 && (
         <Avatar size={size} variant="bordered">
           <AvatarFallback showIcon={false}>

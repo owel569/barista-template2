@@ -92,7 +92,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
               <p className={cn(
                 "text-xs",
                 hasError ? "text-destructive" : "text-muted-foreground"
-              )}>
+              }>
                 {error || helperText}
               </p>
             )}
@@ -103,15 +103,12 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
               "text-xs text-muted-foreground",
               maxLength && charCount > maxLength * 0.9 && "text-yellow-600",
               maxLength && charCount >= maxLength && "text-destructive"
-            )}>
+            }>
               {charCount}{maxLength && `/${maxLength}`}
             </p>
           )}
         </div>
       </div>
-    )
-  }
-)
-Textarea.displayName = "Textarea"
+    });Textarea.displayName = "Textarea"
 
 export { Textarea, textareaVariants }

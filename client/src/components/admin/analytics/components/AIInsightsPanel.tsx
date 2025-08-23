@@ -79,8 +79,7 @@ const isValidAIInsight = (insight: unknown): insight is AIInsight => {
     typeof obj.actionable === 'boolean' &&
     typeof obj.timestamp === 'string' &&
     ['prediction', 'recommendation', 'alert', 'optimization'].includes(obj.type as string) &&
-    ['high', 'medium', 'low'].includes(obj.impact as string)
-  );
+    ['high', 'medium', 'low'].includes(obj.impact as string);
 };
 
 // Fonction de validation sécurisée pour les métriques IA
@@ -273,7 +272,7 @@ export const AIInsightsPanel: React.FC = () => {
                 IA Active
               </Badge>
               <Button
-                onClick={() => refetch()}
+                onClick={() => refetch(}
                 variant="outline"
                 size="sm"
               >
@@ -288,35 +287,35 @@ export const AIInsightsPanel: React.FC = () => {
           <div className="flex gap-2 mb-6">
             <Button 
               variant={selectedCategory === 'all' ? 'default' : 'outline'}
-              onClick={() => setSelectedCategory('all')}
+              onClick={() => setSelectedCategory('all'}
               size="sm"
             >
               Tous
             </Button>
             <Button 
               variant={selectedCategory === 'sales' ? 'default' : 'outline'}
-              onClick={() => setSelectedCategory('sales')}
+              onClick={() => setSelectedCategory('sales'}
               size="sm"
             >
               Ventes
             </Button>
             <Button 
               variant={selectedCategory === 'inventory' ? 'default' : 'outline'}
-              onClick={() => setSelectedCategory('inventory')}
+              onClick={() => setSelectedCategory('inventory'}
               size="sm"
             >
               Stock
             </Button>
             <Button 
               variant={selectedCategory === 'customer' ? 'default' : 'outline'}
-              onClick={() => setSelectedCategory('customer')}
+              onClick={() => setSelectedCategory('customer'}
               size="sm"
             >
               Clients
             </Button>
             <Button 
               variant={selectedCategory === 'operations' ? 'default' : 'outline'}
-              onClick={() => setSelectedCategory('operations')}
+              onClick={() => setSelectedCategory('operations'}
               size="sm"
             >
               Opérations
@@ -330,23 +329,23 @@ export const AIInsightsPanel: React.FC = () => {
                 <Alert key={insight.id} className="border-l-4 border-l-blue-500">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3">
-                      {getInsightIcon(insight.type)}
+                      {getInsightIcon(insight.type}
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <h4 className="font-semibold">{insight.title}</h4>
-                          <Badge className={getImpactColor(insight.impact)}>
+                          <Badge className={getImpactColor(insight.impact}>
                             {insight.impact === 'high' ? 'Impact Élevé' : 
                              insight.impact === 'medium' ? 'Impact Moyen' : 'Impact Faible'}
                           </Badge>
                           <Badge variant="outline">
-                            {Math.round(insight.confidence)}% confiance
+                            {Math.round(insight.confidence}% confiance
                           </Badge>
                         </div>
                         <AlertDescription className="text-sm">
                           {insight.description}
                         </AlertDescription>
                         <div className="text-xs text-muted-foreground">
-                          {new Date(insight.timestamp).toLocaleString('fr-FR')}
+                          {new Date(insight.timestamp).toLocaleString('fr-FR'}
                         </div>
                       </div>
                     </div>
@@ -354,11 +353,10 @@ export const AIInsightsPanel: React.FC = () => {
                       <Button size="sm" variant="outline">
                         Appliquer
                       </Button>
-                    )}
+                    }
                   </div>
                 </Alert>
-              ))
-            ) : (
+              );: (
               <Alert>
                 <Brain className="w-4 h-4" />
                 <AlertDescription>

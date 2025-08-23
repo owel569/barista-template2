@@ -97,12 +97,12 @@ const ModuleCard: React.FC<ModuleCardProps> = ({ module, onToggle, onConfigure }
             <div>
               <CardTitle className="text-lg">{module.title}</CardTitle>
               <Badge variant="outline" className="text-xs">
-                {module.category.toUpperCase()}
+                {module.category.toUpperCase(}
               </Badge>
             </div>
           </div>
-          <Badge className={getStatusColor(module.status)}>
-            {getStatusIcon(module.status)}
+          <Badge className={getStatusColor(module.status}>
+            {getStatusIcon(module.status}
             <span className="ml-1 capitalize">{module.status}</span>
           </Badge>
         </div>
@@ -142,13 +142,13 @@ const ModuleCard: React.FC<ModuleCardProps> = ({ module, onToggle, onConfigure }
               <span className="text-muted-foreground">{key}:</span>
               <span className="font-medium">{value}</span>
             </div>
-          ))}
+          );}
         </div>
 
         {/* Actions */}
         <div className="flex gap-2">
           <Button
-            onClick={() => onToggle(module.id)}
+            onClick={() => onToggle(module.id}
             variant={module.status === 'active' ? 'destructive' : 'default'}
             size="sm"
             className="flex-1"
@@ -156,7 +156,7 @@ const ModuleCard: React.FC<ModuleCardProps> = ({ module, onToggle, onConfigure }
             {module.status === 'active' ? 'Désactiver' : 'Activer'}
           </Button>
           <Button
-            onClick={() => onConfigure(module.id)}
+            onClick={() => onConfigure(module.id}
             variant="outline"
             size="sm"
           >
@@ -237,7 +237,7 @@ const fetchModulesStatus = async (): Promise<Module[]> => {
       const result = await response.json();
 
       // Validation de la réponse
-      if (result.success && Array.isArray(result.data)) {
+      if (result.success && Array.isArray(result.data);{
         const validModules = result.data.filter(isValidModule);
         return validModules.length > 0 ? validModules : getDefaultModules();
       } else {
@@ -245,7 +245,7 @@ const fetchModulesStatus = async (): Promise<Module[]> => {
         return getDefaultModules();
       }
     } else {
-      console.error(`Erreur API ${response.status}:`, await response.text());
+      console.error(`Erreur API ${response.status}:`, await response.text();
       return getDefaultModules();
     }
   } catch (error) {
@@ -289,11 +289,10 @@ export default function AdvancedModulesManager(): JSX.Element {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ status })
-      });
+        body: JSON.stringify({ status }});
       
       if (!response.ok) {
-        throw new Error(`Erreur ${response.status}: ${await response.text()}`);
+        throw new Error(`Erreur ${response.status}: ${await response.text(}`);
       }
       
       return response.json();
@@ -351,7 +350,7 @@ export default function AdvancedModulesManager(): JSX.Element {
             Gérez et surveillez les modules avancés de votre système
           </p>
         </div>
-        <Button onClick={() => refetch()} variant="outline">
+        <Button onClick={() => refetch(} variant="outline">
           <RefreshCw className="w-4 h-4 mr-2" />
           Actualiser
         </Button>
@@ -374,7 +373,7 @@ export default function AdvancedModulesManager(): JSX.Element {
                 onToggle={handleToggleModule}
                 onConfigure={handleConfigureModule}
               />
-            ))}
+            );}
           </div>
         </TabsContent>
 
@@ -389,7 +388,7 @@ export default function AdvancedModulesManager(): JSX.Element {
                   onToggle={handleToggleModule}
                   onConfigure={handleConfigureModule}
                 />
-              ))}
+              );}
           </div>
         </TabsContent>
 
@@ -404,7 +403,7 @@ export default function AdvancedModulesManager(): JSX.Element {
                   onToggle={handleToggleModule}
                   onConfigure={handleConfigureModule}
                 />
-              ))}
+              );}
           </div>
         </TabsContent>
 
@@ -419,7 +418,7 @@ export default function AdvancedModulesManager(): JSX.Element {
                   onToggle={handleToggleModule}
                   onConfigure={handleConfigureModule}
                 />
-              ))}
+              );}
           </div>
         </TabsContent>
       </Tabs>

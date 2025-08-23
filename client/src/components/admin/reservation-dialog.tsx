@@ -75,17 +75,17 @@ export default function ReservationDialog({
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.customerName.trim()) {
+    if (!formData.customerName.trim();{
       newErrors.customerName = 'Le nom est requis';
     }
 
-    if (!formData.email.trim()) {
+    if (!formData.email.trim();{
       newErrors.email = 'L\'email est requis';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);{
       newErrors.email = 'Email invalide';
     }
 
-    if (formData.phone && !/^\+?[\d\s-]{10,}$/.test(formData.phone)) {
+    if (formData.phone && !/^\+?[\d\s-]{10,}$/.test(formData.phone);{
       newErrors.phone = 'Numéro invalide';
     }
 
@@ -96,11 +96,11 @@ export default function ReservationDialog({
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      if (isBefore(selectedDate, today)) {
+      if (isBefore(selectedDate, today);{
         newErrors.date = 'La date ne peut pas être dans le passé';
       }
 
-      if (isAfter(selectedDate, addDays(today, 90))) {
+      if (isAfter(selectedDate, addDays(today, 90);{
         newErrors.date = 'Réservation max 3 mois à l\'avance';
       }
     }
@@ -116,7 +116,7 @@ export default function ReservationDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
+    if (!validateForm();{
       toast({
         title: 'Erreur de validation',
         description: 'Veuillez corriger les erreurs dans le formulaire',
@@ -146,10 +146,10 @@ export default function ReservationDialog({
   };
 
   const handleChange = (field: keyof ReservationData, value: string | number) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData(prev => ({ ...prev, [field]: value });
     // Clear error when field is edited
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+      setErrors(prev => ({ ...prev, [field]: '' });
     }
   };
 
@@ -161,7 +161,7 @@ export default function ReservationDialog({
 
     for (let hour = openingHour; hour <= closingHour; hour++) {
       for (let minute = 0; minute < 60; minute += 30) {
-        const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        const timeString = `${hour.toString().padStart(2, '0'}:${minute.toString().padStart(2, '0'}`;
         slots.push(timeString);
       }
     }
@@ -197,7 +197,7 @@ export default function ReservationDialog({
               <Input
                 id="customerName"
                 value={formData.customerName}
-                onChange={(e) => handleChange('customerName', e.target.value)}
+                onChange={(e) => handleChange('customerName', e.target.value}
                 placeholder="Nom complet"
                 className={errors.customerName ? 'border-red-500' : ''}
               />
@@ -221,7 +221,7 @@ export default function ReservationDialog({
                 id="email"
                 type="email"
                 value={formData.email}
-                onChange={(e) => handleChange('email', e.target.value)}
+                onChange={(e) => handleChange('email', e.target.value}
                 placeholder="client@example.com"
                 className={errors.email ? 'border-red-500' : ''}
               />
@@ -245,7 +245,7 @@ export default function ReservationDialog({
                 id="phone"
                 type="tel"
                 value={formData.phone}
-                onChange={(e) => handleChange('phone', e.target.value)}
+                onChange={(e) => handleChange('phone', e.target.value}
                 placeholder="06 12 34 56 78"
                 className={errors.phone ? 'border-red-500' : ''}
               />
@@ -270,9 +270,9 @@ export default function ReservationDialog({
                   id="date"
                   type="date"
                   value={formData.date}
-                  onChange={(e) => handleChange('date', e.target.value)}
-                  min={format(new Date(), 'yyyy-MM-dd')}
-                  max={format(addDays(new Date(), 90), 'yyyy-MM-dd')}
+                  onChange={(e) => handleChange('date', e.target.value}
+                  min={format(new Date(), 'yyyy-MM-dd'}
+                  max={format(addDays(new Date(), 90), 'yyyy-MM-dd'}
                   className={errors.date ? 'border-red-500' : ''}
                 />
                 {errors.date && (
@@ -292,7 +292,7 @@ export default function ReservationDialog({
                 </Label>
                 <Select 
                   value={formData.time} 
-                  onValueChange={(value) => handleChange('time', value)}
+                  onValueChange={(value) => handleChange('time', value}
                 >
                   <SelectTrigger className={errors.time ? 'border-red-500' : ''}>
                     <SelectValue placeholder="Sélectionnez une heure" />
@@ -303,7 +303,7 @@ export default function ReservationDialog({
                         <SelectItem key={time} value={time}>
                           {time}
                         </SelectItem>
-                      ))}
+                      );}
                     </ScrollArea>
                   </SelectContent>
                 </Select>
@@ -325,20 +325,20 @@ export default function ReservationDialog({
                 </div>
               </Label>
               <Select 
-                value={formData.guests.toString()} 
-                onValueChange={(value) => handleChange('guests', parseInt(value))}
+                value={formData.guests.toString(} 
+                onValueChange={(value) => handleChange('guests', parseInt(value);}
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
-                    <SelectItem key={num} value={num.toString()}>
+                    <SelectItem key={num} value={num.toString(}>
                       <div className="flex items-center gap-2">
                         {num} personne{num > 1 ? 's' : ''}
                       </div>
                     </SelectItem>
-                  ))}
+                  );}
                   <SelectItem value="9+">
                     <div className="flex items-center gap-2">
                       Groupe (9+ personnes)
@@ -359,7 +359,7 @@ export default function ReservationDialog({
                 </Label>
                 <Select 
                   value={formData.status} 
-                  onValueChange={(value) => handleChange('status', value as ReservationData['status'])}
+                  onValueChange={(value) => handleChange('status', value as ReservationData['status']}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -385,7 +385,7 @@ export default function ReservationDialog({
               <Textarea
                 id="notes"
                 value={formData.notes}
-                onChange={(e) => handleChange('notes', e.target.value)}
+                onChange={(e) => handleChange('notes', e.target.value}
                 placeholder="Allergies, anniversaire, demande spéciale..."
                 rows={3}
               />
@@ -410,7 +410,7 @@ export default function ReservationDialog({
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : (
                 <Check className="h-4 w-4 mr-2" />
-              )}
+              }
               {isEdit ? 'Mettre à jour' : 'Confirmer'}
             </Button>
           </DialogFooter>

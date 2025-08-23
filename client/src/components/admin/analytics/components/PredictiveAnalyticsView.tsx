@@ -267,7 +267,7 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
                   </Button>
                 </div>
               </div>
-            ))}
+            );}
           </div>
         </CardContent>
       </Card>
@@ -343,7 +343,7 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
                   </div>
                 </div>
               </div>
-            ))}
+            );}
           </div>
         </CardContent>
       </Card>
@@ -364,7 +364,7 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
                   <div key={`quick-win-${index}`} className="text-sm text-green-700">
                     • {item}
                   </div>
-                ))}
+                );}
               </div>
             </div>
 
@@ -377,7 +377,7 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
                   <div key={`strategic-${index}`} className="text-sm text-blue-700">
                     • {item}
                   </div>
-                ))}
+                );}
               </div>
             </div>
 
@@ -390,7 +390,7 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
                   <div key={`experimental-${index}`} className="text-sm text-purple-700">
                     • {item}
                   </div>
-                ))}
+                );}
               </div>
             </div>
           </div>

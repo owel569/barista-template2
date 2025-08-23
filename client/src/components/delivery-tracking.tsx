@@ -45,7 +45,7 @@ const DeliveryTracking: React.FC = () => {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/deliveries'] )});
+      queryClient.invalidateQueries({ queryKey: ['/api/deliveries'] });
       toast({ title: 'Statut mis à jour', description: 'Le statut de livraison a été modifié.' });
     },
   };
@@ -113,12 +113,12 @@ const DeliveryTracking: React.FC = () => {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">#{delivery.orderNumber}</CardTitle>
-                <Badge className={`${getStatusColor(delivery.status)} text-white`}>
-                  {getStatusLabel(delivery.status)}
+                <Badge className={`${getStatusColor(delivery.status} text-white`}>
+                  {getStatusLabel(delivery.status}
                 </Badge>
               </div>
               <CardDescription className="text-sm">
-                {delivery.customerName} • {delivery.total.toFixed(2)}€
+                {delivery.customerName} • {delivery.total.toFixed(2}€
               </CardDescription>
             </CardHeader>
 
@@ -139,7 +139,7 @@ const DeliveryTracking: React.FC = () => {
                 {delivery.deliveryDriver && (
                   <div className="flex items-center text-sm">
                     <Truck className="w-4 h-4 mr-2 text-gray-500" />
-                    <span>{delivery.deliveryDriver)}</span>
+                    <span>{delivery.deliveryDriver}</span>
                   </div>
                 )}
               </div>
@@ -147,9 +147,9 @@ const DeliveryTracking: React.FC = () => {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Progression</span>
-                  <span>{getProgressPercentage(delivery.status)}%</span>
+                  <span>{getProgressPercentage(delivery.status}%</span>
                 </div>
-                <Progress value={getProgressPercentage(delivery.status)} className="h-2" />
+                <Progress value={getProgressPercentage(delivery.status} className="h-2" />
               </div>
 
               <div className="space-y-1">
@@ -158,10 +158,10 @@ const DeliveryTracking: React.FC = () => {
                   <p key={index} className="text-sm text-gray-600">
                     {item.quantity}x {item.name}
                   </p>
-                ))}
+                );}
                 {delivery.items.length > 2 && (
                   <p className="text-sm text-gray-500">
-                    +{delivery.items.length - 2)} autres articles
+                    +{delivery.items.length - 2} autres articles
                   </p>
                 )}
               </div>
@@ -207,7 +207,7 @@ const DeliveryTracking: React.FC = () => {
               </div>
             </CardContent>
           </Card>
-        ))}
+        );}
       </div>
 
       {deliveries.length === 0 && (
@@ -216,7 +216,7 @@ const DeliveryTracking: React.FC = () => {
           <h3 className="text-lg font-medium mb-2">Aucune livraison en cours</h3>
           <p className="text-gray-500">Les nouvelles livraisons apparaîtront ici</p>
         </Card>
-      )}
+      }
     </div>
   );
 };

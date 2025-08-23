@@ -89,13 +89,13 @@ export default function ReservationWithCart() : JSX.Element {
   // Récupération des catégories de menu
   const { data: categories = [] } = useQuery({
     queryKey: ["/api/menu/categories",],
-    queryFn: (})}) => apiRequest("GET", "/api/menu/categories").then(res => res.json()),
+    queryFn: (}});=> apiRequest("GET", "/api/menu/categories").then(res => res.json();,
   });
 
   // Récupération des articles du menu
   const { data: menuItems = [] } = useQuery({
     queryKey: ["/api/menu/items",],
-    queryFn: (})}) => apiRequest("GET", "/api/menu/items").then(res => res.json()),
+    queryFn: (}});=> apiRequest("GET", "/api/menu/items").then(res => res.json();,
   });
 
   // Sélectionner la première catégorie par défaut
@@ -107,16 +107,16 @@ export default function ReservationWithCart() : JSX.Element {
 
   // Mutation pour créer la réservation
   const createReservationMutation = useMutation({
-    mutationFn: (data: ReservationFormData & { cartItems: CartItem[] })}) => 
+    mutationFn: (data: ReservationFormData & { cartItems: CartItem[] }});=> 
       apiRequest("/api/reservations", {
         method: "POST",
-        body: JSON.stringify(data)}),
+        body: JSON.stringify(data});,
       }),
     onSuccess: () => {
       toast({
         title: "Réservation confirmée!",
         description: "Votre réservation a été enregistrée avec succès.",
-      )});
+      });
       reset();
       setCart([]);
       queryClient.invalidateQueries({ queryKey: ["/api/reservations"] });
@@ -126,17 +126,17 @@ export default function ReservationWithCart() : JSX.Element {
         title: "Erreur",
         description: "Impossible de créer la réservation. Veuillez réessayer.",
         variant: "destructive",
-      )});
+      });
     },
   });
 
   const addToCart = (menuItem: MenuItem) => {
     setCart(prev => {
-      const existing = prev.find(item => item.menuItem.id === menuItem.id)});
+      const existing = prev.find(item => item.menuItem.id === menuItem.id});
       if (existing) {
         return prev.map(item =>
           item.menuItem.id === menuItem.id
-            ? { ...item, quantity: item.quantity + 1 )}
+            ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       }
@@ -160,12 +160,11 @@ export default function ReservationWithCart() : JSX.Element {
         item.menuItem.id === menuItemId
           ? { ...item, quantity: newQuantity }
           : item
-      )
-    );
+      );
   };
 
   const removeFromCart = (menuItemId: number) => {
-    setCart(prev => prev.filter(item => item.menuItem.id !== menuItemId));
+    setCart(prev => prev.filter(item => item.menuItem.id !== menuItemId);
   };
 
   const getCartTotal = () => {
@@ -220,17 +219,17 @@ export default function ReservationWithCart() : JSX.Element {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
-                <Tabs value={selectedCategory?.toString()} onValueChange={(value) => setSelectedCategory(parseInt(value))}>
+                <Tabs value={selectedCategory?.toString(} onValueChange={(value) => setSelectedCategory(parseInt(value);}>
                   <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 mb-6">
                     {categories.map((category: MenuCategory) => (
-                      <TabsTrigger key={category.id} value={category.id.toString()}>
+                      <TabsTrigger key={category.id} value={category.id.toString(}>
                         {category.name}
                       </TabsTrigger>
-                    ))}
+                    );}
                   </TabsList>
 
                   {categories.map((category: MenuCategory) => (
-                    <TabsContent key={category.id} value={category.id.toString()}>
+                    <TabsContent key={category.id} value={category.id.toString(}>
                       <div className="grid gap-4">
                         {filteredMenuItems.map((item: MenuItem) => (
                           <div key={item.id} className="flex items-center justify-between p-4 border border-coffee-light rounded-lg hover:shadow-md transition-shadow">
@@ -240,29 +239,29 @@ export default function ReservationWithCart() : JSX.Element {
                               <span className="text-coffee-accent font-bold">{item.price}€</span>
                             </div>
                             <Button
-                              onClick={() => addToCart(item)}
+                              onClick={() => addToCart(item}
                               className="bg-coffee-accent hover:bg-coffee-primary text-white"
                             >
                               <Plus className="h-4 w-4 mr-1" />
                               Ajouter
                             </Button>
                           </div>
-                        ))}
+                        );}
                       </div>
                     </TabsContent>
-                  ))}
+                  );}
                 </Tabs>
 
                 {/* Panier flottant */}
                 {cart.length > 0 && (
                   <div className="fixed bottom-4 right-4 z-50">
                     <Button
-                      onClick={() => setShowCart(!showCart)}
+                      onClick={() => setShowCart(!showCart}
                       className="bg-coffee-accent hover:bg-coffee-primary text-white rounded-full p-4 shadow-lg"
                     >
                       <ShoppingCart className="h-6 w-6" />
                       <Badge className="absolute -top-2 -right-2 bg-red-500">
-                        {getCartItemCount()}
+                        {getCartItemCount(}
                       </Badge>
                     </Button>
                   </div>
@@ -280,7 +279,7 @@ export default function ReservationWithCart() : JSX.Element {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => setShowCart(false)}
+                          onClick={() => setShowCart(false}
                           className="text-white hover:bg-white/20"
                         >
                           ×
@@ -298,7 +297,7 @@ export default function ReservationWithCart() : JSX.Element {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => updateQuantity(item.menuItem.id, item.quantity - 1)}
+                              onClick={() => updateQuantity(item.menuItem.id, item.quantity - 1}
                             >
                               <Minus className="h-3 w-3" />
                             </Button>
@@ -306,24 +305,24 @@ export default function ReservationWithCart() : JSX.Element {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => updateQuantity(item.menuItem.id, item.quantity + 1)}
+                              onClick={() => updateQuantity(item.menuItem.id, item.quantity + 1}
                             >
                               <Plus className="h-3 w-3" />
                             </Button>
                             <Button
                               size="sm"
                               variant="destructive"
-                              onClick={() => removeFromCart(item.menuItem.id)}
+                              onClick={() => removeFromCart(item.menuItem.id}
                             >
                               <Trash2 className="h-3 w-3" />
                             </Button>
                           </div>
                         </div>
-                      ))}
+                      );}
                       <div className="pt-4 mt-4 border-t">
                         <div className="flex justify-between items-center font-bold text-lg">
                           <span>Total:</span>
-                          <span className="text-coffee-accent">{getCartTotal()}€</span>
+                          <span className="text-coffee-accent">{getCartTotal(}€</span>
                         </div>
                       </div>
                     </CardContent>
@@ -343,18 +342,18 @@ export default function ReservationWithCart() : JSX.Element {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <form onSubmit={handleSubmit(onSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 gap-4">
                     <div>
                       <Label htmlFor="customerName">Nom complet</Label>
                       <Input
                         id="customerName"
-                        {...register("customerName")}
+                        {...register("customerName"}
                         className="border-coffee-secondary focus:border-coffee-accent"
                       />
                       {errors.customerName && (
                         <p className="text-red-500 text-sm mt-1">
-                          {errors.customerName.message)}
+                          {errors.customerName.message}
                         </p>
                       )}
                     </div>
@@ -364,12 +363,12 @@ export default function ReservationWithCart() : JSX.Element {
                       <Input
                         id="customerEmail"
                         type="email"
-                        {...register("customerEmail")}
+                        {...register("customerEmail"}
                         className="border-coffee-secondary focus:border-coffee-accent"
                       />
                       {errors.customerEmail && (
                         <p className="text-red-500 text-sm mt-1">
-                          {errors.customerEmail.message)}
+                          {errors.customerEmail.message}
                         </p>
                       )}
                     </div>
@@ -378,13 +377,13 @@ export default function ReservationWithCart() : JSX.Element {
                       <Label htmlFor="customerPhone">Téléphone</Label>
                       <Input
                         id="customerPhone"
-                        {...register("customerPhone")}
+                        {...register("customerPhone"}
                         placeholder="Ex: +33612345678"
                         className="border-coffee-secondary focus:border-coffee-accent"
                       />
                       {errors.customerPhone && (
                         <p className="text-red-500 text-sm mt-1">
-                          {errors.customerPhone.message)}
+                          {errors.customerPhone.message}
                         </p>
                       )}
                     </div>
@@ -395,13 +394,13 @@ export default function ReservationWithCart() : JSX.Element {
                         <Input
                           id="date"
                           type="date"
-                          {...register("date")}
+                          {...register("date"}
                           min={new Date().toISOString().split('T')[0]}
                           className="border-coffee-secondary focus:border-coffee-accent"
                         />
                         {errors.date && (
                           <p className="text-red-500 text-sm mt-1">
-                            {errors.date.message)}
+                            {errors.date.message}
                           </p>
                         )}
                       </div>
@@ -410,7 +409,7 @@ export default function ReservationWithCart() : JSX.Element {
                         <Label htmlFor="time">Heure</Label>
                         <select
                           id="time"
-                          {...register("time")}
+                          {...register("time"}
                           className="w-full p-2 border border-coffee-secondary rounded-md focus:border-coffee-accent"
                         >
                           <option value="">Choisir l'heure</option>
@@ -418,11 +417,11 @@ export default function ReservationWithCart() : JSX.Element {
                             <option key={time} value={time}>
                               {time}
                             </option>
-                          ))}
+                          );}
                         </select>
                         {errors.time && (
                           <p className="text-red-500 text-sm mt-1">
-                            {errors.time.message)}
+                            {errors.time.message}
                           </p>
                         )}
                       </div>
@@ -435,12 +434,12 @@ export default function ReservationWithCart() : JSX.Element {
                         type="number"
                         min="1"
                         max="8"
-                        {...register("guests", { valueAsNumber: true )})}
+                        {...register("guests", { valueAsNumber: true });}
                         className="border-coffee-secondary focus:border-coffee-accent"
                       />
                       {errors.guests && (
                         <p className="text-red-500 text-sm mt-1">
-                          {errors.guests.message)}
+                          {errors.guests.message}
                         </p>
                       )}
                     </div>
@@ -449,7 +448,7 @@ export default function ReservationWithCart() : JSX.Element {
                       <Label htmlFor="specialRequests">Demandes spéciales</Label>
                       <Textarea
                         id="specialRequests"
-                        {...register("specialRequests")}
+                        {...register("specialRequests"}
                         className="border-coffee-secondary focus:border-coffee-accent"
                         placeholder="Allergies, préférences de table, etc."
                       />
@@ -463,13 +462,13 @@ export default function ReservationWithCart() : JSX.Element {
                         {cart.map((item) => (
                           <li key={item.menuItem.id} className="flex justify-between">
                             <span>{item.quantity}x {item.menuItem.name}</span>
-                            <span>{(parseFloat(item.menuItem.price) * item.quantity).toFixed(2)}€</span>
+                            <span>{(parseFloat(item.menuItem.price) * item.quantity).toFixed(2}€</span>
                           </li>
-                        ))}
+                        );}
                       </ul>
                       <div className="border-t pt-2 mt-2 font-semibold flex justify-between">
                         <span>Total précommande:</span>
-                        <span className="text-coffee-accent">{getCartTotal()}€</span>
+                        <span className="text-coffee-accent">{getCartTotal(}€</span>
                       </div>
                     </div>
                   )}

@@ -50,10 +50,9 @@ const CollapsibleTriggerButton = React.forwardRef<
     {children}
     {!hideIcon && (
       <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
-    )}
+    }
   </CollapsiblePrimitive.CollapsibleTrigger>
-))
-CollapsibleTriggerButton.displayName = CollapsiblePrimitive.CollapsibleTrigger.displayName
+);CollapsibleTriggerButton.displayName = CollapsiblePrimitive.CollapsibleTrigger.displayName
 
 const collapsibleContentVariants = cva(
   "overflow-hidden text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down",
@@ -87,8 +86,7 @@ const CollapsibleContentWrapper = React.forwardRef<
   >
     {children}
   </CollapsiblePrimitive.CollapsibleContent>
-))
-CollapsibleContentWrapper.displayName = CollapsiblePrimitive.CollapsibleContent.displayName
+);CollapsibleContentWrapper.displayName = CollapsiblePrimitive.CollapsibleContent.displayName
 
 // Hook pour contrôler l'état du collapsible
 export function useCollapsible(defaultOpen: boolean = false) {

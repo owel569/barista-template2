@@ -66,7 +66,7 @@ export function getMonthDates(year: number, month: number): Date[] {
   startDate.setDate(firstDay.getDate() - daysToSubtract);
 
   // Calculer le nombre de semaines nécessaires
-  const weeksNeeded = Math.ceil((daysToSubtract + lastDay.getDate()) / 7);
+  const weeksNeeded = Math.ceil((daysToSubtract + lastDay.getDate();/ 7);
   const totalDays = weeksNeeded * 7;
 
   for (let i = 0; i < totalDays; i++) {

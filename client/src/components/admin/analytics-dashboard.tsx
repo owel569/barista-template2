@@ -35,20 +35,20 @@ interface ExportData {
 
 export default function AnalyticsDashboard() {
   const [timeRange, setTimeRange] = useState('7d');
-  const [metrics, setMetrics] = useState(() => generateMetrics(timeRange));
-  const [revenueData, setRevenueData] = useState(() => generateRevenueData(timeRange));
-  const [productData, setProductData] = useState(() => generateProductData(timeRange));
-  const [hourlyData, setHourlyData] = useState(() => generateHourlyData(timeRange));
-  const [trendsData, setTrendsData] = useState(() => generateTrendsData(timeRange));
+  const [metrics, setMetrics] = useState(() => generateMetrics(timeRange);
+  const [revenueData, setRevenueData] = useState(() => generateRevenueData(timeRange);
+  const [productData, setProductData] = useState(() => generateProductData(timeRange);
+  const [hourlyData, setHourlyData] = useState(() => generateHourlyData(timeRange);
+  const [trendsData, setTrendsData] = useState(() => generateTrendsData(timeRange);
 
   // Mise à jour des données quand la période change
   useEffect(() => {
     const updateData = () => {
-      setMetrics(generateMetrics(timeRange));
-      setRevenueData(generateRevenueData(timeRange));
-      setProductData(generateProductData(timeRange));
-      setHourlyData(generateHourlyData(timeRange));
-      setTrendsData(generateTrendsData(timeRange));
+      setMetrics(generateMetrics(timeRange);
+      setRevenueData(generateRevenueData(timeRange);
+      setProductData(generateProductData(timeRange);
+      setHourlyData(generateHourlyData(timeRange);
+      setTrendsData(generateTrendsData(timeRange);
     };
 
     updateData();
@@ -122,7 +122,7 @@ export default function AnalyticsDashboard() {
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => handleExport('json')}
+            onClick={() => handleExport('json'}
             className="gap-2"
           >
             <Download className="h-4 w-4" />

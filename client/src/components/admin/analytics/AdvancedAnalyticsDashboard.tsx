@@ -235,7 +235,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
     try {
       const response = await secureApiCall(`/api/analytics/export?period=${selectedTimeRange}`);
       
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const url = window.URL.createObjectURL(new Blob([response.data]);
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', `analytics-${selectedTimeRange}-${new Date().toISOString().split('T')[0]}.xlsx`);
@@ -260,7 +260,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
     {
       title: 'Revenus Totaux',
       value: analyticsData.revenue.total,
-      previousValue: Math.round(analyticsData.revenue.total / (1 + analyticsData.revenue.growth / 100)),
+      previousValue: Math.round(analyticsData.revenue.total / (1 + analyticsData.revenue.growth / 100);,
       growth: analyticsData.revenue.growth,
       icon: DollarSign,
       format: 'currency' as const,
@@ -269,7 +269,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
     {
       title: 'Commandes',
       value: analyticsData.orders.total,
-      previousValue: Math.round(analyticsData.orders.total / (1 + analyticsData.orders.growth / 100)),
+      previousValue: Math.round(analyticsData.orders.total / (1 + analyticsData.orders.growth / 100);,
       growth: analyticsData.orders.growth,
       icon: ShoppingCart,
       format: 'number' as const,
@@ -310,7 +310,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setShowRealTime(!showRealTime)}
+            onClick={() => setShowRealTime(!showRealTime}
           >
             {showRealTime ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             {showRealTime ? 'Masquer' : 'Afficher'} temps réel
@@ -348,7 +348,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
               <SelectItem key={range.value} value={range.value}>
                 {range.label}
               </SelectItem>
-            ))}
+            );}
           </SelectContent>
         </Select>
         
@@ -362,7 +362,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {metrics.map((metric, index) => (
           <MetricCard key={`metric-${index}`} {...metric} />
-        ))}
+        );}
       </div>
 
       {/* KPI temps réel */}

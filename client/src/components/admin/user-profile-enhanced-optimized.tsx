@@ -72,8 +72,8 @@ import { cn } from '@/lib/utils';
 const userProfileSchema = z.object({
   firstName: z.string().min(2, "Le prénom doit contenir au moins 2 caractères"),
   lastName: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
-  email: z.string().email("Email invalide").optional().or(z.literal("")),
-  phone: z.string().regex(/^(\+?\d{8,15})$/, "Numéro de téléphone invalide").optional().or(z.literal("")),
+  email: z.string().email("Email invalide").optional().or(z.literal("");,
+  phone: z.string().regex(/^(\+?\d{8,15})$/, "Numéro de téléphone invalide").optional().or(z.literal("");,
   address: z.string().optional(),
   city: z.string().optional(),
   postalCode: z.string().optional(),
@@ -89,8 +89,8 @@ const userProfileSchema = z.object({
     smsNotifications: z.boolean(),
     promotionalEmails: z.boolean(),
     favoriteTable: z.number().optional(),
-    dietaryRestrictions: z.array(z.string()),
-    allergens: z.array(z.string()),
+    dietaryRestrictions: z.array(z.string();,
+    allergens: z.array(z.string();,
     language: z.string(),
     currency: z.string(),
   }),
@@ -239,7 +239,7 @@ export default function UserProfileEnhanced(): JSX.Element {
             totalSpent: user.loyalty?.totalSpent || 0,
             visitsCount: user.loyalty?.visitsCount || 0,
           }
-        }));
+        });
       } catch (error) {
         toast.error('Échec du chargement des profils');
         console.error(error);
@@ -398,7 +398,7 @@ export default function UserProfileEnhanced(): JSX.Element {
         'Dernière Visite': profile.lastActivity || '',
         'Date d\'Inscription': profile.loyalty?.joinDate || '',
         'Statut': profile.isActive ? 'Actif' : 'Inactif',
-      }));
+      });
 
       await exportCustomerProfiles(exportData);
       toast.success('Export Excel généré avec succès');
@@ -415,7 +415,7 @@ export default function UserProfileEnhanced(): JSX.Element {
     try {
       setIsImporting(true);
       // Simuler un import avec un délai
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 2000);
       toast.success('Importation des profils réussie');
     } catch (error) {
       toast.error('Échec de l\'importation');
@@ -438,7 +438,7 @@ export default function UserProfileEnhanced(): JSX.Element {
     if (selectedUsers.length === paginatedUsers.length) {
       setSelectedUsers([]);
     } else {
-      setSelectedUsers(paginatedUsers.map(user => user.id));
+      setSelectedUsers(paginatedUsers.map(user => user.id);
     }
   }, [paginatedUsers, selectedUsers.length]);
 
@@ -458,10 +458,10 @@ export default function UserProfileEnhanced(): JSX.Element {
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
       const matchesSearch = 
-        user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.phone?.toLowerCase().includes(searchTerm.toLowerCase());
+        user.firstName.toLowerCase().includes(searchTerm.toLowerCase();||
+        user.lastName.toLowerCase().includes(searchTerm.toLowerCase();||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase();||
+        user.phone?.toLowerCase().includes(searchTerm.toLowerCase();
 
       const matchesStatus = showInactive ? true : user.isActive;
 
@@ -519,11 +519,11 @@ export default function UserProfileEnhanced(): JSX.Element {
   };
 
   const getInitials = (firstName: string, lastName: string) => {
-    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+    return `${firstName.charAt(0}${lastName.charAt(0}`.toUpperCase();
   };
 
   const getLoyaltyLevelColor = (level: string) => {
-    switch (level.toLowerCase()) {
+    switch (level.toLowerCase();{
       case 'bronze': return 'bg-orange-100 text-orange-800';
       case 'silver': return 'bg-gray-100 text-gray-800';
       case 'gold': return 'bg-yellow-100 text-yellow-800';
@@ -534,7 +534,7 @@ export default function UserProfileEnhanced(): JSX.Element {
   };
 
   const getStatusBadgeVariant = (status: string) => {
-    switch (status.toLowerCase()) {
+    switch (status.toLowerCase();{
       case 'completed': return 'default';
       case 'pending': return 'secondary';
       case 'cancelled': return 'destructive';
@@ -592,7 +592,7 @@ export default function UserProfileEnhanced(): JSX.Element {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <p className="text-destructive mb-4">Erreur lors du chargement des profils</p>
-          <Button onClick={() => refetch()}>
+          <Button onClick={() => refetch(}>
             <RefreshCw className="w-4 h-4 mr-2" />
             Réessayer
           </Button>
@@ -680,7 +680,7 @@ export default function UserProfileEnhanced(): JSX.Element {
 
         <Button
           variant={showInactive ? "default" : "outline"}
-          onClick={() => setShowInactive(!showInactive)}
+          onClick={() => setShowInactive(!showInactive}
         >
           <Filter className="w-4 h-4 mr-2" />
           {showInactive ? 'Masquer inactifs' : 'Afficher inactifs'}
@@ -763,7 +763,7 @@ export default function UserProfileEnhanced(): JSX.Element {
               <div>
                 <p className="text-sm font-medium">Points Moyens</p>
                 <p className="text-2xl font-bold">
-                  {Math.round(users.reduce((sum, u) => sum + (u.loyalty?.points || 0), 0) / users.length || 0)}
+                  {Math.round(users.reduce((sum, u) => sum + (u.loyalty?.points || 0), 0) / users.length || 0}
                 </p>
               </div>
             </div>
@@ -777,7 +777,7 @@ export default function UserProfileEnhanced(): JSX.Element {
               <div>
                 <p className="text-sm font-medium">Revenus Totaux</p>
                 <p className="text-2xl font-bold">
-                  {formatCurrency(users.reduce((sum, u) => sum + (u.loyalty?.totalSpent || 0), 0))}
+                  {formatCurrency(users.reduce((sum, u) => sum + (u.loyalty?.totalSpent || 0), 0);}
                 </p>
               </div>
             </div>
@@ -794,18 +794,18 @@ export default function UserProfileEnhanced(): JSX.Element {
               "hover:shadow-lg transition-shadow",
               selectedUsers.includes(user.id) ? "ring-2 ring-primary" : "",
               !user.isActive ? "opacity-80" : ""
-            )}
+            }
           >
             <CardHeader className="pb-3">
               <div className="flex items-center space-x-3">
                 <div className="relative">
                   <Avatar className="h-10 w-10">
                     {user.avatar && <AvatarImage src={user.avatar} />}
-                    <AvatarFallback>{getInitials(user.firstName, user.lastName)}</AvatarFallback>
+                    <AvatarFallback>{getInitials(user.firstName, user.lastName}</AvatarFallback>
                   </Avatar>
                   {user.lastActivity && (
                     <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                  )}
+                  }
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">
@@ -815,8 +815,8 @@ export default function UserProfileEnhanced(): JSX.Element {
                 </div>
                 {isBulkAction && (
                   <Switch 
-                    checked={selectedUsers.includes(user.id)}
-                    onCheckedChange={() => toggleUserSelection(user.id)}
+                    checked={selectedUsers.includes(user.id}
+                    onCheckedChange={() => toggleUserSelection(user.id}
                   />
                 )}
               </div>
@@ -826,7 +826,7 @@ export default function UserProfileEnhanced(): JSX.Element {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">Niveau</span>
-                  <Badge className={getLoyaltyLevelColor(user.loyalty?.level || '')}>
+                  <Badge className={getLoyaltyLevelColor(user.loyalty?.level || ''}>
                     {user.loyalty?.level || 'Nouveau'}
                   </Badge>
                 </div>
@@ -838,7 +838,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                       <span>{user.loyalty.points} / {user.loyalty.nextLevelPoints} pts</span>
                     </div>
                     <Progress 
-                      value={getLoyaltyProgress(user)} 
+                      value={getLoyaltyProgress(user} 
                       className="h-2" 
                     />
                   </div>
@@ -846,7 +846,7 @@ export default function UserProfileEnhanced(): JSX.Element {
 
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">Total dépensé</span>
-                  <span className="text-sm font-medium">{formatCurrency(user.loyalty?.totalSpent || 0)}</span>
+                  <span className="text-sm font-medium">{formatCurrency(user.loyalty?.totalSpent || 0}</span>
                 </div>
 
                 <div className="flex items-center justify-between">
@@ -866,7 +866,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => setSelectedUser(user)}
+                  onClick={() => setSelectedUser(user}
                   className="flex-1"
                 >
                   <Eye className="w-3 h-3" />
@@ -900,7 +900,7 @@ export default function UserProfileEnhanced(): JSX.Element {
               </div>
             </CardContent>
           </Card>
-        ))}
+        );}
       </div>
 
       {/* Pagination */}
@@ -909,7 +909,7 @@ export default function UserProfileEnhanced(): JSX.Element {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+            onClick={() => setCurrentPage(Math.max(1, currentPage - 1);}
             disabled={currentPage === 1}
           >
             <ChevronLeft className="w-4 h-4" />
@@ -922,7 +922,7 @@ export default function UserProfileEnhanced(): JSX.Element {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1);}
             disabled={currentPage === totalPages}
           >
             <ChevronRight className="w-4 h-4" />
@@ -952,7 +952,7 @@ export default function UserProfileEnhanced(): JSX.Element {
       )}
 
       {/* Dialogue de détail de l'utilisateur */}
-      <Dialog open={!!selectedUser} onOpenChange={(open) => !open && setSelectedUser(null)}>
+      <Dialog open={!!selectedUser} onOpenChange={(open) => !open && setSelectedUser(null}>
         {selectedUser && (
           <DialogContent className="max-w-4xl h-[90vh] overflow-y-auto">
             <div ref={printRef} className="space-y-6">
@@ -963,7 +963,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                       {selectedUser.firstName} {selectedUser.lastName}
                     </DialogTitle>
                     <DialogDescription>
-                      Profil client depuis {formatDate(selectedUser.loyalty?.joinDate || '')}
+                      Profil client depuis {formatDate(selectedUser.loyalty?.joinDate || ''}
                     </DialogDescription>
                   </div>
                   <div className="flex space-x-2 no-print">
@@ -974,7 +974,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      onClick={() => setShowQRCode(!showQRCode)}
+                      onClick={() => setShowQRCode(!showQRCode}
                     >
                       <QrCode className="w-4 h-4 mr-2" />
                       QR Code
@@ -1002,7 +1002,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                         <Avatar className="h-12 w-12">
                           {selectedUser.avatar && <AvatarImage src={selectedUser.avatar} />}
                           <AvatarFallback>
-                            {getInitials(selectedUser.firstName, selectedUser.lastName)}
+                            {getInitials(selectedUser.firstName, selectedUser.lastName}
                           </AvatarFallback>
                         </Avatar>
                         <div>
@@ -1030,7 +1030,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                         <div className="flex items-center space-x-3">
                           <Calendar className="w-4 h-4 text-muted-foreground" />
                           <span className="text-sm">
-                            Né(e) le {formatDate(selectedUser.birthDate)}
+                            Né(e) le {formatDate(selectedUser.birthDate}
                           </span>
                         </div>
                       )}
@@ -1047,7 +1047,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                     <CardContent className="space-y-4">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">Niveau actuel</span>
-                        <Badge className={getLoyaltyLevelColor(selectedUser.loyalty?.level || '')}>
+                        <Badge className={getLoyaltyLevelColor(selectedUser.loyalty?.level || ''}>
                           {selectedUser.loyalty?.level || 'Nouveau'}
                         </Badge>
                       </div>
@@ -1061,7 +1061,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                             </span>
                           </div>
                           <Progress 
-                            value={getLoyaltyProgress(selectedUser)} 
+                            value={getLoyaltyProgress(selectedUser} 
                             className="h-2" 
                           />
                         </div>
@@ -1079,13 +1079,13 @@ export default function UserProfileEnhanced(): JSX.Element {
                         <div className="space-y-1">
                           <span className="text-sm text-muted-foreground">Total dépensé</span>
                           <p className="font-medium">
-                            {formatCurrency(selectedUser.loyalty?.totalSpent || 0)}
+                            {formatCurrency(selectedUser.loyalty?.totalSpent || 0}
                           </p>
                         </div>
                         <div className="space-y-1">
                           <span className="text-sm text-muted-foreground">Membre depuis</span>
                           <p className="font-medium">
-                            {formatDate(selectedUser.loyalty?.joinDate || '')}
+                            {formatDate(selectedUser.loyalty?.joinDate || ''}
                           </p>
                         </div>
                       </div>
@@ -1106,10 +1106,10 @@ export default function UserProfileEnhanced(): JSX.Element {
                             <div className="flex items-center space-x-3">
                               {method.type === 'card' && (
                                 <CreditCard className="w-5 h-5 text-muted-foreground" />
-                              )}
+                              }
                               {method.type === 'paypal' && (
                                 <div className="w-5 h-5 bg-blue-500 rounded"></div>
-                              )}
+                              }
                               <div>
                                 <p className="text-sm font-medium">
                                   {method.type === 'card' ? 'Carte bancaire' : 
@@ -1124,10 +1124,9 @@ export default function UserProfileEnhanced(): JSX.Element {
                             </div>
                             {method.isDefault && (
                               <Badge variant="outline">Par défaut</Badge>
-                            )}
+                            }
                           </div>
-                        ))
-                      ) : (
+                        );: (
                         <p className="text-sm text-muted-foreground">
                           Aucun moyen de paiement enregistré
                         </p>
@@ -1177,7 +1176,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                                 </div>
                                 {address.isDefault && (
                                   <Badge variant="outline">Par défaut</Badge>
-                                )}
+                                }
                               </div>
                               <div className="absolute top-2 right-2 flex space-x-1">
                                 <Button
@@ -1193,13 +1192,13 @@ export default function UserProfileEnhanced(): JSX.Element {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => setAddressToDelete(address)}
+                                  onClick={() => setAddressToDelete(address}
                                 >
                                   <Trash2 className="w-3 h-3" />
                                 </Button>
                               </div>
                             </div>
-                          ))}
+                          );}
                         </div>
                       ) : (
                         <p className="text-sm text-muted-foreground">
@@ -1252,7 +1251,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                               <Badge key={restriction} variant="outline">
                                 {restriction}
                               </Badge>
-                            ))}
+                            );}
                           </div>
                         ) : (
                           <p className="text-sm text-muted-foreground">Aucune restriction</p>
@@ -1267,7 +1266,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                               <Badge key={allergen} variant="outline">
                                 {allergen}
                               </Badge>
-                            ))}
+                            );}
                           </div>
                         ) : (
                           <p className="text-sm text-muted-foreground">Aucun allergène</p>
@@ -1323,10 +1322,10 @@ export default function UserProfileEnhanced(): JSX.Element {
                           <TableBody>
                             {selectedUser.orderHistory.map((order) => (
                               <TableRow key={order.id}>
-                                <TableCell>{formatDateTime(order.date)}</TableCell>
-                                <TableCell>{formatCurrency(order.amount)}</TableCell>
+                                <TableCell>{formatDateTime(order.date}</TableCell>
+                                <TableCell>{formatCurrency(order.amount}</TableCell>
                                 <TableCell>
-                                  <Badge variant={getStatusBadgeVariant(order.status)}>
+                                  <Badge variant={getStatusBadgeVariant(order.status}>
                                     {order.status === 'completed' ? 'Complétée' :
                                      order.status === 'pending' ? 'En attente' :
                                      order.status === 'cancelled' ? 'Annulée' : 'Remboursée'}
@@ -1345,16 +1344,16 @@ export default function UserProfileEnhanced(): JSX.Element {
                                         <ul className="space-y-1">
                                           {order.items.map((item) => (
                                             <li key={item.id} className="text-sm">
-                                              {item.quantity}x {item.name} - {formatCurrency(item.price)}
+                                              {item.quantity}x {item.name} - {formatCurrency(item.price}
                                             </li>
-                                          ))}
+                                          );}
                                         </ul>
                                       </AccordionContent>
                                     </AccordionItem>
                                   </Accordion>
                                 </TableCell>
                               </TableRow>
-                            ))}
+                            );}
                           </TableBody>
                         </Table>
                       ) : (
@@ -1403,7 +1402,7 @@ export default function UserProfileEnhanced(): JSX.Element {
           </DialogHeader>
 
           <Form {...profileForm}>
-            <form onSubmit={profileForm.handleSubmit(onSubmitProfile)} className="space-y-6">
+            <form onSubmit={profileForm.handleSubmit(onSubmitProfile} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={profileForm.control}
@@ -1532,7 +1531,7 @@ export default function UserProfileEnhanced(): JSX.Element {
               <DialogFooter>
                 <Button 
                   variant="outline" 
-                  onClick={() => setIsEditDialogOpen(false)}
+                  onClick={() => setIsEditDialogOpen(false}
                 >
                   Annuler
                 </Button>
@@ -1558,7 +1557,7 @@ export default function UserProfileEnhanced(): JSX.Element {
           </DialogHeader>
 
           <Form {...addressForm}>
-            <form onSubmit={addressForm.handleSubmit(onSubmitAddress)} className="space-y-4">
+            <form onSubmit={addressForm.handleSubmit(onSubmitAddress} className="space-y-4">
               <FormField
                 control={addressForm.control}
                 name="type"
@@ -1659,7 +1658,7 @@ export default function UserProfileEnhanced(): JSX.Element {
               <DialogFooter>
                 <Button 
                   variant="outline" 
-                  onClick={() => setIsAddressDialogOpen(false)}
+                  onClick={() => setIsAddressDialogOpen(false}
                 >
                   Annuler
                 </Button>
@@ -1678,7 +1677,7 @@ export default function UserProfileEnhanced(): JSX.Element {
       {/* Confirmation de suppression d'adresse */}
       <ConfirmationDialog
         open={!!addressToDelete}
-        onOpenChange={(open) => !open && setAddressToDelete(null)}
+        onOpenChange={(open) => !open && setAddressToDelete(null}
         title="Supprimer l'adresse"
         message="Êtes-vous sûr de vouloir supprimer cette adresse ? Cette action est irréversible."
         confirmText="Supprimer"

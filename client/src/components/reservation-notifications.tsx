@@ -162,7 +162,7 @@ export default function ReservationNotifications() : JSX.Element {
         
         <div className="flex gap-2">
           <Button
-            onClick={() => setShowAll(!showAll)}
+            onClick={() => setShowAll(!showAll}
             variant="outline"
             className="border-coffee-secondary"
           >
@@ -171,7 +171,7 @@ export default function ReservationNotifications() : JSX.Element {
           </Button>
           {pendingNotifications > 0 && (
             <Badge className="bg-red-500 text-white px-3 py-1">
-              {pendingNotifications)} nouvelles
+              {pendingNotifications} nouvelles
             </Badge>
           )}
         </div>
@@ -215,8 +215,8 @@ export default function ReservationNotifications() : JSX.Element {
                           <Bell className="h-3 w-3 mr-1" />
                           Nouveau
                         </Badge>
-                      )}
-                      {getStatusBadge(reservation.status)}
+                      }
+                      {getStatusBadge(reservation.status}
                     </div>
                   </div>
                 </CardHeader>
@@ -227,11 +227,11 @@ export default function ReservationNotifications() : JSX.Element {
                     <div className="space-y-2">
                       <div className="flex items-center text-sm text-gray-600">
                         <Calendar className="h-4 w-4 mr-2 text-coffee-accent" />
-                        {formatDate(reservation.date)}
+                        {formatDate(reservation.date}
                       </div>
                       <div className="flex items-center text-sm text-gray-600">
                         <Clock className="h-4 w-4 mr-2 text-coffee-accent" />
-                        {formatTime(reservation.time)}
+                        {formatTime(reservation.time}
                       </div>
                       <div className="flex items-center text-sm text-gray-600">
                         <Users className="h-4 w-4 mr-2 text-coffee-accent" />
@@ -268,9 +268,9 @@ export default function ReservationNotifications() : JSX.Element {
                           {reservation.reservationItems.map((item) => (
                             <div key={item.id} className="flex justify-between text-sm">
                               <span>{item.quantity}x {item.menuItemName}</span>
-                              <span>{(parseFloat(item.unitPrice) * item.quantity).toFixed(2)}€</span>
+                              <span>{(parseFloat(item.unitPrice) * item.quantity).toFixed(2}€</span>
                             </div>
-                          ))}
+                          );}
                         </div>
                       )}
                     </div>
@@ -289,7 +289,7 @@ export default function ReservationNotifications() : JSX.Element {
                   {!reservation.notificationSent && (
                     <div className="flex justify-end">
                       <Button
-                        onClick={() => handleMarkNotificationSent(reservation.id)}
+                        onClick={() => handleMarkNotificationSent(reservation.id}
                         size="sm"
                         className="bg-coffee-accent hover:bg-coffee-primary text-white"
                         disabled={markNotificationSentMutation.isPending}
@@ -301,8 +301,7 @@ export default function ReservationNotifications() : JSX.Element {
                   )}
                 </CardContent>
               </Card>
-            ))
-          )}
+            );}
         </div>
       </ScrollArea>
     </div>

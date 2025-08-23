@@ -62,7 +62,7 @@ const ShiftItem: React.FC<ShiftItemProps> = ({
         </div>
         {shift.notes && (
           <AlertTriangle className="h-3 w-3 text-yellow-500" />
-        )}
+        }
       </div>
       
       <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
@@ -84,7 +84,7 @@ const ShiftItem: React.FC<ShiftItemProps> = ({
           {shift.status}
         </Badge>
         <span className="text-xs font-medium">
-          {formatDuration(shift.totalHours)}
+          {formatDuration(shift.totalHours}
         </span>
       </div>
     </div>
@@ -106,7 +106,7 @@ const DayColumn: React.FC<DayColumnProps> = ({
   
   return (
     <div
-      onClick={() => onDateClick(date)}
+      onClick={() => onDateClick(date}
       className={`
         border rounded-lg p-2 min-h-[200px] 
         ${isSelected ? 'ring-2 ring-blue-500' : ''}
@@ -124,7 +124,7 @@ const DayColumn: React.FC<DayColumnProps> = ({
             text-lg font-semibold 
             ${isToday ? 'text-blue-600 dark:text-blue-400' : 'text-gray-900 dark:text-gray-100'}
           `}>
-            {dayDate.getDate()}
+            {dayDate.getDate(}
           </div>
         </div>
         
@@ -175,7 +175,7 @@ const DayColumn: React.FC<DayColumnProps> = ({
         <div className="text-center text-gray-400 dark:text-gray-600 text-sm mt-8">
           Aucun shift programmé
         </div>
-      )}
+      }
     </div>
   );
 };
@@ -220,7 +220,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     
     switch (viewMode) {
       case 'day': current.setDate(current.getDate() + increment); break;
-      case 'week': current.setDate(current.getDate() + (increment * 7)); break;
+      case 'week': current.setDate(current.getDate() + (increment * 7); break;
       case 'month': current.setMonth(current.getMonth() + increment); break;
     }
     
@@ -254,14 +254,13 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   // Statistiques pour la période
   const periodStats = useMemo(() => {
     const periodShifts = shifts.filter(shift => 
-      dates.some(d => d.toISOString().split('T')[0] === shift.date)
-    );
+      dates.some(d => d.toISOString().split('T')[0] === shift.date);
     
     return {
       totalShifts: periodShifts.length,
       totalHours: periodShifts.reduce((sum, shift) => sum + shift.totalHours, 0),
       totalCost: periodShifts.reduce((sum, shift) => sum + shift.totalPay, 0),
-      uniqueEmployees: new Set(periodShifts.map(s => s.employeeId)).size
+      uniqueEmployees: new Set(periodShifts.map(s => s.employeeId);.size
     };
   }, [shifts, dates]);
 
@@ -270,14 +269,14 @@ const CalendarView: React.FC<CalendarViewProps> = ({
       <CardHeader>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <CardTitle className="text-xl font-bold">
-            {getTitle()}
+            {getTitle(}
           </CardTitle>
           
           <div className="flex items-center space-x-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => navigateDate('prev')}
+              onClick={() => navigateDate('prev'}
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -285,7 +284,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCurrentDate(new Date().toISOString().split('T')[0])}
+              onClick={() => setCurrentDate(new Date().toISOString().split('T')[0]}
             >
               Aujourd'hui
             </Button>
@@ -293,7 +292,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => navigateDate('next')}
+              onClick={() => navigateDate('next'}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -307,14 +306,14 @@ const CalendarView: React.FC<CalendarViewProps> = ({
           </div>
           <div className="flex items-center space-x-1">
             <Clock className="h-4 w-4" />
-            <span>{formatDuration(periodStats.totalHours)}</span>
+            <span>{formatDuration(periodStats.totalHours}</span>
           </div>
           <div className="flex items-center space-x-1">
             <User className="h-4 w-4" />
             <span>{periodStats.uniqueEmployees} employés</span>
           </div>
           <div className="flex items-center space-x-1">
-            <span>{formatCurrency(periodStats.totalCost)}</span>
+            <span>{formatCurrency(periodStats.totalCost}</span>
           </div>
         </div>
       </CardHeader>
@@ -348,7 +347,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                 compact={viewMode === 'month'}
                 employees={employees}
               />
-            ))}
+            );}
           </div>
         )}
       </CardContent>

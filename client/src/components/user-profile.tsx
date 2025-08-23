@@ -15,7 +15,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 const profileSchema = z.object({
-  firstName: z.string()}).min(2, 'Le prénom doit contenir au moins 2 caractères'),
+  firstName: z.string(});.min(2, 'Le prénom doit contenir au moins 2 caractères'),
   lastName: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
   email: z.string().email('Email invalide'),
   phone: z.string().min(10, 'Numéro de téléphone invalide'),
@@ -24,7 +24,7 @@ const profileSchema = z.object({
 });
 
 const passwordSchema = z.object({
-  currentPassword: z.string()}).min(6, 'Mot de passe actuel requis'),
+  currentPassword: z.string(});.min(6, 'Mot de passe actuel requis'),
   newPassword: z.string().min(6, 'Le nouveau mot de passe doit contenir au moins 6 caractères'),
   confirmPassword: z.string().min(6, 'Confirmation requise'),
 }).refine((data) => data.newPassword === data.confirmPassword, {
@@ -73,35 +73,35 @@ const UserProfile: React.FC = () => {
   });
 
   const profileForm = useForm({
-    resolver: zodResolver(profileSchema})}),
+    resolver: zodResolver(profileSchema}});,
     defaultValues: profile || {},
   });
 
   const passwordForm = useForm({
-    resolver: zodResolver(passwordSchema})}),
+    resolver: zodResolver(passwordSchema}});,
   });
 
   const updateProfileMutation = useMutation({
-    mutationFn: async (data: Record<string, unknown>})}) => {
+    mutationFn: async (data: Record<string, unknown>}});=> {
       const response = await fetch('/api/user/profile', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' )},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error('Erreur lors de la mise à jour');
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/user/profile'] )});
+      queryClient.invalidateQueries({ queryKey: ['/api/user/profile'] });
       toast({ title: 'Profil mis à jour', description: 'Vos informations ont été sauvegardées.' });
     },
   });
 
   const changePasswordMutation = useMutation({
-    mutationFn: async (data: Record<string, unknown>})}) => {
+    mutationFn: async (data: Record<string, unknown>}});=> {
       const response = await fetch('/api/user/change-password', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' )},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error('Erreur lors du changement de mot de passe');
@@ -114,15 +114,15 @@ const UserProfile: React.FC = () => {
   });
 
   const deleteAccountMutation = useMutation({
-    mutationFn: async (})}) => {
+    mutationFn: async (}});=> {
       const response = await fetch('/api/user/account', {
         method: 'DELETE',
-      )});
+      });
       if (!response.ok) throw new Error('Erreur lors de la suppression');
       return response.json();
     },
     onSuccess: () => {
-      toast({ title: 'Compte supprimé', description: 'Votre compte a été supprimé avec succès.' )});
+      toast({ title: 'Compte supprimé', description: 'Votre compte a été supprimé avec succès.' });
       // Redirection vers la page de connexion
       window.location.href = '/login';
     },
@@ -158,7 +158,7 @@ const UserProfile: React.FC = () => {
         <div>
           <h1 className="text-3xl font-bold">{profile.firstName} {profile.lastName}</h1>
           <div className="flex items-center space-x-2 mt-2">
-            <Badge className={`${getLoyaltyLevelColor(profile.loyaltyLevel)} text-white`}>
+            <Badge className={`${getLoyaltyLevelColor(profile.loyaltyLevel} text-white`}>
               {profile.loyaltyLevel}
             </Badge>
             <span className="text-sm text-gray-500">
@@ -179,7 +179,7 @@ const UserProfile: React.FC = () => {
         <Card>
           <CardContent className="p-4 text-center">
             <Star className="w-8 h-8 mx-auto mb-2 text-yellow-500" />
-            <p className="text-2xl font-bold">{profile.totalSpent.toFixed(0)}€</p>
+            <p className="text-2xl font-bold">{profile.totalSpent.toFixed(0}€</p>
             <p className="text-sm text-gray-500">Dépensé</p>
           </CardContent>
         </Card>
@@ -207,32 +207,32 @@ const UserProfile: React.FC = () => {
               <CardDescription>Modifiez vos informations de profil</CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={profileForm.handleSubmit((data) => updateProfileMutation.mutate(data))} className="space-y-4">
+              <form onSubmit={profileForm.handleSubmit((data) => updateProfileMutation.mutate(data);} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="firstName">Prénom</Label>
-                    <Input {...profileForm.register('firstName')} />
+                    <Input {...profileForm.register('firstName'} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="lastName">Nom</Label>
-                    <Input {...profileForm.register('lastName')} />
+                    <Input {...profileForm.register('lastName'} />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input {...profileForm.register('email')} type="email" />
+                  <Input {...profileForm.register('email'} type="email" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">Téléphone</Label>
-                  <Input {...profileForm.register('phone')} />
+                  <Input {...profileForm.register('phone'} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="address">Adresse</Label>
-                  <Input {...profileForm.register('address')} />
+                  <Input {...profileForm.register('address'} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="birthday">Date de naissance</Label>
-                  <Input {...profileForm.register('birthday')} type="date" />
+                  <Input {...profileForm.register('birthday'} type="date" />
                 </div>
                 <Button type="submit" disabled={updateProfileMutation.isPending}>
                   {updateProfileMutation.isPending ? 'Sauvegarde...' : 'Sauvegarder'}
@@ -253,16 +253,16 @@ const UserProfile: React.FC = () => {
                   <div key={order.id} className="flex items-center justify-between p-3 border rounded-lg">
                     <div>
                       <p className="font-medium">Commande #{order.id}</p>
-                      <p className="text-sm text-gray-500">{new Date(order.date).toLocaleDateString()}</p>
+                      <p className="text-sm text-gray-500">{new Date(order.date).toLocaleDateString(}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium">{order.total.toFixed(2)}€</p>
+                      <p className="font-medium">{order.total.toFixed(2}€</p>
                       <Badge variant={order.status === 'delivered' ? 'default' : 'secondary'}>
                         {order.status}
                       </Badge>
                     </div>
                   </div>
-                ))}
+                );}
               </div>
             </CardContent>
           </Card>
@@ -285,7 +285,7 @@ const UserProfile: React.FC = () => {
                       Recommander
                     </Button>
                   </div>
-                ))}
+                );}
               </div>
             </CardContent>
           </Card>
@@ -297,18 +297,18 @@ const UserProfile: React.FC = () => {
               <CardTitle>Changer le mot de passe</CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={passwordForm.handleSubmit((data) => changePasswordMutation.mutate(data))} className="space-y-4">
+              <form onSubmit={passwordForm.handleSubmit((data) => changePasswordMutation.mutate(data);} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="currentPassword">Mot de passe actuel</Label>
-                  <Input {...passwordForm.register('currentPassword')} type="password" />
+                  <Input {...passwordForm.register('currentPassword'} type="password" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="newPassword">Nouveau mot de passe</Label>
-                  <Input {...passwordForm.register('newPassword')} type="password" />
+                  <Input {...passwordForm.register('newPassword'} type="password" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
-                  <Input {...passwordForm.register('confirmPassword')} type="password" />
+                  <Input {...passwordForm.register('confirmPassword'} type="password" />
                 </div>
                 <Button type="submit" disabled={changePasswordMutation.isPending}>
                   Changer le mot de passe
@@ -340,7 +340,7 @@ const UserProfile: React.FC = () => {
                   <AlertDialogFooter>
                     <AlertDialogCancel>Annuler</AlertDialogCancel>
                     <AlertDialogAction 
-                      onClick={() => deleteAccountMutation.mutate()}
+                      onClick={() => deleteAccountMutation.mutate(}
                       className="bg-red-600 hover:bg-red-700"
                     >
                       Supprimer définitivement

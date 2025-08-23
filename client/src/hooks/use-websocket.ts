@@ -27,7 +27,7 @@ export const useWebSocket = (): WebSocketHookReturn => {
     lowStockItems: 0,
     maintenanceAlerts: 0,
     systemAlerts: 0
-  )});
+  });
   const [isConnected, setIsConnected] = useState(false);
   const ws = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);

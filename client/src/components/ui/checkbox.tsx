@@ -59,13 +59,13 @@ const Checkbox = React.forwardRef<
             size === "sm" && "h-2 w-2",
             size === "default" && "h-3 w-3",
             size === "lg" && "h-4 w-4"
-          )} />
+          } />
         ) : (
           <Check className={cn(
             size === "sm" && "h-2 w-2",
             size === "default" && "h-3 w-3",
             size === "lg" && "h-4 w-4"
-          )} />
+          } />
         )}
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>
@@ -82,7 +82,7 @@ const Checkbox = React.forwardRef<
               className={cn(
                 "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer",
                 error && "text-destructive"
-              )}
+              }
             >
               {label}
             </label>
@@ -91,7 +91,7 @@ const Checkbox = React.forwardRef<
             <p className={cn(
               "text-xs text-muted-foreground",
               error && "text-destructive"
-            )}>
+            }>
               {description}
             </p>
           )}
@@ -145,8 +145,7 @@ const CheckboxGroup = React.forwardRef<
     if (checked) {
       onValueChange?.([...value, optionValue])
     } else {
-      onValueChange?.(value.filter(v => v !== optionValue))
-    }
+      onValueChange?.(value.filter(v => v !== optionValue);}
   }
 
   return (
@@ -156,7 +155,7 @@ const CheckboxGroup = React.forwardRef<
         "space-y-2",
         orientation === 'horizontal' && "flex flex-wrap gap-4 space-y-0",
         className
-      )}
+      }
       {...props}
     >
       {options.map((option) => (
@@ -167,19 +166,16 @@ const CheckboxGroup = React.forwardRef<
           label={option.label}
           description={option.description}
           disabled={option.disabled}
-          checked={value.includes(option.value)}
+          checked={value.includes(option.value}
           onCheckedChange={(checked) => 
             handleCheckboxChange(option.value, checked as boolean)
           }
         />
-      ))}
+      );}
       {error && (
         <p className="text-xs text-destructive">{error}</p>
       )}
     </div>
-  )
-})
-
-CheckboxGroup.displayName = "CheckboxGroup"
+  });CheckboxGroup.displayName = "CheckboxGroup"
 
 export { Checkbox, CheckboxGroup, checkboxVariants }

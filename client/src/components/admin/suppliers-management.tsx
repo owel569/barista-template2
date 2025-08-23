@@ -75,7 +75,7 @@ export default function SuppliersManagement() {
     try {
       setIsRefreshing(true);
       // Simulated API calls
-      await new Promise(resolve => setTimeout(resolve, 800));
+      await new Promise(resolve => setTimeout(resolve, 800);
 
       // Mock suppliers data
       const mockSuppliers: Supplier[] = Array.from({ length: 12 }, (_, i) => ({
@@ -86,23 +86,23 @@ export default function SuppliersManagement() {
                  'Boissons Fraîches', 'Service Qualité', 'Logistique Express', 'Sécurité Plus', 'Fournitures Office', 
                  'Technologie Café', 'Design Intérieur'][i],
         email: `contact@${['cafe', 'patisserie', 'equipement', 'emballage', 'nettoyage', 'boissons', 'service', 'logistique', 'securite', 'fournitures', 'tech', 'design'][i]}.com`,
-        phone: `06${Math.floor(10000000 + Math.random() * 90000000)}`,
-        address: `${Math.floor(1 + Math.random() * 100)} Rue de ${['Paris', 'Lyon', 'Marseille', 'Toulouse', 'Nice', 'Nantes', 'Strasbourg', 'Montpellier', 'Bordeaux', 'Lille', 'Rennes', 'Reims'][i]}`,
+        phone: `06${Math.floor(10000000 + Math.random() * 90000000}`,
+        address: `${Math.floor(1 + Math.random() * 100} Rue de ${['Paris', 'Lyon', 'Marseille', 'Toulouse', 'Nice', 'Nantes', 'Strasbourg', 'Montpellier', 'Bordeaux', 'Lille', 'Rennes', 'Reims'][i]}`,
         category: ['Café', 'Pâtisserie', 'Équipement', 'Emballage', 'Nettoyage', 'Boisson', 'Service', 'Logistique', 'Sécurité', 'Fourniture', 'Technologie', 'Design'][i % 6],
-        rating: Number((3 + Math.random() * 2).toFixed(1)),
+        rating: Number((3 + Math.random() * 2).toFixed(1);,
         status: ['active', 'inactive', 'pending'][Math.floor(Math.random() * 3)] as 'active' | 'inactive' | 'pending',
         totalOrders: Math.floor(1 + Math.random() * 50),
-        totalAmount: Number((1000 + Math.random() * 10000).toFixed(2)),
-        lastOrder: new Date(Date.now() - Math.floor(Math.random() * 1000 * 60 * 60 * 24 * 30)).toISOString(),
+        totalAmount: Number((1000 + Math.random() * 10000).toFixed(2);,
+        lastOrder: new Date(Date.now() - Math.floor(Math.random() * 1000 * 60 * 60 * 24 * 30);.toISOString(),
         products: Array.from({ length: 3 + Math.floor(Math.random() * 5) }, (_, p) => 
           ['Café Arabica', 'Café Robusta', 'Croissants', 'Pains au Chocolat', 'Machines à Café', 'Tasses', 'Emballages Biodégradables', 
            'Détergents', 'Jus de Fruits', 'Services de Nettoyage', 'Contrats de Maintenance'][Math.floor(Math.random() * 11)]
         ),
         contractType: ['Annuel', 'Semestriel', 'Trimestriel', 'Mensuel'][Math.floor(Math.random() * 4)],
-        contractExpiry: new Date(Date.now() + Math.floor(Math.random() * 1000 * 60 * 60 * 24 * 365)).toISOString(),
+        contractExpiry: new Date(Date.now() + Math.floor(Math.random() * 1000 * 60 * 60 * 24 * 365);.toISOString(),
         leadTime: Math.floor(1 + Math.random() * 10),
         paymentTerms: ['30 jours', '45 jours', '60 jours', 'Paiement immédiat'][Math.floor(Math.random() * 4)]
-      }));
+      });
 
       // Mock stats data
       const mockStats: SupplierStats = {
@@ -110,30 +110,27 @@ export default function SuppliersManagement() {
         activeSuppliers: mockSuppliers.filter(s => s.status === 'active').length,
         totalOrders: mockSuppliers.reduce((sum, s) => sum + s.totalOrders, 0),
         totalSpend: mockSuppliers.reduce((sum, s) => sum + s.totalAmount, 0),
-        averageRating: Number((mockSuppliers.reduce((sum, s) => sum + s.rating, 0) / mockSuppliers.length).toFixed(1)),
+        averageRating: Number((mockSuppliers.reduce((sum, s) => sum + s.rating, 0) / mockSuppliers.length).toFixed(1);,
         topCategories: ['Café', 'Pâtisserie', 'Équipement', 'Emballage'].map(category => {
           const categorySuppliers = mockSuppliers.filter(s => s.category === category);
           return {
             category,
             count: categorySuppliers.length,
-            total: Number(categorySuppliers.reduce((sum, s) => sum + s.totalAmount, 0).toFixed(2))
-          };
+            total: Number(categorySuppliers.reduce((sum, s) => sum + s.totalAmount, 0).toFixed(2);};
         }),
         recentOrders: Array.from({ length: 5 }, (_, i) => ({
           id: `ORD-${1000 + i}`,
           supplier: mockSuppliers[i].company,
-          amount: Number((100 + Math.random() * 1000).toFixed(2)),
+          amount: Number((100 + Math.random() * 1000).toFixed(2);,
           status: ['pending', 'processing', 'delivered', 'cancelled'][Math.floor(Math.random() * 4)],
-          date: new Date(Date.now() - Math.floor(Math.random() * 1000 * 60 * 60 * 24 * 7)).toISOString()
-        })),
+          date: new Date(Date.now() - Math.floor(Math.random() * 1000 * 60 * 60 * 24 * 7);.toISOString(});),
         expiringContracts: mockSuppliers
           .filter(s => s.contractExpiry)
           .map(s => ({
             supplier: s.company,
             type: s.contractType || 'Annuel',
             expiry: s.contractExpiry || new Date().toISOString(),
-            value: Number((s.totalAmount * 0.3).toFixed(2))
-          }))
+            value: Number((s.totalAmount * 0.3).toFixed(2});)
           .slice(0, 3)
       };
 
@@ -195,14 +192,14 @@ export default function SuppliersManagement() {
           : 'text-gray-300 dark:text-gray-600'
         }`}
       />
-    ));
+    );
   };
 
   // Filtered suppliers
   const filteredSuppliers = useMemo(() => {
     return suppliers.filter(supplier => {
-      const matchesSearch = supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           supplier.company.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch = supplier.name.toLowerCase().includes(searchTerm.toLowerCase();||
+                           supplier.company.toLowerCase().includes(searchTerm.toLowerCase();
       const matchesCategory = selectedCategory === 'all' || supplier.category === selectedCategory;
       const matchesStatus = selectedStatus === 'all' || supplier.status === selectedStatus;
       return matchesSearch && matchesCategory && matchesStatus;
@@ -224,7 +221,7 @@ export default function SuppliersManagement() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {[1, 2, 3, 4].map(i => (
             <Skeleton key={i} className="h-32 rounded-lg" />
-          ))}
+          );}
         </div>
 
         <div className="space-y-4">
@@ -232,7 +229,7 @@ export default function SuppliersManagement() {
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map(i => (
               <Skeleton key={i} className="h-[250px] rounded-lg" />
-            ))}
+            );}
           </div>
         </div>
       </div>
@@ -260,7 +257,7 @@ export default function SuppliersManagement() {
             <Input
               placeholder="Rechercher un fournisseur..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => setSearchTerm(e.target.value}
               className="pl-10 w-full"
             />
           </div>
@@ -333,7 +330,7 @@ export default function SuppliersManagement() {
                     {stats.activeSuppliers}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    {Math.round((stats.activeSuppliers / stats.totalSuppliers) * 100)}% du total
+                    {Math.round((stats.activeSuppliers / stats.totalSuppliers) * 100}% du total
                   </p>
                 </div>
                 <div className="p-2 bg-green-100 dark:bg-green-900/20 rounded-lg">
@@ -351,7 +348,7 @@ export default function SuppliersManagement() {
                     Dépenses Totales
                   </p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {stats.totalSpend.toLocaleString('fr-FR')}€
+                    {stats.totalSpend.toLocaleString('fr-FR'}€
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     {stats.totalOrders} commandes
@@ -373,10 +370,10 @@ export default function SuppliersManagement() {
                   </p>
                   <div className="flex items-center gap-2">
                     <p className="text-2xl font-bold text-yellow-600">
-                      {stats.averageRating.toFixed(1)}
+                      {stats.averageRating.toFixed(1}
                     </p>
                     <div className="flex">
-                      {renderStars(Math.round(stats.averageRating))}
+                      {renderStars(Math.round(stats.averageRating);}
                     </div>
                   </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -431,8 +428,8 @@ export default function SuppliersManagement() {
                         </p>
                       </div>
                     </div>
-                    <Badge className={getStatusColor(supplier.status)}>
-                      {getStatusText(supplier.status)}
+                    <Badge className={getStatusColor(supplier.status}>
+                      {getStatusText(supplier.status}
                     </Badge>
                   </div>
 
@@ -452,11 +449,11 @@ export default function SuppliersManagement() {
 
                     <div className="my-3">
                       <div className="flex items-center gap-2 mb-2">
-                        <Badge className={getCategoryColor(supplier.category)}>
+                        <Badge className={getCategoryColor(supplier.category}>
                           {supplier.category}
                         </Badge>
                         <div className="flex items-center gap-1">
-                          {renderStars(supplier.rating)}
+                          {renderStars(supplier.rating}
                           <span className="text-sm text-gray-600 dark:text-gray-400 ml-1">
                             ({supplier.rating}/5)
                           </span>
@@ -465,14 +462,14 @@ export default function SuppliersManagement() {
 
                       {supplier.products && (
                         <div className="text-xs text-gray-600 dark:text-gray-400">
-                          <span className="font-medium">Produits:</span> {supplier.products.slice(0, 3).join(', ')}
+                          <span className="font-medium">Produits:</span> {supplier.products.slice(0, 3).join(', '}
                           {supplier.products.length > 3 && (
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <span className="text-blue-500 cursor-pointer"> +{supplier.products.length - 3} plus</span>
                               </TooltipTrigger>
                               <TooltipContent>
-                                {supplier.products.slice(3).join(', ')}
+                                {supplier.products.slice(3).join(', '}
                               </TooltipContent>
                             </Tooltip>
                           )}
@@ -489,7 +486,7 @@ export default function SuppliersManagement() {
                     <div>
                       <span className="text-gray-600 dark:text-gray-400">Total:</span>
                       <p className="font-semibold text-green-600">
-                        {supplier.totalAmount.toLocaleString('fr-FR')}€
+                        {supplier.totalAmount.toLocaleString('fr-FR'}€
                       </p>
                     </div>
                     <div>
@@ -503,7 +500,7 @@ export default function SuppliersManagement() {
                   </div>
 
                   <div className="text-xs text-gray-500 dark:text-gray-500 mt-2">
-                    Dernière commande: {new Date(supplier.lastOrder).toLocaleDateString('fr-FR')}
+                    Dernière commande: {new Date(supplier.lastOrder).toLocaleDateString('fr-FR'}
                   </div>
 
                   <div className="flex items-center gap-2 mt-4">
@@ -517,7 +514,7 @@ export default function SuppliersManagement() {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            );}
           </div>
         </TabsContent>
 
@@ -546,8 +543,8 @@ export default function SuppliersManagement() {
                     <TableRow key={order.id}>
                       <TableCell className="font-medium">{order.id}</TableCell>
                       <TableCell>{order.supplier}</TableCell>
-                      <TableCell>{order.amount.toLocaleString('fr-FR')}€</TableCell>
-                      <TableCell>{new Date(order.date).toLocaleDateString('fr-FR')}</TableCell>
+                      <TableCell>{order.amount.toLocaleString('fr-FR'}€</TableCell>
+                      <TableCell>{new Date(order.date).toLocaleDateString('fr-FR'}</TableCell>
                       <TableCell>
                         <Badge variant={
                           order.status === 'delivered' ? 'default' : 
@@ -563,7 +560,7 @@ export default function SuppliersManagement() {
                         </Button>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  );}
                 </TableBody>
               </Table>
             </CardContent>
@@ -583,9 +580,7 @@ export default function SuppliersManagement() {
                 <ScrollArea className="h-[400px]">
                   <div className="space-y-4 pr-4">
                     {suppliers
-                      .filter(s => s.contractType && s.contractExpiry && new Date(s.contractExpiry) > new Date())
-                      .sort((a, b) => new Date(a.contractExpiry!).getTime() - new Date(b.contractExpiry!).getTime())
-                      .map((supplier, index) => (
+                      .filter(s => s.contractType && s.contractExpiry && new Date(s.contractExpiry) > new Date();.sort((a, b) => new Date(a.contractExpiry!).getTime() - new Date(b.contractExpiry!).getTime();.map((supplier, index) => (
                         <Card key={index} className="border">
                           <CardContent className="p-4">
                             <div className="flex items-center justify-between mb-2">
@@ -596,22 +591,22 @@ export default function SuppliersManagement() {
                               <div>
                                 <span className="text-gray-600 dark:text-gray-400">Expiration:</span>
                                 <p className="font-medium">
-                                  {new Date(supplier.contractExpiry!).toLocaleDateString('fr-FR')}
+                                  {new Date(supplier.contractExpiry!).toLocaleDateString('fr-FR'}
                                 </p>
                               </div>
                               <div>
                                 <span className="text-gray-600 dark:text-gray-400">Valeur estimée:</span>
                                 <p className="font-medium text-green-600">
-                                  {(supplier.totalAmount * 0.3).toLocaleString('fr-FR')}€
+                                  {(supplier.totalAmount * 0.3).toLocaleString('fr-FR'}€
                                 </p>
                               </div>
                             </div>
                             <div className="mt-3">
                               <Progress 
                                 value={
-                                  ((new Date(supplier.contractExpiry!).getTime() - new Date().getTime()) / 
+                                  ((new Date(supplier.contractExpiry!).getTime() - new Date().getTime();/ 
                                   (new Date(supplier.contractExpiry!).getTime() - 
-                                   new Date(new Date(supplier.contractExpiry!).getTime() - 365 * 24 * 60 * 60 * 1000).getTime())) * 100
+                                   new Date(new Date(supplier.contractExpiry!).getTime() - 365 * 24 * 60 * 60 * 1000).getTime();* 100
                                 }
                                 className="h-2"
                               />
@@ -621,7 +616,7 @@ export default function SuppliersManagement() {
                             </Button>
                           </CardContent>
                         </Card>
-                      ))}
+                      );}
                   </div>
                 </ScrollArea>
               </CardContent>
@@ -639,9 +634,7 @@ export default function SuppliersManagement() {
                   {suppliers
                     .filter(s => s.contractExpiry && 
                               new Date(s.contractExpiry) > new Date() && 
-                              new Date(s.contractExpiry) < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000))
-                    .sort((a, b) => new Date(a.contractExpiry!).getTime() - new Date(b.contractExpiry!).getTime())
-                    .map((supplier, index) => (
+                              new Date(s.contractExpiry) < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);.sort((a, b) => new Date(a.contractExpiry!).getTime() - new Date(b.contractExpiry!).getTime();.map((supplier, index) => (
                       <Card key={index} className="border border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-900/20">
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between mb-2">
@@ -654,16 +647,16 @@ export default function SuppliersManagement() {
                             <div>
                               <span className="text-gray-600 dark:text-gray-400">Expiration:</span>
                               <p className="font-medium text-red-600">
-                                {new Date(supplier.contractExpiry!).toLocaleDateString('fr-FR')}
+                                {new Date(supplier.contractExpiry!).toLocaleDateString('fr-FR'}
                               </p>
                               <p className="text-xs text-gray-500 dark:text-gray-400">
-                                {Math.ceil((new Date(supplier.contractExpiry!).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} jours restants
+                                {Math.ceil((new Date(supplier.contractExpiry!).getTime() - new Date().getTime();/ (1000 * 60 * 60 * 24);} jours restants
                               </p>
                             </div>
                             <div>
                               <span className="text-gray-600 dark:text-gray-400">Valeur estimée:</span>
                               <p className="font-medium">
-                                {(supplier.totalAmount * 0.3).toLocaleString('fr-FR')}€
+                                {(supplier.totalAmount * 0.3).toLocaleString('fr-FR'}€
                               </p>
                             </div>
                           </div>
@@ -677,7 +670,7 @@ export default function SuppliersManagement() {
                           </div>
                         </CardContent>
                       </Card>
-                    ))}
+                    );}
                 </div>
               </CardContent>
             </Card>
@@ -699,7 +692,7 @@ export default function SuppliersManagement() {
                     <div key={category.category} className="space-y-2">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <Badge className={getCategoryColor(category.category)}>
+                          <Badge className={getCategoryColor(category.category}>
                             {category.category}
                           </Badge>
                           <span className="text-sm text-gray-600 dark:text-gray-400">
@@ -707,16 +700,16 @@ export default function SuppliersManagement() {
                           </span>
                         </div>
                         <span className="font-semibold">
-                          {category.total.toLocaleString('fr-FR')}€
+                          {category.total.toLocaleString('fr-FR'}€
                         </span>
                       </div>
                       <Progress 
-                        value={(category.total / (stats?.totalSpend || 1)) * 100} 
+                        value={(category.total / (stats?.totalSpend || 1);* 100} 
                         className="h-2"
                         indicatorClassName={getCategoryColor(category.category).replace('bg-', 'bg-').split(' ')[0]}
                       />
                     </div>
-                  ))}
+                  );}
                 </div>
               </CardContent>
             </Card>
@@ -745,13 +738,13 @@ export default function SuppliersManagement() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="font-bold text-green-600">{supplier.totalAmount.toLocaleString('fr-FR')}€</p>
+                          <p className="font-bold text-green-600">{supplier.totalAmount.toLocaleString('fr-FR'}€</p>
                           <p className="text-xs text-gray-600 dark:text-gray-400">
                             {supplier.totalOrders} commandes
                           </p>
                         </div>
                       </div>
-                    ))}
+                    );}
                 </div>
               </CardContent>
             </Card>

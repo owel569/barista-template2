@@ -46,9 +46,6 @@ const Spinner = React.forwardRef<HTMLDivElement, SpinnerProps>(
       >
         <span className="sr-only">{srText}</span>
       </div>
-    )
-  }
-)
-Spinner.displayName = "Spinner"
+    });Spinner.displayName = "Spinner"
 
 export { Spinner, spinnerVariants }

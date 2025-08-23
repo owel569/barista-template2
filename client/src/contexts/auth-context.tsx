@@ -75,9 +75,9 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         
         // Stockage unifié
         localStorage.setItem('token', newToken);
-        localStorage.setItem('user', JSON.stringify(newUser));
+        localStorage.setItem('user', JSON.stringify(newUser);
         localStorage.setItem(STORAGE_KEYS.token, newToken);
-        localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(newUser));
+        localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(newUser);
         
         return { success: true };
       }
@@ -110,9 +110,9 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         
         // Stockage unifié
         localStorage.setItem('token', newToken);
-        localStorage.setItem('user', JSON.stringify(newUser));
+        localStorage.setItem('user', JSON.stringify(newUser);
         localStorage.setItem(STORAGE_KEYS.token, newToken);
-        localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(newUser));
+        localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(newUser);
         
         return { success: true };
       } else {
@@ -162,7 +162,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         
         if (data.valid && data.user && typeof data.user === 'object' && data.user.id) {
           setUser(data.user);
-          localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(data.user));
+          localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(data.user);
           console.log('✅ Données utilisateur rafraîchies');
         } else {
           throw new Error('Données utilisateur invalides reçues du serveur');
@@ -174,7 +174,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error) {
       console.error('Erreur lors du rafraîchissement des données utilisateur:', error);
       
-      if (error instanceof TypeError && error.message.includes('fetch')) {
+      if (error instanceof TypeError && error.message.includes('fetch');{
         console.warn('Erreur réseau, conservation de l\'état d\'authentification actuel');
       } else {
         console.warn('Erreur d\'authentification, déconnexion');

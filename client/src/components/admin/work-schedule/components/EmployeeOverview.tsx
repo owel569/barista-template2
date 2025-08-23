@@ -52,8 +52,7 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
           const today = new Date();
           return shiftDate >= today && shift.status === 'scheduled';
         })
-        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-        .slice(0, 3); // Prochains 3 shifts
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime();.slice(0, 3); // Prochains 3 shifts
       
       return {
         employee,
@@ -69,8 +68,7 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
           ? totalHours / employeeShifts.length 
           : 0,
         lastShiftDate: employeeShifts.length > 0
-          ? Math.max(...employeeShifts.map(s => new Date(s.date).getTime()))
-          : null
+          ? Math.max(...employeeShifts.map(s => new Date(s.date).getTime();: null
       };
     });
   }, [employees, shifts]);
@@ -92,7 +90,7 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
           needsAttention ? 'border-red-200 dark:border-red-800' : 
           isHighPerformer ? 'border-green-200 dark:border-green-800' : ''
         }`}
-        onClick={() => onEmployeeClick(employee)}
+        onClick={() => onEmployeeClick(employee}
       >
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
@@ -120,18 +118,18 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
                 <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                   ⭐ Top performer
                 </Badge>
-              )}
+              }
               {needsAttention && (
                 <Badge variant="destructive" className="text-xs">
                   <AlertCircle className="h-3 w-3 mr-1" />
                   Attention requise
                 </Badge>
-              )}
+              }
               {!employee.isActive && (
                 <Badge variant="outline" className="text-xs">
                   Inactif
                 </Badge>
-              )}
+              }
             </div>
           </div>
         </CardHeader>
@@ -167,14 +165,14 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
             
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                {formatDuration(stats.totalHours)}
+                {formatDuration(stats.totalHours}
               </div>
               <div className="text-xs text-gray-500">Heures</div>
             </div>
             
             <div className="text-center">
               <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                {formatCurrency(stats.totalPay)}
+                {formatCurrency(stats.totalPay}
               </div>
               <div className="text-xs text-gray-500">Salaire</div>
             </div>
@@ -201,7 +199,7 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
                 </span>
               </div>
               <span className="font-medium text-yellow-800 dark:text-yellow-200">
-                {formatDuration(stats.overtimeHours)}
+                {formatDuration(stats.overtimeHours}
               </span>
             </div>
           )}
@@ -229,7 +227,7 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
                     <span>{shift.startTime} - {shift.endTime}</span>
                   </div>
                 </div>
-              ))}
+              );}
             </div>
           )}
           
@@ -244,7 +242,7 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
                   <Badge key={skill} variant="outline" className="text-xs">
                     {skill}
                   </Badge>
-                ))}
+                );}
                 {employee.skills.length > 3 && (
                   <Badge variant="outline" className="text-xs">
                     +{employee.skills.length - 3} autres
@@ -299,14 +297,14 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
             
             <div className="text-center">
               <div className="text-3xl font-bold text-green-600 dark:text-green-400">
-                {formatDuration(overallStats.totalHours)}
+                {formatDuration(overallStats.totalHours}
               </div>
               <div className="text-sm text-gray-500">Total heures</div>
             </div>
             
             <div className="text-center">
               <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
-                {formatCurrency(overallStats.totalPay)}
+                {formatCurrency(overallStats.totalPay}
               </div>
               <div className="text-sm text-gray-500">Masse salariale</div>
             </div>
@@ -341,7 +339,7 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {sortedEmployeeStats.map(stats => (
           <EmployeeCard key={stats.employee.id} stats={stats} />
-        ))}
+        );}
       </div>
       
       {employees.length === 0 && (
@@ -353,7 +351,7 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
             </p>
           </CardContent>
         </Card>
-      )}
+      }
     </div>
   );
 };

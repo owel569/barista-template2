@@ -32,7 +32,7 @@ const LoadingButton = React.forwardRef<HTMLButtonElement, LoadingButtonProps>(
         className={cn(
           loading && "cursor-not-allowed",
           className
-        )}
+        }
         {...props}
       >
         {loading ? (
@@ -49,11 +49,7 @@ const LoadingButton = React.forwardRef<HTMLButtonElement, LoadingButtonProps>(
           </>
         )}
       </Button>
-    )
-  }
-)
-
-LoadingButton.displayName = "LoadingButton"
+    });LoadingButton.displayName = "LoadingButton"
 
 // Hook pour gérer l'état de chargement d'un bouton
 export function useLoadingButton(asyncFunction?: () => Promise<void>) {

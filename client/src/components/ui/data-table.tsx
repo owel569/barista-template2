@@ -242,7 +242,7 @@ export function DataTable<TData, TValue>({
               <Input
                 placeholder="Recherche globale..."
                 value={globalFilter}
-                onChange={(event) => handleGlobalFilterChange(event.target.value)}
+                onChange={(event) => handleGlobalFilterChange(event.target.value}
                 className="pl-8 max-w-sm"
                 maxLength={100}
               />
@@ -251,7 +251,7 @@ export function DataTable<TData, TValue>({
                   variant="ghost"
                   size="sm"
                   className="absolute right-1 top-1 h-7 w-7 p-0"
-                  onClick={() => setGlobalFilter("")}
+                  onClick={() => setGlobalFilter(""}
                 >
                   <X className="h-3 w-3" />
                 </Button>
@@ -297,21 +297,19 @@ export function DataTable<TData, TValue>({
               <DropdownMenuSeparator />
               {table
                 .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => {
+                .filter((column) => column.getCanHide();.map((column) => {
                   return (
                     <DropdownMenuCheckboxItem
                       key={column.id}
                       className="capitalize"
-                      checked={column.getIsVisible()}
+                      checked={column.getIsVisible(}
                       onCheckedChange={(value) =>
                         column.toggleVisibility(!!value)
                       }
                     >
                       {column.id}
                     </DropdownMenuCheckboxItem>
-                  )
-                })}
+                  });}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -330,16 +328,14 @@ export function DataTable<TData, TValue>({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                            header.getContext();}
                     </TableHead>
-                  )
-                })}
+                  });}
                 {rowActions && (
                   <TableHead className="w-[100px]">Actions</TableHead>
-                )}
+                }
               </TableRow>
-            ))}
+            );}
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
@@ -350,29 +346,26 @@ export function DataTable<TData, TValue>({
                   className={cn(
                     onRowClick && "cursor-pointer hover:bg-muted/50",
                     "transition-colors"
-                  )}
-                  onClick={() => onRowClick?.(row.original)}
+                  }
+                  onClick={() => onRowClick?.(row.original}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                        cell.getContext();}
                     </TableCell>
-                  ))}
+                  );}
                   {rowActions && (
                     <TableCell>
                       <div className="flex items-center justify-end">
-                        {rowActions(row.original)}
+                        {rowActions(row.original}
                       </div>
                     </TableCell>
                   )}
                 </TableRow>
-              ))
-            ) : (
-              renderEmptyState()
-            )}
+              );: (
+              renderEmptyState();}
           </TableBody>
         </Table>
       </div>
@@ -394,21 +387,21 @@ export function DataTable<TData, TValue>({
                 <option key={pageSize} value={pageSize}>
                   {pageSize}
                 </option>
-              ))}
+              );}
             </select>
           </div>
           
           <div className="flex items-center space-x-6 lg:space-x-8">
             <div className="flex w-[100px] items-center justify-center text-sm font-medium">
               Page {table.getState().pagination.pageIndex + 1} sur{" "}
-              {table.getPageCount()}
+              {table.getPageCount(}
             </div>
             <div className="flex items-center space-x-2">
               <Button
                 variant="outline"
                 className="h-8 w-8 p-0"
-                onClick={() => table.setPageIndex(0)}
-                disabled={!table.getCanPreviousPage()}
+                onClick={() => table.setPageIndex(0}
+                disabled={!table.getCanPreviousPage(}
               >
                 <span className="sr-only">Aller à la première page</span>
                 {"<<"}
@@ -416,8 +409,8 @@ export function DataTable<TData, TValue>({
               <Button
                 variant="outline"
                 className="h-8 w-8 p-0"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
+                onClick={() => table.previousPage(}
+                disabled={!table.getCanPreviousPage(}
               >
                 <span className="sr-only">Aller à la page précédente</span>
                 {"<"}
@@ -425,8 +418,8 @@ export function DataTable<TData, TValue>({
               <Button
                 variant="outline"
                 className="h-8 w-8 p-0"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
+                onClick={() => table.nextPage(}
+                disabled={!table.getCanNextPage(}
               >
                 <span className="sr-only">Aller à la page suivante</span>
                 {">"}
@@ -434,8 +427,8 @@ export function DataTable<TData, TValue>({
               <Button
                 variant="outline"
                 className="h-8 w-8 p-0"
-                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                disabled={!table.getCanNextPage()}
+                onClick={() => table.setPageIndex(table.getPageCount() - 1}
+                disabled={!table.getCanNextPage(}
               >
                 <span className="sr-only">Aller à la dernière page</span>
                 {">>"}

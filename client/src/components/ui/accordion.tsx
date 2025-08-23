@@ -36,8 +36,7 @@ const AccordionItem = React.forwardRef<
     className={cn(accordionItemVariants({ variant }), className)}
     {...props}
   />
-))
-AccordionItem.displayName = "AccordionItem"
+);AccordionItem.displayName = "AccordionItem"
 
 const accordionTriggerVariants = cva(
   "flex flex-1 items-center justify-between py-4 text-sm font-medium transition-all hover:underline text-left [&[data-state=open]>svg]:rotate-180",
@@ -86,13 +85,11 @@ const AccordionTrigger = React.forwardRef<
             </>
           ) : (
             <IconComponent className="h-4 w-4 shrink-0 transition-transform duration-200" />
-          )}
+          }
         </div>
       )}
     </AccordionPrimitive.Trigger>
-  )
-})
-AccordionTrigger.displayName = AccordionPrimitive.Trigger.displayName
+  });AccordionTrigger.displayName = AccordionPrimitive.Trigger.displayName
 
 const accordionContentVariants = cva(
   "overflow-hidden text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down",
@@ -127,13 +124,11 @@ const AccordionContent = React.forwardRef<
       className={cn(accordionContentVariants({ padding }), className)}
       {...props}
     >
-      <div className={cn(padding !== 'none' && 'pb-4 pt-0')}>
+      <div className={cn(padding !== 'none' && 'pb-4 pt-0'}>
         {sanitizedChildren}
       </div>
     </AccordionPrimitive.Content>
-  )
-})
-AccordionContent.displayName = AccordionPrimitive.Content.displayName
+  });AccordionContent.displayName = AccordionPrimitive.Content.displayName
 
 // Composant Accordion avec configuration par défaut
 export interface AccordionItemData {
@@ -189,7 +184,7 @@ const AccordionWithDefaults: React.FC<AccordionWithDefaultsProps> = ({
             {item.content}
           </AccordionContent>
         </AccordionItem>
-      ))}
+      );}
     </Accordion>
   )
 }
@@ -209,7 +204,7 @@ const AccordionGroup: React.FC<AccordionGroupProps> = ({
   className,
 }) => {
   return (
-    <div className={cn("space-y-6", className)}>
+    <div className={cn("space-y-6", className}>
       {accordions.map((accordion, index) => (
         <div key={index} className="space-y-2">
           {accordion.title && (
@@ -220,7 +215,7 @@ const AccordionGroup: React.FC<AccordionGroupProps> = ({
             {...accordion.props}
           />
         </div>
-      ))}
+      );}
     </div>
   )
 }
@@ -231,10 +226,7 @@ export function useAccordion(
   defaultValue?: string | string[]
 ) {
   const [value, setValue] = React.useState<string | string[]>(
-    defaultValue ?? (type === 'single' ? '' : [])
-  )
-
-  const toggle = React.useCallback((itemValue: string) => {
+    defaultValue ?? (type === 'single' ? '' : []);const toggle = React.useCallback((itemValue: string) => {
     if (type === 'single') {
       setValue(current => current === itemValue ? '' : itemValue)
     } else {

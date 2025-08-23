@@ -124,7 +124,7 @@ export default function Reservation() : JSX.Element {
               Nouvelle Réservation
             </h3>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={handleSubmit(onSubmit} className="space-y-6">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="date" className="block text-coffee-dark font-semibold mb-2">
@@ -134,7 +134,7 @@ export default function Reservation() : JSX.Element {
                     id="date"
                     type="date"
                     min={today}
-                    {...register("date")}
+                    {...register("date"}
                     className="focus:border-coffee-accent"
                   />
                   {errors.date && (
@@ -158,7 +158,7 @@ export default function Reservation() : JSX.Element {
                           {Array.from({ length: 26 }, (_, i) => {
                             const hour = Math.floor(i / 2) + 8;
                             const minutes = i % 2 === 0 ? "00" : "30";
-                            const time = `${hour.toString().padStart(2, "0")}:${minutes}`;
+                            const time = `${hour.toString().padStart(2, "0"}:${minutes}`;
                             if (hour > 21) return null;
                             return (
                               <SelectItem key={time} value={time}>
@@ -184,16 +184,16 @@ export default function Reservation() : JSX.Element {
                   name="guests"
                   control={control}
                   render={({ field }) => (
-                    <Select value={field.value?.toString() || ""} onValueChange={(val) => field.onChange(parseInt(val))}>
+                    <Select value={field.value?.toString() || ""} onValueChange={(val) => field.onChange(parseInt(val);}>
                       <SelectTrigger className="focus:border-coffee-accent">
                         <SelectValue placeholder="Choisir le nombre de personnes" />
                       </SelectTrigger>
                       <SelectContent>
                         {Array.from({ length: 8 }, (_, i) => (
-                          <SelectItem key={i + 1} value={(i + 1).toString()}>
+                          <SelectItem key={i + 1} value={(i + 1).toString(}>
                             {i + 1} personne{i > 0 ? "s" : ""}
                           </SelectItem>
-                        ))}
+                        );}
                       </SelectContent>
                     </Select>
                   )}
@@ -210,7 +210,7 @@ export default function Reservation() : JSX.Element {
                   </Label>
                   <Input
                     id="customer_name"
-                    {...register("customerName")}
+                    {...register("customerName"}
                     placeholder="Votre nom complet"
                     className="focus:border-coffee-accent"
                   />
@@ -225,7 +225,7 @@ export default function Reservation() : JSX.Element {
                   <Input
                     id="customer_email"
                     type="email"
-                    {...register("customerEmail")}
+                    {...register("customerEmail"}
                     placeholder="votre@email.com"
                     className="focus:border-coffee-accent"
                   />
@@ -242,7 +242,7 @@ export default function Reservation() : JSX.Element {
                 <Input
                   id="customer_phone"
                   type="tel"
-                  {...register("customerPhone")}
+                  {...register("customerPhone"}
                   placeholder="Ex: +33612345678"
                   className="focus:border-coffee-accent"
                 />
@@ -257,7 +257,7 @@ export default function Reservation() : JSX.Element {
                 </Label>
                 <Textarea
                   id="specialRequests"
-                  {...register("specialRequests")}
+                  {...register("specialRequests"}
                   rows={4}
                   placeholder="Allergies, préférences de table, célébrations..."
                   className="focus:border-coffee-accent"
@@ -291,7 +291,7 @@ export default function Reservation() : JSX.Element {
                     <div key={index} className="text-center font-semibold text-coffee-dark p-2">
                       {day}
                     </div>
-                  ))}
+                  );}
 
                   {/* jours du mois précédents en gris */}
                   <div className="text-center p-2 text-gray-400">28</div>
@@ -309,7 +309,7 @@ export default function Reservation() : JSX.Element {
                     >
                       {dayData.day}
                     </div>
-                  ))}
+                  );}
                 </div>
                 <div className="flex items-center space-x-4 text-sm">
                   <div className="flex items-center">

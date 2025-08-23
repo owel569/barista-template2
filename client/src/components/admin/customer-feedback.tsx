@@ -227,8 +227,7 @@ export default function CustomerFeedback() : JSX.Element {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ response })
-      });
+        body: JSON.stringify({ response }});
       
       if (responseData.ok) {
         fetchFeedbacks();
@@ -249,8 +248,7 @@ export default function CustomerFeedback() : JSX.Element {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ status })
-      });
+        body: JSON.stringify({ status }});
       
       if (response.ok) {
         fetchFeedbacks();
@@ -296,7 +294,7 @@ export default function CustomerFeedback() : JSX.Element {
               <Star className="h-4 w-4 text-yellow-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.averageRating.toFixed(1)}/5</div>
+              <div className="text-2xl font-bold">{stats.averageRating.toFixed(1}/5</div>
               <div className="flex items-center mt-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star
@@ -307,7 +305,7 @@ export default function CustomerFeedback() : JSX.Element {
                         : 'text-gray-300'
                     }`}
                   />
-                ))}
+                );}
               </div>
             </CardContent>
           </Card>
@@ -431,10 +429,10 @@ export default function CustomerFeedback() : JSX.Element {
                     <div>
                       <div className="flex items-center space-x-2 mb-2">
                         <CardTitle className="text-lg">{feedback.subject}</CardTitle>
-                        <Badge {...getSentimentBadge(feedback.sentiment)}>
+                        <Badge {...getSentimentBadge(feedback.sentiment}>
                           {feedback.sentiment}
                         </Badge>
-                        <Badge {...getStatusBadge(feedback.status)}>
+                        <Badge {...getStatusBadge(feedback.status}>
                           {feedback.status}
                         </Badge>
                       </div>
@@ -445,14 +443,14 @@ export default function CustomerFeedback() : JSX.Element {
                         </span>
                         <span className="flex items-center space-x-1">
                           <Clock className="h-3 w-3" />
-                          <span>{new Date(feedback.date).toLocaleDateString()}</span>
+                          <span>{new Date(feedback.date).toLocaleDateString(}</span>
                         </span>
                         <span>Catégorie: {feedback.category}</span>
                         <span>Source: {feedback.source}</span>
                       </CardDescription>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <div className={`flex items-center space-x-1 ${getRatingColor(feedback.rating)}`}>
+                      <div className={`flex items-center space-x-1 ${getRatingColor(feedback.rating}`}>
                         {[1, 2, 3, 4, 5].map((star) => (
                           <Star
                             key={star}
@@ -462,10 +460,10 @@ export default function CustomerFeedback() : JSX.Element {
                                 : 'text-gray-300'
                             }`}
                           />
-                        ))}
+                        );}
                         <span className="font-bold">{feedback.rating}/5</span>
                       </div>
-                      {getSentimentIcon(feedback.sentiment)}
+                      {getSentimentIcon(feedback.sentiment}
                     </div>
                   </div>
                 </CardHeader>
@@ -484,7 +482,7 @@ export default function CustomerFeedback() : JSX.Element {
                             <Badge key={index} variant="outline" className="text-xs">
                               {tag}
                             </Badge>
-                          ))}
+                          );}
                         </div>
                       </div>
                     )}
@@ -493,7 +491,7 @@ export default function CustomerFeedback() : JSX.Element {
                       <div className="bg-blue-50 p-3 rounded-lg">
                         <h4 className="font-medium mb-1 flex items-center">
                           <Send className="h-4 w-4 mr-1 text-blue-600" />
-                          Réponse ({feedback.responseDate && new Date(feedback.responseDate).toLocaleDateString()}):
+                          Réponse ({feedback.responseDate && new Date(feedback.responseDate).toLocaleDateString(});:
                         </h4>
                         <p className="text-sm text-blue-800">{feedback.response}</p>
                       </div>
@@ -505,7 +503,7 @@ export default function CustomerFeedback() : JSX.Element {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => updateFeedbackStatus(feedback.id, 'reviewed')}
+                            onClick={() => updateFeedbackStatus(feedback.id, 'reviewed'}
                           >
                             <Eye className="h-4 w-4 mr-1" />
                             Marquer comme lu
@@ -527,7 +525,7 @@ export default function CustomerFeedback() : JSX.Element {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => updateFeedbackStatus(feedback.id, 'resolved')}
+                            onClick={() => updateFeedbackStatus(feedback.id, 'resolved'}
                           >
                             <Award className="h-4 w-4 mr-1" />
                             Résoudre
@@ -541,7 +539,7 @@ export default function CustomerFeedback() : JSX.Element {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            );}
           </div>
         </TabsContent>
 
@@ -598,12 +596,12 @@ export default function CustomerFeedback() : JSX.Element {
                           <div className="w-16 h-2 bg-gray-200 rounded">
                             <div 
                               className="h-full bg-blue-500 rounded"
-                              style={{ width: `${(count / Math.max(...Object.values(stats.categoryBreakdown))) * 100}%` }}
+                              style={{ width: `${(count / Math.max(...Object.values(stats.categoryBreakdown);* 100}%` }}
                             />
                           </div>
                         </div>
                       </div>
-                    ))}
+                    );}
                   </div>
                 </CardContent>
               </Card>

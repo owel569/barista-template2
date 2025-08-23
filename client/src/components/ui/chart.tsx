@@ -74,7 +74,7 @@ const ChartContainer = React.forwardRef<
   // Mémorisation de l'ID unique pour éviter les recalculs
   const uniqueId = React.useId()
   const chartId = React.useMemo(
-    () => `chart-${id || uniqueId.replace(/:/g, "")}`,
+    () => `chart-${id || uniqueId.replace(/:/g, ""}`,
     [id, uniqueId]
   )
 
@@ -113,9 +113,7 @@ const ChartContainer = React.forwardRef<
         </RechartsPrimitive.ResponsiveContainer>
       </div>
     </ChartContext.Provider>
-  )
-})
-ChartContainer.displayName = "ChartContainer"
+  });ChartContainer.displayName = "ChartContainer"
 
 /**
  * Composant pour générer les styles CSS dynamiques des graphiques
@@ -159,9 +157,7 @@ ${colorConfig
         __html: cssStyles,
       }}
     />
-  )
-})
-ChartStyle.displayName = "ChartStyle"
+  });ChartStyle.displayName = "ChartStyle"
 
 /**
  * Composant Tooltip réexporté de Recharts
@@ -219,8 +215,8 @@ const ChartTooltipContent = React.forwardRef<
 
       if (labelFormatter) {
         return (
-          <div className={cn("font-medium", labelClassName)}>
-            {labelFormatter(value, payload)}
+          <div className={cn("font-medium", labelClassName}>
+            {labelFormatter(value, payload}
           </div>
         )
       }
@@ -229,7 +225,7 @@ const ChartTooltipContent = React.forwardRef<
         return null
       }
 
-      return <div className={cn("font-medium", labelClassName)}>{value}</div>
+      return <div className={cn("font-medium", labelClassName}>{value}</div>
     }, [
       label,
       labelFormatter,
@@ -280,14 +276,10 @@ const ChartTooltipContent = React.forwardRef<
                 nestLabel={nestLabel}
                 tooltipLabel={tooltipLabel}
               />
-            )
-          })}
+            });}
         </div>
       </div>
-    )
-  }
-)
-ChartTooltipContent.displayName = "ChartTooltipContent"
+    });ChartTooltipContent.displayName = "ChartTooltipContent"
 
 /**
  * Composant pour un élément individuel du tooltip
@@ -349,8 +341,7 @@ const TooltipItem = React.memo(({
   return (
     <div className={itemClasses}>
       {formatter && item?.value !== undefined && item.name ? (
-        formatter(item.value, item.name, item, index, item.payload)
-      ) : (
+        formatter(item.value, item.name, item, index, item.payload);: (
         <>
           {itemConfig?.icon ? (
             <itemConfig.icon />
@@ -360,13 +351,12 @@ const TooltipItem = React.memo(({
                 className={indicatorClasses}
                 style={indicatorStyles}
               />
-            )
-          )}
+            );}
           <div
             className={cn(
               "flex flex-1 justify-between leading-none",
               nestLabel ? "items-end" : "items-center"
-            )}
+            }
           >
             <div className="grid gap-1.5">
               {nestLabel ? tooltipLabel : null}
@@ -376,16 +366,14 @@ const TooltipItem = React.memo(({
             </div>
             {item.value && (
               <span className="font-mono font-medium tabular-nums text-foreground">
-                {item.value.toLocaleString()}
+                {item.value.toLocaleString(}
               </span>
             )}
           </div>
         </>
       )}
     </div>
-  )
-})
-TooltipItem.displayName = "TooltipItem"
+  });TooltipItem.displayName = "TooltipItem"
 
 /**
  * Composant Legend réexporté de Recharts
@@ -439,13 +427,9 @@ const ChartLegendContent = React.forwardRef<
               itemConfig={itemConfig}
               hideIcon={hideIcon}
             />
-          )
-        })}
+          });}
       </div>
-    )
-  }
-)
-ChartLegendContent.displayName = "ChartLegendContent"
+    });ChartLegendContent.displayName = "ChartLegendContent"
 
 /**
  * Composant pour un élément individuel de la légende
@@ -462,7 +446,7 @@ const LegendItem = React.memo(({
   <div
     className={cn(
       "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground"
-    )}
+    }
   >
     {itemConfig?.icon && !hideIcon ? (
       <itemConfig.icon />
@@ -476,8 +460,7 @@ const LegendItem = React.memo(({
     )}
     {itemConfig?.label}
   </div>
-))
-LegendItem.displayName = "LegendItem"
+);LegendItem.displayName = "LegendItem"
 
 /**
  * Fonction utilitaire pour extraire la configuration d'un payload

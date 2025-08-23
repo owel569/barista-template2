@@ -19,13 +19,13 @@ export function LoadingOverlay({
   className 
 }: LoadingOverlayProps) {
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn("relative", className}>
       {children}
       {isLoading && (
         <div className={cn(
           "flex items-center justify-center",
           overlay ? "absolute inset-0 bg-background/80 backdrop-blur-sm z-50" : "py-8"
-        )}>
+        }>
           <div className="flex flex-col items-center gap-2">
             <Spinner size="lg" />
             {text && (

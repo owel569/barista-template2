@@ -138,7 +138,7 @@ export const CustomerBehaviorView: React.FC<CustomerBehaviorViewProps> = ({ data
                 >
                   {segmentData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
+                  );}
                 </Pie>
                 <Tooltip formatter={(value: number) => [value, 'Clients']} />
               </PieChart>
@@ -194,11 +194,11 @@ export const CustomerBehaviorView: React.FC<CustomerBehaviorViewProps> = ({ data
                   <Progress value={(item.score / 5) * 100} className="h-2" />
                   <div className="flex justify-between text-xs text-muted-foreground">
                     <span>Objectif: {item.target}/5</span>
-                    <span>{((item.score / 5) * 100).toFixed(1)}%</span>
+                    <span>{((item.score / 5) * 100).toFixed(1}%</span>
                   </div>
                 </div>
               </div>
-            ))}
+            );}
           </div>
         </CardContent>
       </Card>
@@ -221,7 +221,7 @@ export const CustomerBehaviorView: React.FC<CustomerBehaviorViewProps> = ({ data
                   <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
                   <span className="text-sm text-blue-900">{insight}</span>
                 </div>
-              ))}
+              );}
             </div>
           </CardContent>
         </Card>
@@ -242,7 +242,7 @@ export const CustomerBehaviorView: React.FC<CustomerBehaviorViewProps> = ({ data
                   <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
                   <span className="text-sm text-green-900">{action}</span>
                 </div>
-              ))}
+              );}
             </div>
           </CardContent>
         </Card>
@@ -257,7 +257,7 @@ export const CustomerBehaviorView: React.FC<CustomerBehaviorViewProps> = ({ data
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="text-center p-4 bg-purple-50 rounded-lg">
               <div className="text-2xl font-bold text-purple-600">
-                {segmentData.reduce((sum, segment) => sum + segment.count, 0)}
+                {segmentData.reduce((sum, segment) => sum + segment.count, 0}
               </div>
               <div className="text-sm text-purple-600">Clients Total</div>
             </div>
@@ -265,14 +265,14 @@ export const CustomerBehaviorView: React.FC<CustomerBehaviorViewProps> = ({ data
             <div className="text-center p-4 bg-blue-50 rounded-lg">
               <div className="text-2xl font-bold text-blue-600">
                 {(segmentData.reduce((sum, segment) => sum + segment.avgSpent * segment.count, 0) / 
-                  segmentData.reduce((sum, segment) => sum + segment.count, 0)).toFixed(2)}€
+                  segmentData.reduce((sum, segment) => sum + segment.count, 0);.toFixed(2}€
               </div>
               <div className="text-sm text-blue-600">Dépense Moyenne</div>
             </div>
             
             <div className="text-center p-4 bg-green-50 rounded-lg">
               <div className="text-2xl font-bold text-green-600">
-                {(satisfactionData.reduce((sum, item) => sum + item.score, 0) / satisfactionData.length).toFixed(1)}/5
+                {(satisfactionData.reduce((sum, item) => sum + item.score, 0) / satisfactionData.length).toFixed(1}/5
               </div>
               <div className="text-sm text-green-600">Satisfaction Globale</div>
             </div>
@@ -280,7 +280,7 @@ export const CustomerBehaviorView: React.FC<CustomerBehaviorViewProps> = ({ data
             <div className="text-center p-4 bg-yellow-50 rounded-lg">
               <div className="text-2xl font-bold text-yellow-600">
                 {Math.round((segmentData.find(s => s.name === 'VIP')?.percentage || 0) * 
-                  (segmentData.find(s => s.name === 'VIP')?.avgSpent || 0) / 100)}€
+                  (segmentData.find(s => s.name === 'VIP')?.avgSpent || 0) / 100}€
               </div>
               <div className="text-sm text-yellow-600">Valeur Client VIP</div>
             </div>

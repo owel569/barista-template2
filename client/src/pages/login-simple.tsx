@@ -34,7 +34,7 @@ export default function LoginSimple() : JSX.Element {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-        )},
+        },
         body: JSON.stringify({
           username: username.trim(),
           password: password.trim(),
@@ -65,7 +65,7 @@ export default function LoginSimple() : JSX.Element {
         title: "Erreur de connexion",
         description: "Impossible de se connecter au serveur",
         variant: "destructive",
-      )});
+      });
     } finally {
       setIsLogging(false);
     }
@@ -97,7 +97,7 @@ export default function LoginSimple() : JSX.Element {
                   id="username"
                   type="text"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={(e) => setUsername(e.target.value}
                   placeholder="Entrez votre nom d'utilisateur"
                   className="h-12 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
                   required
@@ -112,7 +112,7 @@ export default function LoginSimple() : JSX.Element {
                   id="password"
                   type="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => setPassword(e.target.value}
                   placeholder="Entrez votre mot de passe"
                   className="h-12 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
                   required

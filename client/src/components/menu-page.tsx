@@ -77,8 +77,8 @@ export default function MenuPage(): JSX.Element {
 
   const filteredItems = menuItems.filter(item => {
     const matchesCategory = selectedCategory === "all" || item.category?.id?.toString() === selectedCategory;
-    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         item.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase();|| 
+                         item.description.toLowerCase().includes(searchTerm.toLowerCase();
     return matchesCategory && matchesSearch;
   });
 
@@ -115,7 +115,7 @@ export default function MenuPage(): JSX.Element {
           <div className="flex flex-wrap gap-2 justify-center mb-8">
             {[...Array(5)].map((_, i) => (
               <Skeleton key={i} className="h-10 w-24 rounded-full" />
-            ))}
+            );}
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -130,7 +130,7 @@ export default function MenuPage(): JSX.Element {
                   <Skeleton className="h-6 w-1/4" />
                 </CardContent>
               </Card>
-            ))}
+            );}
           </div>
         </div>
       </div>
@@ -149,7 +149,7 @@ export default function MenuPage(): JSX.Element {
           </p>
           <Button 
             variant="default" 
-            onClick={() => window.location.reload()}
+            onClick={() => window.location.reload(}
             className="bg-amber-600 hover:bg-amber-700"
           >
             Réessayer
@@ -180,7 +180,7 @@ export default function MenuPage(): JSX.Element {
               placeholder="Rechercher un plat ou un ingrédient..."
               className="w-full px-4 py-2 rounded-full border border-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-500 pl-10"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => setSearchTerm(e.target.value}
             />
             <svg
               className="absolute left-3 top-2.5 h-5 w-5 text-amber-400"
@@ -201,7 +201,7 @@ export default function MenuPage(): JSX.Element {
           <div className="flex flex-wrap gap-2 justify-center">
             <Button
               variant={selectedCategory === "all" ? "default" : "outline"}
-              onClick={() => setSelectedCategory("all")}
+              onClick={() => setSelectedCategory("all"}
               className="mb-2 shadow-sm"
             >
               Tout voir
@@ -212,7 +212,7 @@ export default function MenuPage(): JSX.Element {
                 <Button
                   key={category.id}
                   variant={selectedCategory === category.id.toString() ? "default" : "outline"}
-                  onClick={() => setSelectedCategory(category.id.toString())}
+                  onClick={() => setSelectedCategory(category.id.toString();}
                   className="mb-2 shadow-sm"
                 >
                   <IconComponent className="h-4 w-4 mr-2" />
@@ -233,7 +233,7 @@ export default function MenuPage(): JSX.Element {
               {/* Image with fallback */}
               <div className="aspect-video bg-amber-100/20 overflow-hidden relative">
                 <img
-                  src={getItemImageUrl(item.name, item.category?.slug || 'default')}
+                  src={getItemImageUrl(item.name, item.category?.slug || 'default'}
                   alt={item.name}
                   className="w-full h-full object-cover"
                   onError={(e) => {
@@ -247,7 +247,7 @@ export default function MenuPage(): JSX.Element {
                       Indisponible
                     </span>
                   </div>
-                )}
+                }
               </div>
 
               <CardHeader className="pb-2">
@@ -262,7 +262,7 @@ export default function MenuPage(): JSX.Element {
 
               <CardContent className="mt-auto">
                 <div className="flex justify-between items-center mb-3">
-                  <span className="text-2xl font-bold text-amber-600">{item.price.toFixed(2)}€</span>
+                  <span className="text-2xl font-bold text-amber-600">{item.price.toFixed(2}€</span>
                   <Badge variant="outline" className="text-xs">
                     {item.category?.name || 'Non classé'}
                   </Badge>
@@ -274,23 +274,23 @@ export default function MenuPage(): JSX.Element {
                     <Badge variant="secondary" className="text-xs">
                       Végétarien
                     </Badge>
-                  )}
+                  }
                   {item.isVegan && (
                     <Badge variant="secondary" className="text-xs">
                       Vegan
                     </Badge>
-                  )}
+                  }
                   {item.isGlutenFree && (
                     <Badge variant="secondary" className="text-xs">
                       Sans gluten
                     </Badge>
-                  )}
+                  }
                 </div>
 
                 <Button
                   variant="default"
                   className="w-full mt-2 bg-amber-600 hover:bg-amber-700"
-                  onClick={() => handleAddToCart(item)}
+                  onClick={() => handleAddToCart(item}
                   disabled={!item.available}
                 >
                   Ajouter au panier
@@ -304,7 +304,7 @@ export default function MenuPage(): JSX.Element {
                 )}
               </CardContent>
             </Card>
-          ))}
+          );}
         </div>
 
         {filteredItems.length === 0 && (
@@ -321,7 +321,7 @@ export default function MenuPage(): JSX.Element {
             {searchTerm && (
               <Button 
                 variant="ghost" 
-                onClick={() => setSearchTerm("")}
+                onClick={() => setSearchTerm(""}
                 className="mt-4 text-amber-600"
               >
                 Réinitialiser la recherche

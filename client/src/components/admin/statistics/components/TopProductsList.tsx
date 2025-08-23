@@ -38,7 +38,7 @@ export function TopProductsList({
                 </div>
                 <div className="h-4 w-16 bg-gray-200 dark:bg-gray-700 animate-pulse rounded" />
               </div>
-            ))}
+            );}
           </div>
         </CardContent>
       </Card>
@@ -83,8 +83,8 @@ export function TopProductsList({
                     {index + 1}. {product.name}
                   </span>
                   {product.trend && (
-                    <span className={`text-sm ${getTrendColor(product.trend)}`}>
-                      {getTrendIcon(product.trend)}
+                    <span className={`text-sm ${getTrendColor(product.trend}`}>
+                      {getTrendIcon(product.trend}
                     </span>
                   )}
                 </div>
@@ -99,11 +99,11 @@ export function TopProductsList({
               </div>
               <div className="text-right">
                 <div className="font-semibold text-gray-900 dark:text-gray-100">
-                  {product.revenue.toFixed(2)}€
+                  {product.revenue.toFixed(2}€
                 </div>
               </div>
             </div>
-          ))}
+          );}
         </div>
       </CardContent>
     </Card>

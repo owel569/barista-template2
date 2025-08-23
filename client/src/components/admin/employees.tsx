@@ -213,7 +213,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
   };
 
   const handleDelete = (id: number) => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cet employé ?')) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cet employé ?');{
       deleteMutation.mutate(id);
     }
   };
@@ -252,7 +252,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                 <Skeleton className="h-24 w-full" />
               </CardContent>
             </Card>
-          ))}
+          );}
         </div>
 
         <Card>
@@ -304,7 +304,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                 </DialogDescription>
               </DialogHeader>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <form onSubmit={form.handleSubmit(onSubmit} className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
@@ -464,7 +464,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => setIsDialogOpen(false)}
+                      onClick={() => setIsDialogOpen(false}
                     >
                       Annuler
                     </Button>
@@ -478,7 +478,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                         <Pencil className="h-4 w-4 mr-2" />
                       ) : (
                         <Plus className="h-4 w-4 mr-2" />
-                      )}
+                      }
                       {editingEmployee ? 'Modifier' : 'Créer'}
                     </Button>
                   </DialogFooter>
@@ -512,7 +512,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
           <CardContent>
             <div className="text-2xl font-bold text-green-600">{activeEmployees}</div>
             <p className="text-xs text-muted-foreground">
-              {Math.round((activeEmployees / totalEmployees) * 100)}% de l'effectif
+              {Math.round((activeEmployees / totalEmployees) * 100}% de l'effectif
             </p>
           </CardContent>
         </Card>
@@ -575,7 +575,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                     <TableCell>
                       <div className="flex items-center">
                         <DollarSign className="h-4 w-4 mr-1 text-muted-foreground" />
-                        {employee.salary?.toLocaleString('fr-FR')} DH
+                        {employee.salary?.toLocaleString('fr-FR'} DH
                       </div>
                     </TableCell>
                     <TableCell>
@@ -594,7 +594,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => handleEdit(employee)}
+                          onClick={() => handleEdit(employee}
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
@@ -602,7 +602,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => handleDelete(employee.id)}
+                            onClick={() => handleDelete(employee.id}
                             className="text-red-600 hover:text-red-700"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -611,8 +611,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                       </div>
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
+                );: (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8">
                     <Users className="h-12 w-12 mx-auto text-gray-400" />

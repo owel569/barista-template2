@@ -50,8 +50,7 @@ export const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
         return `Le fichier est trop volumineux (max: ${maxSize}MB)`;
       }
       if (accept && !accept.split(',').some(type => 
-        file.type.match(type.trim()) || file.name.match(type.trim())
-      )) {
+        file.type.match(type.trim();|| file.name.match(type.trim();) {
         return "Type de fichier non supporté";
       }
       return null;
@@ -59,7 +58,7 @@ export const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
 
     const createFilePreview = (file: File): Promise<string | undefined> => {
       return new Promise((resolve) => {
-        if (file.type.startsWith('image/')) {
+        if (file.type.startsWith('image/');{
           const reader = new FileReader();
           reader.onload = (e) => resolve(e.target?.result as string);
           reader.readAsDataURL(file);
@@ -99,22 +98,22 @@ export const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
       
       if (validFiles.length > 0) {
         try {
-          await onUpload(validFiles.map(f => f.file));
+          await onUpload(validFiles.map(f => f.file);
           // Simuler le progrès
           for (let i = 0; i <= 100; i += 10) {
-            await new Promise(resolve => setTimeout(resolve, 100));
+            await new Promise(resolve => setTimeout(resolve, 100);
             setFiles(prev => prev.map(f => 
               validFiles.some(vf => vf.id === f.id) 
                 ? { ...f, progress: i }
                 : f
-            ));
+            );
           }
         } catch (error) {
           setFiles(prev => prev.map(f => 
             validFiles.some(vf => vf.id === f.id)
               ? { ...f, error: "Erreur lors de l'upload" }
               : f
-          ));
+          );
         }
       }
       setIsUploading(false);
@@ -137,7 +136,7 @@ export const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
     };
 
     const removeFile = (id: string) => {
-      setFiles(prev => prev.filter(f => f.id !== id));
+      setFiles(prev => prev.filter(f => f.id !== id);
     };
 
     const openFileDialog = () => {
@@ -145,7 +144,7 @@ export const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
     };
 
     return (
-      <div ref={ref} className={cn("space-y-4", className)} {...props}>
+      <div ref={ref} className={cn("space-y-4", className} {...props}>
         {/* Zone de drop */}
         <div
           className={cn(
@@ -155,7 +154,7 @@ export const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
               : "border-muted-foreground/25",
             disabled && "opacity-50 cursor-not-allowed",
             dragAndDrop && !disabled && "cursor-pointer hover:border-primary hover:bg-primary/5"
-          )}
+          }
           onDrop={dragAndDrop ? handleDrop : undefined}
           onDragOver={dragAndDrop ? handleDragOver : undefined}
           onDragLeave={dragAndDrop ? handleDragLeave : undefined}
@@ -168,7 +167,7 @@ export const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
             multiple={multiple}
             disabled={disabled}
             className="hidden"
-            onChange={(e) => e.target.files && handleFiles(e.target.files)}
+            onChange={(e) => e.target.files && handleFiles(e.target.files}
           />
           
           {children || (
@@ -210,7 +209,7 @@ export const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
                       <ImageIcon className="h-5 w-5" />
                     ) : (
                       <File className="h-5 w-5" />
-                    )}
+                    }
                   </div>
                 )}
                 
@@ -220,7 +219,7 @@ export const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => removeFile(uploadedFile.id)}
+                      onClick={() => removeFile(uploadedFile.id}
                       className="h-auto p-1"
                     >
                       <X className="h-4 w-4" />
@@ -239,7 +238,7 @@ export const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
                   )}
                 </div>
               </div>
-            ))}
+            );}
           </div>
         )}
       </div>

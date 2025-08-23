@@ -62,11 +62,10 @@ export const SearchInput = React.forwardRef<HTMLDivElement, SearchInputProps>(
       }
 
       debounceRef.current = setTimeout(() => {
-        if (value.trim()) {
+        if (value.trim();{
           const filtered = suggestions.filter(suggestion =>
-            suggestion.text.toLowerCase().includes(value.toLowerCase()) ||
-            suggestion.description?.toLowerCase().includes(value.toLowerCase())
-          );
+            suggestion.text.toLowerCase().includes(value.toLowerCase();||
+            suggestion.description?.toLowerCase().includes(value.toLowerCase();
           setFilteredSuggestions(filtered);
         } else {
           setFilteredSuggestions([]);
@@ -94,8 +93,8 @@ export const SearchInput = React.forwardRef<HTMLDivElement, SearchInputProps>(
     };
 
     const handleSearch = (searchValue: string = value) => {
-      if (searchValue.trim()) {
-        onSearch?.(searchValue.trim());
+      if (searchValue.trim();{
+        onSearch?.(searchValue.trim();
         setIsOpen(false);
       }
     };
@@ -120,10 +119,10 @@ export const SearchInput = React.forwardRef<HTMLDivElement, SearchInputProps>(
 
     const hasContent = 
       (value.length > 0 && filteredSuggestions.length > 0) ||
-      (value.length === 0 && (recentSearches.length > 0 || trendingSearches.length > 0));
+      (value.length === 0 && (recentSearches.length > 0 || trendingSearches.length > 0);
 
     return (
-      <div ref={ref} className={cn("relative", className)} {...props}>
+      <div ref={ref} className={cn("relative", className} {...props}>
         <Popover open={isOpen && hasContent} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
             <div className="relative">
@@ -131,7 +130,7 @@ export const SearchInput = React.forwardRef<HTMLDivElement, SearchInputProps>(
                 type="search"
                 placeholder={placeholder}
                 value={value}
-                onChange={(e) => handleInputChange(e.target.value)}
+                onChange={(e) => handleInputChange(e.target.value}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     handleSearch();
@@ -140,7 +139,7 @@ export const SearchInput = React.forwardRef<HTMLDivElement, SearchInputProps>(
                     setIsOpen(false);
                   }
                 }}
-                onFocus={() => setIsOpen(hasContent)}
+                onFocus={() => setIsOpen(hasContent}
                 disabled={disabled}
                 leftIcon={<Search className="h-4 w-4" />}
                 rightIcon={
@@ -173,7 +172,7 @@ export const SearchInput = React.forwardRef<HTMLDivElement, SearchInputProps>(
                     {filteredSuggestions.map((suggestion) => (
                       <CommandItem
                         key={suggestion.id}
-                        onSelect={() => handleSuggestionSelect(suggestion)}
+                        onSelect={() => handleSuggestionSelect(suggestion}
                         className="flex items-center space-x-2"
                       >
                         {suggestion.icon && (
@@ -195,7 +194,7 @@ export const SearchInput = React.forwardRef<HTMLDivElement, SearchInputProps>(
                           </div>
                         )}
                       </CommandItem>
-                    ))}
+                    );}
                   </CommandGroup>
                 )}
 
@@ -205,13 +204,13 @@ export const SearchInput = React.forwardRef<HTMLDivElement, SearchInputProps>(
                     {recentSearches.slice(0, 5).map((search, index) => (
                       <CommandItem
                         key={`recent-${index}`}
-                        onSelect={() => handleRecentSearchSelect(search)}
+                        onSelect={() => handleRecentSearchSelect(search}
                         className="flex items-center space-x-2"
                       >
                         <Clock className="h-4 w-4 text-muted-foreground" />
                         <span>{search}</span>
                       </CommandItem>
-                    ))}
+                    );}
                   </CommandGroup>
                 )}
 
@@ -221,13 +220,13 @@ export const SearchInput = React.forwardRef<HTMLDivElement, SearchInputProps>(
                     {trendingSearches.slice(0, 3).map((search, index) => (
                       <CommandItem
                         key={`trending-${index}`}
-                        onSelect={() => handleRecentSearchSelect(search)}
+                        onSelect={() => handleRecentSearchSelect(search}
                         className="flex items-center space-x-2"
                       >
                         <TrendingUp className="h-4 w-4 text-green-600" />
                         <span>{search}</span>
                       </CommandItem>
-                    ))}
+                    );}
                   </CommandGroup>
                 )}
 

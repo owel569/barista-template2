@@ -245,7 +245,7 @@ export default function Dashboard() : JSX.Element {
                 </div>
               </CardContent>
             </Card>
-          ))}
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -407,14 +407,14 @@ export default function Dashboard() : JSX.Element {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ status, percent }) => `${status}: ${(percent * 100).toFixed(0)}%`}
+                    label={({ status, percent }) => `${status}: ${(percent * 100).toFixed(0}%`}
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="count"
                   >
                     {stats.reservationStatus.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
+                    );}
                   </Pie>
                   <Tooltip 
                     formatter={(value) => [value, 'Réservations']}
@@ -457,7 +457,7 @@ export default function Dashboard() : JSX.Element {
                     </p>
                   </div>
                 </div>
-              ))}
+              );}
             </div>
           </CardContent>
         </Card>
@@ -482,7 +482,7 @@ export default function Dashboard() : JSX.Element {
                   </div>
                   <Badge variant="outline">{item.count} ventes</Badge>
                 </div>
-              ))}
+              );}
             </div>
           </CardContent>
         </Card>
@@ -553,7 +553,7 @@ export default function Dashboard() : JSX.Element {
                   </p>
                 </div>
               </div>
-            ))}
+            );}
           </div>
         </CardContent>
       </Card>

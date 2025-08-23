@@ -89,8 +89,7 @@ const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
         className={cn(
           statsCardVariants({ 
             variant, 
-            trend: trendVariant || determineTrendVariant() 
-          }),
+            trend: trendVariant || determineTrendVariant(});,
           className
         )}
         {...props}
@@ -121,10 +120,10 @@ const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
                 <div className="text-2xl font-bold">{value}</div>
               )}
               {trend && (
-                <div className={cn("flex items-center space-x-1 text-xs", getTrendColor())}>
-                  {getTrendIcon()}
+                <div className={cn("flex items-center space-x-1 text-xs", getTrendColor();}>
+                  {getTrendIcon(}
                   <span>
-                    {Math.abs(trend.value)}{trend.isPercentage ? "%" : ""}
+                    {Math.abs(trend.value}{trend.isPercentage ? "%" : ""}
                     {trend.label && ` ${trend.label}`}
                   </span>
                 </div>

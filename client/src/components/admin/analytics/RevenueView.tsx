@@ -27,7 +27,7 @@ const RevenueView: React.FC<RevenueViewProps> = ({ data, timeRange }) => {
             <CardTitle className="text-sm font-medium">Revenus totaux</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">€{totalRevenue.toLocaleString()}</div>
+            <div className="text-2xl font-bold">€{totalRevenue.toLocaleString(}</div>
           </CardContent>
         </Card>
         
@@ -36,7 +36,7 @@ const RevenueView: React.FC<RevenueViewProps> = ({ data, timeRange }) => {
             <CardTitle className="text-sm font-medium">Commandes totales</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalOrders.toLocaleString()}</div>
+            <div className="text-2xl font-bold">{totalOrders.toLocaleString(}</div>
           </CardContent>
         </Card>
         
@@ -45,7 +45,7 @@ const RevenueView: React.FC<RevenueViewProps> = ({ data, timeRange }) => {
             <CardTitle className="text-sm font-medium">Panier moyen</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">€{avgOrderValue.toFixed(2)}</div>
+            <div className="text-2xl font-bold">€{avgOrderValue.toFixed(2}</div>
           </CardContent>
         </Card>
       </div>
@@ -68,10 +68,10 @@ const RevenueView: React.FC<RevenueViewProps> = ({ data, timeRange }) => {
                 axisLine={false}
                 tickLine={false}
                 fontSize={12}
-                tickFormatter={(value) => `€${value.toLocaleString()}`}
+                tickFormatter={(value) => `€${value.toLocaleString(}`}
               />
               <Tooltip 
-                formatter={(value: number) => [`€${value.toLocaleString()}`, 'Revenus']}
+                formatter={(value: number) => [`€${value.toLocaleString(}`, 'Revenus']}
                 labelFormatter={(label) => `Date: ${label}`}
               />
               <Line 
@@ -105,7 +105,7 @@ const RevenueView: React.FC<RevenueViewProps> = ({ data, timeRange }) => {
                 axisLine={false}
                 tickLine={false}
                 fontSize={12}
-                tickFormatter={(value) => value.toLocaleString()}
+                tickFormatter={(value) => value.toLocaleString(}
               />
               <Tooltip 
                 formatter={(value: number) => [value.toLocaleString(), 'Commandes']}

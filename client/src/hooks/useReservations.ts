@@ -44,7 +44,7 @@ export function useReservations() : void {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["reservations"] )});
+      queryClient.invalidateQueries({ queryKey: ["reservations"] });
     },
   });
 

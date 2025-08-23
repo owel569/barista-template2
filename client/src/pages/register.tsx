@@ -43,21 +43,20 @@ export default function Register() : JSX.Element {
     try {
       const response = await fetch("/api/auth/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" )},
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           username,
           password,
           confirmPassword,
           role: "admin"
-        })
-      });
+        }});
 
       const data = await response.json();
       
       if (response.ok) {
         // Store token and user info
         localStorage.setItem("auth_token", data.token);
-        localStorage.setItem("auth_user", JSON.stringify(data.user));
+        localStorage.setItem("auth_user", JSON.stringify(data.user);
         
         toast({
           title: "Compte créé avec succès",
@@ -69,14 +68,14 @@ export default function Register() : JSX.Element {
           title: "Erreur d'enregistrement",
           description: data.message || "Erreur lors de la création du compte",
           variant: "destructive",
-        )});
+        });
       }
     } catch (error) {
       toast({
         title: "Erreur",
         description: "Erreur de connexion au serveur",
         variant: "destructive",
-      )});
+      });
     } finally {
       setIsRegistering(false);
     }
@@ -140,7 +139,7 @@ export default function Register() : JSX.Element {
                     id="username"
                     type="text"
                     value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    onChange={(e) => setUsername(e.target.value}
                     className="mt-2 border-coffee-secondary focus:border-coffee-accent"
                     placeholder="Entrez votre nom d'utilisateur"
                     required
@@ -156,7 +155,7 @@ export default function Register() : JSX.Element {
                     id="password"
                     type="password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => setPassword(e.target.value}
                     className="mt-2 border-coffee-secondary focus:border-coffee-accent"
                     placeholder="Entrez votre mot de passe"
                     required
@@ -172,7 +171,7 @@ export default function Register() : JSX.Element {
                     id="confirmPassword"
                     type="password"
                     value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    onChange={(e) => setConfirmPassword(e.target.value}
                     className="mt-2 border-coffee-secondary focus:border-coffee-accent"
                     placeholder="Confirmez votre mot de passe"
                     required

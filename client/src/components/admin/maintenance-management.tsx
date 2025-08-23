@@ -148,8 +148,7 @@ export default function MaintenanceManagement() : JSX.Element {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(taskData)
-      });
+        body: JSON.stringify(taskData});
 
       if (response.ok) {
         const newTask = await response.json();
@@ -175,12 +174,11 @@ export default function MaintenanceManagement() : JSX.Element {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(taskData)
-      });
+        body: JSON.stringify(taskData});
 
       if (response.ok) {
         const updatedTask = await response.json();
-        setTasks(tasks.map(task => task.id === taskId ? updatedTask : task));
+        setTasks(tasks.map(task => task.id === taskId ? updatedTask : task);
         toast.success('Tâche mise à jour avec succès');
         setIsTaskDialogOpen(false);
         setEditingTask(null);
@@ -205,7 +203,7 @@ export default function MaintenanceManagement() : JSX.Element {
       });
 
       if (response.ok) {
-        setTasks(tasks.filter(task => task.id !== taskId));
+        setTasks(tasks.filter(task => task.id !== taskId);
         toast.success('Tâche supprimée avec succès');
         fetchMaintenanceData(); // Rafraîchir les stats
       } else {
@@ -226,8 +224,7 @@ export default function MaintenanceManagement() : JSX.Element {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(equipmentData)
-      });
+        body: JSON.stringify(equipmentData});
 
       if (response.ok) {
         const newEquipment = await response.json();
@@ -253,12 +250,11 @@ export default function MaintenanceManagement() : JSX.Element {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(equipmentData)
-      });
+        body: JSON.stringify(equipmentData});
 
       if (response.ok) {
         const updatedEquipment = await response.json();
-        setEquipment(equipment.map(item => item.id === equipmentId ? updatedEquipment : item));
+        setEquipment(equipment.map(item => item.id === equipmentId ? updatedEquipment : item);
         toast.success('Équipement mis à jour avec succès');
         setIsEquipmentDialogOpen(false);
         setEditingEquipment(null);
@@ -281,12 +277,11 @@ export default function MaintenanceManagement() : JSX.Element {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ completedDate: new Date().toISOString() })
-      });
+        body: JSON.stringify({ completedDate: new Date().toISOString(});});
 
       if (response.ok) {
         const updatedTask = await response.json();
-        setTasks(tasks.map(task => task.id === taskId ? updatedTask : task));
+        setTasks(tasks.map(task => task.id === taskId ? updatedTask : task);
         toast.success('Tâche marquée comme terminée');
         fetchMaintenanceData(); // Rafraîchir les stats
       } else {
@@ -358,7 +353,7 @@ export default function MaintenanceManagement() : JSX.Element {
   };
 
   const getEquipmentIcon = (type: string) => {
-    switch (type.toLowerCase()) {
+    switch (type.toLowerCase();{
       case 'machine à café': return <Coffee className="h-5 w-5" />;
       case 'four': return <Oven className="h-5 w-5" />;
       case 'réfrigérateur': return <Fridge className="h-5 w-5" />;
@@ -370,9 +365,9 @@ export default function MaintenanceManagement() : JSX.Element {
 
   // Filtrage des tâches
   const filteredTasks = tasks.filter(task => {
-    const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         task.equipment.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         task.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase();|| 
+                         task.equipment.toLowerCase().includes(searchTerm.toLowerCase();||
+                         task.description.toLowerCase().includes(searchTerm.toLowerCase();
     const matchesStatus = selectedStatus === 'all' || task.status === selectedStatus;
     const matchesPriority = selectedPriority === 'all' || task.priority === selectedPriority;
     const matchesEquipment = selectedEquipment === 'all' || task.equipmentId.toString() === selectedEquipment;
@@ -386,13 +381,13 @@ export default function MaintenanceManagement() : JSX.Element {
     id: task.id,
     title: `${task.title} (${task.equipment})`,
     start: new Date(task.scheduledDate),
-    end: new Date(new Date(task.scheduledDate).getTime() + (task.estimatedDuration * 60 * 60 * 1000)),
+    end: new Date(new Date(task.scheduledDate).getTime() + (task.estimatedDuration * 60 * 60 * 1000);,
     resource: {
       status: task.status,
       priority: task.priority,
       assignedTo: task.assignedTo
     }
-  }));
+  });
 
   if (loading) {
     return (
@@ -402,7 +397,7 @@ export default function MaintenanceManagement() : JSX.Element {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {[1, 2, 3, 4].map(i => (
               <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded"></div>
-            ))}
+            );}
           </div>
         </div>
       </div>
@@ -426,7 +421,7 @@ export default function MaintenanceManagement() : JSX.Element {
             <Input
               placeholder="Rechercher une tâche..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => setSearchTerm(e.target.value}
               className="pl-10"
             />
             <Filter className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
@@ -586,7 +581,7 @@ export default function MaintenanceManagement() : JSX.Element {
                     Coût Total
                   </p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {stats.totalCost.toFixed(2)}€
+                    {stats.totalCost.toFixed(2}€
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     {stats.overdueTasks} tâches en retard
@@ -617,10 +612,10 @@ export default function MaintenanceManagement() : JSX.Element {
                 <SelectContent>
                   <SelectItem value="all">Tous équipements</SelectItem>
                   {equipment.map(item => (
-                    <SelectItem key={item.id} value={item.id.toString()}>
+                    <SelectItem key={item.id} value={item.id.toString(}>
                       {item.name}
                     </SelectItem>
-                  ))}
+                  );}
                 </SelectContent>
               </Select>
 
@@ -631,10 +626,10 @@ export default function MaintenanceManagement() : JSX.Element {
                 <SelectContent>
                   <SelectItem value="all">Tous techniciens</SelectItem>
                   {technicians.map(tech => (
-                    <SelectItem key={tech.id} value={tech.id.toString()}>
+                    <SelectItem key={tech.id} value={tech.id.toString(}>
                       {tech.name}
                     </SelectItem>
-                  ))}
+                  );}
                 </SelectContent>
               </Select>
             </div>
@@ -642,13 +637,13 @@ export default function MaintenanceManagement() : JSX.Element {
             <div className="flex gap-2">
               <Button 
                 variant={currentView === 'list' ? 'default' : 'outline'} 
-                onClick={() => setCurrentView('list')}
+                onClick={() => setCurrentView('list'}
               >
                 Liste
               </Button>
               <Button 
                 variant={currentView === 'calendar' ? 'default' : 'outline'} 
-                onClick={() => setCurrentView('calendar')}
+                onClick={() => setCurrentView('calendar'}
               >
                 Calendrier
               </Button>
@@ -686,11 +681,11 @@ export default function MaintenanceManagement() : JSX.Element {
                               <h3 className="font-semibold text-gray-900 dark:text-white">
                                 {task.title}
                               </h3>
-                              <Badge className={getStatusColor(task.status)}>
-                                {getStatusText(task.status)}
+                              <Badge className={getStatusColor(task.status}>
+                                {getStatusText(task.status}
                               </Badge>
-                              <Badge className={getPriorityColor(task.priority)}>
-                                {getPriorityText(task.priority)}
+                              <Badge className={getPriorityColor(task.priority}>
+                                {getPriorityText(task.priority}
                               </Badge>
                             </div>
                             
@@ -710,12 +705,12 @@ export default function MaintenanceManagement() : JSX.Element {
                               <div>
                                 <span className="text-gray-600 dark:text-gray-400">Date prévue:</span>
                                 <p className="font-medium">
-                                  {new Date(task.scheduledDate).toLocaleDateString('fr-FR')}
+                                  {new Date(task.scheduledDate).toLocaleDateString('fr-FR'}
                                 </p>
                               </div>
                               <div>
                                 <span className="text-gray-600 dark:text-gray-400">Coût:</span>
-                                <p className="font-medium text-green-600">{task.cost.toFixed(2)}€</p>
+                                <p className="font-medium text-green-600">{task.cost.toFixed(2}€</p>
                               </div>
                             </div>
                           </div>
@@ -725,7 +720,7 @@ export default function MaintenanceManagement() : JSX.Element {
                           {task.status !== 'completed' && (
                             <Button 
                               size="sm" 
-                              onClick={() => handleCompleteTask(task.id)}
+                              onClick={() => handleCompleteTask(task.id}
                               className="bg-green-600 hover:bg-green-700"
                             >
                               Terminer
@@ -745,7 +740,7 @@ export default function MaintenanceManagement() : JSX.Element {
                             size="sm" 
                             variant="outline" 
                             className="text-red-600 hover:text-red-700"
-                            onClick={() => handleDeleteTask(task.id)}
+                            onClick={() => handleDeleteTask(task.id}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -753,8 +748,7 @@ export default function MaintenanceManagement() : JSX.Element {
                       </div>
                     </CardContent>
                   </Card>
-                ))
-              )}
+                );}
             </div>
           ) : (
             <div className="h-[600px] mt-4">
@@ -799,7 +793,7 @@ export default function MaintenanceManagement() : JSX.Element {
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
-                        {getEquipmentIcon(item.type)}
+                        {getEquipmentIcon(item.type}
                       </div>
                       <div>
                         <h3 className="font-semibold text-gray-900 dark:text-white">
@@ -810,8 +804,8 @@ export default function MaintenanceManagement() : JSX.Element {
                         </p>
                       </div>
                     </div>
-                    <Badge className={getEquipmentStatusColor(item.status)}>
-                      {getEquipmentStatusText(item.status)}
+                    <Badge className={getEquipmentStatusColor(item.status}>
+                      {getEquipmentStatusText(item.status}
                     </Badge>
                   </div>
 
@@ -827,20 +821,20 @@ export default function MaintenanceManagement() : JSX.Element {
                     <div>
                       <span className="text-gray-600 dark:text-gray-400">Dernière maintenance:</span>
                       <p className="font-medium">
-                        {new Date(item.lastMaintenance).toLocaleDateString('fr-FR')}
+                        {new Date(item.lastMaintenance).toLocaleDateString('fr-FR'}
                       </p>
                     </div>
                     <div>
                       <span className="text-gray-600 dark:text-gray-400">Prochaine maintenance:</span>
                       <p className="font-medium">
-                        {new Date(item.nextMaintenance).toLocaleDateString('fr-FR')}
+                        {new Date(item.nextMaintenance).toLocaleDateString('fr-FR'}
                       </p>
                     </div>
                     {item.warrantyExpiry && (
                       <div>
                         <span className="text-gray-600 dark:text-gray-400">Garantie jusqu'au:</span>
                         <p className="font-medium">
-                          {new Date(item.warrantyExpiry).toLocaleDateString('fr-FR')}
+                          {new Date(item.warrantyExpiry).toLocaleDateString('fr-FR'}
                         </p>
                       </div>
                     )}
@@ -885,7 +879,7 @@ export default function MaintenanceManagement() : JSX.Element {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            );}
           </div>
         </TabsContent>
 
@@ -902,8 +896,7 @@ export default function MaintenanceManagement() : JSX.Element {
                 <div className="space-y-4">
                   {tasks
                     .filter(task => task.status === 'pending')
-                    .sort((a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime())
-                    .slice(0, 5)
+                    .sort((a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime();.slice(0, 5)
                     .map(task => (
                       <div key={task.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                         <div>
@@ -912,14 +905,14 @@ export default function MaintenanceManagement() : JSX.Element {
                         </div>
                         <div className="text-right">
                           <p className="font-medium">
-                            {new Date(task.scheduledDate).toLocaleDateString('fr-FR')}
+                            {new Date(task.scheduledDate).toLocaleDateString('fr-FR'}
                           </p>
-                          <Badge className={getPriorityColor(task.priority)}>
-                            {getPriorityText(task.priority)}
+                          <Badge className={getPriorityColor(task.priority}>
+                            {getPriorityText(task.priority}
                           </Badge>
                         </div>
                       </div>
-                    ))}
+                    );}
                 </div>
               </CardContent>
             </Card>
@@ -943,7 +936,7 @@ export default function MaintenanceManagement() : JSX.Element {
                         </div>
                         <p className="text-sm text-gray-600 dark:text-gray-400">{item.location}</p>
                         <p className="text-sm font-medium text-yellow-600">
-                          Maintenance prévue: {new Date(item.nextMaintenance).toLocaleDateString('fr-FR')}
+                          Maintenance prévue: {new Date(item.nextMaintenance).toLocaleDateString('fr-FR'}
                         </p>
                         <Button 
                           size="sm" 
@@ -970,7 +963,7 @@ export default function MaintenanceManagement() : JSX.Element {
                           Programmer Maintenance
                         </Button>
                       </div>
-                    ))}
+                    );}
                 </div>
               </CardContent>
             </Card>
@@ -991,11 +984,11 @@ export default function MaintenanceManagement() : JSX.Element {
                     
                     return (
                       <div key={status} className="flex items-center justify-between">
-                        <Badge className={getStatusColor(status)}>{getStatusText(status)}</Badge>
+                        <Badge className={getStatusColor(status}>{getStatusText(status}</Badge>
                         <div className="text-right">
                           <p className="font-semibold">{statusTasks.length} tâches</p>
                           <p className="text-xs text-gray-600 dark:text-gray-400">
-                            {percentage.toFixed(1)}%
+                            {percentage.toFixed(1}%
                           </p>
                         </div>
                       </div>

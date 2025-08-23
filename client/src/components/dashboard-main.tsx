@@ -82,14 +82,14 @@ export default function DashboardMain({ userRole = 'directeur' }: DashboardMainP
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            {getRoleTitle(userRole)}
+            {getRoleTitle(userRole}
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
             Vue d'ensemble de l'activité du café
           </p>
         </div>
         <div className="text-sm text-gray-500 dark:text-gray-400">
-          Dernière mise à jour: {new Date().toLocaleTimeString('fr-FR')}
+          Dernière mise à jour: {new Date().toLocaleTimeString('fr-FR'}
         </div>
       </div>
 
@@ -207,9 +207,9 @@ export default function DashboardMain({ userRole = 'directeur' }: DashboardMainP
                   paddingAngle={5}
                   dataKey="value"
                 >
-                  {(statusData.length > 0 ? statusData : [{ name: "Aucune donnée", value: 1, color: "#9CA3AF" )}]).map((entry, index) => (
+                  {(statusData.length > 0 ? statusData : [{ name: "Aucune donnée", value: 1, color: "#9CA3AF" }]).map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
+                  );}
                 </Pie>
                 <Tooltip />
               </PieChart>
@@ -225,7 +225,7 @@ export default function DashboardMain({ userRole = 'directeur' }: DashboardMainP
                     {item.name}: {item.value}
                   </span>
                 </div>
-              )) : (
+              );: (
                 <div className="text-sm text-gray-500">Aucune donnée disponible</div>
               )}
             </div>

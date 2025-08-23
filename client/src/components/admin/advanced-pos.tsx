@@ -125,7 +125,7 @@ export default function AdvancedPOS(): JSX.Element {
   }, []);
 
   const removeFromCart = useCallback((itemId: number) => {
-    setCart(prev => prev.filter(item => item.id !== itemId));
+    setCart(prev => prev.filter(item => item.id !== itemId);
   }, []);
 
   const updateQuantity = useCallback((itemId: number, newQuantity: number) => {
@@ -136,8 +136,7 @@ export default function AdvancedPOS(): JSX.Element {
     setCart(prev => 
       prev.map(item => 
         item.id === itemId ? { ...item, quantity: newQuantity } : item
-      )
-    );
+      );
   }, [removeFromCart]);
 
   const calculateTotals = useCallback(() => {
@@ -156,7 +155,7 @@ export default function AdvancedPOS(): JSX.Element {
       const finalTotal = totals.total + processingFee;
 
       const order: Order = {
-        id: `ORD-${Date.now()}`,
+        id: `ORD-${Date.now(}`,
         items: [...cart],
         total: finalTotal,
         tax: totals.tax,
@@ -169,7 +168,7 @@ export default function AdvancedPOS(): JSX.Element {
       };
 
       // Simulation du traitement
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 2000);
 
       setCurrentOrder(order);
       setCart([]);
@@ -205,7 +204,7 @@ export default function AdvancedPOS(): JSX.Element {
   };
 
   const filteredItems = menuItems.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase();
     const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -231,20 +230,20 @@ export default function AdvancedPOS(): JSX.Element {
                 <Input
                   placeholder="Rechercher un produit..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => setSearchTerm(e.target.value}
                   className="pl-10"
                 />
               </div>
               <select
                 value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
+                onChange={(e) => setSelectedCategory(e.target.value}
                 className="px-3 py-2 border rounded-md"
               >
                 {categories.map((category) => (
                   <option key={category} value={category}>
                     {category === 'all' ? 'Toutes catégories' : category}
                   </option>
-                ))}
+                );}
               </select>
             </div>
           </div>
@@ -254,7 +253,7 @@ export default function AdvancedPOS(): JSX.Element {
               <Card
                 key={item.id}
                 className="cursor-pointer hover:shadow-lg transition-shadow"
-                onClick={() => addToCart(item)}
+                onClick={() => addToCart(item}
               >
                 <CardContent className="p-4">
                   <div className="aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg mb-3 flex items-center justify-center">
@@ -265,13 +264,13 @@ export default function AdvancedPOS(): JSX.Element {
                     )}
                   </div>
                   <h3 className="font-semibold text-sm mb-1 truncate">{item.name}</h3>
-                  <p className="text-lg font-bold text-primary">{item.price.toFixed(2)}€</p>
+                  <p className="text-lg font-bold text-primary">{item.price.toFixed(2}€</p>
                   {item.stock !== undefined && (
                     <p className="text-xs text-gray-500">Stock: {item.stock}</p>
                   )}
                 </CardContent>
               </Card>
-            ))}
+            );}
           </div>
         </div>
 
@@ -287,13 +286,13 @@ export default function AdvancedPOS(): JSX.Element {
               <Input
                 placeholder="Nom du client (optionnel)"
                 value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
+                onChange={(e) => setCustomerName(e.target.value}
               />
               <Input
                 type="number"
                 placeholder="Numéro de table (optionnel)"
                 value={tableNumber || ''}
-                onChange={(e) => setTableNumber(e.target.value ? parseInt(e.target.value) : null)}
+                onChange={(e) => setTableNumber(e.target.value ? parseInt(e.target.value) : null}
               />
             </div>
           </div>
@@ -309,7 +308,7 @@ export default function AdvancedPOS(): JSX.Element {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => removeFromCart(item.id)}
+                      onClick={() => removeFromCart(item.id}
                       className="h-6 w-6 p-0"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -320,7 +319,7 @@ export default function AdvancedPOS(): JSX.Element {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        onClick={() => updateQuantity(item.id, item.quantity - 1}
                         className="h-8 w-8 p-0"
                       >
                         <Minus className="h-4 w-4" />
@@ -329,19 +328,18 @@ export default function AdvancedPOS(): JSX.Element {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        onClick={() => updateQuantity(item.id, item.quantity + 1}
                         className="h-8 w-8 p-0"
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
                     </div>
                     <span className="font-bold">
-                      {(item.price * item.quantity).toFixed(2)}€
+                      {(item.price * item.quantity).toFixed(2}€
                     </span>
                   </div>
                 </Card>
-              ))
-            )}
+              );}
           </div>
 
           {/* Totals */}
@@ -349,21 +347,21 @@ export default function AdvancedPOS(): JSX.Element {
             <div className="border-t pt-4 space-y-2">
               <div className="flex justify-between">
                 <span>Sous-total:</span>
-                <span>{subtotal.toFixed(2)}€</span>
+                <span>{subtotal.toFixed(2}€</span>
               </div>
               <div className="flex justify-between">
                 <span>TVA (10%):</span>
-                <span>{tax.toFixed(2)}€</span>
+                <span>{tax.toFixed(2}€</span>
               </div>
               <div className="flex justify-between font-bold text-lg">
                 <span>Total:</span>
-                <span>{total.toFixed(2)}€</span>
+                <span>{total.toFixed(2}€</span>
               </div>
 
               <Button
                 className="w-full mt-4"
                 size="lg"
-                onClick={() => setPaymentModalOpen(true)}
+                onClick={() => setPaymentModalOpen(true}
                 disabled={cart.length === 0}
               >
                 <CreditCard className="h-5 w-5 mr-2" />
@@ -383,7 +381,7 @@ export default function AdvancedPOS(): JSX.Element {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="text-center mb-4">
-                <p className="text-2xl font-bold">{total.toFixed(2)}€</p>
+                <p className="text-2xl font-bold">{total.toFixed(2}€</p>
               </div>
 
               <div className="grid grid-cols-2 gap-2">
@@ -392,24 +390,24 @@ export default function AdvancedPOS(): JSX.Element {
                     key={method.id}
                     variant={selectedPaymentMethod === method.id ? "default" : "outline"}
                     className="h-16 flex flex-col items-center"
-                    onClick={() => setSelectedPaymentMethod(method.id)}
+                    onClick={() => setSelectedPaymentMethod(method.id}
                   >
                     <method.icon className="h-6 w-6 mb-1" />
                     <span className="text-xs">{method.name}</span>
                   </Button>
-                ))}
+                );}
               </div>
 
               <div className="flex space-x-2">
                 <Button
                   variant="outline"
-                  onClick={() => setPaymentModalOpen(false)}
+                  onClick={() => setPaymentModalOpen(false}
                   className="flex-1"
                 >
                   Annuler
                 </Button>
                 <Button
-                  onClick={() => processPayment(selectedPaymentMethod)}
+                  onClick={() => processPayment(selectedPaymentMethod}
                   disabled={!selectedPaymentMethod || loading}
                   className="flex-1"
                 >
@@ -433,7 +431,7 @@ export default function AdvancedPOS(): JSX.Element {
             </CardHeader>
             <CardContent className="text-center space-y-4">
               <p>Commande #{currentOrder.id}</p>
-              <p className="text-2xl font-bold">{currentOrder.total.toFixed(2)}€</p>
+              <p className="text-2xl font-bold">{currentOrder.total.toFixed(2}€</p>
               <p className="text-sm text-gray-500">
                 Payé par {paymentMethods.find(m => m.id === currentOrder.paymentMethod)?.name}
               </p>
@@ -441,14 +439,14 @@ export default function AdvancedPOS(): JSX.Element {
               <div className="flex space-x-2">
                 <Button
                   variant="outline"
-                  onClick={() => printReceipt(currentOrder)}
+                  onClick={() => printReceipt(currentOrder}
                   className="flex-1"
                 >
                   <Printer className="h-4 w-4 mr-2" />
                   Imprimer
                 </Button>
                 <Button
-                  onClick={() => setCurrentOrder(null)}
+                  onClick={() => setCurrentOrder(null}
                   className="flex-1"
                 >
                   Nouvelle commande

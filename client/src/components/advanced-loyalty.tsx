@@ -244,8 +244,8 @@ const AdvancedLoyalty: React.FC = () => {
   // Filter members with memoization for better performance
   const filteredMembers = useMemo(() => {
     return members.filter(member => {
-      const matchesSearch = member.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         member.email.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch = member.customerName.toLowerCase().includes(searchTerm.toLowerCase();||
+                         member.email.toLowerCase().includes(searchTerm.toLowerCase();
       const matchesLevel = filterLevel === 'all' || member.currentLevel === filterLevel;
       return matchesSearch && matchesLevel;
     });
@@ -267,7 +267,7 @@ const AdvancedLoyalty: React.FC = () => {
   // Handle awarding points to a member
   const handleAwardPoints = (memberId: number) => {
     const points = prompt('Points à attribuer:');
-    if (!points || isNaN(parseInt(points))) {
+    if (!points || isNaN(parseInt(points);{
       toast({
         title: 'Valeur invalide',
         description: 'Veuillez entrer un nombre valide de points',
@@ -298,7 +298,7 @@ const AdvancedLoyalty: React.FC = () => {
           <Skeleton className="h-10 w-full" />
         </CardContent>
       </Card>
-    ));
+    );
   };
 
   return (
@@ -436,8 +436,7 @@ const AdvancedLoyalty: React.FC = () => {
                 <Skeleton className="h-4 w-24 mx-auto" />
               </CardContent>
             </Card>
-          ))
-        )}
+          );}
       </div>
 
       <Tabs defaultValue="members" className="space-y-4">
@@ -455,7 +454,7 @@ const AdvancedLoyalty: React.FC = () => {
               <Input
                 placeholder="Rechercher un membre..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => setSearchTerm(e.target.value}
                 className="pl-9"
               />
             </div>
@@ -467,14 +466,14 @@ const AdvancedLoyalty: React.FC = () => {
                 <SelectItem value="all">Tous les niveaux</SelectItem>
                 {loyaltyProgram?.levels.map(level => (
                   <SelectItem key={level.name} value={level.name}>{level.name}</SelectItem>
-                ))}
+                );}
               </SelectContent>
             </Select>
           </div>
 
           {membersLoading ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {renderLoadingSkeletons(6)}
+              {renderLoadingSkeletons(6}
             </div>
           ) : filteredMembers.length === 0 ? (
             <Card>
@@ -507,14 +506,14 @@ const AdvancedLoyalty: React.FC = () => {
                         </div>
                         <div className="flex justify-between text-sm">
                           <span>Total dépensé</span>
-                          <span>{member.totalSpent.toFixed(2)}€</span>
+                          <span>{member.totalSpent.toFixed(2}€</span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span>Vers {member.nextLevel}</span>
                           <span>{member.pointsToNextLevel} pts</span>
                         </div>
                         <Progress 
-                          value={(member.currentPoints / (member.currentPoints + member.pointsToNextLevel)) * 100} 
+                          value={(member.currentPoints / (member.currentPoints + member.pointsToNextLevel);* 100} 
                           className="h-2" 
                         />
                       </div>
@@ -535,7 +534,7 @@ const AdvancedLoyalty: React.FC = () => {
                           size="sm" 
                           variant="outline" 
                           className="flex-1"
-                          onClick={() => handleAwardPoints(member.id)}
+                          onClick={() => handleAwardPoints(member.id}
                           disabled={awardPointsMutation.isPending}
                         >
                           <Award className="w-4 h-4 mr-2" />
@@ -557,7 +556,7 @@ const AdvancedLoyalty: React.FC = () => {
         <TabsContent value="rewards" className="space-y-4">
           {rewardsLoading ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {renderLoadingSkeletons(6)}
+              {renderLoadingSkeletons(6}
             </div>
           ) : rewardsError ? (
             <Card>
@@ -571,7 +570,7 @@ const AdvancedLoyalty: React.FC = () => {
                 <p className="text-muted-foreground">Aucune récompense disponible</p>
                 <Button 
                   className="mt-4" 
-                  onClick={() => setNewRewardDialogOpen(true)}
+                  onClick={() => setNewRewardDialogOpen(true}
                 >
                   Créer une récompense
                 </Button>
@@ -596,7 +595,7 @@ const AdvancedLoyalty: React.FC = () => {
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
                           <span>Type</span>
-                          <span className="capitalize">{reward.type.replace('_', ' ')}</span>
+                          <span className="capitalize">{reward.type.replace('_', ' '}</span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span>Utilisé</span>
@@ -636,7 +635,7 @@ const AdvancedLoyalty: React.FC = () => {
                       </div>
                     </CardContent>
                   </Card>
-                ))}
+                );}
               </div>
             </>
           )}
@@ -733,7 +732,7 @@ const AdvancedLoyalty: React.FC = () => {
                                <Coffee className="w-4 h-4" />}
                               <span className="ml-2">{level.name}</span>
                             </span>
-                            <span>{count} ({percentage.toFixed(0)}%)</span>
+                            <span>{count} ({percentage.toFixed(0}%)</span>
                           </div>
                           <Progress value={percentage} className="h-2" />
                         </div>
@@ -747,7 +746,7 @@ const AdvancedLoyalty: React.FC = () => {
                         <Skeleton className="h-4 w-full" />
                         <Skeleton className="h-2 w-full" />
                       </div>
-                    ))}
+                    );}
                   </div>
                 )}
               </CardContent>
@@ -770,7 +769,7 @@ const AdvancedLoyalty: React.FC = () => {
                     </div>
                     <div className="flex justify-between">
                       <span>Dépense moyenne</span>
-                      <span className="font-bold">{stats.averageSpend.toFixed(2)}€</span>
+                      <span className="font-bold">{stats.averageSpend.toFixed(2}€</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Fréquence de visite</span>
@@ -784,7 +783,7 @@ const AdvancedLoyalty: React.FC = () => {
                         <Skeleton className="h-4 w-24" />
                         <Skeleton className="h-4 w-12" />
                       </div>
-                    ))}
+                    );}
                   </div>
                 )}
               </CardContent>
@@ -812,18 +811,18 @@ const AdvancedLoyalty: React.FC = () => {
                         <TableCell>{reward.redemptionCount}</TableCell>
                         <TableCell>
                           {members.length > 0 
-                            ? `${((reward.redemptionCount / members.length) * 100).toFixed(1)}%` 
+                            ? `${((reward.redemptionCount / members.length) * 100).toFixed(1}%` 
                             : '0%'}
                         </TableCell>
                       </TableRow>
-                    ))}
+                    );}
                   </TableBody>
                 </Table>
               ) : (
                 <div className="space-y-2">
                   {Array.from({ length: 5 }).map((_, index) => (
                     <Skeleton key={index} className="h-8 w-full" />
-                  ))}
+                  );}
                 </div>
               )}
             </CardContent>

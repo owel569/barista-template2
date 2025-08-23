@@ -78,7 +78,7 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
           isAsc ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />
         ) : (
           <ArrowUpDown className="h-4 w-4 opacity-50" />
-        )}
+        }
       </div>
     );
   };
@@ -129,7 +129,7 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
     total: filteredShifts.length,
     totalHours: filteredShifts.reduce((sum: any, shift: any) => sum + shift.totalHours, 0),
     totalCost: filteredShifts.reduce((sum: any, shift: any) => sum + shift.totalPay, 0),
-    uniqueEmployees: new Set(filteredShifts.map((s: any) => s.employeeId)).size,
+    uniqueEmployees: new Set(filteredShifts.map((s: any) => s.employeeId);.size,
     byStatus: filteredShifts.reduce((acc: any, shift: any) => {
       acc[shift.status] = (acc[shift.status] || 0) + 1;
       return acc;
@@ -153,7 +153,7 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
               <Button 
                 variant="ghost" 
                 size="sm"
-                onClick={() => setSelectedShift(null)}
+                onClick={() => setSelectedShift(null}
               >
                 ✕
               </Button>
@@ -173,7 +173,7 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
                 <label className="text-sm font-medium">Date</label>
                 <div className="flex items-center space-x-2 mt-1">
                   <Calendar className="h-4 w-4 text-gray-500" />
-                  <span>{new Date(shift.date).toLocaleDateString('fr-FR')}</span>
+                  <span>{new Date(shift.date).toLocaleDateString('fr-FR'}</span>
                 </div>
               </div>
               
@@ -183,8 +183,7 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
                   <Clock className="h-4 w-4 text-gray-500" />
                   <span>{shift.startTime} - {shift.endTime}</span>
                   <span className="text-sm text-gray-500">
-                    ({formatDuration(shift.totalHours)})
-                  </span>
+                    ({formatDuration(shift.totalHours});</span>
                 </div>
               </div>
               
@@ -210,21 +209,21 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
               <div>
                 <label className="text-sm font-medium">Statut</label>
                 <div className="mt-1">
-                  {getStatusBadge(shift.status)}
+                  {getStatusBadge(shift.status}
                 </div>
               </div>
               
               <div>
                 <label className="text-sm font-medium">Taux horaire</label>
                 <div className="mt-1">
-                  {formatCurrency(shift.hourlyRate)}/h
+                  {formatCurrency(shift.hourlyRate}/h
                 </div>
               </div>
               
               <div>
                 <label className="text-sm font-medium">Salaire total</label>
                 <div className="mt-1 font-medium">
-                  {formatCurrency(shift.totalPay)}
+                  {formatCurrency(shift.totalPay}
                 </div>
               </div>
             </div>
@@ -234,7 +233,7 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
                 <div className="flex items-center space-x-2">
                   <Clock className="h-4 w-4 text-yellow-600" />
                   <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                    Heures supplémentaires: {formatDuration(shift.overtimeHours)}
+                    Heures supplémentaires: {formatDuration(shift.overtimeHours}
                   </span>
                 </div>
               </div>
@@ -252,14 +251,14 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
             <div className="flex justify-end space-x-2 pt-4">
               <Button 
                 variant="outline" 
-                onClick={() => onShiftEdit(shift)}
+                onClick={() => onShiftEdit(shift}
               >
                 <Edit2 className="h-4 w-4 mr-2" />
                 Modifier
               </Button>
               <Button 
                 variant="destructive" 
-                onClick={() => onShiftDelete(shift.id)}
+                onClick={() => onShiftDelete(shift.id}
               >
                 <Trash2 className="h-4 w-4 mr-2" />
                 Supprimer
@@ -284,7 +283,7 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
                 <Input
                   placeholder="Rechercher..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => setSearchTerm(e.target.value}
                   className="pl-10 w-64"
                 />
               </div>
@@ -298,9 +297,9 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
           {/* Statistiques rapides */}
           <div className="flex items-center space-x-6 text-sm text-gray-600 dark:text-gray-300">
             <span>{listStats.total} shifts</span>
-            <span>{formatDuration(listStats.totalHours)} heures</span>
+            <span>{formatDuration(listStats.totalHours} heures</span>
             <span>{listStats.uniqueEmployees} employés</span>
-            <span>{formatCurrency(listStats.totalCost)}</span>
+            <span>{formatCurrency(listStats.totalCost}</span>
           </div>
         </CardHeader>
       </Card>
@@ -312,28 +311,28 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
             <TableHeader>
               <TableRow>
                 <TableHead className="cursor-pointer">
-                  {formatColumnHeader('date', 'Date')}
+                  {formatColumnHeader('date', 'Date'}
                 </TableHead>
                 <TableHead className="cursor-pointer">
-                  {formatColumnHeader('employeeId', 'Employé')}
+                  {formatColumnHeader('employeeId', 'Employé'}
                 </TableHead>
                 <TableHead className="cursor-pointer">
-                  {formatColumnHeader('startTime', 'Horaires')}
+                  {formatColumnHeader('startTime', 'Horaires'}
                 </TableHead>
                 <TableHead className="cursor-pointer">
-                  {formatColumnHeader('position', 'Poste')}
+                  {formatColumnHeader('position', 'Poste'}
                 </TableHead>
                 <TableHead className="cursor-pointer">
-                  {formatColumnHeader('department', 'Département')}
+                  {formatColumnHeader('department', 'Département'}
                 </TableHead>
                 <TableHead className="cursor-pointer">
-                  {formatColumnHeader('status', 'Statut')}
+                  {formatColumnHeader('status', 'Statut'}
                 </TableHead>
                 <TableHead className="cursor-pointer">
-                  {formatColumnHeader('totalHours', 'Durée')}
+                  {formatColumnHeader('totalHours', 'Durée'}
                 </TableHead>
                 <TableHead className="cursor-pointer">
-                  {formatColumnHeader('totalPay', 'Salaire')}
+                  {formatColumnHeader('totalPay', 'Salaire'}
                 </TableHead>
                 <TableHead className="w-10"></TableHead>
               </TableRow>
@@ -348,7 +347,7 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
                   <TableRow 
                     key={shift.id}
                     className="hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer"
-                    onClick={() => setSelectedShift(shift)}
+                    onClick={() => setSelectedShift(shift}
                   >
                     <TableCell>
                       {new Date(shift.date).toLocaleDateString('fr-FR', {
@@ -395,22 +394,22 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
                     </TableCell>
                     
                     <TableCell>
-                      {getStatusBadge(shift.status)}
+                      {getStatusBadge(shift.status}
                     </TableCell>
                     
                     <TableCell>
                       <div className="flex items-center space-x-2">
-                        <span>{formatDuration(shift.totalHours)}</span>
+                        <span>{formatDuration(shift.totalHours}</span>
                         {shift.overtimeHours && shift.overtimeHours > 0 && (
                           <Badge variant="outline" className="text-xs text-yellow-600">
-                            +{formatDuration(shift.overtimeHours)}
+                            +{formatDuration(shift.overtimeHours}
                           </Badge>
                         )}
                       </div>
                     </TableCell>
                     
                     <TableCell className="font-medium">
-                      {formatCurrency(shift.totalPay)}
+                      {formatCurrency(shift.totalPay}
                     </TableCell>
                     
                     <TableCell>
@@ -421,16 +420,16 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => setSelectedShift(shift)}>
+                          <DropdownMenuItem onClick={() => setSelectedShift(shift}>
                             <Eye className="h-4 w-4 mr-2" />
                             Voir détails
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => onShiftEdit(shift)}>
+                          <DropdownMenuItem onClick={() => onShiftEdit(shift}>
                             <Edit2 className="h-4 w-4 mr-2" />
                             Modifier
                           </DropdownMenuItem>
                           <DropdownMenuItem 
-                            onClick={() => onShiftDelete(shift.id)}
+                            onClick={() => onShiftDelete(shift.id}
                             className="text-red-600"
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
@@ -449,7 +448,7 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
             <div className="text-center py-8 text-gray-500 dark:text-gray-400">
               Aucun shift trouvé
             </div>
-          )}
+          }
         </CardContent>
       </Card>
       

@@ -70,7 +70,7 @@ const HourView: React.FC<HourViewProps> = ({ data, timeRange }) => {
             <CardTitle className="text-sm font-medium">Temps d'attente moyen</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{avgWaitTime.toFixed(1)} min</div>
+            <div className="text-2xl font-bold">{avgWaitTime.toFixed(1} min</div>
           </CardContent>
         </Card>
       </div>

@@ -112,7 +112,7 @@ export function ConfirmationDialog({
               </div>
             ) : (
               confirmText
-            )}
+            }
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -139,8 +139,7 @@ export function useConfirmationDialog() {
   }, [])
 
   const hideDialog = React.useCallback(() => {
-    setDialog(prev => ({ ...prev, open: false }))
-  }, [])
+    setDialog(prev => ({ ...prev, open: false });}, [])
 
   const confirmDelete = React.useCallback((
     itemName: string,

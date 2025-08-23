@@ -33,26 +33,26 @@ export default function Hero() : JSX.Element {
           <img src={logoBaristaCafe} alt="Barista Café Logo" className="h-48 w-48 drop-shadow-2xl" />
         </div>
         <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-fade-in drop-shadow-lg">
-          {t('home.title')} <span className="text-coffee-accent">Barista Café</span>
+          {t('home.title'} <span className="text-coffee-accent">Barista Café</span>
         </h1>
         <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto">
-          {t('home.description')}
+          {t('home.description'}
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button
-            onClick={() => setLocation("/reservation")}
+            onClick={() => setLocation("/reservation"}
             className="bg-coffee-accent hover:bg-opacity-90 text-white px-8 py-3 rounded-full text-lg font-semibold transition duration-300 transform hover:scale-105"
           >
             <Calendar className="mr-2 h-5 w-5" />
-            {t('home.cta.reserve')}
+            {t('home.cta.reserve'}
           </Button>
           <Button
-            onClick={() => scrollToSection("menu")}
+            onClick={() => scrollToSection("menu"}
             variant="outline"
             className="bg-transparent border-2 border-white hover:bg-white hover:text-coffee-dark text-white px-8 py-3 rounded-full text-lg font-semibold transition duration-300"
           >
             <Utensils className="mr-2 h-5 w-5" />
-            {t('home.cta.menu')}
+            {t('home.cta.menu'}
           </Button>
         </div>
       </div>

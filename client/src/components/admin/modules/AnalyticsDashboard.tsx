@@ -176,7 +176,7 @@ const DashboardModule: React.FC = () => {
                 <strong>Alerte IA:</strong> {alert.message}
               </AlertDescription>
             </Alert>
-          ))}
+          );}
         </div>
       )}
 
@@ -290,8 +290,7 @@ const DashboardModule: React.FC = () => {
                         <span className="text-sm">{question.question}</span>
                         <Badge variant="outline">{question.count}</Badge>
                       </div>
-                    ))
-                  ) : (
+                    );: (
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="text-sm">Heures d'ouverture</span>
@@ -382,8 +381,7 @@ const DashboardModule: React.FC = () => {
                           <span className="text-sm">{report.nextRun}</span>
                         </div>
                       </div>
-                    ))
-                  ) : (
+                    );: (
                     <div className="space-y-2">
                       <div className="flex justify-between items-center p-3 border rounded">
                         <div>
@@ -427,8 +425,8 @@ const DashboardModule: React.FC = () => {
                   aiInsights.insights.slice(0, 3).map((insight, index) => (
                     <div key={index} className="p-4 border rounded-lg">
                       <div className="flex items-start gap-3">
-                        <div className={`p-2 rounded ${getInsightBgColor(insight.type)}`}>
-                          {getInsightIcon(insight.type)}
+                        <div className={`p-2 rounded ${getInsightBgColor(insight.type}`}>
+                          {getInsightIcon(insight.type}
                         </div>
                         <div className="flex-1">
                           <h4 className="font-medium">{insight.title}</h4>
@@ -444,8 +442,7 @@ const DashboardModule: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                  ))
-                ) : (
+                  );: (
                   <div className="space-y-3">
                     <div className="p-4 border rounded-lg">
                       <div className="flex items-start gap-3">

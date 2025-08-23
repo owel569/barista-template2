@@ -92,7 +92,7 @@ export default function AdminFinal() : JSX.Element {
       if (tokenParts.length < 2 || !tokenParts[1]) {
         throw new Error('Token invalide');
       }
-      const payload = JSON.parse(atob(tokenParts[1]));
+      const payload = JSON.parse(atob(tokenParts[1]);
       setUser(payload);
     } catch (error) {
       logger.error('Token invalide:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
@@ -430,7 +430,7 @@ export default function AdminFinal() : JSX.Element {
           <div className="relative">
             <Button
               variant="outline"
-              onClick={() => setDropdownOpen(!dropdownOpen)}
+              onClick={() => setDropdownOpen(!dropdownOpen}
               className="px-3 py-2 text-sm font-medium h-9"
             >
               <Menu className="h-4 w-4 mr-2" />
@@ -453,7 +453,7 @@ export default function AdminFinal() : JSX.Element {
                         activeModule === module.id
                           ? "bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300"
                           : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
-                      )}
+                      }
                     >
                       <module.icon className="h-4 w-4 flex-shrink-0" />
                       <span className="truncate text-xs">{module.name}</span>
@@ -463,7 +463,7 @@ export default function AdminFinal() : JSX.Element {
                         </Badge>
                       )}
                     </button>
-                  ))}
+                  );}
                 </div>
               </div>
             )}

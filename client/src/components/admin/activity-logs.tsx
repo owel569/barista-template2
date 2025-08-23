@@ -124,13 +124,13 @@ export default function ActivityLogs(): JSX.Element {
       const matchesDate = log.timestamp >= startOfDay(filters.dateRange.start) && 
                          log.timestamp <= endOfDay(filters.dateRange.end);
       const matchesSearch = !filters.searchTerm || 
-        log.description.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
-        log.userName.toLowerCase().includes(filters.searchTerm.toLowerCase());
+        log.description.toLowerCase().includes(filters.searchTerm.toLowerCase();||
+        log.userName.toLowerCase().includes(filters.searchTerm.toLowerCase();
 
       return matchesCategory && matchesSeverity && matchesUser && matchesDate && matchesSearch;
     });
 
-    setFilteredLogs(filtered.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()));
+    setFilteredLogs(filtered.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime();
   }, [logs, filters]);
 
   const loadActivityLogs = async (): Promise<void> => {
@@ -231,7 +231,7 @@ export default function ActivityLogs(): JSX.Element {
         userId: 'customer-' + Math.floor(Math.random() * 1000),
         userName: 'Client ' + Math.floor(Math.random() * 1000),
         userRole: 'customer',
-        ipAddress: `192.168.1.${Math.floor(Math.random() * 255)}`,
+        ipAddress: `192.168.1.${Math.floor(Math.random() * 255}`,
         userAgent: '',
         metadata: {},
         affectedResource: '',
@@ -246,7 +246,7 @@ export default function ActivityLogs(): JSX.Element {
         userId: 'manager-' + Math.floor(Math.random() * 10),
         userName: 'Manager ' + Math.floor(Math.random() * 10),
         userRole: 'manager',
-        ipAddress: `192.168.1.${Math.floor(Math.random() * 255)}`,
+        ipAddress: `192.168.1.${Math.floor(Math.random() * 255}`,
         userAgent: '',
         metadata: {},
         affectedResource: '',
@@ -261,7 +261,7 @@ export default function ActivityLogs(): JSX.Element {
         userId: 'system',
         userName: 'Système',
         userRole: 'system',
-        ipAddress: `192.168.1.${Math.floor(Math.random() * 255)}`,
+        ipAddress: `192.168.1.${Math.floor(Math.random() * 255}`,
         userAgent: '',
         metadata: {},
         affectedResource: '',
@@ -277,7 +277,7 @@ export default function ActivityLogs(): JSX.Element {
       ...activity
     };
 
-    setLogs(prev => [newLog, ...prev].slice(0, 1000)); // Garder seulement les 1000 derniers logs
+    setLogs(prev => [newLog, ...prev].slice(0, 1000); // Garder seulement les 1000 derniers logs
   }, []);
 
   const exportLogs = useCallback((): void => {
@@ -300,7 +300,7 @@ export default function ActivityLogs(): JSX.Element {
         Description: log.description,
         Sévérité: SEVERITY_CONFIG[log.severity].label,
         'Adresse IP': log.ipAddress
-      }));
+      });
 
       if (dataToExport.length === 0) {
         toast({
@@ -313,14 +313,13 @@ export default function ActivityLogs(): JSX.Element {
 
       const csvContent = [
         Object.keys(dataToExport[0]!).join(','),
-        ...dataToExport.map(row => Object.values(row).map(value => `"${value}"`).join(','))
-      ].join('\n');
+        ...dataToExport.map(row => Object.values(row).map(value => `"${value}"`).join(',');].join('\n');
 
       const blob = new Blob([csvContent], { type: 'text/csv' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `activity-logs-${format(new Date(), 'yyyy-MM-dd')}.csv`;
+      a.download = `activity-logs-${format(new Date(), 'yyyy-MM-dd'}.csv`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -388,7 +387,7 @@ export default function ActivityLogs(): JSX.Element {
         <div className="flex gap-2">
           <Button
             variant={isRealTimeEnabled ? "default" : "outline"}
-            onClick={() => setIsRealTimeEnabled(!isRealTimeEnabled)}
+            onClick={() => setIsRealTimeEnabled(!isRealTimeEnabled}
           >
             <Activity className="h-4 w-4 mr-2" />
             Temps réel {isRealTimeEnabled ? 'ON' : 'OFF'}
@@ -441,7 +440,7 @@ export default function ActivityLogs(): JSX.Element {
                   <Input
                     placeholder="Rechercher..."
                     value={filters.searchTerm}
-                    onChange={(e) => setFilters(prev => ({ ...prev, searchTerm: e.target.value }))}
+                    onChange={(e) => setFilters(prev => ({ ...prev, searchTerm: e.target.value });}
                     className="pl-10"
                   />
                 </div>
@@ -449,7 +448,7 @@ export default function ActivityLogs(): JSX.Element {
                 <Select 
                   value={filters.category} 
                   onValueChange={(value: string) => 
-                    setFilters(prev => ({ ...prev, category: value as ActivityCategory | 'all' }))}
+                    setFilters(prev => ({ ...prev, category: value as ActivityCategory | 'all' });}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Catégorie" />
@@ -460,14 +459,14 @@ export default function ActivityLogs(): JSX.Element {
                       <SelectItem key={key} value={key}>
                         {config.label}
                       </SelectItem>
-                    ))}
+                    );}
                   </SelectContent>
                 </Select>
 
                 <Select 
                   value={filters.severity} 
                   onValueChange={(value: string) => 
-                    setFilters(prev => ({ ...prev, severity: value as ActivityLog['severity'] | 'all' }))}
+                    setFilters(prev => ({ ...prev, severity: value as ActivityLog['severity'] | 'all' });}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Sévérité" />
@@ -478,14 +477,14 @@ export default function ActivityLogs(): JSX.Element {
                       <SelectItem key={key} value={key}>
                         {config.label}
                       </SelectItem>
-                    ))}
+                    );}
                   </SelectContent>
                 </Select>
 
                 <Input
                   placeholder="ID Utilisateur"
                   value={filters.userId}
-                  onChange={(e) => setFilters(prev => ({ ...prev, userId: e.target.value }))}
+                  onChange={(e) => setFilters(prev => ({ ...prev, userId: e.target.value });}
                 />
 
                 <Button onClick={clearOldLogs} variant="outline">
@@ -558,7 +557,7 @@ export default function ActivityLogs(): JSX.Element {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={getSeverityBadgeVariant(log.severity)}>
+                          <Badge variant={getSeverityBadgeVariant(log.severity}>
                             {SEVERITY_CONFIG[log.severity].label}
                           </Badge>
                         </TableCell>
@@ -566,7 +565,7 @@ export default function ActivityLogs(): JSX.Element {
                           <Button 
                             size="sm" 
                             variant="outline"
-                            onClick={() => setSelectedLog(log)}
+                            onClick={() => setSelectedLog(log}
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
@@ -614,7 +613,7 @@ export default function ActivityLogs(): JSX.Element {
                   </div>
                   <Button
                     variant={isRealTimeEnabled ? "default" : "outline"}
-                    onClick={() => setIsRealTimeEnabled(!isRealTimeEnabled)}
+                    onClick={() => setIsRealTimeEnabled(!isRealTimeEnabled}
                   >
                     {isRealTimeEnabled ? <Unlock className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
                   </Button>
@@ -626,7 +625,7 @@ export default function ActivityLogs(): JSX.Element {
       </Tabs>
 
       {/* Dialog détails du log */}
-      <Dialog open={!!selectedLog} onOpenChange={() => setSelectedLog(null)}>
+      <Dialog open={!!selectedLog} onOpenChange={() => setSelectedLog(null}>
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>Détails de l'Activité</DialogTitle>
@@ -644,7 +643,7 @@ export default function ActivityLogs(): JSX.Element {
                 <div>
                   <Label className="font-medium">Sévérité</Label>
                   <div className="mt-1">
-                    <Badge variant={getSeverityBadgeVariant(selectedLog.severity)}>
+                    <Badge variant={getSeverityBadgeVariant(selectedLog.severity}>
                       {SEVERITY_CONFIG[selectedLog.severity].label}
                     </Badge>
                   </div>

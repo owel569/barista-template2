@@ -71,7 +71,7 @@ export function ExportToExcelButton({
         <Loader2 className="h-4 w-4 animate-spin" />
       ) : (
         <Download className="h-4 w-4" />
-      )}
+      }
       {isExporting ? 'Export en cours...' : 'Exporter (Excel)'}
     </Button>
   );

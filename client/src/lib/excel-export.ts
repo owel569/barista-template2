@@ -74,8 +74,7 @@ export const exportToExcel = async (
           const maxLength = Math.max(
             ...column.values.map((cell: any) => 
               cell ? cell.toString().length : 0
-            )
-          );
+            );
           column.width = Math.min(maxLength + 2, 50); // Max 50 caractères
         }
       });
@@ -126,7 +125,7 @@ export const exportCustomerProfiles = async (profiles: any[]): Promise<void> => 
     'Date d\'inscription': profile.loyalty?.joinDate || '',
     'Statut': profile.isActive ? 'Actif' : 'Inactif',
     'Dernière activité': profile.lastActivity || ''
-  }));
+  });
 
   await exportToExcel(exportData, {
     filename: 'profils-clients',
@@ -157,7 +156,7 @@ export const exportStatistics = async (data: any[], type: string): Promise<void>
         return {
           'Catégorie': item.category,
           'Valeur': item.value,
-          'Pourcentage': `${((item.value / data.reduce((sum, d) => sum + d.value, 0)) * 100).toFixed(2)}%`
+          'Pourcentage': `${((item.value / data.reduce((sum, d) => sum + d.value, 0);* 100).toFixed(2}%`
         };
       default:
         return item;
@@ -215,11 +214,11 @@ export const exportWithFormatting = async (
        excelRow.eachCell((cell, colNumber) => {
          const columnName = headers[colNumber - 1];
          
-         if (columnName && numberColumns.includes(columnName)) {
+         if (columnName && numberColumns.includes(columnName);{
            cell.numFmt = '#,##0';
-         } else if (columnName && dateColumns.includes(columnName)) {
+         } else if (columnName && dateColumns.includes(columnName);{
            cell.numFmt = 'dd/mm/yyyy';
-         } else if (columnName && currencyColumns.includes(columnName)) {
+         } else if (columnName && currencyColumns.includes(columnName);{
            cell.numFmt = '#,##0.00 €';
          }
        });
@@ -231,8 +230,7 @@ export const exportWithFormatting = async (
         const maxLength = Math.max(
           ...column.values.map((cell: any) => 
             cell ? cell.toString().length : 0
-          )
-        );
+          );
         column.width = Math.min(maxLength + 2, 50);
       }
     });

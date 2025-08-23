@@ -73,7 +73,7 @@ export const generateHourlyData = (timeRange: string) => {
   
   return hours.map((hourData) => {
     const variance = Math.random() * 0.4 - 0.2; // ±20% variance
-    const orders = Math.round(hourData.baseOrders * (1 + variance));
+    const orders = Math.round(hourData.baseOrders * (1 + variance);
     const revenue = orders * (30 + Math.random() * 20); // 30-50€ par commande
     const avgWaitTime = Math.round((5 + Math.random() * 10) * 10) / 10; // 5-15 min
     

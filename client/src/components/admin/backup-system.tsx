@@ -68,8 +68,7 @@ function useBackupData() {
             ...b,
             size: Number(b.size) || 0,
             tables: Array.isArray(b.tables) ? b.tables : [],
-          }))
-        : [];
+          });: [];
 
       setBackups(processedBackups);
       setSettings(settingsData);
@@ -110,8 +109,8 @@ function BackupStats({
     if (!bytes) return '0 B';
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    const i = Math.floor(Math.log(bytes) / Math.log(k);
+    return parseFloat((bytes / Math.pow(k, i);.toFixed(2);+ ' ' + sizes[i];
   };
 
   return (
@@ -136,7 +135,7 @@ function BackupStats({
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Taille Totale</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                {formatFileSize(totalSize)}
+                {formatFileSize(totalSize}
               </p>
             </div>
             <Shield className="h-8 w-8 text-green-500" />
@@ -226,8 +225,8 @@ function BackupList({
     if (!bytes) return '0 B';
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    const i = Math.floor(Math.log(bytes) / Math.log(k);
+    return parseFloat((bytes / Math.pow(k, i);.toFixed(2);+ ' ' + sizes[i];
   };
 
   const downloadBackup = async (backupId: number) => {
@@ -270,9 +269,9 @@ function BackupList({
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <h3 className="font-semibold text-gray-900 dark:text-white">{backup.name}</h3>
-                    <Badge className={getStatusColor(backup.status)}>
-                      {getStatusIcon(backup.status)}
-                      <span className="ml-1">{getStatusText(backup.status)}</span>
+                    <Badge className={getStatusColor(backup.status}>
+                      {getStatusIcon(backup.status}
+                      <span className="ml-1">{getStatusText(backup.status}</span>
                     </Badge>
                     <Badge variant="outline">
                       {backup.type === 'manual' ? 'Manuelle' : 'Automatique'}
@@ -282,18 +281,18 @@ function BackupList({
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div>
                       <span className="text-gray-600 dark:text-gray-400">Taille:</span>
-                      <p className="font-medium">{formatFileSize(backup.size)}</p>
+                      <p className="font-medium">{formatFileSize(backup.size}</p>
                     </div>
                     <div>
                       <span className="text-gray-600 dark:text-gray-400">Date:</span>
                       <p className="font-medium">
-                        {new Date(backup.createdAt).toLocaleDateString('fr-FR')}
+                        {new Date(backup.createdAt).toLocaleDateString('fr-FR'}
                       </p>
                     </div>
                     <div>
                       <span className="text-gray-600 dark:text-gray-400">Heure:</span>
                       <p className="font-medium">
-                        {new Date(backup.createdAt).toLocaleTimeString('fr-FR')}
+                        {new Date(backup.createdAt).toLocaleTimeString('fr-FR'}
                       </p>
                     </div>
                     <div>
@@ -306,7 +305,7 @@ function BackupList({
 
               <div className="flex items-center gap-2">
                 {backup.status === 'completed' && (
-                  <Button size="sm" variant="outline" onClick={() => downloadBackup(backup.id)}>
+                  <Button size="sm" variant="outline" onClick={() => downloadBackup(backup.id}>
                     <Download className="h-4 w-4" />
                   </Button>
                 )}
@@ -317,7 +316,7 @@ function BackupList({
             </div>
           </CardContent>
         </Card>
-      ))}
+      );}
     </div>
   );
 }
@@ -496,7 +495,7 @@ function BackupSchedule() {
                 </div>
                 <Badge variant="outline">Planifiée</Badge>
               </div>
-            ))}
+            );}
           </div>
         </CardContent>
       </Card>

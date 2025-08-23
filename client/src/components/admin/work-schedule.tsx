@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 
 // Chargement différé du composant principal pour une meilleure performance
-const LazyWorkSchedule = React.lazy(() => import('./work-schedule/WorkSchedule'));
+const LazyWorkSchedule = React.lazy(() => import('./work-schedule/WorkSchedule');
 
 // Composant de repli en cas d'erreur
 function ErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
@@ -75,7 +75,7 @@ export default function WorkScheduleWrapper(): JSX.Element {
     <div className="p-6">
       <ErrorBoundary
         FallbackComponent={ErrorFallback}
-        onReset={() => window.location.reload()}
+        onReset={() => window.location.reload(}
       >
         <Suspense fallback={<LoadingSkeleton />}>
           {isPermissionsLoading ? (

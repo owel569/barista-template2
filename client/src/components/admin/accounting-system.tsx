@@ -230,8 +230,8 @@ export default function AccountingSystem(): JSX.Element {
   const filteredTransactions = useMemo(() => {
     return transactions.filter(transaction => {
       const matchesType = filterType === 'all' || transaction.type === filterType;
-      const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           transaction.category.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase();||
+                           transaction.category.toLowerCase().includes(searchTerm.toLowerCase();
       return matchesType && matchesSearch;
     });
   }, [transactions, filterType, searchTerm]);
@@ -291,7 +291,7 @@ export default function AccountingSystem(): JSX.Element {
 
   const handleDeleteTransaction = useCallback(async (id: string): Promise<void> => {
     try {
-      setTransactions(prev => prev.filter(t => t.id !== id));
+      setTransactions(prev => prev.filter(t => t.id !== id);
       setShowDeleteConfirm(null);
       
       toast({
@@ -330,7 +330,7 @@ export default function AccountingSystem(): JSX.Element {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `comptabilite-${format(new Date(), 'yyyy-MM-dd')}.json`;
+      a.download = `comptabilite-${format(new Date(), 'yyyy-MM-dd'}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -369,7 +369,7 @@ export default function AccountingSystem(): JSX.Element {
             <Download className="h-4 w-4 mr-2" />
             Exporter
           </Button>
-          <Button onClick={() => setShowTransactionDialog(true)}>
+          <Button onClick={() => setShowTransactionDialog(true}>
             <Plus className="h-4 w-4 mr-2" />
             Nouvelle Transaction
           </Button>
@@ -426,7 +426,7 @@ export default function AccountingSystem(): JSX.Element {
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Marge Bénéficiaire</p>
                 <p className={`text-2xl font-bold ${financialSummary.profitMargin >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {financialSummary.profitMargin.toFixed(1)}%
+                  {financialSummary.profitMargin.toFixed(1}%
                 </p>
               </div>
               <Calculator className={`h-8 w-8 ${financialSummary.profitMargin >= 0 ? 'text-green-600' : 'text-red-600'}`} />
@@ -453,12 +453,12 @@ export default function AccountingSystem(): JSX.Element {
                     <Input
                       placeholder="Rechercher une transaction..."
                       value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
+                      onChange={(e) => setSearchTerm(e.target.value}
                       className="pl-10"
                     />
                   </div>
                 </div>
-                <Select value={filterType} onValueChange={(value: 'all' | 'income' | 'expense') => setFilterType(value)}>
+                <Select value={filterType} onValueChange={(value: 'all' | 'income' | 'expense') => setFilterType(value}>
                   <SelectTrigger className="w-48">
                     <SelectValue placeholder="Type" />
                   </SelectTrigger>
@@ -504,7 +504,7 @@ export default function AccountingSystem(): JSX.Element {
                       <TableCell>{transaction.category}</TableCell>
                       <TableCell>{transaction.description}</TableCell>
                       <TableCell className={transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}>
-                        {(transaction.type === 'income' ? '+' : '-')}
+                        {(transaction.type === 'income' ? '+' : '-'}
                         {transaction.amount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
                       </TableCell>
                       <TableCell>
@@ -527,14 +527,14 @@ export default function AccountingSystem(): JSX.Element {
                           <Button 
                             size="sm" 
                             variant="outline" 
-                            onClick={() => setShowDeleteConfirm(transaction.id)}
+                            onClick={() => setShowDeleteConfirm(transaction.id}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  );}
                 </TableBody>
               </Table>
             </CardContent>
@@ -553,7 +553,7 @@ export default function AccountingSystem(): JSX.Element {
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="font-semibold">{category.name}</h3>
                       <Badge variant={isOverBudget ? 'destructive' : 'default'}>
-                        {percentage.toFixed(1)}%
+                        {percentage.toFixed(1}%
                       </Badge>
                     </div>
                     <div className="space-y-2">
@@ -562,7 +562,7 @@ export default function AccountingSystem(): JSX.Element {
                         <span>Budget: {category.allocated.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</span>
                       </div>
                       <Progress 
-                        value={Math.min(percentage, 100)} 
+                        value={Math.min(percentage, 100} 
                         className={`w-full ${isOverBudget ? 'bg-red-100' : ''}`} 
                       />
                       {isOverBudget && (
@@ -611,7 +611,7 @@ export default function AccountingSystem(): JSX.Element {
               <div>
                 <Label htmlFor="type">Type</Label>
                 <Select value={transactionForm.type} onValueChange={(value: 'income' | 'expense') => 
-                  setTransactionForm(prev => ({ ...prev, type: value, category: '' }))}>
+                  setTransactionForm(prev => ({ ...prev, type: value, category: '' });}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -624,14 +624,14 @@ export default function AccountingSystem(): JSX.Element {
               <div>
                 <Label htmlFor="category">Catégorie</Label>
                 <Select value={transactionForm.category} onValueChange={(value) => 
-                  setTransactionForm(prev => ({ ...prev, category: value }))}>
+                  setTransactionForm(prev => ({ ...prev, category: value });}>
                   <SelectTrigger>
                     <SelectValue placeholder="Sélectionner" />
                   </SelectTrigger>
                   <SelectContent>
                     {(transactionForm.type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES).map(cat => (
                       <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                    ))}
+                    );}
                   </SelectContent>
                 </Select>
               </div>
@@ -643,7 +643,7 @@ export default function AccountingSystem(): JSX.Element {
                 type="number"
                 step="0.01"
                 value={transactionForm.amount}
-                onChange={(e) => setTransactionForm(prev => ({ ...prev, amount: e.target.value }))}
+                onChange={(e) => setTransactionForm(prev => ({ ...prev, amount: e.target.value });}
                 placeholder="0.00"
               />
             </div>
@@ -652,14 +652,14 @@ export default function AccountingSystem(): JSX.Element {
               <Input
                 id="description"
                 value={transactionForm.description}
-                onChange={(e) => setTransactionForm(prev => ({ ...prev, description: e.target.value }))}
+                onChange={(e) => setTransactionForm(prev => ({ ...prev, description: e.target.value });}
                 placeholder="Description de la transaction"
               />
             </div>
             <div>
               <Label htmlFor="paymentMethod">Mode de paiement</Label>
               <Select value={transactionForm.paymentMethod} onValueChange={(value: Transaction['paymentMethod']) => 
-                setTransactionForm(prev => ({ ...prev, paymentMethod: value }))}>
+                setTransactionForm(prev => ({ ...prev, paymentMethod: value });}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -673,7 +673,7 @@ export default function AccountingSystem(): JSX.Element {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowTransactionDialog(false)}>
+            <Button variant="outline" onClick={() => setShowTransactionDialog(false}>
               Annuler
             </Button>
             <Button onClick={handleAddTransaction}>
@@ -684,7 +684,7 @@ export default function AccountingSystem(): JSX.Element {
       </Dialog>
 
       {/* Dialog Confirmation suppression */}
-      <AlertDialog open={!!showDeleteConfirm} onOpenChange={() => setShowDeleteConfirm(null)}>
+      <AlertDialog open={!!showDeleteConfirm} onOpenChange={() => setShowDeleteConfirm(null}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
@@ -694,7 +694,7 @@ export default function AccountingSystem(): JSX.Element {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction onClick={() => showDeleteConfirm && handleDeleteTransaction(showDeleteConfirm)}>
+            <AlertDialogAction onClick={() => showDeleteConfirm && handleDeleteTransaction(showDeleteConfirm}>
               Supprimer
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -93,7 +93,7 @@ export default function Statistics({ userRole }: StatisticsProps) {
       // Revenus
       if (revenueRes.ok) {
         const revenueStats = await revenueRes.json();
-        setRevenueData(revenueStats.daily || generateMockRevenueData());
+                  setRevenueData(revenueStats.daily || generateMockRevenueData());
         setTotalStats(prev => ({
           ...prev,
           totalRevenue: revenueStats.total || 15420,
@@ -241,7 +241,7 @@ export default function Statistics({ userRole }: StatisticsProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {totalStats.totalRevenue.toLocaleString()}€
+                              {totalStats.totalRevenue.toLocaleString()}€
             </div>
             <div className="flex items-center gap-1 text-sm">
               <TrendingUp className="h-3 w-3 text-green-500" />
@@ -348,7 +348,7 @@ export default function Statistics({ userRole }: StatisticsProps) {
               >
                 {categoryData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
+                );}
               </Pie>
               <Tooltip />
             </PieChart>
@@ -395,11 +395,11 @@ export default function Statistics({ userRole }: StatisticsProps) {
                 </div>
               </div>
               <div className="text-right">
-                <div className="font-bold">{customer.spent.toFixed(2)}€</div>
+                <div className="font-bold">{customer.spent.toFixed(2}€</div>
                 <Badge variant="secondary">#{index + 1}</Badge>
               </div>
             </div>
-          ))}
+          );}
         </div>
       </CardContent>
     </Card>

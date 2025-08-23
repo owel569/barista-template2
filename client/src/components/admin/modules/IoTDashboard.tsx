@@ -224,18 +224,18 @@ const IoTDashboard: React.FC = () => {
               <Card key={sensor.id}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">{sensor.name}</CardTitle>
-                  {getSensorIcon(sensor.type)}
+                  {getSensorIcon(sensor.type}
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
                     {sensor.value} {sensor.unit}
                   </div>
                   <div className="flex items-center justify-between mt-2">
-                    {getStatusBadge(sensor.status)}
-                    {getStatusIcon(sensor.status)}
+                    {getStatusBadge(sensor.status}
+                    {getStatusIcon(sensor.status}
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Dernière mise à jour: {new Date(sensor.lastUpdate).toLocaleTimeString()}
+                    Dernière mise à jour: {new Date(sensor.lastUpdate).toLocaleTimeString(}
                   </p>
                   {sensor.threshold && (
                     <div className="mt-2">
@@ -250,7 +250,7 @@ const IoTDashboard: React.FC = () => {
                   )}
                 </CardContent>
               </Card>
-            ))}
+            );}
           </div>
         </TabsContent>
 
@@ -261,7 +261,7 @@ const IoTDashboard: React.FC = () => {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">{item.name}</CardTitle>
-                    {getStatusIcon(item.status)}
+                    {getStatusIcon(item.status}
                   </div>
                   <CardDescription>{item.category}</CardDescription>
                 </CardHeader>
@@ -274,7 +274,7 @@ const IoTDashboard: React.FC = () => {
                     </div>
                   </div>
                   
-                  {getStatusBadge(item.status)}
+                  {getStatusBadge(item.status}
                   
                   {item.metrics && (
                     <div className="space-y-2">
@@ -310,7 +310,7 @@ const IoTDashboard: React.FC = () => {
                   </Button>
                 </CardContent>
               </Card>
-            ))}
+            );}
           </div>
         </TabsContent>
 
@@ -342,7 +342,7 @@ const IoTDashboard: React.FC = () => {
                         Résoudre
                       </Button>
                     </div>
-                  ))}
+                  );}
                 </div>
               )}
             </CardContent>

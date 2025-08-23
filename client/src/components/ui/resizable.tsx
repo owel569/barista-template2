@@ -39,8 +39,7 @@ const ResizablePanelGroup = React.forwardRef<
     )}
     {...props}
   />
-))
-ResizablePanelGroup.displayName = "ResizablePanelGroup"
+);ResizablePanelGroup.displayName = "ResizablePanelGroup"
 
 const ResizablePanel = React.forwardRef<
   React.ElementRef<typeof ResizablePrimitive.Panel>,
@@ -48,11 +47,10 @@ const ResizablePanel = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ResizablePrimitive.Panel
     ref={ref}
-    className={cn("relative", className)}
+    className={cn("relative", className}
     {...props}
   />
-))
-ResizablePanel.displayName = "ResizablePanel"
+);ResizablePanel.displayName = "ResizablePanel"
 
 const resizableHandleVariants = cva(
   "relative flex items-center justify-center bg-border transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1",
@@ -99,10 +97,9 @@ const ResizableHandle = React.forwardRef<
       <div className="z-10 flex h-4 w-3 items-center justify-center rounded-sm border bg-border transition-colors hover:bg-accent">
         <GripVertical className="h-2.5 w-2.5" />
       </div>
-    )}
+    }
   </ResizablePrimitive.PanelResizeHandle>
-))
-ResizableHandle.displayName = "ResizableHandle"
+);ResizableHandle.displayName = "ResizableHandle"
 
 // Hook pour gérer les panneaux redimensionnables
 export function useResizablePanels(
@@ -189,7 +186,7 @@ export const ResizableLayout: React.FC<ResizableLayoutProps> = ({
             />
           )}
         </React.Fragment>
-      ))}
+      );}
     </ResizablePanelGroup>
   )
 }

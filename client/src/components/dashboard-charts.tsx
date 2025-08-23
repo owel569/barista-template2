@@ -125,8 +125,7 @@ export default function DashboardCharts(): JSX.Element {
       time: item.time,
       guests: item.guests,
       status: getStatusLabel(item.status),
-      statusColor: getStatusColor(item.status)
-    }))
+      statusColor: getStatusColor(item.status});)
   , [dailyReservations]);
 
   const formattedReservationsStatusData = React.useMemo(() => 
@@ -135,16 +134,14 @@ export default function DashboardCharts(): JSX.Element {
       value: item.count,
       color: getStatusColor(item.status),
       icon: statusIcons[item.status]
-    }))
-  , [reservationsByStatus]);
+    });, [reservationsByStatus]);
 
   const formattedRevenueData = React.useMemo(() => 
     revenueStats.map((item) => ({
       date: new Date(item.date).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' }),
       revenue: item.revenue,
       average: item.averageOrderValue || 0
-    }))
-  , [revenueStats]);
+    });, [revenueStats]);
 
   const formattedOrdersData = React.useMemo(() => 
     ordersByStatus.map((item) => ({
@@ -152,8 +149,7 @@ export default function DashboardCharts(): JSX.Element {
       value: item.count,
       color: getStatusColor(item.status),
       icon: statusIcons[item.status]
-    }))
-  , [ordersByStatus]);
+    });, [ordersByStatus]);
 
   // Helper functions
   function getStatusLabel(status: string): string {
@@ -215,7 +211,7 @@ export default function DashboardCharts(): JSX.Element {
             <p className="font-medium">{payload.name}</p>
           </div>
           <p>Total: {payload.value}</p>
-          <p>Pourcentage: {((payload.value / data.payload.reduce((sum: number, item: any) => sum + item.value, 0)) * 100).toFixed(1)}%</p>
+          <p>Pourcentage: {((payload.value / data.payload.reduce((sum: number, item: any) => sum + item.value, 0);* 100).toFixed(1}%</p>
         </div>
       );
     }
@@ -238,7 +234,7 @@ export default function DashboardCharts(): JSX.Element {
                 <Skeleton className="h-3 w-32" />
               </CardContent>
             </Card>
-          ))}
+          );}
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -251,7 +247,7 @@ export default function DashboardCharts(): JSX.Element {
                 <Skeleton className="h-64 w-full" />
               </CardContent>
             </Card>
-          ))}
+          );}
         </div>
       </div>
     );
@@ -284,7 +280,7 @@ export default function DashboardCharts(): JSX.Element {
               {dashboardStats?.monthlyRevenue?.toFixed(0) || 0}€
             </div>
             <p className="text-xs text-muted-foreground">
-              Moyenne: {(revenueStats.reduce((sum, item) => sum + (item.averageOrderValue || 0), 0) / (revenueStats.length || 1)).toFixed(2)}€
+              Moyenne: {(revenueStats.reduce((sum, item) => sum + (item.averageOrderValue || 0), 0) / (revenueStats.length || 1);.toFixed(2}€
             </p>
           </CardContent>
         </Card>
@@ -299,8 +295,7 @@ export default function DashboardCharts(): JSX.Element {
               {dashboardStats?.activeOrders || 0}
             </div>
             <p className="text-xs text-muted-foreground">
-              {ordersByStatus.filter(item => ['pending', 'preparing', 'ready'].includes(item.status))
-                .reduce((sum, item) => sum + item.count, 0)} en cours
+              {ordersByStatus.filter(item => ['pending', 'preparing', 'ready'].includes(item.status);.reduce((sum, item) => sum + item.count, 0} en cours
             </p>
           </CardContent>
         </Card>
@@ -368,7 +363,7 @@ export default function DashboardCharts(): JSX.Element {
                   cy="50%"
                   labelLine={false}
                   label={({ name, percent }) => 
-                    `${name} ${(percent * 100).toFixed(0)}%`
+                    `${name} ${(percent * 100).toFixed(0}%`
                   }
                   outerRadius={80}
                   innerRadius={40}
@@ -377,7 +372,7 @@ export default function DashboardCharts(): JSX.Element {
                 >
                   {formattedReservationsStatusData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
+                  );}
                 </Pie>
                 <Legend 
                   formatter={(value, entry, index) => {
@@ -457,7 +452,7 @@ export default function DashboardCharts(): JSX.Element {
                   cy="50%"
                   labelLine={false}
                   label={({ name, percent }) => 
-                    `${name} ${(percent * 100).toFixed(0)}%`
+                    `${name} ${(percent * 100).toFixed(0}%`
                   }
                   outerRadius={80}
                   innerRadius={40}
@@ -466,7 +461,7 @@ export default function DashboardCharts(): JSX.Element {
                 >
                   {formattedOrdersData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
+                  );}
                 </Pie>
                 <Legend 
                   formatter={(value, entry, index) => {

@@ -153,7 +153,7 @@ const Pagination: React.FC<{
         <Button
           variant="outline"
           size="sm"
-          onClick={() => onPageChange(1)}
+          onClick={() => onPageChange(1}
           disabled={currentPage === 1}
           aria-label="Première page"
         >
@@ -162,7 +162,7 @@ const Pagination: React.FC<{
         <Button
           variant="outline"
           size="sm"
-          onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+          onClick={() => onPageChange(Math.max(1, currentPage - 1);}
           disabled={currentPage === 1}
           aria-label="Page précédente"
         >
@@ -178,7 +178,7 @@ const Pagination: React.FC<{
         <Button
           variant="outline"
           size="sm"
-          onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+          onClick={() => onPageChange(Math.min(totalPages, currentPage + 1);}
           disabled={currentPage === totalPages}
           aria-label="Page suivante"
         >
@@ -187,7 +187,7 @@ const Pagination: React.FC<{
         <Button
           variant="outline"
           size="sm"
-          onClick={() => onPageChange(totalPages)}
+          onClick={() => onPageChange(totalPages}
           disabled={currentPage === totalPages}
           aria-label="Dernière page"
         >
@@ -237,7 +237,7 @@ export default function StatisticsEnhanced({ userRole, cafeId }: StatisticsEnhan
       const coloredCategoryData = data.categoryData.map((category, index) => ({
         ...category,
         color: category.color || COLORS[index % COLORS.length]
-      }));
+      });
 
       setStatistics({
         ...data,
@@ -292,8 +292,7 @@ export default function StatisticsEnhanced({ userRole, cafeId }: StatisticsEnhan
     return statistics.revenueData.map((item) => ({
       ...item,
       avgOrderValue: item.revenue / item.orders || 0,
-      formattedDate: format(parseISO(item.date), 'dd MMM', { locale: fr })
-    }));
+      formattedDate: format(parseISO(item.date), 'dd MMM', { locale: fr }}););
   }, [statistics?.revenueData]);
 
   // Articles populaires dynamiques (mémorisés)
@@ -329,7 +328,7 @@ export default function StatisticsEnhanced({ userRole, cafeId }: StatisticsEnhan
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `statistiques-cafe-${cafeId}-${format(new Date(), 'yyyy-MM-dd')}.xlsx`;
+      a.download = `statistiques-cafe-${cafeId}-${format(new Date(), 'yyyy-MM-dd'}.xlsx`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -362,7 +361,7 @@ export default function StatisticsEnhanced({ userRole, cafeId }: StatisticsEnhan
 
   // Formatage des pourcentages
   const formatPercentage = (value: number) => {
-    return `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
+    return `${value >= 0 ? '+' : ''}${value.toFixed(1}%`;
   };
 
   // Formatage de la date
@@ -395,7 +394,7 @@ export default function StatisticsEnhanced({ userRole, cafeId }: StatisticsEnhan
                 <Skeleton className="h-4 w-full mt-2" />
               </CardContent>
             </Card>
-          ))}
+          );}
         </div>
         
         <Card>
@@ -502,18 +501,18 @@ export default function StatisticsEnhanced({ userRole, cafeId }: StatisticsEnhan
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(statistics.totalStats.totalRevenue)}
+              {formatCurrency(statistics.totalStats.totalRevenue}
             </div>
             <p className="text-xs text-muted-foreground">
               {statistics.totalStats.totalRevenue >= 0 ? (
                 <TrendingUp className="h-3 w-3 inline mr-1 text-green-500" />
               ) : (
                 <TrendingDown className="h-3 w-3 inline mr-1 text-red-500" />
-              )}
+              }
               {formatPercentage(
                 (statistics.totalStats.totalRevenue / 
-                 (statistics.totalStats.totalRevenue - statistics.totalStats.profitMargin)) * 100
-              )} par rapport à la période précédente
+                 (statistics.totalStats.totalRevenue - statistics.totalStats.profitMargin);* 100
+              } par rapport à la période précédente
             </p>
           </CardContent>
         </Card>
@@ -529,8 +528,8 @@ export default function StatisticsEnhanced({ userRole, cafeId }: StatisticsEnhan
               <TrendingUp className="h-3 w-3 inline mr-1 text-green-500" />
               {formatPercentage(
                 (statistics.totalStats.totalOrders / 
-                 (statistics.totalStats.totalCustomers || 1)) * 100
-              )} commandes par client
+                 (statistics.totalStats.totalCustomers || 1);* 100
+              } commandes par client
             </p>
           </CardContent>
         </Card>
@@ -544,7 +543,7 @@ export default function StatisticsEnhanced({ userRole, cafeId }: StatisticsEnhan
             <div className="text-2xl font-bold">{statistics.totalStats.totalCustomers}</div>
             <p className="text-xs text-muted-foreground">
               <TrendingUp className="h-3 w-3 inline mr-1 text-green-500" />
-              {formatPercentage(statistics.totalStats.totalCustomers / 100)} fidélisation
+              {formatPercentage(statistics.totalStats.totalCustomers / 100} fidélisation
             </p>
           </CardContent>
         </Card>
@@ -556,15 +555,15 @@ export default function StatisticsEnhanced({ userRole, cafeId }: StatisticsEnhan
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(statistics.totalStats.avgOrderValue)}
+              {formatCurrency(statistics.totalStats.avgOrderValue}
             </div>
             <p className="text-xs text-muted-foreground">
               {statistics.totalStats.avgOrderValue >= 0 ? (
                 <TrendingUp className="h-3 w-3 inline mr-1 text-green-500" />
               ) : (
                 <TrendingDown className="h-3 w-3 inline mr-1 text-red-500" />
-              )}
-              {formatPercentage(statistics.totalStats.avgOrderValue / 10)} évolution
+              }
+              {formatPercentage(statistics.totalStats.avgOrderValue / 10} évolution
             </p>
           </CardContent>
         </Card>
@@ -588,14 +587,14 @@ export default function StatisticsEnhanced({ userRole, cafeId }: StatisticsEnhan
                   <Button
                     variant={statsFilter === 'revenue' ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setStatsFilter('revenue')}
+                    onClick={() => setStatsFilter('revenue'}
                   >
                     Revenus
                   </Button>
                   <Button
                     variant={statsFilter === 'profit' ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setStatsFilter('profit')}
+                    onClick={() => setStatsFilter('profit'}
                   >
                     Profit
                   </Button>
@@ -613,7 +612,7 @@ export default function StatisticsEnhanced({ userRole, cafeId }: StatisticsEnhan
                       tick={{ fontSize: 12 }}
                     />
                     <YAxis 
-                      tickFormatter={(value) => formatCurrency(value)}
+                      tickFormatter={(value) => formatCurrency(value}
                       tick={{ fontSize: 12 }}
                     />
                     <Tooltip
@@ -666,7 +665,7 @@ export default function StatisticsEnhanced({ userRole, cafeId }: StatisticsEnhan
                             key={`cell-${index}`} 
                             fill={entry.color || COLORS[index % COLORS.length]} 
                           />
-                        ))}
+                        );}
                       </Pie>
                       <Tooltip
                         formatter={(value) => [`${value}%`, 'Part de marché']}
@@ -706,12 +705,12 @@ export default function StatisticsEnhanced({ userRole, cafeId }: StatisticsEnhan
                               <TrendingUp className="h-3 w-3" /> : 
                               <TrendingDown className="h-3 w-3" />
                             }
-                            {formatPercentage(item.growth)}
+                            {formatPercentage(item.growth}
                           </Badge>
                         </div>
                       </div>
                     </div>
-                  ))}
+                  );}
                 </div>
               </CardContent>
             </Card>
@@ -739,15 +738,15 @@ export default function StatisticsEnhanced({ userRole, cafeId }: StatisticsEnhan
                       <div>
                         <div className="font-medium">{customer.name}</div>
                         <div className="text-sm text-gray-600">
-                          {customer.visits} visites • Dernière visite: {formatDate(customer.lastVisit)}
+                          {customer.visits} visites • Dernière visite: {formatDate(customer.lastVisit}
                         </div>
                       </div>
                     </div>
                     <div className="text-lg font-bold text-green-600">
-                      {formatCurrency(customer.spent)}
+                      {formatCurrency(customer.spent}
                     </div>
                   </div>
-                ))}
+                );}
               </div>
               
               {/* Pagination */}
@@ -780,7 +779,7 @@ export default function StatisticsEnhanced({ userRole, cafeId }: StatisticsEnhan
                     <YAxis 
                       yAxisId="left" 
                       orientation="left" 
-                      tickFormatter={(value) => formatCurrency(value)}
+                      tickFormatter={(value) => formatCurrency(value}
                     />
                     <YAxis 
                       yAxisId="right" 
@@ -851,7 +850,7 @@ export default function StatisticsEnhanced({ userRole, cafeId }: StatisticsEnhan
                 <YAxis 
                   yAxisId="right" 
                   orientation="right" 
-                  tickFormatter={(value) => formatCurrency(value)}
+                  tickFormatter={(value) => formatCurrency(value}
                 />
                 <Tooltip
                   formatter={(value, name) => [

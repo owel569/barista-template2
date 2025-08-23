@@ -33,7 +33,7 @@ export default function LanguageSelector() : JSX.Element {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="gap-2 justify-start">
           <Languages className="w-4 h-4" />
-          <span className="hidden sm:inline">{t('nav.language')}</span>
+          <span className="hidden sm:inline">{t('nav.language'}</span>
           <span className="text-sm">{languageFlags[language]}</span>
         </Button>
       </DropdownMenuTrigger>
@@ -41,14 +41,14 @@ export default function LanguageSelector() : JSX.Element {
         {Object.entries(languageNames).map(([code, name]) => (
           <DropdownMenuItem
             key={code}
-            onClick={() => setLanguage(code as Language)}
+            onClick={() => setLanguage(code as Language}
             className={`gap-2 ${language === code ? 'bg-accent' : ''}`}
           >
             <span>{languageFlags[code as Language]}</span>
             <span>{name}</span>
             {language === code && <span className="ml-auto text-xs">✓</span>}
           </DropdownMenuItem>
-        ))}
+        );}
       </DropdownMenuContent>
     </DropdownMenu>
   );

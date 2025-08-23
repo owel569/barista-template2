@@ -37,7 +37,7 @@ const ProductView: React.FC<ProductViewProps> = ({ data, timeRange }) => {
             <CardTitle className="text-sm font-medium">Revenus produits</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">€{totalRevenue.toLocaleString()}</div>
+            <div className="text-2xl font-bold">€{totalRevenue.toLocaleString(}</div>
           </CardContent>
         </Card>
       </div>
@@ -62,7 +62,7 @@ const ProductView: React.FC<ProductViewProps> = ({ data, timeRange }) => {
                 >
                   {data.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
+                  );}
                 </Pie>
                 <Tooltip formatter={(value: number) => [value, 'Ventes']} />
               </PieChart>
@@ -127,7 +127,7 @@ const ProductView: React.FC<ProductViewProps> = ({ data, timeRange }) => {
                   <div className="text-sm text-muted-foreground">{product.sales} ventes</div>
                 </div>
               </div>
-            ))}
+            );}
           </div>
         </CardContent>
       </Card>

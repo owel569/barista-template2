@@ -101,9 +101,9 @@ export const RealTimeKPIs: React.FC<RealTimeKPIsProps> = ({ data }) => {
       case 'currency':
         return value.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
       case 'percentage':
-        return `${value.toFixed(1)}%`;
+        return `${value.toFixed(1}%`;
       case 'rating':
-        return `${value.toFixed(1)}/5`;
+        return `${value.toFixed(1}/5`;
       default:
         return value.toLocaleString('fr-FR');
     }
@@ -135,23 +135,23 @@ export const RealTimeKPIs: React.FC<RealTimeKPIsProps> = ({ data }) => {
                   variant={kpi.progress >= 80 ? "default" : kpi.progress >= 60 ? "secondary" : "destructive"}
                   className="text-xs"
                 >
-                  {kpi.progress.toFixed(0)}%
+                  {kpi.progress.toFixed(0}%
                 </Badge>
               </div>
               
               <div className="text-2xl font-bold mb-2 text-gray-900">
-                {formatValue(kpi.value, kpi.format)}
+                {formatValue(kpi.value, kpi.format}
               </div>
               
               <div className="space-y-1">
                 <div className="flex justify-between text-xs text-gray-600">
-                  <span>Objectif: {formatValue(kpi.target, kpi.format)}</span>
-                  <span>{kpi.progress.toFixed(1)}%</span>
+                  <span>Objectif: {formatValue(kpi.target, kpi.format}</span>
+                  <span>{kpi.progress.toFixed(1}%</span>
                 </div>
                 <Progress value={kpi.progress} className="h-2" />
               </div>
             </div>
-          ))}
+          );}
         </div>
       </CardContent>
     </Card>

@@ -89,7 +89,7 @@ export default function Gallery() : JSX.Element {
               <Button
                 key={category.id}
                 variant={selectedCategory === category.id ? "default" : "outline"}
-                onClick={() => setSelectedCategory(category.id)}
+                onClick={() => setSelectedCategory(category.id}
                 className="mb-2"
               >
                 {category.name}
@@ -97,7 +97,7 @@ export default function Gallery() : JSX.Element {
                   {category.count}
                 </Badge>
               </Button>
-            ))}
+            );}
           </div>
         </div>
 
@@ -143,7 +143,7 @@ export default function Gallery() : JSX.Element {
                 </div>
               </DialogContent>
             </Dialog>
-          ))}
+          );}
         </div>
 
         {/* Information Cards */}
@@ -195,7 +195,7 @@ export default function Gallery() : JSX.Element {
               Essayez une autre catégorie pour voir nos photos.
             </p>
           </div>
-        )}
+        }
       </div>
     </div>
   );

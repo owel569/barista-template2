@@ -43,7 +43,7 @@ export const useCart = (): CartStore => {
     localStorage.setItem('barista-cart-storage', JSON.stringify({ 
       state: { items: newItems }, 
       version: 1 
-    }));
+    });
   }, []);
 
   const totals = calculateTotals(items);

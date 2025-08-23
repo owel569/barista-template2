@@ -3,8 +3,7 @@ import { twMerge } from "tailwind-merge"
 import { sanitizeString, SECURITY_LIMITS } from "./security"
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
+  return twMerge(clsx(inputs);}
 
 /**
  * Formate une devise de manière sécurisée
@@ -17,21 +16,19 @@ export function formatCurrency(
   // Validation et sanitisation
   const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount
   
-  if (isNaN(numAmount) || !isFinite(numAmount)) {
+  if (isNaN(numAmount) || !isFinite(numAmount);{
     return '0,00 €'
   }
   
   // Limitation des montants extrêmes pour éviter les problèmes
-  const safeAmount = Math.max(-999999999, Math.min(999999999, numAmount))
-  
-  try {
+  const safeAmount = Math.max(-999999999, Math.min(999999999, numAmount);try {
     return new Intl.NumberFormat(locale, {
       style: 'currency',
       currency: currency,
     }).format(safeAmount)
   } catch {
     // Fallback en cas d'erreur de formatage
-    return `${safeAmount.toFixed(2)} ${currency}`
+    return `${safeAmount.toFixed(2} ${currency}`
   }
 }
 
@@ -60,7 +57,7 @@ export function formatDate(
       dateObj = date
     }
     
-    if (isNaN(dateObj.getTime())) {
+    if (isNaN(dateObj.getTime();{
       throw new Error('Invalid date')
     }
     
@@ -91,8 +88,7 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
     lastCallTime = now
     
     clearTimeout(timeout)
-    timeout = setTimeout(() => func(...args), Math.max(10, Math.min(5000, wait)))
-  }) as T
+    timeout = setTimeout(() => func(...args), Math.max(10, Math.min(5000, wait);});as T
 }
 
 /**
@@ -108,7 +104,7 @@ export function generateId(prefix: string = ''): string {
   // Génération d'un ID cryptographiquement sécurisé
   const array = new Uint8Array(6)
   crypto.getRandomValues(array)
-  const randomString = Array.from(array, byte => byte.toString(36)).join('')
+  const randomString = Array.from(array, byte => byte.toString(36);.join('')
   
   const timestamp = Date.now().toString(36)
   
@@ -141,8 +137,7 @@ export function truncate(str: string, length: number = 100, suffix: string = '..
   }
   
   // Validation de la longueur
-  const safeLength = Math.max(1, Math.min(SECURITY_LIMITS.MAX_STRING_LENGTH, length))
-  const safeSuffix = sanitizeString(suffix, { maxLength: 10 })
+  const safeLength = Math.max(1, Math.min(SECURITY_LIMITS.MAX_STRING_LENGTH, length);const safeSuffix = sanitizeString(suffix, { maxLength: 10 })
   
   const sanitized = sanitizeString(str, { maxLength: SECURITY_LIMITS.MAX_STRING_LENGTH })
   
@@ -192,7 +187,7 @@ export function safeNumber(
     num = defaultValue
   }
   
-  if (isNaN(num) || !isFinite(num)) {
+  if (isNaN(num) || !isFinite(num);{
     return defaultValue
   }
   
@@ -233,15 +228,15 @@ export function safeDeepClone<T>(obj: T, maxDepth: number = SECURITY_LIMITS.MAX_
   }
   
   if (obj instanceof Date) {
-    return new Date(obj.getTime()) as T
+    return new Date(obj.getTime();as T
   }
   
-  if (Array.isArray(obj)) {
+  if (Array.isArray(obj);{
     if (obj.length > SECURITY_LIMITS.MAX_ARRAY_LENGTH) {
       console.warn('Array too large for safe cloning')
       return obj.slice(0, SECURITY_LIMITS.MAX_ARRAY_LENGTH) as T
     }
-    return obj.map(item => safeDeepClone(item, maxDepth - 1)) as T
+    return obj.map(item => safeDeepClone(item, maxDepth - 1);as T
   }
   
   const cloned = {} as T
@@ -253,7 +248,7 @@ export function safeDeepClone<T>(obj: T, maxDepth: number = SECURITY_LIMITS.MAX_
       break
     }
     
-    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+    if (Object.prototype.hasOwnProperty.call(obj, key);{
       cloned[key] = safeDeepClone(obj[key], maxDepth - 1)
       propCount++
     }
@@ -286,17 +281,17 @@ export function safeEqual(a: unknown, b: unknown, maxDepth: number = 10): boolea
     return a === b
   }
   
-  if (Array.isArray(a) !== Array.isArray(b)) {
+  if (Array.isArray(a) !== Array.isArray(b);{
     return false
   }
   
-  if (Array.isArray(a) && Array.isArray(b)) {
+  if (Array.isArray(a) && Array.isArray(b);{
     if (a.length !== b.length) {
       return false
     }
     
     for (let i = 0; i < a.length; i++) {
-      if (!safeEqual(a[i], b[i], maxDepth - 1)) {
+      if (!safeEqual(a[i], b[i], maxDepth - 1);{
         return false
       }
     }
@@ -312,11 +307,11 @@ export function safeEqual(a: unknown, b: unknown, maxDepth: number = 10): boolea
   }
   
   for (const key of keysA) {
-    if (!keysB.includes(key)) {
+    if (!keysB.includes(key);{
       return false
     }
     
-    if (!safeEqual((a as any)[key], (b as any)[key], maxDepth - 1)) {
+    if (!safeEqual((a as any)[key], (b as any)[key], maxDepth - 1);{
       return false
     }
   }
@@ -335,9 +330,7 @@ export function formatBytes(bytes: number, decimals: number = 2): string {
   
   const k = 1024
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB']
-  const i = Math.floor(Math.log(safeBytes) / Math.log(k))
-  
-  return parseFloat((safeBytes / Math.pow(k, i)).toFixed(safeDecimals)) + ' ' + sizes[i]
+  const i = Math.floor(Math.log(safeBytes) / Math.log(k);return parseFloat((safeBytes / Math.pow(k, i);.toFixed(safeDecimals);+ ' ' + sizes[i]
 }
 
 /**
@@ -358,5 +351,5 @@ export function isValidHexColor(color: string): boolean {
 export function generateRandomColor(): string {
   const array = new Uint8Array(3)
   crypto.getRandomValues(array)
-  return '#' + Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('')
+  return '#' + Array.from(array, byte => byte.toString(16).padStart(2, '0');.join('')
 }

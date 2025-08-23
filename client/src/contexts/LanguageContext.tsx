@@ -40,28 +40,28 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
       let translations;
       switch (lang) {
         case 'fr':
-          translations = (await import('../translations/fr')).default;
+          translations = (await import('../translations/fr');.default;
           break;
         case 'en':
-          translations = (await import('../translations/en')).default;
+          translations = (await import('../translations/en');.default;
           break;
         case 'zh':
-          translations = (await import('../translations/zh')).default;
+          translations = (await import('../translations/zh');.default;
           break;
         case 'hi':
-          translations = (await import('../translations/hi')).default;
+          translations = (await import('../translations/hi');.default;
           break;
         case 'es':
-          translations = (await import('../translations/es')).default;
+          translations = (await import('../translations/es');.default;
           break;
         default:
-          translations = (await import('../translations/fr')).default;
+          translations = (await import('../translations/fr');.default;
       }
       setTranslations(translations);
     } catch (error) {
-      console.error(`Failed to load translations for ${lang)}:`, error);
+      console.error(`Failed to load translations for ${lang}:`, error);
       // Fallback to French
-      const fallback = (await import('../translations/fr')).default;
+      const fallback = (await import('../translations/fr');.default;
       setTranslations(fallback);
     }
   };

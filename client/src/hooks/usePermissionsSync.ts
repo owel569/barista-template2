@@ -44,7 +44,7 @@ export function usePermissionsSync() : void {
           refreshPermissions();
         }
       } catch (error) {
-        logger.error('Erreur WebSocket permissions:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+        logger.error('Erreur WebSocket permissions:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       }
     };
 
