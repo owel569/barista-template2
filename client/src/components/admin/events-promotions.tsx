@@ -78,7 +78,7 @@ const eventSchema = z.object({
   maxAttendees: z.number().min(1, "Nombre maximum de participants requis"),
   price: z.number().min(0, "Prix requis"),
   imageUrl: z.string().optional(),
-  requirements: z.array(z.string()).optional(),
+  requirements: z.array(z.string();.optional(),
 });
 
 const promotionSchema = z.object({
@@ -298,9 +298,7 @@ export default function EventsPromotions(): JSX.Element {
           currentAttendees: selectedEvent?.currentAttendees || 0,
           tags: [],
           createdAt: selectedEvent?.createdAt || new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        })
-      });
+          updatedAt: new Date().toISOString(});});
 
       if (response.ok) {
         toast({
@@ -327,7 +325,7 @@ export default function EventsPromotions(): JSX.Element {
       };
 
       if (selectedEvent) {
-        setEvents(prev => prev.map(e => e.id === selectedEvent.id ? newEvent : e));
+        setEvents(prev => prev.map(e => e.id === selectedEvent.id ? newEvent : e);
       } else {
         setEvents(prev => [...prev, newEvent]);
       }
@@ -360,9 +358,7 @@ export default function EventsPromotions(): JSX.Element {
           usageCount: selectedPromotion?.usageCount || 0,
           applicableItems: [],
           createdAt: selectedPromotion?.createdAt || new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        })
-      });
+          updatedAt: new Date().toISOString(});});
 
       if (response.ok) {
         toast({
@@ -390,7 +386,7 @@ export default function EventsPromotions(): JSX.Element {
       };
 
       if (selectedPromotion) {
-        setPromotions(prev => prev.map(p => p.id === selectedPromotion.id ? newPromotion : p));
+        setPromotions(prev => prev.map(p => p.id === selectedPromotion.id ? newPromotion : p);
       } else {
         setPromotions(prev => [...prev, newPromotion]);
       }
@@ -441,8 +437,8 @@ export default function EventsPromotions(): JSX.Element {
   };
 
   const handleDeleteEvent = (id: number) => {
-    if (confirm("Êtes-vous sûr de vouloir supprimer cet événement ?")) {
-      setEvents(prev => prev.filter(e => e.id !== id));
+    if (confirm("Êtes-vous sûr de vouloir supprimer cet événement ?");{
+      setEvents(prev => prev.filter(e => e.id !== id);
       toast({ 
         title: "Événement supprimé", 
         description: "L'événement a été supprimé avec succès" 
@@ -451,8 +447,8 @@ export default function EventsPromotions(): JSX.Element {
   };
 
   const handleDeletePromotion = (id: number) => {
-    if (confirm("Êtes-vous sûr de vouloir supprimer cette promotion ?")) {
-      setPromotions(prev => prev.filter(p => p.id !== id));
+    if (confirm("Êtes-vous sûr de vouloir supprimer cette promotion ?");{
+      setPromotions(prev => prev.filter(p => p.id !== id);
       toast({ 
         title: "Promotion supprimée", 
         description: "La promotion a été supprimée avec succès" 
@@ -508,7 +504,7 @@ export default function EventsPromotions(): JSX.Element {
         <div className="flex space-x-2">
           <Dialog open={showEventDialog} onOpenChange={setShowEventDialog}>
             <DialogTrigger asChild>
-              <Button onClick={() => setSelectedEvent(null)}>
+              <Button onClick={() => setSelectedEvent(null}>
                 <Plus className="h-4 w-4 mr-2" />
                 Nouvel Événement
               </Button>
@@ -523,7 +519,7 @@ export default function EventsPromotions(): JSX.Element {
                 </DialogDescription>
               </DialogHeader>
               <Form {...eventForm}>
-                <form onSubmit={eventForm.handleSubmit(handleEventSubmit)} className="space-y-4">
+                <form onSubmit={eventForm.handleSubmit(handleEventSubmit} className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={eventForm.control}
@@ -642,7 +638,7 @@ export default function EventsPromotions(): JSX.Element {
                             <Input 
                               type="number" 
                               {...field} 
-                              onChange={e => field.onChange(parseInt(e.target.value) || 0)}
+                              onChange={e => field.onChange(parseInt(e.target.value) || 0}
                             />
                           </FormControl>
                           <FormMessage />
@@ -662,7 +658,7 @@ export default function EventsPromotions(): JSX.Element {
                               type="number" 
                               step="0.01" 
                               {...field} 
-                              onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
+                              onChange={e => field.onChange(parseFloat(e.target.value) || 0}
                             />
                           </FormControl>
                           <FormMessage />
@@ -684,7 +680,7 @@ export default function EventsPromotions(): JSX.Element {
                     />
                   </div>
                   <div className="flex justify-end space-x-2">
-                    <Button type="button" variant="outline" onClick={() => setShowEventDialog(false)}>
+                    <Button type="button" variant="outline" onClick={() => setShowEventDialog(false}>
                       Annuler
                     </Button>
                     <Button type="submit">
@@ -698,7 +694,7 @@ export default function EventsPromotions(): JSX.Element {
 
           <Dialog open={showPromotionDialog} onOpenChange={setShowPromotionDialog}>
             <DialogTrigger asChild>
-              <Button variant="outline" onClick={() => setSelectedPromotion(null)}>
+              <Button variant="outline" onClick={() => setSelectedPromotion(null}>
                 <Gift className="h-4 w-4 mr-2" />
                 Nouvelle Promotion
               </Button>
@@ -713,7 +709,7 @@ export default function EventsPromotions(): JSX.Element {
                 </DialogDescription>
               </DialogHeader>
               <Form {...promotionForm}>
-                <form onSubmit={promotionForm.handleSubmit(handlePromotionSubmit)} className="space-y-4">
+                <form onSubmit={promotionForm.handleSubmit(handlePromotionSubmit} className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={promotionForm.control}
@@ -778,7 +774,7 @@ export default function EventsPromotions(): JSX.Element {
                               type="number" 
                               step="0.01" 
                               {...field} 
-                              onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
+                              onChange={e => field.onChange(parseFloat(e.target.value) || 0}
                             />
                           </FormControl>
                           <FormMessage />
@@ -821,7 +817,7 @@ export default function EventsPromotions(): JSX.Element {
                               type="number" 
                               step="0.01" 
                               {...field} 
-                              onChange={e => field.onChange(parseFloat(e.target.value) || undefined)}
+                              onChange={e => field.onChange(parseFloat(e.target.value) || undefined}
                             />
                           </FormControl>
                           <FormMessage />
@@ -839,7 +835,7 @@ export default function EventsPromotions(): JSX.Element {
                               type="number" 
                               step="0.01" 
                               {...field} 
-                              onChange={e => field.onChange(parseFloat(e.target.value) || undefined)}
+                              onChange={e => field.onChange(parseFloat(e.target.value) || undefined}
                             />
                           </FormControl>
                           <FormMessage />
@@ -886,7 +882,7 @@ export default function EventsPromotions(): JSX.Element {
                             <Input 
                               type="number" 
                               {...field} 
-                              onChange={e => field.onChange(parseInt(e.target.value) || undefined)}
+                              onChange={e => field.onChange(parseInt(e.target.value) || undefined}
                             />
                           </FormControl>
                           <FormMessage />
@@ -908,7 +904,7 @@ export default function EventsPromotions(): JSX.Element {
                     />
                   </div>
                   <div className="flex justify-end space-x-2">
-                    <Button type="button" variant="outline" onClick={() => setShowPromotionDialog(false)}>
+                    <Button type="button" variant="outline" onClick={() => setShowPromotionDialog(false}>
                       Annuler
                     </Button>
                     <Button type="submit">
@@ -934,13 +930,13 @@ export default function EventsPromotions(): JSX.Element {
               <Card key={event.id} className="hover:shadow-md transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
-                    <Badge className={getStatusColor(event.status)}>
-                      {getStatusText(event.status)}
+                    <Badge className={getStatusColor(event.status}>
+                      {getStatusText(event.status}
                     </Badge>
                     <div className="flex items-center space-x-1">
-                      {getEventTypeIcon(event.type)}
+                      {getEventTypeIcon(event.type}
                       <span className="text-sm text-gray-600">
-                        {formatEventType(event.type)}
+                        {formatEventType(event.type}
                       </span>
                     </div>
                   </div>
@@ -951,7 +947,7 @@ export default function EventsPromotions(): JSX.Element {
                   <div className="space-y-2">
                     <div className="flex items-center text-sm text-gray-600">
                       <Calendar className="h-4 w-4 mr-2" />
-                      {new Date(event.date).toLocaleDateString('fr-FR')}
+                      {new Date(event.date).toLocaleDateString('fr-FR'}
                     </div>
                     <div className="flex items-center text-sm text-gray-600">
                       <Clock className="h-4 w-4 mr-2" />
@@ -967,7 +963,7 @@ export default function EventsPromotions(): JSX.Element {
                     </div>
                     <div className="flex items-center justify-between pt-2">
                       <span className="text-lg font-bold text-orange-600">
-                        {event.price > 0 ? `${event.price.toFixed(2)}€` : 'Gratuit'}
+                        {event.price > 0 ? `${event.price.toFixed(2}€` : 'Gratuit'}
                       </span>
                       <div className="flex space-x-1">
                         <Button 
@@ -996,7 +992,7 @@ export default function EventsPromotions(): JSX.Element {
                         <Button 
                           size="sm" 
                           variant="outline"
-                          onClick={() => handleDeleteEvent(event.id)}
+                          onClick={() => handleDeleteEvent(event.id}
                         >
                           <Trash2 className="h-3 w-3" />
                         </Button>
@@ -1011,7 +1007,7 @@ export default function EventsPromotions(): JSX.Element {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            );}
           </div>
           {events.length === 0 && (
             <div className="text-center py-12">
@@ -1019,7 +1015,7 @@ export default function EventsPromotions(): JSX.Element {
               <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun événement</h3>
               <p className="text-gray-600">Créez votre premier événement pour commencer.</p>
             </div>
-          )}
+          }
         </TabsContent>
 
         <TabsContent value="promotions" className="space-y-4">
@@ -1034,7 +1030,7 @@ export default function EventsPromotions(): JSX.Element {
                     <div className="flex items-center space-x-1">
                       <Gift className="h-4 w-4" />
                       <span className="text-sm text-gray-600">
-                        {formatPromotionType(promotion.type)}
+                        {formatPromotionType(promotion.type}
                       </span>
                     </div>
                   </div>
@@ -1052,13 +1048,13 @@ export default function EventsPromotions(): JSX.Element {
                     <div className="flex items-center text-sm text-gray-600">
                       <Calendar className="h-4 w-4 mr-2" />
                       <span className="truncate">
-                        {new Date(promotion.startDate).toLocaleDateString('fr-FR')} - {new Date(promotion.endDate).toLocaleDateString('fr-FR')}
+                        {new Date(promotion.startDate).toLocaleDateString('fr-FR'} - {new Date(promotion.endDate).toLocaleDateString('fr-FR'}
                       </span>
                     </div>
                     <div className="flex items-center text-sm text-gray-600">
                       <Users className="h-4 w-4 mr-2" />
                       <span className="truncate">
-                        {formatCustomerSegment(promotion.customerSegment)}
+                        {formatCustomerSegment(promotion.customerSegment}
                       </span>
                     </div>
                     {promotion.usageLimit && (
@@ -1108,7 +1104,7 @@ export default function EventsPromotions(): JSX.Element {
                         <Button 
                           size="sm" 
                           variant="outline"
-                          onClick={() => handleDeletePromotion(promotion.id)}
+                          onClick={() => handleDeletePromotion(promotion.id}
                         >
                           <Trash2 className="h-3 w-3" />
                         </Button>
@@ -1123,7 +1119,7 @@ export default function EventsPromotions(): JSX.Element {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            );}
           </div>
           {promotions.length === 0 && (
             <div className="text-center py-12">
@@ -1131,7 +1127,7 @@ export default function EventsPromotions(): JSX.Element {
               <h3 className="text-lg font-medium text-gray-900 mb-2">Aucune promotion</h3>
               <p className="text-gray-600">Créez votre première promotion pour attirer vos clients.</p>
             </div>
-          )}
+          }
         </TabsContent>
       </Tabs>
     </div>

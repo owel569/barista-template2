@@ -210,15 +210,14 @@ export default function ReportsSystem() {
         body: JSON.stringify({
           metrics: selectedMetrics,
           format: selectedFormat
-        })
-      });
+        }});
 
       if (response.ok) {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `custom_report_${new Date().toISOString().split('T')[0]}.${selectedFormat.toLowerCase()}`;
+        a.download = `custom_report_${new Date().toISOString().split('T')[0]}.${selectedFormat.toLowerCase(}`;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
@@ -258,8 +257,7 @@ export default function ReportsSystem() {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(newSchedule)
-      });
+        body: JSON.stringify(newSchedule});
 
       if (response.ok) {
         const data = await response.json();
@@ -330,7 +328,7 @@ export default function ReportsSystem() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded"></div>
-            ))}
+            );}
           </div>
         </div>
       </div>
@@ -372,7 +370,7 @@ export default function ReportsSystem() {
                     Ventes Totales
                   </p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {reportData.totalSales.toFixed(2)}€
+                    {reportData.totalSales.toFixed(2}€
                   </p>
                 </div>
                 <DollarSign className="h-8 w-8 text-green-500" />
@@ -404,7 +402,7 @@ export default function ReportsSystem() {
                     Panier Moyen
                   </p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {reportData.averageOrderValue.toFixed(2)}€
+                    {reportData.averageOrderValue.toFixed(2}€
                   </p>
                 </div>
                 <BarChart3 className="h-8 w-8 text-purple-500" />
@@ -455,8 +453,8 @@ export default function ReportsSystem() {
                           <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
                             {report.name}
                           </h3>
-                          <Badge className={getTypeColor(report.type)}>
-                            {getTypeText(report.type)}
+                          <Badge className={getTypeColor(report.type}>
+                            {getTypeText(report.type}
                           </Badge>
                         </div>
                       </div>
@@ -469,18 +467,18 @@ export default function ReportsSystem() {
                     
                     <div className="flex items-center justify-between">
                       <div className="text-xs text-gray-500 dark:text-gray-500">
-                        Dernière génération: {new Date(report.lastGenerated).toLocaleDateString('fr-FR')}
+                        Dernière génération: {new Date(report.lastGenerated).toLocaleDateString('fr-FR'}
                       </div>
                       <Button
                         size="sm"
-                        onClick={() => generateReport(report.id)}
+                        onClick={() => generateReport(report.id}
                         disabled={generatingReport === report.id}
                       >
                         {generatingReport === report.id ? (
                           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                         ) : (
                           <Download className="h-4 w-4 mr-2" />
-                        )}
+                        }
                         Générer
                       </Button>
                     </div>
@@ -507,12 +505,12 @@ export default function ReportsSystem() {
                           <input 
                             type="checkbox" 
                             className="rounded" 
-                            checked={selectedMetrics.includes(metric)}
-                            onChange={() => toggleMetric(metric)}
+                            checked={selectedMetrics.includes(metric}
+                            onChange={() => toggleMetric(metric}
                           />
                           <span className="text-sm">{metric}</span>
                         </label>
-                      ))}
+                      );}
                     </div>
                   </div>
                 </div>
@@ -528,11 +526,11 @@ export default function ReportsSystem() {
                             name="format" 
                             className="rounded" 
                             checked={selectedFormat === format}
-                            onChange={() => setSelectedFormat(format as 'PDF' | 'Excel' | 'CSV')}
+                            onChange={() => setSelectedFormat(format as 'PDF' | 'Excel' | 'CSV'}
                           />
                           <span className="text-sm">{format}</span>
                         </label>
-                      ))}
+                      );}
                     </div>
                   </div>
                   
@@ -576,10 +574,10 @@ export default function ReportsSystem() {
                         {scheduled.frequency === 'quarterly' && 'Trimestriel'}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-500">
-                        Prochaine exécution: {new Date(scheduled.nextRun).toLocaleDateString('fr-FR')}
+                        Prochaine exécution: {new Date(scheduled.nextRun).toLocaleDateString('fr-FR'}
                       </p>
                     </div>
-                  ))}
+                  );}
                 </div>
               </CardContent>
             </Card>
@@ -664,7 +662,7 @@ export default function ReportsSystem() {
                         <p className="text-xs text-gray-600 dark:text-gray-400">ventes</p>
                       </div>
                     </div>
-                  ))}
+                  );}
                 </div>
               </CardContent>
             </Card>
@@ -677,10 +675,10 @@ export default function ReportsSystem() {
                 <div className="space-y-3">
                   {reportData?.salesTrend.slice(0, 7).map((day, index) => (
                     <div key={index} className="flex items-center justify-between">
-                      <span className="text-sm">{new Date(day.date).toLocaleDateString('fr-FR')}</span>
-                      <span className="font-semibold">{day.amount.toFixed(2)}€</span>
+                      <span className="text-sm">{new Date(day.date).toLocaleDateString('fr-FR'}</span>
+                      <span className="font-semibold">{day.amount.toFixed(2}€</span>
                     </div>
-                  ))}
+                  );}
                 </div>
               </CardContent>
             </Card>

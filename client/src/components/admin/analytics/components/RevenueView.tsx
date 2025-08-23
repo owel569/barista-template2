@@ -45,8 +45,7 @@ const generateRevenueData = (timeRange: string) => {
     ...item,
     ventes: Math.round(item.ventes * multiplier),
     commandes: Math.round(item.commandes * multiplier),
-    clients: Math.round(item.clients * multiplier)
-  }));
+    clients: Math.round(item.clients * multiplier}););
 };
 
 const categoryData = [
@@ -132,14 +131,14 @@ export const RevenueView: React.FC<RevenueViewProps> = ({ timeRange }) => {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0}%`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
                 >
                   {categoryData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
+                  );}
                 </Pie>
                 <Tooltip formatter={(value: number) => [`${value}€`, 'Revenus']} />
               </PieChart>
@@ -181,14 +180,14 @@ export const RevenueView: React.FC<RevenueViewProps> = ({ timeRange }) => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="text-center p-4 bg-blue-50 rounded-lg">
               <div className="text-2xl font-bold text-blue-600">
-                {revenueData.reduce((sum, item) => sum + item.ventes, 0).toLocaleString()}€
+                {revenueData.reduce((sum, item) => sum + item.ventes, 0).toLocaleString(}€
               </div>
               <div className="text-sm text-blue-600">Revenus Total</div>
             </div>
             
             <div className="text-center p-4 bg-green-50 rounded-lg">
               <div className="text-2xl font-bold text-green-600">
-                {revenueData.reduce((sum, item) => sum + item.commandes, 0)}
+                {revenueData.reduce((sum, item) => sum + item.commandes, 0}
               </div>
               <div className="text-sm text-green-600">Commandes Total</div>
             </div>
@@ -196,14 +195,14 @@ export const RevenueView: React.FC<RevenueViewProps> = ({ timeRange }) => {
             <div className="text-center p-4 bg-purple-50 rounded-lg">
               <div className="text-2xl font-bold text-purple-600">
                 {Math.round(revenueData.reduce((sum, item) => sum + item.ventes, 0) / 
-                  revenueData.reduce((sum, item) => sum + item.commandes, 0))}€
+                  revenueData.reduce((sum, item) => sum + item.commandes, 0);}€
               </div>
               <div className="text-sm text-purple-600">Panier Moyen</div>
             </div>
             
             <div className="text-center p-4 bg-orange-50 rounded-lg">
               <div className="text-2xl font-bold text-orange-600">
-                {revenueData.reduce((sum, item) => sum + item.clients, 0)}
+                {revenueData.reduce((sum, item) => sum + item.clients, 0}
               </div>
               <div className="text-sm text-orange-600">Clients Uniques</div>
             </div>

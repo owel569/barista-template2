@@ -143,7 +143,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             aria-describedby={cn(
               errorId,
               helperTextId
-            )}
+            }
             {...props}
           />
           
@@ -174,7 +174,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             
             {isSearch && !clearable && (
               <Search className="h-4 w-4 text-muted-foreground pointer-events-none" aria-hidden="true" />
-            )}
+            }
             
             {rightIcon && !isPassword && !clearable && !isSearch && (
               <div className="pointer-events-none" aria-hidden="true">
@@ -207,11 +207,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           </div>
         )}
       </div>
-    )
-  }
-)
-
-Input.displayName = "Input"
+    });Input.displayName = "Input"
 
 export { Input, inputVariants, ALLOWED_INPUT_TYPES }
 export type { AllowedInputType }

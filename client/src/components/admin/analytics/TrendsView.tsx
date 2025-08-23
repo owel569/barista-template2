@@ -45,9 +45,9 @@ const TrendsView: React.FC<TrendViewProps> = ({ data, timeRange }) => {
                 <TrendingUp className="h-4 w-4 text-green-500" />
               ) : (
                 <TrendingDown className="h-4 w-4 text-red-500" />
-              )}
+              }
               <span className={customerGrowth >= 0 ? 'text-green-500' : 'text-red-500'}>
-                {customerGrowth >= 0 ? '+' : ''}{customerGrowth.toFixed(1)}%
+                {customerGrowth >= 0 ? '+' : ''}{customerGrowth.toFixed(1}%
               </span>
             </div>
           </CardContent>
@@ -65,9 +65,9 @@ const TrendsView: React.FC<TrendViewProps> = ({ data, timeRange }) => {
                 <TrendingUp className="h-4 w-4 text-green-500" />
               ) : (
                 <TrendingDown className="h-4 w-4 text-red-500" />
-              )}
+              }
               <span className={orderGrowth >= 0 ? 'text-green-500' : 'text-red-500'}>
-                {orderGrowth >= 0 ? '+' : ''}{orderGrowth.toFixed(1)}%
+                {orderGrowth >= 0 ? '+' : ''}{orderGrowth.toFixed(1}%
               </span>
             </div>
           </CardContent>
@@ -79,15 +79,15 @@ const TrendsView: React.FC<TrendViewProps> = ({ data, timeRange }) => {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">€{(latestData?.revenue || 0).toLocaleString()}</div>
+            <div className="text-2xl font-bold">€{(latestData?.revenue || 0).toLocaleString(}</div>
             <div className="flex items-center space-x-2 text-xs text-muted-foreground">
               {revenueGrowth >= 0 ? (
                 <TrendingUp className="h-4 w-4 text-green-500" />
               ) : (
                 <TrendingDown className="h-4 w-4 text-red-500" />
-              )}
+              }
               <span className={revenueGrowth >= 0 ? 'text-green-500' : 'text-red-500'}>
-                {revenueGrowth >= 0 ? '+' : ''}{revenueGrowth.toFixed(1)}%
+                {revenueGrowth >= 0 ? '+' : ''}{revenueGrowth.toFixed(1}%
               </span>
             </div>
           </CardContent>
@@ -99,7 +99,7 @@ const TrendsView: React.FC<TrendViewProps> = ({ data, timeRange }) => {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{avgSatisfaction.toFixed(1)}/5</div>
+            <div className="text-2xl font-bold">{avgSatisfaction.toFixed(1}/5</div>
             <div className="text-xs text-muted-foreground">
               Sur {data.length} périodes
             </div>
@@ -133,12 +133,12 @@ const TrendsView: React.FC<TrendViewProps> = ({ data, timeRange }) => {
                 axisLine={false}
                 tickLine={false}
                 fontSize={12}
-                tickFormatter={(value) => `€${value.toLocaleString()}`}
+                tickFormatter={(value) => `€${value.toLocaleString(}`}
               />
               <Tooltip 
                 formatter={(value: number, name: string) => {
-                  if (name === 'revenue') return [`€${value.toLocaleString()}`, 'Revenus'];
-                  if (name === 'avgOrderValue') return [`€${value.toLocaleString()}`, 'Panier moyen'];
+                  if (name === 'revenue') return [`€${value.toLocaleString(}`, 'Revenus'];
+                  if (name === 'avgOrderValue') return [`€${value.toLocaleString(}`, 'Panier moyen'];
                   return [value.toLocaleString(), name];
                 }}
                 labelFormatter={(label) => `Date: ${label}`}
@@ -195,7 +195,7 @@ const TrendsView: React.FC<TrendViewProps> = ({ data, timeRange }) => {
                 tickFormatter={(value) => `${value}/5`}
               />
               <Tooltip 
-                formatter={(value: number) => [`${value.toFixed(1)}/5`, 'Satisfaction']}
+                formatter={(value: number) => [`${value.toFixed(1}/5`, 'Satisfaction']}
                 labelFormatter={(label) => `Date: ${label}`}
               />
               <Area 

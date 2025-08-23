@@ -10,13 +10,13 @@ export default function About() : JSX.Element {
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
             <h2 className="text-4xl font-bold text-coffee-dark mb-6">
-              {t('about.title')}
+              {t('about.title'}
             </h2>
             <p className="text-lg text-gray-700 mb-6 leading-relaxed">
-              {t('about.story.content')}
+              {t('about.story.content'}
             </p>
             <p className="text-lg text-gray-700 mb-8 leading-relaxed">
-              {t('about.mission.content')}
+              {t('about.mission.content'}
             </p>
             <div className="grid grid-cols-2 gap-6">
               <div className="text-center">

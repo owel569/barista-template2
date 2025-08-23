@@ -23,7 +23,7 @@ export default function LoginSimple() : JSX.Element {
     setIsLoading(true);
 
     // Validation côté client
-    if (!formData.username.trim() || !formData.password.trim()) {
+          if (!formData.username.trim() || !formData.password.trim()) {
       setError('Veuillez remplir tous les champs');
       setIsLoading(false);
       return;
@@ -61,9 +61,9 @@ export default function LoginSimple() : JSX.Element {
       if (data.token && data.user) {
         // Stockage sécurisé des données d'authentification
         localStorage.setItem('auth_token', data.token);
-        localStorage.setItem('auth_user', JSON.stringify(data.user));
+                  localStorage.setItem('auth_user', JSON.stringify(data.user));
         localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+                  localStorage.setItem('user', JSON.stringify(data.user));
         
         console.log('Authentification réussie, redirection...');
         
@@ -75,9 +75,9 @@ export default function LoginSimple() : JSX.Element {
     } catch (err: unknown) {
       console.error('Erreur de connexion détaillée:', err);
       
-      if (err.message.includes('base de données')) {
+              if (err.message.includes('base de données')) {
         setError('Erreur de base de données - Contactez l\'administrateur');
-      } else if (err.message.includes('Identifiants')) {
+              } else if (err.message.includes('Identifiants')) {
         setError('Nom d\'utilisateur ou mot de passe incorrect');
       } else if (err.name === 'TypeError') {
         setError('Impossible de contacter le serveur');
@@ -93,7 +93,7 @@ export default function LoginSimple() : JSX.Element {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
-    )});
+    });
   };
 
   return (
@@ -122,7 +122,7 @@ export default function LoginSimple() : JSX.Element {
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
               <Alert variant="destructive">
-                <AlertDescription>{error)}</AlertDescription>
+                <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
             
@@ -156,7 +156,7 @@ export default function LoginSimple() : JSX.Element {
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
+                                      onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
                   disabled={isLoading}
                 >

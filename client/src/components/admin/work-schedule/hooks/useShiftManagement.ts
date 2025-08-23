@@ -147,7 +147,7 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
     setFilters(prev => ({
       ...prev,
       employees: [employee.id]
-    }));
+    });
   }, []);
 
   const handleDateSelect = useCallback((date: string) => {
@@ -161,7 +161,7 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
           start: weekDates[0],
           end: weekDates[weekDates.length - 1]
         }
-      }));
+      });
     } else if (timePeriod === "month") {
       const monthDates = getMonthDates(date);
       setFilters(prev => ({
@@ -170,7 +170,7 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
           start: monthDates[0],
           end: monthDates[monthDates.length - 1]
         }
-      }));
+      });
     } else {
       setFilters(prev => ({
         ...prev,
@@ -178,7 +178,7 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
           start: date,
           end: date
         }
-      }));
+      });
     }
   }, [timePeriod]);
 
@@ -192,14 +192,13 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
   }, [selectedDate, handleDateSelect]);
 
   const handleFilterChange = useCallback((newFilters: Partial<ScheduleFilter>) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
+    setFilters(prev => ({ ...prev, ...newFilters });
   }, []);
 
   const handleSortChange = useCallback((field: keyof Shift, direction?: "asc" | "desc") => {
     setSorting(prev => ({
       field,
-      direction: direction || (prev.field === field && prev.direction === "asc" ? "desc" : "asc")
-    }));
+      direction: direction || (prev.field === field && prev.direction === "asc" ? "desc" : "asc"}););
   }, []);
 
   const clearFilters = useCallback(() => {
@@ -243,13 +242,13 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
     
     switch (timePeriod) {
       case "day":
-        currentDate.setDate(currentDate.getDate() + (direction === "next" ? 1 : -1));
+        currentDate.setDate(currentDate.getDate() + (direction === "next" ? 1 : -1);
         break;
       case "week":
-        currentDate.setDate(currentDate.getDate() + (direction === "next" ? 7 : -7));
+        currentDate.setDate(currentDate.getDate() + (direction === "next" ? 7 : -7);
         break;
       case "month":
-        currentDate.setMonth(currentDate.getMonth() + (direction === "next" ? 1 : -1));
+        currentDate.setMonth(currentDate.getMonth() + (direction === "next" ? 1 : -1);
         break;
     }
     
@@ -261,7 +260,7 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
     const totalShifts = filteredShifts.length;
     const totalHours = filteredShifts.reduce((sum, shift) => sum + shift.totalHours, 0);
     const totalPay = filteredShifts.reduce((sum, shift) => sum + shift.totalPay, 0);
-    const uniqueEmployees = new Set(filteredShifts.map(s => s.employeeId)).size;
+    const uniqueEmployees = new Set(filteredShifts.map(s => s.employeeId);.size;
     const conflictCount = conflicts.length;
     const overtimeShifts = filteredShifts.filter(s => (s.overtimeHours || 0) > 0).length;
     

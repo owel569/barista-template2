@@ -83,8 +83,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ status })
-      });
+        body: JSON.stringify({ status }});
       
       if (!response.ok) {
         throw new Error('Erreur lors de la mise à jour');
@@ -156,12 +155,12 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
   };
 
   const handleReply = () => {
-    if (!selectedMessage || !response.trim()) return;
-    replyMutation.mutate({ id: selectedMessage.id, response: response.trim() });
+    if (!selectedMessage || !response.trim();return;
+    replyMutation.mutate({ id: selectedMessage.id, response: response.trim(});
   };
 
   const handleDelete = (id: number) => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce message ?')) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer ce message ?');{
       deleteMutation.mutate(id);
     }
   };
@@ -180,9 +179,9 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
   const filteredMessages = useMemo(() => {
     return messages.filter((message) => {
       const matchesSearch = !searchTerm || 
-        message.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        message.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        message.subject.toLowerCase().includes(searchTerm.toLowerCase());
+        message.name?.toLowerCase().includes(searchTerm.toLowerCase();||
+        message.email.toLowerCase().includes(searchTerm.toLowerCase();||
+        message.subject.toLowerCase().includes(searchTerm.toLowerCase();
       
       const matchesStatus = statusFilter === 'all' || message.status === statusFilter;
       
@@ -219,7 +218,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[...Array(3)].map((_, i) => (
             <Skeleton key={i} className="h-24" />
-          ))}
+          );}
         </div>
         <Skeleton className="h-16" />
         <Skeleton className="h-64" />
@@ -297,7 +296,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
               <Input
                 placeholder="Rechercher par nom, email ou sujet..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => setSearchTerm(e.target.value}
                 className="w-80"
               />
             </div>
@@ -348,14 +347,14 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                   </TableCell>
                   <TableCell>
                     {message.createdAt ? (
-                      isNaN(new Date(message.createdAt).getTime()) ? 
+                      isNaN(new Date(message.createdAt).getTime();? 
                         'Date invalide' : 
                         format(new Date(message.createdAt), 'dd/MM/yyyy HH:mm', { locale: fr })
                       : 'Pas de date'}
                   </TableCell>
                   <TableCell>
-                    <Badge className={getStatusColor(message.status)}>
-                      {message.status.replace('_', ' ')}
+                    <Badge className={getStatusColor(message.status}>
+                      {message.status.replace('_', ' '}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -377,7 +376,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                       {hasPermission('messages', 'edit') && (
                         <Select
                           value={message.status}
-                          onValueChange={(value) => handleStatusChange(message.id, value)}
+                          onValueChange={(value) => handleStatusChange(message.id, value}
                         >
                           <SelectTrigger className="w-28">
                             <SelectValue />
@@ -395,7 +394,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleDelete(message.id)}
+                          onClick={() => handleDelete(message.id}
                           className="text-red-600 hover:text-red-700"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -404,7 +403,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
+              );}
               {filteredMessages.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
@@ -424,7 +423,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                     <Button
                       variant="ghost"
                       disabled={currentPage === 1}
-                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1);}
                     >
                       <ChevronLeft className="h-4 w-4" />
                     </Button>
@@ -438,7 +437,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                     <Button
                       variant="ghost"
                       disabled={currentPage === totalPages}
-                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages);}
                     >
                       <ChevronRight className="h-4 w-4" />
                     </Button>
@@ -473,7 +472,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                 <div>
                   <h3 className="font-semibold">Détails</h3>
                   <p>Date: {format(new Date(selectedMessage.createdAt), 'dd/MM/yyyy HH:mm', { locale: fr })}</p>
-                  <p>Statut: <Badge className={getStatusColor(selectedMessage.status)}>{selectedMessage.status}</Badge></p>
+                  <p>Statut: <Badge className={getStatusColor(selectedMessage.status}>{selectedMessage.status}</Badge></p>
                 </div>
               </div>
               
@@ -504,13 +503,13 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                     <h3 className="font-semibold">Réponse</h3>
                     <Textarea
                       value={response}
-                      onChange={(e) => setResponse(e.target.value)}
+                      onChange={(e) => setResponse(e.target.value}
                       placeholder="Tapez votre réponse ici..."
                       rows={4}
                     />
                   </div>
                   <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                    <Button variant="outline" onClick={() => setIsDialogOpen(false}>
                       Annuler
                     </Button>
                     <Button onClick={handleReply} disabled={!response.trim() || replyMutation.isPending}>
@@ -521,7 +520,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                           <Reply className="h-4 w-4 mr-2" />
                           Envoyer la réponse
                         </>
-                      )}
+                      }
                     </Button>
                   </DialogFooter>
                 </>

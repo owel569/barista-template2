@@ -271,7 +271,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
       return;
     }
 
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce client ? Cette action est irréversible.')) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce client ? Cette action est irréversible.');{
       return;
     }
 
@@ -283,7 +283,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
       });
 
       if (response.ok) {
-        setCustomers(prev => prev.filter(customer => customer.id !== id));
+        setCustomers(prev => prev.filter(customer => customer.id !== id);
         toast({
           title: "Succès",
           description: "Client supprimé avec succès",
@@ -322,7 +322,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
               <div key={i} className="h-20 bg-gray-200 rounded"></div>
-            ))}
+            );}
           </div>
         </div>
       </div>
@@ -367,7 +367,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                       <Input
                         id="firstName"
                         value={newCustomer.firstName}
-                        onChange={(e) => setNewCustomer(prev => ({ ...prev, firstName: e.target.value }))}
+                        onChange={(e) => setNewCustomer(prev => ({ ...prev, firstName: e.target.value });}
                         required
                       />
                     </div>
@@ -376,7 +376,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                       <Input
                         id="lastName"
                         value={newCustomer.lastName}
-                        onChange={(e) => setNewCustomer(prev => ({ ...prev, lastName: e.target.value }))}
+                        onChange={(e) => setNewCustomer(prev => ({ ...prev, lastName: e.target.value });}
                         required
                       />
                     </div>
@@ -387,7 +387,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                       id="email"
                       type="email"
                       value={newCustomer.email}
-                      onChange={(e) => setNewCustomer(prev => ({ ...prev, email: e.target.value }))}
+                      onChange={(e) => setNewCustomer(prev => ({ ...prev, email: e.target.value });}
                       required
                     />
                   </div>
@@ -397,7 +397,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                       id="phone"
                       type="tel"
                       value={newCustomer.phone}
-                      onChange={(e) => setNewCustomer(prev => ({ ...prev, phone: e.target.value }))}
+                      onChange={(e) => setNewCustomer(prev => ({ ...prev, phone: e.target.value });}
                       placeholder="Ex: +33612345678"
                     />
                     <p className="text-xs text-gray-500">📞 Exemple : +33612345678</p>
@@ -407,7 +407,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                     <Input
                       id="address"
                       value={newCustomer.address}
-                      onChange={(e) => setNewCustomer(prev => ({ ...prev, address: e.target.value }))}
+                      onChange={(e) => setNewCustomer(prev => ({ ...prev, address: e.target.value });}
                     />
                   </div>
                   <div className="space-y-2">
@@ -416,7 +416,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                       id="dateOfBirth"
                       type="date"
                       value={newCustomer.dateOfBirth}
-                      onChange={(e) => setNewCustomer(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+                      onChange={(e) => setNewCustomer(prev => ({ ...prev, dateOfBirth: e.target.value });}
                     />
                   </div>
                   <div className="space-y-2">
@@ -424,12 +424,12 @@ export default function Customers({ userRole, user }: CustomersProps) {
                     <Textarea
                       id="notes"
                       value={newCustomer.notes}
-                      onChange={(e) => setNewCustomer(prev => ({ ...prev, notes: e.target.value }))}
+                      onChange={(e) => setNewCustomer(prev => ({ ...prev, notes: e.target.value });}
                     />
                   </div>
                   <div className="flex gap-2">
                     <Button type="submit">Ajouter</Button>
-                    <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                    <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false}>
                       Annuler
                     </Button>
                   </div>
@@ -451,10 +451,10 @@ export default function Customers({ userRole, user }: CustomersProps) {
               <Input
                 placeholder="Nom, email, téléphone..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => setSearchTerm(e.target.value}
               />
             </div>
-            <Button onClick={() => setSearchTerm('')} variant="outline">
+            <Button onClick={() => setSearchTerm(''} variant="outline">
               Effacer
             </Button>
           </div>
@@ -508,7 +508,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                           <span className="font-semibold">
                             {typeof customer.totalSpent === 'string' 
                               ? parseFloat(customer.totalSpent).toFixed(2) 
-                              : (customer.totalSpent || 0).toFixed(2)}€ dépensés
+                              : (customer.totalSpent || 0).toFixed(2}€ dépensés
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
@@ -547,7 +547,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => setSelectedCustomer(customer)}
+                            onClick={() => setSelectedCustomer(customer}
                           >
                             <Eye className="h-4 w-4 mr-1" />
                             Détails
@@ -589,7 +589,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                                   <p className="text-sm font-semibold">
                                     {typeof selectedCustomer.totalSpent === 'number' 
                                       ? selectedCustomer.totalSpent.toFixed(2) 
-                                      : parseFloat(selectedCustomer.totalSpent || '0').toFixed(2)}€
+                                      : parseFloat(selectedCustomer.totalSpent || '0').toFixed(2}€
                                   </p>
                                 </div>
                                 <div>
@@ -626,7 +626,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleEditCustomer(customer)}
+                            onClick={() => handleEditCustomer(customer}
                           >
                             <Edit className="h-4 w-4 mr-1" />
                             Modifier
@@ -634,7 +634,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => deleteCustomer(customer.id)}
+                            onClick={() => deleteCustomer(customer.id}
                             className="text-red-600 hover:text-red-700"
                           >
                             <Trash2 className="h-4 w-4 mr-1" />
@@ -647,8 +647,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
                 </CardContent>
               </Card>
             );
-          })
-        )}
+          });}
       </div>
 
       {/* Edit Customer Dialog */}
@@ -709,7 +708,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
               </div>
               <div className="flex gap-2">
                 <Button type="submit">Enregistrer</Button>
-                <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false}>
                   Annuler
                 </Button>
               </div>

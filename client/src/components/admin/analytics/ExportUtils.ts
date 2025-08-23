@@ -16,8 +16,7 @@ export const exportToCSV = (data: unknown[], filename: string) => {
   const headers = Object.keys(data[0] as Record<string, unknown>);
   const csvContent = [
     headers.join(','),
-    ...data.map(row => headers.map(header => (row as Record<string, unknown>)[header]).join(','))
-  ].join('\n');
+    ...data.map(row => headers.map(header => (row as Record<string, unknown>)[header]).join(',');].join('\n');
   
   const blob = new Blob([csvContent], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);

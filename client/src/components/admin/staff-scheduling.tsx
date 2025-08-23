@@ -83,7 +83,7 @@ interface ScheduleAnalytics {
 
 export default function StaffScheduling() {
   const { toast } = useToast();
-  const [selectedWeek, setSelectedWeek] = useState<Date>(new Date());
+  const [selectedWeek, setSelectedWeek] = useState<Date>(new Date();
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [conflicts, setConflicts] = useState<ShiftConflict[]>([]);
@@ -107,7 +107,7 @@ export default function StaffScheduling() {
   // Memoized derived data
   const filteredEmployees = useMemo(() => {
     return employees.filter(emp => 
-      (emp.firstName.toLowerCase() + ' ' + emp.lastName.toLowerCase()).includes(searchTerm.toLowerCase()) &&
+      (emp.firstName.toLowerCase() + ' ' + emp.lastName.toLowerCase();.includes(searchTerm.toLowerCase();&&
       (filter.department ? emp.department === filter.department : true) &&
       (filter.position ? emp.position === filter.position : true) &&
       emp.status === 'active'
@@ -122,16 +122,16 @@ export default function StaffScheduling() {
 
   // Fetch data functions
   const fetchEmployees = useCallback(async () => {
-    setIsLoading(prev => ({ ...prev, employees: true }));
+    setIsLoading(prev => ({ ...prev, employees: true });
     try {
       // Simulated API call
-      await new Promise(resolve => setTimeout(resolve, 800));
+      await new Promise(resolve => setTimeout(resolve, 800);
       const mockEmployees: Employee[] = Array.from({ length: 12 }, (_, i) => ({
         id: i + 1,
         firstName: ['Jean', 'Marie', 'Pierre', 'Sophie', 'Luc', 'Emma', 'Thomas', 'Camille', 'Antoine', 'Julie', 'Nicolas', 'Laura'][i],
         lastName: ['Dupont', 'Martin', 'Bernard', 'Petit', 'Durand', 'Leroy', 'Moreau', 'Simon', 'Laurent', 'Lefebvre', 'Michel', 'Garcia'][i],
         email: `employee${i+1}@baristacafe.com`,
-        phone: `06${Math.floor(10000000 + Math.random() * 90000000)}`,
+        phone: `06${Math.floor(10000000 + Math.random() * 90000000}`,
         position: ['Serveur', 'Barista', 'Cuisinier', 'Manager', 'Caissier'][Math.floor(Math.random() * 5)],
         department: ['Salle', 'Bar', 'Cuisine', 'Management'][Math.floor(Math.random() * 4)],
         maxHours: 40,
@@ -140,9 +140,9 @@ export default function StaffScheduling() {
         availableDays: ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'].filter(() => Math.random() > 0.3),
         skills: ['service', 'caisse', 'bar', 'cuisine'].filter(() => Math.random() > 0.5),
         status: 'active',
-        hireDate: new Date(Date.now() - Math.floor(Math.random() * 1000 * 60 * 60 * 24 * 365 * 3)).toISOString(),
+        hireDate: new Date(Date.now() - Math.floor(Math.random() * 1000 * 60 * 60 * 24 * 365 * 3);.toISOString(),
         avatar: `https://i.pravatar.cc/150?img=${i + 10}`
-      }));
+      });
       setEmployees(mockEmployees);
     } catch (error) {
       toast({
@@ -151,15 +151,15 @@ export default function StaffScheduling() {
         variant: 'destructive'
       });
     } finally {
-      setIsLoading(prev => ({ ...prev, employees: false }));
+      setIsLoading(prev => ({ ...prev, employees: false });
     }
   }, [toast]);
 
   const fetchShifts = useCallback(async () => {
-    setIsLoading(prev => ({ ...prev, shifts: true }));
+    setIsLoading(prev => ({ ...prev, shifts: true });
     try {
       // Simulated API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1000);
       const weekStart = getWeekDates(selectedWeek)[0];
       const weekEnd = getWeekDates(selectedWeek)[6];
 
@@ -175,8 +175,8 @@ export default function StaffScheduling() {
           id: i + 1,
           employeeId: Math.floor(Math.random() * 12) + 1,
           date: date.toISOString().split('T')[0],
-          startTime: `${startHour.toString().padStart(2, '0')}:00`,
-          endTime: `${(startHour + duration).toString().padStart(2, '0')}:00`,
+          startTime: `${startHour.toString().padStart(2, '0'}:00`,
+          endTime: `${(startHour + duration).toString().padStart(2, '0'}:00`,
           position: ['Serveur', 'Barista', 'Cuisinier', 'Manager', 'Caissier'][Math.floor(Math.random() * 5)],
           status: ['draft', 'published', 'confirmed', 'completed'][Math.floor(Math.random() * 4)] as any,
           notes: Math.random() > 0.7 ? 'Note importante pour ce shift' : undefined,
@@ -194,15 +194,15 @@ export default function StaffScheduling() {
         variant: 'destructive'
       });
     } finally {
-      setIsLoading(prev => ({ ...prev, shifts: false }));
+      setIsLoading(prev => ({ ...prev, shifts: false });
     }
   }, [selectedWeek, toast]);
 
   const fetchAnalytics = useCallback(async () => {
-    setIsLoading(prev => ({ ...prev, analytics: true }));
+    setIsLoading(prev => ({ ...prev, analytics: true });
     try {
       // Simulated API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 500);
 
       const totalHours = shifts.reduce((total, shift) => 
         total + calculateHours(shift.startTime, shift.endTime), 0);
@@ -232,7 +232,7 @@ export default function StaffScheduling() {
         variant: 'destructive'
       });
     } finally {
-      setIsLoading(prev => ({ ...prev, analytics: false }));
+      setIsLoading(prev => ({ ...prev, analytics: false });
     }
   }, [shifts, employees.length, conflicts.length, toast]);
 
@@ -260,8 +260,7 @@ export default function StaffScheduling() {
     const weekDates = getWeekDates(selectedWeek);
     const employeeShifts = shifts.filter(shift => 
       shift.employeeId === employeeId &&
-      weekDates.some(date => shift.date === date.toISOString().split('T')[0])
-    );
+      weekDates.some(date => shift.date === date.toISOString().split('T')[0]);
 
     return employeeShifts.reduce((total, shift) => {
       return total + calculateHours(shift.startTime, shift.endTime);
@@ -286,7 +285,7 @@ export default function StaffScheduling() {
     });
 
     Object.entries(shiftsByEmployee).forEach(([employeeId, empShifts]) => {
-      empShifts.sort((a, b) => a.startTime.localeCompare(b.startTime));
+      empShifts.sort((a, b) => a.startTime.localeCompare(b.startTime);
 
       for (let i = 1; i < empShifts.length; i++) {
         const prevShift = empShifts[i - 1];
@@ -299,8 +298,7 @@ export default function StaffScheduling() {
             message: `Chevauchement de shifts pour l'employé ${employeeId}`,
             severity: 'error',
             shiftId: currentShift.id,
-            employeeId: parseInt(employeeId)
-          });
+            employeeId: parseInt(employeeId});
         }
       }
 
@@ -308,15 +306,14 @@ export default function StaffScheduling() {
       const weeklyHours = empShifts.reduce((total, shift) => 
         total + calculateHours(shift.startTime, shift.endTime), 0);
 
-      const employee = employees.find(e => e.id === parseInt(employeeId));
+      const employee = employees.find(e => e.id === parseInt(employeeId);
       if (employee && weeklyHours > employee.maxHours) {
         detectedConflicts.push({
           type: 'overtime',
           message: `Heures supplémentaires pour ${employee.firstName} ${employee.lastName}`,
           severity: 'warning',
           shiftId: empShifts[0].id,
-          employeeId: parseInt(employeeId)
-        });
+          employeeId: parseInt(employeeId});
       }
     });
 
@@ -327,7 +324,7 @@ export default function StaffScheduling() {
   const addShift = useCallback(async (shiftData: Omit<Shift, 'id' | 'createdAt' | 'updatedAt'>) => {
     try {
       // Simulated API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 500);
 
       const newShift: Shift = {
         ...shiftData,
@@ -355,15 +352,15 @@ export default function StaffScheduling() {
   const updateShift = useCallback(async (shiftId: number, updates: Partial<Shift>) => {
     try {
       // Simulated API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 500);
 
       setShifts(prev => prev.map(shift => 
         shift.id === shiftId ? { ...shift, ...updates, updatedAt: new Date().toISOString() } : shift
-      ));
+      );
 
       detectConflicts(shifts.map(shift => 
         shift.id === shiftId ? { ...shift, ...updates } : shift
-      ));
+      );
 
       toast({
         title: 'Succès',
@@ -381,10 +378,10 @@ export default function StaffScheduling() {
   const deleteShift = useCallback(async (shiftId: number) => {
     try {
       // Simulated API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 500);
 
-      setShifts(prev => prev.filter(shift => shift.id !== shiftId));
-      detectConflicts(shifts.filter(shift => shift.id !== shiftId));
+      setShifts(prev => prev.filter(shift => shift.id !== shiftId);
+      detectConflicts(shifts.filter(shift => shift.id !== shiftId);
 
       toast({
         title: 'Succès',
@@ -402,16 +399,16 @@ export default function StaffScheduling() {
   const bulkUpdateShifts = useCallback(async (updates: Partial<Shift>) => {
     try {
       // Simulated API call
-      await new Promise(resolve => setTimeout(resolve, 800));
+      await new Promise(resolve => setTimeout(resolve, 800);
 
       setShifts(prev => prev.map(shift => 
         selectedShifts.includes(shift.id) ? 
           { ...shift, ...updates, updatedAt: new Date().toISOString() } : shift
-      ));
+      );
 
       detectConflicts(shifts.map(shift => 
         selectedShifts.includes(shift.id) ? { ...shift, ...updates } : shift
-      ));
+      );
 
       setSelectedShifts([]);
       setShowBulkActions(false);
@@ -431,10 +428,10 @@ export default function StaffScheduling() {
 
   const generateAutoSchedule = useCallback(async () => {
     try {
-      setIsLoading(prev => ({ ...prev, shifts: true }));
+      setIsLoading(prev => ({ ...prev, shifts: true });
 
       // Simulated API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 1500);
 
       const weekDates = getWeekDates(selectedWeek);
       const newShifts: Shift[] = [];
@@ -457,13 +454,12 @@ export default function StaffScheduling() {
             id: shifts.length + newShifts.length + 1,
             employeeId: employee.id,
             date: date.toISOString().split('T')[0],
-            startTime: `${startHour.toString().padStart(2, '0')}:00`,
-            endTime: `${(startHour + 8).toString().padStart(2, '0')}:00`,
+            startTime: `${startHour.toString().padStart(2, '0'}:00`,
+            endTime: `${(startHour + 8).toString().padStart(2, '0'}:00`,
             position: employee.position,
             status: 'published',
             createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          });
+            updatedAt: new Date().toISOString(});
         });
       });
 
@@ -481,7 +477,7 @@ export default function StaffScheduling() {
         variant: 'destructive'
       });
     } finally {
-      setIsLoading(prev => ({ ...prev, shifts: false }));
+      setIsLoading(prev => ({ ...prev, shifts: false });
     }
   }, [selectedWeek, employees, shifts, getWeekDates, detectConflicts, toast]);
 
@@ -490,7 +486,7 @@ export default function StaffScheduling() {
       setIsSendingNotifications(true);
 
       // Simulated API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 2000);
 
       toast({
         title: 'Notifications envoyées',
@@ -543,7 +539,7 @@ export default function StaffScheduling() {
         className={`mb-2 p-3 cursor-pointer transition-all ${isSelected ? 'ring-2 ring-amber-500' : ''} ${
           shiftConflicts.length > 0 ? 'border-red-500' : ''
         }`}
-        onClick={() => onSelect(shift.id)}
+        onClick={() => onSelect(shift.id}
       >
         <div className="flex justify-between items-start">
           <div className="flex-1">
@@ -574,7 +570,7 @@ export default function StaffScheduling() {
               </Badge>
             </div>
             <div className="text-xs text-muted-foreground mt-1">
-              {shift.startTime} - {shift.endTime} ({hours.toFixed(1)}h)
+              {shift.startTime} - {shift.endTime} ({hours.toFixed(1}h)
             </div>
             <div className="text-xs text-muted-foreground">
               {shift.position}
@@ -614,7 +610,7 @@ export default function StaffScheduling() {
                 <CheckCircle className="h-4 w-4" />
               ) : (
                 <Bell className="h-4 w-4" />
-              )}
+              }
             </Button>
             <Button 
               variant="ghost" 
@@ -664,7 +660,7 @@ export default function StaffScheduling() {
               isOvertime ? 'destructive' : 
               isUnderMin ? 'warning' : 'default'
             }>
-              {weeklyHours.toFixed(1)}h
+              {weeklyHours.toFixed(1}h
             </Badge>
           </div>
         </CardHeader>
@@ -674,10 +670,10 @@ export default function StaffScheduling() {
               <span className="font-medium">Département:</span> {employee.department}
             </div>
             <div className="text-xs">
-              <span className="font-medium">Compétences:</span> {employee.skills.join(', ')}
+              <span className="font-medium">Compétences:</span> {employee.skills.join(', '}
             </div>
             <div className="text-xs">
-              <span className="font-medium">Disponibilités:</span> {employee.availableDays.join(', ')}
+              <span className="font-medium">Disponibilités:</span> {employee.availableDays.join(', '}
             </div>
             <div className="pt-2">
               <Progress 
@@ -699,7 +695,7 @@ export default function StaffScheduling() {
             variant="outline" 
             size="sm" 
             className="w-full"
-            onClick={() => setShowAddShift(true)}
+            onClick={() => setShowAddShift(true}
           >
             <Plus className="h-4 w-4 mr-2" />
             Ajouter un shift
@@ -726,7 +722,7 @@ export default function StaffScheduling() {
             <RotateCw className={`h-4 w-4 mr-2 ${isLoading.shifts ? 'animate-spin' : ''}`} />
             Auto-Planning
           </Button>
-          <Button onClick={() => setShowAddShift(true)}>
+          <Button onClick={() => setShowAddShift(true}>
             <Plus className="h-4 w-4 mr-2" />
             Nouveau Créneau
           </Button>
@@ -771,7 +767,7 @@ export default function StaffScheduling() {
               <Button 
                 variant="outline" 
                 size="sm"
-                onClick={() => setSelectedWeek(new Date())}
+                onClick={() => setSelectedWeek(new Date();}
               >
                 Aujourd'hui
               </Button>
@@ -876,9 +872,9 @@ export default function StaffScheduling() {
                       className="sticky top-0 z-10 bg-background p-2 text-center font-medium text-sm border-b"
                     >
                       <div>{weekDays[index]}</div>
-                      <div className="text-muted-foreground">{date.getDate()}</div>
+                      <div className="text-muted-foreground">{date.getDate(}</div>
                     </div>
-                  ))}
+                  );}
 
                   {/* Grille des créneaux */}
                   {timeSlots.map(timeSlot => (
@@ -913,10 +909,10 @@ export default function StaffScheduling() {
                                         prev.includes(shift.id) ? 
                                         prev.filter(id => id !== shift.id) : 
                                         [...prev, shift.id]
-                                      )}
+                                      }
                                     >
                                       <div className="font-medium truncate">
-                                        {employee ? `${employee.firstName} ${employee.lastName.charAt(0)}.` : 'Employé'}
+                                        {employee ? `${employee.firstName} ${employee.lastName.charAt(0}.` : 'Employé'}
                                       </div>
                                       <div className="text-muted-foreground truncate">
                                         {shift.position}
@@ -930,7 +926,7 @@ export default function StaffScheduling() {
                                       </div>
                                       <div>
                                         {shift.startTime} - {shift.endTime} (
-                                        {calculateHours(shift.startTime, shift.endTime).toFixed(1)}h)
+                                        {calculateHours(shift.startTime, shift.endTime).toFixed(1}h)
                                       </div>
                                       <div>{shift.position}</div>
                                       {shift.notes && (
@@ -945,7 +941,7 @@ export default function StaffScheduling() {
                         );
                       })}
                     </React.Fragment>
-                  ))}
+                  );}
                 </div>
               )}
             </CardContent>
@@ -976,12 +972,10 @@ export default function StaffScheduling() {
                     <Skeleton className="h-9 w-full" />
                   </CardFooter>
                 </Card>
-              ))
-            ) : (
+              );: (
               filteredEmployees.map(employee => (
                 <EmployeeCard key={employee.id} employee={employee} />
-              ))
-            )}
+              );}
           </div>
         </TabsContent>
 
@@ -1016,7 +1010,7 @@ export default function StaffScheduling() {
                     <div className="flex justify-between">
                       <span>Total heures planifiées:</span>
                       <span className="font-semibold">
-                        {analytics.totalHours.toFixed(1)}h
+                        {analytics.totalHours.toFixed(1}h
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -1032,7 +1026,7 @@ export default function StaffScheduling() {
                     <div className="flex justify-between">
                       <span>Moyenne heures/employé:</span>
                       <span className="font-semibold">
-                        {analytics.avgHoursPerEmployee.toFixed(1)}h
+                        {analytics.avgHoursPerEmployee.toFixed(1}h
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -1063,7 +1057,7 @@ export default function StaffScheduling() {
                           indicatorClassName="bg-amber-500"
                         />
                       </div>
-                    ))}
+                    );}
                   </div>
                 </CardContent>
               </Card>
@@ -1168,7 +1162,7 @@ export default function StaffScheduling() {
               setShowAddShift(false);
             }} 
             employees={employees} 
-            weekDates={getWeekDates(selectedWeek)}
+            weekDates={getWeekDates(selectedWeek}
           />
         </DialogContent>
       </Dialog>
@@ -1211,7 +1205,7 @@ const AddShiftForm = ({
           value={formData.employeeId} 
           onValueChange={(value) => {
             setFormData(prev => {
-              const employee = employees.find(e => e.id === Number(value));
+              const employee = employees.find(e => e.id === Number(value);
               return {
                 ...prev,
                 employeeId: value,
@@ -1227,7 +1221,7 @@ const AddShiftForm = ({
           <SelectContent>
             <ScrollArea className="h-[200px]">
               {employees.filter(e => e.status === 'active').map(emp => (
-                <SelectItem key={emp.id} value={emp.id.toString()}>
+                <SelectItem key={emp.id} value={emp.id.toString(}>
                   <div className="flex items-center space-x-2">
                     {emp.avatar ? (
                       <img 
@@ -1245,7 +1239,7 @@ const AddShiftForm = ({
                     </span>
                   </div>
                 </SelectItem>
-              ))}
+              );}
             </ScrollArea>
           </SelectContent>
         </Select>
@@ -1265,12 +1259,12 @@ const AddShiftForm = ({
             <SelectContent>
               {weekDates.map(date => (
                 <SelectItem 
-                  key={date.toISOString()} 
+                  key={date.toISOString(} 
                   value={date.toISOString().split('T')[0]}
                 >
                   {date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
                 </SelectItem>
-              ))}
+              );}
             </SelectContent>
           </Select>
         </div>

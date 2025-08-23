@@ -77,10 +77,9 @@ const LoyaltyProgram = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(localStorage.getItem('auth_token') ? { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` } : {})
+          ...(localStorage.getItem('auth_token') ? { 'Authorization': `Bearer ${localStorage.getItem('auth_token'}` } : {})
         },
-        body: JSON.stringify(params)
-      });
+        body: JSON.stringify(params});
       if (!response.ok) throw new Error('Erreur lors de l\'ajout de points');
       return response.json();
     },
@@ -240,7 +239,7 @@ const LoyaltyProgram = () => {
                         className="w-full"
                       />
                     </div>
-                  ))}
+                  );}
                 </div>
               </CardContent>
             </Card>
@@ -345,13 +344,13 @@ const LoyaltyProgram = () => {
                             <div className="w-1 h-1 rounded-full bg-gray-400"></div>
                             {benefit}
                           </li>
-                        ))}
+                        );}
                       </ul>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            );}
           </div>
         </TabsContent>
 
@@ -399,7 +398,7 @@ const LoyaltyProgram = () => {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            );}
           </div>
         </TabsContent>
 
@@ -411,7 +410,7 @@ const LoyaltyProgram = () => {
               <Input
                 placeholder="Rechercher un membre..."
                 value={searchCustomer}
-                onChange={(e) => setSearchCustomer(e.target.value)}
+                onChange={(e) => setSearchCustomer(e.target.value}
                 className="pl-10"
               />
             </div>
@@ -468,7 +467,7 @@ const LoyaltyProgram = () => {
                       </Button>
                     </div>
                   </div>
-                ))}
+                );}
               </div>
             </CardContent>
           </Card>

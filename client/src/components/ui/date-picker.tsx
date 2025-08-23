@@ -58,9 +58,9 @@ export function DatePicker({
   const [time, setTime] = React.useState("12:00")
 
   const formatDisplayDate = (selectedDate: Date) => {
-    if (isToday(selectedDate)) return "Aujourd'hui"
-    if (isTomorrow(selectedDate)) return "Demain"
-    if (isYesterday(selectedDate)) return "Hier"
+    if (isToday(selectedDate);return "Aujourd'hui"
+    if (isTomorrow(selectedDate);return "Demain"
+    if (isYesterday(selectedDate);return "Hier"
     return format(selectedDate, dateFormat, { locale: fr })
   }
 
@@ -72,8 +72,7 @@ export function DatePicker({
 
     if (showTime && time) {
       const [hours, minutes] = time.split(":")
-      selectedDate.setHours(parseInt(hours), parseInt(minutes))
-    }
+      selectedDate.setHours(parseInt(hours), parseInt(minutes);}
 
     onSelect?.(selectedDate)
     if (!showTime) {
@@ -100,13 +99,13 @@ export function DatePicker({
             "w-full justify-start text-left font-normal",
             !date && "text-muted-foreground",
             className
-          )}
+          }
           disabled={disabled}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
           {date ? (
             <span className="flex-1">
-              {formatDisplayDate(date)}
+              {formatDisplayDate(date}
               {showTime && time && ` à ${time}`}
             </span>
           ) : (
@@ -151,8 +150,7 @@ export function DatePicker({
                           <SelectItem key={`${hour}:${minute}`} value={`${hour}:${minute}`}>
                             {hour}:{minute}
                           </SelectItem>
-                        ))
-                      }).flat()}
+                        )});.flat()}
                     </SelectContent>
                   </Select>
                 </div>
@@ -170,11 +168,11 @@ export function DatePicker({
                     variant="ghost"
                     size="sm"
                     className="w-full justify-start"
-                    onClick={() => handlePresetSelect(preset.value)}
+                    onClick={() => handlePresetSelect(preset.value}
                   >
                     {preset.label}
                   </Button>
-                ))}
+                );}
               </div>
             </div>
           )}
@@ -245,12 +243,12 @@ export function DateRangePicker({
             "w-full justify-start text-left font-normal",
             !dateRange && "text-muted-foreground",
             className
-          )}
+          }
           disabled={disabled}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
           {dateRange ? (
-            <span className="flex-1">{formatRange(dateRange)}</span>
+            <span className="flex-1">{formatRange(dateRange}</span>
           ) : (
             <span className="flex-1">{placeholder}</span>
           )}
@@ -292,7 +290,7 @@ export function DateRangePicker({
                   >
                     {preset.label}
                   </Button>
-                ))}
+                );}
               </div>
             </div>
           )}

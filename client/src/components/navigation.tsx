@@ -136,7 +136,7 @@ export default function Navigation(): JSX.Element {
         "bg-coffee-dark text-white sticky top-0 z-50 transition-all duration-300",
         isScrolled ? "shadow-xl py-2" : "py-4",
         "backdrop-blur-sm bg-coffee-dark/95"
-      )}
+      }
     >
       <div className="container mx-auto px-4 sm:px-6">
         <div className="flex justify-between items-center">
@@ -162,7 +162,7 @@ export default function Navigation(): JSX.Element {
                     className={cn(
                       "text-white hover:bg-coffee-darker hover:text-coffee-secondary px-4",
                       location === item.href && "bg-coffee-darker text-coffee-secondary"
-                    )}
+                    }
                   >
                     {item.icon}
                     <span className="ml-2">{item.label}</span>
@@ -172,17 +172,16 @@ export default function Navigation(): JSX.Element {
                 <Button
                   key={item.id}
                   variant="ghost"
-                  onClick={() => handleNavAction(item)}
+                  onClick={() => handleNavAction(item}
                   className={cn(
                     "text-white hover:bg-coffee-darker hover:text-coffee-secondary px-4",
                     isActiveSection(item.id) && "bg-coffee-darker text-coffee-secondary"
-                  )}
+                  }
                 >
                   {item.icon}
                   <span className="ml-2">{item.label}</span>
                 </Button>
-              )
-            ))}
+              );}
 
             {/* Panier */}
             <Link href={cartItem.href!}>
@@ -194,7 +193,7 @@ export default function Navigation(): JSX.Element {
                 <span className="ml-2">{cartItem.label}</span>
                 {getCartItemsCount() > 0 && (
                   <Badge className="absolute -top-2 -right-2 bg-coffee-accent text-white text-xs min-w-5 h-5 flex items-center justify-center rounded-full">
-                    {getCartItemsCount()}
+                    {getCartItemsCount(}
                   </Badge>
                 )}
               </Button>
@@ -224,7 +223,7 @@ export default function Navigation(): JSX.Element {
                 {cartItem.icon}
                 {getCartItemsCount() > 0 && (
                   <Badge className="absolute -top-1 -right-1 bg-coffee-accent text-white text-xs min-w-4 h-4 flex items-center justify-center rounded-full">
-                    {getCartItemsCount()}
+                    {getCartItemsCount(}
                   </Badge>
                 )}
               </Button>
@@ -232,7 +231,7 @@ export default function Navigation(): JSX.Element {
 
             <button
               className="p-2 rounded-md text-white hover:bg-coffee-darker focus:outline-none focus:ring-2 focus:ring-coffee-secondary"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen}
               aria-label="Toggle menu"
               aria-expanded={isMobileMenuOpen}
             >
@@ -240,7 +239,7 @@ export default function Navigation(): JSX.Element {
                 <X className="h-6 w-6" />
               ) : (
                 <Menu className="h-6 w-6" />
-              )}
+              }
             </button>
           </div>
         </div>
@@ -250,7 +249,7 @@ export default function Navigation(): JSX.Element {
           className={cn(
             "md:hidden overflow-hidden transition-all duration-300 ease-in-out",
             isMobileMenuOpen ? "max-h-screen mt-4" : "max-h-0"
-          )}
+          }
         >
           <div className="flex flex-col space-y-2 pb-4">
             {[...navItems, cartItem, adminItem].map((item) => (
@@ -264,7 +263,7 @@ export default function Navigation(): JSX.Element {
                     <span className="ml-3">{item.label}</span>
                     {item.id === 'cart' && getCartItemsCount() > 0 && (
                       <Badge className="ml-auto bg-coffee-accent text-white">
-                        {getCartItemsCount()}
+                        {getCartItemsCount(}
                       </Badge>
                     )}
                   </Button>
@@ -273,14 +272,13 @@ export default function Navigation(): JSX.Element {
                 <Button
                   key={item.id}
                   variant="ghost"
-                  onClick={() => handleNavAction(item)}
+                  onClick={() => handleNavAction(item}
                   className="w-full justify-start text-white hover:bg-coffee-darker hover:text-coffee-secondary px-4 py-3"
                 >
                   {item.icon}
                   <span className="ml-3">{item.label}</span>
                 </Button>
-              )
-            ))}
+              );}
           </div>
         </div>
       </div>

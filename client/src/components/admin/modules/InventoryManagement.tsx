@@ -259,10 +259,9 @@ const InventoryManagement = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('auth_token')}`
+          Authorization: `Bearer ${localStorage.getItem('auth_token'}`
         },
-        body: JSON.stringify(params)
-      });
+        body: JSON.stringify(params});
       if (!response.ok) throw new Error('Échec de la génération des commandes');
       return response.json();
     },
@@ -286,12 +285,11 @@ const InventoryManagement = () => {
       .map((category) => ({
         ...category,
         items: category.items.filter((item) => {
-          const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
+          const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase();
           const matchesCategory = selectedCategory === 'all' || category.id === selectedCategory;
           const matchesStatus = selectedStatus === 'all' || item.status === selectedStatus;
           return matchesSearch && matchesCategory && matchesStatus;
-        })
-      }))
+        }});)
       .filter(category => category.items.length > 0);
   }, [inventory, searchTerm, selectedCategory, selectedStatus]);
 
@@ -301,13 +299,13 @@ const InventoryManagement = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
             <Skeleton key={i} className="h-[125px] w-full" />
-          ))}
+          );}
         </div>
         <div className="space-y-4">
           <Skeleton className="h-10 w-full" />
           {[...Array(3)].map((_, i) => (
             <Skeleton key={i} className="h-20 w-full" />
-          ))}
+          );}
         </div>
       </div>
     );
@@ -359,7 +357,7 @@ const InventoryManagement = () => {
                 <strong>{alert.itemName}:</strong> {alert.message}
               </AlertDescription>
             </Alert>
-          ))}
+          );}
         </div>
       )}
 
@@ -410,7 +408,7 @@ const InventoryManagement = () => {
               <Input
                 placeholder="Rechercher un article..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => setSearchTerm(e.target.value}
                 className="pl-10"
               />
             </div>
@@ -427,7 +425,7 @@ const InventoryManagement = () => {
                   <SelectItem key={category.id} value={category.id}>
                     {category.name}
                   </SelectItem>
-                ))}
+                );}
               </SelectContent>
             </Select>
             <Select 
@@ -460,11 +458,11 @@ const InventoryManagement = () => {
                   <div className="space-y-3">
                     {category.items.map((item) => (
                       <InventoryItemCard key={item.id} item={item} />
-                    ))}
+                    );}
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            );}
           </div>
         </TabsContent>
 
@@ -508,7 +506,7 @@ const InventoryManagement = () => {
                         </div>
                       </div>
                     </div>
-                  ))}
+                  );}
                 </div>
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
@@ -548,11 +546,11 @@ const InventoryManagement = () => {
                           {movement.type === 'in' ? '+' : '-'}{movement.quantity} {movement.unit}
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          {new Date(movement.date).toLocaleDateString('fr-FR')}
+                          {new Date(movement.date).toLocaleDateString('fr-FR'}
                         </div>
                       </div>
                     </div>
-                  ))}
+                  );}
                 </div>
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
@@ -600,7 +598,7 @@ const InventoryManagement = () => {
                         </Button>
                       </div>
                     </div>
-                  ))}
+                  );}
                 </div>
               ) : (
                 <div className="text-center py-8 text-muted-foreground">

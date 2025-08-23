@@ -159,8 +159,7 @@ export default function OnlineOrdering(): JSX.Element {
     mutationFn: ({ id, ...data }: { id: number; [key: string]: any }) => 
       apiRequest(`/api/admin/online-orders/${id}`, { 
         method: 'PUT', 
-        body: JSON.stringify(data) 
-      }),
+        body: JSON.stringify(data});,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['onlineOrders'] });
       toast({ 
@@ -181,8 +180,7 @@ export default function OnlineOrdering(): JSX.Element {
     mutationFn: (data: Partial<OrderSettings>) => 
       apiRequest('/api/admin/online-ordering/settings', { 
         method: 'POST', 
-        body: JSON.stringify(data) 
-      }),
+        body: JSON.stringify(data});,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['onlineOrderSettings'] });
       toast({ 
@@ -207,7 +205,7 @@ export default function OnlineOrdering(): JSX.Element {
     setSettingsForm(prev => ({
       ...prev,
       [key]: value
-    }));
+    });
   };
 
   const filteredOrders = useMemo(() => {
@@ -245,7 +243,7 @@ export default function OnlineOrdering(): JSX.Element {
                 </div>
               </CardContent>
             </Card>
-          ))}
+          );}
         </div>
 
         <Card>
@@ -276,7 +274,7 @@ export default function OnlineOrdering(): JSX.Element {
             <div className="space-y-4">
               {[1, 2, 3, 4, 5].map((i) => (
                 <Skeleton key={i} className="h-12 w-full" />
-              ))}
+              );}
             </div>
           </CardContent>
         </Card>
@@ -321,7 +319,7 @@ export default function OnlineOrdering(): JSX.Element {
                   </div>
                   <Switch 
                     checked={settingsForm.onlineOrderingEnabled || false} 
-                    onCheckedChange={(val) => handleSettingsChange('onlineOrderingEnabled', val)}
+                    onCheckedChange={(val) => handleSettingsChange('onlineOrderingEnabled', val}
                   />
                 </div>
                 <div className="flex items-center justify-between space-x-4">
@@ -333,7 +331,7 @@ export default function OnlineOrdering(): JSX.Element {
                   </div>
                   <Switch 
                     checked={settingsForm.deliveryEnabled || false} 
-                    onCheckedChange={(val) => handleSettingsChange('deliveryEnabled', val)}
+                    onCheckedChange={(val) => handleSettingsChange('deliveryEnabled', val}
                   />
                 </div>
                 <div className="flex items-center justify-between space-x-4">
@@ -345,7 +343,7 @@ export default function OnlineOrdering(): JSX.Element {
                   </div>
                   <Switch 
                     checked={settingsForm.pickupEnabled || false} 
-                    onCheckedChange={(val) => handleSettingsChange('pickupEnabled', val)}
+                    onCheckedChange={(val) => handleSettingsChange('pickupEnabled', val}
                   />
                 </div>
                 <div className="flex items-center justify-between space-x-4">
@@ -357,7 +355,7 @@ export default function OnlineOrdering(): JSX.Element {
                   </div>
                   <Switch 
                     checked={settingsForm.onlinePaymentEnabled || false} 
-                    onCheckedChange={(val) => handleSettingsChange('onlinePaymentEnabled', val)}
+                    onCheckedChange={(val) => handleSettingsChange('onlinePaymentEnabled', val}
                   />
                 </div>
               </div>
@@ -368,7 +366,7 @@ export default function OnlineOrdering(): JSX.Element {
                   <Input 
                     type="number" 
                     value={settingsForm.minPrepTime || 15} 
-                    onChange={(e) => handleSettingsChange('minPrepTime', parseInt(e.target.value))}
+                    onChange={(e) => handleSettingsChange('minPrepTime', parseInt(e.target.value);}
                     placeholder="15" 
                   />
                 </div>
@@ -377,7 +375,7 @@ export default function OnlineOrdering(): JSX.Element {
                   <Input 
                     type="number" 
                     value={settingsForm.minDeliveryTime || 30} 
-                    onChange={(e) => handleSettingsChange('minDeliveryTime', parseInt(e.target.value))}
+                    onChange={(e) => handleSettingsChange('minDeliveryTime', parseInt(e.target.value);}
                     placeholder="30" 
                   />
                 </div>
@@ -389,7 +387,7 @@ export default function OnlineOrdering(): JSX.Element {
                   type="number" 
                   step="0.01" 
                   value={settingsForm.deliveryFee || 0} 
-                  onChange={(e) => handleSettingsChange('deliveryFee', parseFloat(e.target.value))}
+                  onChange={(e) => handleSettingsChange('deliveryFee', parseFloat(e.target.value);}
                   placeholder="5.00" 
                 />
               </div>
@@ -400,19 +398,19 @@ export default function OnlineOrdering(): JSX.Element {
                   type="number" 
                   step="0.01" 
                   value={settingsForm.minDeliveryAmount || 0} 
-                  onChange={(e) => handleSettingsChange('minDeliveryAmount', parseFloat(e.target.value))}
+                  onChange={(e) => handleSettingsChange('minDeliveryAmount', parseFloat(e.target.value);}
                   placeholder="25.00" 
                 />
               </div>
 
               <DialogFooter>
                 <Button 
-                  onClick={() => updateSettingsMutation.mutate(settingsForm)} 
+                  onClick={() => updateSettingsMutation.mutate(settingsForm} 
                   disabled={updateSettingsMutation.isPending}
                 >
                   {updateSettingsMutation.isPending && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
+                  }
                   Sauvegarder
                 </Button>
               </DialogFooter>
@@ -462,7 +460,7 @@ export default function OnlineOrdering(): JSX.Element {
                   <SelectItem value="all">Tous</SelectItem>
                   {Object.entries(statusLabels).map(([status, label]) => (
                     <SelectItem key={status} value={status}>{label}</SelectItem>
-                  ))}
+                  );}
                 </SelectContent>
               </Select>
             </div>
@@ -519,7 +517,7 @@ export default function OnlineOrdering(): JSX.Element {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
-                        {getPlatformIcon(order.platform)}
+                        {getPlatformIcon(order.platform}
                         <span className="capitalize">
                           {order.platform === 'website' ? 'Site Web' : 
                            order.platform === 'mobile_app' ? 'App Mobile' : 'Téléphone'}
@@ -537,7 +535,7 @@ export default function OnlineOrdering(): JSX.Element {
                         {statusLabels[order.status]}
                       </Badge>
                     </TableCell>
-                    <TableCell>{(order.totalAmount || 0).toFixed(2)}€</TableCell>
+                    <TableCell>{(order.totalAmount || 0).toFixed(2}€</TableCell>
                     <TableCell>
                       <Badge variant={order.paymentStatus === 'paid' ? 'default' : 'secondary'}>
                         {order.paymentStatus === 'paid' ? 'Payé' : 
@@ -549,14 +547,14 @@ export default function OnlineOrdering(): JSX.Element {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => setSelectedOrder(order)}
+                          onClick={() => setSelectedOrder(order}
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
                         {order.status === 'pending' && (
                           <Button
                             size="sm"
-                            onClick={() => updateOrderStatus(order.id, 'confirmed')}
+                            onClick={() => updateOrderStatus(order.id, 'confirmed'}
                             disabled={updateOrderMutation.isPending}
                           >
                             {updateOrderMutation.isPending ? (
@@ -567,7 +565,7 @@ export default function OnlineOrdering(): JSX.Element {
                         {order.status === 'confirmed' && (
                           <Button
                             size="sm"
-                            onClick={() => updateOrderStatus(order.id, 'preparing')}
+                            onClick={() => updateOrderStatus(order.id, 'preparing'}
                             disabled={updateOrderMutation.isPending}
                           >
                             {updateOrderMutation.isPending ? (
@@ -578,7 +576,7 @@ export default function OnlineOrdering(): JSX.Element {
                         {order.status === 'preparing' && (
                           <Button
                             size="sm"
-                            onClick={() => updateOrderStatus(order.id, 'ready')}
+                            onClick={() => updateOrderStatus(order.id, 'ready'}
                             disabled={updateOrderMutation.isPending}
                           >
                             {updateOrderMutation.isPending ? (
@@ -589,7 +587,7 @@ export default function OnlineOrdering(): JSX.Element {
                         {order.status === 'ready' && (
                           <Button
                             size="sm"
-                            onClick={() => updateOrderStatus(order.id, 'completed')}
+                            onClick={() => updateOrderStatus(order.id, 'completed'}
                             disabled={updateOrderMutation.isPending}
                           >
                             {updateOrderMutation.isPending ? (
@@ -600,8 +598,7 @@ export default function OnlineOrdering(): JSX.Element {
                       </div>
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
+                );: (
                 <TableRow>
                   <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                     Aucune commande trouvée
@@ -615,7 +612,7 @@ export default function OnlineOrdering(): JSX.Element {
 
       {/* Dialog détails commande */}
       {selectedOrder && (
-        <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
+        <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Détails Commande #{selectedOrder.orderNumber}</DialogTitle>
@@ -648,21 +645,21 @@ export default function OnlineOrdering(): JSX.Element {
                         <p className="text-sm text-gray-500">Quantité: {item.quantity}</p>
                         {item.customizations && item.customizations.length > 0 && (
                           <p className="text-sm text-blue-600">
-                            Personnalisations: {item.customizations.join(', ')}
+                            Personnalisations: {item.customizations.join(', '}
                           </p>
                         )}
                         {item.notes && (
                           <p className="text-sm text-gray-500">Note: {item.notes}</p>
                         )}
                       </div>
-                      <p className="font-medium">{(item.quantity * item.unitPrice).toFixed(2)}€</p>
+                      <p className="font-medium">{(item.quantity * item.unitPrice).toFixed(2}€</p>
                     </div>
-                  ))}
+                  );}
                 </div>
               </div>
 
               <div className="flex justify-between items-center pt-4 border-t">
-                <p className="text-lg font-bold">Total: {(selectedOrder.totalAmount || 0).toFixed(2)}€</p>
+                <p className="text-lg font-bold">Total: {(selectedOrder.totalAmount || 0).toFixed(2}€</p>
                 <Badge className={statusColors[selectedOrder.status]}>
                   {statusLabels[selectedOrder.status]}
                 </Badge>

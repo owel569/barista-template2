@@ -49,7 +49,7 @@ export function MaintenanceTaskForm({
     }
   );
 
-  const [date, setDate] = useState<Date>(initialData ? new Date(initialData.scheduledDate) : new Date());
+  const [date, setDate] = useState<Date>(initialData ? new Date(initialData.scheduledDate) : new Date();
 
   useEffect(() => {
     if (date) {
@@ -130,10 +130,10 @@ export function MaintenanceTaskForm({
             </SelectTrigger>
             <SelectContent>
               {equipmentList.map(equipment => (
-                <SelectItem key={equipment.id} value={equipment.id.toString()}>
+                <SelectItem key={equipment.id} value={equipment.id.toString(}>
                   {equipment.name} ({equipment.type})
                 </SelectItem>
-              ))}
+              );}
             </SelectContent>
           </Select>
         </div>
@@ -187,10 +187,10 @@ export function MaintenanceTaskForm({
             </SelectTrigger>
             <SelectContent>
               {technicians.map(tech => (
-                <SelectItem key={tech.id} value={tech.id.toString()}>
+                <SelectItem key={tech.id} value={tech.id.toString(}>
                   {tech.name} ({tech.specialization})
                 </SelectItem>
-              ))}
+              );}
             </SelectContent>
           </Select>
         </div>

@@ -41,7 +41,6 @@ const AspectRatio = React.forwardRef<
   >
     {children}
   </AspectRatioPrimitive.Root>
-))
-AspectRatio.displayName = AspectRatioPrimitive.Root.displayName
+);AspectRatio.displayName = AspectRatioPrimitive.Root.displayName
 
 export { AspectRatio, aspectRatioVariants }

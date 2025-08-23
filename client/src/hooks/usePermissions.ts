@@ -145,22 +145,20 @@ export const usePermissions = (userParam?: User | null) => {
   // Méthodes de vérification des permissions
   const hasPermission = useCallback((permission: string): boolean => {
     if (!user) return false;
-    if (ALL_ACCESS_ROLES.includes(user.role as UserRole)) return true;
+    if (ALL_ACCESS_ROLES.includes(user.role as UserRole);return true;
 
     return permissions.some(p => 
       p.resource === permission && 
-      (p.action === 'all' || p.action === 'read')
-    );
+      (p.action === 'all' || p.action === 'read');
   }, [user, permissions]);
 
   const hasWritePermission = useCallback((resource: string): boolean => {
     if (!user) return false;
-    if (ALL_ACCESS_ROLES.includes(user.role as UserRole)) return true;
+    if (ALL_ACCESS_ROLES.includes(user.role as UserRole);return true;
 
     return permissions.some(p => 
       p.resource === resource && 
-      (p.action === 'all' || p.action === 'write')
-    );
+      (p.action === 'all' || p.action === 'write');
   }, [user, permissions]);
 
   const canAccess = useCallback((module: ModuleName): boolean => {
@@ -184,12 +182,11 @@ export const usePermissions = (userParam?: User | null) => {
   // Méthode générique can() pour éviter la répétition
   const can = useCallback((module: ModuleName, action: PermissionAction): boolean => {
     if (!user) return false;
-    if (ALL_ACCESS_ROLES.includes(user.role as UserRole)) return true;
+    if (ALL_ACCESS_ROLES.includes(user.role as UserRole);return true;
 
     return permissions.some(p => 
       p.resource === module && 
-      (p.action === 'all' || p.action === action)
-    );
+      (p.action === 'all' || p.action === action);
   }, [user, permissions]);
 
   // Méthodes spécifiques pour une meilleure DX

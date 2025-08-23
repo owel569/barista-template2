@@ -245,7 +245,7 @@ export default function DeliveryTracking() : JSX.Element {
                 <Skeleton className="h-24 w-full" />
               </CardContent>
             </Card>
-          ))}
+          );}
         </div>
 
         <Card>
@@ -256,7 +256,7 @@ export default function DeliveryTracking() : JSX.Element {
             <div className="flex flex-wrap gap-2">
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <Skeleton key={i} className="h-10 w-24" />
-              ))}
+              );}
             </div>
           </CardContent>
         </Card>
@@ -302,7 +302,7 @@ export default function DeliveryTracking() : JSX.Element {
                 </DialogDescription>
               </DialogHeader>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <form onSubmit={form.handleSubmit(onSubmit} className="space-y-4">
                   <FormField
                     control={form.control}
                     name="orderId"
@@ -310,8 +310,8 @@ export default function DeliveryTracking() : JSX.Element {
                       <FormItem>
                         <FormLabel>Commande</FormLabel>
                         <Select 
-                          onValueChange={(value) => field.onChange(parseInt(value))}
-                          defaultValue={field.value?.toString()}
+                          onValueChange={(value) => field.onChange(parseInt(value);}
+                          defaultValue={field.value?.toString(}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -322,11 +322,11 @@ export default function DeliveryTracking() : JSX.Element {
                             {orders.map((order) => (
                               <SelectItem 
                                 key={order.id} 
-                                value={order.id.toString()}
+                                value={order.id.toString(}
                               >
                                 Commande #{order.id} - {order.customerName} ({order.totalAmount}€)
                               </SelectItem>
-                            ))}
+                            );}
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -341,8 +341,8 @@ export default function DeliveryTracking() : JSX.Element {
                       <FormItem>
                         <FormLabel>Livreur (optionnel)</FormLabel>
                         <Select 
-                          onValueChange={(value) => field.onChange(value ? parseInt(value) : undefined)}
-                          defaultValue={field.value?.toString()}
+                          onValueChange={(value) => field.onChange(value ? parseInt(value) : undefined}
+                          defaultValue={field.value?.toString(}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -356,11 +356,11 @@ export default function DeliveryTracking() : JSX.Element {
                               .map((driver) => (
                                 <SelectItem 
                                   key={driver.id} 
-                                  value={driver.id.toString()}
+                                  value={driver.id.toString(}
                                 >
                                   {driver.name} ({driver.vehicleType})
                                 </SelectItem>
-                              ))}
+                              );}
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -413,7 +413,7 @@ export default function DeliveryTracking() : JSX.Element {
                         <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                       ) : (
                         <Plus className="h-4 w-4 mr-2" />
-                      )}
+                      }
                       Créer la Livraison
                     </Button>
                   </DialogFooter>
@@ -448,8 +448,7 @@ export default function DeliveryTracking() : JSX.Element {
                 <p className="text-sm text-gray-600">En cours</p>
                 <p className="text-2xl font-bold">
                   {deliveries.filter((d) => 
-                    ['assigned', 'picked_up', 'in_transit'].includes(d.status)
-                  ).length}
+                    ['assigned', 'picked_up', 'in_transit'].includes(d.status);.length}
                 </p>
               </div>
             </div>
@@ -495,7 +494,7 @@ export default function DeliveryTracking() : JSX.Element {
             <Button
               variant={statusFilter === 'all' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setStatusFilter('all')}
+              onClick={() => setStatusFilter('all'}
             >
               Toutes
             </Button>
@@ -504,11 +503,11 @@ export default function DeliveryTracking() : JSX.Element {
                 key={status}
                 variant={statusFilter === status ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setStatusFilter(status)}
+                onClick={() => setStatusFilter(status}
               >
                 {label}
               </Button>
-            ))}
+            );}
           </div>
         </CardContent>
       </Card>
@@ -564,7 +563,7 @@ export default function DeliveryTracking() : JSX.Element {
                           <p key={index} className="text-sm">
                             {item.quantity}x {item.name}
                           </p>
-                        ))}
+                        );}
                         {delivery.orderItems?.length > 2 && (
                           <p className="text-xs text-gray-500">
                             +{delivery.orderItems.length - 2} autres articles
@@ -585,13 +584,13 @@ export default function DeliveryTracking() : JSX.Element {
                     <TableCell>
                       <Badge className={statusColors[delivery.status]}>
                         <div className="flex items-center space-x-1">
-                          {getStatusIcon(delivery.status)}
+                          {getStatusIcon(delivery.status}
                           <span>{statusLabels[delivery.status]}</span>
                         </div>
                       </Badge>
                     </TableCell>
                     <TableCell>{delivery.estimatedTime} min</TableCell>
-                    <TableCell>{delivery.totalAmount.toFixed(2)}€</TableCell>
+                    <TableCell>{delivery.totalAmount.toFixed(2}€</TableCell>
                     <TableCell>
                       <div className="flex space-x-2">
                         <Dialog>
@@ -599,7 +598,7 @@ export default function DeliveryTracking() : JSX.Element {
                             <Button 
                               variant="outline" 
                               size="sm"
-                              onClick={() => setSelectedDelivery(delivery)}
+                              onClick={() => setSelectedDelivery(delivery}
                             >
                               <ChevronRight className="h-4 w-4" />
                             </Button>
@@ -634,7 +633,7 @@ export default function DeliveryTracking() : JSX.Element {
                                     <li key={index} className="flex justify-between">
                                       <span>{item.quantity}x {item.name}</span>
                                     </li>
-                                  ))}
+                                  );}
                                 </ul>
                               </div>
                               
@@ -658,7 +657,7 @@ export default function DeliveryTracking() : JSX.Element {
                         {delivery.status === 'pending' && (
                           <Button
                             size="sm"
-                            onClick={() => updateDeliveryStatus(delivery.id, 'assigned')}
+                            onClick={() => updateDeliveryStatus(delivery.id, 'assigned'}
                             disabled={updateDeliveryMutation.isPending}
                           >
                             Assigner
@@ -667,7 +666,7 @@ export default function DeliveryTracking() : JSX.Element {
                         {delivery.status === 'assigned' && (
                           <Button
                             size="sm"
-                            onClick={() => updateDeliveryStatus(delivery.id, 'picked_up')}
+                            onClick={() => updateDeliveryStatus(delivery.id, 'picked_up'}
                             disabled={updateDeliveryMutation.isPending}
                           >
                             Récupérée
@@ -676,7 +675,7 @@ export default function DeliveryTracking() : JSX.Element {
                         {delivery.status === 'picked_up' && (
                           <Button
                             size="sm"
-                            onClick={() => updateDeliveryStatus(delivery.id, 'in_transit')}
+                            onClick={() => updateDeliveryStatus(delivery.id, 'in_transit'}
                             disabled={updateDeliveryMutation.isPending}
                           >
                             En route
@@ -685,7 +684,7 @@ export default function DeliveryTracking() : JSX.Element {
                         {delivery.status === 'in_transit' && (
                           <Button
                             size="sm"
-                            onClick={() => updateDeliveryStatus(delivery.id, 'delivered')}
+                            onClick={() => updateDeliveryStatus(delivery.id, 'delivered'}
                             disabled={updateDeliveryMutation.isPending}
                           >
                             Livrée
@@ -694,8 +693,7 @@ export default function DeliveryTracking() : JSX.Element {
                       </div>
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
+                );: (
                 <TableRow>
                   <TableCell colSpan={9} className="text-center py-8">
                     <Package className="h-12 w-12 mx-auto text-gray-400" />

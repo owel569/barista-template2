@@ -249,7 +249,7 @@ export default function TableManagement(): JSX.Element {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
             <Skeleton key={i} className="h-24 rounded-lg" />
-          ))}
+          );}
         </div>
         
         <Skeleton className="h-96 rounded-lg" />
@@ -265,13 +265,13 @@ export default function TableManagement(): JSX.Element {
         <div className="flex space-x-2">
           <Button
             variant={viewMode === 'list' ? 'default' : 'outline'}
-            onClick={() => setViewMode('list')}
+            onClick={() => setViewMode('list'}
           >
             Liste
           </Button>
           <Button
             variant={viewMode === 'layout' ? 'default' : 'outline'}
-            onClick={() => setViewMode('layout')}
+            onClick={() => setViewMode('layout'}
           >
             Plan
           </Button>
@@ -292,7 +292,7 @@ export default function TableManagement(): JSX.Element {
                 </DialogDescription>
               </DialogHeader>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+                <form onSubmit={form.handleSubmit(handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
@@ -304,7 +304,7 @@ export default function TableManagement(): JSX.Element {
                             <Input 
                               type="number" 
                               {...field} 
-                              onChange={(e) => field.onChange(parseInt(e.target.value))}
+                              onChange={(e) => field.onChange(parseInt(e.target.value);}
                             />
                           </FormControl>
                           <FormMessage />
@@ -324,7 +324,7 @@ export default function TableManagement(): JSX.Element {
                               min="1"
                               max="20"
                               {...field} 
-                              onChange={(e) => field.onChange(parseInt(e.target.value))}
+                              onChange={(e) => field.onChange(parseInt(e.target.value);}
                             />
                           </FormControl>
                           <FormMessage />
@@ -349,7 +349,7 @@ export default function TableManagement(): JSX.Element {
                             <SelectContent>
                               {Object.entries(LOCATION_LABELS).map(([value, label]) => (
                                 <SelectItem key={value} value={value}>{label}</SelectItem>
-                              ))}
+                              );}
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -372,7 +372,7 @@ export default function TableManagement(): JSX.Element {
                             <SelectContent>
                               {Object.entries(SHAPE_LABELS).map(([value, label]) => (
                                 <SelectItem key={value} value={value}>{label}</SelectItem>
-                              ))}
+                              );}
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -490,7 +490,7 @@ export default function TableManagement(): JSX.Element {
                   <SelectItem value="all">Tous</SelectItem>
                   {Object.entries(LOCATION_LABELS).map(([value, label]) => (
                     <SelectItem key={value} value={value}>{label}</SelectItem>
-                  ))}
+                  );}
                 </SelectContent>
               </Select>
             </div>
@@ -505,7 +505,7 @@ export default function TableManagement(): JSX.Element {
                   <SelectItem value="all">Tous</SelectItem>
                   {Object.entries(STATUS_LABELS).map(([value, label]) => (
                     <SelectItem key={value} value={value}>{label}</SelectItem>
-                  ))}
+                  );}
                 </SelectContent>
               </Select>
             </div>
@@ -587,7 +587,7 @@ export default function TableManagement(): JSX.Element {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => setSelectedTable(table)}
+                            onClick={() => setSelectedTable(table}
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
@@ -596,7 +596,7 @@ export default function TableManagement(): JSX.Element {
                           {table.status === 'occupied' && (
                             <Button
                               size="sm"
-                              onClick={() => handleStatusChange(table.id, 'cleaning')}
+                              onClick={() => handleStatusChange(table.id, 'cleaning'}
                             >
                               Libérer
                             </Button>
@@ -604,7 +604,7 @@ export default function TableManagement(): JSX.Element {
                           {table.status === 'cleaning' && (
                             <Button
                               size="sm"
-                              onClick={() => handleStatusChange(table.id, 'available')}
+                              onClick={() => handleStatusChange(table.id, 'available'}
                             >
                               Nettoyée
                             </Button>
@@ -612,7 +612,7 @@ export default function TableManagement(): JSX.Element {
                           {table.status === 'available' && (
                             <Button
                               size="sm"
-                              onClick={() => handleStatusChange(table.id, 'occupied')}
+                              onClick={() => handleStatusChange(table.id, 'occupied'}
                             >
                               Occuper
                             </Button>
@@ -620,8 +620,7 @@ export default function TableManagement(): JSX.Element {
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))
-                ) : (
+                  );: (
                   <TableRow>
                     <TableCell colSpan={7} className="text-center py-8 text-gray-500">
                       Aucune table ne correspond aux filtres sélectionnés
@@ -656,21 +655,20 @@ export default function TableManagement(): JSX.Element {
                           'border-gray-500 bg-gray-50'}
                         ${table.isVip ? 'ring-2 ring-yellow-400' : ''}
                       `}
-                      onClick={() => setSelectedTable(table)}
+                      onClick={() => setSelectedTable(table}
                     >
                       <div className="text-center">
                         <p className="font-bold text-sm">{table.number}</p>
                         <p className="text-xs">{table.capacity} pers.</p>
                         {table.isVip && (
                           <Badge variant="secondary" className="text-xs mt-1">VIP</Badge>
-                        )}
+                        }
                       </div>
                       <div className="absolute top-1 right-1">
                         {STATUS_ICONS[table.status]}
                       </div>
                     </div>
-                  ))
-                ) : (
+                  );: (
                   <div className="col-span-6 text-center py-16 text-gray-500">
                     Aucune table ne correspond aux filtres sélectionnés
                   </div>
@@ -683,7 +681,7 @@ export default function TableManagement(): JSX.Element {
 
       {/* Table Details Dialog */}
       {selectedTable && (
-        <Dialog open={!!selectedTable} onOpenChange={() => setSelectedTable(null)}>
+        <Dialog open={!!selectedTable} onOpenChange={() => setSelectedTable(null}>
           <DialogContent className="sm:max-w-[600px]">
             <DialogHeader>
               <DialogTitle className="flex items-center">
@@ -750,7 +748,7 @@ export default function TableManagement(): JSX.Element {
               <div className="flex justify-end space-x-2 pt-4">
                 <Button
                   variant="outline"
-                  onClick={() => setSelectedTable(null)}
+                  onClick={() => setSelectedTable(null}
                 >
                   Fermer
                 </Button>

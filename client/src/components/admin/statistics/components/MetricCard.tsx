@@ -40,7 +40,7 @@ export function MetricCard({
             <div className="h-8 w-20 bg-gray-200 dark:bg-gray-700 animate-pulse rounded" />
           ) : (
             value
-          )}
+          }
         </div>
         {change && !loading && (
           <p className={`text-xs ${changeColor} mt-1`}>

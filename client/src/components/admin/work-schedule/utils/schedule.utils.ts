@@ -87,17 +87,17 @@ export const formatTime = (time: string): string => {
 };
 
 export const formatDateTime = (date: string, time: string): string => {
-  return `${formatDate(date)} à ${formatTime(time)}`;
+  return `${formatDate(date} à ${formatTime(time}`;
 };
 
 // Génération des dates pour le calendrier
-export const generateWeekDates = (startDate: Date = new Date()): Date[] => {
+export const generateWeekDates = (startDate: Date = new Date();: Date[] => {
   const weekStart = startOfWeek(startDate, { weekStartsOn: 1 }); // Lundi
   const weekEnd = endOfWeek(startDate, { weekStartsOn: 1 }); // Dimanche
   return eachDayOfInterval({ start: weekStart, end: weekEnd });
 };
 
-export const generateMonthDates = (startDate: Date = new Date()): Date[] => {
+export const generateMonthDates = (startDate: Date = new Date();: Date[] => {
   const monthStart = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
   const monthEnd = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0);
   return eachDayOfInterval({ start: monthStart, end: monthEnd });
@@ -105,7 +105,7 @@ export const generateMonthDates = (startDate: Date = new Date()): Date[] => {
 
 // Filtrage des horaires
 export const filterShiftsByDate = (shifts: Shift[], targetDate: Date): Shift[] => {
-  return shifts.filter(shift => isSameDay(parseISO(shift.date), targetDate));
+  return shifts.filter(shift => isSameDay(parseISO(shift.date), targetDate);
 };
 
 export const filterShiftsByEmployee = (shifts: Shift[], employeeId: number): Shift[] => {
@@ -116,14 +116,14 @@ export const filterShiftsByDepartment = (shifts: Shift[], employees: Employee[],
   const departmentEmployeeIds = employees
     .filter(emp => emp.department === department)
     .map(emp => emp.id);
-  return shifts.filter(shift => departmentEmployeeIds.includes(shift.employeeId));
+  return shifts.filter(shift => departmentEmployeeIds.includes(shift.employeeId);
 };
 
 export const filterShiftsByPosition = (shifts: Shift[], employees: Employee[], position: string): Shift[] => {
   const positionEmployeeIds = employees
     .filter(emp => emp.position === position)
     .map(emp => emp.id);
-  return shifts.filter(shift => positionEmployeeIds.includes(shift.employeeId));
+  return shifts.filter(shift => positionEmployeeIds.includes(shift.employeeId);
 };
 
 // Calcul des statistiques
@@ -201,8 +201,7 @@ export const checkShiftConflict = (newShift: Partial<Shift>, existingShifts: Shi
 
   const employeeShifts = filterShiftsByEmployee(existingShifts, newShift.employeeId);
   const sameDayShifts = employeeShifts.filter(shift => 
-    isSameDay(parseISO(shift.date), parseISO(newShift.date))
-  );
+    isSameDay(parseISO(shift.date), parseISO(newShift.date);
 
   return sameDayShifts.some(shift => {
     const existingStart = new Date(`1970-01-01T${shift.startTime}`);
@@ -213,8 +212,7 @@ export const checkShiftConflict = (newShift: Partial<Shift>, existingShifts: Shi
     return (
       (newStart >= existingStart && newStart < existingEnd) ||
       (newEnd > existingStart && newEnd <= existingEnd) ||
-      (newStart <= existingStart && newEnd >= existingEnd)
-    );
+      (newStart <= existingStart && newEnd >= existingEnd);
   });
 };
 
@@ -302,7 +300,7 @@ export const getPositionColor = (position: string): string => {
 
 // Utilitaires pour le temps
 export const isShiftToday = (shift: Shift): boolean => {
-  return isToday(parseISO(shift.date));
+  return isToday(parseISO(shift.date);
 };
 
 export const isShiftPast = (shift: Shift): boolean => {
@@ -355,16 +353,16 @@ export const validateShift = (shift: Partial<Shift>, existingShifts: Shift[] = [
   if (!shift.position) errors.push('Position requise');
   if (!shift.department) errors.push('Département requis');
 
-  if (shift.startTime && shift.endTime && !validateShiftTime(shift.startTime, shift.endTime)) {
+  if (shift.startTime && shift.endTime && !validateShiftTime(shift.startTime, shift.endTime);{
     errors.push('L\'heure de fin doit être après l\'heure de début');
   }
 
-  if (shift.date && !validateShiftDate(shift.date)) {
+  if (shift.date && !validateShiftDate(shift.date);{
     errors.push('La date doit être dans le futur');
   }
 
   if (shift.employeeId && shift.date && shift.startTime && shift.endTime) {
-    if (checkShiftConflict(shift, existingShifts)) {
+    if (checkShiftConflict(shift, existingShifts);{
       errors.push('Conflit d\'horaire détecté pour cet employé');
     }
   }

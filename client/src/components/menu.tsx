@@ -161,7 +161,7 @@ export default function Menu() : JSX.Element {
   const handleAddToCart = (item: unknown) => {
     toast({
       title: "Ajouté au panier",
-      description: `${item.name)} a été ajouté à votre commande`,
+      description: `${item.name} a été ajouté à votre commande`,
     });
   };
 
@@ -184,7 +184,7 @@ export default function Menu() : JSX.Element {
             return (
               <Button
                 key={category.id}
-                onClick={() => setActiveTab(category.slug)}
+                onClick={() => setActiveTab(category.slug}
                 className={`px-6 py-2 rounded-full font-semibold transition duration-300 ${
                   activeTab === category.slug
                     ? "bg-coffee-accent text-white"
@@ -204,7 +204,7 @@ export default function Menu() : JSX.Element {
             <Card key={item.id} className="bg-white shadow-lg overflow-hidden hover:transform hover:scale-105 transition duration-300">
               <div className="w-full h-48 bg-coffee-light/20 overflow-hidden">
                 <img 
-                  src={item.imageUrl || item.image_url || getItemImageUrl(item.name, activeTab)} 
+                  src={item.imageUrl || item.image_url || getItemImageUrl(item.name, activeTab} 
                   alt={item.name} 
                   className="w-full h-full object-cover"
                   onError={(e) => {
@@ -228,7 +228,7 @@ export default function Menu() : JSX.Element {
                     {item.price}€
                   </span>
                   <Button
-                    onClick={() => handleAddToCart(item)}
+                    onClick={() => handleAddToCart(item}
                     className="bg-coffee-dark hover:bg-coffee-accent text-white px-4 py-2 rounded-lg transition duration-300"
                   >
                     <Plus className="mr-1 h-4 w-4" />
@@ -237,7 +237,7 @@ export default function Menu() : JSX.Element {
                 </div>
               </CardContent>
             </Card>
-          ))}
+          );}
         </div>
       </div>
     </section>

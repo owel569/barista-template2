@@ -69,7 +69,7 @@ export default function Footer(): JSX.Element {
             <ul className="space-y-3">
               <li>
                 <button 
-                  onClick={() => scrollToSection("home")}
+                  onClick={() => scrollToSection("home"}
                   className="text-coffee-cream hover:text-coffee-accent transition duration-300 flex items-center"
                   aria-label="Aller à la section Accueil"
                 >
@@ -78,7 +78,7 @@ export default function Footer(): JSX.Element {
               </li>
               <li>
                 <button 
-                  onClick={() => scrollToSection("menu")}
+                  onClick={() => scrollToSection("menu"}
                   className="text-coffee-cream hover:text-coffee-accent transition duration-300 flex items-center"
                   aria-label="Aller à la section Menu"
                 >
@@ -87,7 +87,7 @@ export default function Footer(): JSX.Element {
               </li>
               <li>
                 <button 
-                  onClick={() => scrollToSection("about")}
+                  onClick={() => scrollToSection("about"}
                   className="text-coffee-cream hover:text-coffee-accent transition duration-300 flex items-center"
                   aria-label="Aller à la section À propos"
                 >
@@ -96,7 +96,7 @@ export default function Footer(): JSX.Element {
               </li>
               <li>
                 <button 
-                  onClick={() => scrollToSection("reservation")}
+                  onClick={() => scrollToSection("reservation"}
                   className="text-coffee-cream hover:text-coffee-accent transition duration-300 flex items-center"
                   aria-label="Aller à la section Réservation"
                 >
@@ -105,7 +105,7 @@ export default function Footer(): JSX.Element {
               </li>
               <li>
                 <button 
-                  onClick={() => scrollToSection("contact")}
+                  onClick={() => scrollToSection("contact"}
                   className="text-coffee-cream hover:text-coffee-accent transition duration-300 flex items-center"
                   aria-label="Aller à la section Contact"
                 >
@@ -164,7 +164,7 @@ export default function Footer(): JSX.Element {
                     <Clock className="mr-2 text-coffee-accent h-4 w-4" />
                     <span>{item.day}: {item.hours}</span>
                   </li>
-                ))}
+                );}
               </ul>
             </div>
           </div>

@@ -206,7 +206,7 @@ export default function UserProfileEnhanced() : JSX.Element {
       try {
         const response = await fetch('/api/admin/user-profiles', {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+            'Authorization': `Bearer ${localStorage.getItem('auth_token'}`,
             'Content-Type': 'application/json'
           }
         });
@@ -231,9 +231,9 @@ export default function UserProfileEnhanced() : JSX.Element {
   const filteredProfiles = useMemo(() => {
     return profiles.filter(profile => {
       const matchesSearch = 
-        profile.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        profile.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        profile.email.toLowerCase().includes(searchTerm.toLowerCase());
+        profile.firstName.toLowerCase().includes(searchTerm.toLowerCase();||
+        profile.lastName.toLowerCase().includes(searchTerm.toLowerCase();||
+        profile.email.toLowerCase().includes(searchTerm.toLowerCase();
       
       const matchesLevel = filterLevel === 'all' || profile.loyaltyLevel === filterLevel;
       const matchesStatus = filterStatus === 'all' || 
@@ -280,7 +280,7 @@ export default function UserProfileEnhanced() : JSX.Element {
       'Dernière Visite': profile.lastVisit,
       'Date d\'Inscription': profile.joinDate,
       'Statut': profile.isActive ? 'Actif' : 'Inactif',
-    }));
+    });
 
     console.log('Export Excel:', exportData);
   }, [filteredProfiles]);
@@ -309,9 +309,9 @@ export default function UserProfileEnhanced() : JSX.Element {
           <div className="space-y-2">
             <p><strong>Niveau:</strong> {props.profile.loyaltyLevel}</p>
             <p><strong>Points:</strong> {props.profile.loyaltyPoints}</p>
-            <p><strong>Total dépensé:</strong> {props.profile.totalSpent.toFixed(2)} €</p>
+            <p><strong>Total dépensé:</strong> {props.profile.totalSpent.toFixed(2} €</p>
             <p><strong>Commandes:</strong> {props.profile.totalOrders}</p>
-            <p><strong>Panier moyen:</strong> {props.profile.averageOrderValue.toFixed(2)} €</p>
+            <p><strong>Panier moyen:</strong> {props.profile.averageOrderValue.toFixed(2} €</p>
           </div>
         </div>
       </div>
@@ -325,7 +325,7 @@ export default function UserProfileEnhanced() : JSX.Element {
         />
       </div>
     </div>
-  ));
+  );
 
   const handlePrint = useReactToPrint({
     content: () => document.getElementById('printable-profile') as HTMLDivElement,
@@ -370,7 +370,7 @@ export default function UserProfileEnhanced() : JSX.Element {
             <Input
               placeholder="Rechercher par nom, email..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => setSearchTerm(e.target.value}
               className="w-64"
             />
           </div>
@@ -406,7 +406,7 @@ export default function UserProfileEnhanced() : JSX.Element {
           </Button>
           
           {permissions.canCreate && (
-            <Button onClick={() => setShowAddDialog(true)}>
+            <Button onClick={() => setShowAddDialog(true}>
               <Plus className="w-4 h-4 mr-2" />
               Nouveau Profil
             </Button>
@@ -445,7 +445,7 @@ export default function UserProfileEnhanced() : JSX.Element {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Revenus Total</p>
-                <p className="text-2xl font-bold">€{profiles.reduce((sum, p) => sum + p.totalSpent, 0).toFixed(0)}</p>
+                <p className="text-2xl font-bold">€{profiles.reduce((sum, p) => sum + p.totalSpent, 0).toFixed(0}</p>
               </div>
               <CreditCard className="w-8 h-8 text-purple-500" />
             </div>
@@ -457,7 +457,7 @@ export default function UserProfileEnhanced() : JSX.Element {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Panier Moyen</p>
-                <p className="text-2xl font-bold">€{(profiles.reduce((sum, p) => sum + p.averageOrderValue, 0) / profiles.length).toFixed(2)}</p>
+                <p className="text-2xl font-bold">€{(profiles.reduce((sum, p) => sum + p.averageOrderValue, 0) / profiles.length).toFixed(2}</p>
               </div>
               <FileText className="w-8 h-8 text-orange-500" />
             </div>
@@ -468,7 +468,7 @@ export default function UserProfileEnhanced() : JSX.Element {
       {/* Grille des profils */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {paginatedProfiles.map(profile => (
-          <Card key={profile.id)} className="hover:shadow-lg transition-shadow">
+                      <Card key={profile.id} className="hover:shadow-lg transition-shadow">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
@@ -481,7 +481,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                     <p className="text-xs text-gray-600">{profile.email}</p>
                   </div>
                 </div>
-                <Badge className={getLoyaltyBadgeColor(profile.loyaltyLevel)}>
+                <Badge className={getLoyaltyBadgeColor(profile.loyaltyLevel}>
                   {profile.loyaltyLevel}
                 </Badge>
               </div>
@@ -490,7 +490,7 @@ export default function UserProfileEnhanced() : JSX.Element {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Total dépensé</span>
-                  <span className="font-medium">€{profile.totalSpent.toFixed(2)}</span>
+                  <span className="font-medium">€{profile.totalSpent.toFixed(2}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Commandes</span>
@@ -512,7 +512,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => setSelectedProfile(profile)}
+                      onClick={() => setSelectedProfile(profile}
                     >
                       <Eye className="w-3 h-3" />
                     </Button>
@@ -520,7 +520,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={()}) => {
+                                                  onClick={() => {
                           setSelectedProfile(profile);
                           setShowEditDialog(true);
                         }}
@@ -534,7 +534,7 @@ export default function UserProfileEnhanced() : JSX.Element {
               </div>
             </CardContent>
           </Card>
-        ))}
+        );}
       </div>
 
       {/* Pagination */}
@@ -542,7 +542,7 @@ export default function UserProfileEnhanced() : JSX.Element {
         <div className="flex items-center justify-center space-x-2">
           <Button
             variant="outline"
-            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1);}
             disabled={currentPage === 1}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -553,7 +553,7 @@ export default function UserProfileEnhanced() : JSX.Element {
           </span>
           <Button
             variant="outline"
-            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1);}
             disabled={currentPage === totalPages}
           >
             Suivant
@@ -564,7 +564,7 @@ export default function UserProfileEnhanced() : JSX.Element {
 
       {/* Dialog de détail du profil */}
       {selectedProfile && (
-        <Dialog open={!!selectedProfile)} onOpenChange={() => setSelectedProfile(null)}>
+        <Dialog open={!!selectedProfile} onOpenChange={() => setSelectedProfile(null}>
           <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
@@ -613,7 +613,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                         {selectedProfile.address && (
                           <div className="flex items-center gap-2">
                             <MapPin className="w-4 h-4 text-gray-500" />
-                            <span>{selectedProfile.address.street)}, {selectedProfile.address.city}</span>
+                            <span>{selectedProfile.address.street}, {selectedProfile.address.city}</span>
                           </div>
                         )}
                       </CardContent>
@@ -626,7 +626,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                       <CardContent className="space-y-3">
                         <div className="flex justify-between items-center">
                           <span>Niveau</span>
-                          <Badge className={getLoyaltyBadgeColor(selectedProfile.loyaltyLevel)}>
+                          <Badge className={getLoyaltyBadgeColor(selectedProfile.loyaltyLevel}>
                             {selectedProfile.loyaltyLevel}
                           </Badge>
                         </div>
@@ -636,7 +636,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                         </div>
                         <div className="flex justify-between items-center">
                           <span>Total dépensé</span>
-                          <span className="font-semibold">€{selectedProfile.totalSpent.toFixed(2)}</span>
+                          <span className="font-semibold">€{selectedProfile.totalSpent.toFixed(2}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span>Commandes</span>
@@ -644,7 +644,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                         </div>
                         <div className="flex justify-between items-center">
                           <span>Panier moyen</span>
-                          <span className="font-semibold">€{selectedProfile.averageOrderValue.toFixed(2)}</span>
+                          <span className="font-semibold">€{selectedProfile.averageOrderValue.toFixed(2}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span>Dernière visite</span>
@@ -662,7 +662,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                       <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           {selectedProfile.achievements.map(achievement => (
-                            <div key={achievement.id)} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                            <div key={achievement.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                               <Award className="w-6 h-6 text-yellow-500" />
                               <div>
                                 <h4 className="font-medium text-sm">{achievement.title}</h4>
@@ -670,7 +670,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                                 <p className="text-xs text-gray-500">Obtenu le {format(new Date(achievement.earnedDate), 'dd/MM/yyyy', { locale: fr })}</p>
                               </div>
                             </div>
-                          ))}
+                          );}
                         </div>
                       </CardContent>
                     </Card>
@@ -694,9 +694,9 @@ export default function UserProfileEnhanced() : JSX.Element {
                         </TableHeader>
                         <TableBody>
                           {selectedProfile.orderHistory.map(order => (
-                            <TableRow key={order.id)}>
+                            <TableRow key={order.id}>
                               <TableCell>{format(new Date(order.date), 'dd/MM/yyyy', { locale: fr })}</TableCell>
-                              <TableCell>€{order.amount.toFixed(2)}</TableCell>
+                              <TableCell>€{order.amount.toFixed(2}</TableCell>
                               <TableCell>{order.itemCount}</TableCell>
                               <TableCell>
                                 <Badge variant={order.status === 'completed' ? 'default' : 'secondary'}>
@@ -704,7 +704,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                                 </Badge>
                               </TableCell>
                             </TableRow>
-                          ))}
+                          );}
                         </TableBody>
                       </Table>
                     </CardContent>
@@ -747,7 +747,7 @@ export default function UserProfileEnhanced() : JSX.Element {
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
                               <span className="text-sm">Langue</span>
-                              <Badge>{selectedProfile.preferences.language.toUpperCase()}</Badge>
+                              <Badge>{selectedProfile.preferences.language.toUpperCase(}</Badge>
                             </div>
                             <div className="flex items-center justify-between">
                               <span className="text-sm">Devise</span>
@@ -761,8 +761,8 @@ export default function UserProfileEnhanced() : JSX.Element {
                         <h4 className="font-medium mb-2">Catégories Favorites</h4>
                         <div className="flex flex-wrap gap-2">
                           {selectedProfile.preferences.favoriteCategories.map(category => (
-                            <Badge key={category)} variant="outline">{category}</Badge>
-                          ))}
+                            <Badge key={category} variant="outline">{category}</Badge>
+                          );}
                         </div>
                       </div>
                       
@@ -771,8 +771,8 @@ export default function UserProfileEnhanced() : JSX.Element {
                           <h4 className="font-medium mb-2">Restrictions Alimentaires</h4>
                           <div className="flex flex-wrap gap-2">
                             {selectedProfile.preferences.dietaryRestrictions.map(restriction => (
-                              <Badge key={restriction)} variant="outline">{restriction}</Badge>
-                            ))}
+                              <Badge key={restriction} variant="outline">{restriction}</Badge>
+                            );}
                           </div>
                         </div>
                       )}
@@ -846,7 +846,7 @@ export default function UserProfileEnhanced() : JSX.Element {
 
       {/* Profil imprimable caché */}
       {selectedProfile && (
-        <div style={{ display: 'none' )}}>
+        <div style={{ display: 'none' }}>
           <PrintableProfile ref={null} profile={selectedProfile} />
         </div>
       )}

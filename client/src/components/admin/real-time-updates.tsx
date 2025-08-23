@@ -92,7 +92,7 @@ export default function RealTimeUpdates() {
           connected: true,
           lastHeartbeat: new Date(),
           reconnectAttempts: 0
-        }));
+        });
         
         toast({
           title: "Connexion temps réel établie",
@@ -102,13 +102,13 @@ export default function RealTimeUpdates() {
         const heartbeatInterval = setInterval(() => {
           if (websocket.readyState === WebSocket.OPEN) {
             const start = Date.now();
-            websocket.send(JSON.stringify({ type: 'ping' }));
+            websocket.send(JSON.stringify({ type: 'ping' });
             
             setTimeout(() => {
               setConnectionStatus(prev => ({
                 ...prev,
                 latency: Date.now() - start
-              }));
+              });
             }, 100);
           }
         }, 30000);
@@ -131,13 +131,13 @@ export default function RealTimeUpdates() {
         setConnectionStatus(prev => ({
           ...prev,
           connected: false
-        }));
+        });
 
         setTimeout(() => {
           setConnectionStatus(prev => ({
             ...prev,
             reconnectAttempts: prev.reconnectAttempts + 1
-          }));
+          });
           
           if (connectionStatus.reconnectAttempts < 5) {
             connectWebSocket();
@@ -189,8 +189,7 @@ export default function RealTimeUpdates() {
       case 'pong':
         setConnectionStatus(prev => ({
           ...prev,
-          lastHeartbeat: new Date()
-        }));
+          lastHeartbeat: new Date(}););
         break;
       default:
         console.log('Message WebSocket non géré:', data);
@@ -201,7 +200,7 @@ export default function RealTimeUpdates() {
     setEvents(prev => {
       const newEvents = [event, ...prev].slice(0, 100);
       
-      if (soundEnabled && (event.priority === 'high' || event.priority === 'critical')) {
+      if (soundEnabled && (event.priority === 'high' || event.priority === 'critical');{
         playNotificationSound(event.priority);
       }
 
@@ -260,16 +259,16 @@ export default function RealTimeUpdates() {
     const title = titles[Math.floor(Math.random() * titles.length)];
 
     const event: RealTimeEvent = {
-      id: `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: `evt_${Date.now(}_${Math.random().toString(36).substr(2, 9}`,
       type,
       title,
-      description: `Description pour ${title.toLowerCase()}`,
+      description: `Description pour ${title.toLowerCase(}`,
       timestamp: new Date(),
       priority,
       data: {
         amount: type === 'payment' ? Math.floor(Math.random() * 100) + 10 : undefined,
         tableNumber: type === 'reservation' ? Math.floor(Math.random() * 20) + 1 : undefined,
-        orderId: type === 'order' ? `ORD-${Math.floor(Math.random() * 1000)}` : undefined
+        orderId: type === 'order' ? `ORD-${Math.floor(Math.random() * 1000}` : undefined
       }
     };
 
@@ -301,8 +300,7 @@ export default function RealTimeUpdates() {
     setEvents(prev =>
       prev.map(event =>
         event.id === eventId ? { ...event, handled: true } : event
-      )
-    );
+      );
   }, []);
 
   const filteredEvents = events.filter((event) => {
@@ -390,13 +388,13 @@ export default function RealTimeUpdates() {
                   Déconnecté
                 </Badge>
               </>
-            )}
+            }
           </div>
 
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setSoundEnabled(!soundEnabled)}
+            onClick={() => setSoundEnabled(!soundEnabled}
           >
             <Bell className={`h-4 w-4 ${soundEnabled ? 'text-blue-500' : 'text-gray-400'}`} />
           </Button>
@@ -466,7 +464,7 @@ export default function RealTimeUpdates() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Taux erreur</p>
-                <p className="text-2xl font-bold">{liveMetrics.errorRate.toFixed(1)}%</p>
+                <p className="text-2xl font-bold">{liveMetrics.errorRate.toFixed(1}%</p>
               </div>
               <AlertTriangle className="h-8 w-8 text-red-500" />
             </div>
@@ -515,7 +513,7 @@ export default function RealTimeUpdates() {
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between">
                         <div className="flex items-start space-x-3">
-                          <div className={`w-3 h-3 rounded-full ${getPriorityColor(event.priority)} mt-2`} />
+                          <div className={`w-3 h-3 rounded-full ${getPriorityColor(event.priority} mt-2`} />
                           <TypeIcon className="h-5 w-5 mt-1 text-gray-500" />
                           <div className="flex-1">
                             <h4 className="font-medium">{event.title}</h4>
@@ -523,7 +521,7 @@ export default function RealTimeUpdates() {
                               {event.description}
                             </p>
                             <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
-                              <span>{event.timestamp.toLocaleTimeString()}</span>
+                              <span>{event.timestamp.toLocaleTimeString(}</span>
                               <Badge variant="outline" className="text-xs">
                                 {event.type}
                               </Badge>
@@ -537,7 +535,7 @@ export default function RealTimeUpdates() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => markEventAsHandled(event.id)}
+                            onClick={() => markEventAsHandled(event.id}
                           >
                             <CheckCircle className="h-4 w-4" />
                           </Button>
@@ -546,8 +544,7 @@ export default function RealTimeUpdates() {
                     </CardContent>
                   </Card>
                 );
-              })
-            )}
+              });}
           </div>
         </TabsContent>
 
@@ -564,24 +561,23 @@ export default function RealTimeUpdates() {
                     <label key={type} className="flex items-center space-x-2">
                       <input
                         type="checkbox"
-                        checked={filters.types.includes(type)}
+                        checked={filters.types.includes(type}
                         onChange={(e) => {
                           if (e.target.checked) {
                             setFilters(prev => ({
                               ...prev,
                               types: [...prev.types, type]
-                            }));
+                            });
                           } else {
                             setFilters(prev => ({
                               ...prev,
-                              types: prev.types.filter(t => t !== type)
-                            }));
+                              types: prev.types.filter(t => t !== type}););
                           }
                         }}
                       />
                       <span className="text-sm capitalize">{type}</span>
                     </label>
-                  ))}
+                  );}
                 </div>
               </div>
 
@@ -592,24 +588,23 @@ export default function RealTimeUpdates() {
                     <label key={priority} className="flex items-center space-x-2">
                       <input
                         type="checkbox"
-                        checked={filters.priorities.includes(priority)}
+                        checked={filters.priorities.includes(priority}
                         onChange={(e) => {
                           if (e.target.checked) {
                             setFilters(prev => ({
                               ...prev,
                               priorities: [...prev.priorities, priority]
-                            }));
+                            });
                           } else {
                             setFilters(prev => ({
                               ...prev,
-                              priorities: prev.priorities.filter(p => p !== priority)
-                            }));
+                              priorities: prev.priorities.filter(p => p !== priority}););
                           }
                         }}
                       />
                       <span className="text-sm capitalize">{priority}</span>
                     </label>
-                  ))}
+                  );}
                 </div>
               </div>
 
@@ -617,7 +612,7 @@ export default function RealTimeUpdates() {
                 <label className="text-sm font-medium mb-2 block">Période</label>
                 <select
                   value={filters.timeRange}
-                  onChange={(e) => setFilters(prev => ({ ...prev, timeRange: e.target.value }))}
+                  onChange={(e) => setFilters(prev => ({ ...prev, timeRange: e.target.value });}
                   className="w-full p-2 border rounded-md"
                 >
                   <option value="15m">15 dernières minutes</option>
@@ -644,7 +639,7 @@ export default function RealTimeUpdates() {
                 </div>
                 <Button
                   variant={soundEnabled ? "default" : "outline"}
-                  onClick={() => setSoundEnabled(!soundEnabled)}
+                  onClick={() => setSoundEnabled(!soundEnabled}
                 >
                   {soundEnabled ? 'Activé' : 'Désactivé'}
                 </Button>
@@ -657,7 +652,7 @@ export default function RealTimeUpdates() {
                 </div>
                 <Button
                   variant={autoScroll ? "default" : "outline"}
-                  onClick={() => setAutoScroll(!autoScroll)}
+                  onClick={() => setAutoScroll(!autoScroll}
                 >
                   {autoScroll ? 'Activé' : 'Désactivé'}
                 </Button>

@@ -65,7 +65,7 @@ const Switch = React.forwardRef<
       ref={ref}
     >
       <SwitchPrimitives.Thumb
-        className={cn(switchThumbVariants({ size }))}
+        className={cn(switchThumbVariants({ size });}
       />
     </SwitchPrimitives.Root>
     {(label || description) && (
@@ -76,7 +76,7 @@ const Switch = React.forwardRef<
             className={cn(
               "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
               error && "text-destructive"
-            )}
+            }
           >
             {label}
           </label>
@@ -85,7 +85,7 @@ const Switch = React.forwardRef<
           <p className={cn(
             "text-xs text-muted-foreground",
             error && "text-destructive"
-          )}>
+          }>
             {description}
           </p>
         )}
@@ -95,9 +95,7 @@ const Switch = React.forwardRef<
       </div>
     )}
   </div>
-))
-
-Switch.displayName = SwitchPrimitives.Root.displayName
+);Switch.displayName = SwitchPrimitives.Root.displayName
 
 // Composant Switch avec état contrôlé
 export interface ControlledSwitchProps extends Omit<SwitchProps, 'checked' | 'onCheckedChange'> {
@@ -129,9 +127,6 @@ const ControlledSwitch = React.forwardRef<
       checked={checkedValue}
       onCheckedChange={handleCheckedChange}
     />
-  )
-})
-
-ControlledSwitch.displayName = "ControlledSwitch"
+  });ControlledSwitch.displayName = "ControlledSwitch"
 
 export { Switch, ControlledSwitch, switchVariants }

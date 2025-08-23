@@ -156,37 +156,37 @@ export function PermissionsManagementImproved(): JSX.Element {
     const errors: FormErrors = {};
 
     // Validation username
-    if (!data.username.trim()) {
+    if (!data.username.trim();{
       errors.username = 'Le nom d\'utilisateur est requis';
     } else if (data.username.length < 3) {
       errors.username = 'Le nom d\'utilisateur doit contenir au moins 3 caractères';
     }
 
     // Validation password
-    if (!data.password.trim()) {
+    if (!data.password.trim();{
       errors.password = 'Le mot de passe est requis';
     } else if (data.password.length < 8) {
       errors.password = 'Le mot de passe doit contenir au moins 8 caractères';
-    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(data.password)) {
+    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(data.password);{
       errors.password = 'Le mot de passe doit contenir au moins une majuscule, une minuscule et un chiffre';
     }
 
     // Validation email
-    if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+    if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email);{
       errors.email = 'Format d\'email invalide';
     }
 
     // Validation téléphone
-    if (data.phone && !/^(\+33|0)[1-9](\d{8})$/.test(data.phone)) {
+    if (data.phone && !/^(\+33|0)[1-9](\d{8})$/.test(data.phone);{
       errors.phone = 'Format téléphone invalide (ex: +33612345678 ou 0612345678)';
     }
 
     // Validation champs requis
-    if (!data.firstName.trim()) {
+    if (!data.firstName.trim();{
       errors.firstName = 'Le prénom est requis';
     }
 
-    if (!data.lastName.trim()) {
+    if (!data.lastName.trim();{
       errors.lastName = 'Le nom est requis';
     }
 
@@ -197,10 +197,10 @@ export function PermissionsManagementImproved(): JSX.Element {
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
       const matchesSearch = !searchTerm || 
-        user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (user.firstName?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (user.lastName?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (user.email?.toLowerCase().includes(searchTerm.toLowerCase()));
+        user.username.toLowerCase().includes(searchTerm.toLowerCase();||
+        (user.firstName?.toLowerCase().includes(searchTerm.toLowerCase();||
+        (user.lastName?.toLowerCase().includes(searchTerm.toLowerCase();||
+        (user.email?.toLowerCase().includes(searchTerm.toLowerCase();
 
       const matchesRole = roleFilter === 'all' || user.role === roleFilter;
       
@@ -216,11 +216,11 @@ export function PermissionsManagementImproved(): JSX.Element {
 
   // Gestion des changements de formulaire
   const handleFormChange = useCallback((field: keyof UserFormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData(prev => ({ ...prev, [field]: value });
     
     // Effacer l'erreur du champ modifié
     if (formErrors[field]) {
-      setFormErrors(prev => ({ ...prev, [field]: undefined }));
+      setFormErrors(prev => ({ ...prev, [field]: undefined });
     }
   }, [formErrors]);
 
@@ -390,7 +390,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                     <Input
                       id="firstName"
                       value={formData.firstName}
-                      onChange={(e) => handleFormChange('firstName', e.target.value)}
+                      onChange={(e) => handleFormChange('firstName', e.target.value}
                       placeholder="Prénom"
                       className={formErrors.firstName ? 'border-red-500' : ''}
                     />
@@ -403,7 +403,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                     <Input
                       id="lastName"
                       value={formData.lastName}
-                      onChange={(e) => handleFormChange('lastName', e.target.value)}
+                      onChange={(e) => handleFormChange('lastName', e.target.value}
                       placeholder="Nom"
                       className={formErrors.lastName ? 'border-red-500' : ''}
                     />
@@ -418,7 +418,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                   <Input
                     id="username"
                     value={formData.username}
-                    onChange={(e) => handleFormChange('username', e.target.value)}
+                    onChange={(e) => handleFormChange('username', e.target.value}
                     placeholder="Nom d'utilisateur"
                     className={formErrors.username ? 'border-red-500' : ''}
                   />
@@ -433,7 +433,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                     id="password"
                     type="password"
                     value={formData.password}
-                    onChange={(e) => handleFormChange('password', e.target.value)}
+                    onChange={(e) => handleFormChange('password', e.target.value}
                     placeholder="Mot de passe (8 caractères minimum)"
                     className={formErrors.password ? 'border-red-500' : ''}
                   />
@@ -448,7 +448,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                     id="email"
                     type="email"
                     value={formData.email}
-                    onChange={(e) => handleFormChange('email', e.target.value)}
+                    onChange={(e) => handleFormChange('email', e.target.value}
                     placeholder="email@exemple.com"
                     className={formErrors.email ? 'border-red-500' : ''}
                   />
@@ -462,7 +462,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                   <Input
                     id="phone"
                     value={formData.phone}
-                    onChange={(e) => handleFormChange('phone', e.target.value)}
+                    onChange={(e) => handleFormChange('phone', e.target.value}
                     placeholder="+33612345678"
                     className={formErrors.phone ? 'border-red-500' : ''}
                   />
@@ -475,7 +475,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                   <Label htmlFor="role">Rôle</Label>
                   <Select 
                     value={formData.role} 
-                    onValueChange={(value) => handleFormChange('role', value as UserRole)}
+                    onValueChange={(value) => handleFormChange('role', value as UserRole}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Sélectionner un rôle" />
@@ -490,7 +490,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                 <div className="flex justify-end space-x-2 pt-4">
                   <Button 
                     variant="outline" 
-                    onClick={() => setIsCreateDialogOpen(false)}
+                    onClick={() => setIsCreateDialogOpen(false}
                     disabled={isCreating}
                   >
                     Annuler
@@ -525,13 +525,13 @@ export function PermissionsManagementImproved(): JSX.Element {
                 <Input
                   placeholder="Rechercher par nom, email, username..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => setSearchTerm(e.target.value}
                   className="pl-10"
                 />
               </div>
             </div>
             
-            <Select value={roleFilter} onValueChange={(value) => setRoleFilter(value as UserRole | 'all')}>
+            <Select value={roleFilter} onValueChange={(value) => setRoleFilter(value as UserRole | 'all'}>
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Filtrer par rôle" />
               </SelectTrigger>
@@ -542,7 +542,7 @@ export function PermissionsManagementImproved(): JSX.Element {
               </SelectContent>
             </Select>
             
-            <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as 'all' | 'active' | 'inactive')}>
+            <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as 'all' | 'active' | 'inactive'}>
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Filtrer par statut" />
               </SelectTrigger>
@@ -617,7 +617,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                         <div className="flex items-center gap-2">
                           <Switch
                             checked={user.isActive}
-                            onCheckedChange={(checked) => handleToggleUserStatus(user.id, checked)}
+                            onCheckedChange={(checked) => handleToggleUserStatus(user.id, checked}
                             disabled={isTogglingStatus || user.id === currentUser?.id}
                           />
                           <Badge variant={user.isActive ? "default" : "secondary"}>
@@ -626,26 +626,26 @@ export function PermissionsManagementImproved(): JSX.Element {
                         </div>
                       </TableCell>
                       <TableCell>
-                        {formatDate(user.lastLogin)}
+                        {formatDate(user.lastLogin}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => toggleUserExpansion(user.id)}
+                            onClick={() => toggleUserExpansion(user.id}
                           >
                             {expandedUserId === user.id ? (
                               <ChevronUp className="h-4 w-4" />
                             ) : (
                               <ChevronDown className="h-4 w-4" />
-                            )}
+                            }
                           </Button>
                           {canPerform('update') && (
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => setEditingUser(user)}
+                              onClick={() => setEditingUser(user}
                             >
                               <Edit2 className="h-4 w-4" />
                             </Button>
@@ -654,7 +654,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => setUserToDelete(user)}
+                              onClick={() => setUserToDelete(user}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -684,7 +684,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                                         onCheckedChange={(checked) => 
                                           handleUpdatePermission(user.id, module as ModuleName, 'view', checked)
                                         }
-                                        disabled={!canPerform('update')}
+                                        disabled={!canPerform('update'}
                                       />
                                     </div>
                                     <div className="flex items-center justify-between">
@@ -695,7 +695,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                                         onCheckedChange={(checked) => 
                                           handleUpdatePermission(user.id, module as ModuleName, 'edit', checked)
                                         }
-                                        disabled={!canPerform('update')}
+                                        disabled={!canPerform('update'}
                                       />
                                     </div>
                                     {user.role === UserRole.DIRECTEUR && (
@@ -707,20 +707,20 @@ export function PermissionsManagementImproved(): JSX.Element {
                                           onCheckedChange={(checked) => 
                                             handleUpdatePermission(user.id, module as ModuleName, 'admin', checked)
                                           }
-                                          disabled={!canPerform('update')}
+                                          disabled={!canPerform('update'}
                                         />
                                       </div>
                                     )}
                                   </CardContent>
                                 </Card>
-                              ))}
+                              );}
                             </div>
                           </div>
                         </TableCell>
                       </TableRow>
                     )}
                   </React.Fragment>
-                ))}
+                );}
               </TableBody>
             </Table>
           </div>
@@ -733,14 +733,14 @@ export function PermissionsManagementImproved(): JSX.Element {
                 Essayez de modifier vos critères de recherche ou de filtrage
               </p>
             </div>
-          )}
+          }
         </CardContent>
       </Card>
 
       {/* Dialog de confirmation de suppression */}
       <ConfirmationDialog
         open={!!userToDelete}
-        onOpenChange={() => setUserToDelete(null)}
+        onOpenChange={() => setUserToDelete(null}
         title="Supprimer l'utilisateur"
         description={`Êtes-vous sûr de vouloir supprimer l'utilisateur ${userToDelete?.username} ? Cette action est irréversible.`}
         confirmText="Supprimer"

@@ -74,7 +74,7 @@ export const useScheduleData = (dateRange?: { start: string; end: string }) => {
   const calculateShiftDuration = (startTime: string, endTime: string): number => {
     const start = new Date(`1970-01-01T${startTime}`);
     const end = new Date(`1970-01-01T${endTime}`);
-    return (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+    return (end.getTime() - start.getTime();/ (1000 * 60 * 60);
   };
 
   const stats: ScheduleStats | null = React.useMemo(() => {

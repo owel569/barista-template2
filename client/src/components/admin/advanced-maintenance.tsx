@@ -71,7 +71,7 @@ function getStatusColor(status: string) {
 
 function getEquipmentIcon(type: string) {
   // Exemple simple, adapte selon ton set d'icônes
-  switch (type.toLowerCase()) {
+  switch (type.toLowerCase();{
     case 'printer': return <i className="fas fa-print mr-2" />;
     case 'computer': return <i className="fas fa-desktop mr-2" />;
     default: return <i className="fas fa-cogs mr-2" />;
@@ -109,7 +109,7 @@ export default function MaintenanceDashboard() {
       },
     });
     if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
+      const errorData = await res.json().catch(() => ({});
       throw new Error(errorData.message || `Erreur HTTP ${res.status}`);
     }
     return res.json();
@@ -134,7 +134,7 @@ export default function MaintenanceDashboard() {
         console.error(err);
         setError(err.message);
       })
-      .finally(() => setLoading(false));
+      .finally(() => setLoading(false);
   }, [apiFetch]);
 
   // Formulaires react-hook-form
@@ -183,8 +183,7 @@ export default function MaintenanceDashboard() {
           body: JSON.stringify(data),
         });
         setTasks((prev) =>
-          prev.map((t) => (t.id === updated.id ? updated : t))
-        );
+          prev.map((t) => (t.id === updated.id ? updated : t);
       } else {
         // Créer tâche
         const created = await apiFetch('/api/admin/maintenance/tasks', {
@@ -217,8 +216,7 @@ export default function MaintenanceDashboard() {
           body: JSON.stringify(data),
         });
         setEquipment((prev) =>
-          prev.map((eq) => (eq.id === updated.id ? updated : eq))
-        );
+          prev.map((eq) => (eq.id === updated.id ? updated : eq);
       } else {
         // Créer équipement
         const created = await apiFetch('/api/admin/maintenance/equipment', {
@@ -259,7 +257,7 @@ export default function MaintenanceDashboard() {
         <div className="mb-4 p-3 bg-gray-100 text-gray-700 rounded text-center">
           Chargement en cours...
         </div>
-      )}
+      }
 
       <div className="flex flex-wrap justify-between items-center mb-6">
         <Dialog open={showTaskDialog} onOpenChange={setShowTaskDialog}>
@@ -277,7 +275,7 @@ export default function MaintenanceDashboard() {
               <DialogDescription>Remplissez les informations de la tâche</DialogDescription>
             </DialogHeader>
             <Form {...taskForm}>
-              <form onSubmit={taskForm.handleSubmit(handleTaskSubmit)} className="space-y-4">
+              <form onSubmit={taskForm.handleSubmit(handleTaskSubmit} className="space-y-4">
                 <FormField
                   control={taskForm.control}
                   name="title"
@@ -310,7 +308,7 @@ export default function MaintenanceDashboard() {
                             <SelectItem key={eq.id} value={eq.id}>
                               {eq.name}
                             </SelectItem>
-                          ))}
+                          );}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -397,7 +395,7 @@ export default function MaintenanceDashboard() {
                           min={0}
                           step={0.01}
                           {...field}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                          onChange={(e) => field.onChange(parseFloat(e.target.value);}
                         />
                       </FormControl>
                       <FormMessage />
@@ -466,7 +464,7 @@ export default function MaintenanceDashboard() {
                   )}
                 />
                 <div className="flex justify-end space-x-2">
-                  <Button variant="outline" onClick={() => setShowTaskDialog(false)}>
+                  <Button variant="outline" onClick={() => setShowTaskDialog(false}>
                     Annuler
                   </Button>
                   <Button type="submit" disabled={loading}>
@@ -494,7 +492,7 @@ export default function MaintenanceDashboard() {
               <DialogDescription>Configurez les informations de votre équipement</DialogDescription>
             </DialogHeader>
             <Form {...equipmentForm}>
-              <form onSubmit={equipmentForm.handleSubmit(handleEquipmentSubmit)} className="space-y-4">
+              <form onSubmit={equipmentForm.handleSubmit(handleEquipmentSubmit} className="space-y-4">
                 <FormField
                   control={equipmentForm.control}
                   name="name"
@@ -623,7 +621,7 @@ export default function MaintenanceDashboard() {
                             min={0}
                             step={0.01}
                             {...field}
-                            onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                            onChange={(e) => field.onChange(parseFloat(e.target.value);}
                           />
                         </FormControl>
                         <FormMessage />
@@ -671,7 +669,7 @@ export default function MaintenanceDashboard() {
                   )}
                 />
                 <div className="flex justify-end space-x-2">
-                  <Button variant="outline" onClick={() => setShowEquipmentDialog(false)}>
+                  <Button variant="outline" onClick={() => setShowEquipmentDialog(false}>
                     Annuler
                   </Button>
                   <Button type="submit" disabled={loading}>
@@ -688,7 +686,7 @@ export default function MaintenanceDashboard() {
           <select
             className="border rounded p-1"
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
+            onChange={(e) => setFilterStatus(e.target.value}
           >
             <option value="all">Tous les statuts</option>
             <option value="pending">En attente</option>
@@ -699,7 +697,7 @@ export default function MaintenanceDashboard() {
           <select
             className="border rounded p-1"
             value={filterPriority}
-            onChange={(e) => setFilterPriority(e.target.value)}
+            onChange={(e) => setFilterPriority(e.target.value}
           >
             <option value="all">Toutes priorités</option>
             <option value="low">Faible</option>
@@ -760,23 +758,22 @@ export default function MaintenanceDashboard() {
               }}>
                 <CardHeader className="flex justify-between items-center">
                   <CardTitle className="flex items-center gap-2">
-                    {getEquipmentIcon(eq?.type || '')}
+                    {getEquipmentIcon(eq?.type || ''}
                     {task.title}
-                    <Badge className={getPriorityColor(task.priority)}>{task.priority}</Badge>
+                    <Badge className={getPriorityColor(task.priority}>{task.priority}</Badge>
                   </CardTitle>
-                  <Badge className={getStatusColor(task.status)}>{task.status.replace('_', ' ')}</Badge>
+                  <Badge className={getStatusColor(task.status}>{task.status.replace('_', ' '}</Badge>
                 </CardHeader>
                 <CardContent>
                   <p><strong>Équipement :</strong> {eq?.name || 'Non défini'}</p>
                   <p><strong>Assigné à :</strong> {task.assignedTo || '-'}</p>
-                  <p><strong>Date programmée :</strong> {new Date(task.scheduledDate).toLocaleDateString()}</p>
+                  <p><strong>Date programmée :</strong> {new Date(task.scheduledDate).toLocaleDateString(}</p>
                   <p><strong>Coût estimé :</strong> {task.estimatedCost} €</p>
                   <p><strong>Catégorie :</strong> {task.category}</p>
                 </CardContent>
               </Card>
             );
-          })
-        )}
+          });}
       </div>
     </div>
   );

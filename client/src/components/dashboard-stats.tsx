@@ -112,7 +112,7 @@ export default function DashboardStats(): JSX.Element {
     },
     {
       title: t('dashboard.occupancyRate', "Taux d'Occupation"),
-      value: `${Math.round(occupancyRate.rate)}%`,
+      value: `${Math.round(occupancyRate.rate}%`,
       icon: TrendingUp,
       color: "text-purple-600",
       bgColor: "bg-purple-50"
@@ -151,7 +151,7 @@ export default function DashboardStats(): JSX.Element {
                   <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
                   {(loadingReservations || loadingOccupancy || loadingOrders || loadingCustomers) && (
                     <Spinner className="h-4 w-4" />
-                  )}
+                  }
                 </div>
               </CardContent>
             </Card>
@@ -165,7 +165,7 @@ export default function DashboardStats(): JSX.Element {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Coffee className="h-5 w-5" />
-              {t('dashboard.topProducts', 'Produits les Plus Vendus')}
+              {t('dashboard.topProducts', 'Produits les Plus Vendus'}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -180,10 +180,10 @@ export default function DashboardStats(): JSX.Element {
                   </div>
                   <span className="text-sm text-gray-500">{item.price}€</span>
                 </div>
-              ))}
+              );}
               {menuItems.length === 0 && (
                 <p className="text-gray-500 text-center py-4">
-                  {t('dashboard.noProducts', 'Aucun produit disponible')}
+                  {t('dashboard.noProducts', 'Aucun produit disponible'}
                 </p>
               )}
             </div>
@@ -194,7 +194,7 @@ export default function DashboardStats(): JSX.Element {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5" />
-              {t('dashboard.orderStatus', 'État des Commandes')}
+              {t('dashboard.orderStatus', 'État des Commandes'}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -202,7 +202,7 @@ export default function DashboardStats(): JSX.Element {
               {ordersByStatus.map((status: OrderStatus) => (
                 <div key={status.status} className="flex items-center justify-between">
                   <span className="font-medium">
-                    {translateOrderStatus(status.status)}
+                    {translateOrderStatus(status.status}
                   </span>
                   <Badge 
                     variant={status.status === 'pending' ? 'warning' : status.status === 'completed' ? 'success' : 'default'}
@@ -211,10 +211,10 @@ export default function DashboardStats(): JSX.Element {
                     {status.count}
                   </Badge>
                 </div>
-              ))}
+              );}
               {ordersByStatus.length === 0 && (
                 <p className="text-gray-500 text-center py-4">
-                  {t('dashboard.noOrders', 'Aucune commande')}
+                  {t('dashboard.noOrders', 'Aucune commande'}
                 </p>
               )}
             </div>

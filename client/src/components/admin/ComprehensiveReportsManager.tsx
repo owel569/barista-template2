@@ -171,9 +171,9 @@ export const ComprehensiveReportsManager: React.FC = () => {
   const [selectedCharts, setSelectedCharts] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState({
     startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-    endDate: new Date()
-  });
-  const [reportData, setReportData] = useState<ReportData | null>(null);
+                endDate: new Date()
+    });
+    const [reportData, setReportData] = useState<ReportData | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
   const { toast } = useToast();
@@ -182,8 +182,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
   // Récupérer les rapports existants
   const { data: existingReports, isLoading } = useQuery<{ automated: Report[] }>({
     queryKey: ['/api/admin/reports'],
-    queryFn: () => apiRequest('/api/admin/reports')
-  });
+    queryFn: () => apiRequest('/api/admin/reports'});
 
   // Génération de rapport
   const generateReportMutation = useMutation({
@@ -196,13 +195,12 @@ export const ComprehensiveReportsManager: React.FC = () => {
       }
       
       // Simuler la génération avec IA
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await new Promise(resolve => setTimeout(resolve, 3000);
       
       return apiRequest('/api/admin/reports/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(reportConfig)
-      });
+        body: JSON.stringify(reportConfig});
     },
     onSuccess: (data) => {
       setReportData(data);
@@ -229,8 +227,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
       apiRequest('/api/admin/reports/schedule', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(scheduleConfig)
-      }),
+        body: JSON.stringify(scheduleConfig});,
     onSuccess: () => {
       toast({
         title: "Rapport planifié",
@@ -269,8 +266,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
       templateId: selectedTemplate,
       frequency,
       recipients,
-      nextRun: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-    });
+      nextRun: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(});
   };
 
   const renderPredefinedReports = () => (
@@ -292,7 +288,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
                     <Brain className="h-3 w-3" />
                     IA
                   </Badge>
-                )}
+                }
                 <Badge variant="outline">{template.fields.length} champs</Badge>
                 <Badge variant="outline">{template.charts.length} graphiques</Badge>
               </div>
@@ -314,7 +310,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
               </div>
             </CardContent>
           </Card>
-        ))}
+        );}
       </div>
     </div>
   );
@@ -331,7 +327,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
             <Input
               id="reportName"
               value={customReportName}
-              onChange={(e) => setCustomReportName(e.target.value)}
+              onChange={(e) => setCustomReportName(e.target.value}
               placeholder="Mon rapport personnalisé"
             />
           </div>
@@ -345,19 +341,19 @@ export const ComprehensiveReportsManager: React.FC = () => {
                     <input
                       type="checkbox"
                       id={field}
-                      checked={selectedFields.includes(field)}
+                      checked={selectedFields.includes(field}
                       onChange={(e) => {
                         if (e.target.checked) {
                           setSelectedFields([...selectedFields, field]);
                         } else {
-                          setSelectedFields(selectedFields.filter(f => f !== field));
+                          setSelectedFields(selectedFields.filter(f => f !== field);
                         }
                       }}
                       className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
                     />
                     <Label htmlFor={field} className="capitalize">{field}</Label>
                   </div>
-                ))}
+                );}
               </div>
             </div>
 
@@ -369,21 +365,21 @@ export const ComprehensiveReportsManager: React.FC = () => {
                     <input
                       type="checkbox"
                       id={chart}
-                      checked={selectedCharts.includes(chart)}
+                      checked={selectedCharts.includes(chart}
                       onChange={(e) => {
                         if (e.target.checked) {
                           setSelectedCharts([...selectedCharts, chart]);
                         } else {
-                          setSelectedCharts(selectedCharts.filter(c => c !== chart));
+                          setSelectedCharts(selectedCharts.filter(c => c !== chart);
                         }
                       }}
                       className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
                     />
                     <Label htmlFor={chart} className="capitalize">
-                      {chart.replace('_', ' ')}
+                      {chart.replace('_', ' '}
                     </Label>
                   </div>
-                ))}
+                );}
               </div>
             </div>
           </div>
@@ -422,7 +418,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
                   </Button>
                 </div>
               </div>
-            ))}
+            );}
           </div>
         </CardContent>
       </Card>
@@ -507,7 +503,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
                       >
                         {(reportData.categoryData || []).map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
+                        );}
                       </Pie>
                       <Tooltip />
                     </PieChart>
@@ -608,7 +604,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
             </div>
           </CardContent>
         </Card>
-      )}
+      }
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-4">
@@ -619,15 +615,15 @@ export const ComprehensiveReportsManager: React.FC = () => {
         </TabsList>
 
         <TabsContent value="predefined" className="space-y-6">
-          {renderPredefinedReports()}
+          {renderPredefinedReports(}
         </TabsContent>
 
         <TabsContent value="custom" className="space-y-6">
-          {renderCustomReports()}
+          {renderCustomReports(}
         </TabsContent>
 
         <TabsContent value="automated" className="space-y-6">
-          {renderAutomatedReports()}
+          {renderAutomatedReports(}
         </TabsContent>
 
         <TabsContent value="generate" className="space-y-6">
@@ -641,7 +637,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
                 </p>
               </CardContent>
             </Card>
-          )}
+          }
         </TabsContent>
       </Tabs>
     </div>

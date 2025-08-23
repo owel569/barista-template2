@@ -111,7 +111,7 @@ export default function ReservationsPage() : JSX.Element {
             <li key={r.id}>
               {r.name} — {r.date} à {r.time} ({r.guests} pers.)
             </li>
-          ))}
+          );}
         </ul>
       )}
     </div>

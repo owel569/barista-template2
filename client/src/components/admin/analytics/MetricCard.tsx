@@ -22,7 +22,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
   const formatValue = (val: number) => {
     switch (format) {
       case 'currency':
-        return `€${val.toLocaleString()}`;
+        return `€${val.toLocaleString(}`;
       case 'percentage':
         return `${val}%`;
       default:
@@ -39,15 +39,15 @@ const MetricCard: React.FC<MetricCardProps> = ({
         <Icon className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{formatValue(value)}</div>
+        <div className="text-2xl font-bold">{formatValue(value}</div>
         <div className="flex items-center space-x-2 text-xs text-muted-foreground">
           {isPositive ? (
             <TrendingUp className="h-4 w-4 text-green-500" />
           ) : (
             <TrendingDown className="h-4 w-4 text-red-500" />
-          )}
+          }
           <span className={isPositive ? 'text-green-500' : 'text-red-500'}>
-            {isPositive ? '+' : ''}{growth.toFixed(1)}%
+            {isPositive ? '+' : ''}{growth.toFixed(1}%
           </span>
           <span>depuis la période précédente</span>
         </div>

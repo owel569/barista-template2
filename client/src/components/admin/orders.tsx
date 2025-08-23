@@ -97,10 +97,10 @@ export default function Orders(): JSX.Element {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ status })
-      });
-      
-      if (response.ok) {
+                            body: JSON.stringify({ status })
+        });
+
+        if (response.ok) {
         toast({
           title: 'Succès',
           description: 'Statut de la commande mis à jour',
@@ -188,7 +188,7 @@ export default function Orders(): JSX.Element {
         order.email.toLowerCase().includes(query) ||
         order.phone.toLowerCase().includes(query) ||
         order.id.toString().includes(query) ||
-        order.items.some(item => item.name.toLowerCase().includes(query))
+                  order.items.some(item => item.name.toLowerCase().includes(query))
       );
     }
     
@@ -280,14 +280,14 @@ export default function Orders(): JSX.Element {
         <Button
           variant={filter === 'terminé' ? 'default' : 'outline'}
           size="sm"
-          onClick={() => setFilter('terminé')}
+                      onClick={() => setFilter('terminé')}
         >
           Terminées ({orders.filter((o) => o.status === 'terminé').length})
         </Button>
         <Button
           variant={filter === 'annulé' ? 'default' : 'outline'}
           size="sm"
-          onClick={() => setFilter('annulé')}
+          onClick={() => setFilter('annulé'}
         >
           Annulées ({orders.filter((o) => o.status === 'annulé').length})
         </Button>
@@ -312,9 +312,9 @@ export default function Orders(): JSX.Element {
                         <h3 className="font-semibold text-gray-900 dark:text-white">
                           Commande #{order.id}
                         </h3>
-                        <Badge className={getStatusColor(order.status)}>
-                          {getStatusIcon(order.status)}
-                          <span className="ml-1 capitalize">{order.status.replace('_', ' ')}</span>
+                        <Badge className={getStatusColor(order.status}>
+                          {getStatusIcon(order.status}
+                          <span className="ml-1 capitalize">{order.status.replace('_', ' '}</span>
                         </Badge>
                       </div>
                       
@@ -335,15 +335,15 @@ export default function Orders(): JSX.Element {
                           <div className="flex items-center gap-1">
                             <Euro className="h-4 w-4 text-green-600" />
                             <span className="font-semibold text-green-600">
-                              {order.total.toFixed(2)}€
+                              {order.total.toFixed(2}€
                             </span>
                           </div>
                           <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
-                            Créée le {formatDate(order.createdAt)}
+                            Créée le {formatDate(order.createdAt}
                           </p>
                           {order.updatedAt && (
                             <p className="text-xs text-gray-500 dark:text-gray-500">
-                              Modifiée le {formatDate(order.updatedAt)}
+                              Modifiée le {formatDate(order.updatedAt}
                             </p>
                           )}
                         </div>
@@ -352,7 +352,7 @@ export default function Orders(): JSX.Element {
                           <Button 
                             variant="ghost" 
                             size="sm" 
-                            onClick={() => toggleOrderExpansion(order.id)}
+                            onClick={() => toggleOrderExpansion(order.id}
                             className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
                           >
                             {expandedOrderId === order.id ? (
@@ -365,7 +365,7 @@ export default function Orders(): JSX.Element {
                                 <ChevronDown className="h-4 w-4 mr-1" />
                                 Détails
                               </>
-                            )}
+                            }
                           </Button>
                         </div>
                       </div>
@@ -381,14 +381,14 @@ export default function Orders(): JSX.Element {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
                         {order.status === 'en_attente' && (
-                          <DropdownMenuItem onClick={() => updateOrderStatus(order.id, 'en_preparation')}>
+                          <DropdownMenuItem onClick={() => updateOrderStatus(order.id, 'en_preparation'}>
                             <Package className="h-4 w-4 mr-2" />
                             Préparer
                           </DropdownMenuItem>
                         )}
                         
                         {order.status === 'en_preparation' && (
-                          <DropdownMenuItem onClick={() => updateOrderStatus(order.id, 'terminé')}>
+                          <DropdownMenuItem onClick={() => updateOrderStatus(order.id, 'terminé'}>
                             <CheckCircle className="h-4 w-4 mr-2" />
                             Terminer
                           </DropdownMenuItem>
@@ -396,7 +396,7 @@ export default function Orders(): JSX.Element {
                         
                         {(order.status === 'en_attente' || order.status === 'en_preparation') && (
                           <DropdownMenuItem 
-                            onClick={() => updateOrderStatus(order.id, 'annulé')}
+                            onClick={() => updateOrderStatus(order.id, 'annulé'}
                             className="text-red-600"
                           >
                             <XCircle className="h-4 w-4 mr-2" />
@@ -404,7 +404,7 @@ export default function Orders(): JSX.Element {
                           </DropdownMenuItem>
                         )}
                         
-                        <DropdownMenuItem onClick={() => toggleOrderExpansion(order.id)}>
+                        <DropdownMenuItem onClick={() => toggleOrderExpansion(order.id}>
                           <Eye className="h-4 w-4 mr-2" />
                           {expandedOrderId === order.id ? 'Masquer' : 'Voir'} détails
                         </DropdownMenuItem>
@@ -415,7 +415,7 @@ export default function Orders(): JSX.Element {
                         </DropdownMenuItem>
                         
                         <DropdownMenuItem 
-                          onClick={() => deleteOrder(order.id)}
+                          onClick={() => deleteOrder(order.id}
                           className="text-red-600"
                         >
                           <Trash2 className="h-4 w-4 mr-2" />
@@ -439,10 +439,10 @@ export default function Orders(): JSX.Element {
                               {item.quantity}x {item.name}
                             </span>
                             <span className="font-medium">
-                              {(item.price * item.quantity).toFixed(2)}€
+                              {(item.price * item.quantity).toFixed(2}€
                             </span>
                           </div>
-                        ))}
+                        );}
                       </div>
                       {order.notes && (
                         <div>
@@ -460,7 +460,7 @@ export default function Orders(): JSX.Element {
               </div>
             </CardContent>
           </Card>
-        ))}
+        );}
       </div>
 
       {filteredOrders.length === 0 && (
@@ -473,7 +473,7 @@ export default function Orders(): JSX.Element {
             <p className="text-gray-600 dark:text-gray-400">
               {filter === 'all' 
                 ? "Aucune commande n'a été trouvée."
-                : `Aucune commande avec le statut "${filter.replace('_', ' ')}" n'a été trouvée.`
+                : `Aucune commande avec le statut "${filter.replace('_', ' '}" n'a été trouvée.`
               }
             </p>
           </CardContent>

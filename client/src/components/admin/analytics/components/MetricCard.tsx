@@ -33,9 +33,9 @@ export const MetricCard: React.FC<MetricCardProps> = ({
       case 'currency':
         return val.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
       case 'percentage':
-        return `${val.toFixed(1)}%`;
+        return `${val.toFixed(1}%`;
       case 'rating':
-        return `${val.toFixed(1)}/5`;
+        return `${val.toFixed(1}/5`;
       default:
         return val.toLocaleString('fr-FR');
     }
@@ -65,7 +65,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold mb-1">
-          {formatValue(value)}
+          {formatValue(value}
         </div>
         
         {subtitle && (
@@ -80,7 +80,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
             className="flex items-center gap-1"
           >
             {TrendIcon && <TrendIcon className="h-3 w-3" />}
-            {Math.abs(growth).toFixed(1)}%
+            {Math.abs(growth).toFixed(1}%
           </Badge>
           
           <span className="text-xs text-muted-foreground">
@@ -89,7 +89,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
         </div>
         
         <div className="mt-2 text-xs text-muted-foreground">
-          Précédent: {formatValue(previousValue)}
+          Précédent: {formatValue(previousValue}
         </div>
       </CardContent>
     </Card>

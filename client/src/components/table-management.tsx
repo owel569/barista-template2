@@ -59,17 +59,17 @@ const TableManagement: React.FC = () => {
   });
 
   const createTableMutation = useMutation({
-    mutationFn: async (tableData: Partial<Table>})}) => {
+    mutationFn: async (tableData: Partial<Table>}});=> {
       const response = await fetch('/api/tables', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' )},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(tableData),
       });
       if (!response.ok) throw new Error('Erreur lors de la création');
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/tables'] )});
+      queryClient.invalidateQueries({ queryKey: ['/api/tables'] });
       setIsCreateDialogOpen(false);
       toast({ title: 'Table créée', description: 'La nouvelle table a été ajoutée.' });
     },
@@ -77,7 +77,7 @@ const TableManagement: React.FC = () => {
 
   const updateTableMutation = useMutation({
     mutationFn: async ({ id, ...data })}: Partial<Table> & { id: number }) => {
-      const response = await fetch(`/api/tables/${id)}`, {
+      const response = await fetch(`/api/tables/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -86,7 +86,7 @@ const TableManagement: React.FC = () => {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/tables'] )});
+      queryClient.invalidateQueries({ queryKey: ['/api/tables'] });
       setIsEditDialogOpen(false);
       setSelectedTable(null);
       toast({ title: 'Table mise à jour', description: 'Les modifications ont été sauvegardées.' });
@@ -95,7 +95,7 @@ const TableManagement: React.FC = () => {
 
   const updateTableStatusMutation = useMutation({
     mutationFn: async ({ id, status })}: { id: number; status: string }) => {
-      const response = await fetch(`/api/tables/${id)}/status`, {
+      const response = await fetch(`/api/tables/${id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
@@ -104,21 +104,21 @@ const TableManagement: React.FC = () => {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/tables'] )});
+      queryClient.invalidateQueries({ queryKey: ['/api/tables'] });
       toast({ title: 'Statut mis à jour', description: 'Le statut de la table a été modifié.' });
     },
   });
 
   const deleteTableMutation = useMutation({
-    mutationFn: async (id: number})}) => {
-      const response = await fetch(`/api/tables/${id)}`, {
+    mutationFn: async (id: number}});=> {
+      const response = await fetch(`/api/tables/${id}`, {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Erreur lors de la suppression');
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/tables'] )});
+      queryClient.invalidateQueries({ queryKey: ['/api/tables'] });
       toast({ title: 'Table supprimée', description: 'La table a été supprimée avec succès.' });
     },
   });
@@ -170,17 +170,17 @@ const TableManagement: React.FC = () => {
         <div className="flex space-x-2">
           <Button 
             variant={viewMode === 'grid' ? 'default' : 'outline'}
-            onClick={() => setViewMode('grid')}
+            onClick={() => setViewMode('grid'}
           >
             Grille
           </Button>
           <Button 
             variant={viewMode === 'floor' ? 'default' : 'outline'}
-            onClick={() => setViewMode('floor')}
+            onClick={() => setViewMode('floor'}
           >
             Plan
           </Button>
-          <Button onClick={() => setIsCreateDialogOpen(true)}>
+          <Button onClick={() => setIsCreateDialogOpen(true}>
             <Plus className="w-4 h-4 mr-2" />
             Nouvelle Table
           </Button>
@@ -216,7 +216,7 @@ const TableManagement: React.FC = () => {
         <Card>
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-blue-500">
-              {tables.reduce((sum, table) => sum + table.capacity, 0)}
+              {tables.reduce((sum, table) => sum + table.capacity, 0}
             </div>
             <div className="text-sm text-gray-500">Capacité totale</div>
           </CardContent>
@@ -231,11 +231,11 @@ const TableManagement: React.FC = () => {
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg flex items-center">
-                    <span className="text-2xl mr-2">{getTableIcon(table.shape)}</span>
+                    <span className="text-2xl mr-2">{getTableIcon(table.shape}</span>
                     Table {table.number}
                   </CardTitle>
-                  <Badge className={`${getStatusColor(table.status)} text-white`}>
-                    {getStatusLabel(table.status)}
+                  <Badge className={`${getStatusColor(table.status} text-white`}>
+                    {getStatusLabel(table.status}
                   </Badge>
                 </div>
                 <CardDescription>{table.location}</CardDescription>
@@ -256,7 +256,7 @@ const TableManagement: React.FC = () => {
                 {table.currentReservation && (
                   <div className="p-3 bg-blue-50 rounded-lg">
                     <div className="text-sm">
-                      <p className="font-medium">{table.currentReservation.customerName)}</p>
+                      <p className="font-medium">{table.currentReservation.customerName}</p>
                       <p className="text-gray-600">{table.currentReservation.time} • {table.currentReservation.guests} pers.</p>
                     </div>
                   </div>
@@ -267,7 +267,7 @@ const TableManagement: React.FC = () => {
                     <Badge key={feature} variant="outline" className="text-xs">
                       {feature}
                     </Badge>
-                  ))}
+                  );}
                 </div>
 
                 <div className="flex space-x-2">
@@ -300,7 +300,7 @@ const TableManagement: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
-          ))}
+          );}
         </div>
       ) : (
         /* Vue plan du restaurant */
@@ -328,14 +328,14 @@ const TableManagement: React.FC = () => {
                     setSelectedTable(table);
                     setIsEditDialogOpen(true);
                   }}
-                  title={`Table ${table.number} - ${table.capacity} pers. - ${getStatusLabel(table.status)}`}
+                  title={`Table ${table.number} - ${table.capacity} pers. - ${getStatusLabel(table.status}`}
                 >
                   <div className="text-center">
-                    <div className="text-lg">{getTableIcon(table.shape)}</div>
+                    <div className="text-lg">{getTableIcon(table.shape}</div>
                     <div className="text-xs font-bold">{table.number}</div>
                   </div>
                 </div>
-              ))}
+              );}
               
               {/* Éléments décoratifs du restaurant */}
               <div className="absolute bottom-4 left-4 w-8 h-8 bg-brown-200 rounded" title="Bar"></div>
@@ -364,7 +364,7 @@ const TableManagement: React.FC = () => {
               capacity: parseInt(formData.get('capacity') as string),
               location: formData.get('location') as string,
               shape: formData.get('shape') as string,
-              features: (formData.get('features') as string).split(',').map(f => f.trim()).filter(f => f),
+              features: (formData.get('features') as string).split(',').map(f => f.trim();.filter(f => f),
               status: 'available',
               x: Math.random() * 80,
               y: Math.random() * 80,
@@ -409,7 +409,7 @@ const TableManagement: React.FC = () => {
             </div>
 
             <DialogFooter className="mt-6">
-              <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+              <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false}>
                 Annuler
               </Button>
               <Button type="submit">Créer la table</Button>
@@ -429,7 +429,7 @@ const TableManagement: React.FC = () => {
           </DialogHeader>
 
           {selectedTable && (
-            <form onSubmit={(e)}) => {
+            <form onSubmit={(e});=> {
               e.preventDefault();
               const formData = new FormData(e.currentTarget);
               const tableData = {
@@ -438,7 +438,7 @@ const TableManagement: React.FC = () => {
                 capacity: parseInt(formData.get('capacity') as string),
                 location: formData.get('location') as string,
                 shape: formData.get('shape') as string,
-                features: (formData.get('features') as string).split(',').map(f => f.trim()).filter(f => f),
+                features: (formData.get('features') as string).split(',').map(f => f.trim();.filter(f => f),
               };
               updateTableMutation.mutate(tableData);
             }}>
@@ -475,7 +475,7 @@ const TableManagement: React.FC = () => {
                 
                 <div className="space-y-2">
                   <Label htmlFor="features">Caractéristiques</Label>
-                  <Input name="features" defaultValue={selectedTable.features.join(', ')} />
+                  <Input name="features" defaultValue={selectedTable.features.join(', '} />
                 </div>
               </div>
 
@@ -484,7 +484,7 @@ const TableManagement: React.FC = () => {
                   type="button" 
                   variant="destructive" 
                   onClick={() => {
-                    if (confirm('Êtes-vous sûr de vouloir supprimer cette table ?')) {
+                    if (confirm('Êtes-vous sûr de vouloir supprimer cette table ?');{
                       deleteTableMutation.mutate(selectedTable.id);
                       setIsEditDialogOpen(false);
                     }
@@ -493,7 +493,7 @@ const TableManagement: React.FC = () => {
                   <Trash2 className="w-4 h-4 mr-2" />
                   Supprimer
                 </Button>
-                <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false}>
                   Annuler
                 </Button>
                 <Button type="submit">Sauvegarder</Button>

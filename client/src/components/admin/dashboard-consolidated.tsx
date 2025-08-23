@@ -163,7 +163,7 @@ export default function DashboardConsolidated(): JSX.Element {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Revenus</p>
-                <p className="text-2xl font-bold">{stats.totalRevenue.toLocaleString()}€</p>
+                <p className="text-2xl font-bold">{stats.totalRevenue.toLocaleString(}€</p>
                 <p className="text-xs text-green-600 flex items-center mt-1">
                   <TrendingUp className="h-3 w-3 mr-1" />
                   +{stats.revenueGrowth}% ce mois
@@ -249,7 +249,7 @@ export default function DashboardConsolidated(): JSX.Element {
                   </div>
                 </a>
               </Button>
-            ))}
+            );}
           </div>
         </CardContent>
       </Card>
@@ -283,14 +283,14 @@ export default function DashboardConsolidated(): JSX.Element {
                           <AlertTriangle className="h-4 w-4 text-yellow-600" />
                         ) : (
                           <Activity className="h-4 w-4 text-blue-600" />
-                        )}
+                        }
                       </div>
                       <div className="flex-1">
                         <p className="text-sm font-medium">{activity.message}</p>
                         <p className="text-xs text-gray-500">{activity.time}</p>
                       </div>
                     </div>
-                  ))}
+                  );}
                 </div>
               </CardContent>
             </Card>

@@ -104,8 +104,7 @@ export const InternationalPhoneInput = React.forwardRef<
     }
 
     const sanitizedValue = sanitizeString(phoneValue, { maxLength: 20 })
-    const country = countries.find(c => sanitizedValue.startsWith(c.dialCode))
-    return country || countries.find(c => c.code === defaultCountry) || countries[0]
+    const country = countries.find(c => sanitizedValue.startsWith(c.dialCode);return country || countries.find(c => c.code === defaultCountry) || countries[0]
   }, [countries, defaultCountry])
 
   // Fonction sécurisée pour extraire le numéro de téléphone
@@ -120,12 +119,8 @@ export const InternationalPhoneInput = React.forwardRef<
 
   // États avec validation
   const [selectedCountry, setSelectedCountry] = React.useState<Country>(() => 
-    getCountryFromValue(value)
-  )
-  const [phoneNumber, setPhoneNumber] = React.useState<string>(() => 
-    getPhoneNumberFromValue(value, getCountryFromValue(value))
-  )
-  const [isValid, setIsValid] = React.useState<boolean>(false)
+    getCountryFromValue(value);const [phoneNumber, setPhoneNumber] = React.useState<string>(() => 
+    getPhoneNumberFromValue(value, getCountryFromValue(value);const [isValid, setIsValid] = React.useState<boolean>(false)
 
   // Validation du numéro de téléphone
   const validatePhoneNumber = React.useCallback((number: string, country: Country): boolean => {
@@ -221,7 +216,7 @@ export const InternationalPhoneInput = React.forwardRef<
             className={cn(
               "w-auto min-w-[120px]",
               error && "border-destructive"
-            )}
+            }
             aria-label="Sélectionner le pays"
           >
             <SelectValue>
@@ -257,7 +252,7 @@ export const InternationalPhoneInput = React.forwardRef<
                   </span>
                 </div>
               </SelectItem>
-            ))}
+            );}
           </SelectContent>
         </Select>
 
@@ -276,14 +271,14 @@ export const InternationalPhoneInput = React.forwardRef<
               "font-mono",
               error && "border-destructive",
               isValid && phoneNumber && "border-green-500"
-            )}
+            }
             disabled={disabled}
             required={required}
             aria-invalid={!!error}
             aria-describedby={cn(
               error && errorId,
               helperText && helperId
-            )}
+            }
             {...props}
           />
           
@@ -294,7 +289,7 @@ export const InternationalPhoneInput = React.forwardRef<
                 <div className="w-2 h-2 bg-green-500 rounded-full" aria-label="Numéro valide" />
               ) : (
                 <div className="w-2 h-2 bg-red-500 rounded-full" aria-label="Numéro invalide" />
-              )}
+              }
             </div>
           )}
         </div>
@@ -324,10 +319,7 @@ export const InternationalPhoneInput = React.forwardRef<
         </div>
       )}
     </div>
-  )
-})
-
-InternationalPhoneInput.displayName = 'InternationalPhoneInput'
+  });InternationalPhoneInput.displayName = 'InternationalPhoneInput'
 
 // Hook pour utiliser le composant avec validation
 export function useInternationalPhoneInput(

@@ -46,7 +46,7 @@ export function sanitizeString(
   }
 
   // Validation des caractères autorisés
-  if (config.allowedChars && !config.allowedChars.test(sanitized)) {
+  if (config.allowedChars && !config.allowedChars.test(sanitized);{
     sanitized = sanitized.replace(config.allowedChars, '')
   }
 
@@ -54,9 +54,7 @@ export function sanitizeString(
   if (config.forbidden) {
     config.forbidden.forEach(word => {
       const regex = new RegExp(word, 'gi')
-      sanitized = sanitized.replace(regex, '')
-    })
-  }
+      sanitized = sanitized.replace(regex, ''});}
 
   return sanitized.trim()
 }
@@ -70,7 +68,7 @@ export function validateEmail(email: string): ValidationResult {
   // RFC 5322 regex simplifié mais sécurisé
   const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
   
-  if (!emailRegex.test(sanitized)) {
+  if (!emailRegex.test(sanitized);{
     return {
       isValid: false,
       error: 'Format d\'email invalide'
@@ -96,7 +94,7 @@ export function validatePhone(phone: string): ValidationResult {
   const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/
   const cleanPhone = sanitized.replace(/[\s\-()]/g, '')
   
-  if (!phoneRegex.test(cleanPhone)) {
+  if (!phoneRegex.test(cleanPhone);{
     return {
       isValid: false,
       error: 'Format de téléphone invalide'
@@ -120,7 +118,7 @@ export function validateUrl(url: string): ValidationResult {
     
     // Protocoles autorisés
     const allowedProtocols = ['http:', 'https:', 'ftp:', 'ftps:']
-    if (!allowedProtocols.includes(urlObj.protocol)) {
+    if (!allowedProtocols.includes(urlObj.protocol);{
       return {
         isValid: false,
         error: 'Protocole non autorisé'
@@ -129,7 +127,7 @@ export function validateUrl(url: string): ValidationResult {
 
     // Vérification des domaines suspects
     const suspiciousDomains = ['localhost', '127.0.0.1', '0.0.0.0']
-    if (suspiciousDomains.some(domain => urlObj.hostname.includes(domain))) {
+    if (suspiciousDomains.some(domain => urlObj.hostname.includes(domain);{
       return {
         isValid: false,
         error: 'Domaine non autorisé'
@@ -158,11 +156,11 @@ export function validateFormData(
   const errors: Record<string, string> = {}
   const sanitized: Record<string, unknown> = {}
 
-  for (const [key, config] of Object.entries(schema)) {
+  for (const [key, config] of Object.entries(schema);{
     const value = data[key]
 
     // Vérification des champs requis
-    if (config.required && (value === undefined || value === null || value === '')) {
+    if (config.required && (value === undefined || value === null || value === '');{
       errors[key] = 'Ce champ est requis'
       continue
     }
@@ -175,8 +173,7 @@ export function validateFormData(
     // Validation selon le type
     switch (config.type) {
       case 'email':
-        const emailResult = validateEmail(String(value))
-        if (!emailResult.isValid) {
+        const emailResult = validateEmail(String(value);if (!emailResult.isValid) {
           errors[key] = emailResult.error!
         } else {
           sanitized[key] = emailResult.sanitized
@@ -184,8 +181,7 @@ export function validateFormData(
         break
 
       case 'phone':
-        const phoneResult = validatePhone(String(value))
-        if (!phoneResult.isValid) {
+        const phoneResult = validatePhone(String(value);if (!phoneResult.isValid) {
           errors[key] = phoneResult.error!
         } else {
           sanitized[key] = phoneResult.sanitized
@@ -193,8 +189,7 @@ export function validateFormData(
         break
 
       case 'url':
-        const urlResult = validateUrl(String(value))
-        if (!urlResult.isValid) {
+        const urlResult = validateUrl(String(value);if (!urlResult.isValid) {
           errors[key] = urlResult.error!
         } else {
           sanitized[key] = urlResult.sanitized
@@ -238,7 +233,7 @@ export function escapeHtml(unsafe: string): string {
 export function generateCSRFToken(): string {
   const array = new Uint8Array(32)
   crypto.getRandomValues(array)
-  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('')
+  return Array.from(array, byte => byte.toString(16).padStart(2, '0');.join('')
 }
 
 /**
@@ -326,8 +321,7 @@ export function secureDebounce<T extends (...args: unknown[]) => unknown>(
       }
       timeout = null
       func(...args)
-    }, wait)
-  }) as T
+    }, wait});as T
 }
 
 /**

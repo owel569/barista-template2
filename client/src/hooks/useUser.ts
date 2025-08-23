@@ -33,7 +33,7 @@ export function useUser() : void {
           localStorage.removeItem('auth_token');
         }
       } catch (error) {
-        logger.error('Erreur vérification token:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+        logger.error('Erreur vérification token:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
         localStorage.removeItem('token');
         localStorage.removeItem('auth_token');
       } finally {

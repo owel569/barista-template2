@@ -66,7 +66,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       }
       localStorage.removeItem("auth_token");
     } catch (error) {
-      logger.error("Logout error:", { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      logger.error("Logout error:", { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     } finally {
       setUser(null);
     }

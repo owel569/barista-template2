@@ -149,7 +149,7 @@ export default function Sidebar({
     }
   ];
 
-  const filteredNavItems = navItems.filter((item) => item.roles.includes(userRole));
+  const filteredNavItems = navItems.filter((item) => item.roles.includes(userRole);
 
   const handleItemClick = (itemId: string) => {
     if (activeSubmenu === itemId) {
@@ -164,7 +164,7 @@ export default function Sidebar({
       "bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 flex flex-col transition-all duration-300 h-full",
       collapsed ? "w-16" : "w-64",
       isMobile && collapsed ? "absolute z-50" : ""
-    )}>
+    }>
       {/* Header */}
       <div className="p-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
@@ -205,7 +205,7 @@ export default function Sidebar({
           {filteredNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = location === item.href || 
-              (item.href !== "/admin" && location.startsWith(item.href));
+              (item.href !== "/admin" && location.startsWith(item.href);
             
             return (
               <div key={item.id} className="group relative">
@@ -216,8 +216,8 @@ export default function Sidebar({
                       "w-full justify-start gap-3 text-left h-10 group-hover:bg-gray-100 dark:group-hover:bg-gray-800",
                       collapsed ? "px-2" : "px-3",
                       isActive && "bg-amber-500 text-white hover:bg-amber-600"
-                    )}
-                    onClick={() => handleItemClick(item.id)}
+                    }
+                    onClick={() => handleItemClick(item.id}
                   >
                     <div className="relative">
                       <Icon className="h-4 w-4 shrink-0" />
@@ -294,7 +294,7 @@ export default function Sidebar({
                   "w-full justify-start gap-3 text-left h-10",
                   collapsed ? "px-2" : "px-3",
                   "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-                )}
+                }
               >
                 <HelpCircle className="h-4 w-4 shrink-0" />
                 {!collapsed && <span className="text-sm">Aide</span>}
@@ -302,7 +302,7 @@ export default function Sidebar({
             </TooltipTrigger>
             {collapsed && (
               <TooltipContent side="right">Aide</TooltipContent>
-            )}
+            }
           </Tooltip>
         </TooltipProvider>
 
@@ -315,7 +315,7 @@ export default function Sidebar({
                   "w-full justify-start gap-3 text-left h-10",
                   collapsed ? "px-2" : "px-3",
                   "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-                )}
+                }
               >
                 <div className="relative">
                   <Bell className="h-4 w-4 shrink-0" />
@@ -333,7 +333,7 @@ export default function Sidebar({
             </TooltipTrigger>
             {collapsed && (
               <TooltipContent side="right">Notifications</TooltipContent>
-            )}
+            }
           </Tooltip>
         </TooltipProvider>
 
@@ -347,7 +347,7 @@ export default function Sidebar({
                   "w-full justify-start gap-3 text-left h-10",
                   collapsed ? "px-2" : "px-3",
                   "text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
-                )}
+                }
               >
                 <LogOut className="h-4 w-4 shrink-0" />
                 {!collapsed && <span className="text-sm">Déconnexion</span>}
@@ -355,7 +355,7 @@ export default function Sidebar({
             </TooltipTrigger>
             {collapsed && (
               <TooltipContent side="right">Déconnexion</TooltipContent>
-            )}
+            }
           </Tooltip>
         </TooltipProvider>
       </div>

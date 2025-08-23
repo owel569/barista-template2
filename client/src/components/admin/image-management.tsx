@@ -70,7 +70,7 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
   // Mutations
   const addImageMutation = useMutation({
     mutationFn: async (imageData: Omit<MenuItemImage, 'id' | 'createdAt' | 'updatedAt'>) => {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1000);
       return { ...imageData, id: Math.random() };
     },
     onSuccess: (newImage) => {
@@ -94,13 +94,12 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
 
   const deleteImageMutation = useMutation({
     mutationFn: async (imageId: number) => {
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 500);
       return imageId;
     },
     onSuccess: (deletedId) => {
       queryClient.setQueryData(['menu-item-images', menuItem.id], (old: MenuItemImage[] = []) => 
-        old.filter(img => img.id !== deletedId)
-      );
+        old.filter(img => img.id !== deletedId);
       toast({ title: 'Image supprimée avec succès' });
     },
     onError: () => {
@@ -117,13 +116,12 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
       imageId: number; 
       updates: Partial<MenuItemImage> 
     }) => {
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 500);
       return { imageId, updates };
     },
     onSuccess: ({ imageId, updates }) => {
       queryClient.setQueryData(['menu-item-images', menuItem.id], (old: MenuItemImage[] = []) => 
-        old.map(img => img.id === imageId ? { ...img, ...updates } : img)
-      );
+        old.map(img => img.id === imageId ? { ...img, ...updates } : img);
       toast({ title: 'Image mise à jour avec succès' });
       setEditingImageId(null);
     },
@@ -137,7 +135,7 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
   });
 
   const handleAddImage = () => {
-    if (!newImageUrl.trim()) {
+    if (!newImageUrl.trim();{
       toast({ 
         title: 'Erreur', 
         description: 'URL d\'image requise', 
@@ -156,7 +154,7 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
   };
 
   const handleDeleteImage = (imageId: number) => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette image ?')) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette image ?');{
       deleteImageMutation.mutate(imageId);
     }
   };
@@ -195,7 +193,7 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">Images existantes ({images.length})</h3>
-            <Button onClick={() => setIsAddingImage(true)} disabled={isAddingImage}>
+            <Button onClick={() => setIsAddingImage(true} disabled={isAddingImage}>
               <Plus className="h-4 w-4 mr-2" />
               Ajouter une image
             </Button>
@@ -223,7 +221,7 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
                         <Badge variant="default" className="bg-green-500">
                           Principale
                         </Badge>
-                      )}
+                      }
                       <Badge variant="secondary">
                         {image.uploadMethod}
                       </Badge>
@@ -239,14 +237,14 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => setEditingImageId(image.id === editingImageId ? null : image.id)}
+                          onClick={() => setEditingImageId(image.id === editingImageId ? null : image.id}
                         >
                           <Edit className="h-3 w-3" />
                         </Button>
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => handleDeleteImage(image.id)}
+                          onClick={() => handleDeleteImage(image.id}
                         >
                           <Trash2 className="h-3 w-3" />
                         </Button>
@@ -258,14 +256,14 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
                         <div className="flex items-center space-x-2">
                           <Switch
                             checked={image.isPrimary}
-                            onCheckedChange={(checked) => handleSetPrimary(image.id, checked)}
+                            onCheckedChange={(checked) => handleSetPrimary(image.id, checked}
                             disabled={image.isPrimary}
                           />
                           <Label className="text-sm">Image principale</Label>
                         </div>
                         <Button
                           size="sm"
-                          onClick={() => setEditingImageId(null)}
+                          onClick={() => setEditingImageId(null}
                         >
                           <Save className="h-3 w-3 mr-1" />
                           Terminé
@@ -274,7 +272,7 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
                     )}
                   </div>
                 </div>
-              ))}
+              );}
             </div>
           )}
         </div>
@@ -291,7 +289,7 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
                   id="imageUrl"
                   type="url"
                   value={newImageUrl}
-                  onChange={(e) => setNewImageUrl(e.target.value)}
+                  onChange={(e) => setNewImageUrl(e.target.value}
                   placeholder="https://example.com/image.jpg"
                 />
               </div>
@@ -301,7 +299,7 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
                 <Input
                   id="imageAlt"
                   value={newImageAlt}
-                  onChange={(e) => setNewImageAlt(e.target.value)}
+                  onChange={(e) => setNewImageAlt(e.target.value}
                   placeholder={menuItem.name}
                 />
               </div>

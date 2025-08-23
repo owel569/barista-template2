@@ -26,7 +26,7 @@ const StatCard: React.FC<StatCardProps> = ({
   const formatValue = (val: string | number): string => {
     if (typeof val === 'number') {
       // Format currency if it looks like a monetary value
-      if (title.toLowerCase().includes('salaire') || title.toLowerCase().includes('coût')) {
+      if (title.toLowerCase().includes('salaire') || title.toLowerCase().includes('coût');{
         return new Intl.NumberFormat('fr-FR', {
           style: 'currency',
           currency: 'EUR',
@@ -34,10 +34,10 @@ const StatCard: React.FC<StatCardProps> = ({
       }
       
       // Format hours if it looks like time
-      if (title.toLowerCase().includes('heure')) {
+      if (title.toLowerCase().includes('heure');{
         const hours = Math.floor(val);
         const minutes = Math.round((val - hours) * 60);
-        return minutes > 0 ? `${hours}h${minutes.toString().padStart(2, '0')}` : `${hours}h`;
+        return minutes > 0 ? `${hours}h${minutes.toString().padStart(2, '0'}` : `${hours}h`;
       }
       
       // Default number formatting
@@ -152,18 +152,18 @@ const StatCard: React.FC<StatCardProps> = ({
       </CardHeader>
       <CardContent>
         <div className={`text-2xl font-bold ${colorClasses?.value || 'text-gray-900'} mb-1`}>
-          {formatValue(value)}
+          {formatValue(value}
         </div>
         
         {change !== undefined && (
           <div className="flex items-center space-x-1">
             <Badge 
               variant="secondary" 
-              className={`${getChangeColor()} bg-transparent border-none p-0 text-xs flex items-center space-x-1`}
+              className={`${getChangeColor(} bg-transparent border-none p-0 text-xs flex items-center space-x-1`}
             >
-              {getChangeIcon()}
+              {getChangeIcon(}
               <span>
-                {Math.abs(change)}%
+                {Math.abs(change}%
               </span>
             </Badge>
             <span className="text-xs text-gray-500 dark:text-gray-400">

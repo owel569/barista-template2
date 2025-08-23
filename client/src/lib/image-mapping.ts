@@ -89,7 +89,7 @@ export function getItemImageUrl(itemName: unknown, categorySlug: unknown = 'defa
     // 2. Recherche par mots-clés dans le nom
     const itemKeys = Object.keys(ITEM_IMAGES);
     for (const key of itemKeys) {
-      if (normalizedItem.includes(key) || key.includes(normalizedItem)) {
+      if (normalizedItem.includes(key) || key.includes(normalizedItem);{
         return ITEM_IMAGES[key];
       }
     }
@@ -146,7 +146,7 @@ export function preloadCriticalImages(): void {
  */
 export async function validateImageUrl(url: string): Promise<boolean> {
   try {
-    const response = await fetch(url, { method: 'HEAD' )});
+    const response = await fetch(url, { method: 'HEAD' });
     return response.ok;
   } catch {
     return false;

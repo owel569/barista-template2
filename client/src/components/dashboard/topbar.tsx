@@ -72,7 +72,7 @@ export default function Topbar({
               <Sun className="h-4 w-4" />
             ) : (
               <Moon className="h-4 w-4" />
-            )}
+            }
           </Button>
 
           {/* Notifications */}
@@ -87,7 +87,7 @@ export default function Topbar({
                 variant="destructive" 
                 className="absolute -top-1 -right-1 h-5 w-5 p-0 text-xs flex items-center justify-center"
               >
-                {notifications > 9 ? "9+" : notifications)}
+                {notifications > 9 ? "9+" : notifications}
               </Badge>
             )}
           </Button>

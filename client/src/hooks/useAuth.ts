@@ -55,7 +55,7 @@ export function useAuth(): AuthContextType {
       try {
         const token = localStorage.getItem('auth_token');
         if (!token) {
-          setAuthState(prev => ({ ...prev, isLoading: false }));
+          setAuthState(prev => ({ ...prev, isLoading: false });
           return;
         }
 
@@ -77,7 +77,7 @@ export function useAuth(): AuthContextType {
           });
         } else {
           localStorage.removeItem('auth_token');
-          setAuthState(prev => ({ ...prev, isLoading: false }));
+          setAuthState(prev => ({ ...prev, isLoading: false });
         }
       } catch (error) {
         console.error('Erreur vérification auth:', error);
@@ -85,7 +85,7 @@ export function useAuth(): AuthContextType {
           ...prev,
           isLoading: false,
           error: 'Erreur de connexion'
-        }));
+        });
       }
     };
 
@@ -93,7 +93,7 @@ export function useAuth(): AuthContextType {
   }, []);
 
   const login = useCallback(async (credentials: LoginCredentials): Promise<void> => {
-    setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
+    setAuthState(prev => ({ ...prev, isLoading: true, error: null });
 
     try {
       const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -102,8 +102,7 @@ export function useAuth(): AuthContextType {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(credentials)
-      });
+        body: JSON.stringify(credentials});
 
       const data = await response.json() as { user: User; token: string } | { error: string };
 
@@ -123,13 +122,13 @@ export function useAuth(): AuthContextType {
         ...prev,
         isLoading: false,
         error: error instanceof Error ? error.message : 'Erreur de connexion'
-      }));
+      });
       throw error;
     }
   }, []);
 
   const register = useCallback(async (data: RegisterData): Promise<void> => {
-    setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
+    setAuthState(prev => ({ ...prev, isLoading: true, error: null });
 
     try {
       const response = await fetch('/api/auth/register', {
@@ -137,8 +136,7 @@ export function useAuth(): AuthContextType {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(data)
-      });
+        body: JSON.stringify(data});
 
       const result = await response.json() as { user: User; token: string } | { error: string };
 
@@ -158,7 +156,7 @@ export function useAuth(): AuthContextType {
         ...prev,
         isLoading: false,
         error: error instanceof Error ? error.message : 'Erreur d\'inscription'
-      }));
+      });
       throw error;
     }
   }, []);
@@ -186,15 +184,14 @@ export function useAuth(): AuthContextType {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(userData)
-      });
+        body: JSON.stringify(userData});
 
       if (response.ok) {
         const updatedUser = await response.json() as User;
         setAuthState(prev => ({
           ...prev,
           user: updatedUser
-        }));
+        });
       } else {
         throw new Error('Erreur lors de la mise à jour');
       }
@@ -202,13 +199,13 @@ export function useAuth(): AuthContextType {
       setAuthState(prev => ({
         ...prev,
         error: error instanceof Error ? error.message : 'Erreur de mise à jour'
-      }));
+      });
       throw error;
     }
   }, []);
 
   const clearError = useCallback((): void => {
-    setAuthState(prev => ({ ...prev, error: null }));
+    setAuthState(prev => ({ ...prev, error: null });
   }, []);
 
   return {

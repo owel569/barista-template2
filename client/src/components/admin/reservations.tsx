@@ -111,10 +111,10 @@ export default function ReservationsFixed() : JSX.Element {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ status })
-      });
-      
-      if (response.ok) {
+                            body: JSON.stringify({ status })
+        });
+
+        if (response.ok) {
         await fetchReservations();
         toast({
           title: 'Statut mis à jour',
@@ -158,8 +158,7 @@ export default function ReservationsFixed() : JSX.Element {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(editForm)
-      });
+        body: JSON.stringify(editForm});
       
       if (response.ok) {
         await fetchReservations();
@@ -254,7 +253,7 @@ export default function ReservationsFixed() : JSX.Element {
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
               <div key={i} className="h-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
-            ))}
+            );}
           </div>
         </div>
       </div>
@@ -284,28 +283,28 @@ export default function ReservationsFixed() : JSX.Element {
         <Button
           variant={filter === 'all' ? 'default' : 'outline'}
           size="sm"
-          onClick={() => setFilter('all')}
+          onClick={() => setFilter('all'}
         >
           Toutes ({reservations.length})
         </Button>
         <Button
           variant={filter === 'pending' ? 'default' : 'outline'}
           size="sm"
-          onClick={() => setFilter('pending')}
+          onClick={() => setFilter('pending'}
         >
           En attente ({reservations.filter(r => r.status === 'pending').length})
         </Button>
         <Button
           variant={filter === 'confirmed' ? 'default' : 'outline'}
           size="sm"
-          onClick={() => setFilter('confirmed')}
+          onClick={() => setFilter('confirmed'}
         >
           Confirmées ({reservations.filter(r => r.status === 'confirmed').length})
         </Button>
         <Button
           variant={filter === 'cancelled' ? 'default' : 'outline'}
           size="sm"
-          onClick={() => setFilter('cancelled')}
+          onClick={() => setFilter('cancelled'}
         >
           Annulées ({reservations.filter(r => r.status === 'cancelled').length})
         </Button>
@@ -330,8 +329,8 @@ export default function ReservationsFixed() : JSX.Element {
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-3">
                       <div className="flex items-center gap-2">
-                        <Badge className={`${getStatusColor(reservation.status)} flex items-center gap-1`}>
-                          {getStatusIcon(reservation.status)}
+                        <Badge className={`${getStatusColor(reservation.status} flex items-center gap-1`}>
+                          {getStatusIcon(reservation.status}
                           {reservation.status}
                         </Badge>
                         <span className="text-sm text-gray-500">
@@ -347,7 +346,7 @@ export default function ReservationsFixed() : JSX.Element {
                       </div>
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-gray-500" />
-                        <span>{new Date(reservation.date).toLocaleDateString()}</span>
+                        <span>{new Date(reservation.date).toLocaleDateString(}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Clock className="h-4 w-4 text-gray-500" />
@@ -375,21 +374,21 @@ export default function ReservationsFixed() : JSX.Element {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleViewReservation(reservation)}
+                      onClick={() => handleViewReservation(reservation}
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleEditReservation(reservation)}
+                      onClick={() => handleEditReservation(reservation}
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleDeleteReservation(reservation)}
+                      onClick={() => handleDeleteReservation(reservation}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -399,7 +398,7 @@ export default function ReservationsFixed() : JSX.Element {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => updateReservationStatus(reservation.id, 'confirmed')}
+                          onClick={() => updateReservationStatus(reservation.id, 'confirmed'}
                           className="bg-green-50 hover:bg-green-100 text-green-600"
                         >
                           <CheckCircle className="h-4 w-4" />
@@ -407,7 +406,7 @@ export default function ReservationsFixed() : JSX.Element {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => updateReservationStatus(reservation.id, 'cancelled')}
+                          onClick={() => updateReservationStatus(reservation.id, 'cancelled'}
                           className="bg-red-50 hover:bg-red-100 text-red-600"
                         >
                           <XCircle className="h-4 w-4" />
@@ -418,8 +417,7 @@ export default function ReservationsFixed() : JSX.Element {
                 </div>
               </CardContent>
             </Card>
-          ))
-        )}
+          );}
       </div>
 
       {/* Modal de visualisation */}
@@ -448,13 +446,13 @@ export default function ReservationsFixed() : JSX.Element {
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Statut</Label>
-                  <Badge className={getStatusColor(selectedReservation.status)}>
+                  <Badge className={getStatusColor(selectedReservation.status}>
                     {selectedReservation.status}
                   </Badge>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Date</Label>
-                  <p className="text-sm">{new Date(selectedReservation.date).toLocaleDateString()}</p>
+                  <p className="text-sm">{new Date(selectedReservation.date).toLocaleDateString(}</p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Heure</Label>
@@ -466,7 +464,7 @@ export default function ReservationsFixed() : JSX.Element {
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Créé le</Label>
-                  <p className="text-sm">{new Date(selectedReservation.createdAt).toLocaleDateString()}</p>
+                  <p className="text-sm">{new Date(selectedReservation.createdAt).toLocaleDateString(}</p>
                 </div>
               </div>
               {selectedReservation.notes && (
@@ -550,7 +548,7 @@ export default function ReservationsFixed() : JSX.Element {
                   <Input
                     type="number"
                     value={editForm.guests || ''}
-                    onChange={(e) => setEditForm({...editForm, guests: parseInt(e.target.value)})}
+                    onChange={(e) => setEditForm({...editForm, guests: parseInt(e.target.value});}
                   />
                 </div>
               </div>
@@ -564,7 +562,7 @@ export default function ReservationsFixed() : JSX.Element {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
+            <Button variant="outline" onClick={() => setIsEditModalOpen(false}>
               Annuler
             </Button>
             <Button onClick={saveReservation}>
@@ -584,7 +582,7 @@ export default function ReservationsFixed() : JSX.Element {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteModalOpen(false)}>
+            <Button variant="outline" onClick={() => setIsDeleteModalOpen(false}>
               Annuler
             </Button>
             <Button variant="destructive" onClick={deleteReservation}>

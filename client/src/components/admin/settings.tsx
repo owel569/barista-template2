@@ -187,8 +187,7 @@ export default function Settings({ userRole }: SettingsProps) {
     mutationFn: (settingsToSave: RestaurantSettings) =>
       apiRequest('/api/admin/settings', {
         method: 'PUT',
-        body: JSON.stringify(settingsToSave)
-      }),
+        body: JSON.stringify(settingsToSave});,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['restaurantSettings'] });
       toast({
@@ -215,7 +214,7 @@ export default function Settings({ userRole }: SettingsProps) {
   // Debounced save for auto-save functionality
   const debouncedSave = useCallback(
     debounce((settingsToSave: RestaurantSettings) => {
-      if (hasPermission('settings', 'edit')) {
+      if (hasPermission('settings', 'edit');{
         saveMutation.mutate(settingsToSave);
         setSettings(settingsToSave);
       }
@@ -248,7 +247,7 @@ export default function Settings({ userRole }: SettingsProps) {
           [field]: value
         }
       }
-    }));
+    });
   }, []);
 
   const addClosedDate = useCallback((date: Date) => {
@@ -259,7 +258,7 @@ export default function Settings({ userRole }: SettingsProps) {
         ...prev.specialDates,
         closedDates: [...prev.specialDates.closedDates, dateStr]
       }
-    }));
+    });
   }, []);
 
   const removeClosedDate = useCallback((dateStr: string) => {
@@ -269,7 +268,7 @@ export default function Settings({ userRole }: SettingsProps) {
         ...prev.specialDates,
         closedDates: prev.specialDates.closedDates.filter(d => d !== dateStr)
       }
-    }));
+    });
   }, []);
 
   const addSpecialHours = useCallback((date: Date, hours: OpeningHours, note: string) => {
@@ -283,7 +282,7 @@ export default function Settings({ userRole }: SettingsProps) {
           { date: dateStr, openingHours: hours, note }
         ]
       }
-    }));
+    });
   }, []);
 
   const removeSpecialHours = useCallback((dateStr: string) => {
@@ -293,10 +292,10 @@ export default function Settings({ userRole }: SettingsProps) {
         ...prev.specialDates,
         specialHours: prev.specialDates.specialHours.filter(sh => sh.date !== dateStr)
       }
-    }));
+    });
   }, []);
 
-  if (!hasPermission('settings', 'view')) {
+  if (!hasPermission('settings', 'view');{
     return (
       <div className="p-6">
         <Card>
@@ -317,7 +316,7 @@ export default function Settings({ userRole }: SettingsProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[...Array(6)].map((_, i) => (
             <Skeleton key={i} className="h-20" />
-          ))}
+          );}
         </div>
       </div>
     );
@@ -361,7 +360,7 @@ export default function Settings({ userRole }: SettingsProps) {
                 <Save className="h-4 w-4 mr-2" />
                 Sauvegarder
               </>
-            )}
+            }
           </Button>
         )}
       </div>
@@ -390,8 +389,8 @@ export default function Settings({ userRole }: SettingsProps) {
                   <Input
                     id="restaurantName"
                     value={draftSettings.restaurantName}
-                    onChange={(e) => handleChange('restaurantName', e.target.value)}
-                    disabled={!hasPermission('settings', 'edit')}
+                    onChange={(e) => handleChange('restaurantName', e.target.value}
+                    disabled={!hasPermission('settings', 'edit'}
                   />
                 </div>
                 <div>
@@ -399,8 +398,8 @@ export default function Settings({ userRole }: SettingsProps) {
                   <Input
                     id="phone"
                     value={draftSettings.phone}
-                    onChange={(e) => handleChange('phone', e.target.value)}
-                    disabled={!hasPermission('settings', 'edit')}
+                    onChange={(e) => handleChange('phone', e.target.value}
+                    disabled={!hasPermission('settings', 'edit'}
                   />
                 </div>
                 <div>
@@ -409,8 +408,8 @@ export default function Settings({ userRole }: SettingsProps) {
                     id="email"
                     type="email"
                     value={draftSettings.email}
-                    onChange={(e) => handleChange('email', e.target.value)}
-                    disabled={!hasPermission('settings', 'edit')}
+                    onChange={(e) => handleChange('email', e.target.value}
+                    disabled={!hasPermission('settings', 'edit'}
                   />
                 </div>
                 <div>
@@ -418,8 +417,8 @@ export default function Settings({ userRole }: SettingsProps) {
                   <Input
                     id="website"
                     value={draftSettings.website}
-                    onChange={(e) => handleChange('website', e.target.value)}
-                    disabled={!hasPermission('settings', 'edit')}
+                    onChange={(e) => handleChange('website', e.target.value}
+                    disabled={!hasPermission('settings', 'edit'}
                   />
                 </div>
               </div>
@@ -429,8 +428,8 @@ export default function Settings({ userRole }: SettingsProps) {
                 <Input
                   id="address"
                   value={draftSettings.address}
-                  onChange={(e) => handleChange('address', e.target.value)}
-                  disabled={!hasPermission('settings', 'edit')}
+                  onChange={(e) => handleChange('address', e.target.value}
+                  disabled={!hasPermission('settings', 'edit'}
                 />
               </div>
               
@@ -439,8 +438,8 @@ export default function Settings({ userRole }: SettingsProps) {
                 <Textarea
                   id="description"
                   value={draftSettings.description}
-                  onChange={(e) => handleChange('description', e.target.value)}
-                  disabled={!hasPermission('settings', 'edit')}
+                  onChange={(e) => handleChange('description', e.target.value}
+                  disabled={!hasPermission('settings', 'edit'}
                   rows={3}
                 />
               </div>
@@ -452,8 +451,8 @@ export default function Settings({ userRole }: SettingsProps) {
                   type="number"
                   min="1"
                   value={draftSettings.maxCapacity}
-                  onChange={(e) => handleChange('maxCapacity', parseInt(e.target.value))}
-                  disabled={!hasPermission('settings', 'edit')}
+                  onChange={(e) => handleChange('maxCapacity', parseInt(e.target.value);}
+                  disabled={!hasPermission('settings', 'edit'}
                 />
               </div>
             </CardContent>
@@ -477,8 +476,8 @@ export default function Settings({ userRole }: SettingsProps) {
                   <div className="flex items-center gap-2">
                     <Switch
                       checked={!hours.closed}
-                      onCheckedChange={(checked) => updateOpeningHours(day, 'closed', !checked)}
-                      disabled={!hasPermission('settings', 'edit')}
+                      onCheckedChange={(checked) => updateOpeningHours(day, 'closed', !checked}
+                      disabled={!hasPermission('settings', 'edit'}
                     />
                     <Label>Ouvert</Label>
                   </div>
@@ -486,22 +485,22 @@ export default function Settings({ userRole }: SettingsProps) {
                     <div className="flex flex-col sm:flex-row items-center gap-2">
                       <TimePicker
                         value={hours.open}
-                        onChange={(value) => updateOpeningHours(day, 'open', value)}
-                        disabled={!hasPermission('settings', 'edit')}
+                        onChange={(value) => updateOpeningHours(day, 'open', value}
+                        disabled={!hasPermission('settings', 'edit'}
                       />
                       <span>à</span>
                       <TimePicker
                         value={hours.close}
-                        onChange={(value) => updateOpeningHours(day, 'close', value)}
-                        disabled={!hasPermission('settings', 'edit')}
+                        onChange={(value) => updateOpeningHours(day, 'close', value}
+                        disabled={!hasPermission('settings', 'edit'}
                       />
                     </div>
                   )}
                   {hours.closed && (
                     <Badge variant="secondary">Fermé</Badge>
-                  )}
+                  }
                 </div>
-              ))}
+              );}
             </CardContent>
           </Card>
         </TabsContent>
@@ -516,8 +515,8 @@ export default function Settings({ userRole }: SettingsProps) {
                 <div className="flex items-center gap-2">
                   <Switch
                     checked={draftSettings.reservationSettings.enableOnlineReservations}
-                    onCheckedChange={(checked) => handleChange('reservationSettings.enableOnlineReservations', checked)}
-                    disabled={!hasPermission('settings', 'edit')}
+                    onCheckedChange={(checked) => handleChange('reservationSettings.enableOnlineReservations', checked}
+                    disabled={!hasPermission('settings', 'edit'}
                   />
                   <Label>Activer les réservations en ligne</Label>
                 </div>
@@ -525,8 +524,8 @@ export default function Settings({ userRole }: SettingsProps) {
                 <div className="flex items-center gap-2">
                   <Switch
                     checked={draftSettings.reservationSettings.requireConfirmation}
-                    onCheckedChange={(checked) => handleChange('reservationSettings.requireConfirmation', checked)}
-                    disabled={!hasPermission('settings', 'edit')}
+                    onCheckedChange={(checked) => handleChange('reservationSettings.requireConfirmation', checked}
+                    disabled={!hasPermission('settings', 'edit'}
                   />
                   <Label>Confirmation requise</Label>
                 </div>
@@ -534,8 +533,8 @@ export default function Settings({ userRole }: SettingsProps) {
                 <div className="flex items-center gap-2">
                   <Switch
                     checked={draftSettings.reservationSettings.depositRequired}
-                    onCheckedChange={(checked) => handleChange('reservationSettings.depositRequired', checked)}
-                    disabled={!hasPermission('settings', 'edit')}
+                    onCheckedChange={(checked) => handleChange('reservationSettings.depositRequired', checked}
+                    disabled={!hasPermission('settings', 'edit'}
                   />
                   <Label>Caution requise</Label>
                 </div>
@@ -548,8 +547,8 @@ export default function Settings({ userRole }: SettingsProps) {
                       min="0"
                       step="5"
                       value={draftSettings.reservationSettings.depositAmount}
-                      onChange={(e) => handleChange('reservationSettings.depositAmount', parseFloat(e.target.value))}
-                      disabled={!hasPermission('settings', 'edit')}
+                      onChange={(e) => handleChange('reservationSettings.depositAmount', parseFloat(e.target.value);}
+                      disabled={!hasPermission('settings', 'edit'}
                     />
                   </div>
                 )}
@@ -563,8 +562,8 @@ export default function Settings({ userRole }: SettingsProps) {
                     min="1"
                     max="365"
                     value={draftSettings.reservationSettings.maxAdvanceDays}
-                    onChange={(e) => handleChange('reservationSettings.maxAdvanceDays', parseInt(e.target.value))}
-                    disabled={!hasPermission('settings', 'edit')}
+                    onChange={(e) => handleChange('reservationSettings.maxAdvanceDays', parseInt(e.target.value);}
+                    disabled={!hasPermission('settings', 'edit'}
                   />
                 </div>
                 <div>
@@ -573,8 +572,8 @@ export default function Settings({ userRole }: SettingsProps) {
                     type="number"
                     min="1"
                     value={draftSettings.reservationSettings.minPartySize}
-                    onChange={(e) => handleChange('reservationSettings.minPartySize', parseInt(e.target.value))}
-                    disabled={!hasPermission('settings', 'edit')}
+                    onChange={(e) => handleChange('reservationSettings.minPartySize', parseInt(e.target.value);}
+                    disabled={!hasPermission('settings', 'edit'}
                   />
                 </div>
                 <div>
@@ -583,8 +582,8 @@ export default function Settings({ userRole }: SettingsProps) {
                     type="number"
                     min="1"
                     value={draftSettings.reservationSettings.maxPartySize}
-                    onChange={(e) => handleChange('reservationSettings.maxPartySize', parseInt(e.target.value))}
-                    disabled={!hasPermission('settings', 'edit')}
+                    onChange={(e) => handleChange('reservationSettings.maxPartySize', parseInt(e.target.value);}
+                    disabled={!hasPermission('settings', 'edit'}
                   />
                 </div>
               </div>
@@ -593,15 +592,15 @@ export default function Settings({ userRole }: SettingsProps) {
                 <Label>Politique d'annulation</Label>
                 <select
                   value={draftSettings.reservationSettings.cancellationPolicy}
-                  onChange={(e) => handleChange('reservationSettings.cancellationPolicy', e.target.value)}
-                  disabled={!hasPermission('settings', 'edit')}
+                  onChange={(e) => handleChange('reservationSettings.cancellationPolicy', e.target.value}
+                  disabled={!hasPermission('settings', 'edit'}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {CANCELLATION_POLICIES.map(policy => (
                     <option key={policy.value} value={policy.value}>
                       {policy.label}
                     </option>
-                  ))}
+                  );}
                 </select>
               </div>
             </CardContent>
@@ -621,8 +620,8 @@ export default function Settings({ userRole }: SettingsProps) {
                 <div className="flex items-center gap-2">
                   <Switch
                     checked={draftSettings.notificationSettings.emailNotifications}
-                    onCheckedChange={(checked) => handleChange('notificationSettings.emailNotifications', checked)}
-                    disabled={!hasPermission('settings', 'edit')}
+                    onCheckedChange={(checked) => handleChange('notificationSettings.emailNotifications', checked}
+                    disabled={!hasPermission('settings', 'edit'}
                   />
                   <Label>Notifications par email</Label>
                 </div>
@@ -630,8 +629,8 @@ export default function Settings({ userRole }: SettingsProps) {
                 <div className="flex items-center gap-2">
                   <Switch
                     checked={draftSettings.notificationSettings.smsNotifications}
-                    onCheckedChange={(checked) => handleChange('notificationSettings.smsNotifications', checked)}
-                    disabled={!hasPermission('settings', 'edit')}
+                    onCheckedChange={(checked) => handleChange('notificationSettings.smsNotifications', checked}
+                    disabled={!hasPermission('settings', 'edit'}
                   />
                   <Label>Notifications par SMS</Label>
                 </div>
@@ -643,8 +642,8 @@ export default function Settings({ userRole }: SettingsProps) {
                     min="1"
                     max="72"
                     value={draftSettings.notificationSettings.reminderBefore}
-                    onChange={(e) => handleChange('notificationSettings.reminderBefore', parseInt(e.target.value))}
-                    disabled={!hasPermission('settings', 'edit')}
+                    onChange={(e) => handleChange('notificationSettings.reminderBefore', parseInt(e.target.value);}
+                    disabled={!hasPermission('settings', 'edit'}
                   />
                 </div>
               </div>
@@ -653,8 +652,8 @@ export default function Settings({ userRole }: SettingsProps) {
                 <Label>Modèle de notification de nouvelle réservation</Label>
                 <Textarea
                   value={draftSettings.notificationSettings.newReservationTemplate}
-                  onChange={(e) => handleChange('notificationSettings.newReservationTemplate', e.target.value)}
-                  disabled={!hasPermission('settings', 'edit')}
+                  onChange={(e) => handleChange('notificationSettings.newReservationTemplate', e.target.value}
+                  disabled={!hasPermission('settings', 'edit'}
                   rows={3}
                 />
                 <p className="text-sm text-muted-foreground">
@@ -666,8 +665,8 @@ export default function Settings({ userRole }: SettingsProps) {
                 <Label>Modèle de notification d'annulation</Label>
                 <Textarea
                   value={draftSettings.notificationSettings.cancellationTemplate}
-                  onChange={(e) => handleChange('notificationSettings.cancellationTemplate', e.target.value)}
-                  disabled={!hasPermission('settings', 'edit')}
+                  onChange={(e) => handleChange('notificationSettings.cancellationTemplate', e.target.value}
+                  disabled={!hasPermission('settings', 'edit'}
                   rows={3}
                 />
                 <p className="text-sm text-muted-foreground">
@@ -688,10 +687,10 @@ export default function Settings({ userRole }: SettingsProps) {
                 <h3 className="font-medium mb-2">Jours de fermeture</h3>
                 <div className="flex flex-col gap-4">
                   <DayPicker
-                    selectedDates={draftSettings.specialDates.closedDates.map(d => new Date(d))}
-                    onSelectDate={(date) => addClosedDate(date)}
-                    onRemoveDate={(date) => removeClosedDate(date.toISOString().split('T')[0])}
-                    disabled={!hasPermission('settings', 'edit')}
+                    selectedDates={draftSettings.specialDates.closedDates.map(d => new Date(d);}
+                    onSelectDate={(date) => addClosedDate(date}
+                    onRemoveDate={(date) => removeClosedDate(date.toISOString().split('T')[0]}
+                    disabled={!hasPermission('settings', 'edit'}
                   />
                   {draftSettings.specialDates.closedDates.length > 0 && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
@@ -704,14 +703,14 @@ export default function Settings({ userRole }: SettingsProps) {
                           {new Date(date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                           {hasPermission('settings', 'edit') && (
                             <button 
-                              onClick={() => removeClosedDate(date)}
+                              onClick={() => removeClosedDate(date}
                               className="ml-2 text-muted-foreground hover:text-destructive"
                             >
                               ×
                             </button>
                           )}
                         </Badge>
-                      ))}
+                      );}
                     </div>
                   )}
                 </div>
@@ -728,7 +727,7 @@ export default function Settings({ userRole }: SettingsProps) {
                         </span>
                         {hasPermission('settings', 'edit') && (
                           <button 
-                            onClick={() => removeSpecialHours(date)}
+                            onClick={() => removeSpecialHours(date}
                             className="text-sm text-destructive"
                           >
                             Supprimer
@@ -755,10 +754,10 @@ export default function Settings({ userRole }: SettingsProps) {
                                   ...prev.specialDates,
                                   specialHours: updatedHours
                                 }
-                              }));
+                              });
                             }
                           }}
-                          disabled={!hasPermission('settings', 'edit')}
+                          disabled={!hasPermission('settings', 'edit'}
                         />
                         <Label>Ouvert</Label>
                       </div>
@@ -783,10 +782,10 @@ export default function Settings({ userRole }: SettingsProps) {
                                     ...prev.specialDates,
                                     specialHours: updatedHours
                                   }
-                                }));
+                                });
                               }
                             }}
-                            disabled={!hasPermission('settings', 'edit')}
+                            disabled={!hasPermission('settings', 'edit'}
                           />
                           <span>à</span>
                           <TimePicker
@@ -808,10 +807,10 @@ export default function Settings({ userRole }: SettingsProps) {
                                     ...prev.specialDates,
                                     specialHours: updatedHours
                                   }
-                                }));
+                                });
                               }
                             }}
-                            disabled={!hasPermission('settings', 'edit')}
+                            disabled={!hasPermission('settings', 'edit'}
                           />
                         </div>
                       )}
@@ -833,14 +832,14 @@ export default function Settings({ userRole }: SettingsProps) {
                                   ...prev.specialDates,
                                   specialHours: updatedHours
                                 }
-                              }));
+                              });
                             }
                           }}
-                          disabled={!hasPermission('settings', 'edit')}
+                          disabled={!hasPermission('settings', 'edit'}
                         />
                       </div>
                     </div>
-                  ))}
+                  );}
                 </div>
                 <div className="mt-4 border-t pt-4">
                   <h4 className="font-medium mb-2">Ajouter des horaires spéciaux</h4>
@@ -850,15 +849,14 @@ export default function Settings({ userRole }: SettingsProps) {
                       <DayPicker
                         onSelectDate={(date) => {
                           const dateStr = date.toISOString().split('T')[0];
-                          if (!draftSettings.specialDates.specialHours.some(sh => sh.date === dateStr)) {
+                          if (!draftSettings.specialDates.specialHours.some(sh => sh.date === dateStr);{
                             addSpecialHours(date, { open: '09:00', close: '18:00', closed: false }, '');
                           }
                         }}
-                        disabled={!hasPermission('settings', 'edit')}
+                        disabled={!hasPermission('settings', 'edit'}
                         excludeDates={[
-                          ...draftSettings.specialDates.specialHours.map(sh => new Date(sh.date)),
-                          ...draftSettings.specialDates.closedDates.map(d => new Date(d))
-                        ]}
+                          ...draftSettings.specialDates.specialHours.map(sh => new Date(sh.date);,
+                          ...draftSettings.specialDates.closedDates.map(d => new Date(d);]}
                       />
                     </div>
                   </div>

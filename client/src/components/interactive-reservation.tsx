@@ -155,14 +155,13 @@ export default function InteractiveReservation() {
   };
 
   const updateItemNotes = (itemId: number, notes: string) => {
-    setItemNotes(prev => ({ ...prev, [itemId]: notes }));
+    setItemNotes(prev => ({ ...prev, [itemId]: notes });
     setCart(prevCart =>
       prevCart.map(cartItem =>
         cartItem.menuItem.id === itemId
           ? { ...cartItem, notes }
           : cartItem
-      )
-    );
+      );
   };
 
   // Calculs
@@ -186,7 +185,7 @@ export default function InteractiveReservation() {
 
   // Icônes par catégorie
   const getCategoryIcon = (categoryName: string) => {
-    switch (categoryName.toLowerCase()) {
+    switch (categoryName.toLowerCase();{
       case 'cafés':
       case 'boissons':
         return Coffee;
@@ -202,7 +201,7 @@ export default function InteractiveReservation() {
   // Image de fallback
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>, item: MenuItem) => {
     const target = e.currentTarget;
-    target.src = getItemImageUrl('default', item.category?.toLowerCase());
+    target.src = getItemImageUrl('default', item.category?.toLowerCase();
   };
 
   return (
@@ -232,7 +231,7 @@ export default function InteractiveReservation() {
                 <div className="flex flex-wrap gap-2 mb-6">
                   <Button
                     variant={activeCategory === null ? 'default' : 'outline'}
-                    onClick={() => setActiveCategory(null)}
+                    onClick={() => setActiveCategory(null}
                     className="bg-coffee-accent hover:bg-coffee-dark"
                   >
                     Tout voir
@@ -243,7 +242,7 @@ export default function InteractiveReservation() {
                       <Button
                         key={category.id}
                         variant={activeCategory === category.id ? 'default' : 'outline'}
-                        onClick={() => setActiveCategory(category.id)}
+                        onClick={() => setActiveCategory(category.id}
                         className="bg-coffee-accent hover:bg-coffee-dark"
                       >
                         <Icon className="h-4 w-4 mr-2" />
@@ -265,7 +264,7 @@ export default function InteractiveReservation() {
                           <div className="h-4 bg-coffee-light/20 rounded animate-pulse" />
                         </CardContent>
                       </Card>
-                    ))}
+                    );}
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -277,10 +276,10 @@ export default function InteractiveReservation() {
                           <CardContent className="p-4">
                             <div className="aspect-square mb-3 rounded-lg overflow-hidden bg-coffee-light/20">
                               <img 
-                                src={getItemImageUrl(item.name, item.category?.toLowerCase())}
+                                src={getItemImageUrl(item.name, item.category?.toLowerCase();}
                                 alt={item.name}
                                 className="w-full h-full object-cover rounded-lg"
-                                onError={(e) => handleImageError(e, item)}
+                                onError={(e) => handleImageError(e, item}
                               />
                             </div>
 
@@ -295,7 +294,7 @@ export default function InteractiveReservation() {
                                     <Button
                                       size="sm"
                                       variant="outline"
-                                      onClick={() => removeFromCart(item.id)}
+                                      onClick={() => removeFromCart(item.id}
                                       className="h-8 w-8 p-0"
                                     >
                                       <Minus className="h-4 w-4" />
@@ -308,7 +307,7 @@ export default function InteractiveReservation() {
 
                                 <Button
                                   size="sm"
-                                  onClick={() => addToCart(item)}
+                                  onClick={() => addToCart(item}
                                   className="h-8 w-8 p-0 bg-coffee-accent hover:bg-coffee-dark"
                                 >
                                   <Plus className="h-4 w-4" />
@@ -347,7 +346,7 @@ export default function InteractiveReservation() {
                         <Input
                           placeholder="Notes spéciales..."
                           value={item.notes || ''}
-                          onChange={(e) => updateItemNotes(item.menuItem.id, e.target.value)}
+                          onChange={(e) => updateItemNotes(item.menuItem.id, e.target.value}
                           className="mt-2 text-xs"
                         />
                       </div>
@@ -355,26 +354,26 @@ export default function InteractiveReservation() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => removeFromCart(item.menuItem.id)}
+                          onClick={() => removeFromCart(item.menuItem.id}
                           className="h-6 w-6 p-0"
                         >
                           <Minus className="h-3 w-3" />
                         </Button>
                         <Button
                           size="sm"
-                          onClick={() => addToCart(item.menuItem)}
+                          onClick={() => addToCart(item.menuItem}
                           className="h-6 w-6 p-0 bg-coffee-accent hover:bg-coffee-dark"
                         >
                           <Plus className="h-3 w-3" />
                         </Button>
                       </div>
                     </div>
-                  ))}
+                  );}
 
                   <div className="border-t pt-4">
                     <div className="flex justify-between items-center text-lg font-bold text-coffee-dark">
                       <span>Total:</span>
-                      <span>{cartTotal.toFixed(2)}€</span>
+                      <span>{cartTotal.toFixed(2}€</span>
                     </div>
                   </div>
                 </CardContent>
@@ -390,12 +389,12 @@ export default function InteractiveReservation() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <form onSubmit={form.handleSubmit(onSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 gap-4">
                     <div>
                       <Label htmlFor="customerName">Nom complet</Label>
                       <Input
-                        {...form.register('customerName')}
+                        {...form.register('customerName'}
                         placeholder="Votre nom"
                         className="mt-1"
                       />
@@ -409,7 +408,7 @@ export default function InteractiveReservation() {
                     <div>
                       <Label htmlFor="customerEmail">Email</Label>
                       <Input
-                        {...form.register('customerEmail')}
+                        {...form.register('customerEmail'}
                         type="email"
                         placeholder="votre@email.com"
                         className="mt-1"
@@ -424,7 +423,7 @@ export default function InteractiveReservation() {
                     <div>
                       <Label htmlFor="customerPhone">Téléphone</Label>
                       <Input
-                        {...form.register('customerPhone')}
+                        {...form.register('customerPhone'}
                         placeholder="Ex: +33612345678"
                         className="mt-1"
                       />
@@ -439,7 +438,7 @@ export default function InteractiveReservation() {
                       <div>
                         <Label htmlFor="date">Date</Label>
                         <Input
-                          {...form.register('date')}
+                          {...form.register('date'}
                           type="date"
                           min={new Date().toISOString().split('T')[0]}
                           className="mt-1"
@@ -454,7 +453,7 @@ export default function InteractiveReservation() {
                       <div>
                         <Label htmlFor="time">Heure</Label>
                         <Input
-                          {...form.register('time')}
+                          {...form.register('time'}
                           type="time"
                           min="07:00"
                           max="22:00"
@@ -490,7 +489,7 @@ export default function InteractiveReservation() {
                   <div>
                     <Label htmlFor="specialRequests">Demandes spéciales</Label>
                     <Textarea
-                      {...form.register('specialRequests')}
+                      {...form.register('specialRequests'}
                       placeholder="Allergies, préférences..."
                       className="mt-1"
                       rows={3}
@@ -506,7 +505,7 @@ export default function InteractiveReservation() {
                   {reservationMutation.isPending ? (
                     "Confirmation en cours..."
                   ) : (
-                    `Confirmer la réservation${cart.length > 0 ? ` (${cartTotal.toFixed(2)}€)` : ''}`
+                    `Confirmer la réservation${cart.length > 0 ? ` (${cartTotal.toFixed(2}€)` : ''}`
                   )}
                 </Button>
               </form>

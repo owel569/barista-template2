@@ -16,7 +16,7 @@ export function useWebSocket(url: string = '/api/ws') {
 
   const connect = () => {
     // Éviter les connexions multiples
-    if (ws.current && (ws.current.readyState === WebSocket.CONNECTING || ws.current.readyState === WebSocket.OPEN)) {
+    if (ws.current && (ws.current.readyState === WebSocket.CONNECTING || ws.current.readyState === WebSocket.OPEN);{
       return;
     }
 
@@ -68,7 +68,7 @@ export function useWebSocket(url: string = '/api/ws') {
 
   const sendMessage = (message: WebSocketMessage) => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-      ws.current.send(JSON.stringify(message));
+      ws.current.send(JSON.stringify(message);
     }
   };
 

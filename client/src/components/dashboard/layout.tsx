@@ -78,7 +78,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       {isMobile && !sidebarCollapsed && (
         <div
           className="fixed inset-0 z-40 bg-black bg-opacity-50"
-          onClick={() => setSidebarCollapsed(true)}
+          onClick={() => setSidebarCollapsed(true}
         />
       )}
 

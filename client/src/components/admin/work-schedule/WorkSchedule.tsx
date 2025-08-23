@@ -103,7 +103,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
   };
 
   const handleShiftDelete = (shiftId: number) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce shift ?')) {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce shift ?');{
       deleteShift(shiftId);
     }
   };
@@ -133,7 +133,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
   const ViewNavigation = () => (
     <Tabs 
       value={viewModeState} 
-      onValueChange={(value) => handleViewModeChange(value as ViewMode)} 
+      onValueChange={(value) => handleViewModeChange(value as ViewMode} 
       className="w-full"
     >
       <TabsList className="grid w-full grid-cols-4">
@@ -154,7 +154,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
             <BarChart3 className="h-4 w-4" />
             <span>Analyses</span>
           </TabsTrigger>
-        )}
+        }
       </TabsList>
       
       <TabsContent value="calendar" className="space-y-4">
@@ -227,21 +227,21 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
         <Button
           variant="outline"
           size="sm"
-          onClick={() => navigateTime('prev')}
+          onClick={() => navigateTime('prev'}
         >
           ← Précédent
         </Button>
         <Button
           variant="outline"
           size="sm"
-          onClick={() => navigateTime('next')}
+          onClick={() => navigateTime('next'}
         >
           Suivant →
         </Button>
         <Button
           variant="outline"
           size="sm"
-          onClick={() => window.location.reload()}
+          onClick={() => window.location.reload(}
         >
           <RefreshCw className="h-4 w-4 mr-2" />
           Actualiser
@@ -264,7 +264,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
         <Button
           variant="outline"
           size="sm"
-          onClick={() => console.log('Filtres')}
+          onClick={() => console.log('Filtres'}
         >
           <Filter className="h-4 w-4 mr-2" />
           Filtres
@@ -273,7 +273,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
         {canCreateShift && (
           <Button
             size="sm"
-            onClick={() => console.log('Créer shift')}
+            onClick={() => console.log('Créer shift'}
             disabled={creatingShift}
           >
             <Plus className="h-4 w-4 mr-2" />
@@ -388,7 +388,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
                     </Button>
                   </div>
                 </div>
-              ))}
+              );}
             </div>
           </CardContent>
         </Card>

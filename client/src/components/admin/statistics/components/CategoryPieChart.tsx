@@ -77,7 +77,7 @@ export function CategoryPieChart({
               cx="50%"
               cy="50%"
               labelLine={false}
-              label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+              label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0}%`}
               innerRadius={innerRadius}
               outerRadius={outerRadius}
               dataKey="value"
@@ -89,20 +89,20 @@ export function CategoryPieChart({
                   fill={entry.color || DEFAULT_COLORS[index % DEFAULT_COLORS.length]} 
                   name={entry.name}
                 />
-              ))}
+              );}
             </Pie>
             <Tooltip 
               formatter={(value: number) => [value, 'Valeur']}
               contentStyle={{
-                backgroundColor: 'hsl(var(--card))',
-                borderColor: 'hsl(var(--border))',
+                backgroundColor: 'hsl(var(--card);',
+                borderColor: 'hsl(var(--border);',
                 borderRadius: 'var(--radius)',
-                color: 'hsl(var(--foreground))'
+                color: 'hsl(var(--foreground);'
               }}
             />
             <Legend 
               wrapperStyle={{ 
-                color: 'hsl(var(--foreground))',
+                color: 'hsl(var(--foreground);',
                 fontSize: '0.75rem'
               }}
               layout="horizontal"

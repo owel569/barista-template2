@@ -377,13 +377,13 @@ export default function QualityControl(): JSX.Element {
   const updateCheckStatus = (id: number, completed: boolean) => {
     setQualityChecks(qualityChecks.map(check => 
       check.id === id ? { ...check, completed } : check
-    ));
+    );
   };
 
   const filteredChecks = qualityChecks.filter(check => {
     const matchesCategory = selectedCategory === 'all' || check.category === selectedCategory;
-    const matchesSearch = check.item.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                         check.notes.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = check.item.toLowerCase().includes(searchQuery.toLowerCase();|| 
+                         check.notes.toLowerCase().includes(searchQuery.toLowerCase();
     return matchesCategory && matchesSearch;
   });
 
@@ -414,7 +414,7 @@ export default function QualityControl(): JSX.Element {
               <SelectItem value="all">Tout</SelectItem>
             </SelectContent>
           </Select>
-          <Button onClick={() => setShowNewCheckForm(!showNewCheckForm)}>
+          <Button onClick={() => setShowNewCheckForm(!showNewCheckForm}>
             <Plus className="h-4 w-4 mr-2" />
             Nouveau Contrôle
           </Button>
@@ -459,7 +459,7 @@ export default function QualityControl(): JSX.Element {
                 <Input 
                   type="number" 
                   value={newCheck.score || ''} 
-                  onChange={e => setNewCheck({...newCheck, score: parseInt(e.target.value)})}
+                  onChange={e => setNewCheck({...newCheck, score: parseInt(e.target.value});}
                   placeholder="Score obtenu"
                 />
               </div>
@@ -469,7 +469,7 @@ export default function QualityControl(): JSX.Element {
                 <Input 
                   type="number" 
                   value={newCheck.maxScore || 100} 
-                  onChange={e => setNewCheck({...newCheck, maxScore: parseInt(e.target.value)})}
+                  onChange={e => setNewCheck({...newCheck, maxScore: parseInt(e.target.value});}
                   placeholder="Score maximum"
                 />
               </div>
@@ -526,19 +526,18 @@ export default function QualityControl(): JSX.Element {
                         size="sm" 
                         onClick={() => setNewCheck({
                           ...newCheck,
-                          correctionActions: newCheck.correctionActions?.filter((_, i) => i !== index)
-                        })}
+                          correctionActions: newCheck.correctionActions?.filter((_, i) => i !== index});}
                       >
                         <XCircle className="h-4 w-4 text-red-500" />
                       </Button>
                     </div>
-                  ))}
+                  );}
                 </div>
               </div>
             </div>
             
             <div className="flex justify-end space-x-2 mt-4">
-              <Button variant="outline" onClick={() => setShowNewCheckForm(false)}>
+              <Button variant="outline" onClick={() => setShowNewCheckForm(false}>
                 Annuler
               </Button>
               <Button onClick={addQualityCheck}>
@@ -638,7 +637,7 @@ export default function QualityControl(): JSX.Element {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            );}
           </div>
 
           <Card>
@@ -663,20 +662,20 @@ export default function QualityControl(): JSX.Element {
                       <div>
                         <div className="font-medium">{check.item}</div>
                         <div className="text-sm text-muted-foreground">
-                          {check.category} • {check.inspector} • {new Date(check.date).toLocaleDateString()}
+                          {check.category} • {check.inspector} • {new Date(check.date).toLocaleDateString(}
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <div className={`text-lg font-bold ${getScoreColor(check.score, check.maxScore)}`}>
+                      <div className={`text-lg font-bold ${getScoreColor(check.score, check.maxScore}`}>
                         {check.score}/{check.maxScore}
                       </div>
-                      <Badge {...getStatusBadge(check.status)}>
+                      <Badge {...getStatusBadge(check.status}>
                         {check.status}
                       </Badge>
                     </div>
                   </div>
-                ))}
+                );}
               </div>
             </CardContent>
           </Card>
@@ -691,7 +690,7 @@ export default function QualityControl(): JSX.Element {
                   placeholder="Rechercher..." 
                   className="pl-10 w-64"
                   value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
+                  onChange={e => setSearchQuery(e.target.value}
                 />
               </div>
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
@@ -731,15 +730,15 @@ export default function QualityControl(): JSX.Element {
                       <div>
                         <CardTitle className="flex items-center space-x-2">
                           <span>{check.item}</span>
-                          <Badge {...getStatusBadge(check.status)}>
+                          <Badge {...getStatusBadge(check.status}>
                             {check.status}
                           </Badge>
                         </CardTitle>
                         <CardDescription>
-                          {check.category} • Inspecté par {check.inspector} • {new Date(check.date).toLocaleDateString()}
+                          {check.category} • Inspecté par {check.inspector} • {new Date(check.date).toLocaleDateString(}
                         </CardDescription>
                       </div>
-                      <div className={`text-2xl font-bold ${getScoreColor(check.score, check.maxScore)}`}>
+                      <div className={`text-2xl font-bold ${getScoreColor(check.score, check.maxScore}`}>
                         {check.score}/{check.maxScore}
                       </div>
                     </div>
@@ -760,7 +759,7 @@ export default function QualityControl(): JSX.Element {
                           <ul className="list-disc list-inside space-y-1 text-sm">
                             {check.correctionActions.map((action, index) => (
                               <li key={index} className="text-muted-foreground">{action}</li>
-                            ))}
+                            );}
                           </ul>
                         </div>
                       )}
@@ -776,15 +775,14 @@ export default function QualityControl(): JSX.Element {
                               <div key={index} className="w-16 h-16 bg-gray-100 rounded border flex items-center justify-center">
                                 <Camera className="h-6 w-6 text-gray-400" />
                               </div>
-                            ))}
+                            );}
                           </div>
                         </div>
                       )}
                     </div>
                   </CardContent>
                 </Card>
-              ))
-            )}
+              );}
           </div>
         </TabsContent>
 
@@ -823,11 +821,11 @@ export default function QualityControl(): JSX.Element {
                           </div>
                         </div>
                       </div>
-                    ))}
+                    );}
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            );}
           </div>
         </TabsContent>
 
@@ -875,18 +873,18 @@ export default function QualityControl(): JSX.Element {
                         </div>
                         <div className="flex items-center space-x-2">
                           <Badge variant="outline">
-                            {new Date(check.date).toLocaleDateString()}
+                            {new Date(check.date).toLocaleDateString(}
                           </Badge>
                           <Button 
                             variant="ghost" 
                             size="sm" 
-                            onClick={() => updateCheckStatus(check.id, !check.completed)}
+                            onClick={() => updateCheckStatus(check.id, !check.completed}
                           >
                             {check.completed ? (
                               <CheckCircle className="h-4 w-4 text-green-500" />
                             ) : (
                               <Clock className="h-4 w-4 text-yellow-500" />
-                            )}
+                            }
                           </Button>
                         </div>
                       </div>
@@ -897,16 +895,16 @@ export default function QualityControl(): JSX.Element {
                               type="checkbox" 
                               className="rounded" 
                               checked={check.completed}
-                              onChange={() => updateCheckStatus(check.id, !check.completed)}
+                              onChange={() => updateCheckStatus(check.id, !check.completed}
                             />
                             <span className={`text-sm ${check.completed ? 'line-through text-gray-400' : ''}`}>
                               {action}
                             </span>
                           </div>
-                        ))}
+                        );}
                       </div>
                     </div>
-                  ))}
+                  );}
               </div>
             </CardContent>
           </Card>

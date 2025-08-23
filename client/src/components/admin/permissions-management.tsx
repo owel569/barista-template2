@@ -144,15 +144,15 @@ export default function PermissionsManagement(): JSX.Element {
   const validateUserForm = () => {
     const errors: Record<string, string> = {};
     
-    if (!newUser.username.trim()) {
+    if (!newUser.username.trim();{
       errors.username = "Le nom d'utilisateur est requis";
     } else if (newUser.username.length < 3) {
       errors.username = "Le nom d'utilisateur doit contenir au moins 3 caractères";
     }
 
-    if (!newUser.email.trim()) {
+    if (!newUser.email.trim();{
       errors.email = "L'email est requis";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newUser.email)) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newUser.email);{
       errors.email = "Format d'email invalide";
     }
 
@@ -191,8 +191,7 @@ export default function PermissionsManagement(): JSX.Element {
           granted,
           module: permissions.find(p => p.id === permissionId)?.module,
           action: permissions.find(p => p.id === permissionId)?.actions[0]
-        })
-      });
+        }});
 
       if (response.ok) {
         setUsers(users.map(user => 
@@ -204,7 +203,7 @@ export default function PermissionsManagement(): JSX.Element {
                   : user.permissions.filter(p => p !== permissionId)
               }
             : user
-        ));
+        );
         
         toast({
           title: "Permission mise à jour",
@@ -226,7 +225,7 @@ export default function PermissionsManagement(): JSX.Element {
   };
 
   const createUser = async () => {
-    if (!validateUserForm()) return;
+    if (!validateUserForm();return;
 
     try {
       setIsProcessing(true);
@@ -238,8 +237,7 @@ export default function PermissionsManagement(): JSX.Element {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(newUser)
-      });
+        body: JSON.stringify(newUser});
 
       if (response.ok) {
         const userData = await response.json();
@@ -286,13 +284,12 @@ export default function PermissionsManagement(): JSX.Element {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ active })
-      });
+        body: JSON.stringify({ active }});
 
       if (response.ok) {
         setUsers(users.map(user => 
           user.id === userId ? { ...user, active } : user
-        ));
+        );
         
         toast({
           title: "Statut mis à jour",
@@ -456,7 +453,7 @@ export default function PermissionsManagement(): JSX.Element {
                   </>
                 ) : (
                   "Créer l'utilisateur"
-                )}
+                }
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -492,7 +489,7 @@ export default function PermissionsManagement(): JSX.Element {
                     <TableRow key={user.id}>
                       <TableCell>
                         <div>
-                          <div className="font-medium">{getUserName(user)}</div>
+                          <div className="font-medium">{getUserName(user}</div>
                           <div className="text-sm text-gray-500">{user.email}</div>
                         </div>
                       </TableCell>
@@ -507,13 +504,13 @@ export default function PermissionsManagement(): JSX.Element {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {formatDate(user.lastLogin)}
+                        {formatDate(user.lastLogin}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Switch
                             checked={user.active}
-                            onCheckedChange={(checked) => toggleUserStatus(user.id, checked)}
+                            onCheckedChange={(checked) => toggleUserStatus(user.id, checked}
                             disabled={user.role === 'directeur'}
                           />
                           <Badge variant={user.active ? 'default' : 'secondary'}>
@@ -525,13 +522,13 @@ export default function PermissionsManagement(): JSX.Element {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => setSelectedUser(user)}
+                          onClick={() => setSelectedUser(user}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  );}
                 </TableBody>
               </Table>
             </CardContent>
@@ -554,8 +551,7 @@ export default function PermissionsManagement(): JSX.Element {
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                         {ACTIONS.map((action) => {
                           const permission = permissions.find(p => 
-                            p.module === module && p.actions.includes(action)
-                          );
+                            p.module === module && p.actions.includes(action);
                           
                           return (
                             <div key={action} className="flex items-center space-x-2">
@@ -566,14 +562,14 @@ export default function PermissionsManagement(): JSX.Element {
                                 <CheckCircle className="h-4 w-4 text-green-500" />
                               ) : (
                                 <XCircle className="h-4 w-4 text-gray-400" />
-                              )}
+                              }
                             </div>
                           );
                         })}
                       </div>
                     </CardContent>
                   </Card>
-                ))}
+                );}
               </div>
             </CardContent>
           </Card>
@@ -594,22 +590,21 @@ export default function PermissionsManagement(): JSX.Element {
                         <TableHead key={module} className="capitalize text-center">
                           {module}
                         </TableHead>
-                      ))}
+                      );}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {users.map((user) => (
                       <TableRow key={user.id}>
                         <TableCell className="font-medium">
-                          {getUserName(user)}
+                          {getUserName(user}
                         </TableCell>
                         {MODULES.map((module) => (
                           <TableCell key={module}>
                             <div className="flex flex-wrap gap-2 justify-center">
                               {ACTIONS.map((action) => {
                                 const permission = permissions.find(p => 
-                                  p.module === module && p.actions.includes(action)
-                                );
+                                  p.module === module && p.actions.includes(action);
                                 const hasPermission = permission && user.permissions?.includes(permission.id);
                                 
                                 return (
@@ -627,9 +622,9 @@ export default function PermissionsManagement(): JSX.Element {
                               })}
                             </div>
                           </TableCell>
-                        ))}
+                        );}
                       </TableRow>
-                    ))}
+                    );}
                   </TableBody>
                 </Table>
               </div>
@@ -639,10 +634,10 @@ export default function PermissionsManagement(): JSX.Element {
       </Tabs>
 
       {selectedUser && (
-        <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
+        <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>Permissions de {getUserName(selectedUser)}</DialogTitle>
+              <DialogTitle>Permissions de {getUserName(selectedUser}</DialogTitle>
               <DialogDescription>
                 Gérer les permissions spécifiques pour cet utilisateur
               </DialogDescription>
@@ -657,8 +652,7 @@ export default function PermissionsManagement(): JSX.Element {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {ACTIONS.map((action) => {
                         const permission = permissions.find(p => 
-                          p.module === module && p.actions.includes(action)
-                        );
+                          p.module === module && p.actions.includes(action);
                         const hasPermission = permission && selectedUser.permissions?.includes(permission.id);
                         
                         return (
@@ -675,14 +669,14 @@ export default function PermissionsManagement(): JSX.Element {
                               <Badge variant="outline" className="text-xs">
                                 Non configuré
                               </Badge>
-                            )}
+                            }
                           </div>
                         );
                       })}
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+              );}
             </div>
           </DialogContent>
         </Dialog>

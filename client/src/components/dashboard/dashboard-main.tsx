@@ -105,7 +105,7 @@ export default function DashboardMain(): JSX.Element {
       try {
         const response = await fetch('/api/dashboard/real-time-stats', {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Authorization': `Bearer ${localStorage.getItem('token'}`,
             'Content-Type': 'application/json'
           }
         });
@@ -229,7 +229,7 @@ export default function DashboardMain(): JSX.Element {
           </div>
         </div>
         <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm" onClick={() => refetch()}>
+          <Button variant="outline" size="sm" onClick={() => refetch(}>
             <TrendingUp className="h-4 w-4 mr-2" />
             Actualiser
           </Button>
@@ -354,7 +354,7 @@ export default function DashboardMain(): JSX.Element {
                 >
                   {orderStatusData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
+                  );}
                 </Pie>
                 <Tooltip />
               </PieChart>
@@ -409,7 +409,7 @@ export default function DashboardMain(): JSX.Element {
                   {activity.time}
                 </span>
               </div>
-            ))}
+            );}
           </div>
         </CardContent>
       </Card>

@@ -84,17 +84,17 @@ const OnlineOrdering: React.FC = () => {
   });
 
   const createOrderMutation = useMutation({
-    mutationFn: async (orderData: Partial<OnlineOrder>})}) => {
+    mutationFn: async (orderData: Partial<OnlineOrder>}});=> {
       const response = await fetch('/api/orders/online', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' )},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData),
       });
       if (!response.ok) throw new Error('Erreur lors de la création de la commande');
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/orders/online'] )});
+      queryClient.invalidateQueries({ queryKey: ['/api/orders/online'] });
       setCart([]);
       setIsCheckoutOpen(false);
       toast({ 
@@ -106,7 +106,7 @@ const OnlineOrdering: React.FC = () => {
 
   const updateOrderStatusMutation = useMutation({
     mutationFn: async ({ id, status })}: { id: number; status: string }) => {
-      const response = await fetch(`/api/orders/online/${id)}/status`, {
+      const response = await fetch(`/api/orders/online/${id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
@@ -115,7 +115,7 @@ const OnlineOrdering: React.FC = () => {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/orders/online'] )});
+      queryClient.invalidateQueries({ queryKey: ['/api/orders/online'] });
       toast({ title: 'Statut mis à jour', description: 'Le statut de la commande a été modifié.' });
     },
   });
@@ -123,8 +123,7 @@ const OnlineOrdering: React.FC = () => {
   const addToCart = (menuItem: MenuItem, customizations: Record<string, string> = {}, notes?: string) => {
     const existingItemIndex = cart.findIndex(
       item => item.menuItem.id === menuItem.id && 
-              JSON.stringify(item.customizations) === JSON.stringify(customizations)
-    );
+              JSON.stringify(item.customizations) === JSON.stringify(customizations);
 
     if (existingItemIndex > -1) {
       const newCart = [...cart];
@@ -145,7 +144,7 @@ const OnlineOrdering: React.FC = () => {
   };
 
   const removeFromCart = (itemId: number) => {
-    setCart(cart.filter(item => item.id !== itemId));
+    setCart(cart.filter(item => item.id !== itemId);
   };
 
   const updateCartItemQuantity = (itemId: number, quantity: number) => {
@@ -156,7 +155,7 @@ const OnlineOrdering: React.FC = () => {
     
     setCart(cart.map(item => 
       item.id === itemId ? { ...item, quantity } : item
-    ));
+    );
   };
 
   const getCartTotal = () => {
@@ -180,8 +179,7 @@ const OnlineOrdering: React.FC = () => {
   };
 
   const filteredMenuItems = menuItems.filter(item => 
-    item.available && (selectedCategory === 'all' || item.category === selectedCategory)
-  );
+    item.available && (selectedCategory === 'all' || item.category === selectedCategory);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -226,7 +224,7 @@ const OnlineOrdering: React.FC = () => {
           <p className="text-muted-foreground">Système de commandes et interface client</p>
         </div>
         <div className="flex space-x-2">
-          <Button variant="outline" onClick={() => setIsCheckoutOpen(true)}>
+          <Button variant="outline" onClick={() => setIsCheckoutOpen(true}>
             <ShoppingCart className="w-4 h-4 mr-2" />
             Panier ({cart.length})
           </Button>
@@ -249,28 +247,28 @@ const OnlineOrdering: React.FC = () => {
                 <SelectItem value="all">Toutes catégories</SelectItem>
                 {categories.map((category) => (
                   <SelectItem key={category} value={category}>{category}</SelectItem>
-                ))}
+                );}
               </SelectContent>
             </Select>
 
             <div className="flex space-x-2">
               <Button 
                 variant={orderType === 'pickup' ? 'default' : 'outline'}
-                onClick={() => setOrderType('pickup')}
+                onClick={() => setOrderType('pickup'}
               >
                 <Store className="w-4 h-4 mr-2" />
                 À emporter
               </Button>
               <Button 
                 variant={orderType === 'delivery' ? 'default' : 'outline'}
-                onClick={() => setOrderType('delivery')}
+                onClick={() => setOrderType('delivery'}
               >
                 <Truck className="w-4 h-4 mr-2" />
                 Livraison
               </Button>
               <Button 
                 variant={orderType === 'dine_in' ? 'default' : 'outline'}
-                onClick={() => setOrderType('dine_in')}
+                onClick={() => setOrderType('dine_in'}
               >
                 <MapPin className="w-4 h-4 mr-2" />
                 Sur place
@@ -291,7 +289,7 @@ const OnlineOrdering: React.FC = () => {
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">{item.name}</CardTitle>
-                    <Badge variant="secondary">{item.price.toFixed(2)}€</Badge>
+                    <Badge variant="secondary">{item.price.toFixed(2}€</Badge>
                   </div>
                   <CardDescription className="text-sm line-clamp-2">
                     {item.description}
@@ -310,20 +308,20 @@ const OnlineOrdering: React.FC = () => {
                         <Badge key={allergen} variant="outline" className="text-xs">
                           {allergen}
                         </Badge>
-                      ))}
+                      );}
                     </div>
                   )}
 
                   <Button 
                     className="w-full"
-                    onClick={() => addToCart(item)}
+                    onClick={() => addToCart(item}
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Ajouter au panier
                   </Button>
                 </CardContent>
               </Card>
-            ))}
+            );}
           </div>
         </TabsContent>
 
@@ -334,20 +332,20 @@ const OnlineOrdering: React.FC = () => {
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">#{order.orderNumber}</CardTitle>
-                    <Badge className={`${getStatusColor(order.status)} text-white`}>
-                      {getStatusLabel(order.status)}
+                    <Badge className={`${getStatusColor(order.status} text-white`}>
+                      {getStatusLabel(order.status}
                     </Badge>
                   </div>
                   <CardDescription>
-                    {order.customerInfo.name} • {order.total.toFixed(2)}€
+                    {order.customerInfo.name} • {order.total.toFixed(2}€
                   </CardDescription>
                 </CardHeader>
 
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <div className="flex items-center text-sm">
-                      {getOrderTypeIcon(order.orderType)}
-                      <span className="ml-2 capitalize">{order.orderType.replace('_', ' ')}</span>
+                      {getOrderTypeIcon(order.orderType}
+                      <span className="ml-2 capitalize">{order.orderType.replace('_', ' '}</span>
                     </div>
                     <div className="flex items-center text-sm">
                       <Clock className="w-4 h-4 mr-2 text-gray-500" />
@@ -371,10 +369,10 @@ const OnlineOrdering: React.FC = () => {
                       <p key={index} className="text-sm text-gray-600">
                         {item.quantity}x {item.menuItem.name}
                       </p>
-                    ))}
+                    );}
                     {order.items.length > 2 && (
                       <p className="text-sm text-gray-500">
-                        +{order.items.length - 2)} autres articles
+                        +{order.items.length - 2} autres articles
                       </p>
                     )}
                   </div>
@@ -382,7 +380,7 @@ const OnlineOrdering: React.FC = () => {
                   {order.specialInstructions && (
                     <div className="text-sm">
                       <p className="font-medium">Instructions:</p>
-                      <p className="text-gray-600 text-xs">{order.specialInstructions)}</p>
+                      <p className="text-gray-600 text-xs">{order.specialInstructions}</p>
                     </div>
                   )}
 
@@ -424,7 +422,7 @@ const OnlineOrdering: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            );}
           </div>
         </TabsContent>
       </Tabs>
@@ -449,16 +447,16 @@ const OnlineOrdering: React.FC = () => {
                 />
                 <div className="flex-1">
                   <h4 className="font-medium">{item.menuItem.name}</h4>
-                  <p className="text-sm text-gray-500">{item.menuItem.price.toFixed(2)}€</p>
+                  <p className="text-sm text-gray-500">{item.menuItem.price.toFixed(2}€</p>
                   {item.notes && (
-                    <p className="text-xs text-gray-400">{item.notes)}</p>
+                    <p className="text-xs text-gray-400">{item.notes}</p>
                   )}
                 </div>
                 <div className="flex items-center space-x-2">
                   <Button 
                     size="sm" 
                     variant="outline"
-                    onClick={() => updateCartItemQuantity(item.id, item.quantity - 1)}
+                    onClick={() => updateCartItemQuantity(item.id, item.quantity - 1}
                   >
                     <Minus className="w-3 h-3" />
                   </Button>
@@ -466,38 +464,38 @@ const OnlineOrdering: React.FC = () => {
                   <Button 
                     size="sm" 
                     variant="outline"
-                    onClick={() => updateCartItemQuantity(item.id, item.quantity + 1)}
+                    onClick={() => updateCartItemQuantity(item.id, item.quantity + 1}
                   >
                     <Plus className="w-3 h-3" />
                   </Button>
                 </div>
               </div>
-            ))}
+            );}
           </div>
 
           <div className="border-t pt-4 space-y-2">
             <div className="flex justify-between">
               <span>Sous-total:</span>
-              <span>{cartTotal.subtotal.toFixed(2)}€</span>
+              <span>{cartTotal.subtotal.toFixed(2}€</span>
             </div>
             <div className="flex justify-between">
               <span>TVA (20%):</span>
-              <span>{cartTotal.tax.toFixed(2)}€</span>
+              <span>{cartTotal.tax.toFixed(2}€</span>
             </div>
             {cartTotal.deliveryFee > 0 && (
               <div className="flex justify-between">
                 <span>Frais de livraison:</span>
-                <span>{cartTotal.deliveryFee.toFixed(2)}€</span>
+                <span>{cartTotal.deliveryFee.toFixed(2}€</span>
               </div>
             )}
             <div className="flex justify-between font-bold text-lg border-t pt-2">
               <span>Total:</span>
-              <span>{cartTotal.total.toFixed(2)}€</span>
+              <span>{cartTotal.total.toFixed(2}€</span>
             </div>
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsCheckoutOpen(false)}>
+            <Button variant="outline" onClick={() => setIsCheckoutOpen(false}>
               Continuer mes achats
             </Button>
             <Button 

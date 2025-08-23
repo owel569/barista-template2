@@ -67,7 +67,7 @@ const menuItemSchema = z.object({
     .max(999.99, 'Prix maximum : 999,99 DH'),
   categoryId: z.coerce.number().min(1, 'Veuillez sélectionner une catégorie'),
   available: z.boolean(),
-  imageUrl: z.string().url('Veuillez fournir une URL valide').optional().or(z.literal('')),
+      imageUrl: z.string().url('Veuillez fournir une URL valide').optional().or(z.literal('')),
 });
 
 type MenuItemFormData = z.infer<typeof menuItemSchema>;
@@ -197,10 +197,10 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
       await queryClient.cancelQueries({ queryKey: ['/api/menu/items'] });
       const previous = queryClient.getQueryData<MenuItem[]>(['/api/menu/items']);
       if (previous) {
-        queryClient.setQueryData<MenuItem[]>(['/api/menu/items'], prev =>
-          (prev ?? []).map(i => (i.id === id ? { ...i, available } : i))
-        );
-      }
+                  queryClient.setQueryData<MenuItem[]>(['/api/menu/items'], prev =>
+            (prev ?? []).map(i => (i.id === id ? { ...i, available } : i))
+          );
+        }
       return { previous } as const;
     },
     onError: (_err, _vars, context) => {
@@ -262,7 +262,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
     setEditingItem(item);
     const imageUrl = item.imageUrl || getImageUrlByName(item.name);
     setPreviewUrl(imageUrl);
-    const priceNumber = typeof item.price === 'number' ? item.price : parseFloat(String(item.price));
+    const priceNumber = typeof item.price === 'number' ? item.price : parseFloat(String(item.price);
     form.reset({
       name: item.name,
       description: item.description,
@@ -275,7 +275,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
   };
 
   const handleDelete = (id: number) => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cet article ?');{
       deleteMutation.mutate(id);
     }
   };
@@ -290,19 +290,18 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
   const filteredItems: MenuItem[] = useMemo(() => {
     const byCategory = selectedCategory === 'all'
       ? menuItems
-      : menuItems.filter(item => item.categoryId === parseInt(selectedCategory, 10));
+      : menuItems.filter(item => item.categoryId === parseInt(selectedCategory, 10);
     const term = search.trim().toLowerCase();
     if (!term) return byCategory;
     return byCategory.filter(i =>
       i.name.toLowerCase().includes(term) ||
-      i.description.toLowerCase().includes(term)
-    );
+      i.description.toLowerCase().includes(term);
   }, [menuItems, selectedCategory, search]);
 
   const totalItems = menuItems.length;
   const availableItems = menuItems.filter(item => item.available).length;
   const averagePrice = menuItems.length > 0
-    ? menuItems.reduce((sum, item) => sum + (typeof item.price === 'number' ? item.price : parseFloat(String(item.price)) || 0), 0) / menuItems.length
+    ? menuItems.reduce((sum, item) => sum + (typeof item.price === 'number' ? item.price : parseFloat(String(item.price);|| 0), 0) / menuItems.length
     : 0;
 
   if (isLoadingItems || isLoadingCategories) {
@@ -343,7 +342,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
               </DialogDescription>
             </DialogHeader>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <form onSubmit={form.handleSubmit(onSubmit} className="space-y-4">
                 <FormField
                   control={form.control}
                   name="name"
@@ -387,7 +386,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                             max="999.99"
                             placeholder="Ex: 25.50"
                             {...field}
-                            onChange={(e) => field.onChange(Number(e.target.value))}
+                            onChange={(e) => field.onChange(Number(e.target.value);}
                           />
                         </FormControl>
                         <FormMessage />
@@ -404,7 +403,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Catégorie</FormLabel>
-                        <Select onValueChange={(value) => field.onChange(Number(value))} defaultValue={field.value?.toString()}>
+                        <Select onValueChange={(value) => field.onChange(Number(value);} defaultValue={field.value?.toString(}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Choisir..." />
@@ -412,10 +411,10 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                           </FormControl>
                           <SelectContent>
                             {categories.map((category) => (
-                              <SelectItem key={category.id} value={category.id.toString()}>
+                              <SelectItem key={category.id} value={category.id.toString(}>
                                 {category.name}
                               </SelectItem>
-                            ))}
+                            );}
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -437,7 +436,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                         <input 
                           type="checkbox" 
                           checked={field.value} 
-                          onChange={(e) => field.onChange(e.target.checked)}
+                          onChange={(e) => field.onChange(e.target.checked}
                           className="h-4 w-4 rounded border-gray-300"
                         />
                       </FormControl>
@@ -469,7 +468,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                             <Input
                               type="file"
                               accept="image/*"
-                              onChange={(e) => handleFileUpload(e.target.files?.[0])}
+                              onChange={(e) => handleFileUpload(e.target.files?.[0]}
                               className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                             />
                           </div>
@@ -479,7 +478,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                                 src={previewUrl}
                                 alt="Aperçu"
                                 className="w-20 h-20 object-cover rounded-lg border"
-                                onError={() => setPreviewUrl('')}
+                                onError={() => setPreviewUrl(''}
                               />
                             </div>
                           )}
@@ -491,10 +490,10 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                 />
 
                 <div className="flex justify-end space-x-2 pt-4">
-                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false}>
                     Annuler
                   </Button>
-                  <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending || (!canCreateItem && !editingItem)}>
+                  <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending || (!canCreateItem && !editingItem}>
                     {createMutation.isPending || updateMutation.isPending
                       ? 'Enregistrement...'
                       : editingItem
@@ -535,7 +534,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{averagePrice.toFixed(2)} DH</div>
+            <div className="text-2xl font-bold">{averagePrice.toFixed(2} DH</div>
           </CardContent>
         </Card>
       </div>
@@ -548,7 +547,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
               <Input
                 placeholder="Rechercher par nom ou description..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => setSearch(e.target.value}
                 className="md:w-72"
               />
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
@@ -558,10 +557,10 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                 <SelectContent>
                   <SelectItem value="all">Toutes les catégories</SelectItem>
                   {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id.toString()}>
+                    <SelectItem key={category.id} value={category.id.toString(}>
                       {category.name}
                     </SelectItem>
-                  ))}
+                  );}
                 </SelectContent>
               </Select>
             </div>
@@ -600,7 +599,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                     <TableCell className="font-medium">{item.name}</TableCell>
                     <TableCell className="max-w-xs truncate">{item.description}</TableCell>
                     <TableCell className="font-semibold">
-                      {typeof item.price === 'number' ? item.price.toFixed(2) : parseFloat(String(item.price) || '0').toFixed(2)} DH
+                      {typeof item.price === 'number' ? item.price.toFixed(2) : parseFloat(String(item.price) || '0').toFixed(2} DH
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">{category?.name || 'Sans catégorie'}</Badge>
@@ -622,13 +621,13 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                     </TableCell>
                     <TableCell>
                       <div className="flex space-x-2">
-                        <Button size="sm" variant="ghost" onClick={() => handleEdit(item)} disabled={!canEditItem}>
+                        <Button size="sm" variant="ghost" onClick={() => handleEdit(item} disabled={!canEditItem}>
                           <Pencil className="h-4 w-4" />
                         </Button>
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => setImageManagementItem(item)}
+                          onClick={() => setImageManagementItem(item}
                           className="text-blue-600 hover:text-blue-700"
                         >
                           <ImageIcon className="h-4 w-4" />
@@ -637,7 +636,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => handleDelete(item.id)}
+                            onClick={() => handleDelete(item.id}
                             className="text-red-600 hover:text-red-700"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -665,7 +664,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
           <div className="bg-white p-6 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">Gestion des images - {imageManagementItem.name}</h2>
-              <Button variant="ghost" onClick={() => setImageManagementItem(null)}>
+              <Button variant="ghost" onClick={() => setImageManagementItem(null}>
                 <X className="h-4 w-4" />
               </Button>
             </div>

@@ -47,10 +47,7 @@ const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
         style={inlineStyles}
         {...props}
       />
-    )
-  }
-)
-Skeleton.displayName = "Skeleton"
+    });Skeleton.displayName = "Skeleton"
 
 // Composants de skeleton prédéfinis
 const SkeletonText = React.forwardRef<
@@ -62,7 +59,7 @@ const SkeletonText = React.forwardRef<
       <Skeleton
         ref={ref}
         height={lineHeight}
-        className={cn("w-full", className)}
+        className={cn("w-full", className}
         {...props}
       />
     )
@@ -78,14 +75,12 @@ const SkeletonText = React.forwardRef<
             "w-full",
             i === lines - 1 && "w-3/4", // Dernière ligne plus courte
             className
-          )}
+          }
           {...props}
         />
-      ))}
+      );}
     </div>
-  )
-})
-SkeletonText.displayName = "SkeletonText"
+  });SkeletonText.displayName = "SkeletonText"
 
 const SkeletonCard = React.forwardRef<
   HTMLDivElement,
@@ -106,7 +101,7 @@ const SkeletonCard = React.forwardRef<
   ...props 
 }, ref) => {
   return (
-    <div ref={ref} className={cn("space-y-4 p-4 border rounded-lg", className)}>
+    <div ref={ref} className={cn("space-y-4 p-4 border rounded-lg", className}>
       {showImage && (
         <Skeleton height={imageHeight} className="w-full" {...props} />
       )}
@@ -127,21 +122,19 @@ const SkeletonCard = React.forwardRef<
         </div>
       )}
     </div>
-  )
-})
-SkeletonCard.displayName = "SkeletonCard"
+  });SkeletonCard.displayName = "SkeletonCard"
 
 const SkeletonTable = React.forwardRef<
   HTMLDivElement,
   SkeletonProps & { rows?: number; cols?: number }
 >(({ rows = 5, cols = 4, className, ...props }, ref) => {
   return (
-    <div ref={ref} className={cn("space-y-4", className)}>
+    <div ref={ref} className={cn("space-y-4", className}>
       {/* En-tête */}
       <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
         {Array.from({ length: cols }, (_, i) => (
           <Skeleton key={i} height="2rem" {...props} />
-        ))}
+        );}
       </div>
       
       {/* Lignes */}
@@ -158,13 +151,11 @@ const SkeletonTable = React.forwardRef<
               variant="lighter"
               {...props} 
             />
-          ))}
+          );}
         </div>
-      ))}
+      );}
     </div>
-  )
-})
-SkeletonTable.displayName = "SkeletonTable"
+  });SkeletonTable.displayName = "SkeletonTable"
 
 const SkeletonAvatar = React.forwardRef<
   HTMLDivElement,
@@ -181,12 +172,10 @@ const SkeletonAvatar = React.forwardRef<
     <Skeleton
       ref={ref}
       circle
-      className={cn(sizeClasses[size], className)}
+      className={cn(sizeClasses[size], className}
       {...props}
     />
-  )
-})
-SkeletonAvatar.displayName = "SkeletonAvatar"
+  });SkeletonAvatar.displayName = "SkeletonAvatar"
 
 export { 
   Skeleton, 

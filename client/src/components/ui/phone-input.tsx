@@ -110,11 +110,10 @@ export function PhoneInput({
     if (value) {
       // Analyser le numéro pour extraire l'indicatif et le numéro
       const foundCountry = countries.find(c => 
-        c.code !== 'separator' && value.startsWith(c.dialCode)
-      );
+        c.code !== 'separator' && value.startsWith(c.dialCode);
       if (foundCountry) {
         setSelectedCountry(foundCountry);
-        setPhoneNumber(value.substring(foundCountry.dialCode.length).trim());
+        setPhoneNumber(value.substring(foundCountry.dialCode.length).trim();
       } else {
         setPhoneNumber(value);
       }
@@ -130,8 +129,7 @@ export function PhoneInput({
     return (
       country.name.toLowerCase().includes(search) ||
       country.code.toLowerCase().includes(search) ||
-      country.dialCode.includes(search)
-    );
+      country.dialCode.includes(search);
   });
 
   // Formater le numéro de téléphone
@@ -219,7 +217,7 @@ export function PhoneInput({
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => handleCountryChange(detectedCountry.code)}
+            onClick={() => handleCountryChange(detectedCountry.code}
             className="text-xs"
           >
             Utiliser
@@ -250,7 +248,7 @@ export function PhoneInput({
                 <Input
                   placeholder="Rechercher un pays..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => setSearchTerm(e.target.value}
                   className="pl-8 h-8"
                 />
               </div>
@@ -262,7 +260,7 @@ export function PhoneInput({
                 <div className="p-2 text-xs font-semibold text-gray-500 bg-gray-50">
                   Pays favoris
                 </div>
-                {countries.filter(c => favoriteCountriesCodes.includes(c.code)).map((country) => (
+                {countries.filter(c => favoriteCountriesCodes.includes(c.code);.map((country) => (
                   <SelectItem key={country.code} value={country.code}>
                     <div className="flex items-center space-x-3">
                       <span className="text-lg">{country.flag}</span>
@@ -272,7 +270,7 @@ export function PhoneInput({
                       </Badge>
                     </div>
                   </SelectItem>
-                ))}
+                );}
                 <div className="border-t mx-2 my-1"></div>
                 <div className="p-2 text-xs font-semibold text-gray-500 bg-gray-50">
                   Tous les pays
@@ -287,7 +285,7 @@ export function PhoneInput({
               }
               
               // Ne pas répéter les pays favoris
-              if (!searchTerm && favoriteCountriesCodes.includes(country.code)) {
+              if (!searchTerm && favoriteCountriesCodes.includes(country.code);{
                 return null;
               }
               
@@ -311,7 +309,7 @@ export function PhoneInput({
           id={id}
           type="tel"
           value={phoneNumber}
-          onChange={(e) => handlePhoneChange(e.target.value)}
+          onChange={(e) => handlePhoneChange(e.target.value}
           placeholder={placeholder}
           disabled={disabled}
           required={required}

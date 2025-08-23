@@ -54,7 +54,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
       cout: dept.totalCost,
       employes: dept.employeeCount,
       tauxHoraire: dept.averageHourlyRate
-    }));
+    });
   }, [stats.departmentStats]);
 
   const costAnalysisData = useMemo(() => {
@@ -86,7 +86,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
       salaire: emp.totalPay,
       ponctualite: emp.punctualityScore,
       shifts: emp.shiftsWorked
-    }));
+    });
   }, [reports]);
 
   const trendData = useMemo(() => {
@@ -123,7 +123,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
       overtimeRate,
       costPerHour,
       efficiency: 100 - overtimeRate, // Efficacité basée sur le taux d'heures supplémentaires
-      utilization: (stats.scheduledHours / (stats.activeEmployees * 40)) * 100 // Utilisation basée sur 40h/semaine
+      utilization: (stats.scheduledHours / (stats.activeEmployees * 40);* 100 // Utilisation basée sur 40h/semaine
     };
   }, [stats]);
 
@@ -134,7 +134,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
     if (mainMetrics.overtimeRate > 20) {
       alerts.push({
         type: 'warning',
-        message: `Taux d'heures supplémentaires élevé (${mainMetrics.overtimeRate.toFixed(1)})}%)`,
+        message: `Taux d'heures supplémentaires élevé (${mainMetrics.overtimeRate.toFixed(1});}%)`,
         suggestion: 'Considérez recruter plus d\'employés ou réorganiser les shifts'
       });
     }
@@ -142,7 +142,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
     if (mainMetrics.costPerHour > 25) {
       alerts.push({
         type: 'warning',
-        message: `Coût par heure élevé (${formatCurrency(mainMetrics.costPerHour)})})`,
+        message: `Coût par heure élevé (${formatCurrency(mainMetrics.costPerHour});})`,
         suggestion: 'Optimisez la répartition des postes et les taux horaires'
       });
     }
@@ -150,7 +150,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
     if (mainMetrics.utilization < 70) {
       alerts.push({
         type: 'info',
-        message: `Sous-utilisation des employés (${mainMetrics.utilization.toFixed(1)})}%)`,
+        message: `Sous-utilisation des employés (${mainMetrics.utilization.toFixed(1});}%)`,
         suggestion: 'Réduisez les heures programmées ou réaffectez les employés'
       });
     }
@@ -181,9 +181,9 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
               <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
             ) : (
               <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
-            )}
+            }
             <span className={`text-sm ${change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {Math.abs(change).toFixed(1)}%
+              {Math.abs(change).toFixed(1}%
             </span>
           </div>
         )}
@@ -222,13 +222,13 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
           title="Heures programmées"
-          value={formatDuration(stats.scheduledHours)}
+          value={formatDuration(stats.scheduledHours}
           icon={Clock}
           color="#3B82F6"
         />
         <MetricCard
           title="Masse salariale"
-          value={formatCurrency(stats.totalPayroll)}
+          value={formatCurrency(stats.totalPayroll}
           icon={DollarSign}
           color="#10B981"
         />
@@ -240,7 +240,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
         />
         <MetricCard
           title="Taux d'efficacité"
-          value={`${mainMetrics.efficiency.toFixed(1)}%`}
+          value={`${mainMetrics.efficiency.toFixed(1}%`}
           icon={CheckCircle}
           color="#F59E0B"
         />
@@ -273,7 +273,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
                     </div>
                   </div>
                 </div>
-              ))}
+              );}
             </div>
           </CardContent>
         </Card>
@@ -294,8 +294,8 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
                 <YAxis />
                 <Tooltip 
                   formatter={(value, name) => [
-                    name === 'heures' ? formatDuration(Number(value)) : 
-                    name === 'cout' ? formatCurrency(Number(value)) : value,
+                    name === 'heures' ? formatDuration(Number(value);: 
+                    name === 'cout' ? formatCurrency(Number(value);: value,
                     name === 'heures' ? 'Heures' :
                     name === 'cout' ? 'Coût' :
                     name === 'employes' ? 'Employés' : name
@@ -321,16 +321,16 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0}%)`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="cout"
                 >
                   {costAnalysisData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                  ))}
+                  );}
                 </Pie>
-                <Tooltip formatter={(value) => formatCurrency(Number(value))} />
+                <Tooltip formatter={(value) => formatCurrency(Number(value);} />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
@@ -349,8 +349,8 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
                 <YAxis />
                 <Tooltip 
                   formatter={(value, name) => [
-                    name === 'heures' ? formatDuration(Number(value)) : 
-                    name === 'cout' ? formatCurrency(Number(value)) : value,
+                    name === 'heures' ? formatDuration(Number(value);: 
+                    name === 'cout' ? formatCurrency(Number(value);: value,
                     name === 'heures' ? 'Heures' :
                     name === 'cout' ? 'Coût' :
                     name === 'employes' ? 'Employés' : name
@@ -381,8 +381,8 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
                 <YAxis />
                 <Tooltip 
                   formatter={(value, name) => [
-                    name === 'heures' ? formatDuration(Number(value)) : 
-                    name === 'salaire' ? formatCurrency(Number(value)) : 
+                    name === 'heures' ? formatDuration(Number(value);: 
+                    name === 'salaire' ? formatCurrency(Number(value);: 
                     name === 'ponctualite' ? `${value}%` : value,
                     name === 'heures' ? 'Heures' :
                     name === 'salaire' ? 'Salaire' :
@@ -413,7 +413,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center">
               <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">
-                {formatDuration(mainMetrics.avgHoursPerEmployee)}
+                {formatDuration(mainMetrics.avgHoursPerEmployee}
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-400">
                 Heures moyennes par employé
@@ -424,7 +424,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
               <div className={`text-3xl font-bold mb-2 ${
                 mainMetrics.overtimeRate > 15 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'
               }`}>
-                {mainMetrics.overtimeRate.toFixed(1)}%
+                {mainMetrics.overtimeRate.toFixed(1}%
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-400">
                 Taux d'heures supplémentaires
@@ -433,7 +433,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
             
             <div className="text-center">
               <div className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-2">
-                {formatCurrency(mainMetrics.costPerHour)}
+                {formatCurrency(mainMetrics.costPerHour}
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-400">
                 Coût par heure

@@ -83,11 +83,9 @@ const FormItem = React.forwardRef<
 
   return (
     <FormItemContext.Provider value={{ id }}>
-      <div ref={ref} className={cn("space-y-2", className)} {...props} />
+      <div ref={ref} className={cn("space-y-2", className} {...props} />
     </FormItemContext.Provider>
-  )
-})
-FormItem.displayName = "FormItem"
+  });FormItem.displayName = "FormItem"
 
 const FormLabel = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
@@ -100,16 +98,14 @@ const FormLabel = React.forwardRef<
   return (
     <Label
       ref={ref}
-      className={cn(error && "text-destructive", className)}
+      className={cn(error && "text-destructive", className}
       htmlFor={formItemId}
       {...props}
     >
       {children}
       {required && <span className="text-destructive ml-1" aria-label="requis">*</span>}
     </Label>
-  )
-})
-FormLabel.displayName = "FormLabel"
+  });FormLabel.displayName = "FormLabel"
 
 const FormControl = React.forwardRef<
   React.ElementRef<typeof Slot>,
@@ -129,9 +125,7 @@ const FormControl = React.forwardRef<
       aria-invalid={!!error}
       {...props}
     />
-  )
-})
-FormControl.displayName = "FormControl"
+  });FormControl.displayName = "FormControl"
 
 const FormDescription = React.forwardRef<
   HTMLParagraphElement,
@@ -148,14 +142,12 @@ const FormDescription = React.forwardRef<
     <p
       ref={ref}
       id={formDescriptionId}
-      className={cn("text-sm text-muted-foreground", className)}
+      className={cn("text-sm text-muted-foreground", className}
       {...props}
     >
       {sanitizedChildren}
     </p>
-  )
-})
-FormDescription.displayName = "FormDescription"
+  });FormDescription.displayName = "FormDescription"
 
 const FormMessage = React.forwardRef<
   HTMLParagraphElement,
@@ -179,16 +171,14 @@ const FormMessage = React.forwardRef<
     <p
       ref={ref}
       id={formMessageId}
-      className={cn("text-sm font-medium text-destructive", className)}
+      className={cn("text-sm font-medium text-destructive", className}
       role="alert"
       aria-live="polite"
       {...props}
     >
       {sanitizedBody}
     </p>
-  )
-})
-FormMessage.displayName = "FormMessage"
+  });FormMessage.displayName = "FormMessage"
 
 // Composant FormField avec validation intégrée
 export interface FormFieldProps<

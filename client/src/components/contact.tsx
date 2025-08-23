@@ -49,8 +49,7 @@ const Contact = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data)
-      }),
+        body: JSON.stringify(data});,
     onSuccess: () => {
       toast({
         title: t('contact.success.title'),
@@ -98,16 +97,16 @@ const Contact = () => {
         <div className="container mx-auto px-6 text-center">
           <div className="max-w-2xl mx-auto bg-coffee-darker p-8 rounded-lg">
             <h2 className="text-3xl font-bold mb-6 text-coffee-accent">
-              {t('contact.thanks.title')}
+              {t('contact.thanks.title'}
             </h2>
             <p className="text-lg mb-8">
-              {t('contact.thanks.description')}
+              {t('contact.thanks.description'}
             </p>
             <Button 
-              onClick={() => setIsSubmitted(false)}
+              onClick={() => setIsSubmitted(false}
               className="bg-coffee-accent hover:bg-coffee-primary"
             >
-              {t('contact.thanks.button')}
+              {t('contact.thanks.button'}
             </Button>
           </div>
         </div>
@@ -120,10 +119,10 @@ const Contact = () => {
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold mb-4">
-            {t('contact.title')}
+            {t('contact.title'}
           </h2>
           <p className="text-lg text-coffee-secondary max-w-2xl mx-auto">
-            {t('contact.subtitle')}
+            {t('contact.subtitle'}
           </p>
         </div>
 
@@ -132,13 +131,13 @@ const Contact = () => {
           <div>
             <h3 className="text-2xl font-semibold mb-6">
               <Mail className="inline mr-2 text-coffee-accent" />
-              {t('contact.form.title')}
+              {t('contact.form.title'}
             </h3>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={handleSubmit(onSubmit} className="space-y-6">
               <div>
                 <Label htmlFor="name" className="block text-coffee-secondary font-semibold mb-2">
-                  {t('contact.form.name')} *
+                  {t('contact.form.name'} *
                 </Label>
                 <Input
                   id="name"
@@ -159,7 +158,7 @@ const Contact = () => {
 
               <div>
                 <Label htmlFor="email" className="block text-coffee-secondary font-semibold mb-2">
-                  {t('contact.form.email')} *
+                  {t('contact.form.email'} *
                 </Label>
                 <Input
                   id="email"
@@ -180,7 +179,7 @@ const Contact = () => {
               </div>
 
               <div>
-                <Label htmlFor="phone">{t('contact.form.phone')}</Label>
+                <Label htmlFor="phone">{t('contact.form.phone'}</Label>
                 <Input
                   id="phone"
                   {...register("phone", {
@@ -189,7 +188,7 @@ const Contact = () => {
                       message: t('contact.errors.phoneInvalid')
                     }
                   })}
-                  placeholder={t('contact.form.phonePlaceholder')}
+                  placeholder={t('contact.form.phonePlaceholder'}
                   type="tel"
                   className="bg-coffee-cream text-coffee-dark focus:border-coffee-accent"
                   disabled={isSubmitting}
@@ -201,22 +200,22 @@ const Contact = () => {
 
               <div>
                 <Label htmlFor="subject" className="block text-coffee-secondary font-semibold mb-2">
-                  {t('contact.form.subject')} *
+                  {t('contact.form.subject'} *
                 </Label>
                 <Select 
-                  onValueChange={(value) => setValue("subject", value)}
+                  onValueChange={(value) => setValue("subject", value}
                   required
                   disabled={isSubmitting}
                 >
                   <SelectTrigger className="bg-coffee-cream text-coffee-dark focus:border-coffee-accent">
-                    <SelectValue placeholder={t('contact.form.subjectPlaceholder')} />
+                    <SelectValue placeholder={t('contact.form.subjectPlaceholder'} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="reservation">{t('contact.subjects.reservation')}</SelectItem>
-                    <SelectItem value="menu">{t('contact.subjects.menu')}</SelectItem>
-                    <SelectItem value="privatisation">{t('contact.subjects.privatisation')}</SelectItem>
-                    <SelectItem value="feedback">{t('contact.subjects.feedback')}</SelectItem>
-                    <SelectItem value="other">{t('contact.subjects.other')}</SelectItem>
+                    <SelectItem value="reservation">{t('contact.subjects.reservation'}</SelectItem>
+                    <SelectItem value="menu">{t('contact.subjects.menu'}</SelectItem>
+                    <SelectItem value="privatisation">{t('contact.subjects.privatisation'}</SelectItem>
+                    <SelectItem value="feedback">{t('contact.subjects.feedback'}</SelectItem>
+                    <SelectItem value="other">{t('contact.subjects.other'}</SelectItem>
                   </SelectContent>
                 </Select>
                 {errors.subject && (
@@ -226,7 +225,7 @@ const Contact = () => {
 
               <div>
                 <Label htmlFor="message" className="block text-coffee-secondary font-semibold mb-2">
-                  {t('contact.form.message')} *
+                  {t('contact.form.message'} *
                 </Label>
                 <Textarea
                   id="message"
@@ -238,7 +237,7 @@ const Contact = () => {
                     }
                   })}
                   rows={6}
-                  placeholder={t('contact.form.messagePlaceholder')}
+                  placeholder={t('contact.form.messagePlaceholder'}
                   className="bg-coffee-cream text-coffee-dark focus:border-coffee-accent"
                   disabled={isSubmitting}
                 />
@@ -253,7 +252,7 @@ const Contact = () => {
                 className="w-full bg-coffee-accent hover:bg-coffee-primary text-white font-semibold py-4 px-6 rounded-lg transition duration-300 transform hover:scale-105"
               >
                 <Send className="mr-2 h-5 w-5" />
-                {isSubmitting ? t('contact.form.sending') : t('contact.form.submit')}
+                {isSubmitting ? t('contact.form.sending') : t('contact.form.submit'}
               </Button>
             </form>
           </div>
@@ -263,7 +262,7 @@ const Contact = () => {
             <div>
               <h3 className="text-2xl font-semibold mb-6">
                 <MapPin className="inline mr-2 text-coffee-accent" />
-                {t('contact.info.title')}
+                {t('contact.info.title'}
               </h3>
 
               <div className="space-y-6">
@@ -271,7 +270,7 @@ const Contact = () => {
                   <MapPin className="text-coffee-accent text-xl mr-4 mt-1 h-5 w-5" />
                   <div>
                     <h4 className="font-semibold text-coffee-secondary mb-1">
-                      {t('contact.info.address')}
+                      {t('contact.info.address'}
                     </h4>
                     <p className="whitespace-pre-line">{contactInfo.address}</p>
                   </div>
@@ -281,7 +280,7 @@ const Contact = () => {
                   <Phone className="text-coffee-accent text-xl mr-4 mt-1 h-5 w-5" />
                   <div>
                     <h4 className="font-semibold text-coffee-secondary mb-1">
-                      {t('contact.info.phone')}
+                      {t('contact.info.phone'}
                     </h4>
                     <p>{contactInfo.phone}</p>
                   </div>
@@ -291,7 +290,7 @@ const Contact = () => {
                   <Mail className="text-coffee-accent text-xl mr-4 mt-1 h-5 w-5" />
                   <div>
                     <h4 className="font-semibold text-coffee-secondary mb-1">
-                      {t('contact.info.email')}
+                      {t('contact.info.email'}
                     </h4>
                     <a 
                       href={`mailto:${contactInfo.email}`}
@@ -306,7 +305,7 @@ const Contact = () => {
                   <Clock className="text-coffee-accent text-xl mr-4 mt-1 h-5 w-5" />
                   <div>
                     <h4 className="font-semibold text-coffee-secondary mb-1">
-                      {t('contact.info.hours')}
+                      {t('contact.info.hours'}
                     </h4>
                     <div className="space-y-1">
                       <p>{contactInfo.openingHours.weekdays}</p>
@@ -320,7 +319,7 @@ const Contact = () => {
             {/* Social Media */}
             <div>
               <h4 className="font-semibold text-coffee-secondary mb-4">
-                {t('contact.social.title')}
+                {t('contact.social.title'}
               </h4>
               <div className="flex space-x-4">
                 {socialMedia.map((social) => (
@@ -332,14 +331,14 @@ const Contact = () => {
                   >
                     <social.icon className="h-5 w-5" />
                   </a>
-                ))}
+                );}
               </div>
             </div>
 
             {/* Google Maps */}
             <div className="bg-coffee-cream rounded-lg p-4">
               <h4 className="font-semibold text-coffee-secondary mb-4">
-                {t('contact.map.title')}
+                {t('contact.map.title'}
               </h4>
               <div className="rounded-lg overflow-hidden">
                 <iframe
@@ -350,7 +349,7 @@ const Contact = () => {
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  title={t('contact.map.iframeTitle')}
+                  title={t('contact.map.iframeTitle'}
                   className="rounded-lg"
                 />
               </div>

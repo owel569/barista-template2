@@ -162,7 +162,7 @@ export default function GreenBlackHome(): JSX.Element {
                       <item.icon className="h-4 w-4 mr-2" />
                       {item.label}
                     </a>
-                  ))}
+                  );}
                 </div>
               </div>
             </div>
@@ -182,7 +182,7 @@ export default function GreenBlackHome(): JSX.Element {
       {/* Hero Section avec animations */}
       <section id="accueil" className="relative h-screen flex items-center justify-center bg-cover bg-center bg-fixed pt-16"
                style={{
-                 backgroundImage: "linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1554118811-1e0d58224f24?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080')"
+                 backgroundImage: "linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6);, url('https://images.unsplash.com/photo-1554118811-1e0d58224f24?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080')"
                }}>
         <motion.div 
           initial="hidden"
@@ -220,7 +220,7 @@ export default function GreenBlackHome(): JSX.Element {
       {/* About Section avec effets parallax */}
       <section id="apropos" className="py-20 bg-cover bg-center bg-fixed relative overflow-hidden"
                style={{
-                 backgroundImage: "linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080')"
+                 backgroundImage: "linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8);, url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080')"
                }}>
         <div className="max-w-7xl mx-auto px-6 text-white relative z-10">
           <motion.div 
@@ -272,7 +272,7 @@ export default function GreenBlackHome(): JSX.Element {
                 <h3 className="text-2xl font-semibold mb-4 text-amber-400">{item.title}</h3>
                 <p className="text-gray-300 leading-relaxed">{item.description}</p>
               </motion.div>
-            ))}
+            );}
           </motion.div>
         </div>
       </section>
@@ -319,7 +319,7 @@ export default function GreenBlackHome(): JSX.Element {
                                 <div className="absolute top-4 right-4 bg-amber-600 text-white text-xs font-bold px-2 py-1 rounded">
                                   Nouveau
                                 </div>
-                              )}
+                              }
                             </div>
                             <CardContent className="p-6 text-center">
                               <h3 className="text-xl font-semibold text-white mb-3">{category.name}</h3>
@@ -330,10 +330,10 @@ export default function GreenBlackHome(): JSX.Element {
                             </CardContent>
                           </Card>
                         </motion.div>
-                      ))}
+                      );}
                     </div>
                   </div>
-                ))}
+                );}
               </motion.div>
             </div>
 
@@ -361,13 +361,13 @@ export default function GreenBlackHome(): JSX.Element {
             {Array.from({ length: totalSlides }).map((_, index) => (
               <button
                 key={index}
-                onClick={() => goToSlide(index)}
+                onClick={() => goToSlide(index}
                 className={`w-3 h-3 rounded-full transition-all duration-300 ${
                   currentSlide === index ? 'bg-amber-600 w-6' : 'bg-gray-600'
                 }`}
                 aria-label={`Go to slide ${index + 1}`}
               />
-            ))}
+            );}
           </div>
         </div>
       </section>
@@ -405,7 +405,7 @@ export default function GreenBlackHome(): JSX.Element {
                             key={i} 
                             className={`h-5 w-5 ${i < testimonial.rating ? 'text-amber-400 fill-current' : 'text-gray-600'}`} 
                           />
-                        ))}
+                        );}
                       </div>
                     </CardHeader>
                     <CardContent className="text-center">
@@ -417,7 +417,7 @@ export default function GreenBlackHome(): JSX.Element {
                     </CardContent>
                   </Card>
                 </motion.div>
-              ))}
+              );}
             </AnimatePresence>
           </div>
         </div>
@@ -492,7 +492,7 @@ export default function GreenBlackHome(): JSX.Element {
                     </div>
                   </div>
                 </motion.div>
-              ))}
+              );}
 
               <motion.div variants={fadeIn} className="mt-4">
                 <Button 

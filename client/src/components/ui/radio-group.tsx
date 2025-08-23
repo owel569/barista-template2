@@ -65,9 +65,7 @@ const RadioGroup = React.forwardRef<
         <p className="text-xs text-destructive">{error}</p>
       )}
     </div>
-  )
-})
-RadioGroup.displayName = RadioGroupPrimitive.Root.displayName
+  });RadioGroup.displayName = RadioGroupPrimitive.Root.displayName
 
 export interface RadioGroupItemProps
   extends React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>,
@@ -126,9 +124,7 @@ const RadioGroupItem = React.forwardRef<
       </RadioGroupPrimitive.Indicator>
       {children}
     </RadioGroupPrimitive.Item>
-  )
-})
-RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName
+  });RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName
 
 // Composant Radio Group avec options prédéfinies
 export interface RadioOption {
@@ -162,11 +158,8 @@ const RadioGroupWithOptions = React.forwardRef<
           description={option.description}
           disabled={option.disabled}
         />
-      ))}
+      );}
     </RadioGroup>
-  )
-})
-
-RadioGroupWithOptions.displayName = "RadioGroupWithOptions"
+  });RadioGroupWithOptions.displayName = "RadioGroupWithOptions"
 
 export { RadioGroup, RadioGroupItem, RadioGroupWithOptions, radioGroupVariants }

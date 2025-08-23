@@ -132,8 +132,7 @@ export default function InventoryManagement() : JSX.Element {
           status: calculateStatus(
             Number(item.currentStock) || 0,
             Number(item.minStock) || 0
-          )
-        }));
+          }););
         setItems(processedItems);
       }
 
@@ -143,7 +142,7 @@ export default function InventoryManagement() : JSX.Element {
           ...alert,
           currentStock: Number(alert.currentStock) || 0,
           minStock: Number(alert.minStock) || 0
-        })) : [];
+        });: [];
         setAlerts(processedAlerts);
       }
 
@@ -230,8 +229,7 @@ export default function InventoryManagement() : JSX.Element {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ currentStock: newStock })
-      });
+        body: JSON.stringify({ currentStock: newStock }});
 
       if (response.ok) {
         toast.success('Stock mis à jour avec succès');
@@ -312,26 +310,25 @@ export default function InventoryManagement() : JSX.Element {
     // Create CSV content
     const csvContent = [
       headers.join(','),
-      ...data.map(row => row.join(','))
-    ].join('\n');
+      ...data.map(row => row.join(',');].join('\n');
 
     // Create download link
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `inventaire_${new Date().toISOString().slice(0,10)}.csv`);
+    link.setAttribute('download', `inventaire_${new Date().toISOString().slice(0,10}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-  const categories = [...new Set(items.map(item => item.category))];
-  const supplierNames = [...new Set(items.map(item => item.supplier))];
+  const categories = [...new Set(items.map(item => item.category);];
+  const supplierNames = [...new Set(items.map(item => item.supplier);];
 
   const filteredItems = items.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         item.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase();|| 
+                         item.description?.toLowerCase().includes(searchTerm.toLowerCase();||
                          item.barcode?.includes(searchTerm);
     
     const matchesCategory = selectedCategories.length === 0 || 
@@ -357,7 +354,7 @@ export default function InventoryManagement() : JSX.Element {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {[1, 2, 3, 4].map(i => (
               <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded"></div>
-            ))}
+            );}
           </div>
           <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded"></div>
         </div>
@@ -386,7 +383,7 @@ export default function InventoryManagement() : JSX.Element {
             <Download className="h-4 w-4 mr-2" />
             Exporter
           </Button>
-          <Button onClick={() => setShowAddForm(true)}>
+          <Button onClick={() => setShowAddForm(true}>
             <Plus className="h-4 w-4 mr-2" />
             Nouvel Article
           </Button>
@@ -419,7 +416,7 @@ export default function InventoryManagement() : JSX.Element {
                   Valeur Totale
                 </p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {totalValue.toFixed(2)}€
+                  {totalValue.toFixed(2}€
                 </p>
               </div>
               <DollarSign className="h-8 w-8 text-green-500" />
@@ -480,7 +477,7 @@ export default function InventoryManagement() : JSX.Element {
                 placeholder="Rechercher un article..."
                 className="pl-9"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => setSearchTerm(e.target.value}
               />
             </div>
             
@@ -498,18 +495,17 @@ export default function InventoryManagement() : JSX.Element {
                 {categories.map(category => (
                   <DropdownMenuCheckboxItem
                     key={category}
-                    checked={selectedCategories.includes(category)}
+                    checked={selectedCategories.includes(category}
                     onCheckedChange={(checked) => {
                       setSelectedCategories(prev =>
                         checked
                           ? [...prev, category]
-                          : prev.filter(c => c !== category)
-                      );
+                          : prev.filter(c => c !== category);
                     }}
                   >
                     {category}
                   </DropdownMenuCheckboxItem>
-                ))}
+                );}
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -527,18 +523,17 @@ export default function InventoryManagement() : JSX.Element {
                 {supplierNames.map(supplier => (
                   <DropdownMenuCheckboxItem
                     key={supplier}
-                    checked={selectedSuppliers.includes(supplier)}
+                    checked={selectedSuppliers.includes(supplier}
                     onCheckedChange={(checked) => {
                       setSelectedSuppliers(prev =>
                         checked
                           ? [...prev, supplier]
-                          : prev.filter(s => s !== supplier)
-                      );
+                          : prev.filter(s => s !== supplier);
                     }}
                   >
                     {supplier}
                   </DropdownMenuCheckboxItem>
-                ))}
+                );}
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -558,7 +553,7 @@ export default function InventoryManagement() : JSX.Element {
                       setColumnVisibility(prev => ({
                         ...prev,
                         [key]: checked
-                      }));
+                      });
                     }}
                   >
                     {key === 'description' && 'Description'}
@@ -566,7 +561,7 @@ export default function InventoryManagement() : JSX.Element {
                     {key === 'location' && 'Emplacement'}
                     {key === 'lastRestocked' && 'Dernière réappro'}
                   </DropdownMenuCheckboxItem>
-                ))}
+                );}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -578,7 +573,7 @@ export default function InventoryManagement() : JSX.Element {
                   <TableHead className="w-[100px]">ID</TableHead>
                   <TableHead 
                     className="cursor-pointer" 
-                    onClick={() => requestSort('name')}
+                    onClick={() => requestSort('name'}
                   >
                     <div className="flex items-center">
                       Nom
@@ -586,15 +581,15 @@ export default function InventoryManagement() : JSX.Element {
                         sortConfig.direction === 'ascending' ? 
                         <ChevronUp className="h-4 w-4 ml-1" /> : 
                         <ChevronDown className="h-4 w-4 ml-1" />
-                      )}
+                      }
                     </div>
                   </TableHead>
                   {columnVisibility.description && (
                     <TableHead>Description</TableHead>
-                  )}
+                  }
                   <TableHead 
                     className="cursor-pointer" 
-                    onClick={() => requestSort('category')}
+                    onClick={() => requestSort('category'}
                   >
                     <div className="flex items-center">
                       Catégorie
@@ -602,18 +597,18 @@ export default function InventoryManagement() : JSX.Element {
                         sortConfig.direction === 'ascending' ? 
                         <ChevronUp className="h-4 w-4 ml-1" /> : 
                         <ChevronDown className="h-4 w-4 ml-1" />
-                      )}
+                      }
                     </div>
                   </TableHead>
                   {columnVisibility.barcode && (
                     <TableHead>Code-barres</TableHead>
-                  )}
+                  }
                   {columnVisibility.location && (
                     <TableHead>Emplacement</TableHead>
-                  )}
+                  }
                   <TableHead 
                     className="cursor-pointer text-right" 
-                    onClick={() => requestSort('currentStock')}
+                    onClick={() => requestSort('currentStock'}
                   >
                     <div className="flex items-center justify-end">
                       Stock
@@ -621,14 +616,14 @@ export default function InventoryManagement() : JSX.Element {
                         sortConfig.direction === 'ascending' ? 
                         <ChevronUp className="h-4 w-4 ml-1" /> : 
                         <ChevronDown className="h-4 w-4 ml-1" />
-                      )}
+                      }
                     </div>
                   </TableHead>
                   <TableHead className="text-right">Min</TableHead>
                   <TableHead className="text-right">Max</TableHead>
                   <TableHead 
                     className="cursor-pointer text-right" 
-                    onClick={() => requestSort('unitCost')}
+                    onClick={() => requestSort('unitCost'}
                   >
                     <div className="flex items-center justify-end">
                       Coût
@@ -636,14 +631,14 @@ export default function InventoryManagement() : JSX.Element {
                         sortConfig.direction === 'ascending' ? 
                         <ChevronUp className="h-4 w-4 ml-1" /> : 
                         <ChevronDown className="h-4 w-4 ml-1" />
-                      )}
+                      }
                     </div>
                   </TableHead>
                   <TableHead>Fournisseur</TableHead>
                   {columnVisibility.lastRestocked && (
                     <TableHead 
                       className="cursor-pointer" 
-                      onClick={() => requestSort('lastRestocked')}
+                      onClick={() => requestSort('lastRestocked'}
                     >
                       <div className="flex items-center">
                         Dernière réappro
@@ -651,7 +646,7 @@ export default function InventoryManagement() : JSX.Element {
                           sortConfig.direction === 'ascending' ? 
                           <ChevronUp className="h-4 w-4 ml-1" /> : 
                           <ChevronDown className="h-4 w-4 ml-1" />
-                        )}
+                        }
                       </div>
                     </TableHead>
                   )}
@@ -680,7 +675,7 @@ export default function InventoryManagement() : JSX.Element {
                       <TableCell className="text-right">{item.currentStock}</TableCell>
                       <TableCell className="text-right">{item.minStock}</TableCell>
                       <TableCell className="text-right">{item.maxStock}</TableCell>
-                      <TableCell className="text-right">{item.unitCost.toFixed(2)}€</TableCell>
+                      <TableCell className="text-right">{item.unitCost.toFixed(2}€</TableCell>
                       <TableCell>{item.supplier}</TableCell>
                       {columnVisibility.lastRestocked && (
                         <TableCell>
@@ -688,8 +683,8 @@ export default function InventoryManagement() : JSX.Element {
                         </TableCell>
                       )}
                       <TableCell>
-                        <Badge className={getStatusColor(item.status)}>
-                          {getStatusText(item.status)}
+                        <Badge className={getStatusColor(item.status}>
+                          {getStatusText(item.status}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
@@ -702,7 +697,7 @@ export default function InventoryManagement() : JSX.Element {
                               if (e.key === 'Enter') {
                                 const target = e.target as HTMLInputElement;
                                 const newStock = parseInt(target.value);
-                                if (!isNaN(newStock)) {
+                                if (!isNaN(newStock);{
                                   updateStock(item.id, newStock);
                                   target.value = '';
                                 }
@@ -712,7 +707,7 @@ export default function InventoryManagement() : JSX.Element {
                           <Button 
                             size="sm" 
                             variant="outline" 
-                            onClick={() => setEditingItem(item)}
+                            onClick={() => setEditingItem(item}
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
@@ -720,15 +715,14 @@ export default function InventoryManagement() : JSX.Element {
                             size="sm" 
                             variant="outline" 
                             className="text-red-600 hover:text-red-700"
-                            onClick={() => deleteItem(item.id)}
+                            onClick={() => deleteItem(item.id}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))
-                ) : (
+                  );: (
                   <TableRow>
                     <TableCell colSpan={12} className="h-24 text-center">
                       Aucun article trouvé
@@ -748,7 +742,7 @@ export default function InventoryManagement() : JSX.Element {
             <Button 
               variant="outline" 
               size="sm"
-              onClick={() => fetchInventory()}
+              onClick={() => fetchInventory(}
             >
               <RefreshCw className="h-4 w-4 mr-2" />
               Actualiser
@@ -805,7 +799,7 @@ export default function InventoryManagement() : JSX.Element {
                         <Button 
                           size="sm" 
                           variant="outline"
-                          onClick={() => resolveAlert(alert.id)}
+                          onClick={() => resolveAlert(alert.id}
                         >
                           Résoudre
                         </Button>
@@ -813,7 +807,7 @@ export default function InventoryManagement() : JSX.Element {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+              );}
             </div>
           )}
         </TabsContent>
@@ -848,7 +842,7 @@ export default function InventoryManagement() : JSX.Element {
                         </div>
                         <div>
                           <span className="text-gray-600 dark:text-gray-400">Valeur totale:</span>
-                          <p className="font-medium">{totalValue.toFixed(2)}€</p>
+                          <p className="font-medium">{totalValue.toFixed(2}€</p>
                         </div>
                         <div>
                           <span className="text-gray-600 dark:text-gray-400">Articles critiques:</span>
@@ -885,9 +879,9 @@ export default function InventoryManagement() : JSX.Element {
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="font-semibold">{totalValue.toFixed(2)}€</p>
+                          <p className="font-semibold">{totalValue.toFixed(2}€</p>
                           <p className="text-xs text-gray-600 dark:text-gray-400">
-                            {(totalValue / totalValue * 100).toFixed(1)}% du total
+                            {(totalValue / totalValue * 100).toFixed(1}% du total
                           </p>
                         </div>
                       </div>
@@ -932,7 +926,7 @@ export default function InventoryManagement() : JSX.Element {
                     <span className="font-semibold">
                       {items.length > 0 ? 
                         (items.reduce((sum, item) => sum + item.currentStock, 0) / 
-                         items.reduce((sum, item) => sum + item.minStock, 0)).toFixed(2) : '0.00'}
+                         items.reduce((sum, item) => sum + item.minStock, 0);.toFixed(2) : '0.00'}
                     </span>
                   </div>
                 </div>

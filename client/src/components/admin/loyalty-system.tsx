@@ -136,8 +136,7 @@ export default function LoyaltySystem() : JSX.Element {
         ...customer,
         points: Number(customer.points) || 0,
         totalSpent: Number(customer.totalSpent) || 0,
-        level: calculateLevel(Number(customer.totalSpent) || 0)
-      }));
+        level: calculateLevel(Number(customer.totalSpent) || 0}););
 
       // Process stats data
       const processedStats = statsData ? {
@@ -199,8 +198,7 @@ export default function LoyaltySystem() : JSX.Element {
         customer.firstName.toLowerCase().includes(term) || 
         customer.lastName.toLowerCase().includes(term) ||
         customer.email.toLowerCase().includes(term) ||
-        (customer.phone && customer.phone.includes(term))
-      );
+        (customer.phone && customer.phone.includes(term);
     }
 
     // Sort if sortConfig exists
@@ -260,8 +258,7 @@ export default function LoyaltySystem() : JSX.Element {
           customerId,
           points,
           reason
-        })
-      });
+        }});
 
       if (response.ok) {
         toast({
@@ -343,7 +340,7 @@ export default function LoyaltySystem() : JSX.Element {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded"></div>
-            ))}
+            );}
           </div>
           <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded"></div>
         </div>
@@ -392,7 +389,7 @@ export default function LoyaltySystem() : JSX.Element {
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     <RefreshCw className="h-4 w-4" />
-                  )}
+                  }
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -420,7 +417,7 @@ export default function LoyaltySystem() : JSX.Element {
                     Total Clients
                   </p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {stats.totalCustomers.toLocaleString()}
+                    {stats.totalCustomers.toLocaleString(}
                   </p>
                 </div>
                 <Users className="h-8 w-8 text-blue-500" />
@@ -436,7 +433,7 @@ export default function LoyaltySystem() : JSX.Element {
                     Points Émis
                   </p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {stats.totalPointsIssued.toLocaleString()}
+                    {stats.totalPointsIssued.toLocaleString(}
                   </p>
                 </div>
                 <Star className="h-8 w-8 text-yellow-500" />
@@ -452,7 +449,7 @@ export default function LoyaltySystem() : JSX.Element {
                     Récompenses Échangées
                   </p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {stats.totalRewardsRedeemed.toLocaleString()}
+                    {stats.totalRewardsRedeemed.toLocaleString(}
                   </p>
                 </div>
                 <Gift className="h-8 w-8 text-purple-500" />
@@ -468,7 +465,7 @@ export default function LoyaltySystem() : JSX.Element {
                     Moyenne Points/Client
                   </p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {Math.round(stats.averagePointsPerCustomer)}
+                    {Math.round(stats.averagePointsPerCustomer}
                   </p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-green-500" />
@@ -497,11 +494,11 @@ export default function LoyaltySystem() : JSX.Element {
                   {stats && Object.entries(stats.levelDistribution).map(([level, count]) => (
                     <div key={level} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        {getLevelIcon(level)}
+                        {getLevelIcon(level}
                         <span className="font-medium">{level}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Badge className={getLevelColor(level)}>
+                        <Badge className={getLevelColor(level}>
                           {count} clients
                         </Badge>
                         <div className="w-24">
@@ -512,7 +509,7 @@ export default function LoyaltySystem() : JSX.Element {
                         </div>
                       </div>
                     </div>
-                  ))}
+                  );}
                 </div>
               </CardContent>
             </Card>
@@ -536,21 +533,21 @@ export default function LoyaltySystem() : JSX.Element {
                             <p className="font-medium">
                               {customer.firstName} {customer.lastName}
                             </p>
-                            <Badge className={getLevelColor(customer.level)} variant="outline">
+                            <Badge className={getLevelColor(customer.level} variant="outline">
                               {customer.level}
                             </Badge>
                           </div>
                         </div>
                         <div className="text-right">
                           <p className="font-bold text-purple-600">
-                            {customer.points.toLocaleString()} pts
+                            {customer.points.toLocaleString(} pts
                           </p>
                           <p className="text-xs text-gray-600 dark:text-gray-400">
-                            {customer.totalSpent.toFixed(2)}€ dépensés
+                            {customer.totalSpent.toFixed(2}€ dépensés
                           </p>
                         </div>
                       </div>
-                    ))}
+                    );}
                 </div>
               </CardContent>
             </Card>
@@ -576,7 +573,7 @@ export default function LoyaltySystem() : JSX.Element {
                           {reward.redemptionCount} échanges
                         </Badge>
                       </div>
-                    ))}
+                    );}
                 </div>
               </CardContent>
             </Card>
@@ -591,12 +588,12 @@ export default function LoyaltySystem() : JSX.Element {
                 placeholder="Rechercher clients..."
                 className="pl-10"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => setSearchTerm(e.target.value}
               />
               {searchTerm && (
                 <X 
                   className="absolute right-3 top-3 h-4 w-4 text-gray-500 cursor-pointer"
-                  onClick={() => setSearchTerm('')}
+                  onClick={() => setSearchTerm(''}
                 />
               )}
             </div>
@@ -618,38 +615,38 @@ export default function LoyaltySystem() : JSX.Element {
                 <tr className="border-b">
                   <th 
                     className="text-left py-3 px-4 cursor-pointer"
-                    onClick={() => requestSort('lastName')}
+                    onClick={() => requestSort('lastName'}
                   >
                     <div className="flex items-center gap-1">
                       Client
-                      {getSortIcon('lastName')}
+                      {getSortIcon('lastName'}
                     </div>
                   </th>
                   <th 
                     className="text-left py-3 px-4 cursor-pointer"
-                    onClick={() => requestSort('level')}
+                    onClick={() => requestSort('level'}
                   >
                     <div className="flex items-center gap-1">
                       Niveau
-                      {getSortIcon('level')}
+                      {getSortIcon('level'}
                     </div>
                   </th>
                   <th 
                     className="text-right py-3 px-4 cursor-pointer"
-                    onClick={() => requestSort('points')}
+                    onClick={() => requestSort('points'}
                   >
                     <div className="flex items-center justify-end gap-1">
                       Points
-                      {getSortIcon('points')}
+                      {getSortIcon('points'}
                     </div>
                   </th>
                   <th 
                     className="text-right py-3 px-4 cursor-pointer"
-                    onClick={() => requestSort('totalSpent')}
+                    onClick={() => requestSort('totalSpent'}
                   >
                     <div className="flex items-center justify-end gap-1">
                       Dépenses
-                      {getSortIcon('totalSpent')}
+                      {getSortIcon('totalSpent'}
                     </div>
                   </th>
                   <th className="text-right py-3 px-4">Actions</th>
@@ -662,7 +659,7 @@ export default function LoyaltySystem() : JSX.Element {
                       <td className="py-4 px-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold">
-                            {customer.firstName.charAt(0)}{customer.lastName.charAt(0)}
+                            {customer.firstName.charAt(0}{customer.lastName.charAt(0}
                           </div>
                           <div>
                             <p className="font-medium">
@@ -675,16 +672,16 @@ export default function LoyaltySystem() : JSX.Element {
                         </div>
                       </td>
                       <td className="py-4 px-4">
-                        <Badge className={getLevelColor(customer.level)}>
-                          {getLevelIcon(customer.level)}
+                        <Badge className={getLevelColor(customer.level}>
+                          {getLevelIcon(customer.level}
                           <span className="ml-1">{customer.level}</span>
                         </Badge>
                       </td>
                       <td className="py-4 px-4 text-right font-bold text-purple-600">
-                        {customer.points.toLocaleString()} pts
+                        {customer.points.toLocaleString(} pts
                       </td>
                       <td className="py-4 px-4 text-right">
-                        {customer.totalSpent.toFixed(2)}€
+                        {customer.totalSpent.toFixed(2}€
                       </td>
                       <td className="py-4 px-4">
                         <div className="flex justify-end items-center gap-2">
@@ -694,7 +691,7 @@ export default function LoyaltySystem() : JSX.Element {
                               placeholder="Points"
                               className="w-24"
                               value={pointsToAdd}
-                              onChange={(e) => setPointsToAdd(e.target.value)}
+                              onChange={(e) => setPointsToAdd(e.target.value}
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                   const points = parseInt(pointsToAdd);
@@ -719,13 +716,13 @@ export default function LoyaltySystem() : JSX.Element {
                                 <Loader2 className="h-4 w-4 animate-spin" />
                               ) : (
                                 <Plus className="h-4 w-4" />
-                              )}
+                              }
                             </Button>
                           </div>
                           <Button 
                             size="sm" 
                             variant="outline" 
-                            onClick={() => setSelectedCustomer(customer)}
+                            onClick={() => setSelectedCustomer(customer}
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
@@ -742,8 +739,7 @@ export default function LoyaltySystem() : JSX.Element {
                         </div>
                       </td>
                     </tr>
-                  ))
-                ) : (
+                  );: (
                   <tr>
                     <td colSpan={5} className="py-8 text-center text-gray-500">
                       Aucun client trouvé
@@ -814,7 +810,7 @@ export default function LoyaltySystem() : JSX.Element {
                         <Button 
                           size="sm" 
                           variant="outline"
-                          onClick={() => setSelectedReward(reward)}
+                          onClick={() => setSelectedReward(reward}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -832,8 +828,7 @@ export default function LoyaltySystem() : JSX.Element {
                     </div>
                   </CardContent>
                 </Card>
-              ))
-            ) : (
+              );: (
               <div className="col-span-full py-8 text-center text-gray-500">
                 Aucune récompense disponible
               </div>
@@ -860,7 +855,7 @@ export default function LoyaltySystem() : JSX.Element {
                           {loyaltyLevels[index + 1].threshold}€
                         </Badge>
                       </div>
-                    ))}
+                    );}
                   </div>
                 </div>
               </CardContent>
@@ -918,7 +913,7 @@ export default function LoyaltySystem() : JSX.Element {
                         </div>
                       </div>
                     </div>
-                  ))}
+                  );}
                 </div>
               </CardContent>
             </Card>

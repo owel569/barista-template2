@@ -90,8 +90,7 @@ export const usePermissions = (userParam?: unknown) => {
 
     return permissions.some(p => 
       p.resource === permission && 
-      (p.action === 'all' || p.action === 'read')
-    );
+      (p.action === 'all' || p.action === 'read');
   }, [user, permissions]);
 
   const hasWritePermission = useCallback((resource: string): boolean => {
@@ -100,8 +99,7 @@ export const usePermissions = (userParam?: unknown) => {
 
     return permissions.some(p => 
       p.resource === resource && 
-      (p.action === 'all' || p.action === 'write')
-    );
+      (p.action === 'all' || p.action === 'write');
   }, [user, permissions]);
 
   const canAccess = useCallback((module: string): boolean => {

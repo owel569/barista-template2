@@ -117,7 +117,7 @@ export default function StatisticsEnhanced(): JSX.Element {
       // Données de revenus
       const revenue: RevenueData[] = Array.from({ length: days }, (_, i) => {
         const date = new Date(today);
-        date.setDate(date.getDate() - (days - i - 1));
+        date.setDate(date.getDate() - (days - i - 1);
         return {
           date: date.toISOString().split('T')[0] ?? '',
           revenue: Math.floor(Math.random() * 2000) + 500,
@@ -137,10 +137,10 @@ export default function StatisticsEnhanced(): JSX.Element {
 
       // Données par heure
       const hourly: HourlyData[] = Array.from({ length: 24 }, (_, i) => ({
-        hour: `${i.toString().padStart(2, '0')}:00`,
+        hour: `${i.toString().padStart(2, '0'}:00`,
         orders: Math.floor(Math.random() * 15) + 1,
         revenue: Math.floor(Math.random() * 300) + 50
-      }));
+      });
 
       // Données par catégorie
       const categories: CategoryData[] = [
@@ -183,7 +183,7 @@ export default function StatisticsEnhanced(): JSX.Element {
     setIsExporting(true);
     try {
       // Simulation d'export
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 2000);
 
       const data = {
         period: selectedPeriod,
@@ -257,7 +257,7 @@ export default function StatisticsEnhanced(): JSX.Element {
                 <SelectItem key={period.value} value={period.value}>
                   {period.label}
                 </SelectItem>
-              ))}
+              );}
             </SelectContent>
           </Select>
           <Button
@@ -281,10 +281,10 @@ export default function StatisticsEnhanced(): JSX.Element {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {performanceMetrics.totalRevenue.toLocaleString('fr-FR')} €
+              {performanceMetrics.totalRevenue.toLocaleString('fr-FR'} €
             </div>
             <p className="text-xs text-gray-600">
-              Moy. {performanceMetrics.averageDailyRevenue.toFixed(0)} €/jour
+              Moy. {performanceMetrics.averageDailyRevenue.toFixed(0} €/jour
             </p>
           </CardContent>
         </Card>
@@ -297,12 +297,12 @@ export default function StatisticsEnhanced(): JSX.Element {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {orderMetrics.totalOrders.toLocaleString('fr-FR')}
+              {orderMetrics.totalOrders.toLocaleString('fr-FR'}
             </div>
             <div className="flex items-center">
               <Progress value={performanceMetrics.completionRate} className="flex-1 mr-2" />
               <span className="text-xs text-gray-600">
-                {performanceMetrics.completionRate.toFixed(1)}%
+                {performanceMetrics.completionRate.toFixed(1}%
               </span>
             </div>
           </CardContent>
@@ -316,7 +316,7 @@ export default function StatisticsEnhanced(): JSX.Element {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {customerMetrics.totalCustomers.toLocaleString('fr-FR')}
+              {customerMetrics.totalCustomers.toLocaleString('fr-FR'}
             </div>
             <p className="text-xs text-gray-600">
               {customerMetrics.newCustomers} nouveaux clients
@@ -380,11 +380,11 @@ export default function StatisticsEnhanced(): JSX.Element {
                       cx="50%"
                       cy="50%"
                       outerRadius={80}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0}%`}
                     >
                       {categoryData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
+                      );}
                     </Pie>
                     <Tooltip />
                   </PieChart>

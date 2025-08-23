@@ -49,7 +49,7 @@ const LoadingSpinner = React.forwardRef<HTMLDivElement, LoadingSpinnerProps>(
       switch (variant) {
         case "dots":
           return (
-            <div className={cn("flex space-x-1", className)}>
+            <div className={cn("flex space-x-1", className}>
               {[0, 1, 2].map((i) => (
                 <div
                   key={i}
@@ -61,19 +61,19 @@ const LoadingSpinner = React.forwardRef<HTMLDivElement, LoadingSpinnerProps>(
                     size === "lg" && "h-3 w-3",
                     size === "xl" && "h-4 w-4",
                     size === "2xl" && "h-6 w-6"
-                  )}
+                  }
                   style={{
                     animationDelay: `${i * 0.1}s`,
                     animationDuration: "0.6s",
                   }}
                 />
-              ))}
+              );}
             </div>
           )
 
         case "bars":
           return (
-            <div className={cn("flex space-x-1", className)}>
+            <div className={cn("flex space-x-1", className}>
               {[0, 1, 2, 3].map((i) => (
                 <div
                   key={i}
@@ -85,13 +85,13 @@ const LoadingSpinner = React.forwardRef<HTMLDivElement, LoadingSpinnerProps>(
                     size === "lg" && "h-8 w-1",
                     size === "xl" && "h-12 w-1.5",
                     size === "2xl" && "h-16 w-2"
-                  )}
+                  }
                   style={{
                     animationDelay: `${i * 0.1}s`,
                     animationDuration: "1s",
                   }}
                 />
-              ))}
+              );}
             </div>
           )
 
@@ -135,20 +135,17 @@ const LoadingSpinner = React.forwardRef<HTMLDivElement, LoadingSpinnerProps>(
         className={cn(
           "inline-flex items-center justify-center",
           showLabel && "flex-col space-y-2"
-        )}
+        }
         {...props}
       >
-        {renderSpinner()}
+        {renderSpinner(}
         {showLabel && (
           <span className="text-sm text-muted-foreground" aria-live="polite">
             {label}
           </span>
         )}
       </div>
-    )
-  }
-)
-LoadingSpinner.displayName = "LoadingSpinner"
+    });LoadingSpinner.displayName = "LoadingSpinner"
 
 // Composant de page de chargement complet
 export interface LoadingPageProps {
@@ -170,7 +167,7 @@ const LoadingPage: React.FC<LoadingPageProps> = ({
     <div className={cn(
       "flex flex-col items-center justify-center min-h-[400px] p-8 text-center",
       className
-    )}>
+    }>
       <LoadingSpinner variant={variant} size={size} />
       <div className="mt-6 space-y-2">
         <h2 className="text-lg font-semibold">{title}</h2>
@@ -263,28 +260,28 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
     case 'circular':
       return (
         <div
-          className={cn(baseClasses, "rounded-full w-12 h-12")}
-          style={getSize()}
+          className={cn(baseClasses, "rounded-full w-12 h-12"}
+          style={getSize(}
         />
       )
 
     case 'rectangular':
       return (
         <div
-          className={cn(baseClasses, "w-full h-32")}
-          style={getSize()}
+          className={cn(baseClasses, "w-full h-32"}
+          style={getSize(}
         />
       )
 
     case 'card':
       return (
-        <div className={cn("space-y-3 p-4 border rounded-lg", className)}>
-          <div className={cn(baseClasses, "h-4 w-3/4")} />
-          <div className={cn(baseClasses, "h-4 w-1/2")} />
-          <div className={cn(baseClasses, "h-20 w-full")} />
+        <div className={cn("space-y-3 p-4 border rounded-lg", className}>
+          <div className={cn(baseClasses, "h-4 w-3/4"} />
+          <div className={cn(baseClasses, "h-4 w-1/2"} />
+          <div className={cn(baseClasses, "h-20 w-full"} />
           <div className="flex justify-between">
-            <div className={cn(baseClasses, "h-8 w-20")} />
-            <div className={cn(baseClasses, "h-8 w-16")} />
+            <div className={cn(baseClasses, "h-8 w-20"} />
+            <div className={cn(baseClasses, "h-8 w-16"} />
           </div>
         </div>
       )
@@ -299,10 +296,10 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
                 baseClasses,
                 "h-4",
                 i === lines - 1 ? "w-3/4" : "w-full"
-              )}
+              }
               style={i === 0 ? getSize() : undefined}
             />
-          ))}
+          );}
         </div>
       )
   }

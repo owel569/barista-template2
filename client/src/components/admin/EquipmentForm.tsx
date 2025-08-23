@@ -42,14 +42,11 @@ export function EquipmentForm({ initialData, onSubmit, onCancel }: EquipmentForm
   );
 
   const [lastMaintenanceDate, setLastMaintenanceDate] = useState<Date>(
-    initialData ? new Date(initialData.lastMaintenance) : new Date()
-  );
+    initialData ? new Date(initialData.lastMaintenance) : new Date();
   const [nextMaintenanceDate, setNextMaintenanceDate] = useState<Date>(
-    initialData ? new Date(initialData.nextMaintenance) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-  );
+    initialData ? new Date(initialData.nextMaintenance) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
   const [purchaseDate, setPurchaseDate] = useState<Date>(
-    initialData && initialData.purchaseDate ? new Date(initialData.purchaseDate) : new Date()
-  );
+    initialData && initialData.purchaseDate ? new Date(initialData.purchaseDate) : new Date();
   const [warrantyDate, setWarrantyDate] = useState<Date | undefined>(
     initialData && initialData.warrantyExpiry ? new Date(initialData.warrantyExpiry) : undefined
   );
