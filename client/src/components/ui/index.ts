@@ -1,4 +1,4 @@
-// Composants de base
+// ===== COMPOSANTS DE BASE =====
 export * from "./button"
 export * from "./input"
 export * from "./label"
@@ -9,34 +9,37 @@ export * from "./radio-group"
 export * from "./switch"
 export * from "./slider"
 
-// Composants de navigation
+// ===== COMPOSANTS DE NAVIGATION =====
 export * from "./navigation-menu"
 export * from "./menubar"
 export * from "./breadcrumb"
 export * from "./pagination"
 export * from "./tabs"
+export * from "./sidebar"
 
-// Composants de layout
+// ===== COMPOSANTS DE LAYOUT =====
 export * from "./card"
 export * from "./separator"
 export * from "./aspect-ratio"
 export * from "./scroll-area"
 export * from "./resizable"
 
-// Composants de feedback
+// ===== COMPOSANTS DE FEEDBACK =====
 export * from "./alert"
 export * from "./badge"
 export * from "./progress"
 export * from "./skeleton"
 export * from "./spinner"
+export * from "./loading-spinner"
 export * from "./loading-overlay"
 export * from "./loading-button"
 export * from "./empty-state"
 export * from "./stats-card"
 
-// Composants de dialogue et popover
+// ===== COMPOSANTS DE DIALOGUE ET POPOVER =====
 export * from "./dialog"
 export * from "./alert-dialog"
+export * from "./confirmation-dialog"
 export * from "./sheet"
 export * from "./popover"
 export * from "./tooltip"
@@ -44,9 +47,8 @@ export * from "./hover-card"
 export * from "./context-menu"
 export * from "./dropdown-menu"
 export * from "./modal"
-export * from "./confirmation-dialog"
 
-// Composants de formulaire
+// ===== COMPOSANTS DE FORMULAIRE =====
 export * from "./form"
 export * from "./calendar"
 export * from "./date-picker"
@@ -59,7 +61,7 @@ export * from "./input-otp"
 export * from "./file-upload"
 export * from "./search-input"
 
-// Composants d'affichage de données
+// ===== COMPOSANTS D'AFFICHAGE DE DONNÉES =====
 export * from "./table"
 export * from "./data-table"
 export * from "./chart"
@@ -67,27 +69,149 @@ export * from "./accordion"
 export * from "./collapsible"
 export * from "./carousel"
 
-// Composants de notification
+// ===== COMPOSANTS DE NOTIFICATION =====
 export * from "./toast"
 export * from "./toaster"
 export * from "./sonner"
 
-// Composants avancés
+// ===== COMPOSANTS AVANCÉS =====
 export * from "./toggle"
 export * from "./toggle-group"
 export * from "./avatar"
 export * from "./drawer"
 
-// Types et utilitaires
+// ===== TYPES ET UTILITAIRES =====
+export * from "./types"
+
+// ===== EXPORTS SPÉCIFIQUES POUR COMPATIBILITÉ =====
 export type { 
+  // Types de base
   ButtonProps,
   InputProps,
+  LabelProps,
+  TextareaProps,
+  
+  // Types de formulaire
   CheckboxProps,
   RadioGroupProps,
   SwitchProps,
   SelectProps,
+  FormFieldProps,
+  
+  // Types de données
   ComboboxOption,
   MultiSelectOption,
+  TableColumn,
+  DataTableProps,
+  
+  // Types de layout
   DatePickerProps,
-  SkeletonProps
+  SkeletonProps,
+  CardProps,
+  BadgeProps,
+  
+  // Types d'interaction
+  DialogProps,
+  ToastProps,
+  AlertProps,
+  
+  // Types utilitaires
+  ComponentVariant,
+  ComponentSize,
+  AccessibilityProps,
+  SafeEventHandler,
+  
+  // Types de pays et téléphone
+  Country,
+  InternationalPhoneInputProps,
+  
+  // Types de chargement
+  LoadingSpinnerProps,
+  LoadingPageProps,
+  SkeletonLoaderProps,
+  
+  // Types de données avancés
+  ChartConfig,
+  StatsCardProps,
+  
+  // Types de navigation
+  BreadcrumbProps,
+  PaginationProps,
+  
+  // Types de confirmation
+  ConfirmationDialogProps,
+  
+  // Types de redimensionnement
+  ResizableLayoutProps,
+  ResizablePanelGroupProps,
+  ResizableHandleProps,
+  
+  // Types d'aspect ratio
+  AspectRatioProps,
+  
+  // Types de collapsible
+  CollapsibleTriggerButtonProps,
+  CollapsibleContentWrapperProps,
 } from "./types"
+
+// ===== HOOKS UTILITAIRES =====
+export {
+  // Hooks de chargement
+  useLoading,
+  useLoadingButton,
+  
+  // Hooks de formulaire
+  useInternationalPhoneInput,
+  
+  // Hooks de données
+  useDataTable,
+  
+  // Hooks d'interaction
+  useConfirmationDialog,
+  useAccordion,
+  useCollapsible,
+  
+  // Hooks de layout
+  useResizablePanels,
+} from "./hooks"
+
+// ===== VARIANTS ET UTILITAIRES CSS =====
+export {
+  // Variants des composants
+  buttonVariants,
+  inputVariants,
+  badgeVariants,
+  alertVariants,
+  skeletonVariants,
+  spinnerVariants,
+  
+  // Variants de layout
+  cardVariants,
+  aspectRatioVariants,
+  
+  // Variants d'interaction
+  dialogVariants,
+  accordionItemVariants,
+  accordionTriggerVariants,
+  accordionContentVariants,
+  
+  // Variants de données
+  dataTableVariants,
+  
+  // Variants de navigation
+  breadcrumbVariants,
+  
+  // Variants de notification
+  toastVariants,
+  
+  // Variants de téléphone
+  phoneInputVariants,
+  
+  // Variants de redimensionnement
+  resizablePanelGroupVariants,
+  resizableHandleVariants,
+  
+  // Variants de collapsible
+  collapsibleTriggerVariants,
+  collapsibleContentVariants,
+} from "./variants"
