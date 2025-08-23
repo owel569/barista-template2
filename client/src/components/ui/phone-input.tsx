@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
+import * as React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -124,7 +123,7 @@ export function PhoneInput({
 
   // Filtrer les pays selon la recherche
   const filteredCountries = countries.filter(country => {
-    if (country.code === 'separator')}) return true;
+    if (country.code === 'separator') return true;
     if (!searchTerm) return true;
     
     const search = searchTerm.toLowerCase();
@@ -204,7 +203,7 @@ export function PhoneInput({
   return (
     <div className={`space-y-2 ${className}`}>
       {label && (
-        <Label htmlFor={id)} className="text-sm font-medium">
+        <Label htmlFor={id} className="text-sm font-medium">
           {label} {required && <span className="text-red-500">*</span>}
         </Label>
       )}
@@ -214,7 +213,7 @@ export function PhoneInput({
         <div className="flex items-center space-x-2 p-2 bg-blue-50 rounded-lg border">
           <MapPin className="h-4 w-4 text-blue-600" />
           <span className="text-sm text-blue-700">
-            Pays détecté: {detectedCountry.flag)} {detectedCountry.name}
+            Pays détecté: {detectedCountry.flag} {detectedCountry.name}
           </span>
           <Button
             type="button"
