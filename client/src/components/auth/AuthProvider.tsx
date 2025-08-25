@@ -36,23 +36,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Surveiller l'expiration du token
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
-    
+
     if (authState.isAuthenticated && authState.token) {
       interval = setInterval(() => {
         const isExpiring = AuthTokenManager.isTokenExpiringSoon();
         setIsTokenExpiring(isExpiring);
-        
+
         if (isExpiring) {
           toast.warning('Votre session expire bientôt. Veuillez vous reconnecter.');
         }
-        
+
         // Vérifier si le token a expiré
         if (!AuthTokenManager.isTokenValid()) {
           logout();
         }
       }, 60000); // Vérifier toutes les minutes
     }
-    
+
     return () => {
       if (interval) {
         clearInterval(interval);
@@ -64,7 +64,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const token = AuthTokenManager.getToken();
       const storedUser = localStorage.getItem('user');
-      
+
       if (token && storedUser && AuthTokenManager.isTokenValid()) {
         const user = JSON.parse(storedUser);
         setAuthState({
@@ -73,7 +73,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           isAuthenticated: true,
           isLoading: false,
         });
-        
+
         // Valider le token côté serveur
         const isValid = await validateSession();
         if (!isValid) {
@@ -94,26 +94,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const login = useCallback(async (username: string, password: string): Promise<LoginResponse> => {
     try {
       setAuthState(prev => ({ ...prev, isLoading: true }));
-      
+
       const response = await ApiClient.post<{
         message: string;
         token: string;
         user: AuthUser;
       }>('/auth/login', { username, password });
-      
+
       // Stocker les données d'authentification
       AuthTokenManager.setToken(response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
-      
+
       setAuthState({
         user: response.user,
         token: response.token,
         isAuthenticated: true,
         isLoading: false,
       });
-      
+
       toast.success('Connexion réussie');
-      
+
       return {
         success: true,
         user: response.user,
@@ -122,14 +122,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
       };
     } catch (error: unknown) {
       console.error('Erreur de connexion:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
-      
+
       setAuthState(prev => ({
         ...prev,
         isLoading: false,
       }));
-      
+
       toast.error(error.message || 'Erreur de connexion');
-      
+
       return {
         success: false,
         error: error.message || 'Erreur de connexion au serveur',
@@ -139,19 +139,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = useCallback(() => {
     AuthTokenManager.removeToken();
-    
+
     setAuthState({
       user: null,
       token: null,
       isAuthenticated: false,
       isLoading: false,
     });
-    
+
     setIsTokenExpiring(false);
-    
+
     // Rediriger vers la page de connexion
     setLocation('/login');
-    
+
     toast.info('Déconnexion réussie');
   }, [setLocation]);
 
@@ -159,23 +159,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const currentToken = AuthTokenManager.getToken();
       if (!currentToken) return false;
-      
+
       const response = await ApiClient.post<{
         token: string;
         user: AuthUser;
       }>('/auth/refresh', {});
-      
+
       AuthTokenManager.setToken(response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
-      
+
       setAuthState(prev => ({
         ...prev,
         token: response.token,
         user: response.user,
       }));
-      
+
       setIsTokenExpiring(false);
-      
+
       return true;
     } catch (error) {
       console.error('Erreur refresh token:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
@@ -188,12 +188,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const token = AuthTokenManager.getToken();
       if (!token) return false;
-      
+
       const response = await ApiClient.get<{
         valid: boolean;
         user: AuthUser;
       }>('/auth/validate');
-      
+
       if (response.valid) {
         setAuthState(prev => ({
           ...prev,
@@ -240,13 +240,13 @@ export function useAuth(): AuthContextType {
 export function useRequireAuth(redirectTo: string = '/login') {
   const { isAuthenticated, isLoading } = useAuth();
   const [, setLocation] = useLocation();
-  
+
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       setLocation(redirectTo);
     }
   }, [isAuthenticated, isLoading, redirectTo, setLocation]);
-  
+
   return { isAuthenticated, isLoading };
 }
 
@@ -268,26 +268,15 @@ export interface UserPermissions {
   canAccessAdvancedFeatures: boolean;
 }
 
+// Le hook useUserPermissionsCompat a été importé depuis '@/hooks/usePermissions'
+// et le hook useUserPermissions a été renommé en useUserPermissionsCompat.
+// L'utilisation du hook a également été mise à jour pour refléter ce changement.
+import { useUserPermissionsCompat } from '@/hooks/usePermissions';
 export function usePermissions(): UserPermissions {
   const { user } = useAuth();
-  
-  const permissions: UserPermissions = {
-    role: user?.role || null,
-    isDirector: user?.role === 'directeur',
-    isEmployee: user?.role === 'employe',
-    canCreate: user?.role === 'directeur' || user?.role === 'employe',
-    canEdit: user?.role === 'directeur' || user?.role === 'employe',
-    canDelete: user?.role === 'directeur',
-    canManageEmployees: user?.role === 'directeur',
-    canManageSettings: user?.role === 'directeur',
-    canViewStatistics: user?.role === 'directeur',
-    canManageInventory: user?.role === 'directeur',
-    canManagePermissions: user?.role === 'directeur',
-    canManageReports: user?.role === 'directeur',
-    canManageBackups: user?.role === 'directeur',
-    canAccessAdvancedFeatures: user?.role === 'directeur',
-  };
-  
+
+  const permissions = useUserPermissionsCompat();
+
   return permissions;
 }
 
@@ -300,7 +289,7 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children, requiredRole, fallback }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading, user } = useAuth();
-  
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -308,7 +297,7 @@ export function ProtectedRoute({ children, requiredRole, fallback }: ProtectedRo
       </div>
     );
   }
-  
+
   if (!isAuthenticated) {
     return fallback || (
       <div className="flex items-center justify-center min-h-screen">
@@ -319,7 +308,7 @@ export function ProtectedRoute({ children, requiredRole, fallback }: ProtectedRo
       </div>
     );
   }
-  
+
   if (requiredRole && user?.role !== requiredRole) {
     return fallback || (
       <div className="flex items-center justify-center min-h-screen">
@@ -330,16 +319,16 @@ export function ProtectedRoute({ children, requiredRole, fallback }: ProtectedRo
       </div>
     );
   }
-  
+
   return <>{children}</>;
 }
 
 // Composant d'indicateur de session
 export function SessionIndicator(): JSX.Element | null {
   const { isTokenExpiring, refreshToken } = useAuth();
-  
+
   if (!isTokenExpiring) return null;
-  
+
   return (
     <div className="fixed top-4 right-4 z-50">
       <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 shadow-lg">

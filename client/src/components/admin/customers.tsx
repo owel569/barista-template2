@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -52,7 +52,7 @@ interface CustomersProps {
   user: User | null;
 }
 
-export default function Customers({ userRole, user }: CustomersProps) {
+function Customers({ userRole, user }: CustomersProps) {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -130,6 +130,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
         customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (customer.phone && customer.phone.includes(searchTerm))
       );
+    }
 
     // Sort by total spent (highest first)
     filtered.sort((a, b) => {
@@ -154,7 +155,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
     const vip = customers.filter(c => getCustomerTier(c.totalSpent).name === 'VIP').length;
     const totalRevenue = customers.reduce((sum, c) => sum + (typeof c.totalSpent === 'string' ? parseFloat(c.totalSpent) : c.totalSpent), 0);
     const avgOrderValue = totalRevenue / customers.reduce((sum, c) => sum + c.totalOrders, 0) || 0;
-    
+
     return {
       total,
       active,
@@ -991,3 +992,5 @@ export default function Customers({ userRole, user }: CustomersProps) {
     </div>
   );
 }
+
+export default Customers;

@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
 
@@ -207,7 +206,7 @@ export const usePermissions = (userParam?: CafeUser | null) => {
     } catch (err) {
       console.error('Erreur permissions:', err);
       setError(err instanceof Error ? err.message : 'Erreur inconnue');
-      
+
       // Fallback vers les permissions par défaut
       const defaultPerms = generateDefaultPermissions(user);
       setPermissions(defaultPerms);
@@ -443,9 +442,9 @@ export interface UserPermissions {
 }
 
 // Hook simplifié pour la compatibilité (utilisé dans AuthProvider)
-export function useUserPermissions(): UserPermissions {
+export function useUserPermissionsCompat(): UserPermissions {
   const { user } = useAuth();
-  
+
   const permissions: UserPermissions = {
     role: user?.role || null,
     isDirector: user?.role === 'directeur',
@@ -478,6 +477,6 @@ export function useUserPermissions(): UserPermissions {
       return permissionMap[permission] || false;
     }
   };
-  
+
   return permissions;
 }
