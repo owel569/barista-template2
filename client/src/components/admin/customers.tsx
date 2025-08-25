@@ -13,7 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   Users, UserPlus, Search, Filter, Mail, Phone, Calendar, 
   MapPin, Star, Gift, TrendingUp, Eye, Edit, Trash2, MessageSquare,
-  Heart, Award, Clock, DollarSign, Euro
+  Heart, Award, Clock, DollarSign, Euro, Download
 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
@@ -140,6 +140,146 @@ export default function Customers({ userRole, user }: CustomersProps) {
 
     setFilteredCustomers(filtered);
   };
+
+  // Nouvelles fonctionnalités avancées
+  const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive' | 'vip'>('all');
+  const [filterDateRange, setFilterDateRange] = useState<{ start: string; end: string }>({ start: '', end: '' });
+  const [sortBy, setSortBy] = useState<'name' | 'totalSpent' | 'lastVisit' | 'createdAt'>('totalSpent');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  // Statistiques clients
+  const customerStats = useMemo(() => {
+    const total = customers.length;
+    const active = customers.filter(c => c.status === 'active').length;
+    const vip = customers.filter(c => getCustomerTier(c.totalSpent).name === 'VIP').length;
+    const totalRevenue = customers.reduce((sum, c) => sum + (typeof c.totalSpent === 'string' ? parseFloat(c.totalSpent) : c.totalSpent), 0);
+    const avgOrderValue = totalRevenue / customers.reduce((sum, c) => sum + c.totalOrders, 0) || 0;
+    
+    return {
+      total,
+      active,
+      inactive: total - active,
+      vip,
+      totalRevenue,
+      avgOrderValue,
+      newThisMonth: customers.filter(c => {
+        const created = new Date(c.createdAt);
+        const monthAgo = new Date();
+        monthAgo.setMonth(monthAgo.getMonth() - 1);
+        return created > monthAgo;
+      }).length
+    };
+  }, [customers]);
+
+  // Export des données clients
+  const exportCustomersData = async () => {
+    try {
+      const csvData = filteredCustomers.map(customer => ({
+        'Prénom': customer.firstName,
+        'Nom': customer.lastName,
+        'Email': customer.email,
+        'Téléphone': customer.phone || '',
+        'Total Dépensé': typeof customer.totalSpent === 'string' ? parseFloat(customer.totalSpent).toFixed(2) : customer.totalSpent.toFixed(2),
+        'Nombre Commandes': customer.totalOrders,
+        'Statut': customer.status,
+        'Segment': getCustomerTier(customer.totalSpent).name,
+        'Dernière Visite': customer.lastVisit ? format(new Date(customer.lastVisit), 'dd/MM/yyyy') : 'Jamais',
+        'Client Depuis': format(new Date(customer.createdAt), 'dd/MM/yyyy'),
+        'Notes': customer.notes || ''
+      }));
+
+      const csvContent = [
+        Object.keys(csvData[0]).join(';'),
+        ...csvData.map(row => Object.values(row).join(';'))
+      ].join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `clients_${format(new Date(), 'yyyy-MM-dd')}.csv`;
+      link.click();
+
+      toast({
+        title: "Export réussi",
+        description: `${filteredCustomers.length} clients exportés`,
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur d'export",
+        description: "Impossible d'exporter les données",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Filtrage avancé
+  const applyAdvancedFilters = useCallback(() => {
+    let filtered = [...customers];
+
+    // Filtre par statut
+    if (filterStatus !== 'all') {
+      if (filterStatus === 'vip') {
+        filtered = filtered.filter(c => getCustomerTier(c.totalSpent).name === 'VIP');
+      } else {
+        filtered = filtered.filter(c => c.status === filterStatus);
+      }
+    }
+
+    // Filtre par recherche
+    if (searchTerm) {
+      filtered = filtered.filter(customer => 
+        customer.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        customer.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (customer.phone && customer.phone.includes(searchTerm))
+      );
+    }
+
+    // Filtre par date
+    if (filterDateRange.start && filterDateRange.end) {
+      filtered = filtered.filter(customer => {
+        const created = new Date(customer.createdAt);
+        return created >= new Date(filterDateRange.start) && created <= new Date(filterDateRange.end);
+      });
+    }
+
+    // Tri
+    filtered.sort((a, b) => {
+      let aValue, bValue;
+      switch (sortBy) {
+        case 'name':
+          aValue = `${a.firstName} ${a.lastName}`;
+          bValue = `${b.firstName} ${b.lastName}`;
+          break;
+        case 'totalSpent':
+          aValue = typeof a.totalSpent === 'string' ? parseFloat(a.totalSpent) : a.totalSpent;
+          bValue = typeof b.totalSpent === 'string' ? parseFloat(b.totalSpent) : b.totalSpent;
+          break;
+        case 'lastVisit':
+          aValue = a.lastVisit ? new Date(a.lastVisit).getTime() : 0;
+          bValue = b.lastVisit ? new Date(b.lastVisit).getTime() : 0;
+          break;
+        case 'createdAt':
+          aValue = new Date(a.createdAt).getTime();
+          bValue = new Date(b.createdAt).getTime();
+          break;
+        default:
+          return 0;
+      }
+
+      if (sortOrder === 'asc') {
+        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+      } else {
+        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+      }
+    });
+
+    setFilteredCustomers(filtered);
+  }, [customers, searchTerm, filterStatus, filterDateRange, sortBy, sortOrder]);
+
+  useEffect(() => {
+    applyAdvancedFilters();
+  }, [applyAdvancedFilters]);
 
   const handleEditCustomer = (customer: Customer) => {
     setCurrentCustomer(customer);
@@ -440,23 +580,154 @@ export default function Customers({ userRole, user }: CustomersProps) {
         </div>
       </div>
 
-      {/* Search */}
-      <Card>
+      {/* Statistiques Dashboard */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center">
+              <Users className="h-8 w-8 text-blue-600" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Total Clients</p>
+                <p className="text-2xl font-bold">{customerStats.total}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center">
+              <Star className="h-8 w-8 text-yellow-600" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Clients VIP</p>
+                <p className="text-2xl font-bold">{customerStats.vip}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center">
+              <Euro className="h-8 w-8 text-green-600" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">CA Total</p>
+                <p className="text-2xl font-bold">{customerStats.totalRevenue.toFixed(0)}€</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center">
+              <TrendingUp className="h-8 w-8 text-purple-600" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Panier Moyen</p>
+                <p className="text-2xl font-bold">{customerStats.avgOrderValue.toFixed(0)}€</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filtres avancés */}
+      <Card className="mb-6">
         <CardHeader>
-          <CardTitle className="text-lg">Recherche</CardTitle>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Filter className="h-5 w-5" />
+            Recherche et Filtres
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <Input
-                placeholder="Nom, email, téléphone..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+          <div className="space-y-4">
+            {/* Ligne 1: Recherche et statut */}
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <Label htmlFor="search">Recherche</Label>
+                <Input
+                  id="search"
+                  placeholder="Nom, email, téléphone..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <div className="w-48">
+                <Label htmlFor="status">Statut</Label>
+                <Select value={filterStatus} onValueChange={(value: any) => setFilterStatus(value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Tous les statuts" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tous les statuts</SelectItem>
+                    <SelectItem value="active">Actif</SelectItem>
+                    <SelectItem value="inactive">Inactif</SelectItem>
+                    <SelectItem value="vip">VIP</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <Button onClick={() => setSearchTerm('')} variant="outline">
-              Effacer
-            </Button>
+
+            {/* Ligne 2: Tri et dates */}
+            <div className="flex gap-4">
+              <div className="w-48">
+                <Label htmlFor="sortBy">Trier par</Label>
+                <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="totalSpent">Montant dépensé</SelectItem>
+                    <SelectItem value="name">Nom</SelectItem>
+                    <SelectItem value="lastVisit">Dernière visite</SelectItem>
+                    <SelectItem value="createdAt">Date création</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="w-32">
+                <Label htmlFor="sortOrder">Ordre</Label>
+                <Select value={sortOrder} onValueChange={(value: any) => setSortOrder(value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="desc">Décroissant</SelectItem>
+                    <SelectItem value="asc">Croissant</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex-1">
+                <Label>Date de création</Label>
+                <div className="flex gap-2">
+                  <Input
+                    type="date"
+                    value={filterDateRange.start}
+                    onChange={(e) => setFilterDateRange(prev => ({ ...prev, start: e.target.value }))}
+                  />
+                  <Input
+                    type="date"
+                    value={filterDateRange.end}
+                    onChange={(e) => setFilterDateRange(prev => ({ ...prev, end: e.target.value }))}
+                  />
+                </div>
+              </div>
+              <div className="flex items-end gap-2">
+                <Button 
+                  onClick={() => {
+                    setSearchTerm('');
+                    setFilterStatus('all');
+                    setFilterDateRange({ start: '', end: '' });
+                  }} 
+                  variant="outline"
+                >
+                  Réinitialiser
+                </Button>
+                <Button onClick={exportCustomersData} variant="outline">
+                  <Download className="h-4 w-4 mr-2" />
+                  Exporter
+                </Button>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
