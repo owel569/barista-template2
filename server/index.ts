@@ -16,7 +16,7 @@ async function createServer() {
     server: { 
       middlewareMode: true,
       hmr: false,
-      allowedHosts: 'all'
+      allowedHosts: true
     },
     root: path.resolve(__dirname, '../client'),
     appType: 'spa',

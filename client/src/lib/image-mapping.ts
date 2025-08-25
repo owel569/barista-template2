@@ -90,7 +90,7 @@ export function getItemImageUrl(itemName: unknown, categorySlug: unknown = 'defa
     const itemKeys = Object.keys(ITEM_IMAGES);
     for (const key of itemKeys) {
       if (normalizedItem && (normalizedItem.includes(key) || key.includes(normalizedItem))) {
-        return ITEM_IMAGES[key];
+        return ITEM_IMAGES[key] || DEFAULT_IMAGE;
       }
     }
 

@@ -69,25 +69,45 @@ export class AuthTokenManager {
     this.removeToken();
     this.removeUser();
   }
+
+  static isTokenValid(): boolean {
+    const token = this.getToken();
+    return isTokenValid(token);
+  }
+
+  static isTokenExpiringSoon(): boolean {
+    const token = this.getToken();
+    if (!token) return false;
+    
+    try {
+      const decoded = jwtDecode<TokenPayload>(token);
+      const currentTime = Date.now() / 1000;
+      const timeUntilExpiry = decoded.exp - currentTime;
+      // Token expires in less than 5 minutes (300 seconds)
+      return timeUntilExpiry < 300;
+    } catch {
+      return false;
+    }
+  }
 }
 
 export class ApiClient {
   private static baseUrl = '';
 
-  static async request<T>(endpoint: string, options: RequestInit = {)}): Promise<T> {
+  static async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const token = AuthTokenManager.getToken();
 
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       headers: {
         'Content-Type': 'application/json',
-        ...(token && { Authorization: `Bearer ${token)}` }),
+        ...(token && { Authorization: `Bearer ${token}` }),
         ...options.headers,
       },
       ...options,
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status)}`);
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     return response.json();
@@ -101,7 +121,7 @@ export class ApiClient {
   }
 
   static async get<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: 'GET' )});
+    return this.request<T>(endpoint, { method: 'GET' });
   }
 
   static async put<T>(endpoint: string, data?: unknown): Promise<T> {
@@ -112,7 +132,7 @@ export class ApiClient {
   }
 
   static async delete<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: 'DELETE' )});
+    return this.request<T>(endpoint, { method: 'DELETE' });
   }
 }
 

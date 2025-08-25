@@ -25,7 +25,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     token: null,
     isAuthenticated: false,
     isLoading: true,
-  )});
+  });
   const [, setLocation] = useLocation();
   const [isTokenExpiring, setIsTokenExpiring] = useState(false);
 
@@ -84,17 +84,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setAuthState(prev => ({
           ...prev,
           isLoading: false,
-        )});
+        }));
       }
     } catch (error) {
-      logger.error('Erreur initialisation auth:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      console.error('Erreur initialisation auth:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       logout();
     }
   }, []);
 
   const login = useCallback(async (username: string, password: string): Promise<LoginResponse> => {
     try {
-      setAuthState(prev => ({ ...prev, isLoading: true )});
+      setAuthState(prev => ({ ...prev, isLoading: true }));
       
       const response = await ApiClient.post<{
         message: string;
@@ -122,12 +122,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         message: response.message,
       };
     } catch (error: unknown) {
-      logger.error('Erreur de connexion:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      console.error('Erreur de connexion:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       
       setAuthState(prev => ({
         ...prev,
         isLoading: false,
-      });
+      }));
       
       toast.error(error.message || 'Erreur de connexion');
       
