@@ -100,6 +100,8 @@ export interface DataTableProps<TData, TValue>
   rowActions?: (row: TData) => React.ReactNode
 }
 
+export { dataTableVariants };
+
 export function DataTable<TData, TValue>({
   columns,
   data,

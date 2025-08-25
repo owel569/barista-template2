@@ -2,9 +2,17 @@ import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import apiRoutes from './routes/index';
 import cors from 'cors';
 import helmet from 'helmet';
+import compression from 'compression';
+import apiRoutes from './routes/index';
+import { 
+  errorHandler, 
+  notFoundHandler, 
+  requestIdMiddleware, 
+  setupUncaughtExceptionHandlers,
+  createApiResponse 
+} from './middleware/error-handler-enhanced';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = parseInt(process.env.PORT || '5000', 10);
@@ -13,12 +21,28 @@ const HOST = process.env.HOST || '0.0.0.0';
 async function createServer() {
   const app = express();
 
-  // Middlewares de sécurité
+  // 0. Configuration de la gestion d'erreurs globale
+  setupUncaughtExceptionHandlers();
+
+  // 1. Middlewares de sécurité et utilitaires
+  app.use(requestIdMiddleware);
+  
   app.use(helmet({
-    contentSecurityPolicy: false // À configurer selon vos besoins
+    contentSecurityPolicy: false, // Désactivé pour le développement
+    crossOriginEmbedderPolicy: false,
   }));
-  app.use(cors());
-  app.use(express.json());
+  
+  app.use(compression());
+  
+  if (process.env.NODE_ENV !== 'production') {
+    app.use(cors({
+      origin: true,
+      credentials: true,
+    }));
+  }
+
+  app.use(express.json({ limit: '10mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
   // 1. Créer le serveur Vite en mode middleware
   const vite = await createViteServer({
@@ -41,24 +65,35 @@ async function createServer() {
 
   // Health check endpoint pour Replit
   app.get('/health', (req, res) => {
-    res.status(200).json({ 
-      status: 'OK', 
-      timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV || 'development'
-    });
+    const requestId = (req as any).requestId || 'unknown';
+    res.status(200).json(createApiResponse(
+      true,
+      {
+        status: 'OK',
+        environment: process.env.NODE_ENV || 'development',
+        uptime: process.uptime(),
+        memory: process.memoryUsage(),
+      },
+      undefined,
+      'Service en ligne',
+      requestId
+    ));
   });
 
   // 3. Vite middleware (après les routes API)
   app.use(vite.middlewares);
 
-  // 4. Gestion des routes SPA
-  app.use('*', async (req, res) => {
+  // 4. Middleware pour les erreurs 404 des routes API
+  app.use('/api/*', notFoundHandler);
+
+  // 5. Gestion des routes SPA
+  app.use('*', async (req, res, next) => {
     try {
       const url = req.originalUrl;
 
       // Ne pas interférer avec les routes API
       if (url.startsWith('/api')) {
-        return res.status(404).send('Not found');
+        return next();
       }
 
       // Servir l'application React principale via Vite
@@ -85,7 +120,10 @@ async function createServer() {
     }
   });
 
-  // 5. Démarrer le serveur avec gestion des ports occupés
+  // 6. Middleware de gestion d'erreurs (doit être en dernier)
+  app.use(errorHandler);
+
+  // 7. Démarrer le serveur avec gestion des ports occupés
   const server = app.listen(PORT, HOST, () => {
     console.log(`✅ Serveur démarré avec succès`);
     console.log(`🚀 Server running on http://${HOST}:${PORT}`);
