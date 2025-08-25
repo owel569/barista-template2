@@ -1,0 +1,62 @@
+ rest-express@1.0.0 dev
+✅ Base de données connectée avec succès
+✅ Base de données connectée avec succès
+🚀 Server running on http://0.0.0.0:3000
+⚡ API: http://0.0.0.0:3000/api
+✨ Vite: http://0.0.0.0:3000
+3:18:20 PM [vite] (client) Pre-transform error: Transform failed with 1 error:
+/home/runner/workspace/client/src/components/admin/customers.tsx:332:0: ERROR: Unexpected "export"
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/components/admin/customers.tsx:332:0
+  
+  Unexpected "export"
+  330|    }
+  331|  
+  332|  export default Customers;
+     |  ^
+  333|  
+  334|    return (
+  
+3:18:21 PM [vite] (client) Pre-transform error: Transform failed with 2 errors:
+/home/runner/workspace/client/src/hooks/usePermissions.ts:255:16: ERROR: Multiple exports with the same name "usePermissions"
+/home/runner/workspace/client/src/hooks/usePermissions.ts:255:16: ERROR: The symbol "usePermissions" has already been declared
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/hooks/usePermissions.ts:255:16
+  
+  Multiple exports with the same name "usePermissions"
+  253|  }
+  254|  
+  255|  export function usePermissions(): UserPermissions {
+     |                  ^
+  256|    const { user } = useAuth();
+  257|    
+  
+  The symbol "usePermissions" has already been declared
+  253|  }
+  254|  
+  255|  export function usePermissions(): UserPermissions {
+     |                  ^
+  256|    const { user } = useAuth();
+  257|    
+  
+3:18:21 PM [vite] (client) Pre-transform error: Transform failed with 2 errors:
+/home/runner/workspace/client/src/hooks/usePermissions.ts:255:16: ERROR: Multiple exports with the same name "usePermissions"
+/home/runner/workspace/client/src/hooks/usePermissions.ts:255:16: ERROR: The symbol "usePermissions" has already been declared
+  Plugin: vite:esbuild
+  File: /home/runner/workspace/client/src/hooks/usePermissions.ts:255:16
+  
+  Multiple exports with the same name "usePermissions"
+  253|  }
+  254|  
+  255|  export function usePermissions(): UserPermissions {
+     |                  ^
+  256|    const { user } = useAuth();
+  257|    
+  
+  The symbol "usePermissions" has already been declared
+  253|  }
+  254|  
+  255|  export function usePermissions(): UserPermissions {
+     |                  ^
+  256|    const { user } = useAuth();
+  257|    
