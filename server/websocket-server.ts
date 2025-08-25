@@ -24,7 +24,7 @@ interface NotificationData {
 
 // Configuration sécurisée du WebSocket
 export function setupWebSocket(server: Server): WebSocketServer {
-  const wss = new WebSocketServer({ 
+  const wss = new WebSocketServer({
     server,
     path: '/ws'
   });
@@ -38,7 +38,7 @@ export function setupWebSocket(server: Server): WebSocketServer {
       message: 'Connexion WebSocket établie',
       timestamp: new Date().toISOString()
     };
-    
+
     ws.send(JSON.stringify(welcomeMessage));
 
     // Gestionnaire des messages reçus
@@ -62,7 +62,7 @@ export function setupWebSocket(server: Server): WebSocketServer {
           data: message,
           timestamp: new Date().toISOString()
         };
-        
+
         ws.send(JSON.stringify(echoMessage));
       } catch (error) {
         console.error('❌ Erreur parsing message WebSocket:', error);

@@ -13,7 +13,7 @@ async function createServer() {
 
   // 1. Créer le serveur Vite en mode middleware
   const vite = await createViteServer({
-    server: { 
+    server: {
       middlewareMode: true,
       hmr: false,
       allowedHosts: true
@@ -32,7 +32,7 @@ async function createServer() {
 
   // 3. Routes API (avant Vite pour éviter l'interception)
   app.use('/api', apiRoutes);
-  
+
   // 4. Vite middleware (après les routes API)
   app.use(vite.middlewares);
 
