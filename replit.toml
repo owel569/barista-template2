@@ -1,0 +1,15 @@
+[build]
+main = "server/index.ts"
+
+[run]
+command = "tsx watch server/index.ts"
+
+[env]
+PORT = "5000"
+
+[deployment]
+run = ["sh", "-c", "npm run build && npm start"]
+
+[[ports]]
+localPort = 5000
+externalPort = 80

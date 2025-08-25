@@ -75,14 +75,14 @@ export default function LoginSimple() : JSX.Element {
     } catch (err: unknown) {
       console.error('Erreur de connexion détaillée:', err);
       
-      if (err.message.includes('base de données')) {
+      if ((err as any).message?.includes('base de données')) {
         setError('Erreur de base de données - Contactez l\'administrateur');
-      } else if (err.message.includes('Identifiants')) {
+      } else if ((err as any).message?.includes('Identifiants')) {
         setError('Nom d\'utilisateur ou mot de passe incorrect');
-      } else if (err.name === 'TypeError') {
+      } else if ((err as any).name === 'TypeError') {
         setError('Impossible de contacter le serveur');
       } else {
-        setError(err.message || 'Erreur de connexion inattendue');
+        setError((err as any).message || 'Erreur de connexion inattendue');
       }
     } finally {
       setIsLoading(false);
@@ -93,7 +93,7 @@ export default function LoginSimple() : JSX.Element {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
-    )});
+    });
   };
 
   return (
@@ -122,7 +122,7 @@ export default function LoginSimple() : JSX.Element {
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
               <Alert variant="destructive">
-                <AlertDescription>{error)}</AlertDescription>
+                <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
             

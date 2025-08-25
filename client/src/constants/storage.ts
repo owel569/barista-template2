@@ -25,7 +25,7 @@ export const storageUtils = {
       
       return parsed as T;
     } catch (error) {
-      console.error(`Erreur lecture localStorage pour ${key)}:`, error);
+      console.error(`Erreur lecture localStorage pour ${key}:`, error);
       // Nettoyer l'entrée corrompue
       localStorage.removeItem(STORAGE_KEYS[key]);
       return defaultValue;
@@ -35,10 +35,10 @@ export const storageUtils = {
   // Écriture sécurisée
   set<T>(key: StorageKey, value: T): boolean {
     try {
-      localStorage.setItem(STORAGE_KEYS[key,], JSON.stringify(value));
+      localStorage.setItem(STORAGE_KEYS[key], JSON.stringify(value));
       return true;
     } catch (error) {
-      console.error(`Erreur écriture localStorage pour ${key)}:`, error);
+      console.error(`Erreur écriture localStorage pour ${key}:`, error);
       return false;
     }
   },
@@ -51,7 +51,7 @@ export const storageUtils = {
   // Nettoyage complet
   clear(): void {
     Object.values(STORAGE_KEYS).forEach(key => {
-      localStorage.removeItem(key});
+      localStorage.removeItem(key);
     });
   },
 

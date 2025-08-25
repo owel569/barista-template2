@@ -89,7 +89,7 @@ export function getItemImageUrl(itemName: unknown, categorySlug: unknown = 'defa
     // 2. Recherche par mots-clés dans le nom
     const itemKeys = Object.keys(ITEM_IMAGES);
     for (const key of itemKeys) {
-      if (normalizedItem.includes(key) || key.includes(normalizedItem)) {
+      if (normalizedItem && (normalizedItem.includes(key) || key.includes(normalizedItem))) {
         return ITEM_IMAGES[key];
       }
     }
@@ -136,7 +136,7 @@ export function preloadCriticalImages(): void {
   ];
 
   criticalImages.forEach(url => {
-    const img = new Image(});
+    const img = new Image();
     img.src = url;
   });
 }
@@ -146,7 +146,7 @@ export function preloadCriticalImages(): void {
  */
 export async function validateImageUrl(url: string): Promise<boolean> {
   try {
-    const response = await fetch(url, { method: 'HEAD' )});
+    const response = await fetch(url, { method: 'HEAD' });
     return response.ok;
   } catch {
     return false;
@@ -156,7 +156,7 @@ export async function validateImageUrl(url: string): Promise<boolean> {
 /**
  * Statistiques du système d'images
  */
-export function getImageMappingStats() : void {
+export function getImageMappingStats() {
   return {
     totalImages: Object.keys(ITEM_IMAGES).length + Object.keys(CATEGORY_IMAGES).length,
     categoriesWithImages: Object.keys(CATEGORY_IMAGES),

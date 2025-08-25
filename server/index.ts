@@ -15,7 +15,8 @@ async function createServer() {
   const vite = await createViteServer({
     server: { 
       middlewareMode: true,
-      hmr: false
+      hmr: false,
+      allowedHosts: 'all'
     },
     root: path.resolve(__dirname, '../client'),
     appType: 'spa',
