@@ -190,7 +190,7 @@ function Customers({ userRole, user }: CustomersProps) {
       }));
 
       const csvContent = [
-        Object.keys(csvData[0]).join(';'),
+        csvData.length > 0 ? Object.keys(csvData[0]).join(';') : '',
         ...csvData.map(row => Object.values(row).join(';'))
       ].join('\n');
 

@@ -128,11 +128,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         isLoading: false,
       }));
 
-      toast.error(error.message || 'Erreur de connexion');
+      toast.error(error instanceof Error ? error.message : 'Erreur de connexion');
 
       return {
         success: false,
-        error: error.message || 'Erreur de connexion au serveur',
+        message: error instanceof Error ? error.message : 'Erreur de connexion au serveur',
       };
     }
   }, []);
