@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react'
-import { usePermissions } from '@/hooks/usePermissions';;
 import { useLocation } from 'wouter';
 import { AuthTokenManager, ApiClient, AuthState, AuthUser, LoginResponse } from '@/lib/auth-utils';
 import { toast } from 'sonner';
@@ -173,13 +172,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
         ...prev,
         token: response.token,
         user: response.user,
-      });
+      }));
       
       setIsTokenExpiring(false);
       
       return true;
     } catch (error) {
-      logger.error('Erreur refresh token:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      console.error('Erreur refresh token:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       logout();
       return false;
     }
@@ -199,14 +198,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setAuthState(prev => ({
           ...prev,
           user: response.user,
-        )});
+        }));
         return true;
       } else {
         logout();
         return false;
       }
     } catch (error) {
-      logger.error('Erreur validation session:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      console.error('Erreur validation session:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       logout();
       return false;
     }
@@ -251,11 +250,28 @@ export function useRequireAuth(redirectTo: string = '/login') {
   return { isAuthenticated, isLoading };
 }
 
-// Hook pour les permissions
-export function usePermissions() : JSX.Element {
+// Hook pour les permissions avec types précis
+export interface UserPermissions {
+  role: string | null;
+  isDirector: boolean;
+  isEmployee: boolean;
+  canCreate: boolean;
+  canEdit: boolean;
+  canDelete: boolean;
+  canManageEmployees: boolean;
+  canManageSettings: boolean;
+  canViewStatistics: boolean;
+  canManageInventory: boolean;
+  canManagePermissions: boolean;
+  canManageReports: boolean;
+  canManageBackups: boolean;
+  canAccessAdvancedFeatures: boolean;
+}
+
+export function usePermissions(): UserPermissions {
   const { user } = useAuth();
   
-  const permissions = {
+  const permissions: UserPermissions = {
     role: user?.role || null,
     isDirector: user?.role === 'directeur',
     isEmployee: user?.role === 'employe',
@@ -319,7 +335,7 @@ export function ProtectedRoute({ children, requiredRole, fallback }: ProtectedRo
 }
 
 // Composant d'indicateur de session
-export function SessionIndicator() : JSX.Element {
+export function SessionIndicator(): JSX.Element | null {
   const { isTokenExpiring, refreshToken } = useAuth();
   
   if (!isTokenExpiring) return null;

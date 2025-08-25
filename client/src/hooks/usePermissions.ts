@@ -232,3 +232,57 @@ export const usePermissions = (userParam?: User | null) => {
     refreshPermissions: fetchPermissions
   };
 };
+import { useAuth } from '@/components/auth/AuthProvider';
+
+export interface UserPermissions {
+  role: string | null;
+  isDirector: boolean;
+  isEmployee: boolean;
+  canCreate: boolean;
+  canEdit: boolean;
+  canDelete: boolean;
+  canManageEmployees: boolean;
+  canManageSettings: boolean;
+  canViewStatistics: boolean;
+  canManageInventory: boolean;
+  canManagePermissions: boolean;
+  canManageReports: boolean;
+  canManageBackups: boolean;
+  canAccessAdvancedFeatures: boolean;
+  hasPermission: (permission: string) => boolean;
+}
+
+export function usePermissions(): UserPermissions {
+  const { user } = useAuth();
+  
+  const permissions: UserPermissions = {
+    role: user?.role || null,
+    isDirector: user?.role === 'directeur',
+    isEmployee: user?.role === 'employe',
+    canCreate: user?.role === 'directeur' || user?.role === 'employe',
+    canEdit: user?.role === 'directeur' || user?.role === 'employe',
+    canDelete: user?.role === 'directeur',
+    canManageEmployees: user?.role === 'directeur',
+    canManageSettings: user?.role === 'directeur',
+    canViewStatistics: user?.role === 'directeur',
+    canManageInventory: user?.role === 'directeur',
+    canManagePermissions: user?.role === 'directeur',
+    canManageReports: user?.role === 'directeur',
+    canManageBackups: user?.role === 'directeur',
+    canAccessAdvancedFeatures: user?.role === 'directeur',
+    hasPermission: (permission: string): boolean => {
+      const permissionMap: Record<string, boolean> = {
+        'customers': user?.role === 'directeur',
+        'orders': user?.role === 'directeur' || user?.role === 'employe',
+        'menu': user?.role === 'directeur' || user?.role === 'employe',
+        'statistics': user?.role === 'directeur',
+        'inventory': user?.role === 'directeur',
+        'employees': user?.role === 'directeur',
+        'settings': user?.role === 'directeur',
+      };
+      return permissionMap[permission] || false;
+    }
+  };
+  
+  return permissions;
+}

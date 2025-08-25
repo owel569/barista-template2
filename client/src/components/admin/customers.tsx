@@ -63,7 +63,7 @@ export default function Customers({ userRole, user }: CustomersProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [currentCustomer, setCurrentCustomer] = useState<Customer | null>(null);
 
-  const { hasPermission } = usePermissions(user as any);
+  const { hasPermission } = usePermissions();
   const [newCustomer, setNewCustomer] = useState({
     firstName: '',
     lastName: '',
@@ -328,6 +328,8 @@ export default function Customers({ userRole, user }: CustomersProps) {
       </div>
     );
   }
+
+export default Customers;
 
   return (
     <div className="p-6 space-y-6">

@@ -24,7 +24,7 @@ import InventoryManagement from '@/components/admin/inventory-management';
 import WorkSchedule from '@/components/admin/work-schedule/WorkSchedule';
 import { PermissionsManagementImproved } from '@/components/admin/permissions-management-improved';
 import ComprehensiveReportsManager from '@/components/admin/ComprehensiveReportsManager';
-import UserProfileEnhanced from '@/components/admin/user-profile/UserProfileEnhanced';
+import UserProfileEnhanced from '@/components/admin/user-profile-enhanced-optimized';
 
 // Configuration React Query
 const queryClient = new QueryClient({

@@ -57,20 +57,21 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
     const employee = employees.find((e: any) => e.id === shift.employeeId);
     const employeeName = employee ? `${employee.firstName} ${employee.lastName}`.toLowerCase() : '';
     const searchLower = searchTerm.toLowerCase();
-    
+
     return (
       employeeName.includes(searchLower) ||
       shift.position.toLowerCase().includes(searchLower) ||
       shift.department.toLowerCase().includes(searchLower) ||
       shift.status.toLowerCase().includes(searchLower) ||
-      shift.date.includes(searchTerm);
+      shift.date.includes(searchTerm)
+    );
   });
 
   // Formatage des colonnes
   const formatColumnHeader = (field: keyof Shift, label: string) => {
     const isSorted = sorting.field === field;
     const isAsc = sorting.direction === 'asc';
-    
+
     return (
       <div className="flex items-center space-x-1 cursor-pointer">
         <span>{label}</span>
@@ -107,9 +108,9 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
       cancelled: { label: 'Annulé', variant: 'destructive' as const },
       no_show: { label: 'Absent', variant: 'destructive' as const },
     };
-    
+
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.scheduled;
-    
+
     return (
       <Badge 
         variant={config.variant}
@@ -141,7 +142,7 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
     const employee = getEmployeeInfo(shift.employeeId);
     const department = DEPARTMENTS.find((d: { id: string; name: string; color: string }) => d.id === shift.department);
     const position = POSITIONS.find((p: { id: string; name: string; color: string }) => p.id === shift.position);
-    
+
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -168,7 +169,7 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
                   <span>{employee.name}</span>
                 </div>
               </div>
-              
+
               <div>
                 <label className="text-sm font-medium">Date</label>
                 <div className="flex items-center space-x-2 mt-1">
@@ -176,7 +177,7 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
                   <span>{new Date(shift.date).toLocaleDateString('fr-FR')}</span>
                 </div>
               </div>
-              
+
               <div>
                 <label className="text-sm font-medium">Horaires</label>
                 <div className="flex items-center space-x-2 mt-1">
@@ -187,7 +188,7 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
                   </span>
                 </div>
               </div>
-              
+
               <div>
                 <label className="text-sm font-medium">Poste</label>
                 <div className="flex items-center space-x-2 mt-1">
@@ -195,7 +196,7 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
                   <span>{position?.name || shift.position}</span>
                 </div>
               </div>
-              
+
               <div>
                 <label className="text-sm font-medium">Département</label>
                 <div className="flex items-center space-x-2 mt-1">
@@ -206,21 +207,21 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
                   <span>{department?.name || shift.department}</span>
                 </div>
               </div>
-              
+
               <div>
                 <label className="text-sm font-medium">Statut</label>
                 <div className="mt-1">
                   {getStatusBadge(shift.status)}
                 </div>
               </div>
-              
+
               <div>
                 <label className="text-sm font-medium">Taux horaire</label>
                 <div className="mt-1">
                   {formatCurrency(shift.hourlyRate)}/h
                 </div>
               </div>
-              
+
               <div>
                 <label className="text-sm font-medium">Salaire total</label>
                 <div className="mt-1 font-medium">
@@ -228,7 +229,7 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
                 </div>
               </div>
             </div>
-            
+
             {shift.overtimeHours && shift.overtimeHours > 0 && (
               <div className="p-3 bg-yellow-50 dark:bg-yellow-950 rounded-lg">
                 <div className="flex items-center space-x-2">
@@ -239,7 +240,7 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
                 </div>
               </div>
             )}
-            
+
             {shift.notes && (
               <div>
                 <label className="text-sm font-medium">Notes</label>
@@ -248,7 +249,7 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
                 </div>
               </div>
             )}
-            
+
             <div className="flex justify-end space-x-2 pt-4">
               <Button 
                 variant="outline" 
@@ -294,7 +295,7 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
               </Button>
             </div>
           </div>
-          
+
           {/* Statistiques rapides */}
           <div className="flex items-center space-x-6 text-sm text-gray-600 dark:text-gray-300">
             <span>{listStats.total} shifts</span>
@@ -343,7 +344,7 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
                 const employee = getEmployeeInfo(shift.employeeId);
                 const department = DEPARTMENTS.find((d: { id: string; name: string; color: string }) => d.id === shift.department);
                 const position = POSITIONS.find((p: { id: string; name: string; color: string }) => p.id === shift.position);
-                
+
                 return (
                   <TableRow 
                     key={shift.id}
@@ -357,7 +358,7 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
                         month: 'short'
                       })}
                     </TableCell>
-                    
+
                     <TableCell>
                       <div className="flex items-center space-x-2">
                         <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
@@ -369,21 +370,21 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
                         </div>
                       </div>
                     </TableCell>
-                    
+
                     <TableCell>
                       <div className="flex items-center space-x-1">
                         <Clock className="h-4 w-4 text-gray-400" />
                         <span>{shift.startTime} - {shift.endTime}</span>
                       </div>
                     </TableCell>
-                    
+
                     <TableCell>
                       <div className="flex items-center space-x-1">
                         <MapPin className="h-4 w-4 text-gray-400" />
                         <span>{position?.name || shift.position}</span>
                       </div>
                     </TableCell>
-                    
+
                     <TableCell>
                       <div className="flex items-center space-x-2">
                         <div 
@@ -393,11 +394,11 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
                         <span>{department?.name || shift.department}</span>
                       </div>
                     </TableCell>
-                    
+
                     <TableCell>
                       {getStatusBadge(shift.status)}
                     </TableCell>
-                    
+
                     <TableCell>
                       <div className="flex items-center space-x-2">
                         <span>{formatDuration(shift.totalHours)}</span>
@@ -408,11 +409,11 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
                         )}
                       </div>
                     </TableCell>
-                    
+
                     <TableCell className="font-medium">
                       {formatCurrency(shift.totalPay)}
                     </TableCell>
-                    
+
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -444,7 +445,7 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
               })}
             </TableBody>
           </Table>
-          
+
           {filteredShifts.length === 0 && (
             <div className="text-center py-8 text-gray-500 dark:text-gray-400">
               Aucun shift trouvé
@@ -452,7 +453,7 @@ const ShiftListView: React.FC<ShiftListViewProps> = ({
           )}
         </CardContent>
       </Card>
-      
+
       {/* Modal de détails */}
       {selectedShift && (
         <ShiftDetailsModal shift={selectedShift} />

@@ -33,7 +33,7 @@ type CarouselContextPropsWithProps = CarouselContextProps & CarouselProps;
 
 const CarouselContext = React.createContext<CarouselContextPropsWithProps | null>(null)
 
-function useCarousel() : void {
+function useCarousel() : CarouselContextPropsWithProps {
   const context = React.useContext(CarouselContext)
 
   if (!context) {
@@ -63,7 +63,7 @@ const Carousel = React.forwardRef<
       {
         ...opts,
         axis: orientation === "horizontal" ? "x" : "y",
-      })},
+      },
       plugins
     )
     const [canScrollPrev, setCanScrollPrev] = React.useState(false)
