@@ -76,6 +76,62 @@ class ToastManager {
   ) {
     return sonnerToast.promise(promise, messages);
   }
+
+  confirm(
+    title: string,
+    description?: string,
+    onConfirm?: () => void,
+    onCancel?: () => void
+  ) {
+    return this.toast({
+      title,
+      description,
+      variant: 'warning',
+      action: {
+        label: 'Confirmer',
+        onClick: () => {
+          onConfirm?.();
+          this.dismiss();
+        }
+      }
+    });
+  }
+
+  loading(title: string, description?: string) {
+    return this.toast({
+      title,
+      description,
+      variant: 'info',
+      duration: 0 // Persistant jusqu'à dismiss
+    });
+  }
+
+  operation<T>(
+    operation: () => Promise<T>,
+    messages: {
+      loading: string;
+      success: string;
+      error: string;
+    }
+  ): Promise<T> {
+    const loadingToast = this.loading(messages.loading);
+    
+    return operation()
+      .then((result) => {
+        this.dismiss(loadingToast);
+        this.success(messages.success);
+        return result;
+      })
+      .catch((error) => {
+        this.dismiss(loadingToast);
+        this.error(messages.error, error.message);
+        throw error;
+      });
+  }
+
+  batch(toasts: ToastProps[]) {
+    return toasts.map(toast => this.toast(toast));
+  }
 }
 
 const toastManager = new ToastManager();
@@ -88,7 +144,11 @@ export const useToast = () => {
     warning: toastManager.warning.bind(toastManager),
     info: toastManager.info.bind(toastManager),
     dismiss: toastManager.dismiss.bind(toastManager),
-    promise: toastManager.promise.bind(toastManager)
+    promise: toastManager.promise.bind(toastManager),
+    confirm: toastManager.confirm.bind(toastManager),
+    loading: toastManager.loading.bind(toastManager),
+    operation: toastManager.operation.bind(toastManager),
+    batch: toastManager.batch.bind(toastManager)
   };
 };
 

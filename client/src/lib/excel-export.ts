@@ -269,4 +269,105 @@ export const exportInventory = async (inventory: any[]): Promise<void> => {
   });
 };
 
+export const exportEmployees = async (employees: any[]): Promise<void> => {
+  const exporter = new ExcelExporter();
+  
+  const formattedData = employees.map(employee => ({
+    'ID': employee.id,
+    'Nom': employee.lastName,
+    'Prénom': employee.firstName,
+    'Email': employee.email,
+    'Téléphone': employee.phone,
+    'Poste': employee.position,
+    'Salaire': employee.salary,
+    'Date d\'embauche': employee.hireDate,
+    'Statut': employee.status,
+    'Horaires': employee.workSchedule
+  }));
+
+  await exporter.exportData(formattedData, {
+    filename: `employees-${new Date().toISOString().split('T')[0]}.xlsx`,
+    sheetName: 'Employés',
+    title: 'Liste des Employés - Barista Café',
+    formatters: {
+      'Salaire': (value) => `${value}€`,
+      'Date d\'embauche': (value) => new Date(value).toLocaleDateString('fr-FR')
+    }
+  });
+};
+
+export const exportReservations = async (reservations: any[]): Promise<void> => {
+  const exporter = new ExcelExporter();
+  
+  const formattedData = reservations.map(reservation => ({
+    'ID': reservation.id,
+    'Client': reservation.customerName,
+    'Email': reservation.customerEmail,
+    'Téléphone': reservation.customerPhone,
+    'Date': reservation.date,
+    'Heure': reservation.time,
+    'Nombre de personnes': reservation.partySize,
+    'Table': reservation.tableNumber,
+    'Statut': reservation.status,
+    'Notes': reservation.notes
+  }));
+
+  await exporter.exportData(formattedData, {
+    filename: `reservations-${new Date().toISOString().split('T')[0]}.xlsx`,
+    sheetName: 'Réservations',
+    title: 'Réservations - Barista Café',
+    formatters: {
+      'Date': (value) => new Date(value).toLocaleDateString('fr-FR'),
+      'Heure': (value) => value
+    }
+  });
+};
+
+export const exportFinancialReport = async (financialData: any): Promise<void> => {
+  const exporter = new ExcelExporter();
+  
+  // Créer plusieurs feuilles
+  const workbook = new ExcelJS.Workbook();
+  
+  // Feuille 1: Résumé financier
+  const summarySheet = workbook.addWorksheet('Résumé Financier');
+  summarySheet.addRow(['Métriques Financières', 'Valeur']);
+  summarySheet.addRow(['Chiffre d\'affaires total', `${financialData.totalRevenue}€`]);
+  summarySheet.addRow(['Profit total', `${financialData.totalProfit}€`]);
+  summarySheet.addRow(['Marge bénéficiaire', `${financialData.profitMargin}%`]);
+  summarySheet.addRow(['Coûts totaux', `${financialData.totalCosts}€`]);
+  
+  // Feuille 2: Détail par période
+  if (financialData.periodData && financialData.periodData.length > 0) {
+    const periodSheet = workbook.addWorksheet('Détail Périodes');
+    const headers = ['Période', 'Revenus', 'Coûts', 'Profit', 'Marge'];
+    periodSheet.addRow(headers);
+    
+    financialData.periodData.forEach((period: any) => {
+      periodSheet.addRow([
+        period.period,
+        `${period.revenue}€`,
+        `${period.costs}€`,
+        `${period.profit}€`,
+        `${period.margin}%`
+      ]);
+    });
+  }
+  
+  // Télécharger le fichier
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  });
+  
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `rapport-financier-${new Date().toISOString().split('T')[0]}.xlsx`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
+};
+
 export default ExcelExporter;

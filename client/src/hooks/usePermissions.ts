@@ -218,6 +218,44 @@ export const usePermissions = () => {
     return userRole === 'directeur' || userRole === 'admin' || userRole === 'manager';
   };
 
+  const getPermissionLevel = (module: ModuleName): 'none' | 'read' | 'write' | 'manage' => {
+    if (!isAuthenticated || !userRole) return 'none';
+    
+    if (userRole === 'directeur') return 'manage';
+    
+    const permissions = getCurrentPermissions();
+    const modulePermission = permissions.find(p => p.module === module);
+    
+    if (!modulePermission) return 'none';
+    
+    if (modulePermission.actions.includes('manage')) return 'manage';
+    if (modulePermission.actions.includes('create') || modulePermission.actions.includes('update')) return 'write';
+    if (modulePermission.actions.includes('read') || modulePermission.actions.includes('view')) return 'read';
+    
+    return 'none';
+  };
+
+  const canAccessFeature = (feature: string): boolean => {
+    const featureModuleMap: Record<string, ModuleName> = {
+      'export': 'reports',
+      'advanced-analytics': 'analytics',
+      'user-management': 'employees',
+      'system-settings': 'settings',
+      'backup': 'backup',
+      'maintenance': 'maintenance'
+    };
+    
+    const module = featureModuleMap[feature];
+    return module ? canView(module) : false;
+  };
+
+  const getUserAccessLevel = (): 'basic' | 'advanced' | 'admin' | 'super' => {
+    if (userRole === 'directeur') return 'super';
+    if (userRole === 'admin') return 'admin';
+    if (userRole === 'manager') return 'advanced';
+    return 'basic';
+  };
+
   return {
     permissions: getCurrentPermissions(),
     userRole,
@@ -232,6 +270,9 @@ export const usePermissions = () => {
     getAvailableModules,
     isAdmin,
     isManager,
+    getPermissionLevel,
+    canAccessFeature,
+    getUserAccessLevel,
     refreshPermissions: fetchPermissions
   };
 };

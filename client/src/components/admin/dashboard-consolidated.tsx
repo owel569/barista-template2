@@ -299,6 +299,50 @@ export default function DashboardConsolidated(): JSX.Element {
     }
   };
 
+  const handleExportDashboard = async () => {
+    try {
+      const dashboardData = {
+        stats,
+        salesData,
+        popularItems,
+        reservationStatus,
+        generatedAt: new Date().toISOString()
+      };
+      
+      await toast.operation(
+        () => exportStatistics([dashboardData]),
+        {
+          loading: 'Export du dashboard en cours...',
+          success: 'Dashboard exporté avec succès',
+          error: 'Erreur lors de l\'export'
+        }
+      );
+    } catch (error) {
+      console.error('Erreur export dashboard:', error);
+    }
+  };
+
+  const handleQuickAction = (actionId: string, actionTitle: string) => {
+    // Simulation de navigation
+    const routes: Record<string, string> = {
+      orders: '/admin/orders',
+      menu: '/admin/menu',
+      inventory: '/admin/inventory',
+      analytics: '/admin/analytics',
+      customers: '/admin/customers',
+      reservations: '/admin/reservations',
+      reports: '/admin/reports',
+      settings: '/admin/settings'
+    };
+
+    const route = routes[actionId];
+    if (route) {
+      toast.info(`Navigation vers ${actionTitle}`, `Redirection vers ${route}`);
+      // Ici vous pouvez ajouter la vraie navigation avec votre router
+      // navigate(route);
+    }
+  };
+
   if (statsLoading) {
     return <DashboardSkeleton />;
   }
@@ -324,6 +368,12 @@ export default function DashboardConsolidated(): JSX.Element {
             <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
             {refreshing ? 'Actualisation...' : 'Actualiser'}
           </Button>
+          {canManage('reports') && (
+            <Button onClick={handleExportDashboard}>
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Exporter Dashboard
+            </Button>
+          )}
         </div>
       </div>
 
@@ -429,10 +479,7 @@ export default function DashboardConsolidated(): JSX.Element {
                 key={action.id}
                 variant="outline"
                 className="h-auto p-4 flex flex-col items-center space-y-2 hover:bg-gray-50 dark:hover:bg-gray-800"
-                onClick={() => {
-                  // Navigation ou action personnalisée
-                  toast.info(`Navigation vers ${action.title}`, action.description);
-                }}
+                onClick={() => handleQuickAction(action.id, action.title)}
               >
                 <div className={`p-2 rounded-full ${action.color} text-white`}>
                   {action.icon}

@@ -190,10 +190,52 @@ export default function StatisticsEnhanced(): JSX.Element {
         'Croissance': `${stat.growth}%`
       }));
 
-      await exportStatistics(exportData);
-      toast.success('Export réussi', 'Les statistiques ont été exportées');
+      await toast.operation(
+        () => exportStatistics(exportData),
+        {
+          loading: 'Export des statistiques en cours...',
+          success: 'Statistiques exportées avec succès',
+          error: 'Impossible d\'exporter les statistiques'
+        }
+      );
     } catch (error) {
-      toast.error('Erreur d\'export', 'Impossible d\'exporter les statistiques');
+      console.error('Erreur export:', error);
+    }
+  };
+
+  const handleCompareWithPrevious = () => {
+    // Simulation de comparaison avec la période précédente
+    const comparisonData = statisticsData.map(stat => ({
+      ...stat,
+      previousRevenue: stat.revenue * 0.9, // Simulation
+      revenueChange: ((stat.revenue - stat.revenue * 0.9) / (stat.revenue * 0.9)) * 100
+    }));
+    
+    toast.info('Comparaison activée', 'Données comparées avec la période précédente');
+    // Ici vous pouvez mettre à jour l'état pour afficher la comparaison
+  };
+
+  const handleGenerateReport = async () => {
+    try {
+      const reportData = {
+        statistics: statisticsData,
+        categories: categoryData,
+        products: productPerformance,
+        customers: customerAnalytics,
+        period: dateRange,
+        generatedAt: new Date().toISOString()
+      };
+
+      await toast.operation(
+        () => exportFinancialReport(reportData),
+        {
+          loading: 'Génération du rapport complet...',
+          success: 'Rapport généré avec succès',
+          error: 'Erreur lors de la génération du rapport'
+        }
+      );
+    } catch (error) {
+      console.error('Erreur génération rapport:', error);
     }
   };
 
@@ -267,10 +309,20 @@ export default function StatisticsEnhanced(): JSX.Element {
           </Button>
 
           {canManage('analytics') && (
-            <Button onClick={handleExport}>
-              <Download className="h-4 w-4 mr-2" />
-              Exporter
-            </Button>
+            <>
+              <Button variant="outline" onClick={handleCompareWithPrevious}>
+                <Filter className="h-4 w-4 mr-2" />
+                Comparer
+              </Button>
+              <Button variant="outline" onClick={handleGenerateReport}>
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Rapport Complet
+              </Button>
+              <Button onClick={handleExport}>
+                <Download className="h-4 w-4 mr-2" />
+                Exporter
+              </Button>
+            </>
           )}
         </div>
       </div>
