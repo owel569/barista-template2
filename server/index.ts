@@ -3,46 +3,62 @@ import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import apiRoutes from './routes/index';
+import cors from 'cors';
+import helmet from 'helmet';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = parseInt(process.env.PORT || '5000', 10);
-const HOST = '0.0.0.0';
+const HOST = process.env.HOST || '0.0.0.0';
 
 async function createServer() {
   const app = express();
+
+  // Middlewares de sécurité
+  app.use(helmet({
+    contentSecurityPolicy: false // À configurer selon vos besoins
+  }));
+  app.use(cors());
+  app.use(express.json());
 
   // 1. Créer le serveur Vite en mode middleware
   const vite = await createViteServer({
     server: {
       middlewareMode: true,
-      hmr: false,
+      hmr: process.env.NODE_ENV !== 'production',
       allowedHosts: true
     },
     root: path.resolve(__dirname, '../client'),
     appType: 'spa',
-    logLevel: 'warn',
+    logLevel: 'info',
     clearScreen: false,
     optimizeDeps: {
       include: ['react', 'react-dom']
     }
   });
 
-  // 2. Middlewares
-  app.use(express.json());
-
-  // 3. Routes API (avant Vite pour éviter l'interception)
+  // 2. Routes API (avant Vite pour éviter l'interception)
   app.use('/api', apiRoutes);
 
-  // 4. Vite middleware (après les routes API)
+  // Health check endpoint pour Replit
+  app.get('/health', (req, res) => {
+    res.status(200).json({ 
+      status: 'OK', 
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development'
+    });
+  });
+
+  // 3. Vite middleware (après les routes API)
   app.use(vite.middlewares);
 
-  // 5. Gestion des routes SPA
+  // 4. Gestion des routes SPA
   app.use('*', async (req, res) => {
     try {
       const url = req.originalUrl;
+
+      // Ne pas interférer avec les routes API
       if (url.startsWith('/api')) {
-        res.status(404).send('Not found');
-        return;
+        return res.status(404).send('Not found');
       }
 
       // Servir l'application React principale via Vite
@@ -64,18 +80,34 @@ async function createServer() {
       res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
     } catch (e) {
       vite.ssrFixStacktrace(e as Error);
-      console.error(e);
+      console.error('Error serving SPA:', e);
       res.status(500).end((e as Error).message);
     }
   });
 
-  // 5. Démarrer le serveur
-  return app.listen(PORT, HOST, () => {
-    console.log(`✅ Base de données connectée avec succès`);
+  // 5. Démarrer le serveur avec gestion des ports occupés
+  const server = app.listen(PORT, HOST, () => {
+    console.log(`✅ Serveur démarré avec succès`);
     console.log(`🚀 Server running on http://${HOST}:${PORT}`);
     console.log(`⚡ API: http://${HOST}:${PORT}/api`);
     console.log(`✨ Vite: http://${HOST}:${PORT}`);
+    console.log(`❤️ Health: http://${HOST}:${PORT}/health`);
   });
+
+  server.on('error', (err: NodeJS.ErrnoException) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`❌ Port ${PORT} is already in use. Trying alternative port...`);
+      const altPort = PORT + 1;
+      server.listen(altPort, HOST, () => {
+        console.log(`🚀 Server running on alternative port http://${HOST}:${altPort}`);
+      });
+    } else {
+      console.error('❌ Server error:', err);
+      process.exit(1);
+    }
+  });
+
+  return server;
 }
 
 createServer().catch(err => {
