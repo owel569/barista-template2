@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 // Types pour une meilleure type safety
 export type PermissionAction = 'view' | 'create' | 'edit' | 'delete' | 'respond' | 'use' | 'all' | 'read' | 'write';
@@ -19,20 +19,20 @@ export interface PermissionsMap {
   [key: string]: PermissionAction[];
 }
 
-// Interface pour l'utilisateur
-interface User {
+// Interface pour l'utilisateur avec la logique métier
+interface BasicUser {
   id: number;
   role: UserRole;
   [key: string]: unknown;
 }
 
-// Permissions par défaut optimisées
+// Permissions par défaut selon la logique métier du café
 const DEFAULT_PERMISSIONS: Record<UserRole, PermissionsMap> = {
   directeur: {
     dashboard: ['all'],
     reservations: ['all'],
     orders: ['all'],
-    customers: ['all'],
+    customers: ['all'], // Directeur a accès complet aux clients
     menu: ['all'],
     messages: ['all'],
     employees: ['all'],
@@ -44,7 +44,7 @@ const DEFAULT_PERMISSIONS: Record<UserRole, PermissionsMap> = {
     dashboard: ['view'],
     reservations: ['view', 'create', 'edit'],
     orders: ['view', 'create'],
-    customers: ['view'],
+    customers: ['view'], // Employé peut seulement voir les clients
     menu: ['view'],
     messages: ['view', 'respond'],
     employees: ['view'],
@@ -80,9 +80,10 @@ interface PermissionsCache {
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 const permissionsCache: PermissionsCache = {};
 
-export const usePermissions = (userParam?: User | null) => {
+// Hook principal avec logique métier complète
+export const usePermissions = (userParam?: BasicUser | null) => {
   const { user: contextUser, token } = useAuth();
-  const user = (userParam || contextUser) as User | null;
+  const user = (userParam || contextUser) as BasicUser | null;
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -142,14 +143,19 @@ export const usePermissions = (userParam?: User | null) => {
     fetchPermissions();
   }, [fetchPermissions]);
 
-  // Méthodes de vérification des permissions
+  // Logique métier pour les permissions
   const hasPermission = useCallback((permission: string): boolean => {
     if (!user) return false;
     if (ALL_ACCESS_ROLES.includes(user.role as UserRole)) return true;
 
+    // Logique spécifique pour les customers selon le rôle
+    if (permission === 'customers') {
+      return user.role === 'directeur' || user.role === 'admin';
+    }
+
     return permissions.some(p => 
       p.resource === permission && 
-      (p.action === 'all' || p.action === 'read')
+      (p.action === 'all' || p.action === 'read' || p.action === 'view')
     );
   }, [user, permissions]);
 
@@ -157,9 +163,14 @@ export const usePermissions = (userParam?: User | null) => {
     if (!user) return false;
     if (ALL_ACCESS_ROLES.includes(user.role as UserRole)) return true;
 
+    // Logique métier pour l'écriture sur les customers
+    if (resource === 'customers') {
+      return user.role === 'directeur' || user.role === 'admin';
+    }
+
     return permissions.some(p => 
       p.resource === resource && 
-      (p.action === 'all' || p.action === 'write')
+      (p.action === 'all' || p.action === 'write' || p.action === 'create' || p.action === 'edit')
     );
   }, [user, permissions]);
 
@@ -186,6 +197,23 @@ export const usePermissions = (userParam?: User | null) => {
     if (!user) return false;
     if (ALL_ACCESS_ROLES.includes(user.role as UserRole)) return true;
 
+    // Logique métier spécifique pour les customers
+    if (module === 'customers') {
+      switch (action) {
+        case 'view':
+        case 'read':
+          return true; // Tous peuvent voir les clients
+        case 'create':
+        case 'edit':
+        case 'delete':
+        case 'write':
+        case 'all':
+          return user.role === 'directeur' || user.role === 'admin';
+        default:
+          return false;
+      }
+    }
+
     return permissions.some(p => 
       p.resource === module && 
       (p.action === 'all' || p.action === action)
@@ -203,7 +231,7 @@ export const usePermissions = (userParam?: User | null) => {
   const permissionsSummary = useMemo(() => {
     return {
       total: permissions.length,
-      readOnly: permissions.filter(p => p.action === 'view').length,
+      readOnly: permissions.filter(p => p.action === 'view' || p.action === 'read').length,
       writeAccess: permissions.filter(p => p.action === 'write' || p.action === 'all').length,
       fullAccess: permissions.filter(p => p.action === 'all').length
     };
@@ -232,8 +260,8 @@ export const usePermissions = (userParam?: User | null) => {
     refreshPermissions: fetchPermissions
   };
 };
-import { useAuth } from '@/components/auth/AuthProvider';
 
+// Interface simplifiée pour la compatibilité avec AuthProvider
 export interface UserPermissions {
   role: string | null;
   isDirector: boolean;
@@ -252,7 +280,8 @@ export interface UserPermissions {
   hasPermission: (permission: string) => boolean;
 }
 
-export function usePermissions(): UserPermissions {
+// Hook simplifié pour la compatibilité (utilisé dans AuthProvider)
+export function useUserPermissions(): UserPermissions {
   const { user } = useAuth();
   
   const permissions: UserPermissions = {
@@ -272,7 +301,7 @@ export function usePermissions(): UserPermissions {
     canAccessAdvancedFeatures: user?.role === 'directeur',
     hasPermission: (permission: string): boolean => {
       const permissionMap: Record<string, boolean> = {
-        'customers': user?.role === 'directeur',
+        'customers': user?.role === 'directeur', // Logique métier correcte
         'orders': user?.role === 'directeur' || user?.role === 'employe',
         'menu': user?.role === 'directeur' || user?.role === 'employe',
         'statistics': user?.role === 'directeur',
