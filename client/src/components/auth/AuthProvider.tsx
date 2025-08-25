@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react'
-import { usePermissions } from '@/hooks/usePermissions';;
+import { usePermissions } from '@/hooks/usePermissions';
 import { useLocation } from 'wouter';
 import { AuthTokenManager, ApiClient, AuthState, AuthUser, LoginResponse } from '@/lib/auth-utils';
 import { toast } from 'sonner';
+import { logger } from '@/lib/logger';
 
 interface AuthContextType extends AuthState {
   login: (username: string, password: string) => Promise<LoginResponse>;
@@ -25,7 +26,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     token: null,
     isAuthenticated: false,
     isLoading: true,
-  )});
+  });
   const [, setLocation] = useLocation();
   const [isTokenExpiring, setIsTokenExpiring] = useState(false);
 
@@ -84,7 +85,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setAuthState(prev => ({
           ...prev,
           isLoading: false,
-        )});
+        }));
       }
     } catch (error) {
       logger.error('Erreur initialisation auth:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
@@ -94,7 +95,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const login = useCallback(async (username: string, password: string): Promise<LoginResponse> => {
     try {
-      setAuthState(prev => ({ ...prev, isLoading: true )});
+      setAuthState(prev => ({ ...prev, isLoading: true }));
       
       const response = await ApiClient.post<{
         message: string;
@@ -122,14 +123,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         message: response.message,
       };
     } catch (error: unknown) {
-      logger.error('Erreur de connexion:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      logger.error('Erreur de connexion:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       
       setAuthState(prev => ({
         ...prev,
         isLoading: false,
-      });
+      }));
       
-      toast.error(error.message || 'Erreur de connexion');
+      toast.error(error instanceof Error ? error.message : 'Erreur de connexion');
       
       return {
         success: false,
