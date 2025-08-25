@@ -1,44 +1,26 @@
 
-/**
- * Hook optimisé pour les notifications toast utilisant sonner
- * Compatible avec tous les variants et entièrement typé
- */
 import { toast as sonnerToast } from 'sonner';
 
-export type ToastVariant = "default" | "destructive" | "success" | "warning" | "error";
-
 export interface ToastProps {
-  id?: string;
   title?: string;
   description?: string;
+  variant?: 'default' | 'destructive' | 'success' | 'warning' | 'info';
+  duration?: number;
   action?: {
     label: string;
     onClick: () => void;
   };
-  variant?: ToastVariant;
-  duration?: number;
 }
 
-export interface UseToastReturn {
-  toast: (props: Omit<ToastProps, 'id'> | string) => void;
-  success: (message: string) => void;
-  error: (message: string) => void;
-  warning: (message: string) => void;
-  info: (message: string) => void;
-  dismiss: (toastId?: string) => void;
-}
+class ToastManager {
+  private defaultDuration = 4000;
 
-export const useToast = (): UseToastReturn => {
-  const toast = (props: Omit<ToastProps, 'id'> | string) => {
-    if (typeof props === 'string') {
-      sonnerToast(props);
-      return;
-    }
-
-    const { title, description, variant = 'default', duration, action } = props;
-    const message = title && description ? `${title}: ${description}` : title || description || '';
-
-    const toastOptions = {
+  toast(props: ToastProps) {
+    const { title, description, variant = 'default', duration = this.defaultDuration, action } = props;
+    
+    const message = title || description || '';
+    const options = {
+      description: title && description ? description : undefined,
       duration,
       action: action ? {
         label: action.label,
@@ -48,37 +30,66 @@ export const useToast = (): UseToastReturn => {
 
     switch (variant) {
       case 'success':
-        sonnerToast.success(message, toastOptions);
-        break;
-      case 'error':
+        return sonnerToast.success(message, options);
       case 'destructive':
-        sonnerToast.error(message, toastOptions);
-        break;
+        return sonnerToast.error(message, options);
       case 'warning':
-        sonnerToast.warning(message, toastOptions);
-        break;
+        return sonnerToast.warning(message, options);
       case 'info':
-        sonnerToast.info(message, toastOptions);
-        break;
+        return sonnerToast.info(message, options);
       default:
-        sonnerToast(message, toastOptions);
+        return sonnerToast(message, options);
     }
-  };
+  }
 
-  const success = (message: string) => toast({ title: message, variant: 'success' });
-  const error = (message: string) => toast({ title: message, variant: 'error' });
-  const warning = (message: string) => toast({ title: message, variant: 'warning' });
-  const info = (message: string) => toast({ title: message, variant: 'info' });
-  const dismiss = (toastId?: string) => sonnerToast.dismiss(toastId);
+  success(title: string, description?: string, duration?: number) {
+    return this.toast({ title, description, variant: 'success', duration });
+  }
 
+  error(title: string, description?: string, duration?: number) {
+    return this.toast({ title, description, variant: 'destructive', duration });
+  }
+
+  warning(title: string, description?: string, duration?: number) {
+    return this.toast({ title, description, variant: 'warning', duration });
+  }
+
+  info(title: string, description?: string, duration?: number) {
+    return this.toast({ title, description, variant: 'info', duration });
+  }
+
+  dismiss(toastId?: string | number) {
+    if (toastId) {
+      sonnerToast.dismiss(toastId);
+    } else {
+      sonnerToast.dismiss();
+    }
+  }
+
+  promise<T>(
+    promise: Promise<T>,
+    messages: {
+      loading: string;
+      success: string | ((data: T) => string);
+      error: string | ((error: any) => string);
+    }
+  ) {
+    return sonnerToast.promise(promise, messages);
+  }
+}
+
+const toastManager = new ToastManager();
+
+export const useToast = () => {
   return {
-    toast,
-    success,
-    error,
-    warning,
-    info,
-    dismiss
+    toast: toastManager.toast.bind(toastManager),
+    success: toastManager.success.bind(toastManager),
+    error: toastManager.error.bind(toastManager),
+    warning: toastManager.warning.bind(toastManager),
+    info: toastManager.info.bind(toastManager),
+    dismiss: toastManager.dismiss.bind(toastManager),
+    promise: toastManager.promise.bind(toastManager)
   };
 };
 
-export default useToast;
+export { toastManager as toast };
