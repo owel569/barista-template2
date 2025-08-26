@@ -135,3 +135,42 @@ export function usePermissionsEmitter() {
     canEmit: isAdmin
   };
 }
+import { useEffect, useCallback } from 'react';
+import { useAuth } from '@/components/auth/AuthProvider';
+import { usePermissions } from './usePermissions';
+
+export function usePermissionsSync() {
+  const { user } = useAuth();
+  const permissions = usePermissions();
+
+  const syncPermissions = useCallback(async () => {
+    if (!user) return;
+    
+    try {
+      const response = await fetch('/api/auth/permissions', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      
+      if (response.ok) {
+        const serverPermissions = await response.json();
+        // Synchroniser avec les permissions du serveur si nécessaire
+        console.log('Permissions synchronized:', serverPermissions);
+      }
+    } catch (error) {
+      console.error('Failed to sync permissions:', error);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      syncPermissions();
+    }
+  }, [user, syncPermissions]);
+
+  return {
+    syncPermissions,
+    permissions,
+  };
+}

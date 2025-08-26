@@ -1,11 +1,12 @@
+
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { ChevronRight, MoreHorizontal } from "lucide-react"
-
-import { cn } from "@/lib/utils"
 import { cva, type VariantProps } from "class-variance-authority"
 
-export const breadcrumbVariants = cva(
+import { cn } from "@/lib/utils"
+
+const breadcrumbVariants = cva(
   "flex items-center space-x-1 text-sm text-muted-foreground",
   {
     variants: {
@@ -118,7 +119,7 @@ const BreadcrumbEllipsis = ({
     <span className="sr-only">More</span>
   </span>
 )
-BreadcrumbEllipsis.displayName = "BreadcrumbElipssis"
+BreadcrumbEllipsis.displayName = "BreadcrumbEllipsis"
 
 export {
   Breadcrumb,
@@ -128,5 +129,5 @@ export {
   BreadcrumbPage,
   BreadcrumbSeparator,
   BreadcrumbEllipsis,
-  breadcrumbVariants
-};
+  breadcrumbVariants,
+}

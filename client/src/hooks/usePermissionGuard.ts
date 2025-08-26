@@ -103,3 +103,46 @@ export function useMultiplePermissions(permissions: Array<{ module: ModuleName; 
     hasAnyPermission: results.some(p => p.hasAccess)
   };
 }
+import { useEffect } from 'react';
+import { usePermissions } from './usePermissions';
+import { useAuth } from '@/components/auth/AuthProvider';
+
+export interface PermissionGuardOptions {
+  resource: string;
+  action: 'create' | 'read' | 'update' | 'delete';
+  redirectTo?: string;
+  onUnauthorized?: () => void;
+}
+
+export function usePermissionGuard(options: PermissionGuardOptions) {
+  const { user } = useAuth();
+  const { hasPermission } = usePermissions();
+  
+  const isAuthorized = hasPermission(options.resource, options.action);
+
+  useEffect(() => {
+    if (!user) {
+      if (options.redirectTo) {
+        window.location.href = options.redirectTo;
+      } else if (options.onUnauthorized) {
+        options.onUnauthorized();
+      }
+      return;
+    }
+
+    if (!isAuthorized) {
+      if (options.onUnauthorized) {
+        options.onUnauthorized();
+      } else if (options.redirectTo) {
+        window.location.href = options.redirectTo;
+      } else {
+        console.warn(`Permission denied: ${options.action} on ${options.resource}`);
+      }
+    }
+  }, [user, isAuthorized, options]);
+
+  return {
+    isAuthorized,
+    isAuthenticated: !!user,
+  };
+}
