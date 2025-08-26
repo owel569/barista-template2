@@ -6,7 +6,7 @@ import path from 'path';
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 3000,
+    port: 3002,
     host: '0.0.0.0',
     allowedHosts: 'all',
     hmr: false  // Désactiver complètement HMR sur Replit
@@ -30,7 +30,7 @@ export default defineConfig({
     }
   },
   preview: {
-    port: 3000,
+    port: 3002,
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'lucide-react', '@radix-ui/react-dialog']

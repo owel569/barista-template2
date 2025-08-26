@@ -5,12 +5,12 @@ import path from 'path';
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 3000,
+    port: 5000,
     host: '0.0.0.0',
     allowedHosts: 'all',
     hmr: {
-      clientPort: 443, // Configuration spéciale Replit
-      protocol: 'wss' // WebSocket Secure
+      clientPort: 443,
+      protocol: 'wss'
     }
   },
   build: {

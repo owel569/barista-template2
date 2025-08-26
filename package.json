@@ -4,8 +4,8 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "PORT=3000 tsx watch server/index.ts",
-    "dev:server": "PORT=3000 tsx watch server/index.ts",
+    "dev": "PORT=5000 tsx watch server/index.ts",
+    "dev:server": "PORT=5000 tsx watch server/index.ts",
     "dev:client": "vite --port 3002 --host 0.0.0.0",
     "build": "npm run build:server && npm run build:client",
     "build:server": "tsc -p tsconfig.server.json",
