@@ -1,148 +1,146 @@
 
-import { useMemo } from 'react';
-import { usePermissions } from './usePermissions';
+import { useMemo, useCallback } from 'react';
+import { usePermissions, type ModuleName, type PermissionAction } from './usePermissions';
 import { useAuth } from './useAuth';
-import type { ModuleName, PermissionAction } from './usePermissions';
 
 export interface PermissionGuardOptions {
   module: ModuleName;
   action: PermissionAction;
   fallback?: boolean;
   redirectTo?: string;
+  showError?: boolean;
 }
 
 export interface PermissionGuardResult {
-  hasAccess: boolean;
-  isLoading: boolean;
-  isForbidden: boolean;
-  user: any;
+  allowed: boolean;
+  loading: boolean;
   error: string | null;
+  userRole: string | null;
+  canAccess: boolean;
+  reason?: string;
 }
 
-export function usePermissionGuard(
-  module: ModuleName,
-  action: PermissionAction,
-  options?: Partial<PermissionGuardOptions>
-): PermissionGuardResult {
-  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
-  const { hasPermission, loading: permissionsLoading, error } = usePermissions();
+export interface AccessControlOptions {
+  requireAll?: boolean;
+  fallbackToRead?: boolean;
+}
 
-  const result = useMemo(() => {
-    const isLoading = authLoading || permissionsLoading;
+export const usePermissionGuard = (options: PermissionGuardOptions): PermissionGuardResult => {
+  const { user, isAuthenticated } = useAuth();
+  const { hasPermission, loading, error, userRole } = usePermissions();
+
+  const result = useMemo((): PermissionGuardResult => {
+    // Si pas authentifié
+    if (!isAuthenticated) {
+      return {
+        allowed: false,
+        loading: false,
+        error: null,
+        userRole: null,
+        canAccess: false,
+        reason: 'Utilisateur non authentifié'
+      };
+    }
+
+    // Si en cours de chargement
+    if (loading) {
+      return {
+        allowed: options.fallback ?? false,
+        loading: true,
+        error: null,
+        userRole,
+        canAccess: false,
+        reason: 'Chargement des permissions'
+      };
+    }
+
+    // Vérification de la permission
+    const allowed = hasPermission(options.module, options.action);
     
-    if (isLoading) {
-      return {
-        hasAccess: false,
-        isLoading: true,
-        isForbidden: false,
-        user,
-        error: null
-      };
-    }
-
-    if (!isAuthenticated || !user) {
-      return {
-        hasAccess: false,
-        isLoading: false,
-        isForbidden: true,
-        user: null,
-        error: 'Utilisateur non authentifié'
-      };
-    }
-
-    const hasAccess = hasPermission(module, action);
-
     return {
-      hasAccess,
-      isLoading: false,
-      isForbidden: !hasAccess,
-      user,
-      error: hasAccess ? null : 'Accès non autorisé'
+      allowed,
+      loading: false,
+      error,
+      userRole,
+      canAccess: allowed,
+      reason: allowed ? 'Accès autorisé' : `Permission manquante: ${options.action} sur ${options.module}`
     };
-  }, [isAuthenticated, user, authLoading, permissionsLoading, hasPermission, module, action, error]);
+  }, [isAuthenticated, loading, hasPermission, options, error, userRole]);
 
   return result;
-}
+};
 
-// Hook utilitaire pour les composants de garde
-export function useAccessControl(module: ModuleName, action: PermissionAction) {
-  const guard = usePermissionGuard(module, action);
-  
-  return {
-    ...guard,
-    canAccess: guard.hasAccess,
-    AccessDeniedComponent: guard.isForbidden ? 
-      () => null : 
-      null
-  };
-}
+export const useAccessControl = () => {
+  const { 
+    hasPermission, 
+    canView, 
+    canCreate, 
+    canEdit, 
+    canDelete, 
+    canManage,
+    isAdmin,
+    isManager,
+    userRole 
+  } = usePermissions();
 
-// Hook pour vérifier plusieurs permissions
-export function useMultiplePermissions(permissions: Array<{ module: ModuleName; action: PermissionAction }>) {
-  const { hasPermission, loading, error } = usePermissions();
-  const { isAuthenticated } = useAuth();
+  const checkAccess = useCallback((
+    module: ModuleName, 
+    actions: PermissionAction[], 
+    options: AccessControlOptions = {}
+  ): boolean => {
+    if (!actions.length) return false;
 
-  const results = useMemo(() => {
-    if (!isAuthenticated || loading) {
-      return permissions.map(() => ({ hasAccess: false, isLoading: loading }));
+    const { requireAll = false, fallbackToRead = true } = options;
+
+    if (requireAll) {
+      return actions.every(action => hasPermission(module, action));
+    } else {
+      const hasAnyPermission = actions.some(action => hasPermission(module, action));
+      
+      if (!hasAnyPermission && fallbackToRead) {
+        return canView(module);
+      }
+      
+      return hasAnyPermission;
     }
+  }, [hasPermission, canView]);
 
-    return permissions.map(({ module, action }) => ({
-      hasAccess: hasPermission(module, action),
-      isLoading: false,
+  const getAccessSummary = useCallback((module: ModuleName) => {
+    return {
       module,
-      action
-    }));
-  }, [permissions, hasPermission, isAuthenticated, loading]);
+      canView: canView(module),
+      canCreate: canCreate(module),
+      canEdit: canEdit(module),
+      canDelete: canDelete(module),
+      canManage: canManage(module),
+      level: (() => {
+        if (canManage(module)) return 'manage';
+        if (canEdit(module) || canCreate(module)) return 'write';
+        if (canView(module)) return 'read';
+        return 'none';
+      })()
+    };
+  }, [canView, canCreate, canEdit, canDelete, canManage]);
 
   return {
-    permissions: results,
-    loading,
-    error,
-    hasAllPermissions: results.every(p => p.hasAccess),
-    hasAnyPermission: results.some(p => p.hasAccess)
+    checkAccess,
+    getAccessSummary,
+    hasPermission,
+    canView,
+    canCreate,
+    canEdit,
+    canDelete,
+    canManage,
+    isAdmin,
+    isManager,
+    userRole
   };
-}
-import { useEffect } from 'react';
-import { usePermissions } from './usePermissions';
-import { useAuth } from '@/components/auth/AuthProvider';
+};
 
-export interface PermissionGuardOptions {
-  resource: string;
-  action: 'create' | 'read' | 'update' | 'delete';
-  redirectTo?: string;
-  onUnauthorized?: () => void;
-}
-
-export function usePermissionGuard(options: PermissionGuardOptions) {
-  const { user } = useAuth();
+export const useMultiplePermissions = (requirements: PermissionGuardOptions[]): boolean => {
   const { hasPermission } = usePermissions();
   
-  const isAuthorized = hasPermission(options.resource, options.action);
-
-  useEffect(() => {
-    if (!user) {
-      if (options.redirectTo) {
-        window.location.href = options.redirectTo;
-      } else if (options.onUnauthorized) {
-        options.onUnauthorized();
-      }
-      return;
-    }
-
-    if (!isAuthorized) {
-      if (options.onUnauthorized) {
-        options.onUnauthorized();
-      } else if (options.redirectTo) {
-        window.location.href = options.redirectTo;
-      } else {
-        console.warn(`Permission denied: ${options.action} on ${options.resource}`);
-      }
-    }
-  }, [user, isAuthorized, options]);
-
-  return {
-    isAuthorized,
-    isAuthenticated: !!user,
-  };
-}
+  return useMemo(() => {
+    return requirements.every(req => hasPermission(req.module, req.action));
+  }, [hasPermission, requirements]);
+};
