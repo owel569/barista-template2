@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from './useAuth';
 
 export type UserRole = 'directeur' | 'admin' | 'manager' | 'barista' | 'employee' | 'staff';

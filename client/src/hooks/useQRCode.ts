@@ -1,5 +1,5 @@
-
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import * as QRCode from 'qrcode';
 
 interface QRCodeOptions {
   size?: number;
@@ -33,10 +33,10 @@ export function useQRCode(): QRCodeResult {
     try {
       // Fallback vers une API externe si qrcode.react n'est pas disponible
       const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${options.size || 200}x${options.size || 200}&data=${encodeURIComponent(value)}`;
-      
+
       // Vérifier si l'URL est accessible
       const response = await fetch(qrApiUrl, { method: 'HEAD' });
-      
+
       if (response.ok) {
         setQrCodeUrl(qrApiUrl);
       } else {

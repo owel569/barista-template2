@@ -1,5 +1,4 @@
-
-import { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { usePermissions, type ModuleName, type PermissionAction } from './usePermissions';
 import { useAuth } from './useAuth';
 
@@ -56,7 +55,7 @@ export const usePermissionGuard = (options: PermissionGuardOptions): PermissionG
 
     // Vérification de la permission
     const allowed = hasPermission(options.module, options.action);
-    
+
     return {
       allowed,
       loading: false,
@@ -96,11 +95,11 @@ export const useAccessControl = () => {
       return actions.every(action => hasPermission(module, action));
     } else {
       const hasAnyPermission = actions.some(action => hasPermission(module, action));
-      
+
       if (!hasAnyPermission && fallbackToRead) {
         return canView(module);
       }
-      
+
       return hasAnyPermission;
     }
   }, [hasPermission, canView]);
@@ -139,7 +138,7 @@ export const useAccessControl = () => {
 
 export const useMultiplePermissions = (requirements: PermissionGuardOptions[]): boolean => {
   const { hasPermission } = usePermissions();
-  
+
   return useMemo(() => {
     return requirements.every(req => hasPermission(req.module, req.action));
   }, [hasPermission, requirements]);

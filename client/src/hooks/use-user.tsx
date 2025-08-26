@@ -1,5 +1,4 @@
-
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import type { User } from "@shared/schema";
 
 interface UserContextType {
@@ -31,7 +30,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             'Authorization': `Bearer ${token}`
           }
         });
-        
+
         if (response.ok) {
           const userData = await response.json();
           setUser(userData);
