@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from './useAuth';
 
@@ -9,7 +10,7 @@ export interface User {
   lastName?: string;
   email?: string;
   phone?: string;
-  role: 'directeur' | 'employe';
+  role: 'directeur' | 'employe' | 'admin' | 'manager' | 'barista' | 'employee' | 'staff' | 'customer';
   isActive: boolean;
   lastLogin?: Date | null;
   createdAt: Date;
@@ -34,7 +35,7 @@ export interface CreateUserData {
   lastName?: string;
   email?: string;
   phone?: string;
-  role: 'directeur' | 'employe';
+  role: 'directeur' | 'employe' | 'admin' | 'manager' | 'barista' | 'employee' | 'staff' | 'customer';
 }
 
 export interface UpdateUserData {
@@ -42,7 +43,7 @@ export interface UpdateUserData {
   lastName?: string;
   email?: string;
   phone?: string;
-  role?: 'directeur' | 'employe';
+  role?: 'directeur' | 'employe' | 'admin' | 'manager' | 'barista' | 'employee' | 'staff' | 'customer';
   isActive?: boolean;
 }
 
@@ -60,10 +61,13 @@ export const useUsers = () => {
   const { apiRequest } = useAuth();
 
   // Récupérer tous les utilisateurs
-  const { data: users, isLoading, error } = useQuery<User[]>({
-    queryKey: ['users',],
+  const { data: users = [], isLoading, error } = useQuery<User[]>({
+    queryKey: ['users'],
     queryFn: async () => {
       const response = await apiRequest('/api/admin/users');
+      if (!response.ok) {
+        throw new Error('Erreur lors de la récupération des utilisateurs');
+      }
       return response.json();
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
@@ -76,6 +80,9 @@ export const useUsers = () => {
       queryKey: ['users', userId, 'permissions'],
       queryFn: async () => {
         const response = await apiRequest(`/api/admin/users/${userId}/permissions`);
+        if (!response.ok) {
+          throw new Error('Erreur lors de la récupération des permissions');
+        }
         return response.json();
       },
       enabled: !!userId,
@@ -90,6 +97,10 @@ export const useUsers = () => {
         method: 'POST',
         body: JSON.stringify(userData),
       });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Erreur lors de la création de l\'utilisateur');
+      }
       return response.json();
     },
     onSuccess: (newUser) => {
@@ -99,17 +110,21 @@ export const useUsers = () => {
       });
     },
     onError: (error) => {
-      logger.error('Erreur lors de la création de l\'utilisateur:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+      console.error('Erreur lors de la création de l\'utilisateur:', error);
     },
   });
 
   // Mettre à jour un utilisateur
   const updateUserMutation = useMutation({
-    mutationFn: async ({ userId, userData }:{ userId: number; userData: UpdateUserData }) => {
+    mutationFn: async ({ userId, userData }: { userId: number; userData: UpdateUserData }) => {
       const response = await apiRequest(`/api/admin/users/${userId}`, {
         method: 'PUT',
         body: JSON.stringify(userData),
       });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Erreur lors de la mise à jour de l\'utilisateur');
+      }
       return response.json();
     },
     onSuccess: (updatedUser, { userId }) => {
@@ -121,7 +136,7 @@ export const useUsers = () => {
       });
     },
     onError: (error) => {
-      logger.error('Erreur lors de la mise à jour de l\'utilisateur:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+      console.error('Erreur lors de la mise à jour de l\'utilisateur:', error);
     },
   });
 
@@ -131,6 +146,10 @@ export const useUsers = () => {
       const response = await apiRequest(`/api/admin/users/${userId}`, {
         method: 'DELETE',
       });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Erreur lors de la suppression de l\'utilisateur');
+      }
       return response.json();
     },
     onSuccess: (_, userId) => {
@@ -140,7 +159,7 @@ export const useUsers = () => {
       });
     },
     onError: (error) => {
-      logger.error('Erreur lors de la suppression de l\'utilisateur:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+      console.error('Erreur lors de la suppression de l\'utilisateur:', error);
     },
   });
 
@@ -151,6 +170,10 @@ export const useUsers = () => {
         method: 'PUT',
         body: JSON.stringify(permissionData),
       });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Erreur lors de la mise à jour des permissions');
+      }
       return response.json();
     },
     onSuccess: (_, { userId }) => {
@@ -158,17 +181,21 @@ export const useUsers = () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
     },
     onError: (error) => {
-      logger.error('Erreur lors de la mise à jour des permissions:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+      console.error('Erreur lors de la mise à jour des permissions:', error);
     },
   });
 
   // Activer/désactiver un utilisateur
   const toggleUserStatusMutation = useMutation({
-    mutationFn: async ({ userId, isActive }:{ userId: number; isActive: boolean }) => {
+    mutationFn: async ({ userId, isActive }: { userId: number; isActive: boolean }) => {
       const response = await apiRequest(`/api/admin/users/${userId}`, {
         method: 'PUT',
         body: JSON.stringify({ isActive }),
       });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Erreur lors du changement de statut');
+      }
       return response.json();
     },
     onSuccess: (_, { userId, isActive }) => {
@@ -179,7 +206,25 @@ export const useUsers = () => {
       });
     },
     onError: (error) => {
-      logger.error('Erreur lors du changement de statut:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+      console.error('Erreur lors du changement de statut:', error);
+    },
+  });
+
+  // Réinitialiser le mot de passe d'un utilisateur
+  const resetPasswordMutation = useMutation({
+    mutationFn: async ({ userId, newPassword }: { userId: number; newPassword: string }) => {
+      const response = await apiRequest(`/api/admin/users/${userId}/reset-password`, {
+        method: 'POST',
+        body: JSON.stringify({ newPassword }),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Erreur lors de la réinitialisation du mot de passe');
+      }
+      return response.json();
+    },
+    onError: (error) => {
+      console.error('Erreur lors de la réinitialisation du mot de passe:', error);
     },
   });
 
@@ -193,10 +238,16 @@ export const useUsers = () => {
     deleteUser: deleteUserMutation.mutate,
     updatePermission: updatePermissionMutation.mutate,
     toggleUserStatus: toggleUserStatusMutation.mutate,
+    resetPassword: resetPasswordMutation.mutate,
     isCreating: createUserMutation.isPending,
     isUpdating: updateUserMutation.isPending,
     isDeleting: deleteUserMutation.isPending,
     isUpdatingPermission: updatePermissionMutation.isPending,
     isTogglingStatus: toggleUserStatusMutation.isPending,
+    isResettingPassword: resetPasswordMutation.isPending,
+    // Fonctions supplémentaires
+    refetch: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
+    getUserById: (id: number) => users.find(user => user.id === id),
+    getUsersByRole: (role: string) => users.filter(user => user.role === role),
   };
 };
