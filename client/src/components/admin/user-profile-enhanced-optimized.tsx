@@ -60,7 +60,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useWebSocket } from '@/hooks/useWebSocket';
-import QRCode from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 import { useReactToPrint } from 'react-to-print';
 import { exportCustomerProfiles } from '@/lib/excel-export';
 import { Progress } from '@/components/ui/progress';
@@ -985,7 +985,7 @@ export default function UserProfileEnhanced(): JSX.Element {
 
               {showQRCode && (
                 <div className="flex justify-center p-4 border rounded-lg">
-                  <QRCode 
+                  <QRCodeSVG 
                     value={`${window.location.origin}/client/${selectedUser.id}`}
                     size={128}
                     level="H"
