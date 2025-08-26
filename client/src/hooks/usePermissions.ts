@@ -293,21 +293,12 @@ export const usePermissions = () => {
 
     // Meta
     getAvailableModules: () => getCurrentPermissions().map(p => p.module),
-    getUserAccessLevel: () => {
+    getUserAccessLevel: (): 'super' | 'admin' | 'advanced' | 'basic' => {
       if (userRole === 'directeur') return 'super';
       if (userRole === 'admin') return 'admin';
       if (userRole === 'manager') return 'advanced';
       return 'basic';
-    } as const,
-
-    // Meta
-    getAvailableModules: () => getCurrentPermissions().map(p => p.module),
-    getUserAccessLevel: () => {
-      if (userRole === 'directeur') return 'super';
-      if (userRole === 'admin') return 'admin';
-      if (userRole === 'manager') return 'advanced';
-      return 'basic';
-    } as const
+    }
   };
 };
 
