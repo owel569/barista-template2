@@ -1,5 +1,4 @@
-
-import { useState, useEffect, useCallback, createContext, useContext } from 'react';
+import React, { useState, useEffect, useCallback, createContext, useContext } from 'react';
 
 // Types professionnels pour l'authentification
 export interface User {
@@ -86,7 +85,7 @@ export function useAuth(): AuthContextType {
   // Fonction pour faire des requêtes API authentifiées
   const apiRequest = useCallback(async (url: string, options: RequestInit = {}): Promise<Response> => {
     const token = getStoredToken();
-    
+
     const headers = {
       'Content-Type': 'application/json',
       ...(token && { 'Authorization': `Bearer ${token}` }),
@@ -167,13 +166,13 @@ export function useAuth(): AuthContextType {
 
       if (response.ok && 'user' in data) {
         setStoredToken(data.token);
-        
+
         if (data.refreshToken) {
           localStorage.setItem(REFRESH_TOKEN_KEY, data.refreshToken);
         }
-        
+
         localStorage.setItem(USER_KEY, JSON.stringify(data.user));
-        
+
         setAuthState({
           user: data.user,
           isAuthenticated: true,
@@ -211,7 +210,7 @@ export function useAuth(): AuthContextType {
       if (response.ok && 'user' in result) {
         setStoredToken(result.token);
         localStorage.setItem(USER_KEY, JSON.stringify(result.user));
-        
+
         setAuthState({
           user: result.user,
           isAuthenticated: true,

@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from './useAuth';
 
@@ -99,17 +98,17 @@ export const usePermissions = () => {
     try {
       const cached = localStorage.getItem(CACHE_KEY);
       if (!cached) return null;
-      
+
       const parsedCache: PermissionsCache = JSON.parse(cached);
       const now = Date.now();
       const isExpired = (now - parsedCache.timestamp) > parsedCache.ttl;
       const isWrongUser = parsedCache.userId !== user?.id;
-      
+
       if (isExpired || isWrongUser) {
         localStorage.removeItem(CACHE_KEY);
         return null;
       }
-      
+
       return parsedCache;
     } catch {
       localStorage.removeItem(CACHE_KEY);
@@ -124,7 +123,7 @@ export const usePermissions = () => {
       ttl: PERMISSIONS_CACHE_TTL,
       userId: user?.id
     };
-    
+
     try {
       localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
       setPermissionsCache(cache);
@@ -145,7 +144,7 @@ export const usePermissions = () => {
       const token = localStorage.getItem('token') || 
                    localStorage.getItem('auth_token') || 
                    localStorage.getItem('barista_auth_token');
-      
+
       if (!token) {
         throw new Error('Token d\'authentification manquant');
       }
@@ -163,7 +162,7 @@ export const usePermissions = () => {
       }
 
       const data: PermissionResponse = await response.json();
-      
+
       if (data.success && Array.isArray(data.permissions)) {
         setCachedPermissions(data.permissions);
       } else {
@@ -172,7 +171,7 @@ export const usePermissions = () => {
     } catch (err) {
       console.warn('Erreur permissions API, utilisation des permissions par défaut:', err);
       setError('Permissions par défaut utilisées');
-      
+
       // Fallback vers les permissions par défaut
       const defaultPerms = DEFAULT_PERMISSIONS[userRole] || [];
       setCachedPermissions(defaultPerms);
@@ -212,7 +211,7 @@ export const usePermissions = () => {
 
     const permissions = getCurrentPermissions();
     const modulePermission = permissions.find(p => p.module === module);
-    
+
     return modulePermission?.actions.includes(action) ?? false;
   }, [isAuthenticated, userRole, getCurrentPermissions]);
 
@@ -239,18 +238,18 @@ export const usePermissions = () => {
 
   const getPermissionLevel = useCallback((module: ModuleName): 'none' | 'read' | 'write' | 'manage' => {
     if (!isAuthenticated || !userRole) return 'none';
-    
+
     if (userRole === 'directeur') return 'manage';
-    
+
     const permissions = getCurrentPermissions();
     const modulePermission = permissions.find(p => p.module === module);
-    
+
     if (!modulePermission) return 'none';
-    
+
     if (modulePermission.actions.includes('manage')) return 'manage';
     if (modulePermission.actions.includes('create') || modulePermission.actions.includes('update')) return 'write';
     if (modulePermission.actions.includes('read') || modulePermission.actions.includes('view')) return 'read';
-    
+
     return 'none';
   }, [isAuthenticated, userRole, getCurrentPermissions]);
 
@@ -275,7 +274,7 @@ export const usePermissions = () => {
     userRole,
     loading,
     error,
-    
+
     // Core methods
     hasPermission,
     canView,
@@ -283,15 +282,15 @@ export const usePermissions = () => {
     canEdit,
     canDelete,
     canManage,
-    
+
     // Helpers
     getPermissionLevel,
     isAdmin,
     isManager,
-    
+
     // Actions
     refreshPermissions,
-    
+
     // Meta
     getAvailableModules: () => getCurrentPermissions().map(p => p.module),
     getUserAccessLevel: () => {
