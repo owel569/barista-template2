@@ -124,5 +124,5 @@ export {
   ToastDescription,
   ToastClose,
   ToastAction,
-  toastVariants,
-}
+  toastVariants
+};

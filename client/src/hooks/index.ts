@@ -1,3 +1,4 @@
+
 // ===== HOOKS D'AUTHENTIFICATION =====
 export { useAuth } from './useAuth';
 export { usePermissions } from './usePermissions';
@@ -18,4 +19,5 @@ export { useMobile } from './use-mobile';
 export { useWebSocket } from './useWebSocket';
 
 // ===== HOOKS UI =====
-export * from '../components/ui/hooks';
+// Export des hooks UI depuis les composants
+export * from '../components/ui/use-toast';

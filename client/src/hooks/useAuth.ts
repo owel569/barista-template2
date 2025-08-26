@@ -346,5 +346,5 @@ export const useAuthContext = (): AuthContextType => {
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const auth = useAuth();
-  return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
+  return React.createElement(AuthContext.Provider, { value: auth }, children);
 };
