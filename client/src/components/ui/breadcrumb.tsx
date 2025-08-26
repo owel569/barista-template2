@@ -3,10 +3,21 @@ import { Slot } from "@radix-ui/react-slot"
 import { ChevronRight, MoreHorizontal } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { cva, type VariantProps } from "class-variance-authority"
+import { cva } from "class-variance-authority"
 
-const breadcrumbVariants = cva(
-  "flex flex-wrap items-center gap-1.5 break-words text-sm text-muted-foreground sm:gap-2.5"
+export const breadcrumbVariants = cva(
+  "flex items-center space-x-1 text-sm text-muted-foreground",
+  {
+    variants: {
+      variant: {
+        default: "",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
 )
 
 const Breadcrumb = React.forwardRef<

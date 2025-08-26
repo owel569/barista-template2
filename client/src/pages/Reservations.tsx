@@ -37,7 +37,7 @@ export default function ReservationsPage() : JSX.Element {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     addReservation.mutate(form, {
-      onSuccess: (}) =>
+      onSuccess: () =>
         setForm({
           name: "",
           email: "",
@@ -107,7 +107,7 @@ export default function ReservationsPage() : JSX.Element {
         <p>Chargement...</p>
       ) : (
         <ul>
-          {reservations.map((r: unknown) => (
+          {reservations.map((r: Reservation) => (
             <li key={r.id}>
               {r.name} — {r.date} à {r.time} ({r.guests} pers.)
             </li>
