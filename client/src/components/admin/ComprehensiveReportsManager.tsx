@@ -1,33 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 // import { Checkbox } from '@/components/ui/checkbox';
 // import { DatePicker } from '@/components/ui/date-picker';
+// import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+// import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
-} from '@/components/ui/dialog';
-import { 
-  BarChart, 
-  Bar, 
   LineChart, 
   Line, 
   PieChart, 
@@ -43,33 +28,23 @@ import {
 import { 
   FileText, 
   Download, 
-  Calendar, 
   TrendingUp, 
   Users, 
   DollarSign, 
   Package, 
-  Clock, 
   Brain,
-  BarChart3,
-  PieChart as PieChartIcon,
   Filter,
   Mail,
-  Printer,
   Share2,
   Settings,
   Plus,
   Eye,
   Edit,
-  Trash2,
-  Star,
-  RefreshCw
+  Trash2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-// Interface pour le logger manquant
-const logger = {
-  error: (message: string, context?: any) => console.error(message, context)
-};
+//
 
 interface Report {
   id: string;
@@ -169,7 +144,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
   const [customReportName, setCustomReportName] = useState('');
   const [selectedFields, setSelectedFields] = useState<string[]>([]);
   const [selectedCharts, setSelectedCharts] = useState<string[]>([]);
-  const [dateRange, setDateRange] = useState({
+  const [dateRange] = useState({
     startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
     endDate: new Date()
   });
@@ -264,14 +239,14 @@ export const ComprehensiveReportsManager: React.FC = () => {
     generateReportMutation.mutate(config);
   };
 
-  const handleScheduleReport = (frequency: 'daily' | 'weekly' | 'monthly', recipients: string[]) => {
-    scheduleReportMutation.mutate({
-      templateId: selectedTemplate,
-      frequency,
-      recipients,
-      nextRun: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-    });
-  };
+  // const handleScheduleReport = (frequency: 'daily' | 'weekly' | 'monthly', recipients: string[]) => {
+  //   scheduleReportMutation.mutate({
+  //     templateId: selectedTemplate,
+  //     frequency,
+  //     recipients,
+  //     nextRun: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+  //   });
+  // };
 
   const renderPredefinedReports = () => (
     <div className="space-y-6">
