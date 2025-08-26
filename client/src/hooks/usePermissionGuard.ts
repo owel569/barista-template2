@@ -1,36 +1,105 @@
-// Hook inversé usePermissionGuard - Amélioration des attached_assets
+
+import { useMemo } from 'react';
 import { usePermissions } from './usePermissions';
 import { useAuth } from './useAuth';
-import type { PermissionAction } from '@/constants/permissions';
+import type { ModuleName, PermissionAction } from './usePermissions';
 
-export function usePermissionGuard(module: string, action: PermissionAction) {
-  const { user } = useAuth();
-  const { hasPermission } = usePermissions(user);
+export interface PermissionGuardOptions {
+  module: ModuleName;
+  action: PermissionAction;
+  fallback?: boolean;
+  redirectTo?: string;
+}
 
-  const isForbidden = !hasPermission(module, action);
-  const hasAccess = hasPermission(module, action);
+export interface PermissionGuardResult {
+  hasAccess: boolean;
+  isLoading: boolean;
+  isForbidden: boolean;
+  user: any;
+  error: string | null;
+}
 
-  return {
-    isForbidden,
-    hasAccess,
-    user,
-    isLoading: false // TODO: ajouter le loading si nécessaire
-  };
+export function usePermissionGuard(
+  module: ModuleName,
+  action: PermissionAction,
+  options?: Partial<PermissionGuardOptions>
+): PermissionGuardResult {
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { hasPermission, loading: permissionsLoading, error } = usePermissions();
+
+  const result = useMemo(() => {
+    const isLoading = authLoading || permissionsLoading;
+    
+    if (isLoading) {
+      return {
+        hasAccess: false,
+        isLoading: true,
+        isForbidden: false,
+        user,
+        error: null
+      };
+    }
+
+    if (!isAuthenticated || !user) {
+      return {
+        hasAccess: false,
+        isLoading: false,
+        isForbidden: true,
+        user: null,
+        error: 'Utilisateur non authentifié'
+      };
+    }
+
+    const hasAccess = hasPermission(module, action);
+
+    return {
+      hasAccess,
+      isLoading: false,
+      isForbidden: !hasAccess,
+      user,
+      error: hasAccess ? null : 'Accès non autorisé'
+    };
+  }, [isAuthenticated, user, authLoading, permissionsLoading, hasPermission, module, action, error]);
+
+  return result;
 }
 
 // Hook utilitaire pour les composants de garde
-export function useAccessControl(module: string, action: PermissionAction) {
+export function useAccessControl(module: ModuleName, action: PermissionAction) {
   const guard = usePermissionGuard(module, action);
   
-  if (guard.isForbidden) {
-    return {
-      canAccess: false,
-      AccessDeniedComponent: () => null as React.ReactElement
-    };
-  }
+  return {
+    ...guard,
+    canAccess: guard.hasAccess,
+    AccessDeniedComponent: guard.isForbidden ? 
+      () => null : 
+      null
+  };
+}
+
+// Hook pour vérifier plusieurs permissions
+export function useMultiplePermissions(permissions: Array<{ module: ModuleName; action: PermissionAction }>) {
+  const { hasPermission, loading, error } = usePermissions();
+  const { isAuthenticated } = useAuth();
+
+  const results = useMemo(() => {
+    if (!isAuthenticated || loading) {
+      return permissions.map(() => ({ hasAccess: false, isLoading: loading }));
+    }
+
+    return permissions.map(({ module, action }) => ({
+      hasAccess: hasPermission(module, action),
+      isLoading: false,
+      module,
+      action
+    }));
+  }, [permissions, hasPermission, isAuthenticated, loading]);
 
   return {
-    canAccess: true,
-    AccessDeniedComponent: null
+    permissions: results,
+    loading,
+    error,
+    hasAllPermissions: results.every(p => p.hasAccess),
+    hasAnyPermission: results.some(p => p.hasAccess)
   };
 }
