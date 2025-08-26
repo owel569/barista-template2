@@ -15,7 +15,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 const profileSchema = z.object({
-  firstName: z.string()}).min(2, 'Le prénom doit contenir au moins 2 caractères'),
+  firstName: z.string().min(2, 'Le prénom doit contenir au moins 2 caractères'),
   lastName: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
   email: z.string().email('Email invalide'),
   phone: z.string().min(10, 'Numéro de téléphone invalide'),
@@ -24,12 +24,12 @@ const profileSchema = z.object({
 });
 
 const passwordSchema = z.object({
-  currentPassword: z.string()}).min(6, 'Mot de passe actuel requis'),
+  currentPassword: z.string().min(6, 'Mot de passe actuel requis'),
   newPassword: z.string().min(6, 'Le nouveau mot de passe doit contenir au moins 6 caractères'),
   confirmPassword: z.string().min(6, 'Confirmation requise'),
 }).refine((data) => data.newPassword === data.confirmPassword, {
   message: "Les mots de passe ne correspondent pas",
-  path: ["confirmPassword",],
+  path: ["confirmPassword"],
 });
 
 interface UserProfile {
@@ -69,39 +69,39 @@ const UserProfile: React.FC = () => {
   const [activeTab, setActiveTab] = useState('profile');
 
   const { data: profile, isLoading } = useQuery<UserProfile>({
-    queryKey: ['/api/user/profile',],
+    queryKey: ['/api/user/profile'],
   });
 
   const profileForm = useForm({
-    resolver: zodResolver(profileSchema})}),
+    resolver: zodResolver(profileSchema),
     defaultValues: profile || {},
   });
 
   const passwordForm = useForm({
-    resolver: zodResolver(passwordSchema})}),
+    resolver: zodResolver(passwordSchema),
   });
 
   const updateProfileMutation = useMutation({
-    mutationFn: async (data: Record<string, unknown>})}) => {
+    mutationFn: async (data: Record<string, unknown>) => {
       const response = await fetch('/api/user/profile', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' )},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error('Erreur lors de la mise à jour');
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/user/profile'] )});
+      queryClient.invalidateQueries({ queryKey: ['/api/user/profile'] });
       toast({ title: 'Profil mis à jour', description: 'Vos informations ont été sauvegardées.' });
     },
   });
 
   const changePasswordMutation = useMutation({
-    mutationFn: async (data: Record<string, unknown>})}) => {
+    mutationFn: async (data: Record<string, unknown>) => {
       const response = await fetch('/api/user/change-password', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' )},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error('Erreur lors du changement de mot de passe');

@@ -5,7 +5,8 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react({
-    jsxRuntime: 'automatic'
+    jsxRuntime: 'automatic',
+    jsxImportSource: 'react'
   })],
   server: {
     port: 3000,
@@ -41,6 +42,7 @@ export default defineConfig({
     include: ['react', 'react-dom', 'lucide-react', '@radix-ui/react-dialog']
   },
   define: {
-    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+    global: 'globalThis'
   }
 });
