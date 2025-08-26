@@ -60,7 +60,9 @@ function App() {
                   <Switch>
                     <Route path="/" component={Dashboard} />
                     <Route path="/dashboard" component={Dashboard} />
-                    <Route path="/menu" component={MenuManagement} />
+                    <Route path="/menu">
+                      <MenuManagement userRole="directeur" />
+                    </Route>
                     <Route path="/orders" component={Orders} />
                     <Route path="/reservations" component={Reservations} />
                     <Route path="/customers">

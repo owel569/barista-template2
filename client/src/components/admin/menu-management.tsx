@@ -78,7 +78,7 @@ interface MenuManagementProps {
 
 export default function MenuManagement({ userRole = 'directeur' }: MenuManagementProps) {
   const { user } = useAuth();
-  const { canCreate, canEdit, canDelete: canDeleteFn } = usePermissions(user as any);
+  const { canCreate, canEdit, canDelete: canDeleteFn } = usePermissions();
   const canCreateItem = canCreate('menu');
   const canEditItem = canEdit('menu');
   const canDeleteItem = canDeleteFn('menu');
@@ -466,11 +466,11 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                           </div>
                           <div className="flex items-center space-x-2">
                             <Upload className="h-4 w-4 text-gray-500" />
-                            <Input
+                            <input
                               type="file"
                               accept="image/*"
                               onChange={(e) => handleFileUpload(e.target.files?.[0])}
-                              className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                             />
                           </div>
                           {previewUrl && (

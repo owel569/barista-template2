@@ -3,6 +3,11 @@ import { Slot } from "@radix-ui/react-slot"
 import { ChevronRight, MoreHorizontal } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { cva, type VariantProps } from "class-variance-authority"
+
+const breadcrumbVariants = cva(
+  "flex flex-wrap items-center gap-1.5 break-words text-sm text-muted-foreground sm:gap-2.5"
+)
 
 const Breadcrumb = React.forwardRef<
   HTMLElement,
@@ -112,4 +117,6 @@ export {
   BreadcrumbPage,
   BreadcrumbSeparator,
   BreadcrumbEllipsis,
+  breadcrumbVariants,
+  type VariantProps,
 }
