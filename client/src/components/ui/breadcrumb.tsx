@@ -128,5 +128,5 @@ export {
   BreadcrumbPage,
   BreadcrumbSeparator,
   BreadcrumbEllipsis,
-  breadcrumbVariants
-};
+  breadcrumbVariants,
+}

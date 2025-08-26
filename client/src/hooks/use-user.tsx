@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import type { User } from "@shared/schema";
 
@@ -67,20 +66,20 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       }
       localStorage.removeItem("auth_token");
     } catch (error) {
-      console.error("Logout error:", error instanceof Error ? error.message : 'Erreur inconnue');
+      logger.error("Logout error:", { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
     } finally {
       setUser(null);
     }
   };
 
-  return React.createElement(
-    UserContext.Provider,
-    { value: { user, login, logout, isLoading } },
-    children
+  return (
+    <UserContext.Provider value={{ user, login, logout, isLoading }}>
+      {children}
+    </UserContext.Provider>
   );
 }
 
-export function useUser(): UserContextType {
+export function useUser() : JSX.Element {
   const context = useContext(UserContext);
   if (context === undefined) {
     throw new Error("useUser must be used within a UserProvider");
