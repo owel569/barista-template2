@@ -1,4 +1,3 @@
-
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { ChevronRight, MoreHorizontal } from "lucide-react"
@@ -129,5 +128,8 @@ export {
   BreadcrumbPage,
   BreadcrumbSeparator,
   BreadcrumbEllipsis,
-  breadcrumbVariants
-};
+  breadcrumbVariants,
+}
+
+// Export par défaut pour compatibilité
+export { breadcrumbVariants as default };

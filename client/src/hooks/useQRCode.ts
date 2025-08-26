@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 
 interface QRCodeOptions {
   size?: number;
@@ -69,7 +69,7 @@ export function useQRCode(): QRCodeResult {
 export function useSimpleQR(value: string, options?: QRCodeOptions) {
   const { qrCodeUrl, isLoading, error, generateQR } = useQRCode();
 
-  useState(() => {
+  useEffect(() => {
     if (value) {
       generateQR(value, options);
     }

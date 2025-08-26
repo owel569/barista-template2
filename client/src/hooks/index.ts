@@ -13,7 +13,8 @@ export {
 } from './usePermissionsSync';
 
 // ===== HOOKS DE DONNÉES UTILISATEUR =====
-export { useUser } from './useUser';
+export { useUser, UserProvider } from './use-user';
+export { useUser as useUserData } from './useUser';
 export { useUsers } from './useUsers';
 
 // ===== HOOKS DE DONNÉES MÉTIER =====
@@ -33,7 +34,7 @@ export { useDebounce } from './useDebounce';
 export { useAsync } from './useAsync';
 
 // ===== HOOKS SPÉCIALISÉS =====
-export { useQRCode } from './useQRCode';
+export { useQRCode, useSimpleQR } from './useQRCode';
 
 // ===== TYPES EXPORTS =====
 export type { 

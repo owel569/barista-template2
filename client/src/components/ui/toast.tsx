@@ -126,3 +126,6 @@ export {
   ToastAction,
   toastVariants,
 }
+
+// Export par défaut pour compatibilité
+export { toastVariants as default };
