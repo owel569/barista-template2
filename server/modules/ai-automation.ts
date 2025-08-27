@@ -1,21 +1,23 @@
 
 import { Request, Response } from 'express';
 import { z } from 'zod';
+import { createLogger } from '../middleware/logging';
+const logger = createLogger('AI_AUTOMATION');
 
 // Schémas de validation
 const ChatMessageSchema = z.object({
-  message: z.string()}).min(1),
+  message: z.string().min(1),
   context: z.string().optional(),
   userId: z.string().optional()
 });
 
 const VoiceCommandSchema = z.object({
-  audioData: z.string()}),
+  audioData: z.string(),
   language: z.string().default('fr-FR')
 });
 
 const ReservationRequestSchema = z.object({
-  date: z.string()}),
+  date: z.string(),
   time: z.string(),
   guests: z.number().min(1).max(20),
   preferences: z.string().optional()
@@ -59,11 +61,11 @@ export class AIAutomationModule {
         response: response.text,
         actions: response.actions,
         confidence: response.confidence,
-        timestamp: new Date()}).toISOString(),
+        timestamp: new Date().toISOString(),
         sessionId: userId || 'anonymous'
       });
     } catch (error) {
-      logger.error('Erreur chatbot:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      logger.error('Erreur chatbot:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       res.status(500).json({ 
         error: 'Erreur du chatbot',
         response: 'Désolé, je rencontre des difficultés. Pouvez-vous reformuler votre question ?'
@@ -108,7 +110,8 @@ export class AIAutomationModule {
           preferences,
           source: 'ai_assistant',
           status: 'confirmed'
-        )});
+        )
+        ;
         
         res.json({
           success: true,
@@ -125,7 +128,7 @@ export class AIAutomationModule {
         });
       }
     } catch (error) {
-      logger.error('Erreur réservation automatique:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      logger.error('Erreur réservation automatique:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       res.status(500).json({ error: 'Erreur lors de la réservation' });
     }
   }
@@ -141,10 +144,10 @@ export class AIAutomationModule {
         popularItems: predictions.popularItems,
         staffingNeeds: predictions.staffingNeeds,
         inventoryAlerts: predictions.inventoryAlerts,
-        generatedAt: new Date(}).toISOString()
+        generatedAt: new Date().toISOString()
       });
     } catch (error) {
-      logger.error('Erreur analyse prédictive:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      logger.error('Erreur analyse prédictive:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       res.status(500).json({ error: 'Erreur d\'analyse prédictive' });
     }
   }
@@ -162,7 +165,7 @@ export class AIAutomationModule {
         customerRetention: suggestions.retention
       });
     } catch (error) {
-      logger.error('Erreur suggestions automatisation:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      logger.error('Erreur suggestions automatisation:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       res.status(500).json({ error: 'Erreur de génération de suggestions' });
     }
   }
@@ -206,7 +209,7 @@ export class AIAutomationModule {
       
       return {
         text: `Nos horaires d'ouverture:\n${hours}`,
-        actions: [,],
+        actions: [],
         confidence
       };
     }

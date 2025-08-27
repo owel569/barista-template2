@@ -43,7 +43,7 @@ export default function Register() : JSX.Element {
     try {
       const response = await fetch("/api/auth/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" )},
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           username,
           password,
@@ -69,14 +69,14 @@ export default function Register() : JSX.Element {
           title: "Erreur d'enregistrement",
           description: data.message || "Erreur lors de la création du compte",
           variant: "destructive",
-        )});
+        });
       }
     } catch (error) {
       toast({
         title: "Erreur",
         description: "Erreur de connexion au serveur",
         variant: "destructive",
-      )});
+      });
     } finally {
       setIsRegistering(false);
     }

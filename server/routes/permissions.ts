@@ -226,11 +226,11 @@ router.get('/templates', authenticateUser, requireRoles(['admin']), asyncHandler
   res.json({
     success: true,
       data: PERMISSION_TEMPLATES
-    )});
+    });
   } catch (error) {
     logger.error('Erreur templates permissions', { 
       error: error instanceof Error ? error.message : 'Erreur inconnue' 
-    )});
+    });
     res.status(500).json({
       success: false,
       message: 'Erreur lors de la récupération des templates'
@@ -239,7 +239,7 @@ router.get('/templates', authenticateUser, requireRoles(['admin']), asyncHandler
 }));
 
 router.post('/permission', authenticateUser, requireRoles(['admin']), validateBody(z.object({
-  userId: z.number()}).positive('ID utilisateur invalide'),
+  userId: z.number().positive('ID utilisateur invalide'),
   module: z.string().min(1, 'Module requis'),
   canView: z.boolean(),
   canCreate: z.boolean(),
@@ -308,7 +308,7 @@ router.post('/permission', authenticateUser, requireRoles(['admin']), validateBo
       userId, 
       module, 
       error: error instanceof Error ? error.message : 'Erreur inconnue' 
-    )});
+    });
     res.status(500).json({
       success: false,
       message: 'Erreur lors de la mise à jour de la permission'
@@ -318,9 +318,9 @@ router.post('/permission', authenticateUser, requireRoles(['admin']), validateBo
 
 router.post('/bulk-update', authenticateUser, requireRoles(['admin']), validateBody(z.object({
   updates: z.array(z.object({
-    userId: z.number()}).positive('ID utilisateur invalide'),
+    userId: z.number().positive('ID utilisateur invalide'),
     permissions: z.array(z.object({
-      module: z.string()}).min(1, 'Module requis'),
+      module: z.string().min(1, 'Module requis'),
       canView: z.boolean(),
       canCreate: z.boolean(),
       canUpdate: z.boolean(),

@@ -1,7 +1,7 @@
 // import { storage } from '../db';
 // Simulation temporaire pour les analytics avancés
 const storage = {
-  getCustomers: async () => [,],
+  getCustomers: async () => [],
   // Autres méthodes de storage selon besoin
 };
 import { CustomerAnalysis } from '@shared/types';
@@ -29,7 +29,7 @@ export class AdvancedAnalytics {
           (0.9 + Math.random() * 0.2);
 
         predictions.push({
-          date: date.toISOString(}).split('T')[0],
+          date: date.toISOString().split('T')[0],
           predictedRevenue: Math.round(predictedRevenue * 100) / 100,
           confidence: Math.round((85 + Math.random() * 10) * 100) / 100,
           factors: {
@@ -42,7 +42,7 @@ export class AdvancedAnalytics {
 
       return predictions;
     } catch (error) {
-      logger.error('Erreur prédictions de ventes:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      logger.error('Erreur prédictions de ventes:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       return [];
     }
   }
@@ -76,7 +76,7 @@ export class AdvancedAnalytics {
 
       return analysis;
     } catch (error) {
-      logger.error('Erreur analyse comportementale:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      logger.error('Erreur analyse comportementale:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       return { segments: {}, visitPatterns: {}, averageSpend: 0, retentionRate: 0, churnPrediction: [] };
     }
   }

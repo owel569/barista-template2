@@ -111,12 +111,12 @@ const platforms: Platform[] = [
 // ==========================================
 
 const orderSchema = z.object({
-  customerName: z.string()}).min(1, 'Nom client requis'),
+  customerName: z.string().min(1, 'Nom client requis'),
   customerPhone: z.string().min(1, 'Téléphone requis'),
   customerEmail: z.string().email('Email invalide'),
   platform: z.string().min(1, 'Plateforme requise'),
   items: z.array(z.object({
-    name: z.string()}).min(1, 'Nom de l\'article requis'),
+    name: z.string().min(1, 'Nom de l\'article requis'),
     quantity: z.number().min(1, 'Quantité requise'),
     price: z.number().min(0, 'Prix requis'),
     options: z.array(z.string()).optional()
@@ -132,7 +132,7 @@ const orderSchema = z.object({
 });
 
 const statusUpdateSchema = z.object({
-  status: z.enum(['new', 'accepted', 'preparing', 'ready', 'dispatched', 'delivered', 'cancelled'])}),
+  status: z.enum(['new', 'accepted', 'preparing', 'ready', 'dispatched', 'delivered', 'cancelled']),
   estimatedTime: z.string().optional(),
   notes: z.string().optional()
 });
@@ -168,7 +168,7 @@ onlineOrdersRouter.get('/',
         status, 
         platform, 
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
-      )});
+      });
       res.status(500).json({ 
         success: false,
         message: 'Erreur lors de la récupération des commandes' 
@@ -186,11 +186,11 @@ onlineOrdersRouter.get('/platforms',
       res.json({
         success: true,
         data: platforms
-      )});
+      });
     } catch (error) {
       logger.error('Erreur récupération plateformes', { 
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
-      )});
+      });
       res.status(500).json({ 
         success: false,
         message: 'Erreur lors de la récupération des plateformes' 

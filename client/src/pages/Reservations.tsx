@@ -30,7 +30,7 @@ export default function ReservationsPage() : JSX.Element {
     setForm((prev) => ({
       ...prev,
       [name]: type === "number" ? Number(value) : value,
-    });
+    }));
   };
 
   // Typage de l'event pour le submit
