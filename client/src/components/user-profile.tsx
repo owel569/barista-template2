@@ -114,15 +114,15 @@ const UserProfile: React.FC = () => {
   });
 
   const deleteAccountMutation = useMutation({
-    mutationFn: async (})}) => {
+    mutationFn: async () => {
       const response = await fetch('/api/user/account', {
         method: 'DELETE',
-      )});
+      });
       if (!response.ok) throw new Error('Erreur lors de la suppression');
       return response.json();
     },
     onSuccess: () => {
-      toast({ title: 'Compte supprimé', description: 'Votre compte a été supprimé avec succès.' )});
+      toast({ title: 'Compte supprimé', description: 'Votre compte a été supprimé avec succès.' });
       // Redirection vers la page de connexion
       window.location.href = '/login';
     },
