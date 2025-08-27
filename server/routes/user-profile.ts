@@ -2,11 +2,11 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { asyncHandler } from '../middleware/error-handler';
 import { createLogger } from '../middleware/logging';
-import { authenticateUser, requireRoles } from '../middleware/auth';
-import { validateBody, validateParams, validateQuery } from '../middleware/validation';
+import { authenticateUser } from '../middleware/auth';
+import { validateBody, validateQuery } from '../middleware/validation';
 import { getDb } from '../db';
-import { users, customers, orders, addresses, rewards } from '../../shared/schema';
-import { eq, and, gte, lte, desc, sql } from 'drizzle-orm';
+import { users, customers, orders } from '../../shared/schema';
+import { eq, and, gte, lte, desc } from 'drizzle-orm';
 
 const userProfileRouter = Router();
 const logger = createLogger('USER_PROFILE');
@@ -96,6 +96,7 @@ export interface OrderHistory {
   deliveryAddress?: Address;
 }
 
+// Address storage is not available in current schema. Keep type for API shape if needed.
 export interface Address {
   id: number;
   title: string;
@@ -276,13 +277,9 @@ class UserProfileService {
         }));
 
       // Récompenses disponibles et déjà échangées
-      const [availableRewards, redeemedRewards] = await Promise.all([
-        db.select().from(rewards).where(eq(rewards.isActive, true)),
-        db.select()
-          .from(rewards)
-          .innerJoin(customers, eq(customers.id, userId))
-          .where(eq(customers.id, userId))
-      ]);
+      // Rewards are not stored in current schema; return empty arrays.
+      const availableRewards: Array<{ id: number; name: string; description: string; pointsCost: number; expiresAt?: string }>[] = [];
+      const redeemedRewards: Array<{ id: number; rewardId: number; name: string; redeemedAt: string; isUsed: boolean }>[] = [];
 
       return {
         points,
@@ -292,20 +289,8 @@ class UserProfileService {
         totalSpent,
         visitsThisMonth,
         favoriteItems,
-        availableRewards: availableRewards.map(reward => ({
-          id: reward.id,
-          name: reward.name,
-          description: reward.description,
-          pointsCost: reward.pointsCost,
-          expiresAt: reward.expiresAt?.toISOString()
-        })),
-        redeemedRewards: redeemedRewards.map(reward => ({
-          id: reward.id,
-          rewardId: reward.rewardId,
-          name: reward.name,
-          redeemedAt: reward.redeemedAt.toISOString(),
-          isUsed: reward.isUsed
-        }))
+        availableRewards: [],
+        redeemedRewards: []
       };
     } catch (error) {
       logger.error('Erreur calcul données fidélité', { 
@@ -649,68 +634,15 @@ userProfileRouter.post('/loyalty/redeem',
   authenticateUser,
   validateBody(RedeemRewardSchema),
   asyncHandler(async (req, res) => {
-    const { rewardId } = req.body;
     const userId = req.user?.id;
-
     if (!userId) {
-      return res.status(401).json({ 
-        success: false,
-        message: 'Utilisateur non authentifié' 
-      });
+      return res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
     }
-
-    // Vérifier les points disponibles
-    const loyaltyData = await UserProfileService.calculateLoyaltyData(userId);
-    const reward = loyaltyData.availableRewards.find(r => r.id === rewardId);
-
-    if (!reward) {
-      return res.status(404).json({ 
-        success: false,
-        message: 'Récompense non trouvée' 
-      });
-    }
-
-    if (loyaltyData.points < reward.pointsCost) {
-      return res.status(400).json({ 
-        success: false,
-        message: 'Points insuffisants' 
-      });
-    }
-
-    const db = await getDb();
-
-    try {
-      // Enregistrer la récompense échangée
-      await db.insert(customers)
-        .values({
-          userId,
-          rewardId,
-          redeemedAt: new Date(),
-          isUsed: false
-        });
-
-      logger.info('Récompense échangée', { userId, rewardId });
-
-      res.json({
-        success: true,
-        data: { 
-          message: 'Récompense récupérée avec succès',
-          rewardId,
-          pointsUsed: reward.pointsCost,
-          remainingPoints: loyaltyData.points - reward.pointsCost
-        }
-      });
-    } catch (error) {
-      logger.error('Erreur échange récompense', { 
-        userId, 
-        rewardId, 
-        error: error instanceof Error ? error.message : 'Erreur inconnue' 
-      });
-      res.status(500).json({ 
-        success: false,
-        message: 'Erreur lors de l\'échange de la récompense' 
-      });
-    }
+    // Rewards persistence not available; inform client gracefully
+    return res.status(501).json({
+      success: false,
+      message: 'Échange de récompenses non disponible dans cette configuration'
+    });
   })
 );
 
@@ -757,17 +689,10 @@ userProfileRouter.get('/addresses',
   asyncHandler(async (req, res) => {
     const userId = req.user?.id;
     if (!userId) {
-      return res.status(401).json({ 
-        success: false,
-        message: 'Utilisateur non authentifié' 
-      });
+      return res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
     }
-
-    const addresses = await UserProfileService.getUserAddresses(userId);
-    res.json({
-      success: true,
-      data: addresses
-    });
+    // Address persistence not available; return empty list
+    res.json({ success: true, data: [] });
   })
 );
 
@@ -777,24 +702,9 @@ userProfileRouter.post('/addresses',
   asyncHandler(async (req, res) => {
     const userId = req.user?.id;
     if (!userId) {
-      return res.status(401).json({ 
-        success: false,
-        message: 'Utilisateur non authentifié' 
-      });
+      return res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
     }
-
-    const newAddress = await UserProfileService.saveAddress(userId, req.body);
-    if (!newAddress) {
-      return res.status(400).json({ 
-        success: false,
-        message: 'Erreur lors de la création de l\'adresse' 
-      });
-    }
-
-    res.status(201).json({
-      success: true,
-      data: newAddress
-    });
+    return res.status(501).json({ success: false, message: 'Gestion d\'adresses non disponible' });
   })
 );
 
@@ -804,26 +714,10 @@ userProfileRouter.put('/addresses/:id',
   asyncHandler(async (req, res) => {
     const userId = req.user?.id;
     const addressId = Number(req.params.id);
-
     if (!userId || isNaN(addressId)) {
-      return res.status(401).json({ 
-        success: false,
-        message: 'Requête invalide' 
-      });
+      return res.status(400).json({ success: false, message: 'Requête invalide' });
     }
-
-    const updatedAddress = await UserProfileService.saveAddress(userId, req.body, addressId);
-    if (!updatedAddress) {
-      return res.status(404).json({ 
-        success: false,
-        message: 'Adresse non trouvée' 
-      });
-    }
-
-    res.json({
-      success: true,
-      data: updatedAddress
-    });
+    return res.status(501).json({ success: false, message: 'Gestion d\'adresses non disponible' });
   })
 );
 
@@ -832,47 +726,10 @@ userProfileRouter.delete('/addresses/:id',
   asyncHandler(async (req, res) => {
     const userId = req.user?.id;
     const addressId = Number(req.params.id);
-
     if (!userId || isNaN(addressId)) {
-      return res.status(401).json({ 
-        success: false,
-        message: 'Requête invalide' 
-      });
+      return res.status(400).json({ success: false, message: 'Requête invalide' });
     }
-
-    const db = await getDb();
-    const [address] = await db.select()
-      .from(addresses)
-      .where(and(
-        eq(addresses.id, addressId),
-        eq(addresses.userId, userId)
-      ))
-      .limit(1);
-
-    if (!address) {
-      return res.status(404).json({ 
-        success: false,
-        message: 'Adresse non trouvée' 
-      });
-    }
-
-    if (address.isDefault) {
-      return res.status(400).json({ 
-        success: false,
-        message: 'Impossible de supprimer l\'adresse par défaut' 
-      });
-    }
-
-    await db.delete(addresses)
-      .where(and(
-        eq(addresses.id, addressId),
-        eq(addresses.userId, userId)
-      ));
-
-    res.json({
-      success: true,
-      message: 'Adresse supprimée avec succès'
-    });
+    return res.status(501).json({ success: false, message: 'Gestion d\'adresses non disponible' });
   })
 );
 
@@ -888,12 +745,7 @@ userProfileRouter.get('/preferences',
       });
     }
 
-    const db = await getDb();
-    const [prefs] = await db.select()
-      .from(userPreferences)
-      .where(eq(userPreferences.userId, userId))
-      .limit(1);
-
+    // Preferences persistence not available; return defaults for now
     const defaultPrefs: UserPreferences = {
       theme: 'light',
       language: 'fr',
@@ -915,10 +767,7 @@ userProfileRouter.get('/preferences',
       }
     };
 
-    res.json({
-      success: true,
-      data: prefs ? { ...defaultPrefs, ...prefs } : defaultPrefs
-    });
+    res.json({ success: true, data: defaultPrefs });
   })
 );
 
@@ -928,48 +777,11 @@ userProfileRouter.put('/preferences',
   asyncHandler(async (req, res) => {
     const userId = req.user?.id;
     if (!userId) {
-      return res.status(401).json({ 
-        success: false,
-        message: 'Utilisateur non authentifié' 
-      });
+      return res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
     }
-
-    const db = await getDb();
-
-    // Vérifier si des préférences existent déjà
-    const [existingPrefs] = await db.select()
-      .from(userPreferences)
-      .where(eq(userPreferences.userId, userId))
-      .limit(1);
-
-    let result;
-
-    if (existingPrefs) {
-      // Mise à jour
-      [result] = await db.update(userPreferences)
-        .set({
-          ...req.body,
-          updatedAt: new Date()
-        })
-        .where(eq(userPreferences.userId, userId))
-        .returning();
-    } else {
-      // Création
-      [result] = await db.insert(userPreferences)
-        .values({
-          userId,
-          ...req.body,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        })
-        .returning();
-    }
-
-    logger.info('Préférences utilisateur mises à jour', { userId });
-    res.json({
-      success: true,
-      data: result
-    });
+    // Echo preferences back since persistence layer is not available
+    logger.info('Préférences (non persistées) reçues', { userId });
+    res.json({ success: true, data: req.body });
   })
 );
 
