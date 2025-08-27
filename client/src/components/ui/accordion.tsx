@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -68,8 +69,6 @@ const AccordionTrigger = React.forwardRef<
     ? sanitizeString(children, { maxLength: 500 }) 
     : children
 
-  const IconComponent = iconType === 'plus-minus' ? Plus : ChevronDown
-
   return (
     <AccordionPrimitive.Trigger
       ref={ref}
@@ -78,14 +77,14 @@ const AccordionTrigger = React.forwardRef<
     >
       {sanitizedChildren}
       {!hideIcon && (
-        <div className="flex items-center">
+        <div className="flex items-center relative">
           {iconType === 'plus-minus' ? (
             <>
-              <Plus className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-45 group-data-[state=open]:opacity-0" />
-              <Minus className="h-4 w-4 shrink-0 transition-transform duration-200 absolute group-data-[state=closed]:rotate-45 group-data-[state=closed]:opacity-0" />
+              <Plus className="h-4 w-4 shrink-0 transition-all duration-200 data-[state=open]:rotate-45 data-[state=open]:opacity-0" />
+              <Minus className="h-4 w-4 shrink-0 transition-all duration-200 absolute data-[state=closed]:rotate-45 data-[state=closed]:opacity-0" />
             </>
           ) : (
-            <IconComponent className="h-4 w-4 shrink-0 transition-transform duration-200" />
+            <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
           )}
         </div>
       )}
@@ -95,7 +94,7 @@ const AccordionTrigger = React.forwardRef<
 AccordionTrigger.displayName = AccordionPrimitive.Trigger.displayName
 
 const accordionContentVariants = cva(
-  "overflow-hidden text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down",
+  "overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down",
   {
     variants: {
       padding: {
@@ -135,7 +134,7 @@ const AccordionContent = React.forwardRef<
 })
 AccordionContent.displayName = AccordionPrimitive.Content.displayName
 
-// Composant Accordion avec configuration par défaut
+// Types pour les données d'accordion
 export interface AccordionItemData {
   id: string
   trigger: string
@@ -156,6 +155,7 @@ export interface AccordionWithDefaultsProps {
   defaultValue?: string | string[]
 }
 
+// Composant Accordion avec configuration par défaut
 const AccordionWithDefaults: React.FC<AccordionWithDefaultsProps> = ({
   items,
   type = 'single',
@@ -194,7 +194,7 @@ const AccordionWithDefaults: React.FC<AccordionWithDefaultsProps> = ({
   )
 }
 
-// Composant pour grouper plusieurs accordéons
+// Types pour le groupe d'accordéons
 export interface AccordionGroupProps {
   accordions: {
     title?: string
@@ -204,6 +204,7 @@ export interface AccordionGroupProps {
   className?: string
 }
 
+// Composant pour grouper plusieurs accordéons
 const AccordionGroup: React.FC<AccordionGroupProps> = ({
   accordions,
   className,
