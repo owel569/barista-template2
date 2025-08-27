@@ -110,8 +110,7 @@ export class AIAutomationModule {
           preferences,
           source: 'ai_assistant',
           status: 'confirmed'
-        )
-        ;
+        });
         
         res.json({
           success: true,
@@ -217,7 +216,7 @@ export class AIAutomationModule {
     if (lowerMessage.includes('wifi') || lowerMessage.includes('internet')) {
       return {
         text: KNOWLEDGE_BASE.faq.wifi,
-        actions: [,],
+        actions: [],
         confidence
       };
     }

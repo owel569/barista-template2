@@ -113,10 +113,10 @@ router.get('/', authenticateUser, async (req, res) => {
         data: kpis
       });
   } catch (error) {
-    logger.error('Erreur KPIs:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
-    res.status(500).json({ 
+    logger.error('Erreur KPIs:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+    res.status(500).json({
       error: 'Erreur lors de la récupération des KPIs',
-      details: (error as Error)}).message 
+      details: (error as Error).message
     });
   }
 });
@@ -273,7 +273,7 @@ function generateHistoricalKPIs(period: string) {
   for (let i = intervals - 1; i >= 0; i--) {
     const timestamp = new Date(now.getTime() - i * stepSize);
     data.push({
-      timestamp: timestamp.toISOString(}),
+      timestamp: timestamp.toISOString(),
       revenue: Math.round((2000 + Math.random() * 1000) * 100) / 100,
       customers: Math.round(120 + Math.random() * 80),
       orders: Math.round(70 + Math.random() * 40),
