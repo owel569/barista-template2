@@ -1,114 +1,453 @@
-
 import { getDb } from '../server/db';
 import { 
-  users, menuCategories, menuItems, tables, customers
+  users, menuCategories, menuItems, tables, customers, reservations,
+  type InsertUser, type InsertMenuCategory, type InsertMenuItem, type InsertTable
 } from '../shared/schema';
+import { logger } from '../server/logger';
+import { fakerFR as faker } from '@faker-js/faker';
 
 async function hashPassword(password: string): Promise<string> {
   const bcrypt = await import('bcryptjs');
-  return bcrypt.hash(password, 10);
+  return bcrypt.hash(password, 12); // Augmentation du coût pour plus de sécurité
 }
 
-export async function initializeDatabase() {
+interface InitializationResult {
+  success: boolean;
+  message: string;
+  data?: {
+    admin: number;
+    categories: number;
+    menuItems: number;
+    tables: number;
+    sampleCustomers: number;
+    sampleReservations: number;
+  };
+}
+
+export async function initializeDatabase(): Promise<InitializationResult> {
+  let db;
   try {
-    console.log('🗄️ Initialisation de la base de données...');
+    console.log('🗄️ Début de l\'initialisation de la base de données...');
 
-    const db = await getDb();
+    db = await getDb();
 
-    // Vérifier si des données existent déjà
+    // Vérifier si des données existent déjà de manière plus robuste
     const existingUsers = await db.select().from(users).limit(1);
     if (existingUsers.length > 0) {
       console.log('📊 Données déjà présentes - initialisation ignorée');
-      return { success: true, message: 'Base de données déjà initialisée' };
+      return { 
+        success: true, 
+        message: 'Base de données déjà initialisée' 
+      };
     }
 
     console.log('📝 Création des données initiales...');
 
-    // Transaction pour assurer la cohérence
-    const result = await db.transaction(async (tx: unknown) => {
-      // 1. Créer l'utilisateur admin
+    // Transaction pour assurer la cohérence des données
+    const result = await db.transaction(async (tx) => {
+      // 1. Créer les utilisateurs par défaut
       const adminPassword = await hashPassword('admin123');
-      const [admin] = await tx.insert(users).values({
-        username: 'admin',
-        password: adminPassword,
-        role: 'directeur',
-        firstName: 'Admin',
-        lastName: 'Barista',
-        email: 'admin@barista-cafe.com'
-      }).returning();
+      const employeePassword = await hashPassword('employe123');
 
-      // 2. Créer les catégories
-      const categories = await tx.insert(menuCategories).values([
-        { name: 'Cafés', description: 'Nos cafés artisanaux', slug: 'cafes', displayOrder: 1 },
-        { name: 'Boissons', description: 'Boissons chaudes et froides', slug: 'boissons', displayOrder: 2 },
-        { name: 'Pâtisseries', description: 'Pâtisseries fraîches', slug: 'patisseries', displayOrder: 3 },
-        { name: 'Plats', description: 'Plats et sandwichs', slug: 'plats', displayOrder: 4 }
-      ]).returning();
-
-      // 3. Créer les articles de menu
-      const menuItemsData = [
-        // Cafés
-        { name: 'Espresso', description: 'Café espresso italien traditionnel', price: 2.50, categoryId: categories[0].id },
-        { name: 'Cappuccino', description: 'Espresso avec mousse de lait onctueux', price: 3.80, categoryId: categories[0].id },
-        { name: 'Latte', description: 'Café au lait avec art latte', price: 4.20, categoryId: categories[0].id },
-        { name: 'Americano', description: 'Café allongé américain', price: 3.20, categoryId: categories[0].id },
-        
-        // Boissons
-        { name: 'Thé Earl Grey', description: 'Thé noir bergamote premium', price: 2.80, categoryId: categories[1].id },
-        { name: 'Chocolat chaud', description: 'Chocolat belge artisanal', price: 3.50, categoryId: categories[1].id },
-        { name: 'Smoothie fruits rouges', description: 'Mix de fruits frais', price: 4.80, categoryId: categories[1].id },
-        
-        // Pâtisseries
-        { name: 'Croissant au beurre', description: 'Croissant traditionnel français', price: 2.20, categoryId: categories[2].id },
-        { name: 'Cookies au chocolat', description: 'Cookies maison aux pépites', price: 2.80, categoryId: categories[2].id },
-        { name: 'Muffin myrtilles', description: 'Muffin moelleux aux myrtilles', price: 3.20, categoryId: categories[2].id },
-        
-        // Plats
-        { name: 'Sandwich Club', description: 'Sandwich traditionnel complet', price: 6.50, categoryId: categories[3].id },
-        { name: 'Salade César', description: 'Salade fraîche avec croûtons', price: 7.80, categoryId: categories[3].id }
+      const usersData: InsertUser[] = [
+        {
+          username: 'admin',
+          password: adminPassword,
+          role: 'directeur',
+          firstName: 'Jean',
+          lastName: 'Dupont',
+          email: 'admin@barista-cafe.com',
+          phone: '+33123456789',
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          username: 'employe',
+          password: employeePassword,
+          role: 'employe',
+          firstName: 'Marie',
+          lastName: 'Martin',
+          email: 'marie.martin@barista-cafe.com',
+          phone: '+33123456780',
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          username: 'cuisinier',
+          password: await hashPassword('cuisine123'),
+          role: 'employe',
+          firstName: 'Pierre',
+          lastName: 'Chef',
+          email: 'pierre.chef@barista-cafe.com',
+          phone: '+33123456781',
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
       ];
 
-      await tx.insert(menuItems).values(menuItemsData);
+      const insertedUsers = await tx.insert(users).values(usersData).returning();
 
-      // 4. Créer les tables
-      await tx.insert(tables).values([
-        { number: 1, capacity: 2 },
-        { number: 2, capacity: 4 },
-        { number: 3, capacity: 6 },
-        { number: 4, capacity: 2 },
-        { number: 5, capacity: 8 }
-      ]);
+      // 2. Créer les catégories de menu
+      const categoriesData: InsertMenuCategory[] = [
+        { 
+          name: 'Cafés', 
+          description: 'Nos cafés artisanaux torréfiés localement', 
+          slug: 'cafes', 
+          displayOrder: 1,
+          isActive: true
+        },
+        { 
+          name: 'Boissons', 
+          description: 'Boissons chaudes, froides et rafraîchissantes', 
+          slug: 'boissons', 
+          displayOrder: 2,
+          isActive: true
+        },
+        { 
+          name: 'Pâtisseries', 
+          description: 'Pâtisseries fraîches faites maison', 
+          slug: 'patisseries', 
+          displayOrder: 3,
+          isActive: true
+        },
+        { 
+          name: 'Plats', 
+          description: 'Plats et sandwichs préparés avec soin', 
+          slug: 'plats', 
+          displayOrder: 4,
+          isActive: true
+        },
+        { 
+          name: 'Spécialités', 
+          description: 'Nos créations exclusives', 
+          slug: 'specialites', 
+          displayOrder: 5,
+          isActive: true
+        }
+      ];
+
+      const insertedCategories = await tx.insert(menuCategories).values(categoriesData).returning();
+
+      // 3. Créer les articles de menu avec des données plus réalistes
+      const menuItemsData: InsertMenuItem[] = [
+        // Cafés
+        { 
+          name: 'Espresso Classique', 
+          description: 'Café espresso italien traditionnel aux arômes intenses', 
+          price: 2.50, 
+          categoryId: insertedCategories[0].id,
+          preparationTime: 5,
+          isAvailable: true,
+          ingredients: ['Café moulu', 'Eau chaude'],
+          calories: 5
+        },
+        { 
+          name: 'Cappuccino Crémeux', 
+          description: 'Espresso avec mousse de lait onctueuse et cacao', 
+          price: 3.80, 
+          categoryId: insertedCategories[0].id,
+          preparationTime: 7,
+          isAvailable: true,
+          ingredients: ['Café moulu', 'Lait entier', 'Cacao'],
+          calories: 120
+        },
+        { 
+          name: 'Latte Artisanal', 
+          description: 'Café au lait avec art latte et vanille', 
+          price: 4.20, 
+          categoryId: insertedCategories[0].id,
+          preparationTime: 8,
+          isAvailable: true,
+          ingredients: ['Café moulu', 'Lait', 'Sirop de vanille'],
+          calories: 150
+        },
+        { 
+          name: 'Macchiato Caramel', 
+          description: 'Espresso marqué de mousse et caramel', 
+          price: 3.50, 
+          categoryId: insertedCategories[0].id,
+          preparationTime: 6,
+          isAvailable: true,
+          ingredients: ['Café moulu', 'Lait', 'Caramel'],
+          calories: 180
+        },
+
+        // Boissons
+        { 
+          name: 'Thé Earl Grey Premium', 
+          description: 'Thé noir bergamote de qualité supérieure', 
+          price: 2.80, 
+          categoryId: insertedCategories[1].id,
+          preparationTime: 4,
+          isAvailable: true,
+          ingredients: ['Thé Earl Grey', 'Eau chaude'],
+          calories: 2
+        },
+        { 
+          name: 'Chocolat Chaud Artisanal', 
+          description: 'Chocolat belge fondant à la chantilly maison', 
+          price: 3.50, 
+          categoryId: insertedCategories[1].id,
+          preparationTime: 8,
+          isAvailable: true,
+          ingredients: ['Chocolat belge', 'Lait', 'Crème chantilly'],
+          calories: 280
+        },
+        { 
+          name: 'Smoothie Fraise-Banane', 
+          description: 'Mélange crémeux de fruits frais et yaourt grec', 
+          price: 4.80, 
+          categoryId: insertedCategories[1].id,
+          preparationTime: 5,
+          isAvailable: true,
+          ingredients: ['Fraises', 'Banane', 'Yaourt grec', 'Miel'],
+          calories: 180
+        },
+        { 
+          name: 'Limonade Maison', 
+          description: 'Limonade fraîchement pressée au citron jaune', 
+          price: 3.20, 
+          categoryId: insertedCategories[1].id,
+          preparationTime: 3,
+          isAvailable: true,
+          ingredients: ['Citron jaune', 'Eau gazeuse', 'Sucre de canne'],
+          calories: 90
+        },
+
+        // Pâtisseries
+        { 
+          name: 'Croissant au Beurre AOP', 
+          description: 'Croissant traditionnel au beurre Charentes-Poitou', 
+          price: 2.20, 
+          categoryId: insertedCategories[2].id,
+          preparationTime: 2,
+          isAvailable: true,
+          ingredients: ['Farine', 'Beurre AOP', 'Levure'],
+          calories: 240
+        },
+        { 
+          name: 'Cookies Double Chocolat', 
+          description: 'Cookies moelleux aux pépites de chocolat noir et blanc', 
+          price: 2.80, 
+          categoryId: insertedCategories[2].id,
+          preparationTime: 2,
+          isAvailable: true,
+          ingredients: ['Farine', 'Chocolat noir', 'Chocolat blanc', 'Beurre'],
+          calories: 320
+        },
+        { 
+          name: 'Tarte au Citron Meringuée', 
+          description: 'Tarte acidulée au citron jaune et meringue italienne', 
+          price: 4.50, 
+          categoryId: insertedCategories[2].id,
+          preparationTime: 3,
+          isAvailable: true,
+          ingredients: ['Citron jaune', 'Sucre', 'Œufs', 'Beurre'],
+          calories: 380
+        },
+        { 
+          name: 'Muffin Myrtilles Bio', 
+          description: 'Muffin moelleux aux myrtilles biologiques', 
+          price: 3.20, 
+          categoryId: insertedCategories[2].id,
+          preparationTime: 2,
+          isAvailable: true,
+          ingredients: ['Myrtilles bio', 'Farine', 'Œufs', 'Beurre'],
+          calories: 280
+        },
+
+        // Plats
+        { 
+          name: 'Sandwich Club Poulet', 
+          description: 'Pain de campagne, poulet rôti, bacon croustillant, avocat', 
+          price: 6.50, 
+          categoryId: insertedCategories[3].id,
+          preparationTime: 12,
+          isAvailable: true,
+          ingredients: ['Pain de campagne', 'Poulet', 'Bacon', 'Avocat', 'Mayonnaise'],
+          calories: 420
+        },
+        { 
+          name: 'Salade César Signature', 
+          description: 'Laitue romaine, poulet grillé, parmesan, croûtons maison', 
+          price: 7.80, 
+          categoryId: insertedCategories[3].id,
+          preparationTime: 10,
+          isAvailable: true,
+          ingredients: ['Laitue romaine', 'Poulet', 'Parmesan', 'Croûtons', 'Sauce césar'],
+          calories: 320
+        },
+        { 
+          name: 'Quiche Lorraine du Chef', 
+          description: 'Quiche traditionnelle au lard fumé, œufs et crème fraîche', 
+          price: 6.80, 
+          categoryId: insertedCategories[3].id,
+          preparationTime: 15,
+          isAvailable: true,
+          ingredients: ['Œufs', 'Lard fumé', 'Crème fraîche', 'Pâte brisée'],
+          calories: 450
+        },
+        { 
+          name: 'Wrap Végétarien', 
+          description: 'Wrap complet aux légumes grillés et hummus', 
+          price: 5.90, 
+          categoryId: insertedCategories[3].id,
+          preparationTime: 8,
+          isAvailable: true,
+          ingredients: ['Tortilla', 'Légumes grillés', 'Hummus', 'Salade'],
+          calories: 280
+        },
+
+        // Spécialités
+        { 
+          name: 'Assiette Dégustation', 
+          description: 'Sélection de fromages, charcuterie et accompagnements', 
+          price: 12.50, 
+          categoryId: insertedCategories[4].id,
+          preparationTime: 15,
+          isAvailable: true,
+          ingredients: ['Fromages assortis', 'Charcuterie', 'Fruits', 'Noix'],
+          calories: 520
+        },
+        { 
+          name: 'Plateau Brunch', 
+          description: 'Œufs brouillés, bacon, avocat, pain toasté et fruits', 
+          price: 14.80, 
+          categoryId: insertedCategories[4].id,
+          preparationTime: 20,
+          isAvailable: true,
+          ingredients: ['Œufs', 'Bacon', 'Avocat', 'Pain', 'Fruits frais'],
+          calories: 480
+        }
+      ];
+
+      const insertedMenuItems = await tx.insert(menuItems).values(menuItemsData).returning();
+
+      // 4. Créer les tables avec différentes capacités
+      const tablesData: InsertTable[] = [
+        { number: 1, capacity: 2, location: 'terrasse', isAvailable: true },
+        { number: 2, capacity: 4, location: 'salon', isAvailable: true },
+        { number: 3, capacity: 6, location: 'salon', isAvailable: true },
+        { number: 4, capacity: 2, location: 'terrasse', isAvailable: true },
+        { number: 5, capacity: 8, location: 'salle privée', isAvailable: true },
+        { number: 6, capacity: 4, location: 'salon', isAvailable: true },
+        { number: 7, capacity: 2, location: 'terrasse', isAvailable: true },
+        { number: 8, capacity: 6, location: 'salle privée', isAvailable: true }
+      ];
+
+      const insertedTables = await tx.insert(tables).values(tablesData).returning();
+
+      // 5. Créer des clients de démonstration
+      const sampleCustomers = Array.from({ length: 10 }, (_, i) => ({
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        email: faker.internet.email(),
+        phone: faker.phone.number(),
+        loyaltyPoints: faker.number.int({ min: 0, max: 500 }),
+        preferences: JSON.stringify({
+          allergies: faker.helpers.arrayElements(['gluten', 'lactose', 'fruits à coque'], { min: 0, max: 2 }),
+          favoriteItems: faker.helpers.arrayElements(insertedMenuItems.map(item => item.id), { min: 1, max: 3 })
+        })
+      }));
+
+      const insertedCustomers = await tx.insert(customers).values(sampleCustomers).returning();
+
+      // 6. Créer des réservations de démonstration
+      const sampleReservations = insertedCustomers.slice(0, 5).map((customer, index) => ({
+        customerId: customer.id,
+        tableId: insertedTables[index % insertedTables.length].id,
+        date: faker.date.soon({ days: 7 }),
+        time: faker.helpers.arrayElement(['12:00', '13:00', '19:00', '20:00', '21:00']),
+        guests: faker.number.int({ min: 1, max: 6 }),
+        status: faker.helpers.arrayElement(['confirmed', 'pending', 'completed']),
+        specialRequests: faker.helpers.maybe(() => faker.lorem.sentence(), { probability: 0.3 }),
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }));
+
+      const insertedReservations = await tx.insert(reservations).values(sampleReservations).returning();
 
       return {
-        admin: admin.id,
-        categories: categories.length,
-        menuItems: menuItemsData.length,
-        tables: 5
+        admin: insertedUsers[0].id,
+        categories: insertedCategories.length,
+        menuItems: insertedMenuItems.length,
+        tables: insertedTables.length,
+        sampleCustomers: insertedCustomers.length,
+        sampleReservations: insertedReservations.length
       };
     });
 
     console.log('✅ Base de données initialisée avec succès');
-    console.log(`👤 Admin créé: admin/admin123`);
+    console.log('👥 Comptes créés:');
+    console.log('   👤 Admin: admin/admin123 (Directeur)');
+    console.log('   👤 Employé: employe/employe123');
+    console.log('   👤 Cuisinier: cuisinier/cuisine123');
     console.log(`📂 ${result.categories} catégories créées`);
     console.log(`🍽️ ${result.menuItems} articles de menu créés`);
     console.log(`🪑 ${result.tables} tables créées`);
+    console.log(`👥 ${result.sampleCustomers} clients de démonstration créés`);
+    console.log(`📅 ${result.sampleReservations} réservations de démonstration créées`);
 
-    return { success: true, message: 'Initialisation terminée', data: result };
+    return { 
+      success: true, 
+      message: 'Initialisation terminée avec succès', 
+      data: result 
+    };
+
   } catch (error) {
-    logger.error('❌ Erreur lors de l\'initialisation:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+    logger.error('❌ Erreur lors de l\'initialisation:', { error: errorMessage });
+
+    return { 
+      success: false, 
+      message: `Échec de l'initialisation: ${errorMessage}` 
+    };
+  }
+}
+
+// Fonction pour réinitialiser la base de données (développement seulement)
+export async function resetDatabase(): Promise<InitializationResult> {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('Reset database not allowed in production');
+  }
+
+  try {
+    const db = await getDb();
+
+    // Supprimer toutes les données dans l'ordre inverse des dépendances
+    await db.delete(reservations);
+    await db.delete(customers);
+    await db.delete(menuItems);
+    await db.delete(menuCategories);
+    await db.delete(tables);
+    await db.delete(users);
+
+    console.log('🗑️ Base de données réinitialisée');
+    return initializeDatabase();
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+    logger.error('❌ Erreur lors de la réinitialisation:', { error: errorMessage });
     throw error;
   }
 }
 
 // Exécuter si appelé directement
-if (import.meta.url === `file: //${process.argv[1,]}`) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   initializeDatabase()
-    .then(() => {
-      console.log('🎉 Initialisation terminée avec succès');
-      process.exit(0);
+    .then((result) => {
+      if (result.success) {
+        console.log('🎉 Initialisation terminée avec succès');
+        process.exit(0);
+      } else {
+        console.error('💥 Échec de l\'initialisation:', result.message);
+        process.exit(1);
+      }
     })
     .catch((error) => {
-      logger.error('💥 Échec de l\'initialisation:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      logger.error('💥 Erreur critique:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       process.exit(1);
     });
 }
