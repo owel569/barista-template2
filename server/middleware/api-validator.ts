@@ -1,5 +1,6 @@
+
 import { Request, Response, NextFunction } from 'express';
-import logger from './logger'; // Assurez-vous d'avoir un système de logging configuré
+import logger from './logger'; // Correction de l'import - utiliser l'export par défaut
 
 interface ApiResponse {
   success: boolean;
@@ -12,14 +13,22 @@ interface ApiResponse {
   metadata?: Record<string, unknown>;
 }
 
-export const apiResponseValidator = (req: Request, res: Response, next: NextFunction) => {
+// Interface pour les erreurs standardisées
+interface StandardError {
+  name?: string;
+  message: string;
+  stack?: string;
+  details?: unknown;
+}
+
+export const apiResponseValidator = (req: Request, res: Response, next: NextFunction): void => {
   // Validation uniquement pour les routes API
   if (!req.path.startsWith('/api/')) {
     return next();
   }
 
-  // Définition du format standard de réponse
-  const standardResponse: Partial<ApiResponse> = {
+  // Définition du format standard de réponse avec valeurs par défaut
+  const standardResponse: Omit<ApiResponse, 'success' | 'message' | 'data' | 'error'> = {
     timestamp: new Date().toISOString(),
     path: req.path,
     statusCode: res.statusCode
@@ -31,28 +40,30 @@ export const apiResponseValidator = (req: Request, res: Response, next: NextFunc
   const originalStatus = res.status;
 
   // Override res.status pour garder trace du code de statut
-  res.status = function(code: number) {
+  res.status = function(code: number): Response {
     this.statusCode = code;
-    standardResponse.statusCode = code;
     return originalStatus.call(this, code);
   };
 
   // Override res.json pour standardiser le format de réponse
-  res.json = function(body: unknown) {
+  res.json = function(body: unknown): Response {
     // Headers pour forcer le JSON
     this.setHeader('Content-Type', 'application/json');
+
+    let parsedBody: unknown = body;
 
     // Validation du contenu
     if (typeof body === 'string') {
       try {
-        body = JSON.parse(body);
+        parsedBody = JSON.parse(body);
       } catch (e) {
         logger.error('🚨 Réponse API non-JSON détectée:', body.substring(0, 100));
         const errorResponse: ApiResponse = {
           ...standardResponse,
           success: false,
           message: 'Erreur de format de réponse',
-          error: 'Invalid JSON format'
+          error: 'Invalid JSON format',
+          timestamp: standardResponse.timestamp
         };
         return originalJson.call(this, errorResponse);
       }
@@ -60,16 +71,18 @@ export const apiResponseValidator = (req: Request, res: Response, next: NextFunc
 
     // Standardisation de la réponse
     let response: ApiResponse;
-    if (isApiResponse(body)) {
+    if (isApiResponse(parsedBody)) {
       response = {
         ...standardResponse,
-        ...body
+        ...parsedBody,
+        timestamp: parsedBody.timestamp || standardResponse.timestamp
       };
     } else {
       response = {
         ...standardResponse,
         success: true,
-        data: body
+        data: parsedBody,
+        timestamp: standardResponse.timestamp
       };
     }
 
@@ -82,7 +95,7 @@ export const apiResponseValidator = (req: Request, res: Response, next: NextFunc
   };
 
   // Override res.send pour intercepter les réponses non-JSON
-  res.send = function(body: string | Buffer) {
+  res.send = function(body: string | Buffer): Response {
     if (typeof body === 'string') {
       // Détection de HTML
       if (body.includes('<!DOCTYPE') || body.startsWith('<html')) {
@@ -91,7 +104,8 @@ export const apiResponseValidator = (req: Request, res: Response, next: NextFunc
           ...standardResponse,
           success: false,
           message: 'Erreur interne - format de réponse incorrect',
-          error: 'HTML response not allowed in API routes'
+          error: 'HTML response not allowed in API routes',
+          timestamp: standardResponse.timestamp
         };
         return originalJson.call(this, errorResponse);
       }
@@ -114,7 +128,7 @@ export const apiResponseValidator = (req: Request, res: Response, next: NextFunc
   next();
 };
 
-export const errorResponseHandler = (error: unknown, req: Request, res: Response, next: NextFunction) => {
+export const errorResponseHandler = (error: unknown, req: Request, res: Response, next: NextFunction): void => {
   if (!req.path.startsWith('/api/')) {
     return next(error);
   }
@@ -126,11 +140,7 @@ export const errorResponseHandler = (error: unknown, req: Request, res: Response
     success: false,
     message: message,
     statusCode: statusCode,
-    error: process.env.NODE_ENV === 'development' ? {
-      name: error instanceof Error ? error.name : undefined,
-      stack: error instanceof Error ? error.stack : undefined,
-      details: error
-    } : undefined,
+    error: process.env.NODE_ENV === 'development' ? getErrorDetails(error) : undefined,
     timestamp: new Date().toISOString(),
     path: req.path
   };
@@ -157,8 +167,18 @@ function isApiResponse(obj: unknown): obj is ApiResponse {
 }
 
 function validateResponseSchema(response: ApiResponse): boolean {
-  // Implémentez ici votre validation de schéma (peut utiliser JSON Schema, Zod, etc.)
-  return true;
+  // Validation basique du schéma
+  const isValid = 
+    typeof response.success === 'boolean' &&
+    (response.message === undefined || typeof response.message === 'string') &&
+    (response.timestamp === undefined || typeof response.timestamp === 'string') &&
+    (response.statusCode === undefined || typeof response.statusCode === 'number');
+  
+  if (!isValid) {
+    logger.warn('Response schema validation failed:', response);
+  }
+  
+  return isValid;
 }
 
 function getErrorStatusCode(error: unknown): number {
@@ -172,21 +192,78 @@ function getErrorStatusCode(error: unknown): number {
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) return error.message;
   if (typeof error === 'string') return error;
+  if (typeof error === 'object' && error !== null && 'message' in error && typeof error.message === 'string') {
+    return error.message;
+  }
   return 'Erreur interne du serveur';
 }
 
+function getErrorDetails(error: unknown): StandardError | string {
+  if (error instanceof Error) {
+    return {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+      details: error.cause
+    };
+  }
+  if (typeof error === 'string') return error;
+  return String(error);
+}
+
 // Middleware pour valider le Content-Type des requêtes API
-export const apiContentTypeValidator = (req: Request, res: Response, next: NextFunction) => {
+export const apiContentTypeValidator = (req: Request, res: Response, next: NextFunction): void => {
   if (req.path.startsWith('/api/') && ['POST', 'PUT', 'PATCH'].includes(req.method)) {
     const contentType = req.headers['content-type'];
     if (!contentType || !contentType.includes('application/json')) {
-      return res.status(415).json({
+      const errorResponse: ApiResponse = {
         success: false,
         message: 'Unsupported Media Type: Content-Type must be application/json',
         statusCode: 415,
-        timestamp: new Date().toISOString()
-      });
+        timestamp: new Date().toISOString(),
+        path: req.path
+      };
+      return res.status(415).json(errorResponse);
     }
   }
   next();
 };
+
+// Middleware pour valider le body des requêtes
+export const apiBodyValidator = (req: Request, res: Response, next: NextFunction): void => {
+  if (req.path.startsWith('/api/') && ['POST', 'PUT', 'PATCH'].includes(req.method)) {
+    try {
+      // Validation basique du body
+      if (req.body && typeof req.body !== 'object') {
+        const errorResponse: ApiResponse = {
+          success: false,
+          message: 'Invalid request body',
+          statusCode: 400,
+          timestamp: new Date().toISOString(),
+          path: req.path
+        };
+        return res.status(400).json(errorResponse);
+      }
+    } catch (error) {
+      const errorResponse: ApiResponse = {
+        success: false,
+        message: 'Error parsing request body',
+        statusCode: 400,
+        timestamp: new Date().toISOString(),
+        path: req.path
+      };
+      return res.status(400).json(errorResponse);
+    }
+  }
+  next();
+};
+
+// Export par défaut pour une utilisation facile
+const apiValidators = {
+  apiResponseValidator,
+  errorResponseHandler,
+  apiContentTypeValidator,
+  apiBodyValidator
+};
+
+export default apiValidators;
