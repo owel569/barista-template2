@@ -63,7 +63,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
         {
           username: 'admin',
           password: adminPassword,
-          role: 'directeur',
+          role: 'admin',
           firstName: 'Jean',
           lastName: 'Dupont',
           email: 'admin@barista-cafe.com',
@@ -75,7 +75,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
         {
           username: 'employe',
           password: employeePassword,
-          role: 'employe',
+          role: 'staff',
           firstName: 'Marie',
           lastName: 'Martin',
           email: 'marie.martin@barista-cafe.com',
@@ -87,7 +87,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
         {
           username: 'cuisinier',
           password: await hashPassword('cuisine123'),
-          role: 'employe',
+          role: 'staff',
           firstName: 'Pierre',
           lastName: 'Chef',
           email: 'pierre.chef@barista-cafe.com',
@@ -152,7 +152,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
         { 
           name: 'Espresso Classique', 
           description: 'Café espresso italien traditionnel aux arômes intenses et à la crema parfaite', 
-          price: 2.50, 
+          price: '2.50', 
           categoryId: insertedCategories[0].id,
           preparationTime: 5,
           isAvailable: true,
@@ -164,7 +164,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
         { 
           name: 'Cappuccino Crémeux', 
           description: 'Espresso avec mousse de lait onctueuse et cacao', 
-          price: 3.80, 
+          price: '3.80', 
           categoryId: insertedCategories[0].id,
           preparationTime: 7,
           isAvailable: true,
@@ -176,7 +176,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
         { 
           name: 'Latte Artisanal', 
           description: 'Café au lait avec art latte et vanille', 
-          price: 4.20, 
+          price: '4.20', 
           categoryId: insertedCategories[0].id,
           preparationTime: 8,
           isAvailable: true,
@@ -188,7 +188,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
         { 
           name: 'Macchiato Caramel', 
           description: 'Espresso marqué de mousse et caramel', 
-          price: 3.50, 
+          price: '3.50', 
           categoryId: insertedCategories[0].id,
           preparationTime: 6,
           isAvailable: true,
@@ -202,7 +202,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
         { 
           name: 'Thé Earl Grey Premium', 
           description: 'Thé noir bergamote de qualité supérieure', 
-          price: 2.80, 
+          price: '2.80', 
           categoryId: insertedCategories[1].id,
           preparationTime: 4,
           isAvailable: true,
@@ -214,7 +214,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
         { 
           name: 'Chocolat Chaud Artisanal', 
           description: 'Chocolat belge fondant à la chantilly maison', 
-          price: 3.50, 
+          price: '3.50', 
           categoryId: insertedCategories[1].id,
           preparationTime: 8,
           isAvailable: true,
@@ -226,7 +226,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
         { 
           name: 'Smoothie Fraise-Banane', 
           description: 'Mélange crémeux de fruits frais et yaourt grec', 
-          price: 4.80, 
+          price: '4.80', 
           categoryId: insertedCategories[1].id,
           preparationTime: 5,
           isAvailable: true,
@@ -238,7 +238,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
         { 
           name: 'Limonade Maison', 
           description: 'Limonade fraîchement pressée au citron jaune', 
-          price: 3.20, 
+          price: '3.20', 
           categoryId: insertedCategories[1].id,
           preparationTime: 3,
           isAvailable: true,
@@ -252,7 +252,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
         { 
           name: 'Croissant au Beurre AOP', 
           description: 'Croissant traditionnel au beurre Charentes-Poitou', 
-          price: 2.20, 
+          price: '2.20', 
           categoryId: insertedCategories[2].id,
           preparationTime: 2,
           isAvailable: true,
@@ -264,7 +264,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
         { 
           name: 'Cookies Double Chocolat', 
           description: 'Cookies moelleux aux pépites de chocolat noir et blanc', 
-          price: 2.80, 
+          price: '2.80', 
           categoryId: insertedCategories[2].id,
           preparationTime: 2,
           isAvailable: true,
@@ -276,7 +276,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
         { 
           name: 'Tarte au Citron Meringuée', 
           description: 'Tarte acidulée au citron jaune et meringue italienne', 
-          price: 4.50, 
+          price: '4.50', 
           categoryId: insertedCategories[2].id,
           preparationTime: 3,
           isAvailable: true,
@@ -288,7 +288,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
         { 
           name: 'Muffin Myrtilles Bio', 
           description: 'Muffin moelleux aux myrtilles biologiques', 
-          price: 3.20, 
+          price: '3.20', 
           categoryId: insertedCategories[2].id,
           preparationTime: 2,
           isAvailable: true,
@@ -302,7 +302,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
         { 
           name: 'Sandwich Club Poulet', 
           description: 'Pain de campagne, poulet rôti, bacon croustillant, avocat', 
-          price: 6.50, 
+          price: '6.50', 
           categoryId: insertedCategories[3].id,
           preparationTime: 12,
           isAvailable: true,
@@ -314,7 +314,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
         { 
           name: 'Salade César Signature', 
           description: 'Laitue romaine, poulet grillé, parmesan, croûtons maison', 
-          price: 7.80, 
+          price: '7.80', 
           categoryId: insertedCategories[3].id,
           preparationTime: 10,
           isAvailable: true,
@@ -326,7 +326,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
         { 
           name: 'Quiche Lorraine du Chef', 
           description: 'Quiche traditionnelle au lard fumé, œufs et crème fraîche', 
-          price: 6.80, 
+          price: '6.80', 
           categoryId: insertedCategories[3].id,
           preparationTime: 15,
           isAvailable: true,
@@ -338,7 +338,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
         { 
           name: 'Wrap Végétarien', 
           description: 'Wrap complet aux légumes grillés et hummus', 
-          price: 5.90, 
+          price: '5.90', 
           categoryId: insertedCategories[3].id,
           preparationTime: 8,
           isAvailable: true,
@@ -352,7 +352,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
         { 
           name: 'Assiette Dégustation', 
           description: 'Sélection de fromages, charcuterie et accompagnements', 
-          price: 12.50, 
+          price: '12.50', 
           categoryId: insertedCategories[4].id,
           preparationTime: 15,
           isAvailable: true,
@@ -364,7 +364,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
         { 
           name: 'Plateau Brunch', 
           description: 'Œufs brouillés, bacon, avocat, pain toasté et fruits', 
-          price: 14.80, 
+          price: '14.80', 
           categoryId: insertedCategories[4].id,
           preparationTime: 20,
           isAvailable: true,
