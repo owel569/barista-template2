@@ -172,11 +172,11 @@ router.put('/user/:userId', authenticateUser, requireRoles(['directeur']), async
     }
     
     // Simuler la mise à jour
-    const updatedPermissions = permissions.map(perm => ({
+    const updatedPermissions = permissions.map((perm: any) => ({
       ...perm,
-      userId: parseInt(userId)}),
+      userId: parseInt(userId),
       updatedAt: new Date().toISOString()
-    });
+    }));
     
     res.json({
       success: true,
