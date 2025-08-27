@@ -4,7 +4,8 @@ import { createLogger } from './logging';
 const logger = createLogger('CACHE');
 
 // Cache simple en mémoire pour les requêtes fréquentes
-const cache = new Map<string, { data: Record<string, unknown>; timestamp: number; ttl: number }>();
+type SimpleCacheEntry = { data: unknown; timestamp: number; ttl: number };
+const cache = new Map<string, SimpleCacheEntry>();
 
 // Middleware de cache pour les requêtes GET
 export const cacheMiddleware = (ttlSeconds: number = 300) => {
@@ -26,8 +27,8 @@ export const cacheMiddleware = (ttlSeconds: number = 300) => {
     }
 
     // Intercepter la réponse pour la mettre en cache
-    const originalJson = res.json;
-    res.json = function(body) {
+    const originalJson: typeof res.json = res.json.bind(res);
+    res.json = function(body: any) {
       // Mettre en cache seulement si la réponse est un succès
       if (res.statusCode >= 200 && res.statusCode < 300) {
         cache.set(key, {
@@ -37,7 +38,7 @@ export const cacheMiddleware = (ttlSeconds: number = 300) => {
         });
         logger.info(`Cached response for ${key} (TTL: ${ttlSeconds}s)`);
       }
-      return originalJson.call(this, body);
+      return originalJson(body);
     };
 
     next();

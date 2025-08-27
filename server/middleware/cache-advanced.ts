@@ -36,7 +36,7 @@ class AdvancedCache {
   }
 
   // Obtenir une entrée du cache
-  get(key: string): unknown | null {
+  get(key: string): Record<string, unknown> | null {
     const entry = this.cache.get(key);
     if (!entry) return null;
 
@@ -174,7 +174,7 @@ export const cacheMiddleware = (options: {
   keyGenerator?: (req: Request) => string;
   skipCache?: (req: Request) => boolean;
 } = {}) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     // Vérifier si le cache doit être ignoré
     if (options.skipCache && options.skipCache(req)) {
       return next();
@@ -186,7 +186,7 @@ export const cacheMiddleware = (options: {
     }
 
     // Générer la clé de cache
-    const cacheKey = options.keyGenerator ? options.keyGenerator(req) : cache['generateKey'](req);
+    const cacheKey = options.keyGenerator ? options.keyGenerator(req) : (createHash('md5').update(JSON.stringify({ method: req.method, url: req.url, query: req.query, user: (req.user?.id || 'anonymous') })).digest('hex'));
 
     // Essayer de récupérer depuis le cache
     const cachedData = cache.get(cacheKey);
@@ -202,13 +202,13 @@ export const cacheMiddleware = (options: {
     res.setHeader('X-Cache-Key', cacheKey);
 
     // Intercepter la réponse pour la mettre en cache
-    const originalSend = res.json;
-    res.json = function(data: Record<string, unknown>) {
+    const originalSend: typeof res.json = res.json.bind(res);
+    res.json = function(data: any) {
       // Mettre en cache seulement les réponses réussies
       if (res.statusCode >= 200 && res.statusCode < 300) {
-        cache.set(cacheKey, data, options.ttl, options.tags || []);
+        cache.set(cacheKey, data as Record<string, unknown>, options.ttl, options.tags || []);
       }
-      return originalSend.call(this, data);
+      return originalSend(data);
     };
 
     next();
@@ -238,15 +238,15 @@ export const usersCacheMiddleware = cacheMiddleware({
 
 // Middleware d'invalidation du cache
 export const invalidateCache = (tags: string[] = []) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     // Invalider le cache après une modification réussie
-    const originalSend = res.json;
-    res.json = function(data: Record<string, unknown>) {
+    const originalSend: typeof res.json = res.json.bind(res);
+    res.json = function(data: any) {
       if (res.statusCode >= 200 && res.statusCode < 300 && tags.length > 0) {
         const invalidatedCount = cache.invalidateByTags(tags);
         res.setHeader('X-Cache-Invalidated', invalidatedCount.toString());
       }
-      return originalSend.call(this, data);
+      return originalSend(data);
     };
 
     next();
@@ -254,7 +254,7 @@ export const invalidateCache = (tags: string[] = []) => {
 };
 
 // Route pour obtenir les statistiques du cache
-export const getCacheStats = (req: Request, res: Response) => {
+export const getCacheStats = (req: Request, res: Response): void => {
   const stats = cache.getStats();
   const totalRequests = cacheHits + cacheMisses;
   
@@ -271,7 +271,7 @@ export const getCacheStats = (req: Request, res: Response) => {
 };
 
 // Route pour vider le cache
-export const clearCache = (req: Request, res: Response) => {
+export const clearCache = (req: Request, res: Response): void => {
   cache.clear();
   cacheHits = 0;
   cacheMisses = 0;
@@ -283,7 +283,7 @@ export const clearCache = (req: Request, res: Response) => {
 };
 
 // Route pour invalider le cache par tags
-export const invalidateCacheByTags = (req: Request, res: Response) => {
+export const invalidateCacheByTags = (req: Request, res: Response): void => {
   const { tags } = req.body;
   if (!tags || !Array.isArray(tags)) {
     return res.status(400).json({
