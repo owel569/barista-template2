@@ -26,6 +26,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
@@ -36,6 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Label } from '@/components/ui/label'; // Ajout de l'import Label
 import { 
   Globe, 
   ShoppingCart, 
@@ -114,6 +116,7 @@ const statusColors = {
   cancelled: 'bg-red-100 text-red-800',
 };
 
+
 const statusLabels = {
   pending: 'En attente',
   confirmed: 'Confirmée',
@@ -152,11 +155,17 @@ export default function OnlineOrdering(): JSX.Element {
   const { data: settings, isLoading: settingsLoading } = useQuery<OrderSettings>({
     queryKey: ['onlineOrderSettings'],
     queryFn: () => apiRequest('/api/admin/online-ordering/settings'),
-    onSuccess: (data) => setSettingsForm(data),
   });
 
+  // Mettre à jour le formulaire quand les settings sont chargés
+  React.useEffect(() => {
+    if (settings) {
+      setSettingsForm(settings);
+    }
+  }, [settings]);
+
   const updateOrderMutation = useMutation({
-    mutationFn: ({ id, ...data }: { id: number; [key: string]: any }) => 
+    mutationFn: ({ id, ...data }: { id: number; [key: string]: unknown }) => 
       apiRequest(`/api/admin/online-orders/${id}`, { 
         method: 'PUT', 
         body: JSON.stringify(data) 
@@ -203,7 +212,7 @@ export default function OnlineOrdering(): JSX.Element {
     updateOrderMutation.mutate({ id, status });
   };
 
-  const handleSettingsChange = (key: keyof OrderSettings, value: any) => {
+  const handleSettingsChange = (key: keyof OrderSettings, value: unknown) => {
     setSettingsForm(prev => ({
       ...prev,
       [key]: value
@@ -230,7 +239,7 @@ export default function OnlineOrdering(): JSX.Element {
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-10 w-40" />
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
             <Card key={i}>

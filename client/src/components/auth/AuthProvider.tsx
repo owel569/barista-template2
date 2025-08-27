@@ -135,7 +135,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         message: error instanceof Error ? error.message : 'Erreur de connexion au serveur',
         token: '',
         user: {
-          id: '',
+          id: 0,
           username: '',
           role: '',
           firstName: '',

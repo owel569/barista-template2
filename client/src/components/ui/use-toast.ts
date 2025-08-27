@@ -1,6 +1,6 @@
 
 // Exports centralisés pour les toasts
-export { useToast, type ToastProps, toastManager as toast } from '@/hooks/use-toast';
+export { useToast, type ToastProps, toastManager as toast, toastManager } from '@/hooks/use-toast';
 export { toast as sonnerToast } from 'sonner';
 
 // Types supplémentaires pour la compatibilité

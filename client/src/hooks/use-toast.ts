@@ -153,3 +153,4 @@ export const useToast = () => {
 };
 
 export { toastManager as toast };
+export { toastManager };
