@@ -72,7 +72,9 @@ export function DatePicker({
 
     if (showTime && time) {
       const [hours, minutes] = time.split(":")
-      selectedDate.setHours(parseInt(hours), parseInt(minutes))
+      if (hours && minutes) {
+        selectedDate.setHours(parseInt(hours), parseInt(minutes))
+      }
     }
 
     onSelect?.(selectedDate)
@@ -187,7 +189,7 @@ export function DatePicker({
 // Range Date Picker
 export interface DateRangePickerProps {
   dateRange?: { from: Date; to?: Date }
-  onSelect?: (range: { from: Date; to?: Date } | undefined) => void
+  onSelect?: (range: { from: Date | undefined; to?: Date | undefined } | undefined) => void
   placeholder?: string
   disabled?: boolean
   className?: string
@@ -224,7 +226,8 @@ export function DateRangePicker({
 }: DateRangePickerProps) {
   const [isOpen, setIsOpen] = React.useState(false)
 
-  const formatRange = (range: { from: Date; to?: Date }) => {
+  const formatRange = (range: { from: Date | undefined; to?: Date | undefined }) => {
+    if (!range.from) return ""
     if (!range.to) {
       return format(range.from, "PPP", { locale: fr })
     }
@@ -269,7 +272,7 @@ export function DateRangePicker({
             <Calendar
               mode="range"
               selected={dateRange}
-              onSelect={onSelect}
+              onSelect={(range) => onSelect?.(range ? { from: range.from, to: range.to } : undefined)}
               numberOfMonths={2}
               initialFocus
             />

@@ -197,7 +197,9 @@ export function DataGrid<T = any>({
   // Effet pour notifier les changements de sélection
   React.useEffect(() => {
     if (onSelectionChange) {
-      const selectedData = Array.from(selectedRows).map(index => data[index]).filter(Boolean);
+      const selectedData = Array.from(selectedRows)
+        .map(index => data[index])
+        .filter((item): item is T => item !== undefined);
       onSelectionChange(selectedData);
     }
   }, [selectedRows, data, onSelectionChange]);
