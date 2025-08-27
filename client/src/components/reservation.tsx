@@ -68,7 +68,11 @@ export default function Reservation() : JSX.Element {
 
   const reservationMutation = useMutation({
     mutationFn: (data: ReservationFormData) =>
-      apiRequest("POST", "/api/reservations", data),
+      apiRequest("/api/reservations", {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }),
     onSuccess: () => {
       toast({
         title: "Réservation confirmée !",

@@ -82,18 +82,17 @@ function App() {
                 </AdminLayout>
               </Route>
 
-              {/* ========== ROUTES PUBLIQUES (avec navbar/footer) ========== */}
+              {/* ========== ROUTES PUBLIQUES (sans navbar pour HomePage) ========== */}
+              <Route path="/" component={HomePage} />
+              
+              {/* Authentification */}
+              <Route path="/login" component={LoginSimple} />
+              
+              {/* Autres routes avec navbar/footer */}
               <Route>
                 <Navbar />
                 <main className="flex-1">
                   <Switch>
-                    {/* Page d'accueil */}
-                    <Route path="/" component={HomePage} />
-                    
-                    {/* Authentification */}
-                    <Route path="/login" component={LoginSimple} />
-                    
-                    {/* Pages simples pour développement */}
                     <Route path="/menu">
                       <SimplePage 
                         title="Menu du Restaurant" 
