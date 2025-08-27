@@ -387,7 +387,7 @@ router.post('/bulk-update', authenticateUser, requireRoles(['admin']), validateB
   } catch (error) {
     logger.error('Erreur mise à jour masse permissions', { 
       error: error instanceof Error ? error.message : 'Erreur inconnue' 
-    )});
+    });
     res.status(500).json({
       success: false,
       message: 'Erreur lors de la mise à jour en masse des permissions'
@@ -396,9 +396,9 @@ router.post('/bulk-update', authenticateUser, requireRoles(['admin']), validateB
 }));
 
 router.post('/apply-template', authenticateUser, requireRoles(['admin']), validateBody(z.object({
-  userId: z.number()}).positive('ID utilisateur invalide'),
+  userId: z.number().positive('ID utilisateur invalide'),
   templateName: z.string().min(1, 'Nom du template requis')
-})), asyncHandler(async (req, res) => {
+}))), asyncHandler(async (req, res) => {
   const { userId, templateName } = req.body;
   
   try {
@@ -423,21 +423,21 @@ router.post('/apply-template', authenticateUser, requireRoles(['admin']), valida
     }
     
     // Appliquer le template
-    for (const [module, permissions] of Object.entries(template.permissions)) {
+    for (const [module, permFlags] of Object.entries(template.permissions)) {
       const existingPermission = await db.select()
-    .from(permissions)
+        .from(permissions)
         .where(and(eq(permissions.userId, userId), eq(permissions.module, module)))
-    .limit(1);
+        .limit(1);
 
       if (existingPermission.length > 0) {
         await db.update(permissions)
-          .set(permissions)
+          .set(permFlags)
           .where(and(eq(permissions.userId, userId), eq(permissions.module, module)));
       } else {
         await db.insert(permissions).values({
           userId,
           module,
-          ...permissions
+          ...permFlags
         });
       }
     }
@@ -459,7 +459,7 @@ router.post('/apply-template', authenticateUser, requireRoles(['admin']), valida
       userId, 
       templateName, 
       error: error instanceof Error ? error.message : 'Erreur inconnue' 
-    )});
+    });
     res.status(500).json({
       success: false,
       message: 'Erreur lors de l\'application du template'
@@ -468,8 +468,8 @@ router.post('/apply-template', authenticateUser, requireRoles(['admin']), valida
 }));
 
 router.delete('/user/:userId', authenticateUser, requireRoles(['admin']), validateParams(z.object({
-  userId: z.string()}).regex(/^\d+$/, 'ID utilisateur doit être un nombre')
-})), asyncHandler(async (req, res) => {
+  userId: z.string().regex(/^\d+$/, 'ID utilisateur doit être un nombre')
+}))), asyncHandler(async (req, res) => {
   const { userId } = req.params;
   const userIdNum = parseInt(userId || '0');
   
@@ -480,12 +480,13 @@ router.delete('/user/:userId', authenticateUser, requireRoles(['admin']), valida
     await db.delete(permissions).where(eq(permissions.userId, userIdNum));
 
     // Enregistrer l'activité
-  await db.insert(activityLogs).values({
-    userId: req.user?.id || 0,
+    await db.insert(activityLogs).values({
+      userId: req.user?.id || 0,
       action: 'permissions_deleted',
-      details: `Toutes les permissions supprimées pour l'utilisateur ${userIdNum}`,
-      timestamp: new Date().toISOString()
-  });
+      entity: 'permissions',
+      entityId: userIdNum,
+      details: `Toutes les permissions supprimées pour l'utilisateur ${userIdNum}`
+    });
 
   res.json({
     success: true,
@@ -495,7 +496,7 @@ router.delete('/user/:userId', authenticateUser, requireRoles(['admin']), valida
     logger.error('Erreur suppression permissions', { 
       userId, 
       error: error instanceof Error ? error.message : 'Erreur inconnue' 
-    )});
+    });
     res.status(500).json({
       success: false,
       message: 'Erreur lors de la suppression des permissions'
