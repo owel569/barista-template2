@@ -77,7 +77,7 @@ const TableManagement: React.FC = () => {
 
   const updateTableMutation = useMutation({
     mutationFn: async ({ id, ...data })}: Partial<Table> & { id: number }) => {
-      const response = await fetch(`/api/tables/${id)}`, {
+      const response = await fetch(`/api/tables/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -95,7 +95,7 @@ const TableManagement: React.FC = () => {
 
   const updateTableStatusMutation = useMutation({
     mutationFn: async ({ id, status })}: { id: number; status: string }) => {
-      const response = await fetch(`/api/tables/${id)}/status`, {
+      const response = await fetch(`/api/tables/${id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
@@ -111,7 +111,7 @@ const TableManagement: React.FC = () => {
 
   const deleteTableMutation = useMutation({
     mutationFn: async (id: number})}) => {
-      const response = await fetch(`/api/tables/${id)}`, {
+      const response = await fetch(`/api/tables/${id}`, {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Erreur lors de la suppression');
@@ -234,7 +234,7 @@ const TableManagement: React.FC = () => {
                     <span className="text-2xl mr-2">{getTableIcon(table.shape)}</span>
                     Table {table.number}
                   </CardTitle>
-                  <Badge className={`${getStatusColor(table.status)} text-white`}>
+                  <Badge className={`${getStatusColor(table.status} text-white`}>
                     {getStatusLabel(table.status)}
                   </Badge>
                 </div>
@@ -328,7 +328,7 @@ const TableManagement: React.FC = () => {
                     setSelectedTable(table);
                     setIsEditDialogOpen(true);
                   }}
-                  title={`Table ${table.number} - ${table.capacity} pers. - ${getStatusLabel(table.status)}`}
+                  title={`Table ${table.number} - ${table.capacity} pers. - ${getStatusLabel(table.status}`}
                 >
                   <div className="text-center">
                     <div className="text-lg">{getTableIcon(table.shape)}</div>

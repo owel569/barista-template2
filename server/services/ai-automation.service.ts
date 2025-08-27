@@ -155,14 +155,14 @@ export class AIAutomationService {
     };
   }
 
-  private calculateScore(words: string[,], keywords: string[]): number {
+  private calculateScore(words: string[], keywords: string[]): number {
     const matches = words.filter(word => 
       keywords.some(keyword => word.includes(keyword) || keyword.includes(word))
     );
     return Math.min(matches.length / keywords.length + (matches.length * 0.2), 1);
   }
 
-  private async generateContextualResponse(message: string, intent: { category: string; confidence: number }, session: unknown[,], userId?: string) {
+  private async generateContextualResponse(message: string, intent: { category: string; confidence: number }, session: unknown[], userId?: string) {
     const { category, confidence } = intent;
 
     switch (category) {
@@ -192,7 +192,7 @@ export class AIAutomationService {
   private generateMenuResponse(message: string, session: unknown[]) {
     const menuItems = Object.entries(CAFE_KNOWLEDGE_BASE.menu);
     const menuText = menuItems.map(([name, info]) => 
-      `• ${name.charAt(0).toUpperCase() + name.slice(1)}: ${info.description} - ${info.price}€`
+      `• ${name.charAt(0).toUpperCase() + name.slice(1}: ${info.description} - ${info.price}€`
     ).join('\n');
 
     return {
@@ -205,7 +205,7 @@ export class AIAutomationService {
     };
   }
 
-  private generateReservationResponse(message: string, session: unknown[,], userId?: string) {
+  private generateReservationResponse(message: string, session: unknown[], userId?: string) {
     // Extraction des informations de réservation du message
     const guestMatch = message.match(/(\d+)\s*(personne|gens|places)/i);
     const guests = guestMatch ? parseInt(guestMatch[1]) : null;
@@ -223,7 +223,7 @@ export class AIAutomationService {
     };
   }
 
-  private generateOrderResponse(message: string, session: unknown[,], userId?: string) {
+  private generateOrderResponse(message: string, session: unknown[], userId?: string) {
     // Détection des items mentionnés
     const mentionedItems = Object.keys(CAFE_KNOWLEDGE_BASE.menu).filter(item =>
       message.toLowerCase().includes(item.toLowerCase())
@@ -235,7 +235,7 @@ export class AIAutomationService {
 
       return {
         text: `☕ **Excellent choix !**\n\n` +
-              `${item.charAt(0).toUpperCase() + item.slice(1)} - ${itemInfo?.price || 0}€\n` +
+              `${item.charAt(0).toUpperCase() + item.slice(1} - ${itemInfo?.price || 0}€\n` +
               `${itemInfo?.description || ''}\n\n` +
               `Voulez-vous l'ajouter à votre commande ?`,
         actions: [
@@ -260,7 +260,7 @@ export class AIAutomationService {
 
   private generateHoursResponse() {
     const hours = Object.entries(CAFE_KNOWLEDGE_BASE.horaires)
-      .map(([day, hours]) => `• ${day.charAt(0).toUpperCase() + day.slice(1)}: ${hours}`)
+      .map(([day, hours]) => `• ${day.charAt(0).toUpperCase() + day.slice(1}: ${hours}`)
       .join('\n');
 
     return {
@@ -282,14 +282,14 @@ export class AIAutomationService {
 
     if (specificService) {
       return {
-        text: `ℹ️ **${specificService.charAt(0).toUpperCase() + specificService.slice(1)}**\n\n${(CAFE_KNOWLEDGE_BASE.services as any)[specificService] || 'Information non disponible'}`,
+        text: `ℹ️ **${specificService.charAt(0).toUpperCase() + specificService.slice(1}**\n\n${(CAFE_KNOWLEDGE_BASE.services as any)[specificService] || 'Information non disponible'}`,
         actions: [{ type: 'show_all_services' }],
         suggestions: ['Voir tous nos services', 'Réserver une table', 'Notre menu']
       };
     }
 
     const servicesList = Object.entries(CAFE_KNOWLEDGE_BASE.services)
-      .map(([key, value]) => `• **${key.charAt(0).toUpperCase() + key.slice(1)}**: ${value}`)
+      .map(([key, value]) => `• **${key.charAt(0).toUpperCase() + key.slice(1}**: ${value}`)
       .join('\n');
 
     return {
@@ -301,7 +301,7 @@ export class AIAutomationService {
 
   private generatePromotionsResponse() {
     const promosList = Object.entries(CAFE_KNOWLEDGE_BASE.promotions)
-      .map(([key, value]) => `🎉 **${key.replace('-', ' ').toUpperCase()}**: ${value}`)
+      .map(([key, value]) => `🎉 **${key.replace('-', ' ').toUpperCase(}**: ${value}`)
       .join('\n\n');
 
     return {
