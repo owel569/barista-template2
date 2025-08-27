@@ -4,7 +4,11 @@ import { sql } from 'drizzle-orm';
 import { 
   users, menuCategories, menuItems, tables, customers, reservations
 } from '../shared/schema';
-import { logger } from '../server/utils/logger';
+// Logger simple pour le développement
+const logger = {
+  error: (msg: string, data?: any) => console.error(msg, data),
+  info: (msg: string, data?: any) => console.log(msg, data)
+};
 import { fakerFR as faker } from '@faker-js/faker';
 
 async function hashPassword(password: string): Promise<string> {
@@ -59,7 +63,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
       const adminPassword = await hashPassword('admin123');
       const employeePassword = await hashPassword('employe123');
 
-      const usersData: typeof users.$inferInsert[] = [
+      const usersData = [
         {
           username: 'admin',
           password: adminPassword,
@@ -101,7 +105,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
       const insertedUsers = await tx.insert(users).values(usersData).returning();
 
       // 2. Création des catégories de menu
-      const categoriesData: typeof menuCategories.$inferInsert[] = [
+      const categoriesData = [
         { 
           name: 'Cafés', 
           description: 'Nos cafés artisanaux torréfiés localement', 
@@ -147,7 +151,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
       const insertedCategories = await tx.insert(menuCategories).values(categoriesData).returning();
 
       // 3. Création des articles de menu - VERSION COMPLÈTE
-      const menuItemsData: typeof menuItems.$inferInsert[] = [
+      const menuItemsData = [
         // Cafés
         { 
           name: 'Espresso Classique', 
@@ -378,7 +382,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
       const insertedMenuItems = await tx.insert(menuItems).values(menuItemsData).returning();
 
       // 4. Création des tables avec différentes capacités
-      const tablesData: typeof tables.$inferInsert[] = [
+      const tablesData = [
         { number: 1, capacity: 2, location: 'terrasse', status: 'available', isActive: true, createdAt: new Date(), updatedAt: new Date() },
         { number: 2, capacity: 4, location: 'salon', status: 'available', isActive: true, createdAt: new Date(), updatedAt: new Date() },
         { number: 3, capacity: 6, location: 'salon', status: 'available', isActive: true, createdAt: new Date(), updatedAt: new Date() },
@@ -481,7 +485,8 @@ export async function initializeDatabase(): Promise<InitializationResult> {
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
-    logger.error('❌ Erreur lors de l\'initialisation:', { error: errorMessage });
+    logger.error('❌ Erreur lors de l\'initialisation:', errorMessage);
+    console.error('Détails de l\'erreur:', error);
 
     return { 
       success: false, 
@@ -511,7 +516,8 @@ export async function resetDatabase(): Promise<InitializationResult> {
     return initializeDatabase();
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
-    logger.error('❌ Erreur lors de la réinitialisation:', { error: errorMessage });
+    logger.error('❌ Erreur lors de la réinitialisation:', errorMessage);
+    console.error('Détails de l\'erreur:', error);
     throw error;
   }
 }
@@ -529,7 +535,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       }
     })
     .catch((error) => {
-      logger.error('💥 Erreur critique:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+      logger.error('💥 Erreur critique:', error instanceof Error ? error.message : 'Erreur inconnue');
+      console.error('Stack trace:', error);
       process.exit(1);
     });
 }
