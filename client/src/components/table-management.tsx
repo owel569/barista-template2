@@ -328,7 +328,7 @@ const TableManagement: React.FC = () => {
                     setSelectedTable(table);
                     setIsEditDialogOpen(true);
                   }}
-                  title={`Table ${table.number} - ${table.capacity} pers. - ${getStatusLabel(table.status}`}
+                  title={`Table ${table.number} - ${table.capacity} pers. - ${getStatusLabel(table.status)}`}
                 >
                   <div className="text-center">
                     <div className="text-lg">{getTableIcon(table.shape)}</div>

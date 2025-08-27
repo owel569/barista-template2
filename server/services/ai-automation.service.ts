@@ -2,20 +2,20 @@ import { z } from 'zod';
 
 // Schémas de validation pour les services internes
 const ChatContextSchema = z.object({
-  message: z.string()}).min(1),
+  message: z.string().min(1),
   userId: z.string().optional(),
   sessionId: z.string().optional(),
   context: z.record(z.unknown()).optional()
 });
 
 const VoiceAnalysisSchema = z.object({
-  audioData: z.string()}),
+  audioData: z.string(),
   language: z.string().default('fr-FR'),
   userId: z.string().optional()
 });
 
 const PredictionContextSchema = z.object({
-  timeframe: z.enum(['daily', 'weekly', 'monthly'])}).default('daily'),
+  timeframe: z.enum(['daily', 'weekly', 'monthly']).default('daily'),
   metrics: z.array(z.string()).optional()
 });
 
