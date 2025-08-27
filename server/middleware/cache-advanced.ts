@@ -219,21 +219,21 @@ export const cacheMiddleware = (options: {
 export const menuCacheMiddleware = cacheMiddleware({
   ttl: 10 * 60 * 1000, // 10 minutes
   tags: ['menu', 'categories'],
-  condition: (req)}) => req.method === 'GET'
+  condition: (req) => req.method === 'GET'
 });
 
 // Middleware spécialisé pour le cache des statistiques
 export const statsCacheMiddleware = cacheMiddleware({
   ttl: 2 * 60 * 1000, // 2 minutes
   tags: ['stats', 'dashboard'],
-  condition: (req)}) => req.method === 'GET'
+  condition: (req) => req.method === 'GET'
 });
 
 // Middleware spécialisé pour le cache des utilisateurs
 export const usersCacheMiddleware = cacheMiddleware({
   ttl: 15 * 60 * 1000, // 15 minutes
   tags: ['users', 'employees'],
-  condition: (req)}) => req.method === 'GET'
+  condition: (req) => req.method === 'GET'
 });
 
 // Middleware d'invalidation du cache
@@ -262,7 +262,7 @@ export const getCacheStats = (req: Request, res: Response) => {
     success: true,
     stats: {
       ...stats,
-      hitRate: totalRequests > 0 ? (cacheHits / totalRequests}) * 100 : 0,
+      hitRate: totalRequests > 0 ? (cacheHits / totalRequests) * 100 : 0,
       hits: cacheHits,
       misses: cacheMisses,
       totalRequests

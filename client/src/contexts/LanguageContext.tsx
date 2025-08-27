@@ -59,7 +59,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
       }
       setTranslations(translations);
     } catch (error) {
-      console.error(`Failed to load translations for ${lang)}:`, error);
+      console.error(`Failed to load translations for ${lang}:`, error);
       // Fallback to French
       const fallback = (await import('../translations/fr')).default;
       setTranslations(fallback);

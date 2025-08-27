@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { checkDatabaseHealth, initializeDatabase } from '../db';
+import { createLogger } from './logging';
+const logger = createLogger('DB_MIDDLEWARE');
 
 export async function ensureDatabaseConnection(req: Request, res: Response, next: NextFunction) {
   try {
@@ -12,7 +14,7 @@ export async function ensureDatabaseConnection(req: Request, res: Response, next
     
     next();
   } catch (error) {
-    logger.error('❌ Erreur middleware base de données:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+    logger.error('❌ Erreur middleware base de données:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     
     // Tentative de reconnexion automatique
     try {
@@ -23,7 +25,7 @@ export async function ensureDatabaseConnection(req: Request, res: Response, next
       res.status(500).json({ 
         success: false, 
         message: 'Erreur de connexion à la base de données',
-        error: process.env.NODE_ENV === 'development' ? error.message : 'Service temporairement indisponible'
+        error: process.env.NODE_ENV === 'development' && error instanceof Error ? error.message : 'Service temporairement indisponible'
       });
     }
   }

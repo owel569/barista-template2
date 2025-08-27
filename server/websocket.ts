@@ -135,7 +135,7 @@ class WebSocketManager {
       data: {
         type,
         data
-      )},
+      },
       timestamp: new Date().toISOString()
     });
   }
@@ -146,7 +146,7 @@ class WebSocketManager {
       type: 'refresh',
       data: {
         type: 'stats'
-      )},
+      },
       timestamp: new Date().toISOString()
     });
   }

@@ -9,20 +9,20 @@ export const productionConfig = {
   security: helmet({
     contentSecurityPolicy: {
       directives: {
-        defaultSrc: ["'self'",],
-        styleSrc: ["'self'", "'unsafe-inline'", "https: //fonts.googleapis.com",],
-        fontSrc: ["'self'", "https: //fonts.gstatic.com",],
-        imgSrc: ["'self'", "data:", "https:", "blob: ",],
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        imgSrc: ["'self'", "data:", "https:", "blob:"],
         scriptSrc: ["'self'", "'unsafe-inline'"],
-        connectSrc: ["'self'", "ws:", "wss: ",],
-        mediaSrc: ["'self'",],
-        objectSrc: ["'none'",],
-        childSrc: ["'self'",],
-        workerSrc: ["'self'",],
-        frameSrc: ["'none'",],
-        formAction: ["'self'",],
+        connectSrc: ["'self'", "ws:", "wss:"],
+        mediaSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        childSrc: ["'self'"],
+        workerSrc: ["'self'"],
+        frameSrc: ["'none'"],
+        formAction: ["'self'"],
         upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null
-      )}
+      }
     },
     crossOriginEmbedderPolicy: false,
     crossOriginResourcePolicy: { policy: "cross-origin" }
@@ -32,7 +32,7 @@ export const productionConfig = {
   compression: compression({
     level: 6,
     threshold: 1024,
-    filter: (req: ExpressRequest, res: ExpressResponse)}) => {
+    filter: (req: ExpressRequest, res: ExpressResponse) => {
       if (req.headers['x-no-compression']) {
         return false;
       }
@@ -49,14 +49,14 @@ export const productionConfig = {
         success: false,
         message: 'Trop de requêtes, veuillez patienter',
         retryAfter: 15 * 60
-      )},
+      },
       standardHeaders: true,
       legacyHeaders: false,
       handler: (req, res) => {
         res.status(429).json({
           success: false,
           message: 'Trop de requêtes depuis cette IP, veuillez patienter',
-          retryAfter: Math.round(req.rateLimit?.resetTime / 1000}) || 900
+          retryAfter: Math.round((req.rateLimit?.resetTime ?? 900000) / 1000) || 900
         });
       }
     }),
