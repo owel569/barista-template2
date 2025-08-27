@@ -79,6 +79,11 @@ export * from "./toggle"
 export * from "./toggle-group"
 export * from "./avatar"
 export * from "./drawer"
+export * from "./theme-provider"
+export * from "./virtual-list"
+export * from "./data-grid"
+export * from "./performance"
+export * from "./error-boundary"
 
 // ===== TYPES ET UTILITAIRES =====
 export * from "./types"

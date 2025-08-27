@@ -33,3 +33,7 @@ export { resizablePanelGroupVariants, resizableHandleVariants } from "./resizabl
 
 // Variants de collapsible
 export { collapsibleTriggerVariants, collapsibleContentVariants } from "./collapsible"
+
+// Variants des nouveaux composants
+// Note: Les composants performance et error-boundary n'ont pas de variants spécifiques
+// mais utilisent les variants existants des autres composants
