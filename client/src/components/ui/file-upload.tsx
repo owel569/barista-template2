@@ -45,7 +45,7 @@ export const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
     const [isUploading, setIsUploading] = React.useState(false);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-    const validateFile = (file: File): string | null => {
+    const validateFile = (file: File): string | undefined => {
       if (maxSize && file.size > maxSize * 1024 * 1024) {
         return `Le fichier est trop volumineux (max: ${maxSize}MB)`;
       }
@@ -54,7 +54,7 @@ export const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
       )) {
         return "Type de fichier non supporté";
       }
-      return null;
+      return undefined;
     };
 
     const createFilePreview = (file: File): Promise<string | undefined> => {
@@ -186,6 +186,12 @@ export const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
                   {maxSize && ` • Max: ${maxSize}MB`}
                 </p>
               </div>
+            </div>
+          )}
+          
+          {isUploading && (
+            <div className="text-sm text-blue-600 font-medium">
+              Téléchargement en cours...
             </div>
           )}
         </div>

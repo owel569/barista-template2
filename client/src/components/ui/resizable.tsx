@@ -22,7 +22,7 @@ const resizablePanelGroupVariants = cva(
 )
 
 export interface ResizablePanelGroupProps
-  extends React.ComponentProps<typeof ResizablePrimitive.PanelGroup>,
+  extends Omit<React.ComponentProps<typeof ResizablePrimitive.PanelGroup>, 'direction'>,
     VariantProps<typeof resizablePanelGroupVariants> {}
 
 const ResizablePanelGroup = React.forwardRef<

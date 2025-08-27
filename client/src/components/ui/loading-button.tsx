@@ -93,14 +93,14 @@ export function useLoadingButton(asyncFunction?: () => Promise<void>) {
 // Composant LoadingButton avec gestion automatique des erreurs
 export interface AsyncLoadingButtonProps extends Omit<LoadingButtonProps, 'loading' | 'onClick'> {
   onAsyncClick: () => Promise<void>
-  onError?: (error: string) => void
+  onAsyncError?: (error: string) => void
   onSuccess?: () => void
   showErrorToast?: boolean
 }
 
 export const AsyncLoadingButton: React.FC<AsyncLoadingButtonProps> = ({
   onAsyncClick,
-  onError,
+  onAsyncError,
   onSuccess,
   showErrorToast = true,
   ...props
@@ -111,7 +111,7 @@ export const AsyncLoadingButton: React.FC<AsyncLoadingButtonProps> = ({
     await execute()
     
     if (error) {
-      onError?.(error)
+      onAsyncError?.(error)
       if (showErrorToast) {
         // Ici vous pouvez ajouter un toast d'erreur
         console.error('AsyncLoadingButton error:', error)
@@ -119,7 +119,7 @@ export const AsyncLoadingButton: React.FC<AsyncLoadingButtonProps> = ({
     } else {
       onSuccess?.()
     }
-  }, [execute, error, onError, onSuccess, showErrorToast])
+  }, [execute, error, onAsyncError, onSuccess, showErrorToast])
 
   return (
     <LoadingButton
