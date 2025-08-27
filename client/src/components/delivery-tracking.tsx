@@ -30,12 +30,12 @@ const DeliveryTracking: React.FC = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: deliveries = [,], isLoading } = useQuery<DeliveryOrder[]>({
-    queryKey: ['/api/deliveries',],
+  const { data: deliveries = [], isLoading } = useQuery<DeliveryOrder[]>({
+    queryKey: ['/api/deliveries'],
   });
 
   const updateStatusMutation = useMutation({
-    mutationFn: async ({ id, status })}: { id: number; status: string }) => {
+    mutationFn: async ({ id, status }: { id: number; status: string }) => {
       const response = await fetch(`/api/deliveries/${id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -45,7 +45,7 @@ const DeliveryTracking: React.FC = () => {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/deliveries'] )});
+      queryClient.invalidateQueries({ queryKey: ['/api/deliveries'] });
       toast({ title: 'Statut mis à jour', description: 'Le statut de livraison a été modifié.' });
     },
   };
@@ -139,7 +139,7 @@ const DeliveryTracking: React.FC = () => {
                 {delivery.deliveryDriver && (
                   <div className="flex items-center text-sm">
                     <Truck className="w-4 h-4 mr-2 text-gray-500" />
-                    <span>{delivery.deliveryDriver)}</span>
+                    <span>{delivery.deliveryDriver}</span>
                   </div>
                 )}
               </div>
@@ -161,7 +161,7 @@ const DeliveryTracking: React.FC = () => {
                 ))}
                 {delivery.items.length > 2 && (
                   <p className="text-sm text-gray-500">
-                    +{delivery.items.length - 2)} autres articles
+                    +{delivery.items.length - 2} autres articles
                   </p>
                 )}
               </div>

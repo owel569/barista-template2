@@ -161,7 +161,7 @@ export default function Menu() : JSX.Element {
   const handleAddToCart = (item: unknown) => {
     toast({
       title: "Ajouté au panier",
-      description: `${item.name)} a été ajouté à votre commande`,
+      description: `${(item as any).name} a été ajouté à votre commande`,
     });
   };
 

@@ -117,7 +117,7 @@ export class AIAutomationService {
       logger.error('Erreur traitement chat:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
       return {
         response: "Désolé, je rencontre une difficulté technique. Puis-je vous aider autrement ?",
-        actions: [,],
+        actions: [],
         intent: 'error',
         confidence: 0,
         suggestions: ['Réessayer', 'Parler à un employé'],
@@ -428,7 +428,7 @@ export class AIAutomationService {
     const session = this.getOrCreateSession(sessionId);
     session.push({
       ...interaction,
-      timestamp: new Date(}).toISOString()
+      timestamp: new Date().toISOString()
     });
 
     // Limiter l'historique à 50 interactions
@@ -520,15 +520,15 @@ export class AIAutomationService {
         default:
           return {
             response: "Je ne suis pas sûr de comprendre. Puis-je vous aider avec une réservation, des informations sur le menu, ou autre chose ?",
-            actions: [,],
+            actions: [],
             confidence: 0.3
           };
       }
     } catch (error) {
-      logger.error('Erreur chat IA:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      logger.error('Erreur chat IA:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       return {
         response: "Désolé, je rencontre un problème technique. Veuillez réessayer.",
-        actions: [,],
+        actions: [],
         confidence: 0
       };
     }
@@ -613,17 +613,17 @@ export class AIAutomationService {
     const entities: unknown[] = [];
 
     // Extraction de dates
-    const dateRegex = /(\d{1,2)}\/\d{1,2}\/\d{4})/g;
+    const dateRegex = /(\d{1,2}\/\d{1,2}\/\d{4})/g;
     const dates = message.match(dateRegex);
     if (dates) {
-      entities.push({ type: 'date', value: dates[0] )});
+      entities.push({ type: 'date', value: dates[0] });
     }
 
     // Extraction de nombres (pour nombre de personnes)
     const numberRegex = /(\d+)\s*(personne|gens|personnes)/g;
     const numbers = message.match(numberRegex);
     if (numbers) {
-      entities.push({ type: 'party_size', value: parseInt(numbers[0])}) });
+      entities.push({ type: 'party_size', value: parseInt(numbers[0]) });
     }
 
     return entities;

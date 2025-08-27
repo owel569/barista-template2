@@ -207,7 +207,7 @@ export default function DashboardMain({ userRole = 'directeur' }: DashboardMainP
                   paddingAngle={5}
                   dataKey="value"
                 >
-                  {(statusData.length > 0 ? statusData : [{ name: "Aucune donnée", value: 1, color: "#9CA3AF" )}]).map((entry, index) => (
+                  {(statusData.length > 0 ? statusData : [{ name: "Aucune donnée", value: 1, color: "#9CA3AF" }]).map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
