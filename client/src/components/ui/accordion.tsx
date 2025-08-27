@@ -167,13 +167,41 @@ const AccordionWithDefaults: React.FC<AccordionWithDefaultsProps> = ({
   onValueChange,
   defaultValue,
 }) => {
+  // Rendu conditionnel basé sur le type pour résoudre les conflits TypeScript
+  if (type === 'single') {
+    return (
+      <Accordion
+        type="single"
+        collapsible={collapsible}
+        className={className}
+        onValueChange={onValueChange as (value: string) => void}
+        defaultValue={defaultValue as string}
+      >
+        {items.map((item) => (
+          <AccordionItem
+            key={item.id}
+            value={item.id}
+            variant={variant}
+            disabled={item.disabled}
+          >
+            <AccordionTrigger size={size} iconType={iconType}>
+              {item.trigger}
+            </AccordionTrigger>
+            <AccordionContent>
+              {item.content}
+            </AccordionContent>
+          </AccordionItem>
+        ))}
+      </Accordion>
+    )
+  }
+
   return (
     <Accordion
-      type={type}
-      collapsible={type === 'single' ? collapsible : undefined}
+      type="multiple"
       className={className}
-      onValueChange={onValueChange}
-      defaultValue={defaultValue}
+      onValueChange={onValueChange as (value: string[]) => void}
+      defaultValue={defaultValue as string[]}
     >
       {items.map((item) => (
         <AccordionItem
