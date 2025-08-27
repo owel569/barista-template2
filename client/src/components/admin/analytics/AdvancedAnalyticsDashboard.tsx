@@ -9,18 +9,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Users, 
-  DollarSign, 
+import {
+  TrendingUp,
+  TrendingDown,
+  Users,
+  DollarSign,
   ShoppingCart,
   Clock,
   Target,
   Activity,
   BarChart3,
   PieChart,
-  LineChart,
+  LineChart as LineChartIcon, // Renamed LineChart to LineChartIcon
   Calendar,
   Filter,
   Download,
@@ -93,11 +93,11 @@ const secureApiCall = async (endpoint: string) => {
         ...(token && { Authorization: `Bearer ${token}` }),
       },
     });
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     return response.json();
   } catch (error) {
     console.error(`Erreur API pour ${endpoint}:`, error);
@@ -109,7 +109,7 @@ const secureApiCall = async (endpoint: string) => {
 const isValidAnalyticsData = (data: unknown): data is AnalyticsData => {
   if (typeof data !== 'object' || data === null) return false;
   const obj = data as Record<string, unknown>;
-  
+
   return (
     typeof obj.revenue === 'object' && obj.revenue !== null &&
     typeof obj.orders === 'object' && obj.orders !== null &&
@@ -122,7 +122,7 @@ const isValidAnalyticsData = (data: unknown): data is AnalyticsData => {
 const isValidRealTimeData = (data: unknown): data is RealTimeData => {
   if (typeof data !== 'object' || data === null) return false;
   const obj = data as Record<string, unknown>;
-  
+
   return (
     typeof obj.dailyRevenue === 'number' &&
     typeof obj.ordersCount === 'number' &&
@@ -224,7 +224,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
       toast({
         title: "Erreur",
         description: "Impossible de mettre à jour les données.",
-        variant: "error"
+        variant: "destructive" // Changed from "error" to "destructive"
       });
     } finally {
       setIsLoading(false);
@@ -234,7 +234,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
   const handleExport = async () => {
     try {
       const response = await secureApiCall(`/api/analytics/export?period=${selectedTimeRange}`);
-      
+
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -242,7 +242,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
       document.body.appendChild(link);
       link.click();
       link.remove();
-      
+
       toast({
         title: "Export réussi",
         description: "Le rapport a été téléchargé avec succès."
@@ -251,7 +251,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
       toast({
         title: "Erreur d'export",
         description: "Impossible d'exporter les données.",
-        variant: "error"
+        variant: "destructive" // Changed from "error" to "destructive"
       });
     }
   };
@@ -305,7 +305,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
             Tableau de bord complet pour analyser les performances de votre café
           </p>
         </div>
-        
+
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
@@ -315,7 +315,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
             {showRealTime ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             {showRealTime ? 'Masquer' : 'Afficher'} temps réel
           </Button>
-          
+
           <Button
             variant="outline"
             size="sm"
@@ -325,7 +325,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
             Actualiser
           </Button>
-          
+
           <Button
             variant="outline"
             size="sm"
@@ -351,7 +351,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
             ))}
           </SelectContent>
         </Select>
-        
+
         <Badge variant="secondary" className="flex items-center gap-1">
           <Activity className="w-3 h-3" />
           {showRealTime ? 'Temps réel activé' : 'Mode statique'}
@@ -415,7 +415,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
                 <RevenueView timeRange={selectedTimeRange} />
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardHeader>
                 <CardTitle>Comportement Client</CardTitle>

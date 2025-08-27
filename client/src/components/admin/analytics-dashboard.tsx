@@ -76,7 +76,16 @@ export default function AnalyticsDashboard() {
       case 'csv':
         // Export plus complet pour CSV
         exportToCSV({
-          metrics: [metrics],
+          data: [
+          {
+            metrics: {
+              revenue: metrics.revenue,
+              orders: metrics.orders,
+              customers: metrics.customers,
+              avgOrderValue: metrics.avgOrderValue
+            }
+          }
+        ],
           revenueData,
           productData,
           hourlyData,
@@ -85,7 +94,16 @@ export default function AnalyticsDashboard() {
         break;
       case 'excel':
         exportToExcel({
-          metrics: [metrics],
+          data: [
+          {
+            metrics: {
+              revenue: metrics.revenue,
+              orders: metrics.orders,
+              customers: metrics.customers,
+              avgOrderValue: metrics.avgOrderValue
+            }
+          }
+        ],
           revenueData,
           productData,
           hourlyData,

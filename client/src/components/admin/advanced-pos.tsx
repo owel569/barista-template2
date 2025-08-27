@@ -21,7 +21,7 @@ import {
   X,
   Search,
 } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 interface MenuItem {
   id: number;
@@ -60,6 +60,7 @@ interface PaymentMethod {
 }
 
 export default function AdvancedPOS(): JSX.Element {
+  const { toast } = useToast();
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [currentOrder, setCurrentOrder] = useState<Order | null>(null);

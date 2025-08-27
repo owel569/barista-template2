@@ -99,8 +99,8 @@ interface ReportConfiguration {
   type: 'predefined' | 'custom' | 'automated';
   name: string;
   dateRange: {
-    start: string;
-    end: string;
+    start: Date; // Changed to Date type
+    end: Date;   // Changed to Date type
   };
   categories: string[];
   metrics: string[];
@@ -189,15 +189,15 @@ export const ComprehensiveReportsManager: React.FC = () => {
   const generateReportMutation = useMutation({
     mutationFn: async (reportConfig: ReportConfiguration) => {
       setIsGenerating(true);
-      
+
       // Validation de la configuration du rapport
       if (!reportConfig.id || !reportConfig.name || !reportConfig.dateRange) {
         throw new Error('Configuration du rapport invalide');
       }
-      
+
       // Simuler la génération avec IA
       await new Promise(resolve => setTimeout(resolve, 3000));
-      
+
       return apiRequest('/api/admin/reports/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -248,8 +248,8 @@ export const ComprehensiveReportsManager: React.FC = () => {
       type: 'custom',
       name: customReportName || template.name,
       dateRange: {
-        start: dateRange.start,
-        end: dateRange.end
+        startDate: dateRange.startDate, // Corrected property name
+        endDate: dateRange.endDate     // Corrected property name
       },
       categories: [template.category],
       metrics: selectedFields.length > 0 ? selectedFields : template.fields,
@@ -529,7 +529,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center">
@@ -541,7 +541,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center">
@@ -553,7 +553,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center">

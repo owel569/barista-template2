@@ -79,7 +79,7 @@ function Customers({ userRole, user }: CustomersProps) {
   // Initialiser WebSocket pour les notifications temps réel
   useWebSocket();
 
-  const isReadOnly = !hasPermission('customers');
+  const isReadOnly = !hasPermission('customers', 'edit');
 
   useEffect(() => {
     fetchCustomers();
@@ -190,8 +190,8 @@ function Customers({ userRole, user }: CustomersProps) {
       }));
 
       const csvContent = [
-        csvData.length > 0 ? Object.keys(csvData[0]).join(';') : '',
-        ...csvData.map(row => Object.values(row).join(';'))
+        csvData.length > 0 ? Object.keys(csvData[0] || {}).join(';') : '',
+        ...csvData.filter(customer => customer != null).map(customer => Object.values(customer).join(';'))
       ].join('\n');
 
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });

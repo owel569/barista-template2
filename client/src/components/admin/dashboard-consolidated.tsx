@@ -291,9 +291,9 @@ export default function DashboardConsolidated(): JSX.Element {
     setRefreshing(true);
     try {
       await refetchStats();
-      toast.success('Données actualisées', 'Les statistiques ont été mises à jour');
+      toast({ title: 'Données actualisées', description: 'Les statistiques ont été mises à jour', variant: 'success' });
     } catch (error) {
-      toast.error('Erreur', 'Impossible d\'actualiser les données');
+      toast({ title: 'Erreur', description: 'Impossible d\'actualiser les données', variant: 'destructive' });
     } finally {
       setRefreshing(false);
     }
@@ -307,6 +307,16 @@ export default function DashboardConsolidated(): JSX.Element {
         popularItems,
         reservationStatus,
         generatedAt: new Date().toISOString()
+      };
+      
+      // Simulation d'export - remplacer par vraie fonction d'export
+      const exportStatistics = async (data: any[]) => {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            console.log('Dashboard exporté:', data);
+            resolve(data);
+          }, 1000);
+        });
       };
       
       await toast.operation(
@@ -337,7 +347,7 @@ export default function DashboardConsolidated(): JSX.Element {
 
     const route = routes[actionId];
     if (route) {
-      toast.info(`Navigation vers ${actionTitle}`, `Redirection vers ${route}`);
+      toast({ title: `Navigation vers ${actionTitle}`, description: `Redirection vers ${route}`, variant: 'info' });
       // Ici vous pouvez ajouter la vraie navigation avec votre router
       // navigate(route);
     }
@@ -645,7 +655,7 @@ export default function DashboardConsolidated(): JSX.Element {
                   Module d'analytics avancées en cours de développement
                 </p>
                 {canManage('analytics') && (
-                  <Button className="mt-4" onClick={() => toast.info('Configuration', 'Module analytics bientôt disponible')}>
+                  <Button className="mt-4" onClick={() => toast({ title: 'Configuration', description: 'Module analytics bientôt disponible', variant: 'info' })}>
                     Configurer Analytics
                   </Button>
                 )}

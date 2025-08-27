@@ -280,6 +280,11 @@ export default function ActivityLogs(): JSX.Element {
     setLogs(prev => [newLog, ...prev].slice(0, 1000)); // Garder seulement les 1000 derniers logs
   }, []);
 
+  const handleExport = () => {
+    generateMockActivity();
+    // Export logic here
+  };
+
   const exportLogs = useCallback((): void => {
     try {
       if (filteredLogs.length === 0) {

@@ -133,8 +133,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return {
         success: false,
         message: error instanceof Error ? error.message : 'Erreur de connexion au serveur',
-        token: null,
-        user: null,
+        token: '',
+        user: {
+          id: '',
+          username: '',
+          role: '',
+          firstName: '',
+          lastName: '',
+          email: ''
+        },
       };
     }
   }, []);
