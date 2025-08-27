@@ -10,7 +10,9 @@ export default function HomeMenuPreview() : JSX.Element {
   const [, setLocation] = useLocation();
   
   const { data: menuResponse } = useQuery({
-    queryKey: ['/api/menu/items',],
+    queryKey: ['/api/menu/items'],
+    queryFn: () => fetch('/api/menu/items').then(res => res.json()).catch(() => ({ items: [] })),
+    staleTime: 5 * 60 * 1000,
   });
 
   // Sélectionner 3 articles populaires pour l'aperçu
