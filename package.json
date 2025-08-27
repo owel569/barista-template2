@@ -33,7 +33,8 @@
     "fix-critical": "tsx scripts/fix-critical-errors.js",
     "fix-professional": "tsx scripts/professional-fix-all.ts",
     "fix-complete": "tsx scripts/fix-complete-professional.ts",
-    "fix-final": "tsx scripts/fix-final-syntax.ts"
+    "fix-final": "tsx scripts/fix-final-syntax.ts",
+    "fix-imports": "tsx scripts/fix-imports.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

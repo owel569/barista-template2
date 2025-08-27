@@ -1,4 +1,5 @@
 import { getDb } from '../server/db';
+import { sql } from 'drizzle-orm';
 import { 
   users, menuCategories, menuItems, tables, customers, reservations,
   type InsertUser, type InsertMenuCategory, type InsertMenuItem, type InsertTable
