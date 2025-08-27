@@ -429,7 +429,7 @@ const TableManagement: React.FC = () => {
           </DialogHeader>
 
           {selectedTable && (
-            <form onSubmit={(e)}) => {
+            <form onSubmit={(e) => {
               e.preventDefault();
               const formData = new FormData(e.currentTarget);
               const tableData = {
