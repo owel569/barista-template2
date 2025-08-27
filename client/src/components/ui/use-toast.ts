@@ -1,4 +1,7 @@
 
-// Compatibilité avec les imports existants
-export { useToast, type ToastProps, type ToastVariant } from '@/hooks/use-toast';
-export { toast } from 'sonner';
+// Exports centralisés pour les toasts
+export { useToast, type ToastProps, toastManager as toast } from '@/hooks/use-toast';
+export { toast as sonnerToast } from 'sonner';
+
+// Types supplémentaires pour la compatibilité
+export type ToastVariant = 'default' | 'destructive' | 'success' | 'warning' | 'info';
