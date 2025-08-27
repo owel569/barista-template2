@@ -1,3 +1,4 @@
+
 import { getDb } from '../server/db';
 import { sql } from 'drizzle-orm';
 import { 
@@ -8,7 +9,7 @@ import { fakerFR as faker } from '@faker-js/faker';
 
 async function hashPassword(password: string): Promise<string> {
   const bcrypt = await import('bcryptjs');
-  return bcrypt.hash(password, 12); // Augmentation du coût pour plus de sécurité
+  return bcrypt.hash(password, 12);
 }
 
 interface InitializationResult {
@@ -29,14 +30,18 @@ export async function initializeDatabase(): Promise<InitializationResult> {
   try {
     console.log('🗄️ Début de l\'initialisation de la base de données...');
 
-    // Vérifier la connexion à la base de données
     db = await getDb();
     
-    // Test de connexion
-    await db.execute(sql`SELECT 1 as test`);
-    console.log('✅ Connexion à la base de données établie');
+    // Test de connexion à la base de données
+    try {
+      await db.execute(sql`SELECT 1 as test`);
+      console.log('✅ Connexion à la base de données établie');
+    } catch (error) {
+      console.error('❌ Erreur de connexion à la base de données');
+      throw new Error('Impossible de se connecter à la base de données');
+    }
 
-    // Vérifier si des données existent déjà de manière plus robuste
+    // Vérifier si des données existent déjà
     const existingUsers = await db.select().from(users).limit(1);
     if (existingUsers.length > 0) {
       console.log('📊 Données déjà présentes - initialisation ignorée');
@@ -48,9 +53,9 @@ export async function initializeDatabase(): Promise<InitializationResult> {
 
     console.log('📝 Création des données initiales...');
 
-    // Transaction pour assurer la cohérence des données
+    // Utilisation d'une transaction pour garantir l'intégrité des données
     const result = await db.transaction(async (tx) => {
-      // 1. Créer les utilisateurs par défaut
+      // 1. Création des utilisateurs
       const adminPassword = await hashPassword('admin123');
       const employeePassword = await hashPassword('employe123');
 
@@ -95,54 +100,66 @@ export async function initializeDatabase(): Promise<InitializationResult> {
 
       const insertedUsers = await tx.insert(users).values(usersData).returning();
 
-      // 2. Créer les catégories de menu
+      // 2. Création des catégories de menu
       const categoriesData: typeof menuCategories.$inferInsert[] = [
         { 
           name: 'Cafés', 
           description: 'Nos cafés artisanaux torréfiés localement', 
           sortOrder: 1,
-          isActive: true
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
         },
         { 
           name: 'Boissons', 
           description: 'Boissons chaudes, froides et rafraîchissantes', 
           sortOrder: 2,
-          isActive: true
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
         },
         { 
           name: 'Pâtisseries', 
           description: 'Pâtisseries fraîches faites maison', 
           sortOrder: 3,
-          isActive: true
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
         },
         { 
           name: 'Plats', 
           description: 'Plats et sandwichs préparés avec soin', 
           sortOrder: 4,
-          isActive: true
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
         },
         { 
           name: 'Spécialités', 
           description: 'Nos créations exclusives', 
           sortOrder: 5,
-          isActive: true
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
         }
       ];
 
       const insertedCategories = await tx.insert(menuCategories).values(categoriesData).returning();
 
-      // 3. Créer les articles de menu avec des données plus réalistes
+      // 3. Création des articles de menu - VERSION COMPLÈTE
       const menuItemsData: typeof menuItems.$inferInsert[] = [
         // Cafés
         { 
           name: 'Espresso Classique', 
-          description: 'Café espresso italien traditionnel aux arômes intenses', 
+          description: 'Café espresso italien traditionnel aux arômes intenses et à la crema parfaite', 
           price: 2.50, 
           categoryId: insertedCategories[0].id,
           preparationTime: 5,
           isAvailable: true,
           ingredients: ['Café moulu', 'Eau chaude'],
-          calories: 5
+          calories: 5,
+          createdAt: new Date(),
+          updatedAt: new Date()
         },
         { 
           name: 'Cappuccino Crémeux', 
@@ -152,7 +169,9 @@ export async function initializeDatabase(): Promise<InitializationResult> {
           preparationTime: 7,
           isAvailable: true,
           ingredients: ['Café moulu', 'Lait entier', 'Cacao'],
-          calories: 120
+          calories: 120,
+          createdAt: new Date(),
+          updatedAt: new Date()
         },
         { 
           name: 'Latte Artisanal', 
@@ -162,7 +181,9 @@ export async function initializeDatabase(): Promise<InitializationResult> {
           preparationTime: 8,
           isAvailable: true,
           ingredients: ['Café moulu', 'Lait', 'Sirop de vanille'],
-          calories: 150
+          calories: 150,
+          createdAt: new Date(),
+          updatedAt: new Date()
         },
         { 
           name: 'Macchiato Caramel', 
@@ -172,7 +193,9 @@ export async function initializeDatabase(): Promise<InitializationResult> {
           preparationTime: 6,
           isAvailable: true,
           ingredients: ['Café moulu', 'Lait', 'Caramel'],
-          calories: 180
+          calories: 180,
+          createdAt: new Date(),
+          updatedAt: new Date()
         },
 
         // Boissons
@@ -184,7 +207,9 @@ export async function initializeDatabase(): Promise<InitializationResult> {
           preparationTime: 4,
           isAvailable: true,
           ingredients: ['Thé Earl Grey', 'Eau chaude'],
-          calories: 2
+          calories: 2,
+          createdAt: new Date(),
+          updatedAt: new Date()
         },
         { 
           name: 'Chocolat Chaud Artisanal', 
@@ -194,7 +219,9 @@ export async function initializeDatabase(): Promise<InitializationResult> {
           preparationTime: 8,
           isAvailable: true,
           ingredients: ['Chocolat belge', 'Lait', 'Crème chantilly'],
-          calories: 280
+          calories: 280,
+          createdAt: new Date(),
+          updatedAt: new Date()
         },
         { 
           name: 'Smoothie Fraise-Banane', 
@@ -204,7 +231,9 @@ export async function initializeDatabase(): Promise<InitializationResult> {
           preparationTime: 5,
           isAvailable: true,
           ingredients: ['Fraises', 'Banane', 'Yaourt grec', 'Miel'],
-          calories: 180
+          calories: 180,
+          createdAt: new Date(),
+          updatedAt: new Date()
         },
         { 
           name: 'Limonade Maison', 
@@ -214,7 +243,9 @@ export async function initializeDatabase(): Promise<InitializationResult> {
           preparationTime: 3,
           isAvailable: true,
           ingredients: ['Citron jaune', 'Eau gazeuse', 'Sucre de canne'],
-          calories: 90
+          calories: 90,
+          createdAt: new Date(),
+          updatedAt: new Date()
         },
 
         // Pâtisseries
@@ -226,7 +257,9 @@ export async function initializeDatabase(): Promise<InitializationResult> {
           preparationTime: 2,
           isAvailable: true,
           ingredients: ['Farine', 'Beurre AOP', 'Levure'],
-          calories: 240
+          calories: 240,
+          createdAt: new Date(),
+          updatedAt: new Date()
         },
         { 
           name: 'Cookies Double Chocolat', 
@@ -236,7 +269,9 @@ export async function initializeDatabase(): Promise<InitializationResult> {
           preparationTime: 2,
           isAvailable: true,
           ingredients: ['Farine', 'Chocolat noir', 'Chocolat blanc', 'Beurre'],
-          calories: 320
+          calories: 320,
+          createdAt: new Date(),
+          updatedAt: new Date()
         },
         { 
           name: 'Tarte au Citron Meringuée', 
@@ -246,7 +281,9 @@ export async function initializeDatabase(): Promise<InitializationResult> {
           preparationTime: 3,
           isAvailable: true,
           ingredients: ['Citron jaune', 'Sucre', 'Œufs', 'Beurre'],
-          calories: 380
+          calories: 380,
+          createdAt: new Date(),
+          updatedAt: new Date()
         },
         { 
           name: 'Muffin Myrtilles Bio', 
@@ -256,7 +293,9 @@ export async function initializeDatabase(): Promise<InitializationResult> {
           preparationTime: 2,
           isAvailable: true,
           ingredients: ['Myrtilles bio', 'Farine', 'Œufs', 'Beurre'],
-          calories: 280
+          calories: 280,
+          createdAt: new Date(),
+          updatedAt: new Date()
         },
 
         // Plats
@@ -268,7 +307,9 @@ export async function initializeDatabase(): Promise<InitializationResult> {
           preparationTime: 12,
           isAvailable: true,
           ingredients: ['Pain de campagne', 'Poulet', 'Bacon', 'Avocat', 'Mayonnaise'],
-          calories: 420
+          calories: 420,
+          createdAt: new Date(),
+          updatedAt: new Date()
         },
         { 
           name: 'Salade César Signature', 
@@ -278,7 +319,9 @@ export async function initializeDatabase(): Promise<InitializationResult> {
           preparationTime: 10,
           isAvailable: true,
           ingredients: ['Laitue romaine', 'Poulet', 'Parmesan', 'Croûtons', 'Sauce césar'],
-          calories: 320
+          calories: 320,
+          createdAt: new Date(),
+          updatedAt: new Date()
         },
         { 
           name: 'Quiche Lorraine du Chef', 
@@ -288,7 +331,9 @@ export async function initializeDatabase(): Promise<InitializationResult> {
           preparationTime: 15,
           isAvailable: true,
           ingredients: ['Œufs', 'Lard fumé', 'Crème fraîche', 'Pâte brisée'],
-          calories: 450
+          calories: 450,
+          createdAt: new Date(),
+          updatedAt: new Date()
         },
         { 
           name: 'Wrap Végétarien', 
@@ -298,7 +343,9 @@ export async function initializeDatabase(): Promise<InitializationResult> {
           preparationTime: 8,
           isAvailable: true,
           ingredients: ['Tortilla', 'Légumes grillés', 'Hummus', 'Salade'],
-          calories: 280
+          calories: 280,
+          createdAt: new Date(),
+          updatedAt: new Date()
         },
 
         // Spécialités
@@ -310,7 +357,9 @@ export async function initializeDatabase(): Promise<InitializationResult> {
           preparationTime: 15,
           isAvailable: true,
           ingredients: ['Fromages assortis', 'Charcuterie', 'Fruits', 'Noix'],
-          calories: 520
+          calories: 520,
+          createdAt: new Date(),
+          updatedAt: new Date()
         },
         { 
           name: 'Plateau Brunch', 
@@ -320,27 +369,29 @@ export async function initializeDatabase(): Promise<InitializationResult> {
           preparationTime: 20,
           isAvailable: true,
           ingredients: ['Œufs', 'Bacon', 'Avocat', 'Pain', 'Fruits frais'],
-          calories: 480
+          calories: 480,
+          createdAt: new Date(),
+          updatedAt: new Date()
         }
       ];
 
       const insertedMenuItems = await tx.insert(menuItems).values(menuItemsData).returning();
 
-      // 4. Créer les tables avec différentes capacités
+      // 4. Création des tables avec différentes capacités
       const tablesData: typeof tables.$inferInsert[] = [
-        { number: 1, capacity: 2, location: 'terrasse', status: 'available', isActive: true },
-        { number: 2, capacity: 4, location: 'salon', status: 'available', isActive: true },
-        { number: 3, capacity: 6, location: 'salon', status: 'available', isActive: true },
-        { number: 4, capacity: 2, location: 'terrasse', status: 'available', isActive: true },
-        { number: 5, capacity: 8, location: 'salle privée', status: 'available', isActive: true },
-        { number: 6, capacity: 4, location: 'salon', status: 'available', isActive: true },
-        { number: 7, capacity: 2, location: 'terrasse', status: 'available', isActive: true },
-        { number: 8, capacity: 6, location: 'salle privée', status: 'available', isActive: true }
+        { number: 1, capacity: 2, location: 'terrasse', status: 'available', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+        { number: 2, capacity: 4, location: 'salon', status: 'available', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+        { number: 3, capacity: 6, location: 'salon', status: 'available', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+        { number: 4, capacity: 2, location: 'terrasse', status: 'available', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+        { number: 5, capacity: 8, location: 'salle privée', status: 'available', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+        { number: 6, capacity: 4, location: 'salon', status: 'available', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+        { number: 7, capacity: 2, location: 'terrasse', status: 'available', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+        { number: 8, capacity: 6, location: 'salle privée', status: 'available', isActive: true, createdAt: new Date(), updatedAt: new Date() }
       ];
 
       const insertedTables = await tx.insert(tables).values(tablesData).returning();
 
-      // 5. Créer des clients de démonstration
+      // 5. Création de clients de démonstration
       const sampleCustomers = Array.from({ length: 10 }, (_, i) => {
         const firstName = faker.person.firstName();
         const lastName = faker.person.lastName();
@@ -367,7 +418,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
 
       const insertedCustomers = await tx.insert(customers).values(sampleCustomers).returning();
 
-      // 6. Créer des réservations de démonstration
+      // 6. Création de réservations de démonstration
       const sampleReservations = insertedCustomers.slice(0, 8).map((customer, index) => {
         const reservationDate = faker.date.between({ 
           from: new Date(), 
