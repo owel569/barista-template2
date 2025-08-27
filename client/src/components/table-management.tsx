@@ -50,12 +50,12 @@ const TableManagement: React.FC = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'floor'>('grid');
 
-  const { data: tables = [,], isLoading } = useQuery<Table[]>({
-    queryKey: ['/api/tables',],
+  const { data: tables = [], isLoading } = useQuery<Table[]>({
+    queryKey: ['/api/tables'],
   });
 
   const { data: reservations = [] } = useQuery<TableReservation[]>({
-    queryKey: ['/api/table-reservations',],
+    queryKey: ['/api/table-reservations'],
   });
 
   const createTableMutation = useMutation({

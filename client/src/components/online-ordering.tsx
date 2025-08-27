@@ -71,23 +71,23 @@ const OnlineOrdering: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
-  const { data: menuItems = [,], isLoading: menuLoading } = useQuery<MenuItem[]>({
-    queryKey: ['/api/menu/items',],
+  const { data: menuItems = [], isLoading: menuLoading } = useQuery<MenuItem[]>({
+    queryKey: ['/api/menu/items'],
   });
 
   const { data: categories = [] } = useQuery<string[]>({
-    queryKey: ['/api/menu/categories',],
+    queryKey: ['/api/menu/categories'],
   });
 
-  const { data: onlineOrders = [,], isLoading: ordersLoading } = useQuery<OnlineOrder[]>({
-    queryKey: ['/api/orders/online',],
+  const { data: onlineOrders = [], isLoading: ordersLoading } = useQuery<OnlineOrder[]>({
+    queryKey: ['/api/orders/online'],
   });
 
   const createOrderMutation = useMutation({
-    mutationFn: async (orderData: Partial<OnlineOrder>})}) => {
+    mutationFn: async (orderData: Partial<OnlineOrder>) => {
       const response = await fetch('/api/orders/online', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' )},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData),
       });
       if (!response.ok) throw new Error('Erreur lors de la création de la commande');
