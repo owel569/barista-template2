@@ -94,7 +94,7 @@ const OnlineOrdering: React.FC = () => {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/orders/online'] )});
+      queryClient.invalidateQueries({ queryKey: ['/api/orders/online'] });
       setCart([]);
       setIsCheckoutOpen(false);
       toast({ 
@@ -106,7 +106,7 @@ const OnlineOrdering: React.FC = () => {
 
   const updateOrderStatusMutation = useMutation({
     mutationFn: async ({ id, status })}: { id: number; status: string }) => {
-      const response = await fetch(`/api/orders/online/${id)}/status`, {
+      const response = await fetch(`/api/orders/online/${id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
@@ -334,7 +334,7 @@ const OnlineOrdering: React.FC = () => {
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">#{order.orderNumber}</CardTitle>
-                    <Badge className={`${getStatusColor(order.status)} text-white`}>
+                    <Badge className={`${getStatusColor(order.status} text-white`}>
                       {getStatusLabel(order.status)}
                     </Badge>
                   </div>

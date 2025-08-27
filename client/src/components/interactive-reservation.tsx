@@ -463,8 +463,9 @@ export default function InteractiveReservation() {
                         {form.formState.errors.time && (
                           <p className="text-sm text-red-600 mt-1">
                             {form.formState.errors.time.message}
-                        </p>
-                      )}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
 
