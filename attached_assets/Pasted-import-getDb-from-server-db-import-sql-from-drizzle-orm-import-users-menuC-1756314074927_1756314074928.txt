@@ -1,0 +1,325 @@
+import { getDb } from '../server/db';
+import { sql } from 'drizzle-orm';
+import { 
+  users, menuCategories, menuItems, tables, customers, reservations
+} from '../shared/schema';
+import { logger } from '../server/utils/logger';
+import { fakerFR as faker } from '@faker-js/faker';
+
+async function hashPassword(password: string): Promise<string> {
+  const bcrypt = await import('bcryptjs');
+  return bcrypt.hash(password, 12);
+}
+
+interface InitializationResult {
+  success: boolean;
+  message: string;
+  data?: {
+    admin: number;
+    categories: number;
+    menuItems: number;
+    tables: number;
+    sampleCustomers: number;
+    sampleReservations: number;
+  };
+}
+
+export async function initializeDatabase(): Promise<InitializationResult> {
+  let db;
+  try {
+    console.log('🗄️ Début de l\'initialisation de la base de données...');
+
+    db = await getDb();
+    
+    // Test de connexion à la base de données
+    try {
+      await db.execute(sql`SELECT 1 as test`);
+      console.log('✅ Connexion à la base de données établie');
+    } catch (error) {
+      console.error('❌ Erreur de connexion à la base de données');
+      throw new Error('Impossible de se connecter à la base de données');
+    }
+
+    // Vérifier si des données existent déjà
+    const existingUsers = await db.select().from(users).limit(1);
+    if (existingUsers.length > 0) {
+      console.log('📊 Données déjà présentes - initialisation ignorée');
+      return { 
+        success: true, 
+        message: 'Base de données déjà initialisée' 
+      };
+    }
+
+    console.log('📝 Création des données initiales...');
+
+    // Utilisation d'une transaction pour garantir l'intégrité des données
+    const result = await db.transaction(async (tx) => {
+      // 1. Création des utilisateurs
+      const adminPassword = await hashPassword('admin123');
+      const employeePassword = await hashPassword('employe123');
+
+      const usersData = [
+        {
+          username: 'admin',
+          password: adminPassword,
+          role: 'directeur',
+          firstName: 'Jean',
+          lastName: 'Dupont',
+          email: 'admin@barista-cafe.com',
+          phone: '+33123456789',
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          username: 'employe',
+          password: employeePassword,
+          role: 'employe',
+          firstName: 'Marie',
+          lastName: 'Martin',
+          email: 'marie.martin@barista-cafe.com',
+          phone: '+33123456780',
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          username: 'cuisinier',
+          password: await hashPassword('cuisine123'),
+          role: 'employe',
+          firstName: 'Pierre',
+          lastName: 'Chef',
+          email: 'pierre.chef@barista-cafe.com',
+          phone: '+33123456781',
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+      ];
+
+      const insertedUsers = await tx.insert(users).values(usersData).returning();
+
+      // 2. Création des catégories de menu
+      const categoriesData = [
+        { 
+          name: 'Cafés', 
+          description: 'Nos cafés artisanaux torréfiés localement', 
+          sortOrder: 1,
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        { 
+          name: 'Boissons', 
+          description: 'Boissons chaudes, froides et rafraîchissantes', 
+          sortOrder: 2,
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        { 
+          name: 'Pâtisseries', 
+          description: 'Pâtisseries fraîches faites maison', 
+          sortOrder: 3,
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        { 
+          name: 'Plats', 
+          description: 'Plats et sandwichs préparés avec soin', 
+          sortOrder: 4,
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+      ];
+
+      const insertedCategories = await tx.insert(menuCategories).values(categoriesData).returning();
+
+      // 3. Création des articles de menu
+      const menuItemsData = [
+        // Cafés
+        { 
+          name: 'Espresso Classique', 
+          description: 'Café espresso italien traditionnel', 
+          price: 2.50, 
+          categoryId: insertedCategories[0].id,
+          isAvailable: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        { 
+          name: 'Cappuccino', 
+          description: 'Espresso avec mousse de lait onctueuse', 
+          price: 3.80, 
+          categoryId: insertedCategories[0].id,
+          isAvailable: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        { 
+          name: 'Latte', 
+          description: 'Café au lait avec art latte', 
+          price: 4.20, 
+          categoryId: insertedCategories[0].id,
+          isAvailable: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        
+        // Boissons
+        { 
+          name: 'Thé Vert', 
+          description: 'Thé vert de qualité premium', 
+          price: 2.80, 
+          categoryId: insertedCategories[1].id,
+          isAvailable: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        { 
+          name: 'Chocolat Chaud', 
+          description: 'Chocolat belge artisanal', 
+          price: 3.50, 
+          categoryId: insertedCategories[1].id,
+          isAvailable: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        
+        // Pâtisseries
+        { 
+          name: 'Croissant', 
+          description: 'Croissant traditionnel au beurre', 
+          price: 2.20, 
+          categoryId: insertedCategories[2].id,
+          isAvailable: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        { 
+          name: 'Cookie Chocolat', 
+          description: 'Cookie aux pépites de chocolat', 
+          price: 2.80, 
+          categoryId: insertedCategories[2].id,
+          isAvailable: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        
+        // Plats
+        { 
+          name: 'Sandwich Club', 
+          description: 'Sandwich traditionnel complet', 
+          price: 6.50, 
+          categoryId: insertedCategories[3].id,
+          isAvailable: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        { 
+          name: 'Salade César', 
+          description: 'Salade fraîche avec croûtons', 
+          price: 7.80, 
+          categoryId: insertedCategories[3].id,
+          isAvailable: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+      ];
+
+      const insertedMenuItems = await tx.insert(menuItems).values(menuItemsData).returning();
+
+      // 4. Création des tables
+      const tablesData = [
+        { number: 1, capacity: 2, status: 'available', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+        { number: 2, capacity: 4, status: 'available', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+        { number: 3, capacity: 6, status: 'available', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+        { number: 4, capacity: 2, status: 'available', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+        { number: 5, capacity: 8, status: 'available', isActive: true, createdAt: new Date(), updatedAt: new Date() }
+      ];
+
+      const insertedTables = await tx.insert(tables).values(tablesData).returning();
+
+      // 5. Création de clients de démonstration
+      const sampleCustomers = Array.from({ length: 5 }, (_, i) => ({
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        email: faker.internet.email(),
+        phone: faker.phone.number(),
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }));
+
+      const insertedCustomers = await tx.insert(customers).values(sampleCustomers).returning();
+
+      // 6. Création de réservations de démonstration
+      const sampleReservations = insertedCustomers.map((customer, index) => ({
+        customerId: customer.id,
+        tableId: insertedTables[index % insertedTables.length].id,
+        date: faker.date.soon({ days: 7 }),
+        time: '12:00',
+        guests: 2,
+        status: 'confirmed',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }));
+
+      const insertedReservations = await tx.insert(reservations).values(sampleReservations).returning();
+
+      return {
+        admin: insertedUsers[0].id,
+        categories: insertedCategories.length,
+        menuItems: insertedMenuItems.length,
+        tables: insertedTables.length,
+        sampleCustomers: insertedCustomers.length,
+        sampleReservations: insertedReservations.length
+      };
+    });
+
+    console.log('✅ Base de données initialisée avec succès');
+    console.log('👥 Comptes créés:');
+    console.log('   👤 Admin: admin/admin123 (Directeur)');
+    console.log('   👤 Employé: employe/employe123');
+    console.log('   👤 Cuisinier: cuisinier/cuisine123');
+    console.log(`📂 ${result.categories} catégories créées`);
+    console.log(`🍽️ ${result.menuItems} articles de menu créés`);
+    console.log(`🪑 ${result.tables} tables créées`);
+    console.log(`👥 ${result.sampleCustomers} clients de démonstration créés`);
+    console.log(`📅 ${result.sampleReservations} réservations de démonstration créées`);
+
+    return { 
+      success: true, 
+      message: 'Initialisation terminée avec succès', 
+      data: result 
+    };
+
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+    console.error('❌ Erreur lors de l\'initialisation:', errorMessage);
+    
+    return { 
+      success: false, 
+      message: `Échec de l'initialisation: ${errorMessage}` 
+    };
+  }
+}
+
+// Exécuter si appelé directement
+if (import.meta.url === `file://${process.argv[1]}`) {
+  initializeDatabase()
+    .then((result) => {
+      if (result.success) {
+        console.log('🎉 Initialisation terminée avec succès');
+        process.exit(0);
+      } else {
+        console.error('💥 Échec de l\'initialisation:', result.message);
+        process.exit(1);
+      }
+    })
+    .catch((error) => {
+      console.error('💥 Erreur critique:', error instanceof Error ? error.message : 'Erreur inconnue');
+      process.exit(1);
+    });
+}
