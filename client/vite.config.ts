@@ -12,7 +12,7 @@ export default defineConfig({
     port: 3000,
     host: '0.0.0.0',
     strictPort: false,
-    allowedHosts: 'all',
+    allowedHosts: true,
     hmr: {
       clientPort: 3000
     }

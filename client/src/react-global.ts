@@ -3,7 +3,6 @@ import * as React from 'react';
 
 // Ajouter React au scope global
 declare global {
-  const React: typeof import('react');
   interface Window {
     React: typeof import('react');
   }
