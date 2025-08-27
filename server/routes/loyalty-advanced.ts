@@ -80,7 +80,7 @@ export interface LoyaltyTransaction {
 // ==========================================
 
 const AddPointsSchema = z.object({
-  customerId: z.number()}).positive('ID client invalide'),
+  customerId: z.number().positive('ID client invalide'),
   points: z.number().positive('Points doivent être positifs').max(10000, 'Points maximum dépassés'),
   reason: z.string().min(1, 'Raison requise').max(200, 'Raison trop longue'),
   orderId: z.number().positive().optional(),
@@ -88,13 +88,13 @@ const AddPointsSchema = z.object({
 });
 
 const RedeemRewardSchema = z.object({
-  customerId: z.number()}).positive('ID client invalide'),
+  customerId: z.number().positive('ID client invalide'),
   rewardId: z.number().positive('ID récompense invalide'),
   quantity: z.number().positive().default(1)
 });
 
 const CreateCampaignSchema = z.object({
-  name: z.string()}).min(1, 'Nom requis').max(100, 'Nom trop long'),
+  name: z.string().min(1, 'Nom requis').max(100, 'Nom trop long'),
   description: z.string().min(1, 'Description requise').max(500, 'Description trop longue'),
   targetLevel: z.string().min(1, 'Niveau cible requis'),
   pointsMultiplier: z.number().positive().max(10, 'Multiplicateur trop élevé'),
@@ -104,11 +104,11 @@ const CreateCampaignSchema = z.object({
 });
 
 const CustomerIdParamSchema = z.object({
-  customerId: z.string()}).regex(/^\d+$/, 'ID client doit être un nombre')
+  customerId: z.string().regex(/^\d+$/, 'ID client doit être un nombre')
 });
 
 const PeriodQuerySchema = z.object({
-  period: z.enum(['day', 'week', 'month', 'quarter', 'year'])}).default('month')
+  period: z.enum(['day', 'week', 'month', 'quarter', 'year']).default('month')
 });
 
 // ==========================================

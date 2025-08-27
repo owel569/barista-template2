@@ -158,7 +158,7 @@ const UserProfile: React.FC = () => {
         <div>
           <h1 className="text-3xl font-bold">{profile.firstName} {profile.lastName}</h1>
           <div className="flex items-center space-x-2 mt-2">
-            <Badge className={`${getLoyaltyLevelColor(profile.loyaltyLevel} text-white`}>
+            <Badge className={`${getLoyaltyLevelColor(profile.loyaltyLevel)} text-white`}>
               {profile.loyaltyLevel}
             </Badge>
             <span className="text-sm text-gray-500">
