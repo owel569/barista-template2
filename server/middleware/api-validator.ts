@@ -1,4 +1,3 @@
-
 import { Request, Response, NextFunction } from 'express';
 import logger from './logger'; // Correction de l'import - utiliser l'export par défaut
 
@@ -173,11 +172,11 @@ function validateResponseSchema(response: ApiResponse): boolean {
     (response.message === undefined || typeof response.message === 'string') &&
     (response.timestamp === undefined || typeof response.timestamp === 'string') &&
     (response.statusCode === undefined || typeof response.statusCode === 'number');
-  
+
   if (!isValid) {
     logger.warn('Response schema validation failed:', response);
   }
-  
+
   return isValid;
 }
 
@@ -200,11 +199,13 @@ function getErrorMessage(error: unknown): string {
 
 function getErrorDetails(error: unknown): StandardError | string {
   if (error instanceof Error) {
+    // Modification pour supporter la propriété 'cause'
     return {
       name: error.name,
       message: error.message,
       stack: error.stack,
-      details: error.cause
+      // Vérification sécurisée pour la propriété 'cause'
+      details: 'cause' in error && error.cause !== undefined ? error.cause : undefined
     };
   }
   if (typeof error === 'string') return error;
@@ -223,7 +224,8 @@ export const apiContentTypeValidator = (req: Request, res: Response, next: NextF
         timestamp: new Date().toISOString(),
         path: req.path
       };
-      return res.status(415).json(errorResponse);
+      res.status(415).json(errorResponse);
+      return;
     }
   }
   next();
@@ -242,7 +244,8 @@ export const apiBodyValidator = (req: Request, res: Response, next: NextFunction
           timestamp: new Date().toISOString(),
           path: req.path
         };
-        return res.status(400).json(errorResponse);
+        res.status(400).json(errorResponse);
+        return;
       }
     } catch (error) {
       const errorResponse: ApiResponse = {
@@ -252,7 +255,8 @@ export const apiBodyValidator = (req: Request, res: Response, next: NextFunction
         timestamp: new Date().toISOString(),
         path: req.path
       };
-      return res.status(400).json(errorResponse);
+      res.status(400).json(errorResponse);
+      return;
     }
   }
   next();
