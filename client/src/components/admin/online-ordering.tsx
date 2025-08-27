@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import {
@@ -10,7 +10,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Table,
   TableBody,
@@ -29,7 +28,6 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -37,7 +35,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Label } from '@/components/ui/label'; // Ajout de l'import Label
+import { Label } from '@/components/ui/label';
 import { 
   Globe, 
   ShoppingCart, 
@@ -45,21 +43,28 @@ import {
   Truck, 
   CreditCard, 
   Settings, 
-  Plus, 
-  Edit, 
-  Trash2, 
   Eye, 
-  CheckCircle, 
-  AlertCircle,
+  Trash2,
   Smartphone, 
   Monitor, 
   Tablet,
-  Loader2
+  Loader2,
+  Search,
+  Download,
+  Grid,
+  List,
+  Bell,
+  BarChart3
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { Skeleton } from '@/components/ui/skeleton';
+import { OrderTimer } from '@/components/order-timer';
+import { OrderCard } from '@/components/order-card';
+import { ExportDialog } from '@/components/export-dialog';
+import { AnalyticsDashboard } from '@/components/analytics-dashboard';
 
+// ... (le reste du code reste identique mais avec les icônes utilisées)
 interface OnlineOrder {
   id: number;
   orderNumber: string;
@@ -74,8 +79,11 @@ interface OnlineOrder {
   paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
   paymentMethod: 'card' | 'paypal' | 'cash' | 'mobile';
   notes?: string;
-  estimatedTime?: string;
-  actualTime?: string;
+  internalNote?: string;
+  estimatedTime?: number;
+  driverId?: number;
+  driver?: Driver;
+  stockChecked: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -88,6 +96,13 @@ interface OrderItem {
   unitPrice: number;
   customizations?: string[];
   notes?: string;
+}
+
+interface Driver {
+  id: number;
+  name: string;
+  phone: string;
+  available: boolean;
 }
 
 interface PlatformStats {
@@ -107,6 +122,15 @@ interface OrderSettings {
   minDeliveryAmount: number;
 }
 
+interface Notification {
+  id: number;
+  type: 'new_order' | 'status_change' | 'stock_alert';
+  message: string;
+  orderId: number;
+  read: boolean;
+  createdAt: string;
+}
+
 const statusColors = {
   pending: 'bg-yellow-100 text-yellow-800',
   confirmed: 'bg-blue-100 text-blue-800',
@@ -115,7 +139,6 @@ const statusColors = {
   completed: 'bg-gray-100 text-gray-800',
   cancelled: 'bg-red-100 text-red-800',
 };
-
 
 const statusLabels = {
   pending: 'En attente',
@@ -136,15 +159,44 @@ export default function OnlineOrdering(): JSX.Element {
   const [selectedOrder, setSelectedOrder] = useState<OnlineOrder | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [platformFilter, setPlatformFilter] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
+  const [internalNote, setInternalNote] = useState<string>('');
+  const [showAnalytics, setShowAnalytics] = useState<boolean>(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [settingsForm, setSettingsForm] = useState<Partial<OrderSettings>>({});
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  useWebSocket();
+
+  useWebSocket('orders', (data) => {
+    if (data.type === 'new_order') {
+      setNotifications(prev => [...prev, {
+        id: Date.now(),
+        type: 'new_order',
+        message: `Nouvelle commande #${data.order.orderNumber}`,
+        orderId: data.order.id,
+        read: false,
+        createdAt: new Date().toISOString()
+      }]);
+
+      toast({
+        title: "Nouvelle commande!",
+        description: `Commande #${data.order.orderNumber} reçue`,
+      });
+
+      queryClient.invalidateQueries({ queryKey: ['onlineOrders'] });
+    }
+  });
 
   const { data: orders = [], isLoading, isError } = useQuery<OnlineOrder[]>({
     queryKey: ['onlineOrders'],
     queryFn: () => apiRequest('/api/admin/online-orders'),
-    staleTime: 1000 * 30, // 30 seconds
+    staleTime: 1000 * 30,
+  });
+
+  const { data: drivers = [] } = useQuery<Driver[]>({
+    queryKey: ['drivers'],
+    queryFn: () => apiRequest('/api/admin/drivers'),
   });
 
   const { data: platformStats } = useQuery<PlatformStats>({
@@ -157,12 +209,49 @@ export default function OnlineOrdering(): JSX.Element {
     queryFn: () => apiRequest('/api/admin/online-ordering/settings'),
   });
 
-  // Mettre à jour le formulaire quand les settings sont chargés
-  React.useEffect(() => {
+  const { data: storedNotifications = [] } = useQuery<Notification[]>({
+    queryKey: ['notifications'],
+    queryFn: () => apiRequest('/api/admin/notifications'),
+  });
+
+  useEffect(() => {
     if (settings) {
       setSettingsForm(settings);
     }
   }, [settings]);
+
+  useEffect(() => {
+    setNotifications(storedNotifications);
+  }, [storedNotifications]);
+
+  // Raccourcis clavier
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.ctrlKey && selectedOrder) {
+        switch(e.key) {
+          case '1': 
+            updateOrderStatus(selectedOrder.id, 'confirmed');
+            break;
+          case '2': 
+            updateOrderStatus(selectedOrder.id, 'preparing');
+            break;
+          case '3': 
+            updateOrderStatus(selectedOrder.id, 'ready');
+            break;
+          case '4': 
+            updateOrderStatus(selectedOrder.id, 'completed');
+            break;
+          case 'Esc':
+          case 'Escape':
+            setSelectedOrder(null);
+            break;
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [selectedOrder]);
 
   const updateOrderMutation = useMutation({
     mutationFn: ({ id, ...data }: { id: number; [key: string]: unknown }) => 
@@ -186,6 +275,73 @@ export default function OnlineOrdering(): JSX.Element {
     }
   });
 
+  const cancelOrderMutation = useMutation({
+    mutationFn: (id: number) => 
+      apiRequest(`/api/admin/online-orders/${id}/cancel`, { 
+        method: 'POST' 
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['onlineOrders'] });
+      toast({ 
+        title: "Commande annulée",
+        description: "La commande a été annulée avec succès"
+      });
+    },
+  });
+
+  const checkStockMutation = useMutation({
+    mutationFn: (id: number) => 
+      apiRequest(`/api/admin/online-orders/${id}/stock-check`, { 
+        method: 'POST' 
+      }),
+    onSuccess: (data: { inStock: boolean; outOfStockItems: string[] }) => {
+      if (data.inStock) {
+        toast({ 
+          title: "Stock vérifié",
+          description: "Tous les articles sont en stock"
+        });
+      } else {
+        toast({
+          title: "Stock insuffisant",
+          description: `Articles manquants: ${data.outOfStockItems.join(', ')}`,
+          variant: "destructive"
+        });
+      }
+      queryClient.invalidateQueries({ queryKey: ['onlineOrders'] });
+    },
+  });
+
+  const assignDriverMutation = useMutation({
+    mutationFn: ({ orderId, driverId }: { orderId: number; driverId: number }) => 
+      apiRequest(`/api/admin/online-orders/${orderId}/assign-driver`, { 
+        method: 'POST',
+        body: JSON.stringify({ driverId })
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['onlineOrders'] });
+      toast({ 
+        title: "Livreur assigné",
+        description: "Le livreur a été assigné avec succès"
+      });
+    },
+  });
+
+  const addInternalNoteMutation = useMutation({
+    mutationFn: ({ orderId, note }: { orderId: number; note: string }) => 
+      apiRequest(`/api/admin/online-orders/${orderId}/internal-note`, { 
+        method: 'POST',
+        body: JSON.stringify({ note })
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['onlineOrders'] });
+      setInternalNote('');
+      toast({ 
+        title: "Note ajoutée",
+        description: "La note interne a été ajoutée"
+      });
+    },
+  });
+
   const updateSettingsMutation = useMutation({
     mutationFn: (data: Partial<OrderSettings>) => 
       apiRequest('/api/admin/online-ordering/settings', { 
@@ -199,13 +355,16 @@ export default function OnlineOrdering(): JSX.Element {
         description: "Les paramètres ont été mis à jour avec succès"
       });
     },
-    onError: () => {
-      toast({
-        title: "Erreur",
-        description: "Échec de la mise à jour des paramètres",
-        variant: "destructive"
-      });
-    }
+  });
+
+  const markNotificationAsRead = useMutation({
+    mutationFn: (id: number) => 
+      apiRequest(`/api/admin/notifications/${id}/read`, { 
+        method: 'POST' 
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    },
   });
 
   const updateOrderStatus = (id: number, status: string) => {
@@ -223,9 +382,19 @@ export default function OnlineOrdering(): JSX.Element {
     return orders.filter((order) => {
       const statusMatch = statusFilter === 'all' || order.status === statusFilter;
       const platformMatch = platformFilter === 'all' || order.platform === platformFilter;
-      return statusMatch && platformMatch;
+      const searchMatch = searchTerm === '' || 
+        order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.orderNumber.includes(searchTerm) ||
+        order.customerPhone.includes(searchTerm);
+
+      return statusMatch && platformMatch && searchMatch;
     });
-  }, [orders, statusFilter, platformFilter]);
+  }, [orders, statusFilter, platformFilter, searchTerm]);
+
+  const unreadNotifications = useMemo(() => 
+    notifications.filter(n => !n.read).length, 
+    [notifications]
+  );
 
   const getPlatformIcon = (platform: string) => {
     const IconComponent = platformIcons[platform as keyof typeof platformIcons] || Monitor;
@@ -303,131 +472,187 @@ export default function OnlineOrdering(): JSX.Element {
 
   return (
     <div className="space-y-6">
+      {/* Header avec actions */}
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Commandes en Ligne</h2>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="outline">
-              <Settings className="h-4 w-4 mr-2" />
-              Paramètres
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Paramètres Commandes en Ligne</DialogTitle>
-              <DialogDescription>
-                Configurez les options de commande en ligne pour votre restaurant.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center justify-between space-x-4">
-                  <div>
-                    <Label>Commandes en ligne</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Activer/désactiver les commandes en ligne
-                    </p>
-                  </div>
-                  <Switch 
-                    checked={settingsForm.onlineOrderingEnabled || false} 
-                    onCheckedChange={(val) => handleSettingsChange('onlineOrderingEnabled', val)}
-                  />
-                </div>
-                <div className="flex items-center justify-between space-x-4">
-                  <div>
-                    <Label>Livraison</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Activer les livraisons
-                    </p>
-                  </div>
-                  <Switch 
-                    checked={settingsForm.deliveryEnabled || false} 
-                    onCheckedChange={(val) => handleSettingsChange('deliveryEnabled', val)}
-                  />
-                </div>
-                <div className="flex items-center justify-between space-x-4">
-                  <div>
-                    <Label>À emporter</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Activer les commandes à emporter
-                    </p>
-                  </div>
-                  <Switch 
-                    checked={settingsForm.pickupEnabled || false} 
-                    onCheckedChange={(val) => handleSettingsChange('pickupEnabled', val)}
-                  />
-                </div>
-                <div className="flex items-center justify-between space-x-4">
-                  <div>
-                    <Label>Paiement en ligne</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Activer les paiements en ligne
-                    </p>
-                  </div>
-                  <Switch 
-                    checked={settingsForm.onlinePaymentEnabled || false} 
-                    onCheckedChange={(val) => handleSettingsChange('onlinePaymentEnabled', val)}
-                  />
-                </div>
-              </div>
+        <div className="flex items-center space-x-2">
+          <ExportDialog orders={filteredOrders} />
 
-              <div className="grid grid-cols-2 gap-4">
+          <Button 
+            variant="outline" 
+            onClick={() => setShowAnalytics(true)}
+          >
+            <BarChart3 className="h-4 w-4 mr-2" />
+            Analytics
+          </Button>
+
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="relative">
+                <Bell className="h-4 w-4 mr-2" />
+                Notifications
+                {unreadNotifications > 0 && (
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center">
+                    {unreadNotifications}
+                  </Badge>
+                )}
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Notifications</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-2 max-h-80 overflow-y-auto">
+                {notifications.length === 0 ? (
+                  <p className="text-muted-foreground">Aucune notification</p>
+                ) : (
+                  notifications.map(notification => (
+                    <div 
+                      key={notification.id} 
+                      className={`p-3 rounded border ${notification.read ? 'bg-muted' : 'bg-blue-50'}`}
+                    >
+                      <p className="text-sm">{notification.message}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(notification.createdAt).toLocaleString()}
+                      </p>
+                      {!notification.read && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => markNotificationAsRead.mutate(notification.id)}
+                          className="mt-2"
+                        >
+                          Marquer comme lu
+                        </Button>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Settings className="h-4 w-4 mr-2" />
+                Paramètres
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Paramètres Commandes en Ligne</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-center justify-between space-x-4">
+                    <div>
+                      <Label>Commandes en ligne</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Activer/désactiver les commandes en ligne
+                      </p>
+                    </div>
+                    <Switch 
+                      checked={settingsForm.onlineOrderingEnabled || false} 
+                      onCheckedChange={(val) => handleSettingsChange('onlineOrderingEnabled', val)}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between space-x-4">
+                    <div>
+                      <Label>Livraison</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Activer les livraisons
+                      </p>
+                    </div>
+                    <Switch 
+                      checked={settingsForm.deliveryEnabled || false} 
+                      onCheckedChange={(val) => handleSettingsChange('deliveryEnabled', val)}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between space-x-4">
+                    <div>
+                      <Label>À emporter</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Activer les commandes à emporter
+                      </p>
+                    </div>
+                    <Switch 
+                      checked={settingsForm.pickupEnabled || false} 
+                      onCheckedChange={(val) => handleSettingsChange('pickupEnabled', val)}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between space-x-4">
+                    <div>
+                      <Label>Paiement en ligne</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Activer les paiements en ligne
+                      </p>
+                    </div>
+                    <Switch 
+                      checked={settingsForm.onlinePaymentEnabled || false} 
+                      onCheckedChange={(val) => handleSettingsChange('onlinePaymentEnabled', val)}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Temps de préparation min.</Label>
+                    <Input 
+                      type="number" 
+                      value={settingsForm.minPrepTime || 15} 
+                      onChange={(e) => handleSettingsChange('minPrepTime', parseInt(e.target.value))}
+                      placeholder="15" 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Temps de livraison min.</Label>
+                    <Input 
+                      type="number" 
+                      value={settingsForm.minDeliveryTime || 30} 
+                      onChange={(e) => handleSettingsChange('minDeliveryTime', parseInt(e.target.value))}
+                      placeholder="30" 
+                  />
+                  </div>
+                </div>
+
                 <div className="space-y-2">
-                  <Label>Temps de préparation min.</Label>
+                  <Label>Frais de livraison (€)</Label>
                   <Input 
                     type="number" 
-                    value={settingsForm.minPrepTime || 15} 
-                    onChange={(e) => handleSettingsChange('minPrepTime', parseInt(e.target.value))}
-                    placeholder="15" 
+                    step="0.01" 
+                    value={settingsForm.deliveryFee || 0} 
+                    onChange={(e) => handleSettingsChange('deliveryFee', parseFloat(e.target.value))}
+                    placeholder="5.00" 
                   />
                 </div>
+
                 <div className="space-y-2">
-                  <Label>Temps de livraison min.</Label>
+                  <Label>Montant minimum livraison (€)</Label>
                   <Input 
                     type="number" 
-                    value={settingsForm.minDeliveryTime || 30} 
-                    onChange={(e) => handleSettingsChange('minDeliveryTime', parseInt(e.target.value))}
-                    placeholder="30" 
+                    step="0.01" 
+                    value={settingsForm.minDeliveryAmount || 0} 
+                    onChange={(e) => handleSettingsChange('minDeliveryAmount', parseFloat(e.target.value))}
+                    placeholder="25.00" 
                   />
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <Label>Frais de livraison (€)</Label>
-                <Input 
-                  type="number" 
-                  step="0.01" 
-                  value={settingsForm.deliveryFee || 0} 
-                  onChange={(e) => handleSettingsChange('deliveryFee', parseFloat(e.target.value))}
-                  placeholder="5.00" 
-                />
+                <DialogFooter>
+                  <Button 
+                    onClick={() => updateSettingsMutation.mutate(settingsForm)} 
+                    disabled={updateSettingsMutation.isPending}
+                  >
+                    {updateSettingsMutation.isPending && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
+                    Sauvegarder
+                  </Button>
+                </DialogFooter>
               </div>
-
-              <div className="space-y-2">
-                <Label>Montant minimum livraison (€)</Label>
-                <Input 
-                  type="number" 
-                  step="0.01" 
-                  value={settingsForm.minDeliveryAmount || 0} 
-                  onChange={(e) => handleSettingsChange('minDeliveryAmount', parseFloat(e.target.value))}
-                  placeholder="25.00" 
-                />
-              </div>
-
-              <DialogFooter>
-                <Button 
-                  onClick={() => updateSettingsMutation.mutate(settingsForm)} 
-                  disabled={updateSettingsMutation.isPending}
-                >
-                  {updateSettingsMutation.isPending && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
-                  Sauvegarder
-                </Button>
-              </DialogFooter>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* Statistiques par plateforme */}
@@ -454,13 +679,44 @@ export default function OnlineOrdering(): JSX.Element {
         })}
       </div>
 
-      {/* Filtres */}
+      {/* Filtres et recherche */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <CardTitle>Filtres</CardTitle>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant={viewMode === 'table' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setViewMode('table')}
+            >
+              <List className="h-4 w-4 mr-2" />
+              Tableau
+            </Button>
+            <Button
+              variant={viewMode === 'grid' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setViewMode('grid')}
+            >
+              <Grid className="h-4 w-4 mr-2" />
+              Grille
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-4 items-end">
+            <div className="space-y-2 flex-1 min-w-[200px]">
+              <Label>Recherche</Label>
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Rechercher par nom, téléphone ou n° commande..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-8"
+                />
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label>Statut</Label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -494,167 +750,253 @@ export default function OnlineOrdering(): JSX.Element {
         </CardContent>
       </Card>
 
-      {/* Tableau des commandes */}
+      {/* Tableau ou Grille des commandes */}
       <Card>
         <CardHeader>
           <CardTitle>Commandes en Cours ({filteredOrders.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>N° Commande</TableHead>
-                <TableHead>Client</TableHead>
-                <TableHead>Plateforme</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead>Montant</TableHead>
-                <TableHead>Paiement</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredOrders.length > 0 ? (
-                filteredOrders.map((order) => (
-                  <TableRow key={order.id}>
-                    <TableCell className="font-medium">
-                      #{order.orderNumber}
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium">{order.customerName}</p>
-                        <p className="text-sm text-gray-500">{order.customerPhone}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center space-x-2">
-                        {getPlatformIcon(order.platform)}
-                        <span className="capitalize">
-                          {order.platform === 'website' ? 'Site Web' : 
-                           order.platform === 'mobile_app' ? 'App Mobile' : 'Téléphone'}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">
-                        {order.orderType === 'pickup' ? 'À emporter' :
-                         order.orderType === 'delivery' ? 'Livraison' : 'Sur place'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={statusColors[order.status]}>
-                        {statusLabels[order.status]}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{(order.totalAmount || 0).toFixed(2)}€</TableCell>
-                    <TableCell>
-                      <Badge variant={order.paymentStatus === 'paid' ? 'default' : 'secondary'}>
-                        {order.paymentStatus === 'paid' ? 'Payé' : 
-                         order.paymentStatus === 'pending' ? 'En attente' : 'Échec'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setSelectedOrder(order)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        {order.status === 'pending' && (
+          {viewMode === 'table' ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>N° Commande</TableHead>
+                  <TableHead>Client</TableHead>
+                  <TableHead>Plateforme</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Statut</TableHead>
+                  <TableHead>Temps</TableHead>
+                  <TableHead>Montant</TableHead>
+                  <TableHead>Paiement</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredOrders.length > 0 ? (
+                  filteredOrders.map((order) => (
+                    <TableRow key={order.id}>
+                      <TableCell className="font-medium">
+                        #{order.orderNumber}
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">{order.customerName}</p>
+                          <p className="text-sm text-gray-500">{order.customerPhone}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-2">
+                          {getPlatformIcon(order.platform)}
+                          <span className="capitalize">
+                            {order.platform === 'website' ? 'Site Web' : 
+                             order.platform === 'mobile_app' ? 'App Mobile' : 'Téléphone'}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">
+                          {order.orderType === 'pickup' ? 'À emporter' :
+                           order.orderType === 'delivery' ? 'Livraison' : 'Sur place'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={statusColors[order.status]}>
+                          {statusLabels[order.status]}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {order.estimatedTime && (
+                          <OrderTimer 
+                            createdAt={order.createdAt} 
+                            estimatedTime={order.estimatedTime} 
+                          />
+                        )}
+                      </TableCell>
+                      <TableCell>{(order.totalAmount || 0).toFixed(2)}€</TableCell>
+                      <TableCell>
+                        <Badge variant={order.paymentStatus === 'paid' ? 'default' : 'secondary'}>
+                          {order.paymentStatus === 'paid' ? 'Payé' : 
+                           order.paymentStatus === 'pending' ? 'En attente' : 'Échec'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
                           <Button
                             size="sm"
-                            onClick={() => updateOrderStatus(order.id, 'confirmed')}
-                            disabled={updateOrderMutation.isPending}
+                            variant="outline"
+                            onClick={() => setSelectedOrder(order)}
                           >
-                            {updateOrderMutation.isPending ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : 'Confirmer'}
+                            <Eye className="h-4 w-4" />
                           </Button>
-                        )}
-                        {order.status === 'confirmed' && (
-                          <Button
-                            size="sm"
-                            onClick={() => updateOrderStatus(order.id, 'preparing')}
-                            disabled={updateOrderMutation.isPending}
-                          >
-                            {updateOrderMutation.isPending ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : 'Préparer'}
-                          </Button>
-                        )}
-                        {order.status === 'preparing' && (
-                          <Button
-                            size="sm"
-                            onClick={() => updateOrderStatus(order.id, 'ready')}
-                            disabled={updateOrderMutation.isPending}
-                          >
-                            {updateOrderMutation.isPending ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : 'Prête'}
-                          </Button>
-                        )}
-                        {order.status === 'ready' && (
-                          <Button
-                            size="sm"
-                            onClick={() => updateOrderStatus(order.id, 'completed')}
-                            disabled={updateOrderMutation.isPending}
-                          >
-                            {updateOrderMutation.isPending ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : 'Terminée'}
-                          </Button>
-                        )}
-                      </div>
+
+                          {!order.stockChecked && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => checkStockMutation.mutate(order.id)}
+                              disabled={checkStockMutation.isPending}
+                            >
+                              {checkStockMutation.isPending ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : 'Stock'}
+                            </Button>
+                          )}
+
+                          {order.status === 'pending' && (
+                            <Button
+                              size="sm"
+                              onClick={() => updateOrderStatus(order.id, 'confirmed')}
+                              disabled={updateOrderMutation.isPending}
+                            >
+                              {updateOrderMutation.isPending ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : 'Confirmer'}
+                            </Button>
+                          )}
+                          {order.status === 'confirmed' && (
+                            <Button
+                              size="sm"
+                              onClick={() => updateOrderStatus(order.id, 'preparing')}
+                              disabled={updateOrderMutation.isPending}
+                            >
+                              {updateOrderMutation.isPending ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : 'Préparer'}
+                            </Button>
+                          )}
+                          {order.status === 'preparing' && (
+                            <Button
+                              size="sm"
+                              onClick={() => updateOrderStatus(order.id, 'ready')}
+                              disabled={updateOrderMutation.isPending}
+                            >
+                              {updateOrderMutation.isPending ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : 'Prête'}
+                            </Button>
+                          )}
+                          {order.status === 'ready' && (
+                            <Button
+                              size="sm"
+                              onClick={() => updateOrderStatus(order.id, 'completed')}
+                              disabled={updateOrderMutation.isPending}
+                            >
+                              {updateOrderMutation.isPending ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : 'Terminée'}
+                            </Button>
+                          )}
+
+                          {order.status !== 'cancelled' && order.status !== 'completed' && (
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => cancelOrderMutation.mutate(order.id)}
+                              disabled={cancelOrderMutation.isPending}
+                            >
+                              {cancelOrderMutation.isPending ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : 'Annuler'}
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                      Aucune commande trouvée
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                    Aucune commande trouvée
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                )}
+              </TableBody>
+            </Table>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredOrders.map(order => (
+                <OrderCard 
+                  key={order.id} 
+                  order={order} 
+                  onSelect={setSelectedOrder}
+                  onUpdateStatus={updateOrderStatus}
+                  onCancel={cancelOrderMutation.mutate}
+                  onCheckStock={checkStockMutation.mutate}
+                />
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 
       {/* Dialog détails commande */}
       {selectedOrder && (
         <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-4xl">
             <DialogHeader>
               <DialogTitle>Détails Commande #{selectedOrder.orderNumber}</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <p className="font-medium">Client</p>
-                  <p>{selectedOrder.customerName}</p>
-                  <p className="text-sm text-gray-500">{selectedOrder.customerEmail}</p>
-                  <p className="text-sm text-gray-500">{selectedOrder.customerPhone}</p>
+                  <h3 className="font-medium mb-2">Client</h3>
+                  <div className="space-y-1">
+                    <p>{selectedOrder.customerName}</p>
+                    <p className="text-sm text-gray-500">{selectedOrder.customerEmail}</p>
+                    <p className="text-sm text-gray-500">{selectedOrder.customerPhone}</p>
+                  </div>
                 </div>
                 <div>
-                  <p className="font-medium">Commande</p>
-                  <p>Type: {selectedOrder.orderType === 'pickup' ? 'À emporter' :
-                           selectedOrder.orderType === 'delivery' ? 'Livraison' : 'Sur place'}</p>
-                  <p>Plateforme: {selectedOrder.platform === 'website' ? 'Site Web' :
-                                 selectedOrder.platform === 'mobile_app' ? 'App Mobile' : 'Téléphone'}</p>
-                  <p>Statut: {statusLabels[selectedOrder.status]}</p>
+                  <h3 className="font-medium mb-2">Informations commande</h3>
+                  <div className="space-y-1">
+                    <p>Type: {selectedOrder.orderType === 'pickup' ? 'À emporter' :
+                             selectedOrder.orderType === 'delivery' ? 'Livraison' : 'Sur place'}</p>
+                    <p>Plateforme: {selectedOrder.platform === 'website' ? 'Site Web' :
+                                   selectedOrder.platform === 'mobile_app' ? 'App Mobile' : 'Téléphone'}</p>
+                    <p>Statut: {statusLabels[selectedOrder.status]}</p>
+                    {selectedOrder.estimatedTime && (
+                      <OrderTimer 
+                        createdAt={selectedOrder.createdAt} 
+                        estimatedTime={selectedOrder.estimatedTime} 
+                      />
+                    )}
+                  </div>
                 </div>
               </div>
 
+              {selectedOrder.orderType === 'delivery' && (
+                <div>
+                  <h3 className="font-medium mb-2">Livraison</h3>
+                  <Select
+                    value={selectedOrder.driverId?.toString() || ''}
+                    onValueChange={(driverId) => assignDriverMutation.mutate({ 
+                      orderId: selectedOrder.id, 
+                      driverId: parseInt(driverId) 
+                    })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Assigner un livreur" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {drivers.filter(d => d.available).map(driver => (
+                        <SelectItem key={driver.id} value={driver.id.toString()}>
+                          {driver.name} - {driver.phone}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
               <div>
-                <p className="font-medium mb-2">Articles commandés</p>
+                <h3 className="font-medium mb-2">Articles commandés</h3>
                 <div className="space-y-2">
                   {selectedOrder.items.map((item) => (
-                    <div key={item.id} className="flex justify-between p-2 bg-gray-50 rounded">
-                      <div>
+                    <div key={item.id} className="flex justify-between p-3 bg-gray-50 rounded">
+                      <div className="flex-1">
                         <p className="font-medium">{item.name}</p>
                         <p className="text-sm text-gray-500">Quantité: {item.quantity}</p>
+                        <p className="text-sm text-gray-500">Prix unitaire: {item.unitPrice.toFixed(2)}€</p>
                         {item.customizations && item.customizations.length > 0 && (
                           <p className="text-sm text-blue-600">
                             Personnalisations: {item.customizations.join(', ')}
@@ -679,13 +1021,91 @@ export default function OnlineOrdering(): JSX.Element {
 
               {selectedOrder.notes && (
                 <div>
-                  <p className="font-medium">Notes</p>
-                  <p className="text-sm text-gray-600">{selectedOrder.notes}</p>
+                  <h3 className="font-medium mb-2">Notes client</h3>
+                  <p className="text-sm text-gray-600 bg-yellow-50 p-3 rounded">{selectedOrder.notes}</p>
                 </div>
               )}
+
+              <div>
+                <h3 className="font-medium mb-2">Note interne</h3>
+                <div className="flex space-x-2">
+                  <Input
+                    value={internalNote}
+                    onChange={(e) => setInternalNote(e.target.value)}
+                    placeholder="Ajouter une note interne..."
+                  />
+                  <Button
+                    onClick={() => addInternalNoteMutation.mutate({ 
+                      orderId: selectedOrder.id, 
+                      note: internalNote 
+                    })}
+                    disabled={!internalNote.trim()}
+                  >
+                    Ajouter
+                  </Button>
+                </div>
+                {selectedOrder.internalNote && (
+                  <p className="text-sm text-gray-600 bg-blue-50 p-3 rounded mt-2">
+                    {selectedOrder.internalNote}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex space-x-2 justify-end">
+                {selectedOrder.status === 'pending' && (
+                  <Button
+                    onClick={() => updateOrderStatus(selectedOrder.id, 'confirmed')}
+                    disabled={updateOrderMutation.isPending}
+                  >
+                    Confirmer
+                  </Button>
+                )}
+                {selectedOrder.status === 'confirmed' && (
+                  <Button
+                    onClick={() => updateOrderStatus(selectedOrder.id, 'preparing')}
+                    disabled={updateOrderMutation.isPending}
+                  >
+                    Préparer
+                  </Button>
+                )}
+                {selectedOrder.status === 'preparing' && (
+                  <Button
+                    onClick={() => updateOrderStatus(selectedOrder.id, 'ready')}
+                    disabled={updateOrderMutation.isPending}
+                  >
+                    Prête
+                  </Button>
+                )}
+                {selectedOrder.status === 'ready' && (
+                  <Button
+                    onClick={() => updateOrderStatus(selectedOrder.id, 'completed')}
+                    disabled={updateOrderMutation.isPending}
+                  >
+                    Terminée
+                  </Button>
+                )}
+                {selectedOrder.status !== 'cancelled' && selectedOrder.status !== 'completed' && (
+                  <Button
+                    variant="destructive"
+                    onClick={() => cancelOrderMutation.mutate(selectedOrder.id)}
+                    disabled={cancelOrderMutation.isPending}
+                  >
+                    Annuler
+                  </Button>
+                )}
+              </div>
             </div>
           </DialogContent>
         </Dialog>
+      )}
+
+      {/* Dialog Analytics */}
+      {showAnalytics && (
+        <AnalyticsDashboard 
+          open={showAnalytics} 
+          onOpenChange={setShowAnalytics} 
+          orders={orders} 
+        />
       )}
     </div>
   );

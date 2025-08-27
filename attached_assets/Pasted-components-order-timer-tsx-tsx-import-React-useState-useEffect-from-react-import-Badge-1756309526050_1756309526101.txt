@@ -1,0 +1,430 @@
+components/order-timer.tsx
+tsx
+import React, { useState, useEffect } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Clock } from 'lucide-react';
+
+interface OrderTimerProps {
+  createdAt: string;
+  estimatedTime: number;
+}
+
+export function OrderTimer({ createdAt, estimatedTime }: OrderTimerProps) {
+  const [timeElapsed, setTimeElapsed] = useState(0);
+
+  useEffect(() => {
+    const created = new Date(createdAt).getTime();
+    const updateElapsed = () => {
+      const elapsed = Math.floor((Date.now() - created) / 60000);
+      setTimeElapsed(elapsed);
+    };
+
+    updateElapsed();
+    const timer = setInterval(updateElapsed, 60000);
+
+    return () => clearInterval(timer);
+  }, [createdAt]);
+
+  const isOverdue = timeElapsed > estimatedTime;
+
+  return (
+    <Badge variant={isOverdue ? "destructive" : "default"} className="flex items-center gap-1">
+      <Clock className="h-3 w-3" />
+      {timeElapsed}min / {estimatedTime}min
+    </Badge>
+  );
+}
+components/order-card.tsx
+tsx
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Eye, Loader2 } from 'lucide-react';
+import { OnlineOrder } from '@/types/order';
+import { OrderTimer } from './order-timer';
+import { platformIcons, statusLabels, statusColors } from '@/lib/constants';
+
+interface OrderCardProps {
+  order: OnlineOrder;
+  onSelect: (order: OnlineOrder) => void;
+  onUpdateStatus: (id: number, status: string) => void;
+  onCancel: (id: number) => void;
+  onCheckStock: (id: number) => void;
+}
+
+export function OrderCard({ order, onSelect, onUpdateStatus, onCancel, onCheckStock }: OrderCardProps) {
+  const PlatformIcon = platformIcons[order.platform] || platformIcons.website;
+
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <div className="flex justify-between items-start">
+          <CardTitle className="text-lg">#{order.orderNumber}</CardTitle>
+          <Button variant="ghost" size="sm" onClick={() => onSelect(order)}>
+            <Eye className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="flex items-center gap-2">
+          <PlatformIcon className="h-4 w-4" />
+          <span className="text-sm capitalize">
+            {order.platform === 'website' ? 'Site Web' : 
+             order.platform === 'mobile_app' ? 'App Mobile' : 'Téléphone'}
+          </span>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div>
+          <p className="font-medium">{order.customerName}</p>
+          <p className="text-sm text-gray-500">{order.customerPhone}</p>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <Badge variant="outline">
+            {order.orderType === 'pickup' ? 'À emporter' :
+             order.orderType === 'delivery' ? 'Livraison' : 'Sur place'}
+          </Badge>
+          <Badge className={statusColors[order.status]}>
+            {statusLabels[order.status]}
+          </Badge>
+        </div>
+
+        {order.estimatedTime && (
+          <OrderTimer createdAt={order.createdAt} estimatedTime={order.estimatedTime} />
+        )}
+
+        <p className="font-bold">{(order.totalAmount || 0).toFixed(2)}€</p>
+
+        <div className="flex flex-wrap gap-2">
+          {!order.stockChecked && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onCheckStock(order.id)}
+              className="text-xs"
+            >
+              Vérifier stock
+            </Button>
+          )}
+
+          {order.status === 'pending' && (
+            <Button
+              size="sm"
+              onClick={() => onUpdateStatus(order.id, 'confirmed')}
+              className="text-xs"
+            >
+              Confirmer
+            </Button>
+          )}
+          
+          {order.status !== 'cancelled' && order.status !== 'completed' && (
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={() => onCancel(order.id)}
+              className="text-xs"
+            >
+              Annuler
+            </Button>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+components/export-dialog.tsx
+tsx
+import React from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Download } from 'lucide-react';
+import { OnlineOrder } from '@/types/order';
+
+interface ExportDialogProps {
+  orders: OnlineOrder[];
+}
+
+export function ExportDialog({ orders }: ExportDialogProps) {
+  const exportToCSV = () => {
+    const headers = ['N° Commande', 'Client', 'Email', 'Téléphone', 'Plateforme', 'Type', 'Statut', 'Montant', 'Date'];
+    const csvData = orders.map(order => [
+      order.orderNumber,
+      order.customerName,
+      order.customerEmail,
+      order.customerPhone,
+      order.platform,
+      order.orderType,
+      order.status,
+      order.totalAmount,
+      new Date(order.createdAt).toLocaleDateString()
+    ]);
+
+    const csvContent = [headers, ...csvData].map(row => row.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `commandes-${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline">
+          <Download className="h-4 w-4 mr-2" />
+          Exporter
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Exporter les commandes</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <p>{orders.length} commandes à exporter</p>
+          <Button onClick={exportToCSV} className="w-full">
+            Exporter en CSV
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+components/analytics-dashboard.tsx
+tsx
+import React from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { OnlineOrder } from '@/types/order';
+
+interface AnalyticsDashboardProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  orders: OnlineOrder[];
+}
+
+export function AnalyticsDashboard({ open, onOpenChange, orders }: AnalyticsDashboardProps) {
+  const today = new Date();
+  const last7Days = Array.from({ length: 7 }, (_, i) => {
+    const date = new Date();
+    date.setDate(today.getDate() - i);
+    return date.toISOString().split('T')[0];
+  }).reverse();
+
+  const dailyData = last7Days.map(date => {
+    const dayOrders = orders.filter(order => order.createdAt.startsWith(date));
+    return {
+      date,
+      orders: dayOrders.length,
+      revenue: dayOrders.reduce((sum, order) => sum + order.totalAmount, 0)
+    };
+  });
+
+  const platformStats = orders.reduce((acc, order) => {
+    if (!acc[order.platform]) {
+      acc[order.platform] = { orders: 0, revenue: 0 };
+    }
+    acc[order.platform].orders++;
+    acc[order.platform].revenue += order.totalAmount;
+    return acc;
+  }, {} as Record<string, { orders: number; revenue: number }>);
+
+  const statusStats = orders.reduce((acc, order) => {
+    acc[order.status] = (acc[order.status] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Analytics des Commandes</DialogTitle>
+        </DialogHeader>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Total Commandes</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">{orders.length}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Chiffre d'Affaires</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">
+                {orders.reduce((sum, order) => sum + order.totalAmount, 0).toFixed(2)}€
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Commandes Aujourd'hui</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">
+                {orders.filter(order => order.createdAt.startsWith(today.toISOString().split('T')[0])).length}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Commandes des 7 derniers jours</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={dailyData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="orders" fill="#3b82f6" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Par Plateforme</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {Object.entries(platformStats).map(([platform, stats]) => (
+                <div key={platform} className="flex justify-between py-2 border-b">
+                  <span className="capitalize">
+                    {platform === 'website' ? 'Site Web' : 
+                     platform === 'mobile_app' ? 'App Mobile' : 'Téléphone'}
+                  </span>
+                  <span>{stats.orders} commandes ({stats.revenue.toFixed(2)}€)</span>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Par Statut</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {Object.entries(statusStats).map(([status, count]) => (
+                <div key={status} className="flex justify-between py-2 border-b">
+                  <span className="capitalize">{status}</span>
+                  <span>{count} commandes</span>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+3. Types supplémentaires :
+types/order.ts
+tsx
+export interface OnlineOrder {
+  id: number;
+  orderNumber: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  platform: 'website' | 'mobile_app' | 'phone';
+  orderType: 'pickup' | 'delivery' | 'dine_in';
+  status: 'pending' | 'confirmed' | 'preparing' | 'ready' | 'completed' | 'cancelled';
+  items: OrderItem[];
+  totalAmount: number;
+  paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
+  paymentMethod: 'card' | 'paypal' | 'cash' | 'mobile';
+  notes?: string;
+  internalNote?: string;
+  estimatedTime?: number;
+  driverId?: number;
+  driver?: Driver;
+  stockChecked: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OrderItem {
+  id: number;
+  menuItemId: number;
+  name: string;
+  quantity: number;
+  unitPrice: number;
+  customizations?: string[];
+  notes?: string;
+}
+
+export interface Driver {
+  id: number;
+  name: string;
+  phone: string;
+  available: boolean;
+}
+
+export interface Notification {
+  id: number;
+  type: 'new_order' | 'status_change' | 'stock_alert';
+  message: string;
+  orderId: number;
+  read: boolean;
+  createdAt: string;
+}
+4. Constants :
+lib/constants.ts
+tsx
+export const statusColors = {
+  pending: 'bg-yellow-100 text-yellow-800',
+  confirmed: 'bg-blue-100 text-blue-800',
+  preparing: 'bg-purple-100 text-purple-800',
+  ready: 'bg-green-100 text-green-800',
+  completed: 'bg-gray-100 text-gray-800',
+  cancelled: 'bg-red-100 text-red-800',
+};
+
+export const statusLabels = {
+  pending: 'En attente',
+  confirmed: 'Confirmée',
+  preparing: 'En préparation',
+  ready: 'Prête',
+  completed: 'Terminée',
+  cancelled: 'Annulée',
+};
+
+export const platformIcons = {
+  website: Monitor,
+  mobile_app: Smartphone,
+  phone: Tablet,
+};
+5. Mise à jour du hook useWebSocket :
+hooks/useWebSocket.ts
+tsx
+import { useEffect } from 'react';
+
+export function useWebSocket(channel: string, onMessage: (data: any) => void) {
+  useEffect(() => {
+    const ws = new WebSocket(`wss://votre-api/ws/${channel}`);
+    
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        onMessage(data);
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+      }
+    };
+
+    return () => ws.close();
+  }, [channel, onMessage]);
+}
+6. Installation des dépendances :
+bash
+npm install recharts
