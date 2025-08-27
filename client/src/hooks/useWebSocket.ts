@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState, useCallback } from 'react';
 
 interface WebSocketMessage {
@@ -29,7 +28,7 @@ interface UseWebSocketReturn {
 }
 
 export function useWebSocket(
-  url: string = '/api/ws', 
+  url: string = '/api/ws',
   config: WebSocketConfig = {}
 ): UseWebSocketReturn {
   const {
@@ -106,12 +105,12 @@ export function useWebSocket(
       ws.current.onmessage = (event) => {
         try {
           const message = JSON.parse(event.data) as WebSocketMessage;
-          
+
           // Ignorer les messages de pong
           if (message.type === 'pong') {
             return;
           }
-          
+
           setLastMessage({
             ...message,
             timestamp: Date.now()
@@ -131,9 +130,9 @@ export function useWebSocket(
         if (autoReconnect && reconnectCount.current < reconnectAttempts && !event.wasClean) {
           reconnectCount.current++;
           const delay = reconnectInterval * Math.pow(1.5, reconnectCount.current - 1);
-          
+
           console.log(`Tentative de reconnexion ${reconnectCount.current}/${reconnectAttempts} dans ${delay}ms`);
-          
+
           reconnectTimeout.current = setTimeout(() => {
             connect();
           }, delay);
@@ -228,4 +227,52 @@ export function useWebSocket(
     reconnect,
     getConnectionInfo
   };
+}
+
+// This is a simulated WebSocket hook for development purposes.
+// In a real application, you would use the actual WebSocket implementation above.
+interface SimulatedWebSocketHook {
+  sendMessage: (message: any) => void;
+  onMessage: (callback: (data: any) => void) => void;
+}
+
+export function useSimulatedWebSocket(channel: string): SimulatedWebSocketHook {
+  const messageCallbacks = useRef<Array<(data: any) => void>>([]);
+
+  useEffect(() => {
+    console.log(`Simulated WebSocket connected to channel: ${channel}`);
+
+    // Simulate receiving messages
+    const interval = setInterval(() => {
+      if (messageCallbacks.current.length > 0) {
+        const simulatedData = {
+          timestamp: Date.now(),
+          channel: channel,
+          payload: `Simulated data for ${channel} at ${new Date().toLocaleTimeString()}`,
+        };
+        messageCallbacks.current.forEach((callback) => callback(simulatedData));
+      }
+    }, 5000); // Send simulated message every 5 seconds
+
+    return () => {
+      clearInterval(interval);
+      console.log(`Simulated WebSocket disconnected from channel: ${channel}`);
+    };
+  }, [channel]);
+
+  const onMessage = useCallback((callback: (data: any) => void) => {
+    messageCallbacks.current.push(callback);
+    // Cleanup callback when component unmounts or if callback changes
+    return () => {
+      messageCallbacks.current = messageCallbacks.current.filter(cb => cb !== callback);
+    };
+  }, []);
+
+  const sendMessage = useCallback((message: any): void => {
+    console.log(`Simulated WebSocket sending message to ${channel}:`, message);
+    // In a real scenario, this would send to the server.
+    // For simulation, we might just log it or trigger a response.
+  }, [channel]);
+
+  return { sendMessage, onMessage };
 }
