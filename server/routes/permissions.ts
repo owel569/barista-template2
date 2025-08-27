@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { asyncHandler } from '../middleware/error-handler';
 import { createLogger } from '../middleware/logging';
 import { authenticateUser, requireRoles } from '../middleware/auth';
+import { requirePermission } from '../middleware/authorization';
 import { validateBody, validateParams, validateQuery } from '../middleware/validation';
 import { getDb } from '../db';
 import { permissions, users, activityLogs } from '../../shared/schema';
@@ -171,7 +172,7 @@ router.get('/overview', authenticateUser, requireRoles(['admin']), asyncHandler(
   }
 }));
 
-router.get('/user/:userId', authenticateUser, requireRoles(['admin']), validateParams(z.object({
+router.get('/user/:userId', authenticateUser, requireRoles(['admin']), requirePermission('users', 'canView'), validateParams(z.object({
   userId: z.string().regex(/^\d+$/, 'ID utilisateur doit être un nombre')
 })), asyncHandler(async (req, res) => {
   const { userId } = req.params;
@@ -238,7 +239,7 @@ router.get('/templates', authenticateUser, requireRoles(['admin']), asyncHandler
   }
 }));
 
-router.post('/permission', authenticateUser, requireRoles(['admin']), validateBody(z.object({
+router.post('/permission', authenticateUser, requireRoles(['admin']), requirePermission('users', 'canUpdate'), validateBody(z.object({
   userId: z.number().positive('ID utilisateur invalide'),
   module: z.string().min(1, 'Module requis'),
   canView: z.boolean(),
@@ -316,7 +317,7 @@ router.post('/permission', authenticateUser, requireRoles(['admin']), validateBo
   }
 }));
 
-router.post('/bulk-update', authenticateUser, requireRoles(['admin']), validateBody(z.object({
+router.post('/bulk-update', authenticateUser, requireRoles(['admin']), requirePermission('users', 'canUpdate'), validateBody(z.object({
   updates: z.array(z.object({
     userId: z.number().positive('ID utilisateur invalide'),
     permissions: z.array(z.object({
@@ -395,7 +396,7 @@ router.post('/bulk-update', authenticateUser, requireRoles(['admin']), validateB
   }
 }));
 
-router.post('/apply-template', authenticateUser, requireRoles(['admin']), validateBody(z.object({
+router.post('/apply-template', authenticateUser, requireRoles(['admin']), requirePermission('users', 'canUpdate'), validateBody(z.object({
   userId: z.number().positive('ID utilisateur invalide'),
   templateName: z.string().min(1, 'Nom du template requis')
 }))), asyncHandler(async (req, res) => {
@@ -467,7 +468,7 @@ router.post('/apply-template', authenticateUser, requireRoles(['admin']), valida
   }
 }));
 
-router.delete('/user/:userId', authenticateUser, requireRoles(['admin']), validateParams(z.object({
+router.delete('/user/:userId', authenticateUser, requireRoles(['admin']), requirePermission('users', 'canDelete'), validateParams(z.object({
   userId: z.string().regex(/^\d+$/, 'ID utilisateur doit être un nombre')
 }))), asyncHandler(async (req, res) => {
   const { userId } = req.params;
