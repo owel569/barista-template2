@@ -234,7 +234,7 @@ const TableManagement: React.FC = () => {
                     <span className="text-2xl mr-2">{getTableIcon(table.shape)}</span>
                     Table {table.number}
                   </CardTitle>
-                  <Badge className={`${getStatusColor(table.status} text-white`}>
+                  <Badge className={`${getStatusColor(table.status)} text-white`}>
                     {getStatusLabel(table.status)}
                   </Badge>
                 </div>
@@ -256,7 +256,7 @@ const TableManagement: React.FC = () => {
                 {table.currentReservation && (
                   <div className="p-3 bg-blue-50 rounded-lg">
                     <div className="text-sm">
-                      <p className="font-medium">{table.currentReservation.customerName)}</p>
+                      <p className="font-medium">{table.currentReservation.customerName}</p>
                       <p className="text-gray-600">{table.currentReservation.time} • {table.currentReservation.guests} pers.</p>
                     </div>
                   </div>
