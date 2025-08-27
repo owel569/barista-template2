@@ -305,7 +305,7 @@ export class AIAutomationModule {
     return [
       { date, time: '15:30', available: true },
       { date, time: '16:00', available: true },
-      { date: new Date(new Date(date).getTime() + 86400000).toISOString().split('T')[0,], time, available: true }
+      { date: new Date(new Date(date).getTime() + 86400000).toISOString().split('T')[0], time, available: true }
     ];
   }
 
