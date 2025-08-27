@@ -1,10 +1,9 @@
 import { getDb } from '../server/db';
 import { sql } from 'drizzle-orm';
 import { 
-  users, menuCategories, menuItems, tables, customers, reservations,
-  type InsertUser, type InsertMenuCategory, type InsertMenuItem, type InsertTable
+  users, menuCategories, menuItems, tables, customers, reservations
 } from '../shared/schema';
-import { logger } from '../server/logger';
+import { logger } from '../server/utils/logger';
 import { fakerFR as faker } from '@faker-js/faker';
 
 async function hashPassword(password: string): Promise<string> {
@@ -55,7 +54,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
       const adminPassword = await hashPassword('admin123');
       const employeePassword = await hashPassword('employe123');
 
-      const usersData: InsertUser[] = [
+      const usersData: typeof users.$inferInsert[] = [
         {
           username: 'admin',
           password: adminPassword,
@@ -97,40 +96,35 @@ export async function initializeDatabase(): Promise<InitializationResult> {
       const insertedUsers = await tx.insert(users).values(usersData).returning();
 
       // 2. Créer les catégories de menu
-      const categoriesData: InsertMenuCategory[] = [
+      const categoriesData: typeof menuCategories.$inferInsert[] = [
         { 
           name: 'Cafés', 
           description: 'Nos cafés artisanaux torréfiés localement', 
-          slug: 'cafes', 
-          displayOrder: 1,
+          sortOrder: 1,
           isActive: true
         },
         { 
           name: 'Boissons', 
           description: 'Boissons chaudes, froides et rafraîchissantes', 
-          slug: 'boissons', 
-          displayOrder: 2,
+          sortOrder: 2,
           isActive: true
         },
         { 
           name: 'Pâtisseries', 
           description: 'Pâtisseries fraîches faites maison', 
-          slug: 'patisseries', 
-          displayOrder: 3,
+          sortOrder: 3,
           isActive: true
         },
         { 
           name: 'Plats', 
           description: 'Plats et sandwichs préparés avec soin', 
-          slug: 'plats', 
-          displayOrder: 4,
+          sortOrder: 4,
           isActive: true
         },
         { 
           name: 'Spécialités', 
           description: 'Nos créations exclusives', 
-          slug: 'specialites', 
-          displayOrder: 5,
+          sortOrder: 5,
           isActive: true
         }
       ];
@@ -138,7 +132,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
       const insertedCategories = await tx.insert(menuCategories).values(categoriesData).returning();
 
       // 3. Créer les articles de menu avec des données plus réalistes
-      const menuItemsData: InsertMenuItem[] = [
+      const menuItemsData: typeof menuItems.$inferInsert[] = [
         // Cafés
         { 
           name: 'Espresso Classique', 
@@ -333,15 +327,15 @@ export async function initializeDatabase(): Promise<InitializationResult> {
       const insertedMenuItems = await tx.insert(menuItems).values(menuItemsData).returning();
 
       // 4. Créer les tables avec différentes capacités
-      const tablesData: InsertTable[] = [
-        { number: 1, capacity: 2, location: 'terrasse', isAvailable: true },
-        { number: 2, capacity: 4, location: 'salon', isAvailable: true },
-        { number: 3, capacity: 6, location: 'salon', isAvailable: true },
-        { number: 4, capacity: 2, location: 'terrasse', isAvailable: true },
-        { number: 5, capacity: 8, location: 'salle privée', isAvailable: true },
-        { number: 6, capacity: 4, location: 'salon', isAvailable: true },
-        { number: 7, capacity: 2, location: 'terrasse', isAvailable: true },
-        { number: 8, capacity: 6, location: 'salle privée', isAvailable: true }
+      const tablesData: typeof tables.$inferInsert[] = [
+        { number: 1, capacity: 2, location: 'terrasse', status: 'available', isActive: true },
+        { number: 2, capacity: 4, location: 'salon', status: 'available', isActive: true },
+        { number: 3, capacity: 6, location: 'salon', status: 'available', isActive: true },
+        { number: 4, capacity: 2, location: 'terrasse', status: 'available', isActive: true },
+        { number: 5, capacity: 8, location: 'salle privée', status: 'available', isActive: true },
+        { number: 6, capacity: 4, location: 'salon', status: 'available', isActive: true },
+        { number: 7, capacity: 2, location: 'terrasse', status: 'available', isActive: true },
+        { number: 8, capacity: 6, location: 'salle privée', status: 'available', isActive: true }
       ];
 
       const insertedTables = await tx.insert(tables).values(tablesData).returning();
