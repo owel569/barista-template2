@@ -1,4 +1,3 @@
-
 import { toast as sonnerToast } from 'sonner';
 
 export interface ToastProps {
@@ -17,7 +16,7 @@ class ToastManager {
 
   toast(props: ToastProps) {
     const { title, description, variant = 'default', duration = this.defaultDuration, action } = props;
-    
+
     const message = title || description || '';
     const options = {
       description: title && description ? description : undefined,
@@ -115,7 +114,7 @@ class ToastManager {
     }
   ): Promise<T> {
     const loadingToast = this.loading(messages.loading);
-    
+
     return operation()
       .then((result) => {
         this.dismiss(loadingToast);
@@ -154,3 +153,11 @@ export const useToast = () => {
 
 export { toastManager as toast };
 export { toastManager };
+
+// Export du toastManager pour compatibilité
+export const toastManagerCompat = {
+  success: (message: string) => toast({ title: "Succès", description: message }),
+  error: (message: string) => toast({ title: "Erreur", description: message, variant: "destructive" }),
+  info: (message: string) => toast({ title: "Information", description: message }),
+  warning: (message: string) => toast({ title: "Attention", description: message, variant: "destructive" })
+}
