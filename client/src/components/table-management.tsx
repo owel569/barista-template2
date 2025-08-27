@@ -59,24 +59,24 @@ const TableManagement: React.FC = () => {
   });
 
   const createTableMutation = useMutation({
-    mutationFn: async (tableData: Partial<Table>})}) => {
+    mutationFn: async (tableData: Partial<Table>) => {
       const response = await fetch('/api/tables', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' )},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(tableData),
       });
       if (!response.ok) throw new Error('Erreur lors de la création');
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/tables'] )});
+      queryClient.invalidateQueries({ queryKey: ['/api/tables'] });
       setIsCreateDialogOpen(false);
       toast({ title: 'Table créée', description: 'La nouvelle table a été ajoutée.' });
     },
   });
 
   const updateTableMutation = useMutation({
-    mutationFn: async ({ id, ...data })}: Partial<Table> & { id: number }) => {
+    mutationFn: async ({ id, ...data }: Partial<Table> & { id: number }) => {
       const response = await fetch(`/api/tables/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -86,7 +86,7 @@ const TableManagement: React.FC = () => {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/tables'] )});
+      queryClient.invalidateQueries({ queryKey: ['/api/tables'] });
       setIsEditDialogOpen(false);
       setSelectedTable(null);
       toast({ title: 'Table mise à jour', description: 'Les modifications ont été sauvegardées.' });
@@ -94,7 +94,7 @@ const TableManagement: React.FC = () => {
   });
 
   const updateTableStatusMutation = useMutation({
-    mutationFn: async ({ id, status })}: { id: number; status: string }) => {
+    mutationFn: async ({ id, status }: { id: number; status: string }) => {
       const response = await fetch(`/api/tables/${id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -104,13 +104,13 @@ const TableManagement: React.FC = () => {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/tables'] )});
+      queryClient.invalidateQueries({ queryKey: ['/api/tables'] });
       toast({ title: 'Statut mis à jour', description: 'Le statut de la table a été modifié.' });
     },
   });
 
   const deleteTableMutation = useMutation({
-    mutationFn: async (id: number})}) => {
+    mutationFn: async (id: number) => {
       const response = await fetch(`/api/tables/${id}`, {
         method: 'DELETE',
       });
@@ -118,7 +118,7 @@ const TableManagement: React.FC = () => {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/tables'] )});
+      queryClient.invalidateQueries({ queryKey: ['/api/tables'] });
       toast({ title: 'Table supprimée', description: 'La table a été supprimée avec succès.' });
     },
   });

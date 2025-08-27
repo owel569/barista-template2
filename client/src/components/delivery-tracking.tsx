@@ -48,7 +48,7 @@ const DeliveryTracking: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['/api/deliveries'] });
       toast({ title: 'Statut mis à jour', description: 'Le statut de livraison a été modifié.' });
     },
-  };
+  });
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -113,7 +113,7 @@ const DeliveryTracking: React.FC = () => {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">#{delivery.orderNumber}</CardTitle>
-                <Badge className={`${getStatusColor(delivery.status} text-white`}>
+                <Badge className={`${getStatusColor(delivery.status)} text-white`}>
                   {getStatusLabel(delivery.status)}
                 </Badge>
               </div>

@@ -101,8 +101,8 @@ export class AdvancedAnalytics {
         costSavings: 245.50
       };
     } catch (error) {
-      logger.error('Erreur optimisation stock:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
-      return { items: [,], recommendations: [,], costSavings: 0 };
+      logger.error('Erreur optimisation stock:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+      return { items: [], recommendations: [], costSavings: 0 };
     }
   }
 
@@ -128,7 +128,7 @@ export class AdvancedAnalytics {
 
       return anomalies;
     } catch (error) {
-      logger.error('Erreur détection anomalies:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      logger.error('Erreur détection anomalies:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       return [];
     }
   }
@@ -144,7 +144,7 @@ export class AdvancedAnalytics {
 
       return recommendations;
     } catch (error) {
-      logger.error('Erreur recommandations:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      logger.error('Erreur recommandations:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       return [];
     }
   }
@@ -163,7 +163,7 @@ export class AdvancedAnalytics {
 
       return metrics;
     } catch (error) {
-      logger.error('Erreur métriques temps réel:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      logger.error('Erreur métriques temps réel:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       return { currentCustomers: 0, averageWaitTime: 0, ordersThroughput: 0, staffEfficiency: 0, customerSatisfaction: 0 };
     }
   }

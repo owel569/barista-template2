@@ -105,7 +105,7 @@ const OnlineOrdering: React.FC = () => {
   });
 
   const updateOrderStatusMutation = useMutation({
-    mutationFn: async ({ id, status })}: { id: number; status: string }) => {
+    mutationFn: async ({ id, status }: { id: number; status: string }) => {
       const response = await fetch(`/api/orders/online/${id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -115,7 +115,7 @@ const OnlineOrdering: React.FC = () => {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/orders/online'] )});
+      queryClient.invalidateQueries({ queryKey: ['/api/orders/online'] });
       toast({ title: 'Statut mis à jour', description: 'Le statut de la commande a été modifié.' });
     },
   });
@@ -334,7 +334,7 @@ const OnlineOrdering: React.FC = () => {
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">#{order.orderNumber}</CardTitle>
-                    <Badge className={`${getStatusColor(order.status} text-white`}>
+                    <Badge className={`${getStatusColor(order.status)} text-white`}>
                       {getStatusLabel(order.status)}
                     </Badge>
                   </div>
@@ -374,7 +374,7 @@ const OnlineOrdering: React.FC = () => {
                     ))}
                     {order.items.length > 2 && (
                       <p className="text-sm text-gray-500">
-                        +{order.items.length - 2)} autres articles
+                        +{order.items.length - 2} autres articles
                       </p>
                     )}
                   </div>
@@ -382,7 +382,7 @@ const OnlineOrdering: React.FC = () => {
                   {order.specialInstructions && (
                     <div className="text-sm">
                       <p className="font-medium">Instructions:</p>
-                      <p className="text-gray-600 text-xs">{order.specialInstructions)}</p>
+                      <p className="text-gray-600 text-xs">{order.specialInstructions}</p>
                     </div>
                   )}
 
@@ -451,7 +451,7 @@ const OnlineOrdering: React.FC = () => {
                   <h4 className="font-medium">{item.menuItem.name}</h4>
                   <p className="text-sm text-gray-500">{item.menuItem.price.toFixed(2)}€</p>
                   {item.notes && (
-                    <p className="text-xs text-gray-400">{item.notes)}</p>
+                    <p className="text-xs text-gray-400">{item.notes}</p>
                   )}
                 </div>
                 <div className="flex items-center space-x-2">

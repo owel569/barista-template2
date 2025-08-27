@@ -171,7 +171,7 @@ export default function ReservationNotifications() : JSX.Element {
           </Button>
           {pendingNotifications > 0 && (
             <Badge className="bg-red-500 text-white px-3 py-1">
-              {pendingNotifications)} nouvelles
+              {pendingNotifications} nouvelles
             </Badge>
           )}
         </div>
