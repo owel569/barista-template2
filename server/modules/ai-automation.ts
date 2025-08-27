@@ -90,7 +90,7 @@ export class AIAutomationModule {
         executed: command.executed
       });
     } catch (error) {
-      logger.error('Erreur reconnaissance vocale:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      logger.error('Erreur reconnaissance vocale:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       res.status(500).json({ error: 'Erreur de reconnaissance vocale' });
     }
   }

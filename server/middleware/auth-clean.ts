@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import { createLogger } from './logging';
+const logger = createLogger('AUTH');
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -36,7 +38,7 @@ export const authenticateUser = (req: Request, res: Response, next: NextFunction
       return next();
     });
   } catch (error){
-    logger.error('Erreur d\'authentification:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+    logger.error('Erreur d\'authentification:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     return res.status(500).json({ message: 'Erreur serveur d\'authentification', success: false, code: 'AUTH_ERROR' });
   }
 };
@@ -75,7 +77,7 @@ export const generateToken = (user: UserPayload): string => {
       id: user.id, 
       username: user.username, 
       role: user.role 
-    )},
+    },
     JWT_SECRET,
     { expiresIn: '24h' }
   );
