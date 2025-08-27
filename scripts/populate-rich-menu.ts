@@ -1,9 +1,11 @@
 #!/usr/bin/env tsx
 import 'dotenv/config';
-import { getDb } from '../server/db';
+import { db, getDb } from '../server/db';
 import { menuItems, menuCategories, menuItemImages } from '../shared/schema';
 import { eq } from 'drizzle-orm';
 import { getItemImageUrl } from '../client/src/lib/image-mapping';
+
+const logger = console;
 
 // Données enrichies du menu Barista Café avec vraies descriptions
 const RICH_MENU_DATA = {
@@ -166,7 +168,7 @@ async function populateRichMenu() {
           totalInserted++;
           
         } catch (error) {
-          logger.error(`❌ Erreur pour ${item.name)}:`, { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+          logger.error(`❌ Erreur pour ${item.name}:`, { error: error instanceof Error ? error.message : 'Erreur inconnue' });
         }
       }
     }
@@ -180,7 +182,7 @@ async function populateRichMenu() {
     console.log(`✅ Vérification: ${finalCount.length} éléments en base`);
     
   } catch (error) {
-    logger.error('❌ Erreur lors de l\'enrichissement:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+    logger.error('❌ Erreur lors de l\'enrichissement:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     process.exit(1);
   }
 }
@@ -193,7 +195,7 @@ if (import.meta.main) {
       process.exit(0);
     })
     .catch((error) => {
-      logger.error('❌ Échec de l\'enrichissement:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      logger.error('❌ Échec de l\'enrichissement:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       process.exit(1);
     });
 }

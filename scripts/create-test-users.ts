@@ -1,7 +1,9 @@
 
 import bcrypt from 'bcrypt';
-import { db } from '../server/db';
+import { db, getDb } from '../server/db';
 import { users } from '../shared/schema';
+
+const logger = console;
 
 async function createTestUsers() {
   try {
@@ -39,11 +41,11 @@ async function createTestUsers() {
       }
     ];
 
-    await await getDb().insert(users).values(testUsers);
+    await getDb().insert(users).values(testUsers);
     console.log('✅ Utilisateurs de test créés avec succès');
     
   } catch (error) {
-    logger.error('❌ Erreur lors de la création des utilisateurs:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+    logger.error('❌ Erreur lors de la création des utilisateurs:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
   }
 }
 
