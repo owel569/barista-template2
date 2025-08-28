@@ -402,4 +402,4 @@ export const crudSchemas = {
 };
 
 // Export des utilitaires
-export { AdvancedValidator, ValidationOptions, ValidationResult, commonSchemas };
+export { AdvancedValidator, ValidationOptions, ValidationResult };
