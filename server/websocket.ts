@@ -21,7 +21,7 @@ class WebSocketManager {
     this.wss = new WebSocketServer({ 
       server, 
       path: '/ws',
-      verifyClient: (info) => {
+      verifyClient: (info: any) => {
         // Vérification simple pour l'authentification
         return true;
       }

@@ -20,7 +20,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = parseInt(process.env.PORT || '5000', 10);
 const HOST = process.env.HOST || '0.0.0.0';
 
-async function createServer() {
+async function startApplication() {
   const app = express();
 
   // 0. Configuration de la gestion d'erreurs globale
@@ -154,7 +154,7 @@ async function createServer() {
   return httpServer;
 }
 
-createServer().catch(err => {
+startApplication().catch(err => {
   console.error('Server error:', err);
   process.exit(1);
 });
