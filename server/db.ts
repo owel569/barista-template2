@@ -13,7 +13,10 @@ const connectionConfig = {
   prepare: false,
   onnotice: () => {}, // Supprimer les notices PostgreSQL pour éviter le spam
   onnotify: () => {},
-  debug: process.env.NODE_ENV === 'development' ? false : false
+  debug: false,
+  transform: {
+    undefined: null
+  }
 };
 
 let connection: postgres.Sql;
@@ -24,12 +27,19 @@ try {
   connection = postgres(connectionString, connectionConfig);
   db = drizzle(connection, { schema });
   
-  // Test de connexion immédiat mais non bloquant
-  connection`SELECT 1 as test`.then(() => {
-    console.log('✅ Base de données connectée avec succès');
-  }).catch((error) => {
-    console.error('⚠️  Avertissement de connexion DB:', error.message);
-  });
+  // Test de connexion avec retry
+  const testConnection = async () => {
+    try {
+      await connection`SELECT 1 as test`;
+      console.log('✅ Base de données connectée avec succès');
+    } catch (error) {
+      console.error('⚠️  Erreur de connexion DB:', error instanceof Error ? error.message : 'Erreur inconnue');
+      // Retry après 2 secondes
+      setTimeout(testConnection, 2000);
+    }
+  };
+  
+  testConnection();
   
 } catch (error) {
   console.error('❌ Erreur de configuration de la base de données:', error);

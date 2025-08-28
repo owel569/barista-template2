@@ -1,5 +1,3 @@
-
-```typescript
 import { Router } from 'express';
 import { z } from 'zod';
 import { hash } from 'bcryptjs';
@@ -112,15 +110,15 @@ router.get('/',
 
     // Construire les conditions
     const conditions = [];
-    
+
     if (role) {
       conditions.push(eq(users.role, role));
     }
-    
+
     if (active !== undefined) {
       conditions.push(eq(users.active, active));
     }
-    
+
     if (search) {
       conditions.push(
         or(
@@ -598,4 +596,3 @@ router.get('/stats/overview',
 );
 
 export default router;
-```
