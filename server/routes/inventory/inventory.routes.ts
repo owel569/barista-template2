@@ -46,10 +46,13 @@ const StockMovementSchema = z.object({
   cost: z.number().min(0).optional()
 });
 
+// Type pour les mouvements de stock
+type MovementType = 'in' | 'out' | 'adjustment';
+
 // Interface pour les alertes de stock
 interface StockAlert {
-  id: string;
-  itemName: string;
+  id: number;
+  itemName: string | null;
   currentStock: number;
   minStock: number;
   alertType: 'low_stock' | 'out_of_stock' | 'expired' | 'expiring_soon';
@@ -88,12 +91,12 @@ async function logInventoryActivity(
 // Liste des articles d'inventaire avec filtres
 router.get('/',
   authenticateUser,
-  requireRoles(['admin', 'manager', 'staff']),
+  requireRoles(['admin', 'manager']),
   validateQuery(z.object({
     category: z.string().optional(),
     lowStock: z.boolean().optional(),
     expired: z.boolean().optional(),
-    supplierId: z.string().uuid().optional(),
+    supplierId: z.coerce.number().int().positive().optional(),
     search: z.string().optional(),
     page: z.coerce.number().int().min(1).default(1),
     limit: z.coerce.number().int().min(1).max(100).default(20),
@@ -120,7 +123,7 @@ router.get('/',
         id: inventory.id,
         menuItemId: inventory.menuItemId,
         itemName: menuItems.name,
-        itemCategory: menuItems.category,
+        itemCategory: menuItems.categoryId,
         currentStock: inventory.currentStock,
         minStock: inventory.minStock,
         maxStock: inventory.maxStock,
@@ -150,7 +153,10 @@ router.get('/',
     const conditions = [];
 
     if (category) {
-      conditions.push(eq(menuItems.category, category));
+      const categoryId = parseInt(category as string);
+      if (!isNaN(categoryId)) {
+        conditions.push(eq(menuItems.categoryId, categoryId));
+      }
     }
 
     if (lowStock) {
@@ -161,7 +167,7 @@ router.get('/',
       conditions.push(sql`${inventory.expiryDate} < NOW()`);
     }
 
-    if (supplierId) {
+    if (supplierId !== undefined) {
       conditions.push(eq(inventory.supplierId, supplierId));
     }
 
@@ -192,15 +198,19 @@ router.get('/',
       query.orderBy(orderColumn);
 
     // Pagination
-    const offset = (page - 1) * limit;
-    const inventoryData = await query.limit(limit).offset(offset);
+    const pageNum = typeof page === 'number' ? page : 1;
+    const limitNum = typeof limit === 'number' ? limit : 20;
+    const offset = (pageNum - 1) * limitNum;
+    const inventoryData = await query.limit(limitNum).offset(offset);
 
     // Compte total
-    const [{ count }] = await db
+    const countResult = await db
       .select({ count: sql<number>`count(*)` })
       .from(inventory)
       .leftJoin(menuItems, eq(inventory.menuItemId, menuItems.id))
       .where(conditions.length > 0 ? and(...conditions) : undefined);
+    
+    const count = countResult[0]?.count || 0;
 
     logger.info('Inventaire récupéré', {
       count: inventoryData.length,
@@ -212,10 +222,10 @@ router.get('/',
       success: true,
       data: inventoryData,
       pagination: {
-        page,
-        limit,
+        page: pageNum,
+        limit: limitNum,
         total: count,
-        totalPages: Math.ceil(count / limit)
+        totalPages: Math.ceil(count / limitNum)
       }
     });
   })
@@ -224,7 +234,7 @@ router.get('/',
 // Alertes de stock
 router.get('/alerts',
   authenticateUser,
-  requireRoles(['admin', 'manager', 'staff']),
+  requireRoles(['admin', 'manager']),
   cacheMiddleware({ ttl: 1 * 60 * 1000, tags: ['inventory', 'alerts'] }),
   asyncHandler(async (req, res) => {
     const db = getDb();
@@ -252,7 +262,7 @@ router.get('/alerts',
       if (item.currentStock === 0) {
         return {
           id: item.id,
-          itemName: item.itemName,
+          itemName: item.itemName || 'Article inconnu',
           currentStock: item.currentStock,
           minStock: item.minStock,
           alertType: 'out_of_stock',
@@ -262,7 +272,7 @@ router.get('/alerts',
       } else if (item.currentStock <= item.minStock) {
         return {
           id: item.id,
-          itemName: item.itemName,
+          itemName: item.itemName || 'Article inconnu',
           currentStock: item.currentStock,
           minStock: item.minStock,
           alertType: 'low_stock',
@@ -272,7 +282,7 @@ router.get('/alerts',
       } else if (item.expiryDate && new Date(item.expiryDate) < new Date()) {
         return {
           id: item.id,
-          itemName: item.itemName,
+          itemName: item.itemName || 'Article inconnu',
           currentStock: item.currentStock,
           minStock: item.minStock,
           alertType: 'expired',
@@ -282,7 +292,7 @@ router.get('/alerts',
       } else {
         return {
           id: item.id,
-          itemName: item.itemName,
+          itemName: item.itemName || 'Article inconnu',
           currentStock: item.currentStock,
           minStock: item.minStock,
           alertType: 'expiring_soon',
@@ -354,16 +364,21 @@ router.post('/',
     }
 
     // Créer l'article d'inventaire
-    const inventoryId = crypto.randomUUID();
     const [newItem] = await db
       .insert(inventory)
       .values({
-        id: inventoryId,
         ...req.body,
         createdAt: new Date(),
         updatedAt: new Date()
       })
       .returning();
+
+    if (!newItem) {
+      return res.status(500).json({
+        success: false,
+        message: 'Erreur lors de la création de l\'article'
+      });
+    }
 
     // Enregistrer l'activité
     await logInventoryActivity(
@@ -371,11 +386,11 @@ router.post('/',
       'CREATE_INVENTORY_ITEM',
       `Article d'inventaire créé: ${menuItem.name}`,
       req,
-      inventoryId
+      newItem.id
     );
 
     logger.info('Article d\'inventaire créé', {
-      inventoryId,
+      inventoryId: newItem.id,
       menuItemId: req.body.menuItemId,
       itemName: menuItem.name,
       createdBy: currentUser.id
@@ -393,7 +408,7 @@ router.post('/',
 router.put('/:id',
   authenticateUser,
   requireRoles(['admin', 'manager']),
-  validateParams(z.object({ id: z.string().uuid() })),
+  validateParams(z.object({ id: z.coerce.number().int().positive() })),
   validateBody(UpdateInventoryItemSchema.omit({ id: true })),
   invalidateCache(['inventory']),
   asyncHandler(async (req, res) => {
@@ -405,7 +420,7 @@ router.put('/:id',
     const [existingItem] = await db
       .select()
       .from(inventory)
-      .where(eq(inventory.id, id));
+      .where(eq(inventory.id, parseInt(id || '0')));
 
     if (!existingItem) {
       return res.status(404).json({
@@ -421,7 +436,7 @@ router.put('/:id',
         ...req.body,
         updatedAt: new Date()
       })
-      .where(eq(inventory.id, id))
+      .where(eq(inventory.id, parseInt(id)))
       .returning();
 
     // Enregistrer l'activité
@@ -430,7 +445,7 @@ router.put('/:id',
       'UPDATE_INVENTORY_ITEM',
       `Article d'inventaire mis à jour: ${Object.keys(req.body).join(', ')}`,
       req,
-      id
+      parseInt(id || '0')
     );
 
     logger.info('Article d\'inventaire mis à jour', {
@@ -450,7 +465,7 @@ router.put('/:id',
 // Mouvement de stock
 router.post('/movement',
   authenticateUser,
-  requireRoles(['admin', 'manager', 'staff']),
+  requireRoles(['admin', 'manager']),
   validateBody(StockMovementSchema),
   invalidateCache(['inventory']),
   asyncHandler(async (req, res) => {
@@ -503,7 +518,7 @@ router.post('/movement',
       .where(eq(inventory.id, inventoryId));
 
     // Enregistrer l'activité
-    const actionMap = {
+    const actionMap: Record<MovementType, string> = {
       'in': 'STOCK_IN',
       'out': 'STOCK_OUT',
       'adjustment': 'STOCK_ADJUSTMENT'

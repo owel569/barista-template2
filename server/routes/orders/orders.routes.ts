@@ -15,10 +15,10 @@ const logger = createLogger('ORDERS_ROUTES');
 
 // Schémas de validation
 const CreateOrderSchema = z.object({
-  customerId: z.string().uuid().optional(),
-  tableId: z.string().uuid().optional(),
+  customerId: z.number().int().positive().optional(),
+  tableId: z.number().int().positive().optional(),
   items: z.array(z.object({
-    menuItemId: z.string().uuid('ID article invalide'),
+    menuItemId: z.number().int().positive('ID article invalide'),
     quantity: z.number().int().positive('Quantité doit être positive'),
     specialInstructions: z.string().optional()
   })).min(1, 'Au moins un article requis'),
@@ -43,12 +43,14 @@ router.get('/',
   validateQuery(z.object({
     status: z.enum(['pending', 'confirmed', 'preparing', 'ready', 'served', 'cancelled']).optional(),
     orderType: z.enum(['dine_in', 'takeaway', 'delivery']).optional(),
-    customerId: z.string().uuid().optional(),
-    tableId: z.string().uuid().optional(),
+    customerId: z.number().int().positive().optional(),
+    tableId: z.number().int().positive().optional(),
     startDate: z.string().datetime().optional(),
     endDate: z.string().datetime().optional(),
-    ...commonSchemas.paginationSchema.shape,
-    ...commonSchemas.sortSchema.shape
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+    sortBy: z.string().optional(),
+    sortOrder: z.enum(['asc', 'desc']).default('desc')
   })),
   cacheMiddleware({ ttl: 30 * 1000, tags: ['orders', 'realtime'] }),
   asyncHandler(async (req, res) => {
@@ -129,8 +131,10 @@ router.get('/',
       query.orderBy(orderColumn);
 
     // Pagination
-    const offset = (page - 1) * limit;
-    const ordersData = await query.limit(limit).offset(offset);
+    const pageNum = typeof page === 'number' ? page : 1;
+    const limitNum = typeof limit === 'number' ? limit : 20;
+    const offset = (pageNum - 1) * limitNum;
+    const ordersData = await query.limit(limitNum).offset(offset);
 
     // Récupérer les articles pour chaque commande
     const orderIds = ordersData.map(order => order.id);
@@ -180,10 +184,10 @@ router.get('/',
       success: true,
       data: result,
       pagination: {
-        page,
-        limit,
+        page: pageNum,
+        limit: limitNum,
         total: count,
-        totalPages: Math.ceil(count / limit)
+        totalPages: Math.ceil(count / limitNum)
       }
     });
   })
@@ -272,7 +276,7 @@ router.post('/',
       .from(menuItems)
       .where(and(
         inArray(menuItems.id, menuItemIds),
-        eq(menuItems.available, true)
+        eq(menuItems.isAvailable, true)
       ));
 
     if (menuItemsFromDb.length !== menuItemIds.length) {
@@ -303,16 +307,14 @@ router.post('/',
     const tax = subtotal * 0.1; // 10% de taxe
     const total = subtotal + tax;
 
-    // Créer la commande
-    const orderId = crypto.randomUUID();
+    // Créer la commande - Générer un ID numérique temporaire
     const [newOrder] = await db
       .insert(orders)
       .values({
-        id: orderId,
         ...orderData,
-        subtotal,
-        tax,
-        total,
+        subtotal: subtotal.toString(),
+        tax: tax.toString(),
+        total: total.toString(),
         status: 'pending',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -321,12 +323,11 @@ router.post('/',
 
     // Créer les articles de commande
     const orderItemsToInsert = itemsWithPrices.map(item => ({
-      id: crypto.randomUUID(),
-      orderId,
+      orderId: newOrder.id,
       menuItemId: item.menuItemId,
       quantity: item.quantity,
-      unitPrice: item.unitPrice,
-      totalPrice: item.totalPrice,
+      unitPrice: item.unitPrice.toString(),
+      totalPrice: item.totalPrice.toString(),
       specialInstructions: item.specialInstructions,
       createdAt: new Date()
     }));
@@ -334,7 +335,7 @@ router.post('/',
     await db.insert(orderItems).values(orderItemsToInsert);
 
     logger.info('Commande créée', {
-      orderId,
+      orderId: newOrder.id,
       customerId: orderData.customerId,
       total,
       itemsCount: orderItemsData.length,
@@ -355,7 +356,7 @@ router.post('/',
 router.patch('/:id/status',
   authenticateUser,
   requireRoles(['admin', 'manager', 'staff']),
-  validateParams(commonSchemas.idSchema),
+  validateParams(z.object({ id: z.coerce.number().int().positive() })),
   validateBody(UpdateOrderStatusSchema),
   invalidateCache(['orders', 'realtime', 'stats']),
   asyncHandler(async (req, res) => {
@@ -409,7 +410,7 @@ router.get('/stats/realtime',
       .select({
         status: orders.status,
         count: sql<number>`count(*)`,
-        totalRevenue: sql<number>`sum(${orders.totalAmount})`
+        totalRevenue: sql<number>`sum(${orders.total})`
       })
       .from(orders)
       .where(gte(orders.createdAt, today))

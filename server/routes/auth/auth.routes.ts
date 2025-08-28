@@ -161,7 +161,7 @@ router.post('/register',
         lastName: users.lastName,
         email: users.email,
         role: users.role,
-        isActive: users.isActive,
+        active: users.active,
         createdAt: users.createdAt
       });
 
@@ -175,8 +175,15 @@ router.post('/register',
       });
     }
 
+    if (!newUser) {
+      return res.status(500).json({
+        success: false,
+        message: 'Erreur lors de la création du compte'
+      });
+    }
+
     // Générer le token
-    const token = generateToken(newUser);
+    const token = generateToken({ id: newUser.id, email: newUser.email, role: newUser.role });
 
     // Enregistrer l'activité
     await logActivity(newUser.id, 'REGISTER', 'Inscription utilisateur', req);
@@ -218,7 +225,7 @@ router.post('/login',
         email: users.email,
         password: users.password,
         role: users.role,
-        isActive: users.isActive,
+        active: users.active,
         createdAt: users.createdAt
       })
       .from(users)

@@ -1,11 +1,12 @@
 import { Router } from 'express';
+import { Request, Response } from 'express';
 import { authenticateUser } from '../../middleware/auth';
-import { requireRoleHierarchy } from '../../middleware/security';
-import { validateBody } from '../../middleware/security';
-import { db } from '../../db';
+import { validateBody } from '../../middleware/validation';
+import { getDb } from '../../db';
 import { menuItems, menuCategories } from '../../../shared/schema';
 import { eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
+import { asyncHandler } from '../../middleware/error-handler-enhanced';
 
 const router = Router();
 
@@ -32,8 +33,10 @@ const CategorySchema = z.object({
 });
 
 // GET /api/admin/menu/items - Récupérer tous les éléments du menu
-router.get('/items', authenticateUser, requireRoleHierarchy('staff'), async (req, res): Promise<void> => {
-  try {
+router.get('/items', 
+  authenticateUser, 
+  asyncHandler(async (req: Request, res: Response) => {
+    const db = getDb();
     const items = await db
       .select({
         id: menuItems.id,
@@ -60,18 +63,15 @@ router.get('/items', authenticateUser, requireRoleHierarchy('staff'), async (req
       success: true,
       data: items
     });
-  } catch (error) {
-    console.error('Erreur lors de la récupération des éléments du menu:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erreur lors de la récupération des éléments du menu'
-    });
-  }
-});
+  })
+);
 
 // POST /api/admin/menu/items - Créer un nouvel élément de menu
-router.post('/items', authenticateUser, requireRoleHierarchy('manager'), validateBody(MenuItemSchema), async (req, res): Promise<void> => {
-  try {
+router.post('/items', 
+  authenticateUser,
+  validateBody(MenuItemSchema), 
+  asyncHandler(async (req: Request, res: Response) => {
+    const db = getDb();
     const itemData = req.body;
     
     const [newItem] = await db
@@ -87,21 +87,25 @@ router.post('/items', authenticateUser, requireRoleHierarchy('manager'), validat
       data: newItem,
       message: 'Élément de menu créé avec succès'
     });
-  } catch (error) {
-    console.error('Erreur lors de la création de l\'élément:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erreur lors de la création de l\'élément'
-    });
-  }
-});
+  })
+);
 
 // PUT /api/admin/menu/items/:id - Mettre à jour un élément de menu
-router.put('/items/:id', authenticateUser, requireRoleHierarchy('manager'), validateBody(MenuItemSchema.partial()), async (req, res): Promise<void> => {
-  try {
+router.put('/items/:id', 
+  authenticateUser,
+  validateBody(MenuItemSchema.partial()), 
+  asyncHandler(async (req: Request, res: Response) => {
+    const db = getDb();
     const { id } = req.params;
-    const updateData = req.body;
+    
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID requis'
+      });
+    }
 
+    const updateData = req.body;
     const [updatedItem] = await db
       .update(menuItems)
       .set({
@@ -123,19 +127,22 @@ router.put('/items/:id', authenticateUser, requireRoleHierarchy('manager'), vali
       data: updatedItem,
       message: 'Élément mis à jour avec succès'
     });
-  } catch (error) {
-    console.error('Erreur lors de la mise à jour:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erreur lors de la mise à jour'
-    });
-  }
-});
+  })
+);
 
 // DELETE /api/admin/menu/items/:id - Supprimer un élément de menu
-router.delete('/items/:id', authenticateUser, requireRoleHierarchy('manager'), async (req, res): Promise<void> => {
-  try {
+router.delete('/items/:id', 
+  authenticateUser,
+  asyncHandler(async (req: Request, res: Response) => {
+    const db = getDb();
     const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID requis'
+      });
+    }
 
     const [deletedItem] = await db
       .delete(menuItems)
@@ -153,18 +160,14 @@ router.delete('/items/:id', authenticateUser, requireRoleHierarchy('manager'), a
       success: true,
       message: 'Élément supprimé avec succès'
     });
-  } catch (error) {
-    console.error('Erreur lors de la suppression:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erreur lors de la suppression'
-    });
-  }
-});
+  })
+);
 
 // GET /api/admin/menu/categories - Récupérer toutes les catégories
-router.get('/categories', authenticateUser, requireRoleHierarchy('staff'), async (req, res): Promise<void> => {
-  try {
+router.get('/categories', 
+  authenticateUser,
+  asyncHandler(async (req: Request, res: Response) => {
+    const db = getDb();
     const categories = await db
       .select()
       .from(menuCategories)
@@ -174,18 +177,15 @@ router.get('/categories', authenticateUser, requireRoleHierarchy('staff'), async
       success: true,
       data: categories
     });
-  } catch (error) {
-    console.error('Erreur lors de la récupération des catégories:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erreur lors de la récupération des catégories'
-    });
-  }
-});
+  })
+);
 
 // POST /api/admin/menu/categories - Créer une nouvelle catégorie
-router.post('/categories', authenticateUser, requireRoleHierarchy('manager'), validateBody(CategorySchema), async (req, res): Promise<void> => {
-  try {
+router.post('/categories', 
+  authenticateUser,
+  validateBody(CategorySchema), 
+  asyncHandler(async (req: Request, res: Response) => {
+    const db = getDb();
     const categoryData = req.body;
     
     const [newCategory] = await db
@@ -198,18 +198,15 @@ router.post('/categories', authenticateUser, requireRoleHierarchy('manager'), va
       data: newCategory,
       message: 'Catégorie créée avec succès'
     });
-  } catch (error) {
-    console.error('Erreur lors de la création de la catégorie:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erreur lors de la création de la catégorie'
-    });
-  }
-});
+  })
+);
 
 // GET /api/admin/menu/stats - Statistiques du menu
-router.get('/stats', authenticateUser, requireRoleHierarchy('staff'), async (req, res): Promise<void> => {
-  try {
+router.get('/stats', 
+  authenticateUser,
+  asyncHandler(async (req: Request, res: Response) => {
+    const db = getDb();
+    
     const [
       totalItems,
       availableItems,
@@ -234,19 +231,13 @@ router.get('/stats', authenticateUser, requireRoleHierarchy('staff'), async (req
     res.json({
       success: true,
       data: {
-        totalItems: totalItems[0].count,
-        availableItems: availableItems[0].count,
-        categoriesCount: categoriesCount[0].count,
+        totalItems: totalItems[0]?.count || 0,
+        availableItems: availableItems[0]?.count || 0,
+        categoriesCount: categoriesCount[0]?.count || 0,
         topCategories
       }
     });
-  } catch (error) {
-    console.error('Erreur lors de la récupération des statistiques:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erreur lors de la récupération des statistiques'
-    });
-  }
-});
+  })
+);
 
 export default router;

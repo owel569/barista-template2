@@ -1,6 +1,7 @@
-import { Router } from 'express';
-import { requireRoleHierarchy } from '../../middleware/security';
+import { Router, Request, Response } from 'express';
+import { authenticateUser } from '../../middleware/auth';
 import { validateBody } from '../../middleware/validation';
+import { asyncHandler } from '../../middleware/error-handler-enhanced';
 import { z } from 'zod';
 
 // Import des sous-routes admin
@@ -39,7 +40,9 @@ const UserCreateSchema = z.object({
 });
 
 // Configuration du restaurant - Seuls les managers+ peuvent voir
-router.get('/settings', requireRoleHierarchy('manager'), async (req, res) => {
+router.get('/settings', 
+  authenticateUser, 
+  asyncHandler(async (req: Request, res: Response) => {
   try {
     // TODO: Récupérer depuis la base de données
     const settings = {
@@ -64,17 +67,14 @@ router.get('/settings', requireRoleHierarchy('manager'), async (req, res) => {
       success: true,
       data: settings
     });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Erreur lors de la récupération des paramètres'
-    });
-  }
-});
+  })
+);
 
 // Mettre à jour la configuration - Seuls les admins peuvent modifier
-router.put('/settings', requireRoleHierarchy('admin'), validateBody(SettingsSchema), async (req, res) => {
-  try {
+router.put('/settings', 
+  authenticateUser, 
+  validateBody(SettingsSchema), 
+  asyncHandler(async (req: Request, res: Response) => {
     const settings = req.body;
     
     // TODO: Valider et sauvegarder en base de données
@@ -83,17 +83,14 @@ router.put('/settings', requireRoleHierarchy('admin'), validateBody(SettingsSche
       success: true,
       message: 'Paramètres mis à jour avec succès'
     });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Erreur lors de la mise à jour des paramètres'
-    });
-  }
-});
+  })
+);
 
 // Gestion des utilisateurs - Seuls les admins peuvent créer des utilisateurs
-router.post('/users', requireRoleHierarchy('admin'), validateBody(UserCreateSchema), async (req, res) => {
-  try {
+router.post('/users', 
+  authenticateUser, 
+  validateBody(UserCreateSchema), 
+  asyncHandler(async (req: Request, res: Response) => {
     const { username, email, password, role } = req.body;
     
     // TODO: Créer l'utilisateur en base de données
@@ -102,19 +99,22 @@ router.post('/users', requireRoleHierarchy('admin'), validateBody(UserCreateSche
       success: true,
       message: 'Utilisateur créé avec succès'
     });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Erreur lors de la création de l\'utilisateur'
-    });
-  }
-});
+  })
+);
 
 // Activer/désactiver un utilisateur
-router.patch('/users/:id/status', async (req, res) => {
-  try {
+router.patch('/users/:id/status', 
+  authenticateUser,
+  asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
     const { active } = req.body;
+    
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID utilisateur requis'
+      });
+    }
     
     // TODO: Mettre à jour le statut en base de données
     
@@ -122,17 +122,13 @@ router.patch('/users/:id/status', async (req, res) => {
       success: true,
       message: `Utilisateur ${active ? 'activé' : 'désactivé'} avec succès`
     });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Erreur lors de la mise à jour du statut'
-    });
-  }
-});
+  })
+);
 
 // Logs d'activité
-router.get('/activity-logs', async (req, res) => {
-  try {
+router.get('/activity-logs', 
+  authenticateUser,
+  asyncHandler(async (req: Request, res: Response) => {
     const { page = 1, limit = 50 } = req.query;
     
     // TODO: Récupérer depuis la base de données
@@ -161,17 +157,12 @@ router.get('/activity-logs', async (req, res) => {
       success: true,
       data: logs,
       pagination: {
-        page: parseInt(page as string),
-        limit: parseInt(limit as string),
+        page: typeof page === 'string' ? parseInt(page) : 1,
+        limit: typeof limit === 'string' ? parseInt(limit) : 50,
         total: logs.length
       }
     });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Erreur lors de la récupération des logs'
-    });
-  }
-});
+  })
+);
 
 export default router;
