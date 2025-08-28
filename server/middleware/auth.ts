@@ -407,7 +407,7 @@ export const requireOwnership = (resourceIdParam: string = 'id') => {
 };
 
 // Export des utilitaires
-export { loginSchema, registerSchema, AuthService, userCache };
+export { loginSchema, registerSchema, userCache };
 
 // Déclaration globale pour TypeScript
 declare global {
