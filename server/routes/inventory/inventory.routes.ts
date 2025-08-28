@@ -14,27 +14,29 @@ const router = Router();
 const logger = createLogger('INVENTORY_ROUTES');
 
 // Schémas de validation
-const CreateInventoryItemSchema = z.object({
-  menuItemId: z.string().uuid('ID d\'article de menu invalide'),
+const BaseInventoryItemSchema = z.object({
+  menuItemId: z.number().int().positive('ID d\'article de menu invalide'),
   currentStock: z.number().min(0, 'Stock actuel doit être >= 0'),
   minStock: z.number().min(0, 'Stock minimum doit être >= 0'),
   maxStock: z.number().min(1, 'Stock maximum doit être >= 1'),
   unit: z.string().min(1, 'Unité requise').max(20),
   cost: z.number().min(0, 'Coût doit être >= 0'),
-  supplierId: z.string().uuid('ID fournisseur invalide').optional(),
+  supplierId: z.number().int().positive('ID fournisseur invalide').optional(),
   expiryDate: z.string().datetime('Date d\'expiration invalide').optional(),
   location: z.string().min(1, 'Emplacement requis').max(100),
   batchNumber: z.string().max(50).optional()
-}).refine(data => data.maxStock > data.minStock, {
+});
+
+const CreateInventoryItemSchema = BaseInventoryItemSchema.refine(data => data.maxStock > data.minStock, {
   message: 'Stock maximum doit être supérieur au stock minimum'
 });
 
-const UpdateInventoryItemSchema = CreateInventoryItemSchema.partial().extend({
-  id: z.string().uuid('ID invalide')
+const UpdateInventoryItemSchema = BaseInventoryItemSchema.partial().extend({
+  id: z.number().int().positive('ID invalide')
 });
 
 const StockMovementSchema = z.object({
-  inventoryId: z.string().uuid('ID inventaire invalide'),
+  inventoryId: z.number().int().positive('ID inventaire invalide'),
   type: z.enum(['in', 'out', 'adjustment'], {
     errorMap: () => ({ message: 'Type doit être: in, out, ou adjustment' })
   }),
@@ -57,22 +59,22 @@ interface StockAlert {
 
 // Fonction utilitaire pour enregistrer une activité
 async function logInventoryActivity(
-  userId: string,
+  userId: number,
   action: string,
   details: string,
   req: any,
-  inventoryId?: string
+  inventoryId?: number
 ): Promise<void> {
   try {
     const db = getDb();
     await db.insert(activityLogs).values({
-      id: crypto.randomUUID(),
       userId,
       action,
+      entity: 'inventory',
+      entityId: inventoryId,
       details: inventoryId ? `${details} (Inventaire: ${inventoryId})` : details,
       ipAddress: req.ip || req.connection.remoteAddress,
-      userAgent: req.get('User-Agent'),
-      createdAt: new Date()
+      userAgent: req.get('User-Agent')
     });
   } catch (error) {
     logger.error('Erreur enregistrement activité inventaire', {

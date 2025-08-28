@@ -25,7 +25,6 @@ async function startApplication() {
   setupUncaughtExceptionHandlers();
 
   // 1. Middlewares de sécurité et utilitaires
-  app.use(requestIdMiddleware);
   
   app.use(helmet({
     contentSecurityPolicy: false, // Désactivé pour le développement
