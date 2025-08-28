@@ -114,7 +114,7 @@ export class AIAutomationService {
         timestamp: new Date().toISOString()
       };
     } catch (error) {
-      logger.error('Erreur traitement chat:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      logger.error('Erreur traitement chat:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       return {
         response: "Désolé, je rencontre une difficulté technique. Puis-je vous aider autrement ?",
         actions: [],
@@ -148,7 +148,7 @@ export class AIAutomationService {
 
     return {
       category: maxIntent,
-      confidence: intentScores[maxIntent as keyof typeof intentScores,],
+      confidence: intentScores[maxIntent as keyof typeof intentScores],
       subCategories: Object.keys(intentScores).filter(key => 
         key !== maxIntent && intentScores[key as keyof typeof intentScores] > 0.3
       )

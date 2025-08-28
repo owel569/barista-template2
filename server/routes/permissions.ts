@@ -451,8 +451,8 @@ router.post('/apply-template', authenticateUser, requireRoles(['admin']), requir
       timestamp: new Date().toISOString()
     });
 
-  res.json({
-    success: true,
+    res.json({
+      success: true,
       message: `Template ${templateName} appliqué avec succès`
     });
   } catch (error) {
@@ -489,8 +489,8 @@ router.delete('/user/:userId', authenticateUser, requireRoles(['admin']), requir
       details: `Toutes les permissions supprimées pour l'utilisateur ${userIdNum}`
     });
 
-  res.json({
-    success: true,
+    res.json({
+      success: true,
       message: 'Permissions supprimées avec succès'
     });
   } catch (error) {
@@ -503,6 +503,6 @@ router.delete('/user/:userId', authenticateUser, requireRoles(['admin']), requir
       message: 'Erreur lors de la suppression des permissions'
     });
   }
-}));
+});
 
 export default router;

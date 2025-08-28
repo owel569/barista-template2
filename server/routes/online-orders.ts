@@ -217,7 +217,7 @@ onlineOrdersRouter.get('/stats',
         averageOrderValue: onlineOrders.length > 0 ? onlineOrders.reduce((sum, order) => sum + order.total, 0) / onlineOrders.length : 0,
         platformBreakdown: platforms.map(platform => ({
           platform: platform.name,
-          orders: onlineOrders.filter(o => o.platform === platform.name}).length,
+          orders: onlineOrders.filter(o => o.platform === platform.name).length,
           revenue: onlineOrders.filter(o => o.platform === platform.name).reduce((sum, order) => sum + order.total, 0)
         }))
       };
@@ -229,7 +229,7 @@ onlineOrdersRouter.get('/stats',
     } catch (error) {
       logger.error('Erreur statistiques commandes', { 
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
-      )});
+      });
       res.status(500).json({ 
         success: false,
         message: 'Erreur lors de la récupération des statistiques' 
@@ -242,7 +242,7 @@ onlineOrdersRouter.get('/stats',
 onlineOrdersRouter.get('/:id', 
   authenticateUser,
   requireRoles(['admin', 'manager', 'staff']),
-  validateParams(z.object({ id: z.string()}).regex(/^\d+$/) })),
+  validateParams(z.object({ id: z.string().regex(/^\d+$/) })),
   asyncHandler(async (req, res) => {
     const { id } = req.params;
     
@@ -264,7 +264,7 @@ onlineOrdersRouter.get('/:id',
       logger.error('Erreur récupération commande', { 
         id, 
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
-      )});
+      });
       res.status(500).json({ 
         success: false,
         message: 'Erreur lors de la récupération de la commande' 

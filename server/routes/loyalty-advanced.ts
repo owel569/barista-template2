@@ -247,12 +247,12 @@ router.get('/program/overview',
     try {
       const db = await getDb();
       // Récupérer les statistiques depuis la base de données
-      const totalCustomers = await db.select({ count: sql<number>`count(*})` }).from(customers);
-      const activeCustomers = await db.select({ count: sql<number>`count(*)})` })
+      const totalCustomers = await db.select({ count: sql<number>`count(*)` }).from(customers);
+      const activeCustomers = await db.select({ count: sql<number>`count(*)` })
         .from(customers)
         .where(gte(customers.loyaltyPoints, 100));
       
-      const totalOrders = await db.select({ count: sql<number>`count(*)})` }).from(orders);
+      const totalOrders = await db.select({ count: sql<number>`count(*)` }).from(orders);
       
       const program = {
         levels: LOYALTY_LEVELS,
@@ -270,7 +270,7 @@ router.get('/program/overview',
         data: program
       });
   } catch (error) {
-    logger.error('Erreur loyalty overview', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+    logger.error('Erreur loyalty overview', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       res.status(500).json({ 
         success: false,
         message: 'Erreur lors de la récupération du programme de fidélité' 
@@ -332,25 +332,25 @@ router.post('/points/add',
 
       const { nextLevel, progress, pointsToNext } = LoyaltyService.getNextLevelInfo(newTotalPoints);
 
-    res.json({
-      success: true,
+      res.json({
+        success: true,
         data: {
-      pointsAdded: finalPoints,
-      totalPoints: newTotalPoints,
+          pointsAdded: finalPoints,
+          totalPoints: newTotalPoints,
           previousLevel: currentLevel.name,
-      currentLevel: newLevel.name,
-      levelUp,
+          currentLevel: newLevel.name,
+          levelUp,
           nextLevel: nextLevel?.name,
           progressToNextLevel: progress,
           pointsToNextLevel: pointsToNext
         }
-    });
+      });
   } catch (error) {
       logger.error('Erreur ajout points', { 
         customerId, 
         points, 
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
-      )});
+      });
       res.status(500).json({ 
         success: false,
         message: 'Erreur lors de l\'ajout des points' 
