@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -21,6 +22,44 @@ export interface ChartConfig {
     color?: string;
     theme?: Record<string, string>;
   };
+}
+
+/**
+ * Interface pour les données du payload des graphiques
+ */
+interface PayloadData {
+  name?: string;
+  dataKey?: string;
+  value?: number | string;
+  payload?: Record<string, unknown>;
+  color?: string;
+  fill?: string;
+}
+
+/**
+ * Interface pour les éléments de tooltip
+ */
+interface TooltipPayloadItem extends PayloadData {
+  name: string;
+  value: number | string;
+}
+
+/**
+ * Interface pour les éléments de légende
+ */
+interface LegendPayloadItem extends PayloadData {
+  value: string;
+  color: string;
+}
+
+/**
+ * Interface pour la configuration d'un élément du graphique
+ */
+interface ItemConfig {
+  label?: React.ReactNode;
+  icon?: React.ComponentType;
+  color?: string;
+  theme?: Record<string, string>;
 }
 
 /**
@@ -169,6 +208,25 @@ ChartStyle.displayName = "ChartStyle"
 const ChartTooltip = RechartsPrimitive.Tooltip
 
 /**
+ * Type pour les fonctions de formatage
+ */
+type FormatterFunction = (
+  value: number | string,
+  name: string,
+  item: TooltipPayloadItem,
+  index: number,
+  payload: TooltipPayloadItem[]
+) => React.ReactNode
+
+/**
+ * Type pour les fonctions de formatage des labels
+ */
+type LabelFormatterFunction = (
+  value: React.ReactNode,
+  payload: TooltipPayloadItem[]
+) => React.ReactNode
+
+/**
  * Composant de contenu personnalisé pour le tooltip des graphiques
  * Fournit un affichage professionnel et configurable des données
  */
@@ -181,6 +239,8 @@ const ChartTooltipContent = React.forwardRef<
       indicator?: "line" | "dot" | "dashed"
       nameKey?: string
       labelKey?: string
+      formatter?: FormatterFunction
+      labelFormatter?: LabelFormatterFunction
     }
 >(
   (
@@ -203,13 +263,16 @@ const ChartTooltipContent = React.forwardRef<
   ) => {
     const { config } = useChart()
 
+    // Cast sécurisé du payload
+    const safePayload = (payload as TooltipPayloadItem[]) || []
+
     // Mémorisation du label du tooltip pour optimiser les performances
     const tooltipLabel = React.useMemo(() => {
-      if (hideLabel || !payload?.length) {
+      if (hideLabel || !safePayload.length) {
         return null
       }
 
-      const [item] = payload
+      const [item] = safePayload
       const key = `${labelKey || item?.dataKey || item?.name || "value"}`
       const itemConfig = getPayloadConfigFromPayload(config, item, key)
       const value =
@@ -220,7 +283,7 @@ const ChartTooltipContent = React.forwardRef<
       if (labelFormatter) {
         return (
           <div className={cn("font-medium", labelClassName)}>
-            {labelFormatter(value, payload)}
+            {labelFormatter(value, safePayload)}
           </div>
         )
       }
@@ -233,7 +296,7 @@ const ChartTooltipContent = React.forwardRef<
     }, [
       label,
       labelFormatter,
-      payload,
+      safePayload,
       hideLabel,
       labelClassName,
       config,
@@ -249,11 +312,11 @@ const ChartTooltipContent = React.forwardRef<
       [className]
     )
 
-    if (!active || !payload?.length) {
+    if (!active || !safePayload.length) {
       return null
     }
 
-    const nestLabel = payload.length === 1 && indicator !== "dot"
+    const nestLabel = safePayload.length === 1 && indicator !== "dot"
 
     return (
       <div
@@ -262,14 +325,14 @@ const ChartTooltipContent = React.forwardRef<
       >
         {!nestLabel ? tooltipLabel : null}
         <div className="grid gap-1.5">
-          {payload.map((item, index) => {
+          {safePayload.map((item, index) => {
             const key = `${nameKey || item.name || item.dataKey || "value"}`
             const itemConfig = getPayloadConfigFromPayload(config, item, key)
-            const indicatorColor = color || item.payload.fill || item.color
+            const indicatorColor = color || item.payload?.fill || item.color || "#000"
 
             return (
               <TooltipItem
-                key={item.dataKey}
+                key={`${item.dataKey}-${index}`}
                 item={item}
                 index={index}
                 itemConfig={itemConfig}
@@ -304,13 +367,13 @@ const TooltipItem = React.memo(({
   nestLabel,
   tooltipLabel
 }: {
-  item: unknown
+  item: TooltipPayloadItem
   index: number
-  itemConfig: unknown
+  itemConfig: ItemConfig | undefined
   indicatorColor: string
   indicator: "line" | "dot" | "dashed"
   hideIndicator: boolean
-  formatter?: unknown
+  formatter?: FormatterFunction
   nestLabel: boolean
   tooltipLabel: React.ReactNode
 }) => {
@@ -346,14 +409,16 @@ const TooltipItem = React.memo(({
     [indicatorColor]
   )
 
+  const IconComponent = itemConfig?.icon
+
   return (
     <div className={itemClasses}>
-      {formatter && item?.value !== undefined && item.name ? (
-        formatter(item.value, item.name, item, index, item.payload)
+      {formatter && item.value !== undefined && item.name ? (
+        formatter(item.value, item.name, item, index, [item])
       ) : (
         <>
-          {itemConfig?.icon ? (
-            <itemConfig.icon />
+          {IconComponent ? (
+            <IconComponent />
           ) : (
             !hideIndicator && (
               <div
@@ -374,9 +439,9 @@ const TooltipItem = React.memo(({
                 {itemConfig?.label || item.name}
               </span>
             </div>
-            {item.value && (
+            {item.value !== undefined && (
               <span className="font-mono font-medium tabular-nums text-foreground">
-                {item.value.toLocaleString()}
+                {typeof item.value === 'number' ? item.value.toLocaleString() : item.value}
               </span>
             )}
           </div>
@@ -409,6 +474,9 @@ const ChartLegendContent = React.forwardRef<
   ) => {
     const { config } = useChart()
 
+    // Cast sécurisé du payload de la légende
+    const safePayload = (payload as LegendPayloadItem[]) || []
+
     // Mémorisation des classes CSS de la légende
     const legendClasses = React.useMemo(
       () => cn(
@@ -419,7 +487,7 @@ const ChartLegendContent = React.forwardRef<
       [verticalAlign, className]
     )
 
-    if (!payload?.length) {
+    if (!safePayload.length) {
       return null
     }
 
@@ -428,7 +496,7 @@ const ChartLegendContent = React.forwardRef<
         ref={ref}
         className={legendClasses}
       >
-        {payload.map((item) => {
+        {safePayload.map((item) => {
           const key = `${nameKey || item.dataKey || "value"}`
           const itemConfig = getPayloadConfigFromPayload(config, item, key)
 
@@ -455,68 +523,62 @@ const LegendItem = React.memo(({
   itemConfig,
   hideIcon
 }: {
-  item: unknown
-  itemConfig: unknown
+  item: LegendPayloadItem
+  itemConfig: ItemConfig | undefined
   hideIcon: boolean
-}) => (
-  <div
-    className={cn(
-      "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground"
-    )}
-  >
-    {itemConfig?.icon && !hideIcon ? (
-      <itemConfig.icon />
-    ) : (
-      <div
-        className="h-2 w-2 shrink-0 rounded-[2px]"
-        style={{
-          backgroundColor: item.color,
-        }}
-      />
-    )}
-    {itemConfig?.label}
-  </div>
-))
+}) => {
+  const IconComponent = itemConfig?.icon
+
+  return (
+    <div
+      className={cn(
+        "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground"
+      )}
+    >
+      {IconComponent && !hideIcon ? (
+        <IconComponent />
+      ) : (
+        <div
+          className="h-2 w-2 shrink-0 rounded-[2px]"
+          style={{
+            backgroundColor: item.color,
+          }}
+        />
+      )}
+      {itemConfig?.label}
+    </div>
+  )
+})
 LegendItem.displayName = "LegendItem"
 
 /**
  * Fonction utilitaire pour extraire la configuration d'un payload
  * @param {ChartConfig} config - Configuration du graphique
- * @param {unknown} payload - Données du payload
+ * @param {PayloadData} payload - Données du payload
  * @param {string} key - Clé de recherche
- * @returns {any} Configuration trouvée ou undefined
+ * @returns {ItemConfig | undefined} Configuration trouvée ou undefined
  */
 function getPayloadConfigFromPayload(
   config: ChartConfig,
-  payload: unknown,
+  payload: PayloadData,
   key: string
-) {
-  if (typeof payload !== "object" || payload === null) {
+): ItemConfig | undefined {
+  if (!payload || typeof payload !== "object") {
     return undefined
   }
 
-  const payloadPayload =
-    "payload" in payload &&
-    typeof payload.payload === "object" &&
-    payload.payload !== null
-      ? payload.payload
-      : undefined
+  const payloadData = payload.payload as Record<string, unknown> | undefined
 
   let configLabelKey: string = key
 
-  if (
-    key in payload &&
-    typeof payload[key as keyof typeof payload] === "string"
-  ) {
-    configLabelKey = payload[key as keyof typeof payload] as string
+  if (key in payload && typeof payload[key as keyof PayloadData] === "string") {
+    configLabelKey = payload[key as keyof PayloadData] as string
   } else if (
-    payloadPayload &&
-    key in payloadPayload &&
-    typeof payloadPayload[key as keyof typeof payloadPayload] === "string"
+    payloadData &&
+    key in payloadData &&
+    typeof payloadData[key] === "string"
   ) {
-    configLabelKey = payloadPayload[
-      key as keyof typeof payloadPayload
-    ] as string
+    configLabelKey = payloadData[key] as string
   }
 
   return configLabelKey in config
