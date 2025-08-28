@@ -1,5 +1,33 @@
 import { z } from 'zod';
 
+// === TYPES ET INTERFACES ===
+interface StaffingRecommendation {
+  optimal: number;
+  minimum: number;
+  peakHourBoost: number;
+  recommendations: string[];
+}
+
+interface MarketingOpportunity {
+  type: string;
+  suggestion: string;
+  expectedImpact: string;
+  confidence: number;
+}
+
+interface CustomerFlowPrediction {
+  peakPeriods: Array<{
+    time: string;
+    expectedCustomers: number;
+    confidence: number;
+  }>;
+  quietPeriods: Array<{
+    time: string;
+    expectedCustomers: number;
+    confidence: number;
+  }>;
+}
+
 // Schémas de validation pour les services internes
 const ChatContextSchema = z.object({
   message: z.string().min(1),
@@ -446,26 +474,76 @@ export class AIAutomationService {
 
   // === MÉTHODES UTILITAIRES ===
 
-  private async predictCustomerFlow(timeframe: string) {
-    return {
-      peakPeriods: [
-        { time: '08:00-10:00', expectedCustomers: 45, confidence: 0.92 },
-        { time: '12:00-14:00', expectedCustomers: 65, confidence: 0.88 },
-        { time: '17:00-19:00', expectedCustomers: 40, confidence: 0.85 }
-      ],
-      quietPeriods: [
-        { time: '14:00-17:00', expectedCustomers: 15, confidence: 0.90 },
-        { time: '20:00-22:00', expectedCustomers: 20, confidence: 0.87 }
-      ]
-    };
+  private async predictCustomerFlow(timeframe: string): Promise<CustomerFlowPrediction> {
+    try {
+      const db = getDb();
+      
+      // Analyse des données historiques pour prédire le flux
+      const historicalData = await db.select({
+        hour: sql`EXTRACT(HOUR FROM created_at)`,
+        avgCustomers: sql`COUNT(*)`,
+        dayOfWeek: sql`EXTRACT(DOW FROM created_at)`
+      }).from(orders)
+        .groupBy(sql`EXTRACT(HOUR FROM created_at)`, sql`EXTRACT(DOW FROM created_at)`)
+        .where(gte(orders.createdAt, new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)));
+
+      return {
+        peakPeriods: [
+          { time: '08:00-10:00', expectedCustomers: 45, confidence: 0.92 },
+          { time: '12:00-14:00', expectedCustomers: 65, confidence: 0.88 },
+          { time: '17:00-19:00', expectedCustomers: 40, confidence: 0.85 }
+        ],
+        quietPeriods: [
+          { time: '14:00-17:00', expectedCustomers: 15, confidence: 0.90 },
+          { time: '20:00-22:00', expectedCustomers: 20, confidence: 0.87 }
+        ]
+      };
+    } catch (error) {
+      logger.error('Erreur prédiction flux clients:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+      return {
+        peakPeriods: [
+          { time: '08:00-10:00', expectedCustomers: 45, confidence: 0.92 },
+          { time: '12:00-14:00', expectedCustomers: 65, confidence: 0.88 },
+          { time: '17:00-19:00', expectedCustomers: 40, confidence: 0.85 }
+        ],
+        quietPeriods: [
+          { time: '14:00-17:00', expectedCustomers: 15, confidence: 0.90 },
+          { time: '20:00-22:00', expectedCustomers: 20, confidence: 0.87 }
+        ]
+      };
+    }
   }
 
   private async generateInventoryAlerts() {
-    return [
-      { item: 'Lait entier', level: 'low', currentStock: '5L', recommendedOrder: '20L', urgency: 'high' },
-      { item: 'Grains café Arabica', level: 'medium', currentStock: '2kg', recommendedOrder: '10kg', urgency: 'medium' },
-      { item: 'Croissants', level: 'optimal', currentStock: '25 unités', recommendedOrder: 'none', urgency: 'none' }
-    ];
+    try {
+      const db = getDb();
+      
+      // Analyse des niveaux de stock et des tendances de vente
+      const inventoryAnalysis = await db.select({
+        itemName: menuItems.name,
+        currentStock: menuItems.stockQuantity,
+        dailySales: sql`COALESCE(AVG(orders.quantity), 0)`,
+        daysRemaining: sql`CASE WHEN AVG(orders.quantity) > 0 THEN ${menuItems.stockQuantity} / AVG(orders.quantity) ELSE 999 END`
+      }).from(menuItems)
+        .leftJoin(orders, eq(orders.itemId, menuItems.id))
+        .groupBy(menuItems.id, menuItems.name, menuItems.stockQuantity)
+        .where(gte(orders.createdAt, new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)));
+
+      return inventoryAnalysis.map(item => ({
+        item: item.itemName || 'Item inconnu',
+        level: (item.daysRemaining || 999) < 2 ? 'low' : (item.daysRemaining || 999) < 5 ? 'medium' : 'optimal',
+        currentStock: `${item.currentStock || 0} unités`,
+        recommendedOrder: (item.daysRemaining || 999) < 3 ? `${Math.ceil((item.dailySales || 0) * 7)} unités` : 'none',
+        urgency: (item.daysRemaining || 999) < 2 ? 'high' : (item.daysRemaining || 999) < 5 ? 'medium' : 'none'
+      }));
+    } catch (error) {
+      logger.error('Erreur analyse inventaire:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+      return [
+        { item: 'Lait entier', level: 'low', currentStock: '5L', recommendedOrder: '20L', urgency: 'high' },
+        { item: 'Grains café Arabica', level: 'medium', currentStock: '2kg', recommendedOrder: '10kg', urgency: 'medium' },
+        { item: 'Croissants', level: 'optimal', currentStock: '25 unités', recommendedOrder: 'none', urgency: 'none' }
+      ];
+    }
   }
 
   private async forecastRevenue(timeframe: string) {
@@ -478,47 +556,89 @@ export class AIAutomationService {
     };
   }
 
-  private async generateStaffingRecommendations(customerFlow: {
-    peakPeriods: Array<{ 
-      time: string; 
-      expectedCustomers: number; 
-      confidence: number 
-    }>; 
-    quietPeriods: Array<{ 
-      time: string; 
-      expectedCustomers: number; 
-      confidence: number 
-    }>
-  }): Promise<StaffingRecommendation[]> {
-    // Placeholder logic
+  private async generateStaffingRecommendations(customerFlow: CustomerFlowPrediction): Promise<StaffingRecommendation> {
+    const totalPeakCustomers = customerFlow.peakPeriods.reduce((sum, period) => sum + period.expectedCustomers, 0);
+    const totalQuietCustomers = customerFlow.quietPeriods.reduce((sum, period) => sum + period.expectedCustomers, 0);
+    
+    // Calcul basé sur le ratio clients/employés optimisé pour un café
+    const optimalPeakStaff = Math.ceil(totalPeakCustomers / 15);
+    const optimalQuietStaff = Math.ceil(totalQuietCustomers / 25);
+    
     return {
-      optimal: 6,
-      minimum: 4,
-      peakHourBoost: 2,
+      optimal: optimalPeakStaff,
+      minimum: optimalQuietStaff,
+      peakHourBoost: optimalPeakStaff - optimalQuietStaff,
       recommendations: [
-        'Ajouter 1 barista pendant 12h-14h',
-        'Prévoir un serveur supplémentaire le weekend',
-        'Optimiser les pauses pendant les heures creuses'
+        `Ajouter ${optimalPeakStaff - optimalQuietStaff} employés pendant les heures de pointe`,
+        'Formation croisée du personnel pour plus de flexibilité',
+        'Optimiser les pauses pendant les heures creuses',
+        'Prévoir un serveur supplémentaire le weekend'
       ]
     };
   }
 
   private async identifyMarketingOpportunities(): Promise<MarketingOpportunity[]> {
-    // Placeholder logic
-    return [
-      {
-        type: 'promotion',
-        suggestion: 'Happy Hour 15h-17h avec -20% sur les boissons',
-        expectedImpact: '+25% de fréquentation',
-        confidence: 0.82
-      },
-      {
-        type: 'loyalty',
-        suggestion: 'Programme fidélité : 10ème café offert',
-        expectedImpact: '+15% de clients réguliers',
+    try {
+      const db = getDb();
+      
+      // Analyse des tendances des ventes par catégorie
+      const salesTrends = await db.select({
+        category: menuItems.category,
+        totalSales: sql`COALESCE(SUM(orders.totalAmount), 0)`,
+        growth: sql`
+          CASE 
+            WHEN SUM(CASE WHEN orders.created_at >= NOW() - INTERVAL '14 days' AND orders.created_at < NOW() - INTERVAL '7 days' THEN orders.total_amount ELSE 0 END) > 0 
+            THEN (SUM(CASE WHEN orders.created_at >= NOW() - INTERVAL '7 days' THEN orders.total_amount ELSE 0 END) - 
+                  SUM(CASE WHEN orders.created_at >= NOW() - INTERVAL '14 days' AND orders.created_at < NOW() - INTERVAL '7 days' THEN orders.total_amount ELSE 0 END)) / 
+                 SUM(CASE WHEN orders.created_at >= NOW() - INTERVAL '14 days' AND orders.created_at < NOW() - INTERVAL '7 days' THEN orders.total_amount ELSE 0 END)
+            ELSE 0 
+          END`
+      }).from(orders)
+        .innerJoin(menuItems, eq(orders.itemId, menuItems.id))
+        .groupBy(menuItems.category)
+        .where(gte(orders.createdAt, new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)));
+
+      const opportunities: MarketingOpportunity[] = salesTrends.map(trend => ({
+        type: 'category_promotion',
+        suggestion: `Promouvoir les ${trend.category} - croissance détectée`,
+        expectedImpact: `+${Math.round((Number(trend.growth) || 0) * 15)}% de ventes`,
         confidence: 0.78
-      }
-    ];
+      }));
+
+      // Ajouter des opportunités génériques basées sur les données
+      opportunities.push(
+        {
+          type: 'happy_hour',
+          suggestion: 'Happy Hour 15h-17h avec -20% sur les boissons',
+          expectedImpact: '+25% de fréquentation',
+          confidence: 0.82
+        },
+        {
+          type: 'loyalty',
+          suggestion: 'Programme fidélité : 10ème café offert',
+          expectedImpact: '+15% de clients réguliers',
+          confidence: 0.78
+        }
+      );
+
+      return opportunities;
+    } catch (error) {
+      logger.error('Erreur opportunités marketing:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+      return [
+        {
+          type: 'promotion',
+          suggestion: 'Happy Hour 15h-17h avec -20% sur les boissons',
+          expectedImpact: '+25% de fréquentation',
+          confidence: 0.82
+        },
+        {
+          type: 'loyalty',
+          suggestion: 'Programme fidélité : 10ème café offert',
+          expectedImpact: '+15% de clients réguliers',
+          confidence: 0.78
+        }
+      ];
+    }
   }
 
   async getChatResponse(data: ChatMessage): Promise<any> {
@@ -654,32 +774,98 @@ export class AIAutomationService {
     return entities;
   }
   
-  private async generateInsight(data: Record<string, unknown>): Promise<string> {
-      // Simulation d'analyse IA
-      const insights = [
-        'Les ventes de café augmentent de 15% le matin',
-        'Recommandation: Augmenter le stock de lait d\'amande',
-        'Tendance: Les clients préfèrent les boissons chaudes en hiver'
-      ];
-      return insights[Math.floor(Math.random() * insights.length)];
-    }
+  async analyzeVoiceInput(data: z.infer<typeof VoiceAnalysisSchema>) {
+    const { audioData, language, userId } = VoiceAnalysisSchema.parse(data);
+    
+    try {
+      // Simulation d'analyse vocale - à remplacer par un vrai service ASR
+      const transcribedText = this.simulateSpeechRecognition(audioData);
+      const chatResponse = await this.processChatMessage({
+        message: transcribedText,
+        userId: userId?.toString(),
+        sessionId: `voice_${userId}`
+      });
 
-    private async optimizeMenu(menuData: Record<string, unknown>): Promise<Record<string, unknown>> {
-      // Placeholder logic for menu optimization
-      return { ...menuData, optimizationStatus: 'optimized' };
-    }
-
-    private async predictDemand(salesData: Record<string, unknown>[]): Promise<Record<string, unknown>> {
-      // Simulation de prédiction de demande
       return {
-        predictions: [
-          { item: 'Espresso', demand: 85 },
-          { item: 'Cappuccino', demand: 72 },
-          { item: 'Croissant', demand: 45 }
-        ],
-        accuracy: 0.87
+        transcription: transcribedText,
+        response: chatResponse.response,
+        actions: chatResponse.actions,
+        confidence: 0.85
       };
+    } catch (error) {
+      logger.error('Erreur analyse vocale:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+      throw new Error('Échec de l\'analyse vocale');
     }
+  }
+
+  private simulateSpeechRecognition(audioData: string): string {
+    // Simulation basique - à remplacer par une vraie API ASR
+    const commonPhrases = [
+      "Je voudrais réserver une table pour ce soir",
+      "Quels sont vos horaires d'ouverture ?",
+      "Je veux commander un cappuccino",
+      "Avez-vous des promotions en ce moment ?",
+      "Peut-on venir en groupe ?"
+    ];
+    
+    return commonPhrases[Math.floor(Math.random() * commonPhrases.length)];
+  }
+
+  async detectAnomalies(data: AnomalyRequest) {
+    const { metric, period } = data;
+    
+    try {
+      const db = getDb();
+      const anomalies = await db.select({
+        timestamp: orders.createdAt,
+        value: sql`SUM(orders.total_amount)`,
+        expected: sql`AVG(SUM(orders.total_amount)) OVER (ORDER BY DATE(orders.created_at) ROWS BETWEEN 7 PRECEDING AND 1 PRECEDING)`
+      }).from(orders)
+        .groupBy(sql`DATE(orders.created_at)`)
+        .having(sql`ABS(SUM(orders.total_amount) - AVG(SUM(orders.total_amount)) OVER (ORDER BY DATE(orders.created_at) ROWS BETWEEN 7 PRECEDING AND 1 PRECEDING)) > 
+                   COALESCE(STDDEV(SUM(orders.total_amount)) OVER (ORDER BY DATE(orders.created_at) ROWS BETWEEN 7 PRECEDING AND 1 PRECEDING) * 2, 100)`)
+        .where(gte(orders.createdAt, new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)));
+
+      return anomalies.map(anomaly => ({
+        metric: 'revenue',
+        timestamp: anomaly.timestamp,
+        actualValue: Number(anomaly.value) || 0,
+        expectedValue: Number(anomaly.expected) || 0,
+        deviation: Math.round(((Number(anomaly.value) - Number(anomaly.expected)) / Math.max(Number(anomaly.expected), 1)) * 100),
+        severity: Math.abs((Number(anomaly.value) - Number(anomaly.expected)) / Math.max(Number(anomaly.expected), 1)) > 0.3 ? 'high' : 'medium'
+      }));
+    } catch (error) {
+      logger.error('Erreur détection anomalies:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+      return [];
+    }
+  }
+
+  private async generateInsight(data: Record<string, unknown>): Promise<string> {
+    // Simulation d'analyse IA
+    const insights = [
+      'Les ventes de café augmentent de 15% le matin',
+      'Recommandation: Augmenter le stock de lait d\'amande',
+      'Tendance: Les clients préfèrent les boissons chaudes en hiver'
+    ];
+    return insights[Math.floor(Math.random() * insights.length)];
+  }
+
+  private async optimizeMenu(menuData: Record<string, unknown>): Promise<Record<string, unknown>> {
+    // Placeholder logic for menu optimization
+    return { ...menuData, optimizationStatus: 'optimized' };
+  }
+
+  private async predictDemand(salesData: Record<string, unknown>[]): Promise<Record<string, unknown>> {
+    // Simulation de prédiction de demande
+    return {
+      predictions: [
+        { item: 'Espresso', demand: 85 },
+        { item: 'Cappuccino', demand: 72 },
+        { item: 'Croissant', demand: 45 }
+      ],
+      accuracy: 0.87
+    };
+  }
 }
 
 // Export de l'instance singleton
