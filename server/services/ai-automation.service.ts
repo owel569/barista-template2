@@ -471,7 +471,18 @@ export class AIAutomationService {
     };
   }
 
-  private async generateStaffingRecommendations(customerFlow: { peakPeriods: Array<{ time: string; expectedCustomers: number; confidence: number }>; quietPeriods: Array<{ time: string; expectedCustomers: number; confidence: number }> }) {
+  private async generateStaffingRecommendations(customerFlow: {
+    peakPeriods: Array<{ 
+      time: string; 
+      expectedCustomers: number; 
+      confidence: number 
+    }>; 
+    quietPeriods: Array<{ 
+      time: string; 
+      expectedCustomers: number; 
+      confidence: number 
+    }>
+  }): Promise<StaffingRecommendation[]> {
     return {
       optimal: 6,
       minimum: 4,
@@ -484,7 +495,7 @@ export class AIAutomationService {
     };
   }
 
-  private async identifyMarketingOpportunities() {
+  private async identifyMarketingOpportunities(): Promise<MarketingOpportunity[]> {
     return [
       {
         type: 'promotion',
