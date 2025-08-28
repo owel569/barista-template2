@@ -4,6 +4,20 @@ import { Check, ChevronRight, Circle } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * Interface pour les props de raccourci clavier
+ */
+interface ContextMenuShortcutProps extends React.HTMLAttributes<HTMLSpanElement> {
+  children: React.ReactNode;
+}
+
+/**
+ * Interface pour les props d'élément avec inset
+ */
+interface ContextMenuInsetProps {
+  inset?: boolean;
+}
+
 const ContextMenu = ContextMenuPrimitive.Root
 
 const ContextMenuTrigger = ContextMenuPrimitive.Trigger
@@ -163,20 +177,23 @@ const ContextMenuSeparator = React.forwardRef<
 ))
 ContextMenuSeparator.displayName = ContextMenuPrimitive.Separator.displayName
 
-const ContextMenuShortcut = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLSpanElement>) => {
+const ContextMenuShortcut = React.forwardRef<
+  HTMLSpanElement,
+  ContextMenuShortcutProps
+>(({ className, children, ...props }, ref) => {
   return (
     <span
+      ref={ref}
       className={cn(
         "ml-auto text-xs tracking-widest text-muted-foreground",
         className
       )}
       {...props}
-    />
+    >
+      {children}
+    </span>
   )
-}
+})
 ContextMenuShortcut.displayName = "ContextMenuShortcut"
 
 export {
