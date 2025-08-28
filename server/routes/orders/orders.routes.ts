@@ -1,5 +1,4 @@
 
-```typescript
 import { Router } from 'express';
 import { z } from 'zod';
 import { asyncHandler } from '../../middleware/error-handler-enhanced';
@@ -410,7 +409,7 @@ router.get('/stats/realtime',
       .select({
         status: orders.status,
         count: sql<number>`count(*)`,
-        totalRevenue: sql<number>`sum(${orders.total})`
+        totalRevenue: sql<number>`sum(${orders.totalAmount})`
       })
       .from(orders)
       .where(gte(orders.createdAt, today))
@@ -434,4 +433,3 @@ router.get('/stats/realtime',
 );
 
 export default router;
-```

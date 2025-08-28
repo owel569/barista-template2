@@ -1,0 +1,55 @@
+(alias) eq<PgColumn<{
+    name: "location";
+    tableName: "tables";
+    dataType: "string";
+    columnType: "PgVarchar";
+    data: string;
+    driverParam: string;
+    notNull: false;
+    hasDefault: false;
+    isPrimaryKey: false;
+    isAutoincrement: false;
+    hasRuntimeDefault: false;
+    enumValues: [string, ...string[]];
+    baseColumn: never;
+    identity: undefined;
+    generated: undefined;
+}, {}, {
+    length: 50;
+}>>(left: PgColumn<{
+    name: "location";
+    tableName: "tables";
+    dataType: "string";
+    columnType: "PgVarchar";
+    data: string;
+    driverParam: string;
+    notNull: false;
+    hasDefault: false;
+    isPrimaryKey: false;
+    isAutoincrement: false;
+    hasRuntimeDefault: false;
+    enumValues: [string, ...string[]];
+    baseColumn: never;
+    identity: undefined;
+    generated: undefined;
+}, {}, {
+    length: 50;
+}>, right: string | SQLWrapper): SQL (+2 overloads)
+import eq
+Test that two values are equal.
+
+Remember that the SQL standard dictates that two NULL values are not equal, so if you want to test whether a value is null, you may want to use isNull instead.
+
+Examples
+// Select cars made by Ford
+db.select().from(cars)
+  .where(eq(cars.make, 'Ford'))
+@see — isNull for a way to test equality to NULL.
+
+No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "location"; tableName: "tables"; dataType: "string"; columnType: "PgVarchar"; data: string; driverParam: string; notNull: false; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, { ...; }>, right: string | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string | string[] | ParsedQs | ParsedQs[]' is not assignable to parameter of type 'string | SQLWrapper'.
+      Type 'string[]' is not assignable to type 'string | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string | string[] | ParsedQs | ParsedQs[]>, right: string | string[] | ParsedQs | SQLWrapper | ParsedQs[]): SQL<...>', gave the following error.
+    Argument of type 'PgColumn<{ name: "location"; tableName: "tables"; dataType: "string"; columnType: "PgVarchar"; data: string; driverParam: string; notNull: false; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, { ...; }>' is not assignable to parameter of type 'Aliased<string | string[] | ParsedQs | ParsedQs[]>'.
+      Type 'PgColumn<{ name: "location"; tableName: "tables"; dataType: "string"; columnType: "PgVarchar"; data: string; driverParam: string; notNull: false; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; },

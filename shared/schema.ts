@@ -10,6 +10,7 @@ export const userRoleEnum = pgEnum('user_role', ['admin', 'manager', 'staff', 'u
 export const orderStatusEnum = pgEnum('order_status', ['pending', 'preparing', 'ready', 'delivered', 'cancelled']);
 export const reservationStatusEnum = pgEnum('reservation_status', ['pending', 'confirmed', 'cancelled', 'completed']);
 export const tableStatusEnum = pgEnum('table_status', ['available', 'occupied', 'reserved', 'maintenance']);
+export const tableLocationEnum = pgEnum('table_location', ['inside', 'outside', 'terrace', 'private_room']);
 
 // ==========================================
 // TABLES
@@ -62,6 +63,9 @@ export const tables = pgTable("tables", {
   capacity: integer('capacity').notNull(),
   status: tableStatusEnum('status').notNull().default('available'),
   location: varchar('location', { length: 50 }),
+  section: varchar('section', { length: 50 }),
+  features: json('features').default([]),
+  description: text('description'),
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow()

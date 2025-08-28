@@ -1,5 +1,4 @@
 
-```typescript
 import { Router } from 'express';
 import { z } from 'zod';
 import { asyncHandler } from '../../middleware/error-handler-enhanced';
@@ -81,7 +80,7 @@ router.get('/overview',
       .select({
         status: orders.status,
         count: sql<number>`count(*)`,
-        totalRevenue: sql<number>`coalesce(sum(${orders.total}), 0)`
+        totalRevenue: sql<number>`coalesce(sum(${orders.totalAmount}), 0)`
       })
       .from(orders)
       .where(and(
@@ -94,7 +93,7 @@ router.get('/overview',
     const [generalStats] = await db
       .select({
         totalOrders: sql<number>`count(*)`,
-        totalRevenue: sql<number>`coalesce(sum(${orders.total}), 0)`,
+        totalRevenue: sql<number>`coalesce(sum(${orders.totalAmount}), 0)`,
         averageOrderValue: sql<number>`coalesce(avg(${orders.total}), 0)`
       })
       .from(orders)
@@ -486,4 +485,3 @@ router.get('/alerts',
 );
 
 export default router;
-```

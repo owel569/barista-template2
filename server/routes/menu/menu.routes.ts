@@ -7,7 +7,7 @@ import { authenticateUser, requireRoles } from '../../middleware/auth';
 import { validateBody, validateParams, validateQuery } from '../../middleware/validation';
 import { commonSchemas } from '../../middleware/validation';
 import { getDb } from '../../db';
-import { menuItems, categories, menuItemIngredients, inventory, activityLogs } from '../../../shared/schema';
+import { menuItems, menuCategories, activityLogs } from '../../../shared/schema';
 import { eq, and, or, desc, sql, ilike, inArray } from 'drizzle-orm';
 import { cacheMiddleware, invalidateCache } from '../../middleware/cache-advanced';
 

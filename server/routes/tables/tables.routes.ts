@@ -17,9 +17,7 @@ const logger = createLogger('TABLES_ROUTES');
 const CreateTableSchema = z.object({
   number: z.number().int().min(1, 'Numéro de table doit être >= 1'),
   capacity: z.number().int().min(1, 'Capacité doit être >= 1').max(20, 'Capacité max 20'),
-  location: z.enum(['inside', 'outside', 'terrace', 'private_room'], {
-    errorMap: () => ({ message: 'Emplacement doit être: inside, outside, terrace, ou private_room' })
-  }),
+  location: z.string().min(1, 'Emplacement requis').max(50),
   section: z.string().min(1, 'Section requise').max(50),
   features: z.array(z.string()).default([]),
   isActive: z.boolean().default(true),
@@ -27,7 +25,7 @@ const CreateTableSchema = z.object({
 });
 
 const UpdateTableSchema = CreateTableSchema.partial().extend({
-  id: z.string().uuid('ID invalide')
+  id: z.number().int().positive('ID invalide')
 });
 
 const TableStatusSchema = z.object({
