@@ -44,19 +44,41 @@ interface ReservationItem {
   notes?: string;
 }
 
+interface ReservationNotification {
+  id: string;
+  customerId: string;
+  tableId: string;
+  date: string;
+  time: string;
+  partySize: number;
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  specialRequests?: string;
+  notes?: string;
+  customer?: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+  };
+  table?: {
+    number: number;
+    capacity: number;
+  };
+}
+
 export default function ReservationNotifications() : JSX.Element {
   const [showAll, setShowAll] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   // Récupération des réservations
-  const { data: reservations = [], isLoading } = useQuery({
+  const { data: reservations = [], isLoading } = useQuery<Reservation[]>({
     queryKey: ["/api/admin/reservations"],
     refetchInterval: 30000, // Actualisation toutes les 30 secondes
   });
 
   // Récupération des réservations avec notifications non envoyées
-  const { data: newReservations = [] } = useQuery({
+  const { data: newReservations = [] } = useQuery<ReservationNotification[]>({
     queryKey: ["/api/admin/notifications/pending-reservations"],
     refetchInterval: 10000, // Vérification toutes les 10 secondes
   });
@@ -64,7 +86,7 @@ export default function ReservationNotifications() : JSX.Element {
   // Mutation pour marquer les notifications comme envoyées
   const markNotificationSentMutation = useMutation({
     mutationFn: (reservationId: number) => 
-      apiRequest("PATCH", `/api/admin/reservations/${reservationId}/notification-sent`, {}),
+      apiRequest("PATCH", `/api/admin/reservations/${reservationId}/notification-sent`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/reservations"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/notifications/pending-reservations"] });
@@ -125,11 +147,11 @@ export default function ReservationNotifications() : JSX.Element {
     if (showAll) {
       return reservations;
     }
-    
+
     // Afficher les réservations d'aujourd'hui et de demain par défaut
     const today = new Date().toISOString().split('T')[0];
     const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-    
+
     return reservations.filter((reservation: Reservation) => 
       reservation.date === today || reservation.date === tomorrow
     );
@@ -159,7 +181,7 @@ export default function ReservationNotifications() : JSX.Element {
             Réservations {showAll ? "Toutes" : "Aujourd'hui/Demain"}
           </h2>
         </div>
-        
+
         <div className="flex gap-2">
           <Button
             onClick={() => setShowAll(!showAll)}
@@ -220,7 +242,7 @@ export default function ReservationNotifications() : JSX.Element {
                     </div>
                   </div>
                 </CardHeader>
-                
+
                 <CardContent className="space-y-4">
                   {/* Informations de base */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -238,7 +260,7 @@ export default function ReservationNotifications() : JSX.Element {
                         {reservation.guests} personne(s)
                       </div>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <div className="flex items-center text-sm text-gray-600">
                         <Phone className="h-4 w-4 mr-2 text-coffee-accent" />

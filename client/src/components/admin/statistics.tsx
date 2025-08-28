@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useWebSocket } from '@/hooks/useWebSocket';
+import { format, subDays } from 'date-fns';
 
 interface StatisticsProps {
   userRole: 'directeur' | 'employe';
@@ -146,13 +147,11 @@ export default function Statistics({ userRole }: StatisticsProps) {
 
   // Fonctions Mock
   const generateMockRevenueData = (): RevenueData[] => {
-    const today = new Date();
     const days = dateRange === '7days' ? 7 : dateRange === '30days' ? 30 : 90;
     return Array.from({ length: days }, (_, i) => {
-      const date = new Date(today);
-      date.setDate(today.getDate() - (days - 1 - i));
+      const date = format(subDays(new Date(), days - 1 - i), 'yyyy-MM-dd');
       return {
-        date: date.toISOString().split('T')[0],
+        date,
         revenue: Math.floor(Math.random() * 500) + 200,
         orders: Math.floor(Math.random() * 20) + 5
       };
@@ -290,148 +289,146 @@ export default function Statistics({ userRole }: StatisticsProps) {
       </div>
 
       {/* Graphiques détaillés */}
-      {/* ... reste du code identique à ton affichage des onglets avec corrections de syntaxe */}
       <Tabs defaultValue="revenue" className="space-y-4">
-  <TabsList>
-    <TabsTrigger value="revenue">Revenus</TabsTrigger>
-    <TabsTrigger value="categories">Catégories</TabsTrigger>
-    <TabsTrigger value="customers">Clients</TabsTrigger>
-    <TabsTrigger value="trends">Tendances</TabsTrigger>
-  </TabsList>
+        <TabsList>
+          <TabsTrigger value="revenue">Revenus</TabsTrigger>
+          <TabsTrigger value="categories">Catégories</TabsTrigger>
+          <TabsTrigger value="customers">Clients</TabsTrigger>
+          <TabsTrigger value="trends">Tendances</TabsTrigger>
+        </TabsList>
 
-  {/* Revenus */}
-  <TabsContent value="revenue" className="space-y-4">
-    <Card>
-      <CardHeader>
-        <CardTitle>Évolution des Revenus</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          <AreaChart data={revenueData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Area
-              type="monotone"
-              dataKey="revenue"
-              stroke="#8884d8"
-              fill="#8884d8"
-              fillOpacity={0.6}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
-  </TabsContent>
+        {/* Revenus */}
+        <TabsContent value="revenue" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Évolution des Revenus</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <AreaChart data={revenueData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Area
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="#8884d8"
+                    fill="#8884d8"
+                    fillOpacity={0.6}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-  {/* Catégories */}
-  <TabsContent value="categories" className="space-y-4">
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      <Card>
-        <CardHeader>
-          <CardTitle>Répartition par Catégorie</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={categoryData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, value }) => `${name}: ${value}€`}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {categoryData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+        {/* Catégories */}
+        <TabsContent value="categories" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Répartition par Catégorie</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={categoryData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, value }) => `${name}: ${value}€`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {categoryData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Performance par Catégorie</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={categoryData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="category" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="value" fill="#8884d8" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Clients */}
+        <TabsContent value="customers" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Top Clients</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {customerData.map((customer, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 border rounded"
+                  >
+                    <div>
+                      <div className="font-medium">{customer.name}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {customer.visits} visites
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold">{customer.spent.toFixed(2)}€</div>
+                      <Badge variant="secondary">#{index + 1}</Badge>
+                    </div>
+                  </div>
                 ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Performance par Catégorie</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={categoryData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="category" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="value" fill="#8884d8" />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-    </div>
-  </TabsContent>
-
-  {/* Clients */}
-  <TabsContent value="customers" className="space-y-4">
-    <Card>
-      <CardHeader>
-        <CardTitle>Top Clients</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {customerData.map((customer, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between p-3 border rounded"
-            >
-              <div>
-                <div className="font-medium">{customer.name}</div>
-                <div className="text-sm text-muted-foreground">
-                  {customer.visits} visites
-                </div>
               </div>
-              <div className="text-right">
-                <div className="font-bold">{customer.spent.toFixed(2)}€</div>
-                <Badge variant="secondary">#{index + 1}</Badge>
-              </div>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  </TabsContent>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-  {/* Tendances */}
-  <TabsContent value="trends" className="space-y-4">
-    <Card>
-      <CardHeader>
-        <CardTitle>Tendances des Commandes</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={revenueData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="orders"
-              stroke="#82ca9d"
-              strokeWidth={2}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
-  </TabsContent>
-</Tabs>
-  
+        {/* Tendances */}
+        <TabsContent value="trends" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Tendances des Commandes</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={revenueData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="orders"
+                    stroke="#82ca9d"
+                    strokeWidth={2}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

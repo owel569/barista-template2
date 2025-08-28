@@ -30,11 +30,10 @@ interface InitializationResult {
 }
 
 export async function initializeDatabase(): Promise<InitializationResult> {
-  let db;
   try {
     console.log('🗄️ Début de l\'initialisation de la base de données...');
 
-    db = await getDb();
+    const db = getDb();
     
     // Test de connexion à la base de données
     try {
@@ -396,25 +395,18 @@ export async function initializeDatabase(): Promise<InitializationResult> {
       const insertedTables = await tx.insert(tables).values(tablesData).returning();
 
       // 5. Création de clients de démonstration
-      const sampleCustomers = Array.from({ length: 10 }, (_, i) => {
+      const sampleCustomers = Array.from({ length: 10 }, (_, i: number) => {
         const firstName = faker.person.firstName();
         const lastName = faker.person.lastName();
         return {
           firstName,
           lastName,
           email: faker.internet.email({ firstName: firstName.toLowerCase(), lastName: lastName.toLowerCase() }),
-          phone: faker.phone.number('+33 # ## ## ## ##'),
+          phone: faker.phone.number(),
           loyaltyPoints: faker.number.int({ min: 0, max: 500 }),
-          preferences: JSON.stringify({
-            allergies: faker.helpers.arrayElements(['gluten', 'lactose', 'fruits à coque', 'œufs', 'poisson'], { min: 0, max: 2 }),
-            favoriteItems: faker.helpers.arrayElements(insertedMenuItems.map(item => item.id), { min: 1, max: 3 }),
-            dietaryRestrictions: faker.helpers.maybe(() => 
-              faker.helpers.arrayElement(['végétarien', 'végétalien', 'sans gluten', 'halal']), 
-              { probability: 0.3 }
-            )
-          }),
-          totalVisits: faker.number.int({ min: 1, max: 50 }),
-          averageSpend: faker.number.float({ min: 15.0, max: 80.0, fractionDigits: 2 }),
+          totalOrders: faker.number.int({ min: 1, max: 50 }),
+          totalSpent: faker.number.float({ min: 15.0, max: 80.0, fractionDigits: 2 }).toString(),
+          lastVisit: faker.date.past({ years: 1 }),
           createdAt: faker.date.past({ years: 2 }),
           updatedAt: new Date()
         };
@@ -423,7 +415,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
       const insertedCustomers = await tx.insert(customers).values(sampleCustomers).returning();
 
       // 6. Création de réservations de démonstration
-      const sampleReservations = insertedCustomers.slice(0, 8).map((customer, index) => {
+      const sampleReservations = insertedCustomers.slice(0, 8).map((customer: any, index: number) => {
         const reservationDate = faker.date.between({ 
           from: new Date(), 
           to: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) // 14 jours
@@ -436,8 +428,8 @@ export async function initializeDatabase(): Promise<InitializationResult> {
           tableId: selectedTable.id,
           date: reservationDate,
           time: faker.helpers.arrayElement(timeSlots),
-          guests: faker.number.int({ min: 1, max: Math.min(selectedTable.capacity, 6) }),
-          status: faker.helpers.arrayElement(['confirmed', 'pending', 'completed', 'cancelled']),
+          partySize: faker.number.int({ min: 1, max: Math.min(selectedTable.capacity, 6) }),
+          status: faker.helpers.arrayElement(['confirmed', 'pending', 'completed', 'cancelled']) as 'confirmed' | 'pending' | 'completed' | 'cancelled',
           specialRequests: faker.helpers.maybe(() => 
             faker.helpers.arrayElement([
               'Anniversaire - décoration souhaitée',
@@ -449,7 +441,7 @@ export async function initializeDatabase(): Promise<InitializationResult> {
             { probability: 0.4 }
           ),
           notes: faker.helpers.maybe(() => faker.lorem.sentence(), { probability: 0.2 }),
-          createdAt: faker.date.past({ days: 30 }),
+          createdAt: faker.date.past({ years: 1 }),
           updatedAt: new Date()
         };
       });
@@ -502,7 +494,7 @@ export async function resetDatabase(): Promise<InitializationResult> {
   }
 
   try {
-    const db = await getDb();
+    const db = getDb();
 
     // Supprimer toutes les données dans l'ordre inverse des dépendances
     await db.delete(reservations);

@@ -8,20 +8,26 @@ import { useToast } from "@/hooks/use-toast";
 import { getItemImageUrl } from "@/lib/image-mapping";
 
 interface MenuItem {
-  id: number;
+  id: string;
   name: string;
   description: string;
   price: string;
-  categoryId: number;
+  categoryId: string;
+  isAvailable: boolean;
+  preparationTime: number;
+  ingredients?: string[];
+  calories?: number;
   imageUrl?: string;
-  available: boolean;
+  image_url?: string;
 }
 
 interface MenuCategory {
-  id: number;
+  id: string;
   name: string;
   slug: string;
   displayOrder: number;
+  description?: string;
+  items?: MenuItem[];
 }
 
 const categoryIcons = {
@@ -34,88 +40,124 @@ const categoryIcons = {
 const defaultMenuItems = {
   cafes: [
     {
-      id: 1,
+      id: "1",
       name: "Espresso Classique",
       description: "Un espresso authentique aux arômes intenses et à la crema parfaite",
       price: "3.50",
+      categoryId: "1",
+      isAvailable: true,
+      preparationTime: 5,
       imageUrl: "https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=200"
     },
     {
-      id: 2,
+      id: "2",
       name: "Latte Art",
       description: "Café latte avec mousse de lait onctueuse et motifs artistiques",
       price: "4.80",
+      categoryId: "1",
+      isAvailable: true,
+      preparationTime: 7,
       imageUrl: "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=200"
     },
     {
-      id: 3,
+      id: "3",
       name: "Cappuccino Premium",
       description: "Équilibre parfait entre espresso, lait vapeur et mousse veloutée",
       price: "4.20",
+      categoryId: "1",
+      isAvailable: true,
+      preparationTime: 6,
       imageUrl: "https://images.unsplash.com/photo-1572442388796-11668a67e53d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=200"
     }
   ],
   boissons: [
     {
-      id: 4,
+      id: "4",
       name: "Thé Vert Premium",
       description: "Sélection de thés verts d'exception",
-      price: "3.80"
+      price: "3.80",
+      categoryId: "2",
+      isAvailable: true,
+      preparationTime: 4
     },
     {
-      id: 5,
+      id: "5",
       name: "Chocolat Chaud",
       description: "Chocolat artisanal à la chantilly",
-      price: "4.50"
+      price: "4.50",
+      categoryId: "2",
+      isAvailable: true,
+      preparationTime: 5
     },
     {
-      id: 6,
+      id: "6",
       name: "Smoothie du Jour",
       description: "Fruits frais de saison",
-      price: "5.20"
+      price: "5.20",
+      categoryId: "2",
+      isAvailable: true,
+      preparationTime: 6
     }
   ],
   patisseries: [
     {
-      id: 7,
+      id: "7",
       name: "Croissants Artisanaux",
       description: "Croissants au beurre, feuilletés à la perfection",
       price: "2.80",
+      categoryId: "3",
+      isAvailable: true,
+      preparationTime: 5,
       imageUrl: "https://images.unsplash.com/photo-1509440159596-0249088772ff?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=200"
     },
     {
-      id: 8,
+      id: "8",
       name: "cookies au chocolat",
       description: "Assortiment de macarons aux saveurs variées",
       price: "6.50",
+      categoryId: "3",
+      isAvailable: true,
+      preparationTime: 8,
       imageUrl: "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=200"
     },
     {
-      id: 9,
+      id: "9",
       name: "Gâteau au Chocolat",
       description: "Fondant au chocolat noir avec fruits rouges",
       price: "5.90",
+      categoryId: "3",
+      isAvailable: true,
+      preparationTime: 10,
       imageUrl: "https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=200"
     }
   ],
   plats: [
     {
-      id: 10,
+      id: "10",
       name: "Sandwich Club",
       description: "Sandwich club traditionnel avec frites maison",
-      price: "8.90"
+      price: "8.90",
+      categoryId: "4",
+      isAvailable: true,
+      preparationTime: 15
     },
     {
-      id: 11,
+      id: "11",
       name: "Salade César",
       description: "Salade fraîche avec poulet grillé et parmesan",
-      price: "9.50"
+      price: "9.50",
+      categoryId: "4",
+      isAvailable: true,
+      preparationTime: 12
     },
     {
-      id: 12,
+      id: "12",
       name: "Quiche Lorraine",
       description: "Quiche traditionnelle avec salade verte",
-      price: "7.80"
+      price: "7.80",
+      categoryId: "4",
+      isAvailable: true,
+      preparationTime: 10
     }
   ]
 };
@@ -133,35 +175,35 @@ export default function Menu() : JSX.Element {
   });
 
   // Use default categories if API data is not available
-  const defaultCategories = [
-    { id: 1, name: "Cafés", slug: "cafes", displayOrder: 1 },
-    { id: 2, name: "Boissons", slug: "boissons", displayOrder: 2 },
-    { id: 3, name: "Pâtisseries", slug: "patisseries", displayOrder: 3 },
-    { id: 4, name: "Plats", slug: "plats", displayOrder: 4 }
+  const defaultCategories: MenuCategory[] = [
+    { id: "1", name: "Cafés", slug: "cafes", displayOrder: 1 },
+    { id: "2", name: "Boissons", slug: "boissons", displayOrder: 2 },
+    { id: "3", name: "Pâtisseries", slug: "patisseries", displayOrder: 3 },
+    { id: "4", name: "Plats", slug: "plats", displayOrder: 4 }
   ];
 
   const displayCategories = categories.length > 0 ? categories : defaultCategories;
-  
+
   // Filtrer les éléments par catégorie
   const getItemsByCategory = (categorySlug: string) => {
     // Toujours utiliser les données de l'API si disponibles
     if (menuItems.length > 0) {
-      const categoryId = displayCategories.find(cat => cat.slug === categorySlug)?.id;
-      if (!categoryId) return [];
-      
-      return menuItems.filter((item: { id: number; name: string; price: string; description: string; categoryId?: number; category_id?: number; available?: boolean }) => item.categoryId === categoryId || item.category_id === categoryId);
+      const category = displayCategories.find(cat => cat.slug === categorySlug);
+      if (!category) return [];
+
+      return menuItems.filter((item: MenuItem) => item.categoryId === category.id);
     }
-    
+
     // Utiliser les données par défaut uniquement si l'API n'a pas de données
     return defaultMenuItems[categorySlug as keyof typeof defaultMenuItems] || [];
   };
-  
+
   const displayItems = getItemsByCategory(activeTab);
 
-  const handleAddToCart = (item: unknown) => {
+  const handleAddToCart = (item: MenuItem) => {
     toast({
       title: "Ajouté au panier",
-      description: `${(item as any).name} a été ajouté à votre commande`,
+      description: `${item.name} a été ajouté à votre commande`,
     });
   };
 
@@ -200,12 +242,12 @@ export default function Menu() : JSX.Element {
 
         {/* Menu Content */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {displayItems.map((item: unknown) => (
+          {displayItems.map((item: MenuItem) => (
             <Card key={item.id} className="bg-white shadow-lg overflow-hidden hover:transform hover:scale-105 transition duration-300">
               <div className="w-full h-48 bg-coffee-light/20 overflow-hidden">
-                <img 
-                  src={item.imageUrl || item.image_url || getItemImageUrl(item.name, activeTab)} 
-                  alt={item.name} 
+                <img
+                  src={item.imageUrl || item.image_url || getItemImageUrl(item.name, activeTab)}
+                  alt={item.name}
                   className="w-full h-full object-cover"
                   onError={(e) => {
                     // En cas d'erreur, utiliser le système de mapping centralisé
