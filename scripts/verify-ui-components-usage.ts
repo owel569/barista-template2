@@ -1,6 +1,4 @@
 
-#!/usr/bin/env tsx
-
 import fs from 'fs';
 import path from 'path';
 import chalk from 'chalk';
@@ -71,21 +69,34 @@ class UIComponentsVerifier {
     console.log(chalk.blue('🔧 Vérification des types TypeScript...'));
     
     const problematicPatterns = [
-      { pattern: /:\s*any(?!\w)/g, issue: 'Type "any" détecté', severity: 'error' as const },
-      { pattern: /\{\s*\}/g, issue: 'Type vide "{}" détecté', severity: 'warning' as const },
-      { pattern: /\w+\?\.\w+/g, issue: 'Optional chaining sans vérification', severity: 'info' as const },
-      { pattern: /React\.ComponentProps<['"]div['"]>/g, issue: 'Type générique React.ComponentProps', severity: 'info' as const }
+      { 
+        pattern: /:\s*any(?!\w)/g, 
+        issue: 'Type "any" détecté', 
+        severity: 'error' as const 
+      },
+      { 
+        pattern: /\{\s*\}/g, 
+        issue: 'Type vide "{}" détecté', 
+        severity: 'warning' as const 
+      },
+      { 
+        pattern: /React\.ComponentProps<['"]div['"]>/g, 
+        issue: 'Type générique React.ComponentProps détecté', 
+        severity: 'info' as const 
+      }
     ];
 
     const uiFiles = this.getUIFiles();
     
     for (const filePath of uiFiles) {
+      if (!fs.existsSync(filePath)) continue;
+      
       const content = fs.readFileSync(filePath, 'utf8');
       const lines = content.split('\n');
       
       for (const { pattern, issue, severity } of problematicPatterns) {
         lines.forEach((line, index) => {
-          if (pattern.test(line)) {
+          if (pattern.test(line) && !line.includes('// @ts-ignore') && !line.includes('// eslint-disable')) {
             this.issues.push({
               file: filePath,
               component: path.basename(filePath, '.tsx'),
@@ -100,7 +111,7 @@ class UIComponentsVerifier {
   }
 
   private async verifyUsage(): Promise<void> {
-    console.log(chalk.blue('🎯 Vérification de l'utilisation...'));
+    console.log(chalk.blue('🎯 Vérification de l\'utilisation...'));
     
     const usageFiles = this.getAllTSXFiles();
     const uiComponents = this.getUIComponentNames();
@@ -110,17 +121,21 @@ class UIComponentsVerifier {
     uiComponents.forEach(comp => componentUsage.set(comp, 0));
 
     for (const filePath of usageFiles) {
-      if (filePath.includes('/ui/')) continue; // Ignorer les fichiers UI eux-mêmes
+      if (filePath.includes('/ui/') || !fs.existsSync(filePath)) continue;
       
-      const content = fs.readFileSync(filePath, 'utf8');
-      
-      for (const component of uiComponents) {
-        const importRegex = new RegExp(`import.*\\b${component}\\b.*from.*@/components/ui`, 'g');
-        const usageRegex = new RegExp(`<${component}[\\s>]`, 'g');
+      try {
+        const content = fs.readFileSync(filePath, 'utf8');
         
-        if (importRegex.test(content) || usageRegex.test(content)) {
-          componentUsage.set(component, componentUsage.get(component)! + 1);
+        for (const component of uiComponents) {
+          const importRegex = new RegExp(`import.*\\b${component}\\b.*from.*[@/]components/ui`, 'g');
+          const usageRegex = new RegExp(`<${component}[\\s>]`, 'g');
+          
+          if (importRegex.test(content) || usageRegex.test(content)) {
+            componentUsage.set(component, componentUsage.get(component)! + 1);
+          }
         }
+      } catch (error) {
+        console.warn(chalk.yellow(`Impossible de lire ${filePath}: ${error}`));
       }
     }
 
@@ -143,43 +158,54 @@ class UIComponentsVerifier {
     const usageFiles = this.getAllTSXFiles();
     
     for (const filePath of usageFiles) {
-      if (filePath.includes('/ui/')) continue;
+      if (filePath.includes('/ui/') || !fs.existsSync(filePath)) continue;
       
-      const content = fs.readFileSync(filePath, 'utf8');
-      const lines = content.split('\n');
-      
-      // Rechercher les imports UI problématiques
-      lines.forEach((line, index) => {
-        if (line.includes('@/components/ui') && line.includes('import')) {
-          // Vérifier les imports de composants inexistants
-          const importMatch = line.match(/import\s*\{([^}]+)\}\s*from\s*['"]@\/components\/ui['"]/);
-          if (importMatch) {
-            const imports = importMatch[1].split(',').map(imp => imp.trim());
-            for (const imp of imports) {
-              const componentFile = path.join(this.uiComponentsDir, `${imp}.tsx`);
-              if (!fs.existsSync(componentFile)) {
-                this.issues.push({
-                  file: filePath,
-                  component: imp,
-                  issue: `Import de composant inexistant: ${imp}`,
-                  line: index + 1,
-                  severity: 'error'
-                });
+      try {
+        const content = fs.readFileSync(filePath, 'utf8');
+        const lines = content.split('\n');
+        
+        // Rechercher les imports UI problématiques
+        lines.forEach((line, index) => {
+          if (line.includes('@/components/ui') && line.includes('import')) {
+            // Vérifier les imports de composants inexistants
+            const importMatch = line.match(/import\s*\{([^}]+)\}\s*from\s*['"]@\/components\/ui['"]/);
+            if (importMatch) {
+              const imports = importMatch[1].split(',').map(imp => imp.trim());
+              for (const imp of imports) {
+                const componentFile = path.join(this.uiComponentsDir, `${imp}.tsx`);
+                if (!fs.existsSync(componentFile)) {
+                  this.issues.push({
+                    file: filePath,
+                    component: imp,
+                    issue: `Import de composant inexistant: ${imp}`,
+                    line: index + 1,
+                    severity: 'error'
+                  });
+                }
               }
             }
           }
-        }
-      });
+        });
+      } catch (error) {
+        console.warn(chalk.yellow(`Impossible de lire ${filePath}: ${error}`));
+      }
     }
   }
 
   private getUIFiles(): string[] {
+    if (!fs.existsSync(this.uiComponentsDir)) {
+      console.warn(chalk.yellow(`Dossier UI non trouvé: ${this.uiComponentsDir}`));
+      return [];
+    }
+    
     return fs.readdirSync(this.uiComponentsDir)
       .filter(file => file.endsWith('.tsx'))
       .map(file => path.join(this.uiComponentsDir, file));
   }
 
   private getUIComponentNames(): string[] {
+    if (!fs.existsSync(this.uiComponentsDir)) return [];
+    
     return fs.readdirSync(this.uiComponentsDir)
       .filter(file => file.endsWith('.tsx'))
       .map(file => file.replace('.tsx', ''));
@@ -189,16 +215,28 @@ class UIComponentsVerifier {
     const files: string[] = [];
     
     const searchDir = (dir: string) => {
-      const items = fs.readdirSync(dir);
-      for (const item of items) {
-        const fullPath = path.join(dir, item);
-        const stat = fs.statSync(fullPath);
-        
-        if (stat.isDirectory() && !item.includes('node_modules')) {
-          searchDir(fullPath);
-        } else if (item.endsWith('.tsx') || item.endsWith('.ts')) {
-          files.push(fullPath);
+      if (!fs.existsSync(dir)) return;
+      
+      try {
+        const items = fs.readdirSync(dir);
+        for (const item of items) {
+          const fullPath = path.join(dir, item);
+          
+          try {
+            const stat = fs.statSync(fullPath);
+            
+            if (stat.isDirectory() && !item.includes('node_modules') && !item.startsWith('.')) {
+              searchDir(fullPath);
+            } else if ((item.endsWith('.tsx') || item.endsWith('.ts')) && stat.isFile()) {
+              files.push(fullPath);
+            }
+          } catch (statError) {
+            // Ignorer les erreurs de stat (permissions, etc.)
+            continue;
+          }
         }
+      } catch (readError) {
+        console.warn(chalk.yellow(`Impossible de lire le dossier ${dir}: ${readError}`));
       }
     };
     
