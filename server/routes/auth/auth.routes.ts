@@ -1,142 +1,484 @@
+
+```typescript
 import { Router } from 'express';
-import { authenticateUser, generateToken, hashPassword, comparePassword } from '../../middleware/auth';
-import { validateBody, rateLimiter, LoginSchema, RegisterSchema } from '../../middleware/security';
-import { db } from '../../db';
-import { users } from '../../../shared/schema';
-import { eq } from 'drizzle-orm';
-import bcrypt from 'bcryptjs';
+import { z } from 'zod';
+import { hash, compare } from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { asyncHandler } from '../../middleware/error-handler-enhanced';
+import { createLogger } from '../../middleware/logging';
+import { authenticateUser, requireRoles } from '../../middleware/auth';
+import { validateBody, validateParams, commonSchemas } from '../../middleware/validation';
+import { getDb } from '../../db';
+import { users, customers, activityLogs } from '../../../shared/schema';
+import { eq, and, or, sql } from 'drizzle-orm';
+import { RateLimitError } from '../../middleware/error-handler-enhanced';
 
 const router = Router();
+const logger = createLogger('AUTH_ROUTES');
 
-// Connexion - Rate limiting appliqué pour éviter les attaques par force brute
-router.post('/login', rateLimiter(5, 15 * 60 * 1000), validateBody(LoginSchema), async (req, res): Promise<void> => {
-  try {
-    const { username, password } = req.body;
-    
-    // Rechercher l'utilisateur dans la base de données
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.username, username))
-      .limit(1);
-    
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Identifiants incorrects'
-      });
-    }
-    
-    // Vérifier le mot de passe
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    
-    if (!passwordMatch) {
-      return res.status(401).json({
-        success: false,
-        message: 'Identifiants incorrects'
-      });
-    }
-    
-    // Créer le payload utilisateur (sans le mot de passe)
-    const userPayload = {
-      id: user.id.toString(),
-      username: user.username,
-      email: user.email,
-      role: user.role,
-      firstName: user.firstName,
-      lastName: user.lastName
-    };
-    
-    const token = generateToken(userPayload);
-    
-    res.json({
-      success: true,
-      message: 'Connexion réussie',
-      token,
-      user: userPayload
-    });
-    
-  } catch (error) {
-    console.error('Erreur lors de la connexion:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erreur lors de la connexion'
-    });
-  }
+// Configuration JWT
+const JWT_SECRET = process.env.JWT_SECRET || 'barista-cafe-secret-key';
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
+
+// Rate limiting simple en mémoire
+const loginAttempts = new Map<string, { count: number; lastAttempt: Date }>();
+
+// Schémas de validation
+const RegisterSchema = z.object({
+  firstName: z.string().min(2, 'Prénom requis (min 2 caractères)').max(50),
+  lastName: z.string().min(2, 'Nom requis (min 2 caractères)').max(50),
+  email: z.string().email('Email invalide'),
+  password: z.string()
+    .min(8, 'Mot de passe requis (min 8 caractères)')
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Mot de passe doit contenir au moins une majuscule, une minuscule et un chiffre'),
+  phone: z.string().optional(),
+  role: z.enum(['admin', 'manager', 'staff', 'customer']).default('customer')
 });
 
-// Inscription - Rate limiting pour éviter le spam
-router.post('/register', rateLimiter(3, 60 * 60 * 1000), validateBody(RegisterSchema), async (req, res) => {
-  try {
-    const { username, password, email } = req.body;
+const LoginSchema = z.object({
+  email: z.string().email('Email invalide'),
+  password: z.string().min(1, 'Mot de passe requis')
+});
+
+const ChangePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Mot de passe actuel requis'),
+  newPassword: z.string()
+    .min(8, 'Nouveau mot de passe requis (min 8 caractères)')
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Mot de passe doit contenir au moins une majuscule, une minuscule et un chiffre')
+});
+
+// Fonction utilitaire pour vérifier le rate limiting
+function checkRateLimit(identifier: string): void {
+  const now = new Date();
+  const attempt = loginAttempts.get(identifier);
+  
+  if (attempt) {
+    const timeDiff = now.getTime() - attempt.lastAttempt.getTime();
+    const hoursDiff = timeDiff / (1000 * 60 * 60);
     
+    if (hoursDiff < 1 && attempt.count >= 5) {
+      throw new RateLimitError('Trop de tentatives de connexion. Réessayez dans 1 heure.');
+    }
+    
+    if (hoursDiff >= 1) {
+      loginAttempts.delete(identifier);
+    }
+  }
+}
+
+// Fonction utilitaire pour enregistrer une tentative
+function recordLoginAttempt(identifier: string): void {
+  const now = new Date();
+  const attempt = loginAttempts.get(identifier);
+  
+  if (attempt) {
+    attempt.count += 1;
+    attempt.lastAttempt = now;
+  } else {
+    loginAttempts.set(identifier, { count: 1, lastAttempt: now });
+  }
+}
+
+// Fonction utilitaire pour générer un token JWT
+function generateToken(user: { id: string; email: string; role: string }): string {
+  return jwt.sign(
+    { 
+      userId: user.id, 
+      email: user.email, 
+      role: user.role 
+    },
+    JWT_SECRET,
+    { 
+      expiresIn: JWT_EXPIRES_IN,
+      issuer: 'barista-cafe',
+      audience: 'barista-cafe-users'
+    }
+  );
+}
+
+// Fonction utilitaire pour enregistrer une activité
+async function logActivity(
+  userId: string, 
+  action: string, 
+  details: string, 
+  req: any
+): Promise<void> {
+  try {
+    const db = getDb();
+    await db.insert(activityLogs).values({
+      id: crypto.randomUUID(),
+      userId,
+      action,
+      details,
+      ipAddress: req.ip || req.connection.remoteAddress,
+      userAgent: req.get('User-Agent'),
+      createdAt: new Date()
+    });
+  } catch (error) {
+    logger.error('Erreur enregistrement activité', { 
+      userId, 
+      action, 
+      error: error instanceof Error ? error.message : 'Erreur inconnue' 
+    });
+  }
+}
+
+// Route d'inscription
+router.post('/register',
+  validateBody(RegisterSchema),
+  asyncHandler(async (req, res) => {
+    const db = getDb();
+    const { firstName, lastName, email, password, phone, role } = req.body;
+
     // Vérifier si l'utilisateur existe déjà
     const [existingUser] = await db
-      .select()
+      .select({ id: users.id })
       .from(users)
-      .where(eq(users.username, username))
-      .limit(1);
-    
+      .where(eq(users.email, email));
+
     if (existingUser) {
       return res.status(409).json({
         success: false,
-        message: 'Cet utilisateur existe déjà'
+        message: 'Un compte avec cet email existe déjà'
       });
     }
-    
-    // Vérifier si l'email existe déjà
-    const [existingEmail] = await db
-      .select()
-      .from(users)
-      .where(eq(users.email, email))
-      .limit(1);
-    
-    if (existingEmail) {
-      return res.status(409).json({
-        success: false,
-        message: 'Cette adresse email est déjà utilisée'
-      });
-    }
-    
-    const hashedPassword = await bcrypt.hash(password, 10);
-    
+
+    // Hasher le mot de passe
+    const hashedPassword = await hash(password, 12);
+
     // Créer l'utilisateur
-    await db.insert(users).values({
-      username,
-      email,
-      password: hashedPassword,
-      firstName: 'Utilisateur',
-      lastName: 'Nouveau',
-      role: 'user'
+    const userId = crypto.randomUUID();
+    const [newUser] = await db
+      .insert(users)
+      .values({
+        id: userId,
+        firstName,
+        lastName,
+        email,
+        password: hashedPassword,
+        phone,
+        role,
+        active: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning({
+        id: users.id,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        email: users.email,
+        phone: users.phone,
+        role: users.role,
+        active: users.active,
+        createdAt: users.createdAt
+      });
+
+    // Si c'est un client, créer aussi une entrée dans la table customers
+    if (role === 'customer') {
+      await db.insert(customers).values({
+        id: crypto.randomUUID(),
+        userId,
+        firstName,
+        lastName,
+        email,
+        phone,
+        totalOrders: 0,
+        loyaltyPoints: 0,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+    }
+
+    // Générer le token
+    const token = generateToken(newUser);
+
+    // Enregistrer l'activité
+    await logActivity(userId, 'REGISTER', 'Inscription utilisateur', req);
+
+    logger.info('Utilisateur inscrit', { 
+      userId, 
+      email, 
+      role,
+      ip: req.ip 
     });
-    
-    res.json({
+
+    res.status(201).json({
       success: true,
+      data: {
+        user: newUser,
+        token
+      },
       message: 'Inscription réussie'
     });
-  } catch (error) {
-    console.error('Erreur lors de l\'inscription:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erreur lors de l\'inscription'
+  })
+);
+
+// Route de connexion
+router.post('/login',
+  validateBody(LoginSchema),
+  asyncHandler(async (req, res) => {
+    const db = getDb();
+    const { email, password } = req.body;
+
+    // Vérifier le rate limiting
+    checkRateLimit(email);
+
+    // Trouver l'utilisateur
+    const [user] = await db
+      .select({
+        id: users.id,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        email: users.email,
+        password: users.password,
+        phone: users.phone,
+        role: users.role,
+        active: users.active,
+        createdAt: users.createdAt
+      })
+      .from(users)
+      .where(eq(users.email, email));
+
+    if (!user || !user.active) {
+      recordLoginAttempt(email);
+      return res.status(401).json({
+        success: false,
+        message: 'Email ou mot de passe incorrect'
+      });
+    }
+
+    // Vérifier le mot de passe
+    const isPasswordValid = await compare(password, user.password);
+    
+    if (!isPasswordValid) {
+      recordLoginAttempt(email);
+      await logActivity(user.id, 'LOGIN_FAILED', 'Mot de passe incorrect', req);
+      
+      return res.status(401).json({
+        success: false,
+        message: 'Email ou mot de passe incorrect'
+      });
+    }
+
+    // Supprimer les tentatives précédentes
+    loginAttempts.delete(email);
+
+    // Générer le token
+    const token = generateToken(user);
+
+    // Mettre à jour la dernière connexion
+    await db
+      .update(users)
+      .set({ 
+        lastLoginAt: new Date(),
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, user.id));
+
+    // Enregistrer l'activité
+    await logActivity(user.id, 'LOGIN', 'Connexion utilisateur', req);
+
+    logger.info('Utilisateur connecté', { 
+      userId: user.id, 
+      email, 
+      role: user.role,
+      ip: req.ip 
     });
-  }
-});
 
-// Vérification du token
-router.get('/verify', authenticateUser, (req, res): void => {
-  res.json({
-    success: true,
-    user: req.user
-  });
-});
+    // Retourner les données sans le mot de passe
+    const { password: _, ...userWithoutPassword } = user;
 
-// Déconnexion
-router.post('/logout', (req, res) => {
-  res.json({
-    success: true,
-    message: 'Déconnexion réussie'
-  });
-});
+    res.json({
+      success: true,
+      data: {
+        user: userWithoutPassword,
+        token
+      },
+      message: 'Connexion réussie'
+    });
+  })
+);
+
+// Route pour obtenir le profil utilisateur actuel
+router.get('/me',
+  authenticateUser,
+  asyncHandler(async (req, res) => {
+    const db = getDb();
+    const user = (req as any).user;
+
+    const [userProfile] = await db
+      .select({
+        id: users.id,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        email: users.email,
+        phone: users.phone,
+        role: users.role,
+        active: users.active,
+        createdAt: users.createdAt,
+        lastLoginAt: users.lastLoginAt
+      })
+      .from(users)
+      .where(eq(users.id, user.id));
+
+    if (!userProfile) {
+      return res.status(404).json({
+        success: false,
+        message: 'Utilisateur non trouvé'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: userProfile
+    });
+  })
+);
+
+// Route pour changer le mot de passe
+router.post('/change-password',
+  authenticateUser,
+  validateBody(ChangePasswordSchema),
+  asyncHandler(async (req, res) => {
+    const db = getDb();
+    const user = (req as any).user;
+    const { currentPassword, newPassword } = req.body;
+
+    // Récupérer le mot de passe actuel
+    const [userWithPassword] = await db
+      .select({ password: users.password })
+      .from(users)
+      .where(eq(users.id, user.id));
+
+    if (!userWithPassword) {
+      return res.status(404).json({
+        success: false,
+        message: 'Utilisateur non trouvé'
+      });
+    }
+
+    // Vérifier le mot de passe actuel
+    const isCurrentPasswordValid = await compare(currentPassword, userWithPassword.password);
+    
+    if (!isCurrentPasswordValid) {
+      await logActivity(user.id, 'CHANGE_PASSWORD_FAILED', 'Mot de passe actuel incorrect', req);
+      
+      return res.status(400).json({
+        success: false,
+        message: 'Mot de passe actuel incorrect'
+      });
+    }
+
+    // Hasher le nouveau mot de passe
+    const hashedNewPassword = await hash(newPassword, 12);
+
+    // Mettre à jour le mot de passe
+    await db
+      .update(users)
+      .set({ 
+        password: hashedNewPassword,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, user.id));
+
+    // Enregistrer l'activité
+    await logActivity(user.id, 'CHANGE_PASSWORD', 'Mot de passe modifié', req);
+
+    logger.info('Mot de passe modifié', { 
+      userId: user.id,
+      ip: req.ip 
+    });
+
+    res.json({
+      success: true,
+      message: 'Mot de passe modifié avec succès'
+    });
+  })
+);
+
+// Route de déconnexion (invalidation côté client)
+router.post('/logout',
+  authenticateUser,
+  asyncHandler(async (req, res) => {
+    const user = (req as any).user;
+
+    // Enregistrer l'activité
+    await logActivity(user.id, 'LOGOUT', 'Déconnexion utilisateur', req);
+
+    logger.info('Utilisateur déconnecté', { 
+      userId: user.id,
+      ip: req.ip 
+    });
+
+    res.json({
+      success: true,
+      message: 'Déconnexion réussie'
+    });
+  })
+);
+
+// Route pour vérifier la validité du token
+router.get('/verify',
+  authenticateUser,
+  asyncHandler(async (req, res) => {
+    const user = (req as any).user;
+
+    res.json({
+      success: true,
+      data: {
+        valid: true,
+        user: {
+          id: user.id,
+          email: user.email,
+          role: user.role
+        }
+      }
+    });
+  })
+);
+
+// Route pour rafraîchir le token
+router.post('/refresh',
+  authenticateUser,
+  asyncHandler(async (req, res) => {
+    const db = getDb();
+    const user = (req as any).user;
+
+    // Vérifier que l'utilisateur existe toujours et est actif
+    const [currentUser] = await db
+      .select({
+        id: users.id,
+        email: users.email,
+        role: users.role,
+        active: users.active
+      })
+      .from(users)
+      .where(eq(users.id, user.id));
+
+    if (!currentUser || !currentUser.active) {
+      return res.status(401).json({
+        success: false,
+        message: 'Utilisateur non autorisé'
+      });
+    }
+
+    // Générer un nouveau token
+    const newToken = generateToken(currentUser);
+
+    logger.info('Token rafraîchi', { 
+      userId: user.id,
+      ip: req.ip 
+    });
+
+    res.json({
+      success: true,
+      data: {
+        token: newToken,
+        user: currentUser
+      }
+    });
+  })
+);
 
 export default router;
+```

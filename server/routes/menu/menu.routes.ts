@@ -1,202 +1,416 @@
+
+```typescript
 import { Router } from 'express';
-import { requireRoleHierarchy } from '../../middleware/security';
-import { validateBody } from '../../middleware/validation';
 import { z } from 'zod';
-
-// Schémas de validation pour le menu
-const MenuItemSchema = z.object({
-  name: z.string().min(1).max(100),
-  description: z.string().min(1).max(500),
-  price: z.number().positive().max(1000),
-  category: z.string().min(1).max(50),
-  available: z.boolean().optional()
-});
-
-const MenuItemUpdateSchema = MenuItemSchema.partial();
+import { asyncHandler } from '../../middleware/error-handler-enhanced';
+import { createLogger } from '../../middleware/logging';
+import { authenticateUser, requireRoles } from '../../middleware/auth';
+import { validateBody, validateParams, validateQuery, commonSchemas } from '../../middleware/validation';
+import { getDb } from '../../db';
+import { menuCategories, menuItems, customers, loyaltyTransactions } from '../../../shared/schema';
+import { eq, and, desc, sql, inArray } from 'drizzle-orm';
+import { cacheMiddleware, invalidateCache } from '../../middleware/cache-advanced';
 
 const router = Router();
+const logger = createLogger('MENU_ROUTES');
 
-// Récupérer tout le menu
-router.get('/', async (req, res) => {
-  try {
-    // TODO: Récupérer depuis la base de données
-    const menu = [
-      {
-        id: '1',
-        name: 'Espresso',
-        description: 'Café espresso traditionnel',
-        price: 2.50,
-        category: 'Boissons chaudes',
-        available: true
-      },
-      {
-        id: '2',
-        name: 'Cappuccino',
-        description: 'Espresso avec mousse de lait',
-        price: 3.50,
-        category: 'Boissons chaudes',
-        available: true
-      },
-      {
-        id: '3',
-        name: 'Croissant',
-        description: 'Croissant frais du jour',
-        price: 2.00,
-        category: 'Viennoiseries',
-        available: true
-      }
-    ];
-    
-    res.json({
-      success: true,
-      data: menu
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Erreur lors de la récupération du menu'
-    });
-  }
+// Schémas de validation
+const CreateMenuItemSchema = z.object({
+  name: z.string().min(1, 'Nom requis').max(100),
+  description: z.string().optional(),
+  price: z.number().positive('Prix doit être positif'),
+  categoryId: z.string().uuid('ID catégorie invalide'),
+  available: z.boolean().default(true),
+  imageUrl: z.string().url().optional(),
+  ingredients: z.array(z.string()).optional(),
+  allergens: z.array(z.string()).optional(),
+  nutritionInfo: z.object({
+    calories: z.number().optional(),
+    protein: z.number().optional(),
+    carbs: z.number().optional(),
+    fat: z.number().optional()
+  }).optional()
 });
 
-// Récupérer les catégories du menu (DOIT être avant /:id)
-router.get('/categories', async (req, res) => {
-  try {
-    const categories = [
-      {
-        id: '1',
-        name: 'Boissons chaudes',
-        description: 'Cafés, thés et chocolats chauds',
-        items: [
-          { id: '1', name: 'Espresso', price: 2.50 },
-          { id: '2', name: 'Cappuccino', price: 3.50 },
-          { id: '3', name: 'Latte', price: 4.00 }
-        ]
-      },
-      {
-        id: '2', 
-        name: 'Viennoiseries',
-        description: 'Pâtisseries et viennoiseries fraîches',
-        items: [
-          { id: '4', name: 'Croissant', price: 2.00 },
-          { id: '5', name: 'Pain au chocolat', price: 2.50 }
-        ]
-      },
-      {
-        id: '3',
-        name: 'Boissons froides', 
-        description: 'Boissons glacées et rafraîchissantes',
-        items: [
-          { id: '6', name: 'Frappuccino', price: 4.50 },
-          { id: '7', name: 'Thé glacé', price: 3.00 }
-        ]
-      }
-    ];
+const UpdateMenuItemSchema = CreateMenuItemSchema.partial();
+
+const CreateCategorySchema = z.object({
+  name: z.string().min(1, 'Nom requis').max(50),
+  description: z.string().optional(),
+  imageUrl: z.string().url().optional(),
+  displayOrder: z.number().int().min(0).default(0)
+});
+
+// Routes pour les catégories
+router.get('/categories',
+  cacheMiddleware({ ttl: 10 * 60 * 1000, tags: ['menu', 'categories'] }),
+  asyncHandler(async (req, res) => {
+    const db = getDb();
     
+    const categories = await db
+      .select()
+      .from(menuCategories)
+      .orderBy(menuCategories.displayOrder, menuCategories.name);
+
+    logger.info('Catégories récupérées', { count: categories.length });
+
     res.json({
       success: true,
       data: categories
     });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Erreur lors de la récupération des catégories'
-    });
-  }
-});
+  })
+);
 
-// Récupérer un article du menu
-router.get('/:id', async (req, res) => {
-  try {
+router.post('/categories',
+  authenticateUser,
+  requireRoles(['admin', 'manager']),
+  validateBody(CreateCategorySchema),
+  invalidateCache(['menu', 'categories']),
+  asyncHandler(async (req, res) => {
+    const db = getDb();
+    
+    const [category] = await db
+      .insert(menuCategories)
+      .values(req.body)
+      .returning();
+
+    logger.info('Catégorie créée', { categoryId: category.id, name: category.name });
+
+    res.status(201).json({
+      success: true,
+      data: category,
+      message: 'Catégorie créée avec succès'
+    });
+  })
+);
+
+// Routes pour les articles de menu
+router.get('/',
+  validateQuery(z.object({
+    categoryId: z.string().uuid().optional(),
+    available: z.boolean().optional(),
+    search: z.string().optional(),
+    ...commonSchemas.paginationSchema.shape,
+    ...commonSchemas.sortSchema.shape
+  })),
+  cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['menu', 'items'] }),
+  asyncHandler(async (req, res) => {
+    const db = getDb();
+    const { categoryId, available, search, page = 1, limit = 20, sortBy = 'name', sortOrder = 'asc' } = req.query;
+
+    let query = db
+      .select({
+        id: menuItems.id,
+        name: menuItems.name,
+        description: menuItems.description,
+        price: menuItems.price,
+        categoryId: menuItems.categoryId,
+        available: menuItems.available,
+        imageUrl: menuItems.imageUrl,
+        ingredients: menuItems.ingredients,
+        allergens: menuItems.allergens,
+        nutritionInfo: menuItems.nutritionInfo,
+        createdAt: menuItems.createdAt,
+        updatedAt: menuItems.updatedAt,
+        categoryName: menuCategories.name
+      })
+      .from(menuItems)
+      .leftJoin(menuCategories, eq(menuItems.categoryId, menuCategories.id));
+
+    // Filtres
+    const conditions = [];
+    
+    if (categoryId) {
+      conditions.push(eq(menuItems.categoryId, categoryId));
+    }
+    
+    if (available !== undefined) {
+      conditions.push(eq(menuItems.available, available));
+    }
+    
+    if (search) {
+      conditions.push(
+        sql`${menuItems.name} ILIKE ${`%${search}%`} OR ${menuItems.description} ILIKE ${`%${search}%`}`
+      );
+    }
+
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+
+    // Tri
+    const orderColumn = sortBy === 'price' ? menuItems.price : 
+                       sortBy === 'createdAt' ? menuItems.createdAt : 
+                       menuItems.name;
+    
+    query = sortOrder === 'desc' ? 
+      query.orderBy(desc(orderColumn)) : 
+      query.orderBy(orderColumn);
+
+    // Pagination
+    const offset = (page - 1) * limit;
+    const items = await query.limit(limit).offset(offset);
+
+    // Compte total
+    const [{ count }] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(menuItems)
+      .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+    logger.info('Articles de menu récupérés', { 
+      count: items.length, 
+      total: count,
+      filters: { categoryId, available, search }
+    });
+
+    res.json({
+      success: true,
+      data: items,
+      pagination: {
+        page,
+        limit,
+        total: count,
+        totalPages: Math.ceil(count / limit)
+      }
+    });
+  })
+);
+
+router.get('/:id',
+  validateParams(commonSchemas.idSchema),
+  cacheMiddleware({ ttl: 10 * 60 * 1000, tags: ['menu', 'items'] }),
+  asyncHandler(async (req, res) => {
+    const db = getDb();
     const { id } = req.params;
-    
-    // TODO: Récupérer depuis la base de données
-    const item = {
-      id,
-      name: 'Espresso',
-      description: 'Café espresso traditionnel',
-      price: 2.50,
-      category: 'Boissons chaudes',
-      available: true
-    };
-    
+
+    const [item] = await db
+      .select({
+        id: menuItems.id,
+        name: menuItems.name,
+        description: menuItems.description,
+        price: menuItems.price,
+        categoryId: menuItems.categoryId,
+        available: menuItems.available,
+        imageUrl: menuItems.imageUrl,
+        ingredients: menuItems.ingredients,
+        allergens: menuItems.allergens,
+        nutritionInfo: menuItems.nutritionInfo,
+        createdAt: menuItems.createdAt,
+        updatedAt: menuItems.updatedAt,
+        categoryName: menuCategories.name
+      })
+      .from(menuItems)
+      .leftJoin(menuCategories, eq(menuItems.categoryId, menuCategories.id))
+      .where(eq(menuItems.id, id));
+
+    if (!item) {
+      return res.status(404).json({
+        success: false,
+        message: 'Article de menu non trouvé'
+      });
+    }
+
+    logger.info('Article de menu récupéré', { itemId: id, name: item.name });
+
     res.json({
       success: true,
       data: item
     });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Erreur lors de la récupération de l\'article'
-    });
-  }
-});
+  })
+);
 
-// Ajouter un article au menu - Seuls les managers+ peuvent ajouter
-router.post('/', requireRoleHierarchy('manager'), validateBody(MenuItemSchema), async (req, res) => {
-  try {
-    const { name, description, price, category } = req.body;
-    
-    // TODO: Sauvegarder en base de données
-    const newItem = {
-      id: Date.now().toString(),
-      name,
-      description,
-      price,
-      category,
-      available: true
-    };
-    
+router.post('/',
+  authenticateUser,
+  requireRoles(['admin', 'manager']),
+  validateBody(CreateMenuItemSchema),
+  invalidateCache(['menu', 'items']),
+  asyncHandler(async (req, res) => {
+    const db = getDb();
+
+    // Vérifier que la catégorie existe
+    const [category] = await db
+      .select()
+      .from(menuCategories)
+      .where(eq(menuCategories.id, req.body.categoryId));
+
+    if (!category) {
+      return res.status(400).json({
+        success: false,
+        message: 'Catégorie non trouvée'
+      });
+    }
+
+    const [item] = await db
+      .insert(menuItems)
+      .values({
+        ...req.body,
+        id: crypto.randomUUID(),
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning();
+
+    logger.info('Article de menu créé', { 
+      itemId: item.id, 
+      name: item.name,
+      price: item.price,
+      userId: (req as any).user?.id 
+    });
+
     res.status(201).json({
       success: true,
-      message: 'Article ajouté au menu',
-      data: newItem
+      data: item,
+      message: 'Article de menu créé avec succès'
     });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Erreur lors de l\'ajout de l\'article'
-    });
-  }
-});
+  })
+);
 
-// Mettre à jour un article du menu - Seuls les managers+ peuvent modifier
-router.put('/:id', requireRoleHierarchy('manager'), validateBody(MenuItemUpdateSchema), async (req, res) => {
-  try {
+router.put('/:id',
+  authenticateUser,
+  requireRoles(['admin', 'manager']),
+  validateParams(commonSchemas.idSchema),
+  validateBody(UpdateMenuItemSchema),
+  invalidateCache(['menu', 'items']),
+  asyncHandler(async (req, res) => {
+    const db = getDb();
     const { id } = req.params;
-    const updates = req.body;
-    
-    // TODO: Mettre à jour en base de données
-    
+
+    // Vérifier que l'article existe
+    const [existingItem] = await db
+      .select()
+      .from(menuItems)
+      .where(eq(menuItems.id, id));
+
+    if (!existingItem) {
+      return res.status(404).json({
+        success: false,
+        message: 'Article de menu non trouvé'
+      });
+    }
+
+    // Vérifier la catégorie si elle est modifiée
+    if (req.body.categoryId && req.body.categoryId !== existingItem.categoryId) {
+      const [category] = await db
+        .select()
+        .from(menuCategories)
+        .where(eq(menuCategories.id, req.body.categoryId));
+
+      if (!category) {
+        return res.status(400).json({
+          success: false,
+          message: 'Catégorie non trouvée'
+        });
+      }
+    }
+
+    const [updatedItem] = await db
+      .update(menuItems)
+      .set({
+        ...req.body,
+        updatedAt: new Date()
+      })
+      .where(eq(menuItems.id, id))
+      .returning();
+
+    logger.info('Article de menu mis à jour', { 
+      itemId: id, 
+      changes: Object.keys(req.body),
+      userId: (req as any).user?.id 
+    });
+
     res.json({
       success: true,
-      message: 'Article mis à jour'
+      data: updatedItem,
+      message: 'Article de menu mis à jour avec succès'
     });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Erreur lors de la mise à jour'
-    });
-  }
-});
+  })
+);
 
-// Supprimer un article du menu - Seuls les admins peuvent supprimer
-router.delete('/:id', requireRoleHierarchy('admin'), async (req, res) => {
-  try {
+router.delete('/:id',
+  authenticateUser,
+  requireRoles(['admin']),
+  validateParams(commonSchemas.idSchema),
+  invalidateCache(['menu', 'items']),
+  asyncHandler(async (req, res) => {
+    const db = getDb();
     const { id } = req.params;
-    
-    // TODO: Supprimer de la base de données
-    
+
+    const [deletedItem] = await db
+      .delete(menuItems)
+      .where(eq(menuItems.id, id))
+      .returning();
+
+    if (!deletedItem) {
+      return res.status(404).json({
+        success: false,
+        message: 'Article de menu non trouvé'
+      });
+    }
+
+    logger.info('Article de menu supprimé', { 
+      itemId: id, 
+      name: deletedItem.name,
+      userId: (req as any).user?.id 
+    });
+
     res.json({
       success: true,
-      message: 'Article supprimé du menu'
+      message: 'Article de menu supprimé avec succès'
     });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Erreur lors de la suppression'
+  })
+);
+
+// Route pour les recommandations personnalisées
+router.get('/recommendations/:customerId',
+  authenticateUser,
+  validateParams(z.object({ customerId: z.string().uuid() })),
+  cacheMiddleware({ ttl: 2 * 60 * 1000, tags: ['menu', 'recommendations'] }),
+  asyncHandler(async (req, res) => {
+    const db = getDb();
+    const { customerId } = req.params;
+
+    // Obtenir les préférences du client basées sur ses commandes passées
+    const customerPreferences = await db
+      .select({
+        categoryId: menuItems.categoryId,
+        count: sql<number>`count(*)`
+      })
+      .from(loyaltyTransactions)
+      .leftJoin(menuItems, eq(loyaltyTransactions.orderId, menuItems.id))
+      .where(eq(loyaltyTransactions.customerId, customerId))
+      .groupBy(menuItems.categoryId)
+      .orderBy(desc(sql`count(*)`))
+      .limit(3);
+
+    const preferredCategories = customerPreferences.map(p => p.categoryId).filter(Boolean);
+
+    // Recommander des articles des catégories préférées
+    const recommendations = await db
+      .select()
+      .from(menuItems)
+      .where(
+        and(
+          eq(menuItems.available, true),
+          preferredCategories.length > 0 ? 
+            inArray(menuItems.categoryId, preferredCategories) : 
+            sql`true`
+        )
+      )
+      .orderBy(sql`random()`)
+      .limit(6);
+
+    logger.info('Recommandations générées', { 
+      customerId, 
+      recommendationsCount: recommendations.length,
+      preferredCategories 
     });
-  }
-});
+
+    res.json({
+      success: true,
+      data: recommendations
+    });
+  })
+);
 
 export default router;
+```

@@ -1,4 +1,3 @@
-
 import { Request, Response, NextFunction } from 'express';
 import { z, ZodError, ZodSchema } from 'zod';
 import { createLogger } from './logging';
@@ -32,12 +31,12 @@ interface ValidationResult<T = any> {
 // Schémas de validation communs réutilisables
 export const commonSchemas = {
   id: z.coerce.number().int().positive('ID doit être un entier positif'),
-  
+
   email: z.string()
     .email('Format d\'email invalide')
     .min(1, 'Email requis')
     .max(254, 'Email trop long'),
-  
+
   password: z.string()
     .min(8, 'Mot de passe doit contenir au moins 8 caractères')
     .max(128, 'Mot de passe trop long')
@@ -45,18 +44,18 @@ export const commonSchemas = {
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
       'Mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial'
     ),
-  
+
   phone: z.string()
     .regex(/^[\+]?[1-9][\d]{0,15}$/, 'Format de téléphone invalide')
     .optional(),
-  
+
   pagination: z.object({
     page: z.coerce.number().int().min(1, 'Page doit être >= 1').default(1),
     limit: z.coerce.number().int().min(1, 'Limite doit être >= 1').max(100, 'Limite max 100').default(20),
     sortBy: z.string().optional(),
     sortOrder: z.enum(['asc', 'desc']).default('desc')
   }),
-  
+
   dateRange: z.object({
     startDate: z.string().datetime('Date de début invalide').optional(),
     endDate: z.string().datetime('Date de fin invalide').optional()
@@ -69,7 +68,7 @@ export const commonSchemas = {
     },
     { message: 'Date de début doit être antérieure à la date de fin' }
   ),
-  
+
   search: z.object({
     q: z.string().min(1, 'Terme de recherche requis').max(100, 'Terme trop long').optional(),
     category: z.string().optional(),
@@ -106,7 +105,7 @@ class AdvancedValidator {
       };
 
       const validatedData = schema.parse(data, parseOptions);
-      
+
       return {
         success: true,
         data: validatedData
@@ -176,7 +175,7 @@ export const validateRequest = (
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const dataToValidate = req[part];
-      
+
       logger.debug('Validation en cours', {
         part,
         method: req.method,
@@ -384,17 +383,17 @@ export const authSchemas = {
 // Schémas pour les opérations CRUD
 export const crudSchemas = {
   create: <T>(schema: ZodSchema<T>) => schema,
-  
+
   update: <T>(schema: ZodSchema<T>) => schema.partial(),
-  
+
   delete: z.object({
     id: commonSchemas.id
   }),
-  
+
   getById: z.object({
     id: commonSchemas.id
   }),
-  
+
   list: z.object({
     ...commonSchemas.pagination.shape,
     ...commonSchemas.search.shape,
