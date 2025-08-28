@@ -1,11 +1,13 @@
 import express from 'express';
 import { createServer as createViteServer } from 'vite';
+import { createServer } from 'http';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import apiRoutes from './routes/index';
+import { wsManager } from './websocket';
 import { 
   errorHandler, 
   notFoundHandler, 
@@ -123,29 +125,33 @@ async function createServer() {
   // 6. Middleware de gestion d'erreurs (doit être en dernier)
   app.use(errorHandler);
 
-  // 7. Démarrer le serveur avec gestion des ports occupés
-  const server = app.listen(PORT, HOST, () => {
+  // 7. Créer le serveur HTTP et initialiser WebSocket
+  const httpServer = createServer(app);
+  
+  // Initialiser WebSocket sur le même serveur
+  wsManager.initialize(httpServer);
+
+  // 8. Démarrer le serveur
+  httpServer.listen(PORT, HOST, () => {
     console.log(`✅ Serveur démarré avec succès`);
     console.log(`🚀 Server running on http://${HOST}:${PORT}`);
     console.log(`⚡ API: http://${HOST}:${PORT}/api`);
     console.log(`✨ Vite: http://${HOST}:${PORT}`);
+    console.log(`🔌 WebSocket: ws://${HOST}:${PORT}/ws`);
     console.log(`❤️ Health: http://${HOST}:${PORT}/health`);
   });
 
-  server.on('error', (err: NodeJS.ErrnoException) => {
+  httpServer.on('error', (err: NodeJS.ErrnoException) => {
     if (err.code === 'EADDRINUSE') {
-      console.error(`❌ Port ${PORT} is already in use. Trying alternative port...`);
-      const altPort = PORT + 1;
-      server.listen(altPort, HOST, () => {
-        console.log(`🚀 Server running on alternative port http://${HOST}:${altPort}`);
-      });
+      console.error(`❌ Port ${PORT} is already in use`);
+      process.exit(1);
     } else {
       console.error('❌ Server error:', err);
       process.exit(1);
     }
   });
 
-  return server;
+  return httpServer;
 }
 
 createServer().catch(err => {

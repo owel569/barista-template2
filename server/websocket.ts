@@ -7,6 +7,12 @@ export interface WebSocketMessage {
   timestamp: string;
 }
 
+// Logger simplifié pour les messages d'erreur et d'information
+const logger = {
+  error: (message: string, context?: any) => console.error(message, context),
+  info: (message: string, context?: any) => console.log(message, context)
+};
+
 class WebSocketManager {
   private wss: WebSocketServer | null = null;
   private clients: Set<WebSocket> = new Set();
