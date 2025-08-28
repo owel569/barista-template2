@@ -74,7 +74,9 @@ const collapsibleContentVariants = cva(
 
 export interface CollapsibleContentWrapperProps
   extends React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.CollapsibleContent>,
-    VariantProps<typeof collapsibleContentVariants> {}
+    VariantProps<typeof collapsibleContentVariants> {
+  className?: string;
+}
 
 const CollapsibleContentWrapper = React.forwardRef<
   React.ElementRef<typeof CollapsiblePrimitive.CollapsibleContent>,

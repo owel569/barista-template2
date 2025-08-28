@@ -7,24 +7,24 @@ import { Checkbox } from './checkbox';
 import { Badge } from './badge';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search, Filter, Download, MoreHorizontal } from 'lucide-react';
 
-export interface DataGridColumn<T = any> {
-  id: string;
-  header: string;
-  accessorKey?: keyof T;
-  accessor?: (row: T) => any;
-  cell?: (props: { value: any; row: T; column: DataGridColumn<T> }) => React.ReactNode;
+export interface DataGridColumn<T = Record<string, unknown>> {
+  key: keyof T;
+  title: string;
   sortable?: boolean;
   filterable?: boolean;
   width?: number;
   minWidth?: number;
   maxWidth?: number;
   align?: 'left' | 'center' | 'right';
-  type?: 'text' | 'number' | 'date' | 'boolean' | 'custom';
-  format?: (value: any) => string;
-  meta?: any;
+  cell?: (props: { value: T[keyof T]; row: T; column: DataGridColumn<T> }) => React.ReactNode;
+  header?: React.ComponentType<{ column: DataGridColumn<T> }>;
+  footer?: React.ComponentType<{ column: DataGridColumn<T> }>;
+  sortFn?: (a: T, b: T) => number;
+  filterFn?: (value: T[keyof T], filterValue: string) => boolean;
+  format?: (value: T[keyof T]) => string;
 }
 
-export interface DataGridProps<T = any> {
+export interface DataGridProps<T = Record<string, unknown>> {
   data: T[];
   columns: DataGridColumn<T>[];
   className?: string;
@@ -55,7 +55,7 @@ interface SortState {
   direction: SortDirection;
 }
 
-export function DataGrid<T = any>({
+export function DataGrid<T = Record<string, unknown>>({
   data,
   columns,
   className,
@@ -83,7 +83,7 @@ export function DataGrid<T = any>({
   const [sortState, setSortState] = useState<SortState>({ columnId: null, direction: null });
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
   const [columnFilters, setColumnFilters] = useState<Record<string, any>>({});
-  
+
   const tableRef = useRef<HTMLTableElement>(null);
 
   // Fonction pour obtenir la valeur d'une cellule
@@ -104,7 +104,7 @@ export function DataGrid<T = any>({
     // Filtrage par recherche globale
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
-      filtered = filtered.filter(row => 
+      filtered = filtered.filter(row =>
         columns.some(column => {
           const value = getCellValue(row, column);
           return String(value).toLowerCase().includes(searchLower);
@@ -135,7 +135,7 @@ export function DataGrid<T = any>({
         filtered.sort((a, b) => {
           const aValue = getCellValue(a, column);
           const bValue = getCellValue(b, column);
-          
+
           let result = 0;
           if (column.type === 'number') {
             result = Number(aValue) - Number(bValue);
@@ -144,7 +144,7 @@ export function DataGrid<T = any>({
           } else {
             result = String(aValue).localeCompare(String(bValue));
           }
-          
+
           return sortState.direction === 'asc' ? result : -result;
         });
       }
@@ -207,7 +207,7 @@ export function DataGrid<T = any>({
   // Rendu d'une cellule
   const renderCell = useCallback((row: T, column: DataGridColumn<T>, rowIndex: number) => {
     const value = getCellValue(row, column);
-    
+
     if (column.cell) {
       return column.cell({ value, row, column });
     }
@@ -349,8 +349,8 @@ export function DataGrid<T = any>({
             <tbody>
               {paginatedData.length === 0 ? (
                 <tr>
-                  <td 
-                    colSpan={columns.length + (selectable ? 1 : 0)} 
+                  <td
+                    colSpan={columns.length + (selectable ? 1 : 0)}
                     className="p-8 text-center text-muted-foreground"
                   >
                     {emptyMessage}
@@ -360,7 +360,7 @@ export function DataGrid<T = any>({
                 paginatedData.map((row, index) => {
                   const globalIndex = startIndex + index;
                   const isSelected = selectedRows.has(globalIndex);
-                  
+
                   return (
                     <tr
                       key={globalIndex}
@@ -457,7 +457,7 @@ export function DataGrid<T = any>({
 }
 
 // Hook pour utiliser le DataGrid
-export function useDataGrid<T>(
+export function useDataGrid<T = Record<string, unknown>>(
   initialData: T[] = [],
   initialColumns: DataGridColumn<T>[] = []
 ) {

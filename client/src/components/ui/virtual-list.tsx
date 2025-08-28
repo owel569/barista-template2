@@ -3,7 +3,6 @@ import { cn } from '@/lib/utils';
 
 export interface VirtualListItem {
   id: string | number;
-  height?: number;
   data?: any;
 }
 
@@ -46,7 +45,7 @@ export function VirtualList<T extends VirtualListItem>({
     }
 
     let calculatedItemHeight = itemHeight;
-    
+
     if (estimateItemHeight) {
       // Pour les hauteurs variables, on utilise une moyenne estimée
       calculatedItemHeight = items.reduce((acc, _, index) => {

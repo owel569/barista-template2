@@ -22,8 +22,10 @@ const resizablePanelGroupVariants = cva(
 )
 
 export interface ResizablePanelGroupProps
-  extends Omit<React.ComponentProps<typeof ResizablePrimitive.PanelGroup>, 'direction'>,
-    VariantProps<typeof resizablePanelGroupVariants> {}
+  extends React.ComponentPropsWithoutRef<typeof ResizablePrimitive.PanelGroup>,
+    VariantProps<typeof resizablePanelGroupVariants> {
+  className?: string;
+}
 
 const ResizablePanelGroup = React.forwardRef<
   React.ElementRef<typeof ResizablePrimitive.PanelGroup>,
@@ -111,7 +113,7 @@ export function useResizablePanels(
   maxSizes?: number[]
 ) {
   const [sizes, setSizes] = React.useState<number[]>(initialSizes || [])
-  
+
   const onLayout = React.useCallback((newSizes: number[]) => {
     setSizes(newSizes)
   }, [])

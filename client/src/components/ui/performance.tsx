@@ -76,7 +76,7 @@ export const InView = memo(function InView({
     const observer = new IntersectionObserver(
       ([entry]) => {
         const isIntersecting = entry.isIntersecting;
-        
+
         if (isIntersecting && (!triggerOnce || !hasTriggered)) {
           setInView(true);
           setHasTriggered(true);
@@ -120,7 +120,7 @@ export function useOptimizedDebounce<T>(
 
   useEffect(() => {
     const now = Date.now();
-    
+
     // Clear existing timeouts
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -180,23 +180,23 @@ export function useThrottle<T>(value: T, limit: number): T {
 }
 
 // ===== VIRTUALIZATION SIMPLE =====
-export interface VirtualScrollProps {
-  items: any[];
+export interface VirtualScrollProps<T = unknown> {
+  items: T[];
   itemHeight: number;
   containerHeight: number;
-  renderItem: (item: any, index: number) => React.ReactNode;
+  renderItem: (item: T, index: number) => React.ReactNode;
   className?: string;
   overscan?: number;
 }
 
-export const VirtualScroll = memo(function VirtualScroll({
+export const VirtualScroll = memo(function VirtualScroll<T = unknown>({
   items,
   itemHeight,
   containerHeight,
   renderItem,
   className,
   overscan = 5,
-}: VirtualScrollProps) {
+}: VirtualScrollProps<T>) {
   const [scrollTop, setScrollTop] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -206,7 +206,7 @@ export const VirtualScroll = memo(function VirtualScroll({
       start + Math.ceil(containerHeight / itemHeight) + overscan,
       items.length
     );
-    
+
     return items.slice(Math.max(0, start - overscan), end).map((item, index) => ({
       item,
       index: Math.max(0, start - overscan) + index,
@@ -379,7 +379,7 @@ export function useSmartCache<T>(
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Erreur inconnue');
       setError(error);
-      
+
       // Utiliser les données en cache en cas d'erreur si disponibles
       if (options?.retryOnError && cached) {
         setData(cached.data);
