@@ -306,11 +306,13 @@ router.post('/',
     const tax = subtotal * 0.1; // 10% de taxe
     const totalAmount = subtotal + tax;
 
-    // Créer la commande - Générer un ID numérique temporaire
+    // Créer la commande avec orderNumber
+    const orderNumber = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     const [newOrder] = await db
       .insert(orders)
       .values({
         ...orderData,
+        orderNumber,
         subtotal: subtotal.toString(),
         tax: tax.toString(),
         totalAmount: totalAmount.toString(),

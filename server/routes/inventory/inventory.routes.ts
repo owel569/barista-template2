@@ -118,7 +118,7 @@ router.get('/',
       sortOrder = 'desc'
     } = req.query;
 
-    let baseQuery = db
+    const baseQuery = db
       .select({
         id: inventory.id,
         menuItemId: inventory.menuItemId,
@@ -181,8 +181,9 @@ router.get('/',
       );
     }
 
+    let query = baseQuery;
     if (conditions.length > 0) {
-      baseQuery = baseQuery.where(and(...conditions));
+      query = query.where(and(...conditions));
     }
 
     // Tri
@@ -194,8 +195,8 @@ router.get('/',
                        inventory.createdAt;
 
     const sortedQuery = sortOrder === 'desc' ?
-      baseQuery.orderBy(desc(orderColumn)) :
-      baseQuery.orderBy(orderColumn);
+      query.orderBy(desc(orderColumn)) :
+      query.orderBy(orderColumn);
 
     // Pagination
     const pageNum = typeof page === 'number' ? page : 1;

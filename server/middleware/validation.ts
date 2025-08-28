@@ -405,5 +405,8 @@ export const crudSchemas = {
   })
 };
 
+// Types pour l'authentification
+export type AppRole = 'admin' | 'manager' | 'staff' | 'user' | 'customer';
+
 // Export des utilitaires
 export { AdvancedValidator, ValidationOptions, ValidationResult };

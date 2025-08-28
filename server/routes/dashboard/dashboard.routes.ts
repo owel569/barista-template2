@@ -391,7 +391,7 @@ router.get('/alerts',
       .select({
         id: orders.id,
         createdAt: orders.createdAt,
-        total: orders.total
+        totalAmount: orders.totalAmount
       })
       .from(orders)
       .where(and(
