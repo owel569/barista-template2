@@ -203,6 +203,16 @@ export const inventory = pgTable('inventory', {
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 });
 
+export const loyaltyTransactions = pgTable('loyalty_transactions', {
+  id: serial('id').primaryKey(),
+  customerId: integer('customer_id').references(() => customers.id),
+  points: integer('points').notNull(),
+  type: varchar('type', { length: 20 }).notNull(),
+  description: text('description'),
+  orderId: integer('order_id').references(() => orders.id),
+  createdAt: timestamp('created_at').notNull().defaultNow()
+});
+
 export const permissions = pgTable("permissions", {
   id: serial('id').primaryKey(),
   userId: integer('user_id').references(() => users.id),
@@ -322,6 +332,17 @@ export const inventoryRelations = relations(inventory, ({ one }) => ({
   supplier: one(suppliers, {
     fields: [inventory.supplierId],
     references: [suppliers.id]
+  })
+}));
+
+export const loyaltyTransactionsRelations = relations(loyaltyTransactions, ({ one }) => ({
+  customer: one(customers, {
+    fields: [loyaltyTransactions.customerId],
+    references: [customers.id]
+  }),
+  order: one(orders, {
+    fields: [loyaltyTransactions.orderId],
+    references: [orders.id]
   })
 }));
 

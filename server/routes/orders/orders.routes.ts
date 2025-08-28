@@ -1,4 +1,3 @@
-
 import { Router } from 'express';
 import { z } from 'zod';
 import { asyncHandler } from '../../middleware/error-handler-enhanced';
@@ -77,7 +76,7 @@ router.get('/',
         orderType: orders.orderType,
         subtotal: orders.subtotal,
         tax: orders.tax,
-        total: orders.total,
+        totalAmount: orders.totalAmount,
         specialRequests: orders.specialRequests,
         customerInfo: orders.customerInfo,
         createdAt: orders.createdAt,
@@ -91,27 +90,27 @@ router.get('/',
 
     // Construire les conditions
     const conditions = [];
-    
+
     if (status) {
       conditions.push(eq(orders.status, status));
     }
-    
+
     if (orderType) {
       conditions.push(eq(orders.orderType, orderType));
     }
-    
+
     if (customerId) {
       conditions.push(eq(orders.customerId, customerId));
     }
-    
+
     if (tableId) {
       conditions.push(eq(orders.tableId, tableId));
     }
-    
+
     if (startDate) {
       conditions.push(gte(orders.createdAt, new Date(startDate)));
     }
-    
+
     if (endDate) {
       conditions.push(lte(orders.createdAt, new Date(endDate)));
     }
@@ -121,7 +120,7 @@ router.get('/',
     }
 
     // Tri
-    const orderColumn = sortBy === 'total' ? orders.total :
+    const orderColumn = sortBy === 'totalAmount' ? orders.totalAmount :
                        sortBy === 'status' ? orders.status :
                        sortBy === 'updatedAt' ? orders.updatedAt :
                        orders.createdAt;
@@ -210,7 +209,7 @@ router.get('/:id',
         orderType: orders.orderType,
         subtotal: orders.subtotal,
         tax: orders.tax,
-        total: orders.total,
+        totalAmount: orders.totalAmount,
         specialRequests: orders.specialRequests,
         customerInfo: orders.customerInfo,
         createdAt: orders.createdAt,
@@ -293,10 +292,10 @@ router.post('/',
       if (!menuItem) {
         throw new Error(`Article ${item.menuItemId} non trouvé`);
       }
-      
+
       const totalPrice = menuItem.price * item.quantity;
       subtotal += totalPrice;
-      
+
       return {
         ...item,
         unitPrice: menuItem.price,
@@ -305,7 +304,7 @@ router.post('/',
     });
 
     const tax = subtotal * 0.1; // 10% de taxe
-    const total = subtotal + tax;
+    const totalAmount = subtotal + tax;
 
     // Créer la commande - Générer un ID numérique temporaire
     const [newOrder] = await db
@@ -314,7 +313,7 @@ router.post('/',
         ...orderData,
         subtotal: subtotal.toString(),
         tax: tax.toString(),
-        total: total.toString(),
+        totalAmount: totalAmount.toString(),
         status: 'pending',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -337,7 +336,7 @@ router.post('/',
     logger.info('Commande créée', {
       orderId: newOrder.id,
       customerId: orderData.customerId,
-      total,
+      totalAmount,
       itemsCount: orderItemsData.length,
       orderType: orderData.orderType
     });
@@ -410,7 +409,7 @@ router.get('/stats/realtime',
       .select({
         status: orders.status,
         count: sql<number>`count(*)`,
-        totalRevenue: sql<number>`sum(${orders.total})`
+        totalRevenue: sql<number>`sum(${orders.totalAmount})`
       })
       .from(orders)
       .where(gte(orders.createdAt, today))

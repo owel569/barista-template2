@@ -118,7 +118,7 @@ router.get('/',
       sortOrder = 'desc'
     } = req.query;
 
-    let query = db
+    let baseQuery = db
       .select({
         id: inventory.id,
         menuItemId: inventory.menuItemId,
@@ -182,7 +182,7 @@ router.get('/',
     }
 
     if (conditions.length > 0) {
-      query = query.where(and(...conditions));
+      baseQuery = baseQuery.where(and(...conditions));
     }
 
     // Tri
@@ -193,22 +193,27 @@ router.get('/',
                        sortBy === 'expiryDate' ? inventory.expiryDate :
                        inventory.createdAt;
 
-    query = sortOrder === 'desc' ?
-      query.orderBy(desc(orderColumn)) :
-      query.orderBy(orderColumn);
+    const sortedQuery = sortOrder === 'desc' ?
+      baseQuery.orderBy(desc(orderColumn)) :
+      baseQuery.orderBy(orderColumn);
 
     // Pagination
     const pageNum = typeof page === 'number' ? page : 1;
     const limitNum = typeof limit === 'number' ? limit : 20;
     const offset = (pageNum - 1) * limitNum;
-    const inventoryData = await query.limit(limitNum).offset(offset);
+    const inventoryData = await sortedQuery.limit(limitNum).offset(offset);
 
     // Compte total
-    const countResult = await db
+    let countQuery = db
       .select({ count: sql<number>`count(*)` })
       .from(inventory)
-      .leftJoin(menuItems, eq(inventory.menuItemId, menuItems.id))
-      .where(conditions.length > 0 ? and(...conditions) : undefined);
+      .leftJoin(menuItems, eq(inventory.menuItemId, menuItems.id));
+    
+    if (conditions.length > 0) {
+      countQuery = countQuery.where(and(...conditions));
+    }
+    
+    const countResult = await countQuery;
     
     const count = countResult[0]?.count || 0;
 

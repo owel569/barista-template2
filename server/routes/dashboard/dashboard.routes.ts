@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { asyncHandler } from '../../middleware/error-handler-enhanced';
 import { createLogger } from '../../middleware/logging';
 import { authenticateUser, requireRoles } from '../../middleware/auth';
-import { validateQuery, commonSchemas } from '../../middleware/validation';
+import { validateQuery } from '../../middleware/validation';
 import { getDb } from '../../db';
 import { 
   orders, 
@@ -14,8 +14,7 @@ import {
   customers, 
   users, 
   reservations,
-  tables,
-  loyaltyTransactions 
+  tables
 } from '../../../shared/schema';
 import { eq, and, desc, sql, gte, lte, count } from 'drizzle-orm';
 import { cacheMiddleware } from '../../middleware/cache-advanced';
@@ -94,7 +93,7 @@ router.get('/overview',
       .select({
         totalOrders: sql<number>`count(*)`,
         totalRevenue: sql<number>`coalesce(sum(${orders.totalAmount}), 0)`,
-        averageOrderValue: sql<number>`coalesce(avg(${orders.total}), 0)`
+        averageOrderValue: sql<number>`coalesce(avg(${orders.totalAmount}), 0)`
       })
       .from(orders)
       .where(and(
@@ -202,7 +201,7 @@ router.get('/overview',
 // Données en temps réel
 router.get('/realtime',
   authenticateUser,
-  requireRoles(['admin', 'manager', 'staff']),
+  requireRoles(['admin', 'manager']),
   cacheMiddleware({ ttl: 30 * 1000, tags: ['dashboard', 'realtime'] }),
   asyncHandler(async (req, res) => {
     const db = getDb();
@@ -216,7 +215,7 @@ router.get('/realtime',
         id: orders.id,
         status: orders.status,
         orderType: orders.orderType,
-        total: orders.total,
+        totalAmount: orders.totalAmount,
         createdAt: orders.createdAt,
         tableNumber: tables.number,
         customerName: sql<string>`coalesce(${customers.firstName} || ' ' || ${customers.lastName}, ${orders.customerInfo}->>'name')`
@@ -267,7 +266,7 @@ router.get('/realtime',
     const [performanceMetrics] = await db
       .select({
         ordersToday: sql<number>`count(case when ${orders.createdAt} >= ${today} then 1 end)`,
-        revenueToday: sql<number>`coalesce(sum(case when ${orders.createdAt} >= ${today} then ${orders.total} end), 0)`,
+        revenueToday: sql<number>`coalesce(sum(case when ${orders.createdAt} >= ${today} then ${orders.totalAmount} end), 0)`,
         avgPreparationTime: sql<number>`coalesce(avg(extract(epoch from ${orders.updatedAt} - ${orders.createdAt})), 0)`
       })
       .from(orders)
@@ -340,7 +339,7 @@ router.get('/revenue-chart',
     const revenueData = await db
       .select({
         period: sql<string>`to_char(${orders.createdAt}, '${dateFormat}')`,
-        revenue: sql<number>`coalesce(sum(${orders.total}), 0)`,
+        revenue: sql<number>`coalesce(sum(${orders.totalAmount}), 0)`,
         orderCount: sql<number>`count(*)`
       })
       .from(orders)

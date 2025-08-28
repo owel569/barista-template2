@@ -73,6 +73,10 @@ export const commonSchemas = {
     q: z.string().min(1, 'Terme de recherche requis').max(100, 'Terme trop long').optional(),
     category: z.string().optional(),
     status: z.string().optional()
+  }),
+
+  idSchema: z.object({
+    id: z.coerce.number().int().positive('ID invalide')
   })
 };
 
@@ -82,8 +86,8 @@ class AdvancedValidator {
    * Valide les données avec un schéma Zod
    */
   static validate<T>(
-    schema: ZodSchema<T>, 
-    data: unknown, 
+    schema: ZodSchema<T>,
+    data: unknown,
     options: ValidationOptions = {}
   ): ValidationResult<T> {
     try {
@@ -217,16 +221,16 @@ export const validateRequest = (
 };
 
 // Middlewares de validation spécialisés
-export const validateBody = (schema: ZodSchema<any>, options?: ValidationOptions) => 
+export const validateBody = (schema: z.ZodSchema, options?: ValidationOptions) =>
   validateRequest(schema, 'body', options);
 
-export const validateParams = (schema: ZodSchema<any>, options?: ValidationOptions) => 
+export const validateParams = (schema: z.ZodSchema, options?: ValidationOptions) =>
   validateRequest(schema, 'params', options);
 
-export const validateQuery = (schema: ZodSchema<any>, options?: ValidationOptions) => 
+export const validateQuery = (schema: z.ZodSchema, options?: ValidationOptions) =>
   validateRequest(schema, 'query', options);
 
-export const validateHeaders = (schema: ZodSchema<any>, options?: ValidationOptions) => 
+export const validateHeaders = (schema: z.ZodSchema, options?: ValidationOptions) =>
   validateRequest(schema, 'headers', options);
 
 // Validation multiple (plusieurs parties à la fois)
@@ -263,7 +267,7 @@ export const validateMultiple = (validations: Array<{
           path: req.path
         });
 
-        const flatErrors = errors.flatMap(e => 
+        const flatErrors = errors.flatMap(e =>
           e.errors.map(err => ({ ...err, part: e.part }))
         );
 
