@@ -1,0 +1,200 @@
+~/workspace$ tsx scripts/verify-ui-components-usage.ts
+🔍 VÉRIFICATION DES COMPOSANTS UI
+
+📦 Vérification des exports...
+🔧 Vérification des types TypeScript...
+🎯 Vérification de l'utilisation...
+📥 Vérification des imports...
+
+📊 RAPPORT DE VÉRIFICATION
+
+❌ Erreurs: 1
+⚠️  Avertissements: 9
+ℹ️  Informations: 77
+
+ERROR:
+  client/src/components/ui/virtual-list.tsx:6
+    virtual-list: Type "any" détecté: data?: any;
+
+WARNING:
+  client/src/components/ui/combobox.tsx:227
+    combobox: Type vide "{}" détecté: }, {} as Record<string, ComboboxOption[]>)
+  client/src/components/ui/confirmation-dialog.tsx:133
+    confirmation-dialog: Type vide "{}" détecté: onConfirm: () => {},
+  client/src/components/ui/data-grid.tsx:85
+    data-grid: Type vide "{}" détecté: const [columnFilters, setColumnFilters] = useState<Record<string, any>>({});
+  client/src/components/ui/data-table.tsx:127
+    data-table: Type vide "{}" détecté: const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+  client/src/components/ui/form.tsx:28
+    form: Type vide "{}" détecté: {} as FormFieldContextValue
+  client/src/components/ui/form.tsx:49
+    form: Type vide "{}" détecté: {} as FormItemContextValue
+  client/src/components/ui/input-otp.tsx:12
+    input-otp: Type vide "{}" détecté: interface InputOTPGroupProps extends React.ComponentPropsWithoutRef<"div"> {}
+  client/src/components/ui/loading-spinner.tsx:256
+    loading-spinner: Type vide "{}" détecté: const style: React.CSSProperties = {}
+  client/src/components/ui/virtual-list.tsx:184
+    virtual-list: Type vide "{}" détecté: } = {}
+
+INFO:
+  client/src/components/ui/chart.tsx:70
+    chart: Type générique React.ComponentProps détecté: children: React.ComponentProps<"div">["children"];
+  client/src/components/ui/chart.tsx:106
+    chart: Type générique React.ComponentProps détecté: React.ComponentProps<"div"> & {
+  client/src/components/ui/chart.tsx:236
+    chart: Type générique React.ComponentProps détecté: React.ComponentProps<"div"> & {
+  client/src/components/ui/chart.tsx:465
+    chart: Type générique React.ComponentProps détecté: React.ComponentProps<"div"> &
+  client/src/components/ui/sidebar.tsx:181
+    sidebar: Type générique React.ComponentProps détecté: React.ComponentProps<"div"> & {
+  client/src/components/ui/sidebar.tsx:383
+    sidebar: Type générique React.ComponentProps détecté: React.ComponentProps<"div">
+  client/src/components/ui/sidebar.tsx:398
+    sidebar: Type générique React.ComponentProps détecté: React.ComponentProps<"div">
+  client/src/components/ui/sidebar.tsx:428
+    sidebar: Type générique React.ComponentProps détecté: React.ComponentProps<"div">
+  client/src/components/ui/sidebar.tsx:446
+    sidebar: Type générique React.ComponentProps détecté: React.ComponentProps<"div">
+  client/src/components/ui/sidebar.tsx:461
+    sidebar: Type générique React.ComponentProps détecté: React.ComponentProps<"div"> & { asChild?: boolean }
+  client/src/components/ui/sidebar.tsx:505
+    sidebar: Type générique React.ComponentProps détecté: React.ComponentProps<"div">
+  client/src/components/ui/sidebar.tsx:656
+    sidebar: Type générique React.ComponentProps détecté: React.ComponentProps<"div">
+  client/src/components/ui/sidebar.tsx:677
+    sidebar: Type générique React.ComponentProps détecté: React.ComponentProps<"div"> & {
+  client/src/components/ui/sidebar.tsx:794
+    sidebar: Type générique React.ComponentProps détecté: React.ComponentProps<"div">
+  client/src/components/ui/sidebar.tsx:818
+    sidebar: Type générique React.ComponentProps détecté: React.ComponentProps<"div"> & {
+  client/src/components/ui/accordion.tsx
+    accordion: Composant jamais utilisé
+  client/src/components/ui/alert-dialog.tsx
+    alert-dialog: Composant jamais utilisé
+  client/src/components/ui/alert.tsx
+    alert: Composant jamais utilisé
+  client/src/components/ui/aspect-ratio.tsx
+    aspect-ratio: Composant jamais utilisé
+  client/src/components/ui/avatar.tsx
+    avatar: Composant jamais utilisé
+  client/src/components/ui/badge.tsx
+    badge: Composant jamais utilisé
+  client/src/components/ui/breadcrumb.tsx
+    breadcrumb: Composant jamais utilisé
+  client/src/components/ui/calendar.tsx
+    calendar: Composant jamais utilisé
+  client/src/components/ui/card.tsx
+    card: Composant jamais utilisé
+  client/src/components/ui/carousel.tsx
+    carousel: Composant jamais utilisé
+  client/src/components/ui/chart.tsx
+    chart: Composant jamais utilisé
+  client/src/components/ui/checkbox.tsx
+    checkbox: Composant jamais utilisé
+  client/src/components/ui/collapsible.tsx
+    collapsible: Composant jamais utilisé
+  client/src/components/ui/combobox.tsx
+    combobox: Composant jamais utilisé
+  client/src/components/ui/command.tsx
+    command: Composant jamais utilisé
+  client/src/components/ui/confirmation-dialog.tsx
+    confirmation-dialog: Composant jamais utilisé
+  client/src/components/ui/context-menu.tsx
+    context-menu: Composant jamais utilisé
+  client/src/components/ui/data-grid.tsx
+    data-grid: Composant jamais utilisé
+  client/src/components/ui/data-table.tsx
+    data-table: Composant jamais utilisé
+  client/src/components/ui/date-picker.tsx
+    date-picker: Composant jamais utilisé
+  client/src/components/ui/dialog.tsx
+    dialog: Composant jamais utilisé
+  client/src/components/ui/drawer.tsx
+    drawer: Composant jamais utilisé
+  client/src/components/ui/dropdown-menu.tsx
+    dropdown-menu: Composant jamais utilisé
+  client/src/components/ui/empty-state.tsx
+    empty-state: Composant jamais utilisé
+  client/src/components/ui/error-boundary.tsx
+    error-boundary: Composant jamais utilisé
+  client/src/components/ui/file-upload.tsx
+    file-upload: Composant jamais utilisé
+  client/src/components/ui/hover-card.tsx
+    hover-card: Composant jamais utilisé
+  client/src/components/ui/input-otp.tsx
+    input-otp: Composant jamais utilisé
+  client/src/components/ui/international-phone-input.tsx
+    international-phone-input: Composant jamais utilisé
+  client/src/components/ui/loading-button.tsx
+    loading-button: Composant jamais utilisé
+  client/src/components/ui/loading-overlay.tsx
+    loading-overlay: Composant jamais utilisé
+  client/src/components/ui/loading-spinner.tsx
+    loading-spinner: Composant jamais utilisé
+  client/src/components/ui/menubar.tsx
+    menubar: Composant jamais utilisé
+  client/src/components/ui/modal.tsx
+    modal: Composant jamais utilisé
+  client/src/components/ui/multi-select.tsx
+    multi-select: Composant jamais utilisé
+  client/src/components/ui/navigation-menu.tsx
+    navigation-menu: Composant jamais utilisé
+  client/src/components/ui/pagination.tsx
+    pagination: Composant jamais utilisé
+  client/src/components/ui/performance.tsx
+    performance: Composant jamais utilisé
+  client/src/components/ui/phone-input.tsx
+    phone-input: Composant jamais utilisé
+  client/src/components/ui/popover.tsx
+    popover: Composant jamais utilisé
+  client/src/components/ui/progress.tsx
+    progress: Composant jamais utilisé
+  client/src/components/ui/radio-group.tsx
+    radio-group: Composant jamais utilisé
+  client/src/components/ui/resizable.tsx
+    resizable: Composant jamais utilisé
+  client/src/components/ui/scroll-area.tsx
+    scroll-area: Composant jamais utilisé
+  client/src/components/ui/search-input.tsx
+    search-input: Composant jamais utilisé
+  client/src/components/ui/separator.tsx
+    separator: Composant jamais utilisé
+  client/src/components/ui/sheet.tsx
+    sheet: Composant jamais utilisé
+  client/src/components/ui/sidebar.tsx
+    sidebar: Composant jamais utilisé
+  client/src/components/ui/skeleton.tsx
+    skeleton: Composant jamais utilisé
+  client/src/components/ui/slider.tsx
+    slider: Composant jamais utilisé
+  client/src/components/ui/sonner.tsx
+    sonner: Composant jamais utilisé
+  client/src/components/ui/spinner.tsx
+    spinner: Composant jamais utilisé
+  client/src/components/ui/stats-card.tsx
+    stats-card: Composant jamais utilisé
+  client/src/components/ui/switch.tsx
+    switch: Composant jamais utilisé
+  client/src/components/ui/tabs.tsx
+    tabs: Composant jamais utilisé
+  client/src/components/ui/textarea.tsx
+    textarea: Composant jamais utilisé
+  client/src/components/ui/theme-provider.tsx
+    theme-provider: Composant jamais utilisé
+  client/src/components/ui/toaster.tsx
+    toaster: Composant jamais utilisé
+  client/src/components/ui/toggle-group.tsx
+    toggle-group: Composant jamais utilisé
+  client/src/components/ui/toggle.tsx
+    toggle: Composant jamais utilisé
+  client/src/components/ui/tooltip.tsx
+    tooltip: Composant jamais utilisé
+  client/src/components/ui/virtual-list.tsx
+    virtual-list: Composant jamais utilisé
+
+🚀 RECOMMANDATIONS:
+
+1. Corrigez les erreurs critiques en premier
+2. Examinez les avertissements pour améliorer la qualité
+3. Considérez les suggestions d'optimisation
+~/workspace$ 
