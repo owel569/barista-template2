@@ -13,9 +13,10 @@ import dashboardRoutes from './dashboard/dashboard.routes';
 import adminRoutes from './admin/admin.routes';
 import deliveryRoutes from './delivery';
 import reservationRoutes from './reservations';
-import tableRoutes from './tables';
-import feedbackRoutes from './feedback.routes';
+import tablesRouter from './tables/tables.routes';
+import feedbackRoutes from './feedback/feedback.routes';
 import eventRoutes from './events.routes';
+import inventoryRoutes from './inventory/inventory.routes';
 
 const router = Router();
 
@@ -34,8 +35,9 @@ router.use('/analytics', authenticateUser, requireRoleHierarchy('manager'), anal
 router.use('/dashboard', authenticateUser, requireRoleHierarchy('employee'), dashboardRoutes);
 router.use('/admin', authenticateUser, requireRoleHierarchy('manager'), adminRoutes);
 router.use('/delivery', authenticateUser, requireRoleHierarchy('employee'), deliveryRoutes);
-router.use('/tables', authenticateUser, requireRoleHierarchy('employee'), tableRoutes);
+router.use('/tables', authenticateUser, requireRoleHierarchy('employee'), tablesRouter);
 router.use('/events', authenticateUser, requireRoleHierarchy('manager'), eventRoutes);
+router.use('/inventory', authenticateUser, requireRoleHierarchy('employee'), inventoryRoutes);
 
 // Routes avec authentification mixte (certaines publiques, certaines protégées)
 router.use('/reservations', reservationRoutes); // POST public, GET/PUT/DELETE protégées

@@ -1,14 +1,14 @@
 
-```typescript
 import { Router } from 'express';
 import { z } from 'zod';
 import { asyncHandler } from '../../middleware/error-handler-enhanced';
 import { createLogger } from '../../middleware/logging';
 import { authenticateUser, requireRoles } from '../../middleware/auth';
-import { validateBody, validateParams, validateQuery, commonSchemas } from '../../middleware/validation';
+import { validateBody, validateParams, validateQuery } from '../../middleware/validation';
+import { commonSchemas } from '../../middleware/validation';
 import { getDb } from '../../db';
-import { menuCategories, menuItems, customers, loyaltyTransactions } from '../../../shared/schema';
-import { eq, and, desc, sql, inArray } from 'drizzle-orm';
+import { menuItems, categories, menuItemIngredients, inventory, activityLogs } from '../../../shared/schema';
+import { eq, and, or, desc, sql, ilike, inArray } from 'drizzle-orm';
 import { cacheMiddleware, invalidateCache } from '../../middleware/cache-advanced';
 
 const router = Router();
@@ -16,87 +16,93 @@ const logger = createLogger('MENU_ROUTES');
 
 // Schémas de validation
 const CreateMenuItemSchema = z.object({
-  name: z.string().min(1, 'Nom requis').max(100),
-  description: z.string().optional(),
-  price: z.number().positive('Prix doit être positif'),
+  name: z.string().min(2, 'Nom requis (min 2 caractères)').max(100),
+  description: z.string().min(10, 'Description requise (min 10 caractères)').max(500),
+  price: z.number().min(0.01, 'Prix doit être > 0'),
   categoryId: z.string().uuid('ID catégorie invalide'),
-  available: z.boolean().default(true),
-  imageUrl: z.string().url().optional(),
-  ingredients: z.array(z.string()).optional(),
-  allergens: z.array(z.string()).optional(),
-  nutritionInfo: z.object({
+  imageUrl: z.string().url('URL image invalide').optional(),
+  isAvailable: z.boolean().default(true),
+  isVegetarian: z.boolean().default(false),
+  isVegan: z.boolean().default(false),
+  isGlutenFree: z.boolean().default(false),
+  preparationTime: z.number().int().min(1, 'Temps de préparation minimum 1 minute').max(120),
+  allergens: z.array(z.string()).default([]),
+  nutritionalInfo: z.object({
     calories: z.number().optional(),
     protein: z.number().optional(),
     carbs: z.number().optional(),
     fat: z.number().optional()
-  }).optional()
+  }).optional(),
+  ingredients: z.array(z.string()).default([])
 });
 
-const UpdateMenuItemSchema = CreateMenuItemSchema.partial();
+const UpdateMenuItemSchema = CreateMenuItemSchema.partial().extend({
+  id: z.string().uuid('ID invalide')
+});
 
 const CreateCategorySchema = z.object({
-  name: z.string().min(1, 'Nom requis').max(50),
-  description: z.string().optional(),
-  imageUrl: z.string().url().optional(),
-  displayOrder: z.number().int().min(0).default(0)
+  name: z.string().min(2, 'Nom requis (min 2 caractères)').max(50),
+  description: z.string().max(200).optional(),
+  imageUrl: z.string().url('URL image invalide').optional(),
+  displayOrder: z.number().int().min(1).default(1),
+  isActive: z.boolean().default(true)
 });
 
-// Routes pour les catégories
-router.get('/categories',
-  cacheMiddleware({ ttl: 10 * 60 * 1000, tags: ['menu', 'categories'] }),
-  asyncHandler(async (req, res) => {
+// Fonction utilitaire pour enregistrer une activité
+async function logMenuActivity(
+  userId: string,
+  action: string,
+  details: string,
+  req: any,
+  itemId?: string
+): Promise<void> {
+  try {
     const db = getDb();
-    
-    const categories = await db
-      .select()
-      .from(menuCategories)
-      .orderBy(menuCategories.displayOrder, menuCategories.name);
-
-    logger.info('Catégories récupérées', { count: categories.length });
-
-    res.json({
-      success: true,
-      data: categories
+    await db.insert(activityLogs).values({
+      id: crypto.randomUUID(),
+      userId,
+      action,
+      details: itemId ? `${details} (Article: ${itemId})` : details,
+      ipAddress: req.ip || req.connection.remoteAddress,
+      userAgent: req.get('User-Agent'),
+      createdAt: new Date()
     });
-  })
-);
-
-router.post('/categories',
-  authenticateUser,
-  requireRoles(['admin', 'manager']),
-  validateBody(CreateCategorySchema),
-  invalidateCache(['menu', 'categories']),
-  asyncHandler(async (req, res) => {
-    const db = getDb();
-    
-    const [category] = await db
-      .insert(menuCategories)
-      .values(req.body)
-      .returning();
-
-    logger.info('Catégorie créée', { categoryId: category.id, name: category.name });
-
-    res.status(201).json({
-      success: true,
-      data: category,
-      message: 'Catégorie créée avec succès'
+  } catch (error) {
+    logger.error('Erreur enregistrement activité menu', {
+      userId,
+      action,
+      error: error instanceof Error ? error.message : 'Erreur inconnue'
     });
-  })
-);
+  }
+}
 
-// Routes pour les articles de menu
+// Liste des articles du menu avec filtres
 router.get('/',
   validateQuery(z.object({
     categoryId: z.string().uuid().optional(),
-    available: z.boolean().optional(),
+    isAvailable: z.boolean().optional(),
+    isVegetarian: z.boolean().optional(),
+    isVegan: z.boolean().optional(),
+    isGlutenFree: z.boolean().optional(),
     search: z.string().optional(),
     ...commonSchemas.paginationSchema.shape,
     ...commonSchemas.sortSchema.shape
   })),
-  cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['menu', 'items'] }),
+  cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['menu', 'categories'] }),
   asyncHandler(async (req, res) => {
     const db = getDb();
-    const { categoryId, available, search, page = 1, limit = 20, sortBy = 'name', sortOrder = 'asc' } = req.query;
+    const {
+      categoryId,
+      isAvailable,
+      isVegetarian,
+      isVegan,
+      isGlutenFree,
+      search,
+      page = 1,
+      limit = 20,
+      sortBy = 'name',
+      sortOrder = 'asc'
+    } = req.query;
 
     let query = db
       .select({
@@ -105,32 +111,50 @@ router.get('/',
         description: menuItems.description,
         price: menuItems.price,
         categoryId: menuItems.categoryId,
-        available: menuItems.available,
+        categoryName: categories.name,
         imageUrl: menuItems.imageUrl,
-        ingredients: menuItems.ingredients,
+        isAvailable: menuItems.isAvailable,
+        isVegetarian: menuItems.isVegetarian,
+        isVegan: menuItems.isVegan,
+        isGlutenFree: menuItems.isGlutenFree,
+        preparationTime: menuItems.preparationTime,
         allergens: menuItems.allergens,
-        nutritionInfo: menuItems.nutritionInfo,
+        nutritionalInfo: menuItems.nutritionalInfo,
         createdAt: menuItems.createdAt,
-        updatedAt: menuItems.updatedAt,
-        categoryName: menuCategories.name
+        updatedAt: menuItems.updatedAt
       })
       .from(menuItems)
-      .leftJoin(menuCategories, eq(menuItems.categoryId, menuCategories.id));
+      .leftJoin(categories, eq(menuItems.categoryId, categories.id));
 
-    // Filtres
+    // Construire les conditions
     const conditions = [];
-    
+
     if (categoryId) {
       conditions.push(eq(menuItems.categoryId, categoryId));
     }
-    
-    if (available !== undefined) {
-      conditions.push(eq(menuItems.available, available));
+
+    if (isAvailable !== undefined) {
+      conditions.push(eq(menuItems.isAvailable, isAvailable));
     }
-    
+
+    if (isVegetarian !== undefined) {
+      conditions.push(eq(menuItems.isVegetarian, isVegetarian));
+    }
+
+    if (isVegan !== undefined) {
+      conditions.push(eq(menuItems.isVegan, isVegan));
+    }
+
+    if (isGlutenFree !== undefined) {
+      conditions.push(eq(menuItems.isGlutenFree, isGlutenFree));
+    }
+
     if (search) {
       conditions.push(
-        sql`${menuItems.name} ILIKE ${`%${search}%`} OR ${menuItems.description} ILIKE ${`%${search}%`}`
+        or(
+          ilike(menuItems.name, `%${search}%`),
+          ilike(menuItems.description, `%${search}%`)
+        )
       );
     }
 
@@ -139,33 +163,36 @@ router.get('/',
     }
 
     // Tri
-    const orderColumn = sortBy === 'price' ? menuItems.price : 
-                       sortBy === 'createdAt' ? menuItems.createdAt : 
+    const orderColumn = sortBy === 'name' ? menuItems.name :
+                       sortBy === 'price' ? menuItems.price :
+                       sortBy === 'preparationTime' ? menuItems.preparationTime :
+                       sortBy === 'createdAt' ? menuItems.createdAt :
                        menuItems.name;
-    
-    query = sortOrder === 'desc' ? 
-      query.orderBy(desc(orderColumn)) : 
+
+    query = sortOrder === 'desc' ?
+      query.orderBy(desc(orderColumn)) :
       query.orderBy(orderColumn);
 
     // Pagination
     const offset = (page - 1) * limit;
-    const items = await query.limit(limit).offset(offset);
+    const menuData = await query.limit(limit).offset(offset);
 
     // Compte total
     const [{ count }] = await db
       .select({ count: sql<number>`count(*)` })
       .from(menuItems)
+      .leftJoin(categories, eq(menuItems.categoryId, categories.id))
       .where(conditions.length > 0 ? and(...conditions) : undefined);
 
-    logger.info('Articles de menu récupérés', { 
-      count: items.length, 
+    logger.info('Menu récupéré', {
+      count: menuData.length,
       total: count,
-      filters: { categoryId, available, search }
+      filters: { categoryId, isAvailable, search }
     });
 
     res.json({
       success: true,
-      data: items,
+      data: menuData,
       pagination: {
         page,
         limit,
@@ -176,103 +203,136 @@ router.get('/',
   })
 );
 
+// Détails d'un article
 router.get('/:id',
   validateParams(commonSchemas.idSchema),
-  cacheMiddleware({ ttl: 10 * 60 * 1000, tags: ['menu', 'items'] }),
+  cacheMiddleware({ ttl: 10 * 60 * 1000, tags: ['menu'] }),
   asyncHandler(async (req, res) => {
     const db = getDb();
     const { id } = req.params;
 
-    const [item] = await db
+    const [menuItem] = await db
       .select({
         id: menuItems.id,
         name: menuItems.name,
         description: menuItems.description,
         price: menuItems.price,
         categoryId: menuItems.categoryId,
-        available: menuItems.available,
+        categoryName: categories.name,
         imageUrl: menuItems.imageUrl,
-        ingredients: menuItems.ingredients,
+        isAvailable: menuItems.isAvailable,
+        isVegetarian: menuItems.isVegetarian,
+        isVegan: menuItems.isVegan,
+        isGlutenFree: menuItems.isGlutenFree,
+        preparationTime: menuItems.preparationTime,
         allergens: menuItems.allergens,
-        nutritionInfo: menuItems.nutritionInfo,
+        nutritionalInfo: menuItems.nutritionalInfo,
+        ingredients: menuItems.ingredients,
         createdAt: menuItems.createdAt,
-        updatedAt: menuItems.updatedAt,
-        categoryName: menuCategories.name
+        updatedAt: menuItems.updatedAt
       })
       .from(menuItems)
-      .leftJoin(menuCategories, eq(menuItems.categoryId, menuCategories.id))
+      .leftJoin(categories, eq(menuItems.categoryId, categories.id))
       .where(eq(menuItems.id, id));
 
-    if (!item) {
+    if (!menuItem) {
       return res.status(404).json({
         success: false,
-        message: 'Article de menu non trouvé'
+        message: 'Article non trouvé'
       });
     }
 
-    logger.info('Article de menu récupéré', { itemId: id, name: item.name });
+    logger.info('Article menu récupéré', { itemId: id });
 
     res.json({
       success: true,
-      data: item
+      data: menuItem
     });
   })
 );
 
+// Créer un article (admin seulement)
 router.post('/',
   authenticateUser,
   requireRoles(['admin', 'manager']),
   validateBody(CreateMenuItemSchema),
-  invalidateCache(['menu', 'items']),
+  invalidateCache(['menu']),
   asyncHandler(async (req, res) => {
     const db = getDb();
+    const currentUser = (req as any).user;
 
     // Vérifier que la catégorie existe
     const [category] = await db
-      .select()
-      .from(menuCategories)
-      .where(eq(menuCategories.id, req.body.categoryId));
+      .select({ name: categories.name })
+      .from(categories)
+      .where(eq(categories.id, req.body.categoryId));
 
     if (!category) {
-      return res.status(400).json({
+      return res.status(404).json({
         success: false,
         message: 'Catégorie non trouvée'
       });
     }
 
-    const [item] = await db
+    // Vérifier l'unicité du nom
+    const [existingItem] = await db
+      .select({ id: menuItems.id })
+      .from(menuItems)
+      .where(eq(menuItems.name, req.body.name));
+
+    if (existingItem) {
+      return res.status(409).json({
+        success: false,
+        message: 'Un article avec ce nom existe déjà'
+      });
+    }
+
+    // Créer l'article
+    const itemId = crypto.randomUUID();
+    const [newItem] = await db
       .insert(menuItems)
       .values({
+        id: itemId,
         ...req.body,
-        id: crypto.randomUUID(),
         createdAt: new Date(),
         updatedAt: new Date()
       })
       .returning();
 
-    logger.info('Article de menu créé', { 
-      itemId: item.id, 
-      name: item.name,
-      price: item.price,
-      userId: (req as any).user?.id 
+    // Enregistrer l'activité
+    await logMenuActivity(
+      currentUser.id,
+      'CREATE_MENU_ITEM',
+      `Article créé: ${req.body.name}`,
+      req,
+      itemId
+    );
+
+    logger.info('Article menu créé', {
+      itemId,
+      name: req.body.name,
+      category: category.name,
+      createdBy: currentUser.id
     });
 
     res.status(201).json({
       success: true,
-      data: item,
-      message: 'Article de menu créé avec succès'
+      data: newItem,
+      message: 'Article créé avec succès'
     });
   })
 );
 
+// Mettre à jour un article
 router.put('/:id',
   authenticateUser,
   requireRoles(['admin', 'manager']),
   validateParams(commonSchemas.idSchema),
-  validateBody(UpdateMenuItemSchema),
-  invalidateCache(['menu', 'items']),
+  validateBody(UpdateMenuItemSchema.omit({ id: true })),
+  invalidateCache(['menu']),
   asyncHandler(async (req, res) => {
     const db = getDb();
+    const currentUser = (req as any).user;
     const { id } = req.params;
 
     // Vérifier que l'article existe
@@ -284,25 +344,29 @@ router.put('/:id',
     if (!existingItem) {
       return res.status(404).json({
         success: false,
-        message: 'Article de menu non trouvé'
+        message: 'Article non trouvé'
       });
     }
 
-    // Vérifier la catégorie si elle est modifiée
-    if (req.body.categoryId && req.body.categoryId !== existingItem.categoryId) {
-      const [category] = await db
-        .select()
-        .from(menuCategories)
-        .where(eq(menuCategories.id, req.body.categoryId));
+    // Vérifier l'unicité du nom si modifié
+    if (req.body.name && req.body.name !== existingItem.name) {
+      const [nameExists] = await db
+        .select({ id: menuItems.id })
+        .from(menuItems)
+        .where(and(
+          eq(menuItems.name, req.body.name),
+          sql`${menuItems.id} != ${id}`
+        ));
 
-      if (!category) {
-        return res.status(400).json({
+      if (nameExists) {
+        return res.status(409).json({
           success: false,
-          message: 'Catégorie non trouvée'
+          message: 'Un article avec ce nom existe déjà'
         });
       }
     }
 
+    // Mettre à jour l'article
     const [updatedItem] = await db
       .update(menuItems)
       .set({
@@ -312,105 +376,157 @@ router.put('/:id',
       .where(eq(menuItems.id, id))
       .returning();
 
-    logger.info('Article de menu mis à jour', { 
-      itemId: id, 
+    // Enregistrer l'activité
+    await logMenuActivity(
+      currentUser.id,
+      'UPDATE_MENU_ITEM',
+      `Article mis à jour: ${Object.keys(req.body).join(', ')}`,
+      req,
+      id
+    );
+
+    logger.info('Article menu mis à jour', {
+      itemId: id,
       changes: Object.keys(req.body),
-      userId: (req as any).user?.id 
+      updatedBy: currentUser.id
     });
 
     res.json({
       success: true,
       data: updatedItem,
-      message: 'Article de menu mis à jour avec succès'
+      message: 'Article mis à jour avec succès'
     });
   })
 );
 
+// Supprimer un article (désactivation)
 router.delete('/:id',
   authenticateUser,
   requireRoles(['admin']),
   validateParams(commonSchemas.idSchema),
-  invalidateCache(['menu', 'items']),
+  invalidateCache(['menu']),
   asyncHandler(async (req, res) => {
     const db = getDb();
+    const currentUser = (req as any).user;
     const { id } = req.params;
 
-    const [deletedItem] = await db
-      .delete(menuItems)
+    // Désactiver l'article au lieu de le supprimer
+    const [deactivatedItem] = await db
+      .update(menuItems)
+      .set({
+        isAvailable: false,
+        updatedAt: new Date()
+      })
       .where(eq(menuItems.id, id))
-      .returning();
+      .returning({
+        name: menuItems.name
+      });
 
-    if (!deletedItem) {
+    if (!deactivatedItem) {
       return res.status(404).json({
         success: false,
-        message: 'Article de menu non trouvé'
+        message: 'Article non trouvé'
       });
     }
 
-    logger.info('Article de menu supprimé', { 
-      itemId: id, 
-      name: deletedItem.name,
-      userId: (req as any).user?.id 
+    // Enregistrer l'activité
+    await logMenuActivity(
+      currentUser.id,
+      'DEACTIVATE_MENU_ITEM',
+      `Article désactivé: ${deactivatedItem.name}`,
+      req,
+      id
+    );
+
+    logger.info('Article menu désactivé', {
+      itemId: id,
+      name: deactivatedItem.name,
+      deactivatedBy: currentUser.id
     });
 
     res.json({
       success: true,
-      message: 'Article de menu supprimé avec succès'
+      message: 'Article désactivé avec succès'
     });
   })
 );
 
-// Route pour les recommandations personnalisées
-router.get('/recommendations/:customerId',
-  authenticateUser,
-  validateParams(z.object({ customerId: z.string().uuid() })),
-  cacheMiddleware({ ttl: 2 * 60 * 1000, tags: ['menu', 'recommendations'] }),
+// Liste des catégories
+router.get('/categories/list',
+  cacheMiddleware({ ttl: 10 * 60 * 1000, tags: ['categories'] }),
   asyncHandler(async (req, res) => {
     const db = getDb();
-    const { customerId } = req.params;
 
-    // Obtenir les préférences du client basées sur ses commandes passées
-    const customerPreferences = await db
-      .select({
-        categoryId: menuItems.categoryId,
-        count: sql<number>`count(*)`
-      })
-      .from(loyaltyTransactions)
-      .leftJoin(menuItems, eq(loyaltyTransactions.orderId, menuItems.id))
-      .where(eq(loyaltyTransactions.customerId, customerId))
-      .groupBy(menuItems.categoryId)
-      .orderBy(desc(sql`count(*)`))
-      .limit(3);
-
-    const preferredCategories = customerPreferences.map(p => p.categoryId).filter(Boolean);
-
-    // Recommander des articles des catégories préférées
-    const recommendations = await db
+    const categoriesData = await db
       .select()
-      .from(menuItems)
-      .where(
-        and(
-          eq(menuItems.available, true),
-          preferredCategories.length > 0 ? 
-            inArray(menuItems.categoryId, preferredCategories) : 
-            sql`true`
-        )
-      )
-      .orderBy(sql`random()`)
-      .limit(6);
+      .from(categories)
+      .where(eq(categories.isActive, true))
+      .orderBy(categories.displayOrder, categories.name);
 
-    logger.info('Recommandations générées', { 
-      customerId, 
-      recommendationsCount: recommendations.length,
-      preferredCategories 
-    });
+    logger.info('Catégories récupérées', { count: categoriesData.length });
 
     res.json({
       success: true,
-      data: recommendations
+      data: categoriesData
+    });
+  })
+);
+
+// Créer une catégorie
+router.post('/categories',
+  authenticateUser,
+  requireRoles(['admin', 'manager']),
+  validateBody(CreateCategorySchema),
+  invalidateCache(['categories']),
+  asyncHandler(async (req, res) => {
+    const db = getDb();
+    const currentUser = (req as any).user;
+
+    // Vérifier l'unicité du nom
+    const [existingCategory] = await db
+      .select({ id: categories.id })
+      .from(categories)
+      .where(eq(categories.name, req.body.name));
+
+    if (existingCategory) {
+      return res.status(409).json({
+        success: false,
+        message: 'Une catégorie avec ce nom existe déjà'
+      });
+    }
+
+    // Créer la catégorie
+    const categoryId = crypto.randomUUID();
+    const [newCategory] = await db
+      .insert(categories)
+      .values({
+        id: categoryId,
+        ...req.body,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning();
+
+    // Enregistrer l'activité
+    await logMenuActivity(
+      currentUser.id,
+      'CREATE_CATEGORY',
+      `Catégorie créée: ${req.body.name}`,
+      req
+    );
+
+    logger.info('Catégorie créée', {
+      categoryId,
+      name: req.body.name,
+      createdBy: currentUser.id
+    });
+
+    res.status(201).json({
+      success: true,
+      data: newCategory,
+      message: 'Catégorie créée avec succès'
     });
   })
 );
 
 export default router;
-```
