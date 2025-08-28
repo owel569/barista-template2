@@ -108,20 +108,28 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
   });
 
   const { data: menuItems = [], isLoading: isLoadingItems } = useQuery<MenuItem[]>({
-    queryKey: ['/api/menu/items'],
+    queryKey: ['/api/admin/menu/items'],
     queryFn: async () => {
-      const res = await fetch('/api/menu/items');
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/admin/menu/items', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       if (!res.ok) throw new Error('Erreur chargement des articles');
-      return res.json();
+      const result = await res.json();
+      return result.success ? result.data : [];
     },
   });
 
   const { data: categories = [], isLoading: isLoadingCategories } = useQuery<MenuCategory[]>({
-    queryKey: ['/api/menu/categories'],
+    queryKey: ['/api/admin/menu/categories'],
     queryFn: async () => {
-      const res = await fetch('/api/menu/categories');
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/admin/menu/categories', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       if (!res.ok) throw new Error('Erreur chargement des catégories');
-      return res.json();
+      const result = await res.json();
+      return result.success ? result.data : [];
     },
   });
 

@@ -103,8 +103,8 @@ function Customers({ userRole, user }: CustomersProps) {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        setCustomers(data);
+        const result = await response.json();
+        setCustomers(result.success ? result.data : []);
       } else {
         throw new Error('Erreur lors du chargement des clients');
       }

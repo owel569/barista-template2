@@ -7,6 +7,7 @@ import { z } from 'zod';
 import customersRoutes from './customers.routes';
 import menuAdminRoutes from './menu-admin.routes';
 import statisticsRoutes from './statistics.routes';
+import reservationsRoutes from './reservations.routes';
 
 const router = Router();
 
@@ -14,6 +15,7 @@ const router = Router();
 router.use('/customers', customersRoutes);
 router.use('/menu', menuAdminRoutes);
 router.use('/statistics', statisticsRoutes);
+router.use('/reservations', reservationsRoutes);
 
 // Schémas de validation pour l'admin
 const SettingsSchema = z.object({

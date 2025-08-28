@@ -104,7 +104,7 @@ export default function Dashboard() : JSX.Element {
       if (!silent) setRefreshing(true);
       const token = localStorage.getItem('token') || localStorage.getItem('auth_token') || localStorage.getItem('barista_auth_token');
 
-      const response = await fetch('/api/admin/dashboard/stats', {
+      const response = await fetch('/api/admin/statistics/dashboard', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

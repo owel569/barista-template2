@@ -22,19 +22,19 @@ router.get('/dashboard', authenticateUser, requireRoleHierarchy('staff'), async 
       topCustomers
     ] = await Promise.all([
       // Total des clients
-      db.select({ count: sql<number>`count(*)` }).from(customers),
+      db.select({ count: sql<number>`count(*)::integer` }).from(customers),
       
       // Total des éléments du menu
-      db.select({ count: sql<number>`count(*)` }).from(menuItems),
+      db.select({ count: sql<number>`count(*)::integer` }).from(menuItems),
       
       // Éléments du menu disponibles
-      db.select({ count: sql<number>`count(*)` }).from(menuItems).where(eq(menuItems.isAvailable, true)),
+      db.select({ count: sql<number>`count(*)::integer` }).from(menuItems).where(eq(menuItems.isAvailable, true)),
       
       // Total des catégories
-      db.select({ count: sql<number>`count(*)` }).from(menuCategories),
+      db.select({ count: sql<number>`count(*)::integer` }).from(menuCategories),
       
       // Nouveaux clients ce mois
-      db.select({ count: sql<number>`count(*)` })
+      db.select({ count: sql<number>`count(*)::integer` })
         .from(customers)
         .where(gte(customers.createdAt, startOfMonth)),
       
