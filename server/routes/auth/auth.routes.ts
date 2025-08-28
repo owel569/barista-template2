@@ -9,7 +9,7 @@ import bcrypt from 'bcryptjs';
 const router = Router();
 
 // Connexion - Rate limiting appliqué pour éviter les attaques par force brute
-router.post('/login', rateLimiter(5, 15 * 60 * 1000), validateBody(LoginSchema), async (req, res) => {
+router.post('/login', rateLimiter(5, 15 * 60 * 1000), validateBody(LoginSchema), async (req, res): Promise<void> => {
   try {
     const { username, password } = req.body;
     
@@ -124,7 +124,7 @@ router.post('/register', rateLimiter(3, 60 * 60 * 1000), validateBody(RegisterSc
 });
 
 // Vérification du token
-router.get('/verify', authenticateUser, (req, res) => {
+router.get('/verify', authenticateUser, (req, res): void => {
   res.json({
     success: true,
     user: req.user

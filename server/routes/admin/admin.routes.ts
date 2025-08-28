@@ -3,7 +3,17 @@ import { requireRoleHierarchy } from '../../middleware/security';
 import { validateBody } from '../../middleware/validation';
 import { z } from 'zod';
 
+// Import des sous-routes admin
+import customersRoutes from './customers.routes';
+import menuAdminRoutes from './menu-admin.routes';
+import statisticsRoutes from './statistics.routes';
+
 const router = Router();
+
+// Connecter les sous-routes
+router.use('/customers', customersRoutes);
+router.use('/menu', menuAdminRoutes);
+router.use('/statistics', statisticsRoutes);
 
 // Schémas de validation pour l'admin
 const SettingsSchema = z.object({

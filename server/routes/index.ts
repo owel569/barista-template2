@@ -32,7 +32,7 @@ router.use('/users', authenticateUser, userRoutes);
 router.use('/orders', authenticateUser, orderRoutes);
 router.use('/analytics', authenticateUser, requireRoleHierarchy('manager'), analyticsRoutes);
 router.use('/dashboard', authenticateUser, requireRoleHierarchy('employee'), dashboardRoutes);
-router.use('/admin', authenticateUser, requireRoleHierarchy('admin'), adminRoutes);
+router.use('/admin', authenticateUser, requireRoleHierarchy('manager'), adminRoutes);
 router.use('/delivery', authenticateUser, requireRoleHierarchy('employee'), deliveryRoutes);
 router.use('/tables', authenticateUser, requireRoleHierarchy('employee'), tableRoutes);
 router.use('/events', authenticateUser, requireRoleHierarchy('manager'), eventRoutes);
