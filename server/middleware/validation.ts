@@ -1,386 +1,406 @@
 
 import { Request, Response, NextFunction } from 'express';
-import { z, ZodError, ZodSchema, ZodTypeAny } from 'zod';
-import { ValidationError } from './error-handler-enhanced';
+import { z, ZodError, ZodSchema } from 'zod';
 import { createLogger } from './logging';
+import { ValidationError } from './error-handler-enhanced';
 
 const logger = createLogger('VALIDATION');
 
-// Types pour la validation
-export interface ValidationErrorDetail {
-  field: string;
-  message: string;
-  code: string;
-  value?: unknown;
+// Types pour les différentes parties de la requête
+type RequestPart = 'body' | 'params' | 'query' | 'headers';
+
+// Interface pour les options de validation
+interface ValidationOptions {
+  stripUnknown?: boolean;
+  allowUnknown?: boolean;
+  abortEarly?: boolean;
+  transform?: boolean;
 }
 
-export interface ValidationResult {
+// Interface pour le résultat de validation
+interface ValidationResult<T = any> {
   success: boolean;
-  data?: unknown;
-  errors?: ValidationErrorDetail[];
+  data?: T;
+  errors?: Array<{
+    field: string;
+    message: string;
+    code: string;
+    value?: any;
+  }>;
 }
 
-// Classe utilitaire pour la validation
-export class ValidationService {
+// Schémas de validation communs réutilisables
+export const commonSchemas = {
+  id: z.coerce.number().int().positive('ID doit être un entier positif'),
+  
+  email: z.string()
+    .email('Format d\'email invalide')
+    .min(1, 'Email requis')
+    .max(254, 'Email trop long'),
+  
+  password: z.string()
+    .min(8, 'Mot de passe doit contenir au moins 8 caractères')
+    .max(128, 'Mot de passe trop long')
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+      'Mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial'
+    ),
+  
+  phone: z.string()
+    .regex(/^[\+]?[1-9][\d]{0,15}$/, 'Format de téléphone invalide')
+    .optional(),
+  
+  pagination: z.object({
+    page: z.coerce.number().int().min(1, 'Page doit être >= 1').default(1),
+    limit: z.coerce.number().int().min(1, 'Limite doit être >= 1').max(100, 'Limite max 100').default(20),
+    sortBy: z.string().optional(),
+    sortOrder: z.enum(['asc', 'desc']).default('desc')
+  }),
+  
+  dateRange: z.object({
+    startDate: z.string().datetime('Date de début invalide').optional(),
+    endDate: z.string().datetime('Date de fin invalide').optional()
+  }).refine(
+    (data) => {
+      if (data.startDate && data.endDate) {
+        return new Date(data.startDate) <= new Date(data.endDate);
+      }
+      return true;
+    },
+    { message: 'Date de début doit être antérieure à la date de fin' }
+  ),
+  
+  search: z.object({
+    q: z.string().min(1, 'Terme de recherche requis').max(100, 'Terme trop long').optional(),
+    category: z.string().optional(),
+    status: z.string().optional()
+  })
+};
+
+// Classe de validation avancée
+class AdvancedValidator {
   /**
-   * Valide des données avec un schéma Zod
+   * Valide les données avec un schéma Zod
    */
-  static validate<T>(schema: ZodSchema<T>, data: unknown): ValidationResult {
+  static validate<T>(
+    schema: ZodSchema<T>, 
+    data: unknown, 
+    options: ValidationOptions = {}
+  ): ValidationResult<T> {
     try {
-      const result = schema.parse(data);
-      return { success: true, data: result };
+      const parseOptions = {
+        errorMap: (issue: any, ctx: any) => {
+          switch (issue.code) {
+            case 'invalid_type':
+              return { message: `Attendu ${issue.expected}, reçu ${issue.received}` };
+            case 'too_small':
+              return { message: `Valeur trop petite (min: ${issue.minimum})` };
+            case 'too_big':
+              return { message: `Valeur trop grande (max: ${issue.maximum})` };
+            case 'invalid_string':
+              return { message: `Format invalide: ${issue.validation}` };
+            default:
+              return { message: ctx.defaultError };
+          }
+        }
+      };
+
+      const validatedData = schema.parse(data, parseOptions);
+      
+      return {
+        success: true,
+        data: validatedData
+      };
     } catch (error) {
       if (error instanceof ZodError) {
         const errors = error.errors.map(err => ({
-          field: err.path.join('.'),
+          field: err.path.join('.') || 'root',
           message: err.message,
           code: err.code,
-          value: err.path.length > 0 ? this.getNestedValue(data, err.path) : data
+          value: err.input
         }));
-        
-        return { success: false, errors };
+
+        return {
+          success: false,
+          errors
+        };
       }
-      
+
       throw error;
     }
   }
 
   /**
-   * Récupère une valeur nested dans un objet
+   * Validation conditionnelle basée sur d'autres champs
    */
-  private static getNestedValue(obj: unknown, path: (string | number)[]): unknown {
-    return path.reduce((current, key) => {
-      if (current && typeof current === 'object' && key in current) {
-        return (current as Record<string | number, unknown>)[key];
+  static createConditionalSchema<T>(
+    baseSchema: ZodSchema<T>,
+    conditions: Array<{
+      when: (data: any) => boolean;
+      then: ZodSchema<any>;
+      otherwise?: ZodSchema<any>;
+    }>
+  ): ZodSchema<T> {
+    return z.any().superRefine((data, ctx) => {
+      // Validation de base
+      const baseResult = baseSchema.safeParse(data);
+      if (!baseResult.success) {
+        baseResult.error.errors.forEach(err => {
+          ctx.addIssue(err);
+        });
+        return;
       }
-      return undefined;
-    }, obj);
-  }
 
-  /**
-   * Sanitise les données d'entrée
-   */
-  static sanitizeInput<T extends Record<string, unknown>>(input: T): T {
-    const sanitized = { ...input };
-    
-    Object.keys(sanitized).forEach(key => {
-      const value = sanitized[key];
-      
-      if (typeof value === 'string') {
-        // Nettoyer les chaînes
-        sanitized[key] = value
-          .trim()
-          .replace(/\s+/g, ' ') // Normaliser les espaces
-          .substring(0, 10000) as T[Extract<keyof T, string>]; // Limiter la longueur
-      } else if (Array.isArray(value)) {
-        // Limiter la taille des tableaux
-        sanitized[key] = value.slice(0, 1000) as T[Extract<keyof T, string>];
-      } else if (value && typeof value === 'object') {
-        // Récursion pour les objets
-        sanitized[key] = this.sanitizeInput(value as Record<string, unknown>) as T[Extract<keyof T, string>];
-      }
-    });
-    
-    return sanitized;
-  }
-
-  /**
-   * Valide une adresse email
-   */
-  static isValidEmail(email: string): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email) && email.length <= 255;
-  }
-
-  /**
-   * Valide un numéro de téléphone français
-   */
-  static isValidPhone(phone: string): boolean {
-    const phoneRegex = /^(?:\+33|0)[1-9](?:[.\s-]?\d{2}){4}$/;
-    return phoneRegex.test(phone);
-  }
-
-  /**
-   * Valide un mot de passe fort
-   */
-  static isValidPassword(password: string): { valid: boolean; errors: string[] } {
-    const errors: string[] = [];
-    
-    if (password.length < 8) {
-      errors.push('Au moins 8 caractères requis');
-    }
-    
-    if (!/(?=.*[a-z])/.test(password)) {
-      errors.push('Au moins une lettre minuscule requise');
-    }
-    
-    if (!/(?=.*[A-Z])/.test(password)) {
-      errors.push('Au moins une lettre majuscule requise');
-    }
-    
-    if (!/(?=.*\d)/.test(password)) {
-      errors.push('Au moins un chiffre requis');
-    }
-    
-    if (!/(?=.*[!@#$%^&*])/.test(password)) {
-      errors.push('Au moins un caractère spécial requis (!@#$%^&*)');
-    }
-    
-    if (password.length > 128) {
-      errors.push('Maximum 128 caractères');
-    }
-    
-    return { valid: errors.length === 0, errors };
+      // Validations conditionnelles
+      conditions.forEach(condition => {
+        const schema = condition.when(data) ? condition.then : condition.otherwise;
+        if (schema) {
+          const result = schema.safeParse(data);
+          if (!result.success) {
+            result.error.errors.forEach(err => {
+              ctx.addIssue(err);
+            });
+          }
+        }
+      });
+    }) as ZodSchema<T>;
   }
 }
 
-// Schémas communs réutilisables
-export const commonSchemas = {
-  id: z.number().int().positive('ID doit être un entier positif'),
-  
-  email: z.string()
-    .email('Email invalide')
-    .max(255, 'Email trop long')
-    .transform(email => email.toLowerCase().trim()),
-  
-  password: z.string()
-    .min(8, 'Mot de passe trop court (minimum 8 caractères)')
-    .max(128, 'Mot de passe trop long (maximum 128 caractères)')
-    .regex(/(?=.*[a-z])/, 'Au moins une lettre minuscule requise')
-    .regex(/(?=.*[A-Z])/, 'Au moins une lettre majuscule requise')
-    .regex(/(?=.*\d)/, 'Au moins un chiffre requis'),
-  
-  phone: z.string()
-    .regex(/^(?:\+33|0)[1-9](?:[.\s-]?\d{2}){4}$/, 'Numéro de téléphone français invalide')
-    .transform(phone => phone.replace(/[\s.-]/g, '')),
-  
-  name: z.string()
-    .min(2, 'Nom trop court (minimum 2 caractères)')
-    .max(50, 'Nom trop long (maximum 50 caractères)')
-    .regex(/^[a-zA-ZÀ-ÿ\s\-']+$/, 'Caractères invalides dans le nom')
-    .transform(name => name.trim()),
-  
-  date: z.string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Format de date invalide (YYYY-MM-DD)')
-    .refine(date => {
-      const parsed = new Date(date);
-      return !isNaN(parsed.getTime()) && parsed >= new Date('1900-01-01');
-    }, 'Date invalide'),
-  
-  datetime: z.string()
-    .datetime('Format datetime invalide'),
-  
-  positiveNumber: z.number()
-    .positive('Doit être un nombre positif')
-    .finite('Doit être un nombre fini'),
-  
-  percentage: z.number()
-    .min(0, 'Pourcentage minimum: 0')
-    .max(100, 'Pourcentage maximum: 100'),
-  
-  currency: z.number()
-    .min(0, 'Montant ne peut pas être négatif')
-    .max(999999.99, 'Montant trop élevé')
-    .multipleOf(0.01, 'Maximum 2 décimales pour le montant'),
-  
-  url: z.string()
-    .url('URL invalide')
-    .max(2048, 'URL trop longue'),
-  
-  slug: z.string()
-    .min(1, 'Slug requis')
-    .max(100, 'Slug trop long')
-    .regex(/^[a-z0-9-]+$/, 'Slug doit contenir uniquement des lettres minuscules, chiffres et tirets'),
-  
-  searchQuery: z.string()
-    .max(200, 'Recherche trop longue')
-    .transform(query => query.trim()),
-  
-  sortOrder: z.enum(['asc', 'desc']).default('asc'),
-  
-  pagination: z.object({
-    page: z.number().int().min(1, 'Page minimum: 1').default(1),
-    limit: z.number().int().min(1, 'Limite minimum: 1').max(100, 'Limite maximum: 100').default(20),
-    offset: z.number().int().min(0, 'Offset minimum: 0').optional()
-  }).transform(data => ({
-    ...data,
-    offset: data.offset ?? (data.page - 1) * data.limit
-  }))
-};
-
-// Middleware de validation du body
-export const validateBody = <T extends ZodTypeAny>(schema: T) => {
-  return (req: Request, res: Response, next: NextFunction): void => {
-    try {
-      // Sanitiser les données d'entrée
-      const sanitizedData = ValidationService.sanitizeInput(req.body || {});
-      
-      // Valider avec le schéma
-      const result = ValidationService.validate(schema, sanitizedData);
-      
-      if (!result.success) {
-        logger.warn('Validation body échouée', { 
-          errors: result.errors,
-          originalData: req.body 
-        });
-        
-        throw new ValidationError('Données invalides dans le corps de la requête', {
-          validationErrors: result.errors
-        });
-      }
-      
-      // Remplacer le body par les données validées
-      req.body = result.data;
-      next();
-    } catch (error) {
-      next(error);
-    }
-  };
-};
-
-// Middleware de validation des paramètres
-export const validateParams = <T extends ZodTypeAny>(schema: T) => {
-  return (req: Request, res: Response, next: NextFunction): void => {
-    try {
-      const result = ValidationService.validate(schema, req.params);
-      
-      if (!result.success) {
-        logger.warn('Validation params échouée', { 
-          errors: result.errors,
-          originalParams: req.params 
-        });
-        
-        throw new ValidationError('Paramètres invalides', {
-          validationErrors: result.errors
-        });
-      }
-      
-      req.params = result.data as Record<string, string>;
-      next();
-    } catch (error) {
-      next(error);
-    }
-  };
-};
-
-// Middleware de validation des query parameters
-export const validateQuery = <T extends ZodTypeAny>(schema: T) => {
-  return (req: Request, res: Response, next: NextFunction): void => {
-    try {
-      // Conversion des types pour les query params
-      const processedQuery = this.processQueryParams(req.query);
-      const result = ValidationService.validate(schema, processedQuery);
-      
-      if (!result.success) {
-        logger.warn('Validation query échouée', { 
-          errors: result.errors,
-          originalQuery: req.query 
-        });
-        
-        throw new ValidationError('Paramètres de requête invalides', {
-          validationErrors: result.errors
-        });
-      }
-      
-      req.query = result.data as Record<string, unknown>;
-      next();
-    } catch (error) {
-      next(error);
-    }
-  };
-};
-
-// Utilitaire pour traiter les query params
-function processQueryParams(query: Record<string, unknown>): Record<string, unknown> {
-  const processed: Record<string, unknown> = {};
-  
-  Object.entries(query).forEach(([key, value]) => {
-    if (typeof value === 'string') {
-      // Tentative de conversion automatique
-      if (value === 'true' || value === 'false') {
-        processed[key] = value === 'true';
-      } else if (/^\d+$/.test(value)) {
-        processed[key] = parseInt(value, 10);
-      } else if (/^\d+\.\d+$/.test(value)) {
-        processed[key] = parseFloat(value);
-      } else {
-        processed[key] = value;
-      }
-    } else {
-      processed[key] = value;
-    }
-  });
-  
-  return processed;
-}
-
-// Middleware de validation conditionnelle
-export const validateConditional = <T extends ZodTypeAny>(
-  condition: (req: Request) => boolean,
-  schema: T,
-  target: 'body' | 'params' | 'query' = 'body'
+// Middleware de validation principal
+export const validateRequest = (
+  schema: ZodSchema<any>,
+  part: RequestPart = 'body',
+  options: ValidationOptions = {}
 ) => {
-  return (req: Request, res: Response, next: NextFunction): void => {
-    if (!condition(req)) {
-      return next();
-    }
-    
-    const middleware = target === 'body' ? validateBody(schema) :
-                      target === 'params' ? validateParams(schema) :
-                      validateQuery(schema);
-    
-    middleware(req, res, next);
-  };
-};
-
-// Middleware de validation de fichiers
-export const validateFiles = (options: {
-  required?: boolean;
-  maxSize?: number; // en bytes
-  allowedTypes?: string[];
-  maxFiles?: number;
-} = {}) => {
-  const {
-    required = false,
-    maxSize = 5 * 1024 * 1024, // 5MB par défaut
-    allowedTypes = ['image/jpeg', 'image/png', 'image/webp'],
-    maxFiles = 1
-  } = options;
-  
-  return (req: Request, res: Response, next: NextFunction): void => {
+  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const files = req.files as Express.Multer.File[] | undefined;
+      const dataToValidate = req[part];
       
-      if (required && (!files || files.length === 0)) {
-        throw new ValidationError('Fichier requis');
+      logger.debug('Validation en cours', {
+        part,
+        method: req.method,
+        path: req.path,
+        dataKeys: dataToValidate ? Object.keys(dataToValidate) : []
+      });
+
+      const result = AdvancedValidator.validate(schema, dataToValidate, options);
+
+      if (!result.success) {
+        logger.warn('Validation échouée', {
+          part,
+          errors: result.errors,
+          method: req.method,
+          path: req.path
+        });
+
+        throw new ValidationError(
+          `Erreur de validation pour ${part}`,
+          part,
+          result.errors
+        );
       }
-      
-      if (files && files.length > 0) {
-        if (files.length > maxFiles) {
-          throw new ValidationError(`Maximum ${maxFiles} fichier(s) autorisé(s)`);
-        }
-        
-        for (const file of files) {
-          if (file.size > maxSize) {
-            throw new ValidationError(
-              `Fichier trop volumineux: ${file.originalname} (max: ${maxSize / 1024 / 1024}MB)`
-            );
-          }
-          
-          if (!allowedTypes.includes(file.mimetype)) {
-            throw new ValidationError(
-              `Type de fichier non autorisé: ${file.mimetype}. Types autorisés: ${allowedTypes.join(', ')}`
-            );
-          }
-        }
-      }
-      
+
+      // Remplacer les données validées dans la requête
+      (req as any)[part] = result.data;
+
+      logger.debug('Validation réussie', {
+        part,
+        method: req.method,
+        path: req.path
+      });
+
       next();
     } catch (error) {
       next(error);
     }
   };
+};
+
+// Middlewares de validation spécialisés
+export const validateBody = (schema: ZodSchema<any>, options?: ValidationOptions) => 
+  validateRequest(schema, 'body', options);
+
+export const validateParams = (schema: ZodSchema<any>, options?: ValidationOptions) => 
+  validateRequest(schema, 'params', options);
+
+export const validateQuery = (schema: ZodSchema<any>, options?: ValidationOptions) => 
+  validateRequest(schema, 'query', options);
+
+export const validateHeaders = (schema: ZodSchema<any>, options?: ValidationOptions) => 
+  validateRequest(schema, 'headers', options);
+
+// Validation multiple (plusieurs parties à la fois)
+export const validateMultiple = (validations: Array<{
+  schema: ZodSchema<any>;
+  part: RequestPart;
+  options?: ValidationOptions;
+}>) => {
+  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const errors: Array<{ part: string; errors: any[] }> = [];
+
+      for (const validation of validations) {
+        const result = AdvancedValidator.validate(
+          validation.schema,
+          req[validation.part],
+          validation.options
+        );
+
+        if (!result.success) {
+          errors.push({
+            part: validation.part,
+            errors: result.errors || []
+          });
+        } else {
+          (req as any)[validation.part] = result.data;
+        }
+      }
+
+      if (errors.length > 0) {
+        logger.warn('Validation multiple échouée', {
+          errors,
+          method: req.method,
+          path: req.path
+        });
+
+        const flatErrors = errors.flatMap(e => 
+          e.errors.map(err => ({ ...err, part: e.part }))
+        );
+
+        throw new ValidationError(
+          'Erreurs de validation multiples',
+          'multiple',
+          flatErrors
+        );
+      }
+
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
+};
+
+// Validation optionnelle (n'échoue pas si les données sont absentes)
+export const validateOptional = (
+  schema: ZodSchema<any>,
+  part: RequestPart = 'body',
+  options?: ValidationOptions
+) => {
+  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const dataToValidate = req[part];
+
+      // Si pas de données, passer au middleware suivant
+      if (!dataToValidate || (typeof dataToValidate === 'object' && Object.keys(dataToValidate).length === 0)) {
+        return next();
+      }
+
+      const result = AdvancedValidator.validate(schema, dataToValidate, options);
+
+      if (!result.success) {
+        logger.warn('Validation optionnelle échouée', {
+          part,
+          errors: result.errors,
+          method: req.method,
+          path: req.path
+        });
+
+        throw new ValidationError(
+          `Erreur de validation optionnelle pour ${part}`,
+          part,
+          result.errors
+        );
+      }
+
+      (req as any)[part] = result.data;
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
+};
+
+// Validation avec transformation de données
+export const validateAndTransform = <T>(
+  schema: ZodSchema<T>,
+  part: RequestPart = 'body',
+  transformer?: (data: T) => any
+) => {
+  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const dataToValidate = req[part];
+      const result = AdvancedValidator.validate(schema, dataToValidate);
+
+      if (!result.success) {
+        throw new ValidationError(
+          `Erreur de validation et transformation pour ${part}`,
+          part,
+          result.errors
+        );
+      }
+
+      let transformedData = result.data;
+      if (transformer) {
+        transformedData = transformer(result.data!);
+      }
+
+      (req as any)[part] = transformedData;
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
+};
+
+// Schémas de validation pour l'authentification
+export const authSchemas = {
+  login: z.object({
+    email: commonSchemas.email,
+    password: z.string().min(1, 'Mot de passe requis'),
+    rememberMe: z.boolean().optional()
+  }),
+
+  register: z.object({
+    email: commonSchemas.email,
+    password: commonSchemas.password,
+    firstName: z.string().min(2, 'Prénom trop court').max(50, 'Prénom trop long'),
+    lastName: z.string().min(2, 'Nom trop court').max(50, 'Nom trop long'),
+    phone: commonSchemas.phone,
+    role: z.enum(['customer', 'waiter', 'chef', 'manager', 'admin']).default('customer')
+  }),
+
+  forgotPassword: z.object({
+    email: commonSchemas.email
+  }),
+
+  resetPassword: z.object({
+    token: z.string().min(1, 'Token requis'),
+    password: commonSchemas.password
+  })
+};
+
+// Schémas pour les opérations CRUD
+export const crudSchemas = {
+  create: <T>(schema: ZodSchema<T>) => schema,
+  
+  update: <T>(schema: ZodSchema<T>) => schema.partial(),
+  
+  delete: z.object({
+    id: commonSchemas.id
+  }),
+  
+  getById: z.object({
+    id: commonSchemas.id
+  }),
+  
+  list: z.object({
+    ...commonSchemas.pagination.shape,
+    ...commonSchemas.search.shape,
+    ...commonSchemas.dateRange.shape
+  })
 };
 
 // Export des utilitaires
-export { ValidationService };
+export { AdvancedValidator, ValidationOptions, ValidationResult, commonSchemas };
