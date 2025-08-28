@@ -71,6 +71,10 @@ interface AnomalyRequest {
   period: string;
 }
 
+// Placeholder types for clarity, replace with actual types if available
+type StaffingRecommendation = any;
+type MarketingOpportunity = any;
+
 /**
  * Service central d'Intelligence Artificielle pour Barista Café
  * Gère toute la logique métier IA : chat, prédictions, analyse comportementale
@@ -192,7 +196,7 @@ export class AIAutomationService {
   private generateMenuResponse(message: string, session: unknown[]) {
     const menuItems = Object.entries(CAFE_KNOWLEDGE_BASE.menu);
     const menuText = menuItems.map(([name, info]) => 
-      `• ${name.charAt(0).toUpperCase() + name.slice(1}: ${info.description} - ${info.price}€`
+      `• ${name.charAt(0).toUpperCase() + name.slice(1)}: ${info.description} - ${info.price}€`
     ).join('\n');
 
     return {
@@ -235,7 +239,7 @@ export class AIAutomationService {
 
       return {
         text: `☕ **Excellent choix !**\n\n` +
-              `${item.charAt(0).toUpperCase() + item.slice(1} - ${itemInfo?.price || 0}€\n` +
+              `${item.charAt(0).toUpperCase() + item.slice(1)} - ${itemInfo?.price || 0}€\n` +
               `${itemInfo?.description || ''}\n\n` +
               `Voulez-vous l'ajouter à votre commande ?`,
         actions: [
@@ -260,7 +264,7 @@ export class AIAutomationService {
 
   private generateHoursResponse() {
     const hours = Object.entries(CAFE_KNOWLEDGE_BASE.horaires)
-      .map(([day, hours]) => `• ${day.charAt(0).toUpperCase() + day.slice(1}: ${hours}`)
+      .map(([day, hours]) => `• ${day.charAt(0).toUpperCase() + day.slice(1)}: ${hours}`)
       .join('\n');
 
     return {
@@ -282,14 +286,14 @@ export class AIAutomationService {
 
     if (specificService) {
       return {
-        text: `ℹ️ **${specificService.charAt(0).toUpperCase() + specificService.slice(1}**\n\n${(CAFE_KNOWLEDGE_BASE.services as any)[specificService] || 'Information non disponible'}`,
+        text: `ℹ️ **${specificService.charAt(0).toUpperCase() + specificService.slice(1)}**\n\n${(CAFE_KNOWLEDGE_BASE.services as any)[specificService] || 'Information non disponible'}`,
         actions: [{ type: 'show_all_services' }],
         suggestions: ['Voir tous nos services', 'Réserver une table', 'Notre menu']
       };
     }
 
     const servicesList = Object.entries(CAFE_KNOWLEDGE_BASE.services)
-      .map(([key, value]) => `• **${key.charAt(0).toUpperCase() + key.slice(1}**: ${value}`)
+      .map(([key, value]) => `• **${key.charAt(0).toUpperCase() + key.slice(1)}**: ${value}`)
       .join('\n');
 
     return {
@@ -301,7 +305,7 @@ export class AIAutomationService {
 
   private generatePromotionsResponse() {
     const promosList = Object.entries(CAFE_KNOWLEDGE_BASE.promotions)
-      .map(([key, value]) => `🎉 **${key.replace('-', ' ').toUpperCase(}**: ${value}`)
+      .map(([key, value]) => `🎉 **${key.replace('-', ' ').toUpperCase()}**: ${value}`)
       .join('\n\n');
 
     return {
@@ -362,7 +366,7 @@ export class AIAutomationService {
         }
       };
     } catch (error) {
-      logger.error('Erreur prédictions IA:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+      logger.error('Erreur prédictions IA:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       throw new Error('Impossible de générer les prédictions');
     }
   }
@@ -483,6 +487,7 @@ export class AIAutomationService {
       confidence: number 
     }>
   }): Promise<StaffingRecommendation[]> {
+    // Placeholder logic
     return {
       optimal: 6,
       minimum: 4,
@@ -496,6 +501,7 @@ export class AIAutomationService {
   }
 
   private async identifyMarketingOpportunities(): Promise<MarketingOpportunity[]> {
+    // Placeholder logic
     return [
       {
         type: 'promotion',
@@ -595,6 +601,7 @@ export class AIAutomationService {
         confidence: 0.8
       };
     } catch (error) {
+      logger.error('Erreur lors de la récupération du menu:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       return {
         response: "Voici notre menu principal...",
         actions: ['show_menu',],
@@ -634,11 +641,42 @@ export class AIAutomationService {
     const numberRegex = /(\d+)\s*(personne|gens|personnes)/g;
     const numbers = message.match(numberRegex);
     if (numbers) {
-      entities.push({ type: 'party_size', value: parseInt(numbers[0]) });
+      // Ensure parseInt is called correctly and handles potential non-numeric matches
+      const parsedNumber = parseInt(numbers[0].match(/\d+/)?.[0] || '0', 10);
+      if (!isNaN(parsedNumber)) {
+        entities.push({ type: 'party_size', value: parsedNumber });
+      }
     }
 
     return entities;
   }
+  
+  private async generateInsight(data: Record<string, unknown>): Promise<string> {
+      // Simulation d'analyse IA
+      const insights = [
+        'Les ventes de café augmentent de 15% le matin',
+        'Recommandation: Augmenter le stock de lait d\'amande',
+        'Tendance: Les clients préfèrent les boissons chaudes en hiver'
+      ];
+      return insights[Math.floor(Math.random() * insights.length)];
+    }
+
+    private async optimizeMenu(menuData: Record<string, unknown>): Promise<Record<string, unknown>> {
+      // Placeholder logic for menu optimization
+      return { ...menuData, optimizationStatus: 'optimized' };
+    }
+
+    private async predictDemand(salesData: Record<string, unknown>[]): Promise<Record<string, unknown>> {
+      // Simulation de prédiction de demande
+      return {
+        predictions: [
+          { item: 'Espresso', demand: 85 },
+          { item: 'Cappuccino', demand: 72 },
+          { item: 'Croissant', demand: 45 }
+        ],
+        accuracy: 0.87
+      };
+    }
 }
 
 // Export de l'instance singleton

@@ -6,6 +6,20 @@ const storage = {
 };
 import { CustomerAnalysis } from '@shared/types';
 
+// Dummy logger for demonstration purposes
+const logger = {
+  error: (message: string, context: any) => {
+    console.error(message, context);
+  },
+  warn: (message: string, context: any) => {
+    console.warn(message, context);
+  },
+  info: (message: string, context: any) => {
+    console.info(message, context);
+  }
+};
+
+
 export class AdvancedAnalytics {
 
   // Prédictions de ventes basées sur l'IA
@@ -23,9 +37,9 @@ export class AdvancedAnalytics {
         const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
         const seasonalFactor = Math.sin((date.getMonth() + 1) * Math.PI / 6) * 0.2 + 1;
 
-        const predictedRevenue = baseRevenue * 
-          (isWeekend ? 1.3 : 1.0) * 
-          seasonalFactor * 
+        const predictedRevenue = baseRevenue *
+          (isWeekend ? 1.3 : 1.0) *
+          seasonalFactor *
           (0.9 + Math.random() * 0.2);
 
         predictions.push({
@@ -166,6 +180,68 @@ export class AdvancedAnalytics {
       logger.error('Erreur métriques temps réel:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       return { currentCustomers: 0, averageWaitTime: 0, ordersThroughput: 0, staffEfficiency: 0, customerSatisfaction: 0 };
     }
+  }
+
+  // Génération de rapports personnalisés
+  async generateReport(type: string, params: Record<string, unknown>): Promise<Record<string, unknown>> {
+    try {
+      switch (type) {
+        case 'sales':
+          return await this.generateSalesReport(params);
+        case 'inventory':
+          return await this.generateInventoryReport(params);
+        case 'customers':
+          return await this.generateCustomerReport(params);
+        default:
+          throw new Error(`Type de rapport non supporté: ${type}`);
+      }
+    } catch (error) {
+      logger.error('Erreur génération rapport', { type, error });
+      throw error;
+    }
+  }
+
+  private async generateSalesReport(params: Record<string, unknown>): Promise<Record<string, unknown>> {
+    // Simulation de rapport de ventes
+    return {
+      period: params.period || 'monthly',
+      totalSales: 45000,
+      transactions: 1250,
+      averageOrder: 36,
+      topProducts: [
+        { name: 'Cappuccino', sales: 8500, quantity: 340 },
+        { name: 'Croissant', sales: 3200, quantity: 160 }
+      ]
+    };
+  }
+
+  private async generateInventoryReport(params: Record<string, unknown>): Promise<Record<string, unknown>> {
+    // Simulation de rapport d'inventaire
+    return {
+      totalItems: 85,
+      lowStock: 12,
+      outOfStock: 3,
+      totalValue: 15000,
+      categories: [
+        { name: 'Boissons', items: 25, value: 8000 },
+        { name: 'Pâtisseries', items: 35, value: 4500 }
+      ]
+    };
+  }
+
+  private async generateCustomerReport(params: Record<string, unknown>): Promise<Record<string, unknown>> {
+    // Simulation de rapport clients
+    return {
+      totalCustomers: 580,
+      newCustomers: 45,
+      returningCustomers: 535,
+      averageVisits: 2.4,
+      loyalty: {
+        bronze: 320,
+        silver: 180,
+        gold: 80
+      }
+    };
   }
 }
 

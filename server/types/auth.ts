@@ -1,4 +1,3 @@
-
 export type AppRole = 'customer' | 'waiter' | 'chef' | 'manager' | 'admin';
 
 export interface UserPayload {
@@ -20,7 +19,8 @@ export interface AuthenticatedUser extends UserPayload {
 export interface JWTPayload {
   userId: number;
   email: string;
-  role: AppRole;
+  role: string;
+  permissions: string[];
   iat?: number;
   exp?: number;
 }
@@ -30,20 +30,24 @@ export interface LoginRequest {
   password: string;
 }
 
-export interface LoginResponse {
-  success: boolean;
-  token?: string;
-  user?: AuthenticatedUser;
-  message?: string;
-  expiresAt?: Date;
-}
-
 export interface RegisterRequest {
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
-  role?: AppRole;
+  name: string;
+  role?: string;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  token?: string;
+  user?: {
+    id: number;
+    email: string;
+    name: string;
+    role: string;
+    permissions: string[];
+  };
+  message?: string;
 }
 
 export interface AuthTokens {

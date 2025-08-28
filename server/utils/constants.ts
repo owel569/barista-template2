@@ -1,8 +1,6 @@
-
 export const HTTP_STATUS = {
   OK: 200,
   CREATED: 201,
-  NO_CONTENT: 204,
   BAD_REQUEST: 400,
   UNAUTHORIZED: 401,
   FORBIDDEN: 403,
@@ -10,9 +8,7 @@ export const HTTP_STATUS = {
   CONFLICT: 409,
   UNPROCESSABLE_ENTITY: 422,
   TOO_MANY_REQUESTS: 429,
-  INTERNAL_SERVER_ERROR: 500,
-  BAD_GATEWAY: 502,
-  SERVICE_UNAVAILABLE: 503
+  INTERNAL_SERVER_ERROR: 500
 } as const;
 
 export const API_MESSAGES = {
@@ -30,12 +26,12 @@ export const API_MESSAGES = {
 } as const;
 
 export const CACHE_KEYS = {
-  MENU_ITEMS: 'menu_items',
-  MENU_CATEGORIES: 'menu_categories',
-  TABLES: 'tables',
-  USER_PERMISSIONS: 'user_permissions_',
-  DAILY_STATS: 'daily_stats_',
-  ANALYTICS: 'analytics_'
+  MENU_ITEMS: 'menu:items',
+  INVENTORY: 'inventory:list',
+  ORDERS: 'orders:list',
+  USERS: 'users:list',
+  STATS: 'stats:dashboard',
+  ANALYTICS: 'analytics:data'
 } as const;
 
 export const CACHE_TTL = {
@@ -70,10 +66,11 @@ export const ROLES = {
 } as const;
 
 export const PERMISSIONS = {
-  READ: 'read',
-  CREATE: 'create',
-  UPDATE: 'update',
-  DELETE: 'delete'
+  ADMIN: 'admin',
+  MANAGER: 'manager',
+  STAFF: 'staff',
+  USER: 'user',
+  CUSTOMER: 'customer'
 } as const;
 
 export const MODULES = {
@@ -87,3 +84,17 @@ export const MODULES = {
   CUSTOMERS: 'customers',
   SETTINGS: 'settings'
 } as const;
+
+export const ORDER_STATUS = {
+  PENDING: 'pending',
+  CONFIRMED: 'confirmed',
+  PREPARING: 'preparing',
+  READY: 'ready',
+  DELIVERED: 'delivered',
+  CANCELLED: 'cancelled'
+} as const;
+
+export type HttpStatus = typeof HTTP_STATUS[keyof typeof HTTP_STATUS];
+export type CacheKey = typeof CACHE_KEYS[keyof typeof CACHE_KEYS];
+export type Permission = typeof PERMISSIONS[keyof typeof PERMISSIONS];
+export type OrderStatus = typeof ORDER_STATUS[keyof typeof ORDER_STATUS];

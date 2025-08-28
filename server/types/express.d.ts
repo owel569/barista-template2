@@ -11,8 +11,20 @@ interface AuthenticatedUser {
 
 declare global {
   namespace Express {
+    interface User {
+      id: number;
+      email: string;
+      role: string;
+      permissions: string[];
+      name?: string;
+      createdAt?: Date;
+      updatedAt?: Date;
+    }
+
     interface Request {
+      user?: User;
       requestId?: string;
+      startTime?: number;
     }
 
     interface Response {

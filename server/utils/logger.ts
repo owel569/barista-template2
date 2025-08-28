@@ -1,4 +1,3 @@
-
 import fs from 'fs';
 import path from 'path';
 
@@ -38,7 +37,7 @@ class Logger {
 
   private formatLogEntry(entry: LogEntry): string {
     const baseLog = `[${entry.timestamp}] ${entry.level}: ${entry.message}`;
-    
+
     if (entry.context || entry.requestId || entry.userId) {
       const metadata = {
         ...(entry.requestId && { requestId: entry.requestId }),
@@ -49,7 +48,7 @@ class Logger {
       };
       return `${baseLog} | ${JSON.stringify(metadata)}`;
     }
-    
+
     return baseLog;
   }
 
@@ -84,7 +83,7 @@ class Logger {
     for (let i = this.maxFiles - 1; i > 0; i--) {
       const oldFile = path.join(dir, `${basename}.${i}${ext}`);
       const newFile = path.join(dir, `${basename}.${i + 1}${ext}`);
-      
+
       if (fs.existsSync(oldFile)) {
         if (i === this.maxFiles - 1) {
           fs.unlinkSync(oldFile);
@@ -121,7 +120,7 @@ class Logger {
       };
       const resetColor = '\x1b[0m';
       const color = colorMap[level];
-      
+
       console.log(`${color}${this.formatLogEntry(entry)}${resetColor}`);
     }
 
@@ -151,3 +150,31 @@ class Logger {
 }
 
 export const logger = new Logger();
+
+export interface LoggerMeta {
+  [key: string]: unknown;
+}
+
+export interface Logger {
+  info: (message: string, meta?: LoggerMeta) => void;
+  error: (message: string, meta?: LoggerMeta) => void;
+  warn: (message: string, meta?: LoggerMeta) => void;
+  debug: (message: string, meta?: LoggerMeta) => void;
+}
+
+export function createLogger(name: string): Logger {
+  return {
+    info: (message: string, meta?: LoggerMeta) => {
+      console.log(`[${name}] INFO: ${message}`, meta ? JSON.stringify(meta) : '');
+    },
+    error: (message: string, meta?: LoggerMeta) => {
+      console.error(`[${name}] ERROR: ${message}`, meta ? JSON.stringify(meta) : '');
+    },
+    warn: (message: string, meta?: LoggerMeta) => {
+      console.warn(`[${name}] WARN: ${message}`, meta ? JSON.stringify(meta) : '');
+    },
+    debug: (message: string, meta?: LoggerMeta) => {
+      console.debug(`[${name}] DEBUG: ${message}`, meta ? JSON.stringify(meta) : '');
+    }
+  };
+}

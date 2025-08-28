@@ -1,19 +1,31 @@
-
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   message?: string;
   error?: string;
-  errors?: Array<{ field: string; message: string }>;
-  timestamp: string;
   requestId?: string;
+  timestamp?: string;
   pagination?: {
     page: number;
     limit: number;
     total: number;
     totalPages: number;
   };
+  errors?: Array<{ field: string; message: string }>;
   meta?: Record<string, any>;
+}
+
+export interface ApiError {
+  code: string;
+  message: string;
+  details?: Record<string, unknown>;
+}
+
+export interface PaginationOptions {
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
 }
 
 export class ResponseBuilder {
