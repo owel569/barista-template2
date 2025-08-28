@@ -1,0 +1,367 @@
+
+server/services/ai-automation.service.ts:474:148 - error TS1005: ',' expected.
+
+474   private async generateStaffingRecommendations(customerFlow: { peakPeriods: Array<{ time: string; expectedCustomers: number; confidence: number }>; quietPeriods: Array<{ time: string; expectedCustomers: number; confidence: number }> }) {
+                                                                                                                                                       ~
+
+server/services/ai-automation.service.ts:474:238 - error TS1005: ';' expected.
+
+474   private async generateStaffingRecommendations(customerFlow: { peakPeriods: Array<{ time: string; expectedCustomers: number; confidence: number }>; quietPeriods: Array<{ time: string; expectedCustomers: number; confidence: number }> }) {
+                                                                                                                                                                                                                                                 ~
+
+server/services/ai-automation.service.ts:487:3 - error TS1128: Declaration or statement expected.
+
+487   private async identifyMarketingOpportunities() {
+      ~~~~~~~
+
+server/services/ai-automation.service.ts:487:11 - error TS1434: Unexpected keyword or identifier.
+
+487   private async identifyMarketingOpportunities() {
+              ~~~~~
+
+server/services/ai-automation.service.ts:487:50 - error TS1005: ';' expected.
+
+487   private async identifyMarketingOpportunities() {
+                                                     ~
+
+server/services/ai-automation.service.ts:504:3 - error TS1434: Unexpected keyword or identifier.
+
+504   async getChatResponse(data: ChatMessage): Promise<any> {
+      ~~~~~
+
+server/services/ai-automation.service.ts:504:29 - error TS1005: ',' expected.
+
+504   async getChatResponse(data: ChatMessage): Promise<any> {
+                                ~
+
+server/services/ai-automation.service.ts:504:43 - error TS1005: ';' expected.
+
+504   async getChatResponse(data: ChatMessage): Promise<any> {
+                                              ~
+
+server/services/ai-automation.service.ts:505:9 - error TS1005: ':' expected.
+
+505     try {
+            ~
+
+server/services/ai-automation.service.ts:506:13 - error TS1005: ':' expected.
+
+506       const { message, userId } = data;
+                ~
+
+server/services/ai-automation.service.ts:506:39 - error TS1005: ',' expected.
+
+506       const { message, userId } = data;
+                                          ~
+
+server/services/ai-automation.service.ts:509:13 - error TS1005: ':' expected.
+
+509       const intention = this.analyzeIntention(message);
+                ~~~~~~~~~
+
+server/services/ai-automation.service.ts:509:55 - error TS1005: ',' expected.
+
+509       const intention = this.analyzeIntention(message);
+                                                          ~
+
+server/services/ai-automation.service.ts:511:24 - error TS1005: ',' expected.
+
+511       switch (intention.type) {
+                           ~
+
+server/services/ai-automation.service.ts:511:29 - error TS1005: ',' expected.
+
+511       switch (intention.type) {
+                                ~
+
+server/services/ai-automation.service.ts:511:31 - error TS1136: Property assignment expected.
+
+511       switch (intention.type) {
+                                  ~
+
+server/services/ai-automation.service.ts:512:9 - error TS1128: Declaration or statement expected.
+
+512         case 'reservation':
+            ~~~~
+
+server/services/ai-automation.service.ts:512:27 - error TS1005: ';' expected.
+
+512         case 'reservation':
+                              ~
+
+server/services/ai-automation.service.ts:514:9 - error TS1128: Declaration or statement expected.
+
+514         case 'menu':
+            ~~~~
+
+server/services/ai-automation.service.ts:514:20 - error TS1005: ';' expected.
+
+514         case 'menu':
+                       ~
+
+server/services/ai-automation.service.ts:516:9 - error TS1128: Declaration or statement expected.
+
+516         case 'order_status':
+            ~~~~
+
+server/services/ai-automation.service.ts:516:28 - error TS1005: ';' expected.
+
+516         case 'order_status':
+                               ~
+
+server/services/ai-automation.service.ts:518:9 - error TS1128: Declaration or statement expected.
+
+518         case 'recommendation':
+            ~~~~
+
+server/services/ai-automation.service.ts:518:30 - error TS1005: ';' expected.
+
+518         case 'recommendation':
+                                 ~
+
+server/services/ai-automation.service.ts:520:9 - error TS1128: Declaration or statement expected.
+
+520         default:
+            ~~~~~~~
+
+server/services/ai-automation.service.ts:520:16 - error TS1128: Declaration or statement expected.
+
+520         default:
+                   ~
+
+server/services/ai-automation.service.ts:527:5 - error TS1128: Declaration or statement expected.
+
+527     } catch (error) {
+        ~
+
+server/services/ai-automation.service.ts:527:7 - error TS1005: 'try' expected.
+
+527     } catch (error) {
+          ~~~~~
+
+server/services/ai-automation.service.ts:535:3 - error TS1128: Declaration or statement expected.
+
+535   }
+      ~
+
+server/services/ai-automation.service.ts:537:3 - error TS1128: Declaration or statement expected.
+
+537   private analyzeIntention(message: string): unknown {
+      ~~~~~~~
+
+server/services/ai-automation.service.ts:537:35 - error TS1005: ',' expected.
+
+537   private analyzeIntention(message: string): unknown {
+                                      ~
+
+server/services/ai-automation.service.ts:537:44 - error TS1005: ';' expected.
+
+537   private analyzeIntention(message: string): unknown {
+                                               ~
+
+server/services/ai-automation.service.ts:537:46 - error TS1434: Unexpected keyword or identifier.
+
+537   private analyzeIntention(message: string): unknown {
+                                                 ~~~~~~~
+
+server/services/ai-automation.service.ts:566:3 - error TS1128: Declaration or statement expected.
+
+566   private async handleReservationIntent(message: string, userId?: number): Promise<any> {
+      ~~~~~~~
+
+server/services/ai-automation.service.ts:566:11 - error TS1434: Unexpected keyword or identifier.
+
+566   private async handleReservationIntent(message: string, userId?: number): Promise<any> {
+              ~~~~~
+
+server/services/ai-automation.service.ts:566:48 - error TS1005: ',' expected.
+
+566   private async handleReservationIntent(message: string, userId?: number): Promise<any> {
+                                                   ~
+
+server/services/ai-automation.service.ts:566:65 - error TS1109: Expression expected.
+
+566   private async handleReservationIntent(message: string, userId?: number): Promise<any> {
+                                                                    ~
+
+server/services/ai-automation.service.ts:566:74 - error TS1005: ';' expected.
+
+566   private async handleReservationIntent(message: string, userId?: number): Promise<any> {
+                                                                             ~
+
+server/services/ai-automation.service.ts:568:12 - error TS1005: ':' expected.
+
+568     return {
+               ~
+
+server/services/ai-automation.service.ts:572:6 - error TS1005: ',' expected.
+
+572     };
+         ~
+
+server/services/ai-automation.service.ts:575:3 - error TS1128: Declaration or statement expected.
+
+575   private async handleMenuIntent(message: string): Promise<any> {
+      ~~~~~~~
+
+server/services/ai-automation.service.ts:575:11 - error TS1434: Unexpected keyword or identifier.
+
+575   private async handleMenuIntent(message: string): Promise<any> {
+              ~~~~~
+
+server/services/ai-automation.service.ts:575:41 - error TS1005: ',' expected.
+
+575   private async handleMenuIntent(message: string): Promise<any> {
+                                            ~
+
+server/services/ai-automation.service.ts:575:50 - error TS1005: ';' expected.
+
+575   private async handleMenuIntent(message: string): Promise<any> {
+                                                     ~
+
+server/services/ai-automation.service.ts:576:9 - error TS1005: ':' expected.
+
+576     try {
+            ~
+
+server/services/ai-automation.service.ts:577:13 - error TS1005: ':' expected.
+
+577       const db = await getDb();
+                ~~
+
+server/services/ai-automation.service.ts:577:31 - error TS1005: ',' expected.
+
+577       const db = await getDb();
+                                  ~
+
+server/services/ai-automation.service.ts:578:13 - error TS1005: ':' expected.
+
+578       const items = await db.select().from(menuItems).limit(5);
+                ~~~~~
+
+server/services/ai-automation.service.ts:578:63 - error TS1005: ',' expected.
+
+578       const items = await db.select().from(menuItems).limit(5);
+                                                                  ~
+
+server/services/ai-automation.service.ts:580:14 - error TS1005: ':' expected.
+
+580       return {
+                 ~
+
+server/services/ai-automation.service.ts:585:8 - error TS1005: ',' expected.
+
+585       };
+           ~
+
+server/services/ai-automation.service.ts:586:7 - error TS1005: ',' expected.
+
+586     } catch (error) {
+          ~~~~~
+
+server/services/ai-automation.service.ts:595:3 - error TS1128: Declaration or statement expected.
+
+595   private async handleOrderStatusIntent(message: string, userId?: number): Promise<any> {
+      ~~~~~~~
+
+server/services/ai-automation.service.ts:595:11 - error TS1434: Unexpected keyword or identifier.
+
+595   private async handleOrderStatusIntent(message: string, userId?: number): Promise<any> {
+              ~~~~~
+
+server/services/ai-automation.service.ts:595:48 - error TS1005: ',' expected.
+
+595   private async handleOrderStatusIntent(message: string, userId?: number): Promise<any> {
+                                                   ~
+
+server/services/ai-automation.service.ts:595:65 - error TS1109: Expression expected.
+
+595   private async handleOrderStatusIntent(message: string, userId?: number): Promise<any> {
+                                                                    ~
+
+server/services/ai-automation.service.ts:595:74 - error TS1005: ';' expected.
+
+595   private async handleOrderStatusIntent(message: string, userId?: number): Promise<any> {
+                                                                             ~
+
+server/services/ai-automation.service.ts:596:12 - error TS1005: ':' expected.
+
+596     return {
+               ~
+
+server/services/ai-automation.service.ts:600:6 - error TS1005: ',' expected.
+
+600     };
+         ~
+
+server/services/ai-automation.service.ts:603:3 - error TS1128: Declaration or statement expected.
+
+603   private async handleRecommendationIntent(userId?: number): Promise<any> {
+      ~~~~~~~
+
+server/services/ai-automation.service.ts:603:11 - error TS1434: Unexpected keyword or identifier.
+
+603   private async handleRecommendationIntent(userId?: number): Promise<any> {
+              ~~~~~
+
+server/services/ai-automation.service.ts:603:51 - error TS1109: Expression expected.
+
+603   private async handleRecommendationIntent(userId?: number): Promise<any> {
+                                                      ~
+
+server/services/ai-automation.service.ts:603:60 - error TS1005: ';' expected.
+
+603   private async handleRecommendationIntent(userId?: number): Promise<any> {
+                                                               ~
+
+server/services/ai-automation.service.ts:604:12 - error TS1005: ':' expected.
+
+604     return {
+               ~
+
+server/services/ai-automation.service.ts:608:6 - error TS1005: ',' expected.
+
+608     };
+         ~
+
+server/services/ai-automation.service.ts:611:3 - error TS1128: Declaration or statement expected.
+
+611   private extractEntities(message: string): unknown[] {
+      ~~~~~~~
+
+server/services/ai-automation.service.ts:611:34 - error TS1005: ',' expected.
+
+611   private extractEntities(message: string): unknown[] {
+                                     ~
+
+server/services/ai-automation.service.ts:611:43 - error TS1005: ';' expected.
+
+611   private extractEntities(message: string): unknown[] {
+                                              ~
+
+server/services/ai-automation.service.ts:611:53 - error TS1011: An element access expression should take an argument.
+
+611   private extractEntities(message: string): unknown[] {
+                                                        
+
+server/services/ai-automation.service.ts:611:55 - error TS1005: ';' expected.
+
+611   private extractEntities(message: string): unknown[] {
+                                                          ~
+
+server/services/ai-automation.service.ts:631:1 - error TS1128: Declaration or statement expected.
+
+631 }
+    ~
+
+
+Found 157 errors in 5 files.
+
+Errors  Files
+     4  client/src/components/interactive-reservation.tsx:500
+    28  server/routes/loyalty-advanced.ts:436
+    14  server/routes/online-orders.ts:301
+     1  server/routes/permissions.ts:469
+   110  server/services/ai-automation.service.ts:195
+~/workspace$ ^C
+~/workspace$ 

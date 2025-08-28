@@ -1,0 +1,434 @@
+/workspace$ npm run type-check
+
+> rest-express@1.0.0 type-check
+> tsc --noEmit --strict
+
+client/src/components/interactive-reservation.tsx:500:19 - error TS17002: Expected corresponding JSX closing tag for 'form'.
+
+500                 </div>
+                      ~~~
+
+client/src/components/interactive-reservation.tsx:513:17 - error TS17002: Expected corresponding JSX closing tag for 'CardContent'.
+
+513               </form>
+                    ~~~~
+
+client/src/components/interactive-reservation.tsx:514:15 - error TS17002: Expected corresponding JSX closing tag for 'Card'.
+
+514             </CardContent>
+                  ~~~~~~~~~~~
+
+client/src/components/interactive-reservation.tsx:515:13 - error TS17002: Expected corresponding JSX closing tag for 'div'.
+
+515           </Card>
+                ~~~~
+
+server/routes/loyalty-advanced.ts:436:7 - error TS1005: ',' expected.
+
+436       )});
+          ~
+
+server/routes/loyalty-advanced.ts:436:9 - error TS1128: Declaration or statement expected.
+
+436       )});
+            ~
+
+server/routes/loyalty-advanced.ts:436:10 - error TS1005: ')' expected.
+
+436       )});
+             ~
+
+server/routes/loyalty-advanced.ts:441:5 - error TS1128: Declaration or statement expected.
+
+441     }
+        ~
+
+server/routes/loyalty-advanced.ts:442:3 - error TS1128: Declaration or statement expected.
+
+442   })
+      ~
+
+server/routes/loyalty-advanced.ts:442:4 - error TS1128: Declaration or statement expected.
+
+442   })
+       ~
+
+server/routes/loyalty-advanced.ts:443:1 - error TS1128: Declaration or statement expected.
+
+443 );
+    ~
+
+server/routes/loyalty-advanced.ts:492:7 - error TS1005: ',' expected.
+
+492       )});
+          ~
+
+server/routes/loyalty-advanced.ts:492:9 - error TS1128: Declaration or statement expected.
+
+492       )});
+            ~
+
+server/routes/loyalty-advanced.ts:492:10 - error TS1005: ')' expected.
+
+492       )});
+             ~
+
+server/routes/loyalty-advanced.ts:497:5 - error TS1128: Declaration or statement expected.
+
+497     }
+        ~
+
+server/routes/loyalty-advanced.ts:498:3 - error TS1128: Declaration or statement expected.
+
+498   })
+      ~
+
+server/routes/loyalty-advanced.ts:498:4 - error TS1128: Declaration or statement expected.
+
+498   })
+       ~
+
+server/routes/loyalty-advanced.ts:499:1 - error TS1128: Declaration or statement expected.
+
+499 );
+    ~
+
+server/routes/loyalty-advanced.ts:536:7 - error TS1005: ',' expected.
+
+536       )});
+          ~
+
+server/routes/loyalty-advanced.ts:536:9 - error TS1128: Declaration or statement expected.
+
+536       )});
+            ~
+
+server/routes/loyalty-advanced.ts:536:10 - error TS1005: ')' expected.
+
+536       )});
+             ~
+
+server/routes/loyalty-advanced.ts:541:5 - error TS1128: Declaration or statement expected.
+
+541     }
+        ~
+
+server/routes/loyalty-advanced.ts:542:3 - error TS1128: Declaration or statement expected.
+
+542   })
+      ~
+
+server/routes/loyalty-advanced.ts:542:4 - error TS1128: Declaration or statement expected.
+
+542   })
+       ~
+
+server/routes/loyalty-advanced.ts:543:1 - error TS1128: Declaration or statement expected.
+
+543 );
+    ~
+
+server/routes/loyalty-advanced.ts:622:7 - error TS1005: ',' expected.
+
+622       )});
+          ~
+
+server/routes/loyalty-advanced.ts:622:9 - error TS1128: Declaration or statement expected.
+
+622       )});
+            ~
+
+server/routes/loyalty-advanced.ts:622:10 - error TS1005: ')' expected.
+
+622       )});
+             ~
+
+server/routes/loyalty-advanced.ts:627:5 - error TS1128: Declaration or statement expected.
+
+627     }
+        ~
+
+server/routes/loyalty-advanced.ts:628:3 - error TS1128: Declaration or statement expected.
+
+628   })
+      ~
+
+server/routes/loyalty-advanced.ts:628:4 - error TS1128: Declaration or statement expected.
+
+628   })
+       ~
+
+server/routes/loyalty-advanced.ts:629:1 - error TS1128: Declaration or statement expected.
+
+629 );
+    ~
+
+server/routes/online-orders.ts:301:7 - error TS1005: ',' expected.
+
+301       )});
+          ~
+
+server/routes/online-orders.ts:301:9 - error TS1128: Declaration or statement expected.
+
+301       )});
+            ~
+
+server/routes/online-orders.ts:301:10 - error TS1005: ')' expected.
+
+301       )});
+             ~
+
+server/routes/online-orders.ts:306:5 - error TS1128: Declaration or statement expected.
+
+306     }
+        ~
+
+server/routes/online-orders.ts:307:3 - error TS1128: Declaration or statement expected.
+
+307   })
+      ~
+
+server/routes/online-orders.ts:307:4 - error TS1128: Declaration or statement expected.
+
+307   })
+       ~
+
+server/routes/online-orders.ts:308:1 - error TS1128: Declaration or statement expected.
+
+308 );
+    ~
+
+server/routes/online-orders.ts:314:61 - error TS1005: ',' expected.
+
+314   validateParams(z.object({ id: z.string()}).regex(/^\d+$/) })),
+                                                                ~
+
+server/routes/online-orders.ts:347:7 - error TS1005: ',' expected.
+
+347       )});
+          ~
+
+server/routes/online-orders.ts:347:9 - error TS1128: Declaration or statement expected.
+
+347       )});
+            ~
+
+server/routes/online-orders.ts:352:5 - error TS1128: Declaration or statement expected.
+
+352     }
+        ~
+
+server/routes/online-orders.ts:353:3 - error TS1128: Declaration or statement expected.
+
+353   })
+      ~
+
+server/routes/online-orders.ts:353:4 - error TS1128: Declaration or statement expected.
+
+353   })
+       ~
+
+server/routes/online-orders.ts:354:1 - error TS1128: Declaration or statement expected.
+
+354 );
+    ~
+
+server/routes/permissions.ts:469:3 - error TS1005: ';' expected.
+
+469 }));
+      ~
+
+server/services/ai-automation.service.ts:195:55 - error TS1005: ',' expected.
+
+195       `• ${name.charAt(0).toUpperCase() + name.slice(1}: ${info.description} - ${info.price}€`
+                                                          ~
+
+server/services/ai-automation.service.ts:238:61 - error TS1005: ',' expected.
+
+238               `${item.charAt(0).toUpperCase() + item.slice(1} - ${itemInfo?.price || 0}€\n` +
+                                                                ~
+
+server/services/ai-automation.service.ts:263:76 - error TS1005: ',' expected.
+
+263       .map(([day, hours]) => `• ${day.charAt(0).toUpperCase() + day.slice(1}: ${hours}`)
+                                                                               ~
+
+server/services/ai-automation.service.ts:285:88 - error TS1005: ',' expected.
+
+285         text: `ℹ️ **${specificService.charAt(0).toUpperCase() + specificService.slice(1}**\n\n${(CAFE_KNOWLEDGE_BASE.services as any)[specificService] || 'Information non disponible'}`,
+                                                                                           ~
+
+server/services/ai-automation.service.ts:292:78 - error TS1005: ',' expected.
+
+292       .map(([key, value]) => `• **${key.charAt(0).toUpperCase() + key.slice(1}**: ${value}`)
+                                                                                 ~
+
+server/services/ai-automation.service.ts:304:72 - error TS1135: Argument expression expected.
+
+304       .map(([key, value]) => `🎉 **${key.replace('-', ' ').toUpperCase(}**: ${value}`)
+                                                                           ~
+
+server/services/ai-automation.service.ts:365:114 - error TS1005: ',' expected.
+
+365       logger.error('Erreur prédictions IA:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+                                                                                                                     ~
+
+server/services/ai-automation.service.ts:365:116 - error TS1128: Declaration or statement expected.
+
+365       logger.error('Erreur prédictions IA:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+                                                                                                                       ~
+
+server/services/ai-automation.service.ts:370:3 - error TS1128: Declaration or statement expected.
+
+370   private async calculatePredictions(timeframe: string) {
+      ~~~~~~~
+
+server/services/ai-automation.service.ts:370:11 - error TS1434: Unexpected keyword or identifier.
+
+370   private async calculatePredictions(timeframe: string) {
+              ~~~~~
+
+server/services/ai-automation.service.ts:370:47 - error TS1005: ',' expected.
+
+370   private async calculatePredictions(timeframe: string) {
+                                                  ~
+
+server/services/ai-automation.service.ts:370:57 - error TS1005: ';' expected.
+
+370   private async calculatePredictions(timeframe: string) {
+                                                            ~
+
+server/services/ai-automation.service.ts:389:3 - error TS1128: Declaration or statement expected.
+
+389   private getSeasonalFactors() {
+      ~~~~~~~
+
+server/services/ai-automation.service.ts:389:32 - error TS1005: ';' expected.
+
+389   private getSeasonalFactors() {
+                                   ~
+
+server/services/ai-automation.service.ts:404:3 - error TS1128: Declaration or statement expected.
+
+404   private getWeekdayFactors() {
+      ~~~~~~~
+
+server/services/ai-automation.service.ts:404:31 - error TS1005: ';' expected.
+
+404   private getWeekdayFactors() {
+                                  ~
+
+server/services/ai-automation.service.ts:420:3 - error TS1128: Declaration or statement expected.
+
+420   private getOrCreateSession(sessionId: string): unknown[] {
+      ~~~~~~~
+
+server/services/ai-automation.service.ts:420:39 - error TS1005: ',' expected.
+
+420   private getOrCreateSession(sessionId: string): unknown[] {
+                                          ~
+
+server/services/ai-automation.service.ts:420:48 - error TS1005: ';' expected.
+
+420   private getOrCreateSession(sessionId: string): unknown[] {
+                                                   ~
+
+server/services/ai-automation.service.ts:420:58 - error TS1011: An element access expression should take an argument.
+
+420   private getOrCreateSession(sessionId: string): unknown[] {
+                                                             
+
+server/services/ai-automation.service.ts:420:60 - error TS1005: ';' expected.
+
+420   private getOrCreateSession(sessionId: string): unknown[] {
+                                                               ~
+
+server/services/ai-automation.service.ts:427:3 - error TS1128: Declaration or statement expected.
+
+427   private updateSession(sessionId: string, interaction: unknown) {
+      ~~~~~~~
+
+server/services/ai-automation.service.ts:427:34 - error TS1005: ',' expected.
+
+427   private updateSession(sessionId: string, interaction: unknown) {
+                                     ~
+
+server/services/ai-automation.service.ts:427:55 - error TS1005: ',' expected.
+
+427   private updateSession(sessionId: string, interaction: unknown) {
+                                                          ~
+
+server/services/ai-automation.service.ts:427:66 - error TS1005: ';' expected.
+
+427   private updateSession(sessionId: string, interaction: unknown) {
+                                                                     ~
+
+server/services/ai-automation.service.ts:442:3 - error TS1128: Declaration or statement expected.
+
+442   private async predictCustomerFlow(timeframe: string) {
+      ~~~~~~~
+
+server/services/ai-automation.service.ts:442:11 - error TS1434: Unexpected keyword or identifier.
+
+442   private async predictCustomerFlow(timeframe: string) {
+              ~~~~~
+
+server/services/ai-automation.service.ts:442:46 - error TS1005: ',' expected.
+
+442   private async predictCustomerFlow(timeframe: string) {
+                                                 ~
+
+server/services/ai-automation.service.ts:442:56 - error TS1005: ';' expected.
+
+442   private async predictCustomerFlow(timeframe: string) {
+                                                           ~
+
+server/services/ai-automation.service.ts:456:3 - error TS1128: Declaration or statement expected.
+
+456   private async generateInventoryAlerts() {
+      ~~~~~~~
+
+server/services/ai-automation.service.ts:456:11 - error TS1434: Unexpected keyword or identifier.
+
+456   private async generateInventoryAlerts() {
+              ~~~~~
+
+server/services/ai-automation.service.ts:456:43 - error TS1005: ';' expected.
+
+456   private async generateInventoryAlerts() {
+                                              ~
+
+server/services/ai-automation.service.ts:464:3 - error TS1128: Declaration or statement expected.
+
+464   private async forecastRevenue(timeframe: string) {
+      ~~~~~~~
+
+server/services/ai-automation.service.ts:464:11 - error TS1434: Unexpected keyword or identifier.
+
+464   private async forecastRevenue(timeframe: string) {
+              ~~~~~
+
+server/services/ai-automation.service.ts:464:42 - error TS1005: ',' expected.
+
+464   private async forecastRevenue(timeframe: string) {
+                                             ~
+
+server/services/ai-automation.service.ts:464:52 - error TS1005: ';' expected.
+
+464   private async forecastRevenue(timeframe: string) {
+                                                       ~
+
+server/services/ai-automation.service.ts:474:3 - error TS1128: Declaration or statement expected.
+
+474   private async generateStaffingRecommendations(customerFlow: { peakPeriods: Array<{ time: string; expectedCustomers: number; confidence: number }>; quietPeriods: Array<{ time: string; expectedCustomers: number; confidence: number }> }) {
+      ~~~~~~~
+
+server/services/ai-automation.service.ts:474:11 - error TS1434: Unexpected keyword or identifier.
+
+474   private async generateStaffingRecommendations(customerFlow: { peakPeriods: Array<{ time: string; expectedCustomers: number; confidence: number }>; quietPeriods: Array<{ time: string; expectedCustomers: number; confidence: number }> }) {
+              ~~~~~
+
+server/services/ai-automation.service.ts:474:61 - error TS1005: ',' expected.
+
+474   private async generateStaffingRecommendations(customerFlow: { peakPeriods: Array<{ time: string; expectedCustomers: number; confidence: number }>; quietPeriods: Array<{ time: string; expectedCustomers: number; confidence: number }> }) {
+                                                                ~
