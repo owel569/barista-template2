@@ -12,7 +12,7 @@ export interface ApiResponse<T = unknown> {
     totalPages: number;
   };
   errors?: Array<{ field: string; message: string }>;
-  meta?: Record<string, any>;
+  meta?: Record<string, unknown>;
 }
 
 export interface ApiError {

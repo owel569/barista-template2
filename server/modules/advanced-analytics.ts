@@ -1,21 +1,36 @@
-// import { storage } from '../db';
+import { getDb } from '../db';
+import { customers } from '../../shared/schema';
+import { createLogger } from '../middleware/logging';
+
+// Types locaux
+interface CustomerAnalysis {
+  id: number;
+  firstName: string;
+  lastName: string;
+  lastVisit?: string;
+  loyaltyPoints: number;
+  totalSpent?: number;
+}
+
+const logger = createLogger('ADVANCED_ANALYTICS');
+
 // Simulation temporaire pour les analytics avancés
 const storage = {
-  getCustomers: async () => [],
-  // Autres méthodes de storage selon besoin
-};
-import { CustomerAnalysis } from '@shared/types';
-
-// Dummy logger for demonstration purposes
-const logger = {
-  error: (message: string, context: any) => {
-    console.error(message, context);
-  },
-  warn: (message: string, context: any) => {
-    console.warn(message, context);
-  },
-  info: (message: string, context: any) => {
-    console.info(message, context);
+  getCustomers: async (): Promise<CustomerAnalysis[]> => {
+    try {
+      const db = getDb();
+      const customerData = await db.select().from(customers);
+      return customerData.map(c => ({
+        id: c.id,
+        firstName: c.firstName || '',
+        lastName: c.lastName || '',
+        lastVisit: c.updatedAt?.toISOString(),
+        loyaltyPoints: 0,
+        totalSpent: 0
+      }));
+    } catch {
+      return [];
+    }
   }
 };
 

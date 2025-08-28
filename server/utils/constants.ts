@@ -62,7 +62,10 @@ export const ROLES = {
   MANAGER: 'manager',
   EMPLOYE: 'employe',
   SERVEUR: 'serveur',
-  CUISINIER: 'cuisinier'
+  CUISINIER: 'cuisinier',
+  CUSTOMER: 'customer',
+  WAITER: 'waiter',
+  CHEF: 'chef'
 } as const;
 
 export const PERMISSIONS = {

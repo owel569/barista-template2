@@ -19,6 +19,24 @@ export interface LogEntry {
   userAgent?: string;
 }
 
+export enum LogLevel {
+  ERROR = 'ERROR',
+  WARN = 'WARN',
+  INFO = 'INFO',
+  DEBUG = 'DEBUG'
+}
+
+export interface LogEntry {
+  timestamp: string;
+  level: LogLevel;
+  message: string;
+  context?: Record<string, any>;
+  requestId?: string;
+  userId?: number;
+  ip?: string;
+  userAgent?: string;
+}
+
 class Logger {
   private logDir: string;
   private maxFileSize: number = 10 * 1024 * 1024; // 10MB

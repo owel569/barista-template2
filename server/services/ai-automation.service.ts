@@ -48,8 +48,11 @@ const CAFE_KNOWLEDGE_BASE = {
 };
 
 import { getDb } from '../db';
-import { customers, orders, menuItems, reservations } from '@shared/schema';
+import { customers, orders, menuItems, reservations } from '../../shared/schema';
 import { eq, sql, desc, and, gte, lte } from 'drizzle-orm';
+import { createLogger } from '../middleware/logging';
+
+const logger = createLogger('AI_AUTOMATION_SERVICE');
 
 interface ChatMessage {
   message: string;
@@ -551,7 +554,7 @@ export class AIAutomationService {
     }
   }
 
-  private analyzeIntention(message: string): unknown {
+  private analyzeIntention(message: string): { type: string; confidence: number; entities: unknown[] } {
     const lowercaseMessage = message.toLowerCase();
 
     // Mots-clés pour différentes intentions
