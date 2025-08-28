@@ -1,5 +1,5 @@
 import { WebSocketServer, WebSocket } from 'ws';
-import { Server } from 'http';
+import { Server as HttpServer } from 'http';
 
 export interface WebSocketMessage {
   type: 'notification' | 'update' | 'refresh';
@@ -17,7 +17,7 @@ class WebSocketManager {
   private wss: WebSocketServer | null = null;
   private clients: Set<WebSocket> = new Set();
 
-  initialize(server: Server) {
+  initialize(server: HttpServer) {
     this.wss = new WebSocketServer({ 
       server, 
       path: '/ws',
