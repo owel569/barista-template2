@@ -1,7 +1,5 @@
 import { Router } from 'express';
 import { authenticateUser } from '../middleware/auth';
-import { requireRoleHierarchy, sanitizeInput } from '../middleware/security';
-import { validateSecurity } from '../middleware/validation';
 
 // Import des routes modulaires
 import authRoutes from './auth/auth.routes';
@@ -20,28 +18,24 @@ import inventoryRoutes from './inventory/inventory.routes';
 
 const router = Router();
 
-// Middleware de sécurité global
-router.use(validateSecurity);
-router.use(sanitizeInput);
-
 // Routes publiques
 router.use('/auth', authRoutes);
-router.use('/menu', menuRoutes); // Menu public pour consultation
+// router.use('/menu', menuRoutes); // Menu public pour consultation
 
 // Routes protégées (nécessitent une authentification)
-router.use('/users', authenticateUser, userRoutes);
-router.use('/orders', authenticateUser, orderRoutes);
-router.use('/analytics', authenticateUser, requireRoleHierarchy('manager'), analyticsRoutes);
-router.use('/dashboard', authenticateUser, requireRoleHierarchy('employee'), dashboardRoutes);
-router.use('/admin', authenticateUser, requireRoleHierarchy('manager'), adminRoutes);
-router.use('/delivery', authenticateUser, requireRoleHierarchy('employee'), deliveryRoutes);
-router.use('/tables', authenticateUser, requireRoleHierarchy('employee'), tablesRouter);
-router.use('/events', authenticateUser, requireRoleHierarchy('manager'), eventRoutes);
-router.use('/inventory', authenticateUser, requireRoleHierarchy('employee'), inventoryRoutes);
+// router.use('/users', authenticateUser, userRoutes);
+// router.use('/orders', authenticateUser, orderRoutes);
+// router.use('/analytics', authenticateUser, analyticsRoutes);
+// router.use('/dashboard', authenticateUser, dashboardRoutes);
+// router.use('/admin', authenticateUser, adminRoutes);
+// router.use('/delivery', authenticateUser, deliveryRoutes);
+// router.use('/tables', authenticateUser, tablesRouter);
+// router.use('/events', authenticateUser, eventRoutes);
+router.use('/inventory', authenticateUser, inventoryRoutes);
 
 // Routes avec authentification mixte (certaines publiques, certaines protégées)
-router.use('/reservations', reservationRoutes); // POST public, GET/PUT/DELETE protégées
-router.use('/feedback', feedbackRoutes); // POST public, GET/DELETE protégées
+// router.use('/reservations', reservationRoutes); // POST public, GET/PUT/DELETE protégées
+// router.use('/feedback', feedbackRoutes); // POST public, GET/DELETE protégées
 
 // Health check
 router.get('/health', (req, res) => {

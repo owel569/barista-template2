@@ -10,10 +10,8 @@ import apiRoutes from './routes/index';
 import { wsManager } from './websocket';
 import { 
   errorHandler, 
-  notFoundHandler, 
-  requestIdMiddleware, 
-  setupUncaughtExceptionHandlers,
-  createApiResponse 
+  notFoundHandler,
+  handleUncaughtErrors as setupUncaughtExceptionHandlers
 } from './middleware/error-handler-enhanced';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

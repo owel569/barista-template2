@@ -46,6 +46,7 @@ export const menuItems = pgTable("menu_items", {
   description: text('description'),
   price: decimal('price', { precision: 10, scale: 2 }).notNull(),
   categoryId: integer('category_id').references(() => menuCategories.id),
+  category: varchar('category', { length: 50 }),
   imageUrl: varchar('image_url', { length: 255 }),
   isAvailable: boolean('is_available').notNull().default(true),
   isVegetarian: boolean('is_vegetarian').notNull().default(false),
@@ -170,6 +171,38 @@ export const employees = pgTable('employees', {
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 });
 
+export const suppliers = pgTable('suppliers', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 100 }).notNull(),
+  contactPerson: varchar('contact_person', { length: 100 }),
+  email: varchar('email', { length: 100 }),
+  phone: varchar('phone', { length: 20 }),
+  address: text('address'),
+  city: varchar('city', { length: 50 }),
+  country: varchar('country', { length: 50 }),
+  paymentTerms: varchar('payment_terms', { length: 50 }),
+  taxId: varchar('tax_id', { length: 50 }),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
+});
+
+export const inventory = pgTable('inventory', {
+  id: serial('id').primaryKey(),
+  menuItemId: integer('menu_item_id').references(() => menuItems.id),
+  currentStock: integer('current_stock').notNull().default(0),
+  minStock: integer('min_stock').notNull().default(0),
+  maxStock: integer('max_stock').notNull().default(0),
+  unit: varchar('unit', { length: 20 }).notNull(),
+  cost: decimal('cost', { precision: 10, scale: 2 }).notNull().default('0'),
+  supplierId: integer('supplier_id').references(() => suppliers.id),
+  expiryDate: timestamp('expiry_date'),
+  location: varchar('location', { length: 100 }),
+  batchNumber: varchar('batch_number', { length: 50 }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
+});
+
 export const permissions = pgTable("permissions", {
   id: serial('id').primaryKey(),
   userId: integer('user_id').references(() => users.id),
@@ -274,6 +307,21 @@ export const employeesRelations = relations(employees, ({ one }) => ({
   user: one(users, {
     fields: [employees.userId],
     references: [users.id]
+  })
+}));
+
+export const suppliersRelations = relations(suppliers, ({ many }) => ({
+  inventoryItems: many(inventory)
+}));
+
+export const inventoryRelations = relations(inventory, ({ one }) => ({
+  menuItem: one(menuItems, {
+    fields: [inventory.menuItemId],
+    references: [menuItems.id]
+  }),
+  supplier: one(suppliers, {
+    fields: [inventory.supplierId],
+    references: [suppliers.id]
   })
 }));
 

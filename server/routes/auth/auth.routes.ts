@@ -1,5 +1,4 @@
 
-```typescript
 import { Router } from 'express';
 import { z } from 'zod';
 import { hash, compare } from 'bcryptjs';
@@ -80,7 +79,7 @@ function recordLoginAttempt(identifier: string): void {
 }
 
 // Fonction utilitaire pour générer un token JWT
-function generateToken(user: { id: string; email: string; role: string }): string {
+function generateToken(user: { id: number; email: string; role: string }): string {
   return jwt.sign(
     { 
       userId: user.id, 
@@ -98,7 +97,7 @@ function generateToken(user: { id: string; email: string; role: string }): strin
 
 // Fonction utilitaire pour enregistrer une activité
 async function logActivity(
-  userId: string, 
+  userId: number, 
   action: string, 
   details: string, 
   req: any
@@ -106,13 +105,12 @@ async function logActivity(
   try {
     const db = getDb();
     await db.insert(activityLogs).values({
-      id: crypto.randomUUID(),
       userId,
       action,
+      entity: 'auth',
       details,
       ipAddress: req.ip || req.connection.remoteAddress,
-      userAgent: req.get('User-Agent'),
-      createdAt: new Date()
+      userAgent: req.get('User-Agent')
     });
   } catch (error) {
     logger.error('Erreur enregistrement activité', { 
@@ -147,45 +145,33 @@ router.post('/register',
     const hashedPassword = await hash(password, 12);
 
     // Créer l'utilisateur
-    const userId = crypto.randomUUID();
     const [newUser] = await db
       .insert(users)
       .values({
-        id: userId,
+        username: email.split('@')[0],
         firstName,
         lastName,
         email,
         password: hashedPassword,
-        phone,
-        role,
-        active: true,
-        createdAt: new Date(),
-        updatedAt: new Date()
+        role
       })
       .returning({
         id: users.id,
         firstName: users.firstName,
         lastName: users.lastName,
         email: users.email,
-        phone: users.phone,
         role: users.role,
-        active: users.active,
+        isActive: users.isActive,
         createdAt: users.createdAt
       });
 
     // Si c'est un client, créer aussi une entrée dans la table customers
     if (role === 'customer') {
       await db.insert(customers).values({
-        id: crypto.randomUUID(),
-        userId,
         firstName,
         lastName,
         email,
-        phone,
-        totalOrders: 0,
-        loyaltyPoints: 0,
-        createdAt: new Date(),
-        updatedAt: new Date()
+        phone
       });
     }
 
@@ -193,10 +179,10 @@ router.post('/register',
     const token = generateToken(newUser);
 
     // Enregistrer l'activité
-    await logActivity(userId, 'REGISTER', 'Inscription utilisateur', req);
+    await logActivity(newUser.id, 'REGISTER', 'Inscription utilisateur', req);
 
     logger.info('Utilisateur inscrit', { 
-      userId, 
+      userId: newUser.id, 
       email, 
       role,
       ip: req.ip 
@@ -231,15 +217,14 @@ router.post('/login',
         lastName: users.lastName,
         email: users.email,
         password: users.password,
-        phone: users.phone,
         role: users.role,
-        active: users.active,
+        isActive: users.isActive,
         createdAt: users.createdAt
       })
       .from(users)
       .where(eq(users.email, email));
 
-    if (!user || !user.active) {
+    if (!user || !user.isActive) {
       recordLoginAttempt(email);
       return res.status(401).json({
         success: false,
@@ -266,15 +251,6 @@ router.post('/login',
     // Générer le token
     const token = generateToken(user);
 
-    // Mettre à jour la dernière connexion
-    await db
-      .update(users)
-      .set({ 
-        lastLoginAt: new Date(),
-        updatedAt: new Date()
-      })
-      .where(eq(users.id, user.id));
-
     // Enregistrer l'activité
     await logActivity(user.id, 'LOGIN', 'Connexion utilisateur', req);
 
@@ -299,186 +275,4 @@ router.post('/login',
   })
 );
 
-// Route pour obtenir le profil utilisateur actuel
-router.get('/me',
-  authenticateUser,
-  asyncHandler(async (req, res) => {
-    const db = getDb();
-    const user = (req as any).user;
-
-    const [userProfile] = await db
-      .select({
-        id: users.id,
-        firstName: users.firstName,
-        lastName: users.lastName,
-        email: users.email,
-        phone: users.phone,
-        role: users.role,
-        active: users.active,
-        createdAt: users.createdAt,
-        lastLoginAt: users.lastLoginAt
-      })
-      .from(users)
-      .where(eq(users.id, user.id));
-
-    if (!userProfile) {
-      return res.status(404).json({
-        success: false,
-        message: 'Utilisateur non trouvé'
-      });
-    }
-
-    res.json({
-      success: true,
-      data: userProfile
-    });
-  })
-);
-
-// Route pour changer le mot de passe
-router.post('/change-password',
-  authenticateUser,
-  validateBody(ChangePasswordSchema),
-  asyncHandler(async (req, res) => {
-    const db = getDb();
-    const user = (req as any).user;
-    const { currentPassword, newPassword } = req.body;
-
-    // Récupérer le mot de passe actuel
-    const [userWithPassword] = await db
-      .select({ password: users.password })
-      .from(users)
-      .where(eq(users.id, user.id));
-
-    if (!userWithPassword) {
-      return res.status(404).json({
-        success: false,
-        message: 'Utilisateur non trouvé'
-      });
-    }
-
-    // Vérifier le mot de passe actuel
-    const isCurrentPasswordValid = await compare(currentPassword, userWithPassword.password);
-    
-    if (!isCurrentPasswordValid) {
-      await logActivity(user.id, 'CHANGE_PASSWORD_FAILED', 'Mot de passe actuel incorrect', req);
-      
-      return res.status(400).json({
-        success: false,
-        message: 'Mot de passe actuel incorrect'
-      });
-    }
-
-    // Hasher le nouveau mot de passe
-    const hashedNewPassword = await hash(newPassword, 12);
-
-    // Mettre à jour le mot de passe
-    await db
-      .update(users)
-      .set({ 
-        password: hashedNewPassword,
-        updatedAt: new Date()
-      })
-      .where(eq(users.id, user.id));
-
-    // Enregistrer l'activité
-    await logActivity(user.id, 'CHANGE_PASSWORD', 'Mot de passe modifié', req);
-
-    logger.info('Mot de passe modifié', { 
-      userId: user.id,
-      ip: req.ip 
-    });
-
-    res.json({
-      success: true,
-      message: 'Mot de passe modifié avec succès'
-    });
-  })
-);
-
-// Route de déconnexion (invalidation côté client)
-router.post('/logout',
-  authenticateUser,
-  asyncHandler(async (req, res) => {
-    const user = (req as any).user;
-
-    // Enregistrer l'activité
-    await logActivity(user.id, 'LOGOUT', 'Déconnexion utilisateur', req);
-
-    logger.info('Utilisateur déconnecté', { 
-      userId: user.id,
-      ip: req.ip 
-    });
-
-    res.json({
-      success: true,
-      message: 'Déconnexion réussie'
-    });
-  })
-);
-
-// Route pour vérifier la validité du token
-router.get('/verify',
-  authenticateUser,
-  asyncHandler(async (req, res) => {
-    const user = (req as any).user;
-
-    res.json({
-      success: true,
-      data: {
-        valid: true,
-        user: {
-          id: user.id,
-          email: user.email,
-          role: user.role
-        }
-      }
-    });
-  })
-);
-
-// Route pour rafraîchir le token
-router.post('/refresh',
-  authenticateUser,
-  asyncHandler(async (req, res) => {
-    const db = getDb();
-    const user = (req as any).user;
-
-    // Vérifier que l'utilisateur existe toujours et est actif
-    const [currentUser] = await db
-      .select({
-        id: users.id,
-        email: users.email,
-        role: users.role,
-        active: users.active
-      })
-      .from(users)
-      .where(eq(users.id, user.id));
-
-    if (!currentUser || !currentUser.active) {
-      return res.status(401).json({
-        success: false,
-        message: 'Utilisateur non autorisé'
-      });
-    }
-
-    // Générer un nouveau token
-    const newToken = generateToken(currentUser);
-
-    logger.info('Token rafraîchi', { 
-      userId: user.id,
-      ip: req.ip 
-    });
-
-    res.json({
-      success: true,
-      data: {
-        token: newToken,
-        user: currentUser
-      }
-    });
-  })
-);
-
 export default router;
-```

@@ -1,0 +1,97 @@
+
+j'ai enorment d'erreur des type qui ne sont pas correctement defini vers les routr que j'ai recree
+comme le fichier server/routes/tables/tables.routes.ts
+any
+Property 'section' does not exist on type 'PgTableWithColumns<{ name: "tables"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "tables"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 6 more ...; updatedAt: PgColumn<...>...'. (typescript)
+
+let query: PgSelectBase<"tables", {
+id: PgColumn<{
+name: "id";
+tableName: "tables";
+dataType: "number";
+columnType: "PgSerial";
+data: number;
+driverParam: number;
+notNull: true;
+hasDefault: true;
+isPrimaryKey: true;
+isAutoincrement: false;
+hasRuntimeDefault: false;
+enumValues: undefined;
+baseColumn: never;
+identity: undefined;
+generated: undefined;
+}, {}, {}>;
+number: PgColumn<{
+name: "number";
+tableName: "tables";
+dataType: "number";
+columnType: "PgInteger";
+data: number;
+driverParam: string | number;
+notNull: true;
+hasDefault: false;
+isPrimaryKey: false;
+isAutoincrement: false;
+hasRuntimeDefault: false;
+enumValues: undefined;
+baseColumn: never;
+identity: undefined;
+generated: undefined;
+}, {}, {}>;
+... 5 more ...;
+updatedAt: PgColumn<...>;
+}, ... 5 more ..., {
+...;
+}>
+Type 'Omit<PgSelectBase<"tables", { id: PgColumn<{ name: "id"; tableName: "tables"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>; ... 6 more ...; updatedAt: PgColu...' is missing the following properties from type 'PgSelectBase<"tables", { id: PgColumn<{ name: "id"; tableName: "tables"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>; ... 6 more ...; updatedAt: PgColumn<.....': config, joinsNotNullableMap, tableName, isPartialSelect, and 5 more. (typescript)
+
+let query: PgSelectBase<"tables", {
+id: PgColumn<{
+name: "id";
+tableName: "tables";
+dataType: "number";
+columnType: "PgSerial";
+data: number;
+driverParam: number;
+notNull: true;
+hasDefault: true;
+isPrimaryKey: true;
+isAutoincrement: false;
+hasRuntimeDefault: false;
+enumValues: undefined;
+baseColumn: never;
+identity: undefined;
+generated: undefined;
+}, {}, {}>;
+number: PgColumn<{
+name: "number";
+tableName: "tables";
+dataType: "number";
+columnType: "PgInteger";
+data: number;
+driverParam: string | number;
+notNull: true;
+hasDefault: false;
+isPrimaryKey: false;
+isAutoincrement: false;
+hasRuntimeDefault: false;
+enumValues: undefined;
+baseColumn: never;
+identity: undefined;
+generated: undefined;
+}, {}, {}>;
+... 5 more ...;
+updatedAt: PgColumn<...>;
+}, ... 5 more ..., {
+...;
+}>
+Type 'Omit<PgSelectBase<"tables", { id: PgColumn<{ name: "id"; tableName: "tables"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>; ... 6 more ...; updatedAt: PgColu...' is missing the following properties from type 'PgSelectBase<"tables", { id: PgColumn<{ name: "id"; tableName: "tables"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>; ... 6 more ...; updatedAt: PgColumn<.....': config, joinsNotNullableMap, tableName, isPartialSelect, and 5 more. (typescript)
+
+const limit: string | string[] | QueryString.ParsedQs | 50 | QueryString.ParsedQs[]
+The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type. (typescript)
+const count: any
+Property 'count' does not exist on type '{ count: number; } | undefined'. (typescript)
+
+ceci reprente un example il y'a des fichier de route ou les type ne sont pas defini correctement ce sont les fichier que j'ai du optimiser tu peux les analyser les corriger les optimiser ils sont rassebles principalement vers les routes et coter admin
+
