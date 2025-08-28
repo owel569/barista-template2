@@ -1,0 +1,912 @@
+import { Router } from 'express';
+import { z } from 'zod';
+import { asyncHandler } from '../middleware/error-handler';
+import { createLogger } from '../middleware/logging';
+import { authenticateUser, requireRoles } from '../middleware/auth';
+import { requirePermission } from '../middleware/authorization';
+import { validateBody, validateParams, validateQuery } from '../middleware/validation';
+import { getDb } from '../db';
+import { customers, orders, loyaltyTransactions, activityLogs, loyaltyCampaigns, loyaltyRewards } from '../../shared/schema';
+import { eq, and, gte, lte, desc, sql, inArray } from 'drizzle-orm';
+
+const router = Router();
+const logger = createLogger('LOYALTY_ADVANCED');
+
+// ==========================================
+// TYPES ET INTERFACES
+// ==========================================
+
+export interface LoyaltyLevel {
+  id: number;
+  name: string;
+  minPoints: number;
+  maxPoints?: number;
+  pointsRate: number;
+  benefits: string[];
+  color: string;
+  discountPercentage?: number;
+}
+
+export interface LoyaltyReward {
+  id: number;
+  name: string;
+  description: string;
+  cost: number;
+  category: 'boisson' | 'dessert' | 'repas' | 'experience' | 'reduction' | 'produit' | 'nourriture';
+  isActive: boolean;
+  stock?: number;
+  validUntil?: string;
+}
+
+export interface LoyaltyCampaign {
+  id: number;
+  name: string;
+  description: string;
+  targetLevel: string;
+  pointsMultiplier: number;
+  startDate: string;
+  endDate: string;
+  status: 'active' | 'inactive' | 'expired';
+  conditions?: Record<string, unknown>;
+}
+
+export interface CustomerLoyaltyData {
+  customerId: number;
+  currentPoints: number;
+  totalPointsEarned: number;
+  totalPointsRedeemed: number;
+  currentLevel: LoyaltyLevel;
+  nextLevel?: LoyaltyLevel;
+  progressToNextLevel: number;
+  pointsToNextLevel: number;
+  joinDate: string;
+  lastActivity: string;
+}
+
+export interface LoyaltyTransaction {
+  id: number;
+  customerId: number;
+  type: 'earned' | 'redeemed' | 'expired' | 'adjusted' | 'bonus';
+  points: number;
+  description: string;
+  orderId?: number;
+  rewardId?: number;
+  campaignId?: number;
+  createdAt: string;
+  balance: number;
+}
+
+// ==========================================
+// CONFIGURATION DU PROGRAMME DE FIDÉLITÉ
+// ==========================================
+
+const LOYALTY_LEVELS: LoyaltyLevel[] = [
+  {
+    id: 1,
+    name: 'Bronze',
+    minPoints: 0,
+    maxPoints: 499,
+    pointsRate: 1,
+    benefits: ['Points sur achats', 'Offres spéciales'],
+    color: '#CD7F32'
+  },
+  {
+    id: 2,
+    name: 'Argent',
+    minPoints: 500,
+    maxPoints: 1499,
+    pointsRate: 1.2,
+    benefits: ['Points bonus +20%', 'Réductions exclusives', 'Priorité réservations'],
+    color: '#C0C0C0',
+    discountPercentage: 5
+  },
+  {
+    id: 3,
+    name: 'Or',
+    minPoints: 1500,
+    maxPoints: 2999,
+    pointsRate: 1.5,
+    benefits: ['Points bonus +50%', 'Café offert mensuel', 'Accès VIP', 'Service prioritaire'],
+    color: '#FFD700',
+    discountPercentage: 10
+  },
+  {
+    id: 4,
+    name: 'Platine',
+    minPoints: 3000,
+    maxPoints: undefined,
+    pointsRate: 2,
+    benefits: ['Points double', 'Événements exclusifs', 'Menu dégustation gratuit', 'Concierge personnel'],
+    color: '#E5E4E2',
+    discountPercentage: 15
+  }
+];
+
+const DEFAULT_REWARDS: LoyaltyReward[] = [
+  { id: 1, name: 'Café gratuit', description: 'Café de votre choix', cost: 100, category: 'boisson', isActive: true },
+  { id: 2, name: 'Pâtisserie offerte', description: 'Pâtisserie au choix', cost: 150, category: 'nourriture', isActive: true },
+  { id: 3, name: 'Réduction 10%', description: '10% de réduction sur la prochaine commande', cost: 200, category: 'reduction', isActive: true },
+  { id: 4, name: 'Menu déjeuner', description: 'Menu déjeuner complet', cost: 500, category: 'repas', isActive: true },
+  { id: 5, name: 'Sac de café', description: '250g de café en grains', cost: 300, category: 'produit', isActive: true },
+  { id: 6, name: 'Cours barista', description: 'Cours particulier de 2h', cost: 1000, category: 'experience', isActive: true, stock: 10 }
+];
+
+// ==========================================
+// SERVICES MÉTIER
+// ==========================================
+
+class LoyaltyService {
+  /**
+   * Détermine le niveau de fidélité basé sur les points
+   */
+  static getLevelForPoints(points: number): LoyaltyLevel {
+    const level = LOYALTY_LEVELS.find(l => 
+      points >= l.minPoints && (l.maxPoints === undefined || points <= l.maxPoints)
+    );
+    
+    if (!level) {
+      return LOYALTY_LEVELS[LOYALTY_LEVELS.length - 1];
+    }
+    
+    return level;
+  }
+
+  /**
+   * Calcule le prochain niveau et la progression
+   */
+  static getNextLevelInfo(currentPoints: number): { nextLevel?: LoyaltyLevel; progress: number; pointsToNext: number } {
+    const currentLevel = this.getLevelForPoints(currentPoints);
+    const nextLevelIndex = LOYALTY_LEVELS.findIndex(l => l.minPoints > currentLevel.minPoints);
+    
+    if (nextLevelIndex === -1 || nextLevelIndex >= LOYALTY_LEVELS.length) {
+      return { progress: 100, pointsToNext: 0 };
+    }
+    
+    const nextLevel = LOYALTY_LEVELS[nextLevelIndex];
+    const progress = Math.min(100, ((currentPoints - currentLevel.minPoints) / (nextLevel.minPoints - currentLevel.minPoints)) * 100);
+    const pointsToNext = Math.max(0, nextLevel.minPoints - currentPoints);
+    
+    return { nextLevel, progress: Math.round(progress), pointsToNext };
+  }
+
+  /**
+   * Calcule les points à ajouter avec le multiplicateur du niveau
+   */
+  static calculatePointsToAdd(basePoints: number, customerPoints: number, campaignMultiplier = 1): number {
+    const level = this.getLevelForPoints(customerPoints);
+    return Math.floor(basePoints * level.pointsRate * campaignMultiplier);
+  }
+
+  /**
+   * Vérifie si une récompense peut être échangée
+   */
+  static canRedeemReward(customerPoints: number, reward: LoyaltyReward, quantity = 1): { canRedeem: boolean; reason?: string } {
+    const totalCost = reward.cost * quantity;
+    
+    if (!reward.isActive) {
+      return { canRedeem: false, reason: 'Récompense non disponible' };
+    }
+    
+    if (reward.stock !== undefined && reward.stock < quantity) {
+      return { canRedeem: false, reason: 'Stock insuffisant' };
+    }
+    
+    if (reward.validUntil && new Date(reward.validUntil) < new Date()) {
+      return { canRedeem: false, reason: 'Récompense expirée' };
+    }
+    
+    if (customerPoints < totalCost) {
+      return { canRedeem: false, reason: 'Points insuffisants' };
+    }
+    
+    return { canRedeem: true };
+  }
+
+  /**
+   * Récupère les récompenses disponibles pour un nombre de points donné
+   */
+  static getAvailableRewards(points: number, rewards: LoyaltyReward[] = DEFAULT_REWARDS): LoyaltyReward[] {
+    return rewards.filter(reward => 
+      reward.isActive && reward.cost <= points &&
+      (reward.stock === undefined || reward.stock > 0) &&
+      (!reward.validUntil || new Date(reward.validUntil) > new Date())
+    );
+  }
+}
+
+// ==========================================
+// SCHÉMAS DE VALIDATION ZOD
+// ==========================================
+
+const earnPointsSchema = z.object({
+  customerId: z.number().positive('ID client invalide'),
+  points: z.number().positive('Points doivent être positifs').max(10000, 'Points maximum dépassés'),
+  description: z.string().min(1, 'Description requise').max(200, 'Description trop longue'),
+  orderId: z.number().positive('ID commande invalide').optional(),
+  campaignId: z.number().positive('ID campagne invalide').optional()
+});
+
+const redeemPointsSchema = z.object({
+  customerId: z.number().positive('ID client invalide'),
+  rewardId: z.number().positive('ID récompense invalide'),
+  quantity: z.number().positive().default(1),
+  description: z.string().min(1, 'Description requise').max(200, 'Description trop longue').optional()
+});
+
+const createCampaignSchema = z.object({
+  name: z.string().min(1, 'Nom requis').max(100, 'Nom trop long'),
+  description: z.string().min(1, 'Description requise').max(500, 'Description trop longue'),
+  targetLevel: z.string().min(1, 'Niveau cible requis'),
+  pointsMultiplier: z.number().positive().max(10, 'Multiplicateur trop élevé'),
+  startDate: z.string().datetime('Date de début invalide'),
+  endDate: z.string().datetime('Date de fin invalide'),
+  conditions: z.record(z.unknown()).optional()
+});
+
+const loyaltyStatsSchema = z.object({
+  period: z.enum(['day', 'week', 'month', 'quarter', 'year']).default('month'),
+  customerId: z.number().positive().optional()
+});
+
+const customerIdParamSchema = z.object({
+  customerId: z.string().regex(/^\d+$/, 'ID client doit être un nombre')
+});
+
+const createRewardSchema = z.object({
+  name: z.string().min(1, 'Nom requis').max(100, 'Nom trop long'),
+  description: z.string().min(1, 'Description requise').max(500, 'Description trop longue'),
+  cost: z.number().positive('Coût doit être positif'),
+  category: z.enum(['boisson', 'dessert', 'repas', 'experience', 'reduction', 'produit', 'nourriture']),
+  isActive: z.boolean().default(true),
+  stock: z.number().int().nonnegative().optional(),
+  validUntil: z.string().datetime('Date de validité invalide').optional()
+});
+
+// ==========================================
+// ROUTES AVEC AUTHENTIFICATION ET VALIDATION
+// ==========================================
+
+// Vue d'ensemble du programme de fidélité
+router.get('/overview', 
+  authenticateUser,
+  requireRoles(['admin', 'manager']),
+  asyncHandler(async (req, res) => {
+    try {
+      const db = await getDb();
+      
+      // Statistiques générales
+      const totalCustomers = await db.select({ count: sql<number>`count(*)` }).from(customers);
+      const totalPoints = await db.select({ total: sql<number>`sum(${customers.loyaltyPoints})` }).from(customers);
+      const activeCustomers = await db.select({ count: sql<number>`count(*)` })
+        .from(customers)
+        .where(gte(customers.loyaltyPoints, 100));
+      
+      // Distribution par niveau
+      const levelDistribution = await Promise.all(
+        LOYALTY_LEVELS.map(async (level) => {
+          const count = await db.select({ count: sql<number>`count(*)` })
+            .from(customers)
+            .where(and(
+              gte(customers.loyaltyPoints, level.minPoints),
+              level.maxPoints === undefined 
+                ? sql`${customers.loyaltyPoints} >= ${level.minPoints}`
+                : sql`${customers.loyaltyPoints} <= ${level.maxPoints}`
+            ));
+          
+          return {
+            level: level.name,
+            count: count[0]?.count || 0,
+            color: level.color
+          };
+        })
+      );
+
+      // Top clients
+      const topCustomers = await db.select({
+        id: customers.id,
+        firstName: customers.firstName,
+        lastName: customers.lastName,
+        email: customers.email,
+        loyaltyPoints: customers.loyaltyPoints
+      })
+      .from(customers)
+      .orderBy(desc(customers.loyaltyPoints))
+      .limit(10);
+
+      // Récompenses actives
+      const activeRewards = await db.select()
+        .from(loyaltyRewards)
+        .where(eq(loyaltyRewards.isActive, true))
+        .limit(20);
+
+      res.json({
+        success: true,
+        data: {
+          overview: {
+            totalCustomers: totalCustomers[0]?.count || 0,
+            totalPoints: totalPoints[0]?.total || 0,
+            activeCustomers: activeCustomers[0]?.count || 0,
+            levels: LOYALTY_LEVELS,
+            rewards: activeRewards.length > 0 ? activeRewards : DEFAULT_REWARDS.filter(r => r.isActive)
+          },
+          distribution: levelDistribution,
+          topCustomers: topCustomers.map(customer => ({
+            ...customer,
+            level: LoyaltyService.getLevelForPoints(customer.loyaltyPoints || 0)
+          }))
+        }
+      });
+    } catch (error) {
+      logger.error('Erreur overview fidélité', { 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      });
+      res.status(500).json({
+        success: false,
+        message: 'Erreur lors de la récupération des données de fidélité'
+      });
+    }
+  })
+);
+
+// Profil de fidélité d'un client
+router.get('/customer/:customerId', 
+  authenticateUser,
+  validateParams(customerIdParamSchema),
+  asyncHandler(async (req, res) => {
+    const customerId = parseInt(req.params.customerId);
+    
+    try {
+      const db = await getDb();
+      
+      // Informations client
+      const customer = await db.select()
+        .from(customers)
+        .where(eq(customers.id, customerId))
+        .limit(1);
+      
+      if (customer.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'Client non trouvé'
+        });
+      }
+
+      const customerData = customer[0];
+      const points = customerData.loyaltyPoints || 0;
+      const level = LoyaltyService.getLevelForPoints(points);
+      const { nextLevel, progress, pointsToNext } = LoyaltyService.getNextLevelInfo(points);
+
+      // Récompenses disponibles
+      const activeRewards = await db.select()
+        .from(loyaltyRewards)
+        .where(eq(loyaltyRewards.isActive, true));
+      
+      const availableRewards = LoyaltyService.getAvailableRewards(points, activeRewards.length > 0 ? activeRewards : DEFAULT_REWARDS);
+
+      // Historique des transactions de fidélité
+      const transactions = await db.select()
+        .from(loyaltyTransactions)
+        .where(eq(loyaltyTransactions.customerId, customerId))
+        .orderBy(desc(loyaltyTransactions.createdAt))
+        .limit(50);
+
+      // Statistiques du client
+      const totalEarned = await db.select({ total: sql<number>`sum(points)` })
+        .from(loyaltyTransactions)
+        .where(and(
+          eq(loyaltyTransactions.customerId, customerId),
+          inArray(loyaltyTransactions.type, ['earned', 'bonus'])
+        ));
+
+      const totalRedeemed = await db.select({ total: sql<number>`sum(points)` })
+        .from(loyaltyTransactions)
+        .where(and(
+          eq(loyaltyTransactions.customerId, customerId),
+          inArray(loyaltyTransactions.type, ['redeemed', 'expired'])
+        ));
+
+      res.json({
+        success: true,
+        data: {
+          customer: {
+            id: customerData.id,
+            firstName: customerData.firstName,
+            lastName: customerData.lastName,
+            email: customerData.email,
+            phone: customerData.phone,
+            points: points,
+            level: level,
+            memberSince: customerData.createdAt,
+            lastActivity: customerData.updatedAt
+          },
+          stats: {
+            totalEarned: totalEarned[0]?.total || 0,
+            totalRedeemed: totalRedeemed[0]?.total || 0,
+            currentPoints: points,
+            nextLevel: nextLevel,
+            progressToNextLevel: progress,
+            pointsToNextLevel: pointsToNext
+          },
+          availableRewards,
+          transactions: transactions.slice(0, 20)
+        }
+      });
+    } catch (error) {
+      logger.error('Erreur profil client fidélité', { 
+        customerId, 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      });
+      res.status(500).json({
+        success: false,
+        message: 'Erreur lors de la récupération du profil de fidélité'
+      });
+    }
+  })
+);
+
+// Gagner des points
+router.post('/earn-points', 
+  authenticateUser,
+  requirePermission('customers', 'canUpdate'),
+  validateBody(earnPointsSchema),
+  asyncHandler(async (req, res) => {
+    const { customerId, points, orderId, campaignId, description } = req.body;
+    
+    try {
+      const db = await getDb();
+      
+      // Vérifier que le client existe
+      const customer = await db.select()
+        .from(customers)
+        .where(eq(customers.id, customerId))
+        .limit(1);
+      
+      if (customer.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'Client non trouvé'
+        });
+      }
+
+      const currentCustomer = customer[0];
+      const currentPoints = currentCustomer.loyaltyPoints || 0;
+      const currentLevel = LoyaltyService.getLevelForPoints(currentPoints);
+      
+      // Calculer les points avec multiplicateur de campagne si applicable
+      let campaignMultiplier = 1;
+      if (campaignId) {
+        const campaign = await db.select()
+          .from(loyaltyCampaigns)
+          .where(and(
+            eq(loyaltyCampaigns.id, campaignId),
+            eq(loyaltyCampaigns.status, 'active'),
+            gte(loyaltyCampaigns.endDate, new Date().toISOString()),
+            lte(loyaltyCampaigns.startDate, new Date().toISOString())
+          ));
+        
+        if (campaign.length > 0) {
+          campaignMultiplier = campaign[0].pointsMultiplier;
+        }
+      }
+
+      const pointsToAdd = LoyaltyService.calculatePointsToAdd(points, currentPoints, campaignMultiplier);
+      const newPoints = currentPoints + pointsToAdd;
+      const newLevel = LoyaltyService.getLevelForPoints(newPoints);
+
+      // Mettre à jour les points du client
+      await db.update(customers)
+        .set({ loyaltyPoints: newPoints, updatedAt: new Date().toISOString() })
+        .where(eq(customers.id, customerId));
+
+      // Enregistrer la transaction
+      const transactionDescription = campaignId 
+        ? `${description} (Taux: x${campaignMultiplier})` 
+        : description;
+
+      await db.insert(loyaltyTransactions).values({
+        customerId,
+        type: campaignId ? 'bonus' : 'earned',
+        points: pointsToAdd,
+        orderId,
+        campaignId,
+        description: transactionDescription,
+        createdAt: new Date().toISOString(),
+        balance: newPoints
+      });
+
+      // Enregistrer l'activité
+      await db.insert(activityLogs).values({
+        userId: req.user?.id || 0,
+        action: 'loyalty_points_earned',
+        entity: 'customers',
+        entityId: customerId,
+        details: `${pointsToAdd} points gagnés: ${description}`,
+        createdAt: new Date().toISOString()
+      });
+
+      const levelChanged = newLevel.id !== currentLevel.id;
+      const { nextLevel, progress, pointsToNext } = LoyaltyService.getNextLevelInfo(newPoints);
+
+      res.json({
+        success: true,
+        message: `${pointsToAdd} points ajoutés avec succès`,
+        data: {
+          pointsAdded: pointsToAdd,
+          newTotal: newPoints,
+          previousLevel: currentLevel,
+          newLevel: newLevel,
+          levelChanged,
+          nextLevel,
+          progressToNextLevel: progress,
+          pointsToNextLevel: pointsToNext,
+          availableRewards: LoyaltyService.getAvailableRewards(newPoints)
+        }
+      });
+    } catch (error) {
+      logger.error('Erreur ajout points', { 
+        customerId, 
+        points, 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      });
+      res.status(500).json({
+        success: false,
+        message: 'Erreur lors de l\'ajout des points'
+      });
+    }
+  })
+);
+
+// Échanger des points contre une récompense
+router.post('/redeem-reward', 
+  authenticateUser,
+  requirePermission('customers', 'canUpdate'),
+  validateBody(redeemPointsSchema),
+  asyncHandler(async (req, res) => {
+    const { customerId, rewardId, quantity, description } = req.body;
+    
+    try {
+      const db = await getDb();
+      
+      // Vérifier que le client existe
+      const customer = await db.select()
+        .from(customers)
+        .where(eq(customers.id, customerId))
+        .limit(1);
+      
+      if (customer.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'Client non trouvé'
+        });
+      }
+
+      const currentCustomer = customer[0];
+      const currentPoints = currentCustomer.loyaltyPoints || 0;
+      
+      // Récupérer la récompense depuis la base ou les récompenses par défaut
+      let reward: LoyaltyReward | undefined;
+      
+      const dbReward = await db.select()
+        .from(loyaltyRewards)
+        .where(eq(loyaltyRewards.id, rewardId));
+      
+      if (dbReward.length > 0) {
+        reward = dbReward[0];
+      } else {
+        reward = DEFAULT_REWARDS.find(r => r.id === rewardId);
+      }
+      
+      if (!reward) {
+        return res.status(404).json({
+          success: false,
+          message: 'Récompense non trouvée'
+        });
+      }
+
+      const { canRedeem, reason } = LoyaltyService.canRedeemReward(currentPoints, reward, quantity);
+      
+      if (!canRedeem) {
+        return res.status(400).json({
+          success: false,
+          message: reason || 'Impossible d\'échanger cette récompense',
+          required: reward.cost * quantity,
+          available: currentPoints
+        });
+      }
+
+      const pointsUsed = reward.cost * quantity;
+      const newPoints = currentPoints - pointsUsed;
+
+      // Mettre à jour les points du client
+      await db.update(customers)
+        .set({ loyaltyPoints: newPoints, updatedAt: new Date().toISOString() })
+        .where(eq(customers.id, customerId));
+
+      // Mettre à jour le stock si applicable
+      if (reward.stock !== undefined && dbReward.length > 0) {
+        await db.update(loyaltyRewards)
+          .set({ stock: reward.stock - quantity })
+          .where(eq(loyaltyRewards.id, rewardId));
+      }
+
+      // Enregistrer la transaction
+      const transactionDescription = description || `Échange: ${quantity}x ${reward.name}`;
+      
+      await db.insert(loyaltyTransactions).values({
+        customerId,
+        type: 'redeemed',
+        points: pointsUsed,
+        rewardId,
+        description: transactionDescription,
+        createdAt: new Date().toISOString(),
+        balance: newPoints
+      });
+
+      // Enregistrer l'activité
+      await db.insert(activityLogs).values({
+        userId: req.user?.id || 0,
+        action: 'loyalty_points_redeemed',
+        entity: 'customers',
+        entityId: customerId,
+        details: `${pointsUsed} points échangés contre: ${quantity}x ${reward.name}`,
+        createdAt: new Date().toISOString()
+      });
+
+      res.json({
+        success: true,
+        message: 'Récompense échangée avec succès',
+        data: {
+          reward: reward.name,
+          quantity,
+          pointsUsed,
+          remainingPoints: newPoints,
+          newBalance: newPoints,
+          availableRewards: LoyaltyService.getAvailableRewards(newPoints)
+        }
+      });
+    } catch (error) {
+      logger.error('Erreur échange récompense', { 
+        customerId, 
+        rewardId, 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      });
+      res.status(500).json({
+        success: false,
+        message: 'Erreur lors de l\'échange de la récompense'
+      });
+    }
+  })
+);
+
+// Créer une campagne de fidélité
+router.post('/campaigns/create',
+  authenticateUser,
+  requireRoles(['admin']),
+  validateBody(createCampaignSchema),
+  asyncHandler(async (req, res) => {
+    const { name, description, targetLevel, pointsMultiplier, startDate, endDate, conditions } = req.body;
+    
+    try {
+      const db = await getDb();
+      
+      // Vérifier que le niveau cible existe
+      const levelExists = LOYALTY_LEVELS.some(l => l.name === targetLevel);
+      if (!levelExists) {
+        return res.status(400).json({
+          success: false,
+          message: 'Niveau cible invalide'
+        });
+      }
+
+      // Vérifier que les dates sont cohérentes
+      if (new Date(startDate) >= new Date(endDate)) {
+        return res.status(400).json({
+          success: false,
+          message: 'La date de fin doit être postérieure à la date de début'
+        });
+      }
+
+      // Créer la campagne
+      const campaign = await db.insert(loyaltyCampaigns).values({
+        name,
+        description,
+        targetLevel,
+        pointsMultiplier,
+        startDate,
+        endDate,
+        status: 'active',
+        conditions,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }).returning();
+
+      // Enregistrer l'activité
+      await db.insert(activityLogs).values({
+        userId: req.user?.id || 0,
+        action: 'loyalty_campaign_created',
+        entity: 'loyalty_campaigns',
+        entityId: campaign[0].id,
+        details: `Campagne créée: ${name}`,
+        createdAt: new Date().toISOString()
+      });
+
+      res.json({
+        success: true,
+        data: campaign[0]
+      });
+    } catch (error) {
+      logger.error('Erreur création campagne', { 
+        name, 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      });
+      res.status(500).json({ 
+        success: false,
+        message: 'Erreur lors de la création de la campagne' 
+      });
+    }
+  })
+);
+
+// Créer une récompense
+router.post('/rewards/create',
+  authenticateUser,
+  requireRoles(['admin', 'manager']),
+  validateBody(createRewardSchema),
+  asyncHandler(async (req, res) => {
+    const { name, description, cost, category, isActive, stock, validUntil } = req.body;
+    
+    try {
+      const db = await getDb();
+      
+      // Créer la récompense
+      const reward = await db.insert(loyaltyRewards).values({
+        name,
+        description,
+        cost,
+        category,
+        isActive,
+        stock,
+        validUntil,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }).returning();
+
+      // Enregistrer l'activité
+      await db.insert(activityLogs).values({
+        userId: req.user?.id || 0,
+        action: 'loyalty_reward_created',
+        entity: 'loyalty_rewards',
+        entityId: reward[0].id,
+        details: `Récompense créée: ${name}`,
+        createdAt: new Date().toISOString()
+      });
+
+      res.json({
+        success: true,
+        data: reward[0]
+      });
+    } catch (error) {
+      logger.error('Erreur création récompense', { 
+        name, 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      });
+      res.status(500).json({ 
+        success: false,
+        message: 'Erreur lors de la création de la récompense' 
+      });
+    }
+  })
+);
+
+// Statistiques de fidélité
+router.get('/stats',
+  authenticateUser,
+  requireRoles(['admin', 'manager']),
+  validateQuery(loyaltyStatsSchema),
+  asyncHandler(async (req, res) => {
+    const { period, customerId } = req.query;
+    
+    try {
+      const db = await getDb();
+      
+      // Calculer la date de début selon la période
+      const now = new Date();
+      const startDate = new Date();
+      
+      switch (period) {
+        case 'day':
+          startDate.setDate(now.getDate() - 1);
+          break;
+        case 'week':
+          startDate.setDate(now.getDate() - 7);
+          break;
+        case 'month':
+          startDate.setMonth(now.getMonth() - 1);
+          break;
+        case 'quarter':
+          startDate.setMonth(now.getMonth() - 3);
+          break;
+        case 'year':
+          startDate.setFullYear(now.getFullYear() - 1);
+          break;
+      }
+
+      const whereConditions = [
+        gte(loyaltyTransactions.createdAt, startDate.toISOString())
+      ];
+      
+      if (customerId) {
+        whereConditions.push(eq(loyaltyTransactions.customerId, Number(customerId)));
+      }
+
+      // Points gagnés
+      const pointsEarned = await db.select({ total: sql<number>`sum(points)` })
+        .from(loyaltyTransactions)
+        .where(and(
+          ...whereConditions,
+          inArray(loyaltyTransactions.type, ['earned', 'bonus'])
+        ));
+
+      // Points échangés
+      const pointsRedeemed = await db.select({ total: sql<number>`sum(points)` })
+        .from(loyaltyTransactions)
+        .where(and(
+          ...whereConditions,
+          eq(loyaltyTransactions.type, 'redeemed')
+        ));
+
+      // Nombre de transactions
+      const transactionCount = await db.select({ count: sql<number>`count(*)` })
+        .from(loyaltyTransactions)
+        .where(and(...whereConditions));
+
+      // Clients actifs
+      const activeCustomers = await db.select({ count: sql<number>`count(distinct customer_id)` })
+        .from(loyaltyTransactions)
+        .where(and(...whereConditions));
+
+      // Récompenses populaires
+      const popularRewards = await db.select({
+        rewardId: loyaltyTransactions.rewardId,
+        count: sql<number>`count(*)`,
+        totalPoints: sql<number>`sum(points)`
+      })
+      .from(loyaltyTransactions)
+      .where(and(
+        ...whereConditions,
+        eq(loyaltyTransactions.type, 'redeemed')
+      ))
+      .groupBy(loyaltyTransactions.rewardId)
+      .orderBy(desc(sql`count(*)`))
+      .limit(5);
+
+      res.json({
+        success: true,
+        data: {
+          period,
+          stats: {
+            pointsEarned: pointsEarned[0]?.total || 0,
+            pointsRedeemed: pointsRedeemed[0]?.total || 0,
+            netPoints: (pointsEarned[0]?.total || 0) - (pointsRedeemed[0]?.total || 0),
+            transactionCount: transactionCount[0]?.count || 0,
+            activeCustomers: activeCustomers[0]?.count || 0
+          },
+          popularRewards,
+          levels: LOYALTY_LEVELS
+        }
+      });
+    } catch (error) {
+      logger.error('Erreur stats fidélité', { 
+        period, 
+        customerId, 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      });
+      res.status(500).json({
+        success: false,
+        message: 'Erreur lors de la récupération des statistiques'
+      });
+    }
+  })
+);
+
+export default router;
