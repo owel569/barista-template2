@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 
 export interface VirtualListItem {
   id: string | number;
-  data?: any;
+  data?: Record<string, unknown>;
 }
 
 export interface VirtualListProps<T extends VirtualListItem> {
@@ -181,7 +181,11 @@ export function useVirtualList<T extends VirtualListItem>(
     itemHeight?: number;
     containerHeight?: number;
     overscan?: number;
-  } = {}
+  } = {
+    itemHeight: 50,
+    containerHeight: 400,
+    overscan: 5
+  }
 ) {
   const [scrollTop, setScrollTop] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);

@@ -87,73 +87,77 @@ export * from "./error-boundary"
 
 // ===== TYPES ET UTILITAIRES =====
 export * from "./types"
+export * from './use-toast'
+export * from './ui-utils'
+export { createSafeObject, isValidRecord, UI_CONSTANTS } from './ui-utils'
+export type { SafeObject, ComponentSize, ComponentVariant, BaseUIComponentProps } from './ui-utils'
 
 // ===== EXPORTS SPÉCIFIQUES POUR COMPATIBILITÉ =====
-export type { 
+export type {
   // Types de base
   ButtonProps,
   InputProps,
   LabelProps,
   TextareaProps,
-  
+
   // Types de formulaire
   CheckboxProps,
   RadioGroupProps,
   SwitchProps,
   SelectProps,
   FormFieldProps,
-  
+
   // Types de données
   ComboboxOption,
   MultiSelectOption,
   TableColumn,
   DataTableProps,
-  
+
   // Types de layout
   DatePickerProps,
   SkeletonProps,
   CardProps,
   BadgeProps,
-  
+
   // Types d'interaction
   DialogProps,
   ToastProps,
   AlertProps,
-  
+
   // Types utilitaires
   ComponentVariant,
   ComponentSize,
   AccessibilityProps,
   SafeEventHandler,
-  
+
   // Types de pays et téléphone
   Country,
   InternationalPhoneInputProps,
-  
+
   // Types de chargement
   LoadingSpinnerProps,
   LoadingPageProps,
   SkeletonLoaderProps,
-  
+
   // Types de données avancés
   ChartConfig,
   StatsCardProps,
-  
+
   // Types de navigation
   BreadcrumbProps,
   PaginationProps,
-  
+
   // Types de confirmation
   ConfirmationDialogProps,
-  
+
   // Types de redimensionnement
   ResizableLayoutProps,
   ResizablePanelGroupProps,
   ResizableHandleProps,
-  
+
   // Types d'aspect ratio
   AspectRatioProps,
-  
+
   // Types de collapsible
   CollapsibleTriggerButtonProps,
   CollapsibleContentWrapperProps,
@@ -164,18 +168,18 @@ export {
   // Hooks de chargement
   useLoading,
   useLoadingButton,
-  
+
   // Hooks de formulaire
   useInternationalPhoneInput,
-  
+
   // Hooks de données
   useDataTable,
-  
+
   // Hooks d'interaction
   useConfirmationDialog,
   useAccordion,
   useCollapsible,
-  
+
   // Hooks de layout
   useResizablePanels,
 } from "./hooks"
@@ -189,33 +193,33 @@ export {
   alertVariants,
   skeletonVariants,
   spinnerVariants,
-  
+
   // Variants de layout
   cardVariants,
   aspectRatioVariants,
-  
+
   // Variants d'interaction
   dialogVariants,
   accordionItemVariants,
   accordionTriggerVariants,
   accordionContentVariants,
-  
+
   // Variants de données
   dataTableVariants,
-  
+
   // Variants de navigation
   breadcrumbVariants,
-  
+
   // Variants de notification
   toastVariants,
-  
+
   // Variants de téléphone
   phoneInputVariants,
-  
+
   // Variants de redimensionnement
   resizablePanelGroupVariants,
   resizableHandleVariants,
-  
+
   // Variants de collapsible
   collapsibleTriggerVariants,
   collapsibleContentVariants,

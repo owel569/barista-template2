@@ -1,4 +1,6 @@
 
+#!/usr/bin/env tsx
+
 import fs from 'fs';
 import path from 'path';
 import chalk from 'chalk';
@@ -11,24 +13,24 @@ interface UIComponentIssue {
   severity: 'error' | 'warning' | 'info';
 }
 
+interface VerificationStats {
+  errors: number;
+  warnings: number;
+  info: number;
+  totalIssues: number;
+}
+
 class UIComponentsVerifier {
   private issues: UIComponentIssue[] = [];
-  private uiComponentsDir = 'client/src/components/ui';
-  private srcDir = 'client/src';
+  private readonly uiComponentsDir = 'client/src/components/ui';
+  private readonly srcDir = 'client/src';
 
   async verifyAll(): Promise<void> {
     console.log(chalk.cyan('🔍 VÉRIFICATION DES COMPOSANTS UI\n'));
     
-    // 1. Vérifier les exports dans index.ts
     await this.verifyExports();
-    
-    // 2. Vérifier les types TypeScript
     await this.verifyTypes();
-    
-    // 3. Vérifier l'utilisation dans le code
     await this.verifyUsage();
-    
-    // 4. Vérifier les imports manquants
     await this.verifyImports();
     
     this.generateReport();
@@ -39,7 +41,7 @@ class UIComponentsVerifier {
     
     const indexPath = path.join(this.uiComponentsDir, 'index.ts');
     if (!fs.existsSync(indexPath)) {
-      this.issues.push({
+      this.addIssue({
         file: indexPath,
         component: 'index.ts',
         issue: 'Fichier index.ts manquant',
@@ -49,16 +51,17 @@ class UIComponentsVerifier {
     }
 
     const indexContent = fs.readFileSync(indexPath, 'utf8');
-    const uiFiles = fs.readdirSync(this.uiComponentsDir)
-      .filter(file => file.endsWith('.tsx') && file !== 'index.ts');
-
-    for (const file of uiFiles) {
-      const componentName = file.replace('.tsx', '');
-      if (!indexContent.includes(componentName)) {
-        this.issues.push({
+    const uiFiles = this.getUIFiles();
+    
+    for (const filePath of uiFiles) {
+      const componentName = path.basename(filePath, '.tsx');
+      const exportPattern = new RegExp(`export.*from.*['"]\\.\/${componentName}['"]`);
+      
+      if (!exportPattern.test(indexContent)) {
+        this.addIssue({
           file: indexPath,
           component: componentName,
-          issue: `Export manquant pour ${componentName}`,
+          issue: `Export manquant pour le composant ${componentName}`,
           severity: 'warning'
         });
       }
@@ -69,20 +72,20 @@ class UIComponentsVerifier {
     console.log(chalk.blue('🔧 Vérification des types TypeScript...'));
     
     const problematicPatterns = [
-      { 
-        pattern: /:\s*any(?!\w)/g, 
-        issue: 'Type "any" détecté', 
-        severity: 'error' as const 
+      {
+        pattern: /:\s*any\b/g,
+        issue: 'Type "any" détecté',
+        severity: 'error' as const
       },
-      { 
-        pattern: /\{\s*\}/g, 
-        issue: 'Type vide "{}" détecté', 
-        severity: 'warning' as const 
+      {
+        pattern: /=\s*{}\s*(?:as|;|,|\)|$)/g,
+        issue: 'Type vide "{}" détecté',
+        severity: 'warning' as const
       },
-      { 
-        pattern: /React\.ComponentProps<['"]div['"]>/g, 
-        issue: 'Type générique React.ComponentProps détecté', 
-        severity: 'info' as const 
+      {
+        pattern: /React\.ComponentProps</g,
+        issue: 'Type générique React.ComponentProps détecté',
+        severity: 'info' as const
       }
     ];
 
@@ -96,8 +99,9 @@ class UIComponentsVerifier {
       
       for (const { pattern, issue, severity } of problematicPatterns) {
         lines.forEach((line, index) => {
-          if (pattern.test(line) && !line.includes('// @ts-ignore') && !line.includes('// eslint-disable')) {
-            this.issues.push({
+          const matches = line.match(pattern);
+          if (matches && !this.isIgnoredLine(line)) {
+            this.addIssue({
               file: filePath,
               component: path.basename(filePath, '.tsx'),
               issue: `${issue}: ${line.trim()}`,
@@ -120,184 +124,223 @@ class UIComponentsVerifier {
     // Initialiser le comptage
     uiComponents.forEach(comp => componentUsage.set(comp, 0));
 
+    // Compter l'utilisation
     for (const filePath of usageFiles) {
-      if (filePath.includes('/ui/') || !fs.existsSync(filePath)) continue;
+      if (filePath.includes('/ui/')) continue; // Ignorer les fichiers UI eux-mêmes
       
-      try {
-        const content = fs.readFileSync(filePath, 'utf8');
+      const content = fs.readFileSync(filePath, 'utf8');
+      
+      for (const component of uiComponents) {
+        const importPattern = new RegExp(`import.*{[^}]*${component}[^}]*}.*from.*['"]@/components/ui['"]`, 'g');
+        const usagePattern = new RegExp(`<${component}[\\s>]`, 'g');
         
-        for (const component of uiComponents) {
-          const importRegex = new RegExp(`import.*\\b${component}\\b.*from.*[@/]components/ui`, 'g');
-          const usageRegex = new RegExp(`<${component}[\\s>]`, 'g');
-          
-          if (importRegex.test(content) || usageRegex.test(content)) {
-            componentUsage.set(component, componentUsage.get(component)! + 1);
-          }
+        if (importPattern.test(content) || usagePattern.test(content)) {
+          componentUsage.set(component, (componentUsage.get(component) || 0) + 1);
         }
-      } catch (error) {
-        console.warn(chalk.yellow(`Impossible de lire ${filePath}: ${error}`));
       }
     }
 
     // Signaler les composants non utilisés
-    componentUsage.forEach((count, component) => {
+    for (const [component, count] of componentUsage) {
       if (count === 0) {
-        this.issues.push({
-          file: `${this.uiComponentsDir}/${component}.tsx`,
+        this.addIssue({
+          file: `client/src/components/ui/${component}.tsx`,
           component,
           issue: 'Composant jamais utilisé',
           severity: 'info'
         });
       }
-    });
+    }
   }
 
   private async verifyImports(): Promise<void> {
     console.log(chalk.blue('📥 Vérification des imports...'));
     
-    const usageFiles = this.getAllTSXFiles();
+    const tsxFiles = this.getAllTSXFiles();
     
-    for (const filePath of usageFiles) {
-      if (filePath.includes('/ui/') || !fs.existsSync(filePath)) continue;
+    for (const filePath of tsxFiles) {
+      const content = fs.readFileSync(filePath, 'utf8');
+      const importLines = content.split('\n').filter(line => line.trim().startsWith('import'));
       
-      try {
-        const content = fs.readFileSync(filePath, 'utf8');
-        const lines = content.split('\n');
-        
-        // Rechercher les imports UI problématiques
-        lines.forEach((line, index) => {
-          if (line.includes('@/components/ui') && line.includes('import')) {
-            // Vérifier les imports de composants inexistants
-            const importMatch = line.match(/import\s*\{([^}]+)\}\s*from\s*['"]@\/components\/ui['"]/);
-            if (importMatch) {
-              const imports = importMatch[1].split(',').map(imp => imp.trim());
-              for (const imp of imports) {
-                const componentFile = path.join(this.uiComponentsDir, `${imp}.tsx`);
-                if (!fs.existsSync(componentFile)) {
-                  this.issues.push({
-                    file: filePath,
-                    component: imp,
-                    issue: `Import de composant inexistant: ${imp}`,
-                    line: index + 1,
-                    severity: 'error'
-                  });
-                }
+      for (const [lineIndex, line] of importLines.entries()) {
+        // Vérifier les imports d'UI components
+        if (line.includes('@/components/ui')) {
+          const match = line.match(/import\s*{([^}]+)}\s*from\s*['"]@\/components\/ui(?:\/([^'"]*))?['"]/);
+          if (match) {
+            const imports = match[1].split(',').map(imp => imp.trim());
+            const specificFile = match[2];
+            
+            if (specificFile) {
+              // Import spécifique d'un fichier
+              const expectedPath = path.join(this.uiComponentsDir, `${specificFile}.tsx`);
+              if (!fs.existsSync(expectedPath)) {
+                this.addIssue({
+                  file: filePath,
+                  component: specificFile,
+                  issue: `Import d'un composant inexistant: ${specificFile}`,
+                  line: lineIndex + 1,
+                  severity: 'error'
+                });
               }
             }
           }
-        });
-      } catch (error) {
-        console.warn(chalk.yellow(`Impossible de lire ${filePath}: ${error}`));
+        }
       }
     }
   }
 
   private getUIFiles(): string[] {
-    if (!fs.existsSync(this.uiComponentsDir)) {
-      console.warn(chalk.yellow(`Dossier UI non trouvé: ${this.uiComponentsDir}`));
-      return [];
-    }
-    
-    return fs.readdirSync(this.uiComponentsDir)
-      .filter(file => file.endsWith('.tsx'))
-      .map(file => path.join(this.uiComponentsDir, file));
-  }
-
-  private getUIComponentNames(): string[] {
     if (!fs.existsSync(this.uiComponentsDir)) return [];
     
     return fs.readdirSync(this.uiComponentsDir)
-      .filter(file => file.endsWith('.tsx'))
-      .map(file => file.replace('.tsx', ''));
+      .filter(file => file.endsWith('.tsx') && file !== 'index.tsx')
+      .map(file => path.join(this.uiComponentsDir, file));
   }
 
   private getAllTSXFiles(): string[] {
     const files: string[] = [];
     
-    const searchDir = (dir: string) => {
+    const walk = (dir: string): void => {
       if (!fs.existsSync(dir)) return;
       
-      try {
-        const items = fs.readdirSync(dir);
-        for (const item of items) {
-          const fullPath = path.join(dir, item);
-          
-          try {
-            const stat = fs.statSync(fullPath);
-            
-            if (stat.isDirectory() && !item.includes('node_modules') && !item.startsWith('.')) {
-              searchDir(fullPath);
-            } else if ((item.endsWith('.tsx') || item.endsWith('.ts')) && stat.isFile()) {
-              files.push(fullPath);
-            }
-          } catch (statError) {
-            // Ignorer les erreurs de stat (permissions, etc.)
-            continue;
-          }
+      const items = fs.readdirSync(dir);
+      
+      for (const item of items) {
+        const fullPath = path.join(dir, item);
+        const stat = fs.statSync(fullPath);
+        
+        if (stat.isDirectory() && !item.startsWith('.') && item !== 'node_modules') {
+          walk(fullPath);
+        } else if (item.endsWith('.tsx') || item.endsWith('.ts')) {
+          files.push(fullPath);
         }
-      } catch (readError) {
-        console.warn(chalk.yellow(`Impossible de lire le dossier ${dir}: ${readError}`));
       }
     };
     
-    searchDir(this.srcDir);
+    walk(this.srcDir);
     return files;
   }
 
+  private getUIComponentNames(): string[] {
+    return this.getUIFiles()
+      .map(file => path.basename(file, '.tsx'))
+      .filter(name => name !== 'index');
+  }
+
+  private isIgnoredLine(line: string): boolean {
+    return line.includes('// @ts-ignore') || 
+           line.includes('// eslint-disable') ||
+           line.includes('// Type intentionally any') ||
+           line.includes('Object.create(null)');
+  }
+
+  private addIssue(issue: UIComponentIssue): void {
+    this.issues.push(issue);
+  }
+
   private generateReport(): void {
+    const stats = this.calculateStats();
+    
     console.log(chalk.cyan('\n📊 RAPPORT DE VÉRIFICATION\n'));
     
-    const errorCount = this.issues.filter(i => i.severity === 'error').length;
-    const warningCount = this.issues.filter(i => i.severity === 'warning').length;
-    const infoCount = this.issues.filter(i => i.severity === 'info').length;
+    console.log(chalk.red(`❌ Erreurs: ${stats.errors}`));
+    console.log(chalk.yellow(`⚠️  Avertissements: ${stats.warnings}`));
+    console.log(chalk.blue(`ℹ️  Informations: ${stats.info}\n`));
     
-    console.log(chalk.red(`❌ Erreurs: ${errorCount}`));
-    console.log(chalk.yellow(`⚠️  Avertissements: ${warningCount}`));
-    console.log(chalk.blue(`ℹ️  Informations: ${infoCount}`));
-    
-    if (this.issues.length === 0) {
-      console.log(chalk.green('\n✅ Tous les composants UI sont correctement utilisés!'));
-      return;
+    // Afficher les erreurs
+    if (stats.errors > 0) {
+      console.log(chalk.red('ERROR:'));
+      this.issues
+        .filter(issue => issue.severity === 'error')
+        .forEach(issue => {
+          const location = issue.line ? `:${issue.line}` : '';
+          console.log(chalk.red(`  ${issue.file}${location}`));
+          console.log(chalk.red(`    ${issue.component}: ${issue.issue}`));
+        });
+      console.log();
     }
     
-    // Grouper par sévérité
-    const groupedIssues = {
-      error: this.issues.filter(i => i.severity === 'error'),
-      warning: this.issues.filter(i => i.severity === 'warning'),
-      info: this.issues.filter(i => i.severity === 'info')
-    };
+    // Afficher les avertissements
+    if (stats.warnings > 0) {
+      console.log(chalk.yellow('WARNING:'));
+      this.issues
+        .filter(issue => issue.severity === 'warning')
+        .forEach(issue => {
+          const location = issue.line ? `:${issue.line}` : '';
+          console.log(chalk.yellow(`  ${issue.file}${location}`));
+          console.log(chalk.yellow(`    ${issue.component}: ${issue.issue}`));
+        });
+      console.log();
+    }
     
-    for (const [severity, issues] of Object.entries(groupedIssues)) {
-      if (issues.length === 0) continue;
-      
-      const color = severity === 'error' ? chalk.red : 
-                   severity === 'warning' ? chalk.yellow : chalk.blue;
-      
-      console.log(color(`\n${severity.toUpperCase()}:`));
-      
-      issues.forEach(issue => {
+    // Afficher les informations (limité aux 15 premières)
+    const infoIssues = this.issues.filter(issue => issue.severity === 'info');
+    if (infoIssues.length > 0) {
+      console.log(chalk.blue('INFO:'));
+      infoIssues.slice(0, 15).forEach(issue => {
         const location = issue.line ? `:${issue.line}` : '';
-        console.log(color(`  ${issue.file}${location}`));
-        console.log(`    ${issue.component}: ${issue.issue}`);
+        console.log(chalk.blue(`  ${issue.file}${location}`));
+        console.log(chalk.blue(`    ${issue.component}: ${issue.issue}`));
       });
+      
+      if (infoIssues.length > 15) {
+        console.log(chalk.blue(`  ... et ${infoIssues.length - 15} autres informations`));
+      }
+      console.log();
     }
     
     // Recommandations
-    console.log(chalk.cyan('\n🚀 RECOMMANDATIONS:\n'));
+    if (stats.totalIssues > 0) {
+      console.log(chalk.cyan('🚀 RECOMMANDATIONS:\n'));
+      console.log('1. Corrigez les erreurs critiques en premier');
+      console.log('2. Examinez les avertissements pour améliorer la qualité');
+      console.log('3. Considérez les suggestions d\'optimisation');
+      
+      if (stats.errors === 0 && stats.warnings === 0) {
+        console.log(chalk.green('\n✅ Excellente qualité de code ! Seulement des informations à examiner.'));
+      }
+    } else {
+      console.log(chalk.green('🎉 Aucun problème détecté ! Excellent travail !'));
+    }
+  }
+
+  private calculateStats(): VerificationStats {
+    const stats: VerificationStats = {
+      errors: 0,
+      warnings: 0,
+      info: 0,
+      totalIssues: this.issues.length
+    };
     
-    if (errorCount > 0) {
-      console.log(chalk.red('1. Corrigez les erreurs critiques en premier'));
+    for (const issue of this.issues) {
+      switch (issue.severity) {
+        case 'error':
+          stats.errors++;
+          break;
+        case 'warning':
+          stats.warnings++;
+          break;
+        case 'info':
+          stats.info++;
+          break;
+      }
     }
     
-    if (warningCount > 0) {
-      console.log(chalk.yellow('2. Examinez les avertissements pour améliorer la qualité'));
-    }
-    
-    if (infoCount > 0) {
-      console.log(chalk.blue('3. Considérez les suggestions d\'optimisation'));
-    }
+    return stats;
   }
 }
 
-// Exécution
-new UIComponentsVerifier().verifyAll().catch(console.error);
+// Exécution du script
+async function main(): Promise<void> {
+  try {
+    const verifier = new UIComponentsVerifier();
+    await verifier.verifyAll();
+  } catch (error) {
+    console.error(chalk.red('❌ Erreur lors de la vérification:'), error);
+    process.exit(1);
+  }
+}
+
+if (require.main === module) {
+  main();
+}

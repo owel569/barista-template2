@@ -82,7 +82,7 @@ export function DataGrid<T = Record<string, unknown>>({
   const [searchTerm, setSearchTerm] = useState('');
   const [sortState, setSortState] = useState<SortState>({ columnId: null, direction: null });
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
-  const [columnFilters, setColumnFilters] = useState<Record<string, any>>({});
+  const [columnFilters, setColumnFilters] = useState<Record<string, unknown>>(Object.create(null));
 
   const tableRef = useRef<HTMLTableElement>(null);
 

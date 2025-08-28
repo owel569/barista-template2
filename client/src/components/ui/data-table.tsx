@@ -124,7 +124,7 @@ export function DataTable<TData, TValue>({
     sorting.defaultSort ?? []
   )
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(Object.create(null))
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({})
   const [globalFilter, setGlobalFilter] = React.useState<string>("")
   

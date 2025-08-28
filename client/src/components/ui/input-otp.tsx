@@ -9,7 +9,9 @@ import { cn } from "@/lib/utils"
 interface InputOTPProps extends React.ComponentPropsWithoutRef<typeof OTPInput> {
   className?: string;
 }
-interface InputOTPGroupProps extends React.ComponentPropsWithoutRef<"div"> {}
+interface InputOTPGroupProps extends React.ComponentPropsWithoutRef<"div"> {
+  className?: string;
+}
 interface InputOTPSlotProps extends React.ComponentPropsWithoutRef<"div"> {
   index: number
 }

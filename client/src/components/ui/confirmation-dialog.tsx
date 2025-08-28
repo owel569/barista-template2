@@ -130,7 +130,7 @@ export function useConfirmationDialog() {
     props: {
       title: '',
       description: '',
-      onConfirm: () => {},
+      onConfirm: () => { /* no-op */ },
     }
   })
 

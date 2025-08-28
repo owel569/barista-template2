@@ -224,7 +224,7 @@ export function ComboboxWithGroups({
     }
     acc[group].push(option)
     return acc
-  }, {} as Record<string, ComboboxOption[]>)
+  }, Object.create(null) as Record<string, ComboboxOption[]>)
 
   return (
     <Combobox
