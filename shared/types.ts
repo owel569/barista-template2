@@ -553,7 +553,7 @@ export interface InventoryCategory {
 export interface InventoryItem {
   id: string;
   name: string;
-  supplier: string;
+  supplierName: string;
   status: 'critical' | 'warning' | 'normal';
   currentStock: number;
   minStock: number;

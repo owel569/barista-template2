@@ -10,6 +10,7 @@ import { getDb } from '../../db';
 import { users, customers, activityLogs } from '../../../shared/schema';
 import { eq, and, or, desc, sql, ilike } from 'drizzle-orm';
 import { cacheMiddleware, invalidateCache } from '../../middleware/cache-advanced';
+import * as crypto from 'crypto';
 
 const router = Router();
 const logger = createLogger('USERS_ROUTES');
@@ -44,9 +45,9 @@ const UpdatePasswordSchema = z.object({
 
 // Fonction utilitaire pour enregistrer une activité
 async function logActivity(
-  userId: string, 
-  action: string, 
-  details: string, 
+  userId: string,
+  action: string,
+  details: string,
   req: any,
   targetUserId?: string
 ): Promise<void> {
@@ -62,10 +63,10 @@ async function logActivity(
       userAgent: req.get('User-Agent')
     });
   } catch (error) {
-    logger.error('Erreur enregistrement activité', { 
-      userId, 
-      action, 
-      error: error instanceof Error ? error.message : 'Erreur inconnue' 
+    logger.error('Erreur enregistrement activité', {
+      userId,
+      action,
+      error: error instanceof Error ? error.message : 'Erreur inconnue'
     });
   }
 }
@@ -84,16 +85,16 @@ router.get('/',
     sortOrder: z.enum(['asc', 'desc']).default('asc')
   })),
   cacheMiddleware({ ttl: 2 * 60 * 1000, tags: ['users', 'employees'] }),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
-    const { 
-      role: rawRole, 
-      isActive: rawIsActive, 
-      search, 
-      page = '1', 
-      limit = '20', 
-      sortBy = 'createdAt', 
-      sortOrder = 'desc' 
+    const {
+      role: rawRole,
+      isActive: rawIsActive,
+      search,
+      page = '1',
+      limit = '20',
+      sortBy = 'createdAt',
+      sortOrder = 'desc'
     } = req.query;
 
     // Conversion des types
@@ -162,11 +163,11 @@ router.get('/',
       .select({ count: sql<number>`count(*)` })
       .from(users)
       .where(conditions.length > 0 ? and(...conditions) : undefined);
-    
+
     const count = countResult[0]?.count || 0;
 
-    logger.info('Utilisateurs récupérés', { 
-      count: usersData.length, 
+    logger.info('Utilisateurs récupérés', {
+      count: usersData.length,
       total: count,
       filters: { role, isActive, search }
     });
@@ -190,7 +191,7 @@ router.get('/:id',
   requireRoles(['admin', 'manager']),
   validateParams(commonSchemas.idSchema),
   cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['users'] }),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const { id } = req.params;
 
@@ -208,7 +209,7 @@ router.get('/:id',
         lastLoginAt: users.lastLoginAt
       })
       .from(users)
-      .where(eq(users.id, id));
+      .where(eq(users.id, parseInt(id || '0')));
 
     if (!user) {
       return res.status(404).json({
@@ -261,7 +262,7 @@ router.post('/',
   requireRoles(['admin']),
   validateBody(CreateUserSchema),
   invalidateCache(['users', 'employees']),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const currentUser = (req as any).user;
     const { password, ...userData } = req.body;
@@ -322,18 +323,18 @@ router.post('/',
 
     // Enregistrer l'activité
     await logActivity(
-      currentUser.id, 
-      'CREATE_USER', 
+      currentUser.id,
+      'CREATE_USER',
       `Utilisateur créé: ${userData.firstName} ${userData.lastName}`,
       req,
       userId
     );
 
-    logger.info('Utilisateur créé', { 
-      userId, 
-      email: userData.email, 
+    logger.info('Utilisateur créé', {
+      userId,
+      email: userData.email,
       role: userData.role,
-      createdBy: currentUser.id 
+      createdBy: currentUser.id
     });
 
     res.status(201).json({
@@ -351,7 +352,7 @@ router.put('/:id',
   validateParams(commonSchemas.idSchema),
   validateBody(UpdateUserSchema),
   invalidateCache(['users', 'employees']),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const currentUser = (req as any).user;
     const { id } = req.params;
@@ -422,17 +423,17 @@ router.put('/:id',
 
     // Enregistrer l'activité
     await logActivity(
-      currentUser.id, 
-      'UPDATE_USER', 
+      currentUser.id,
+      'UPDATE_USER',
       `Utilisateur mis à jour: ${Object.keys(req.body).join(', ')}`,
       req,
       id
     );
 
-    logger.info('Utilisateur mis à jour', { 
-      userId: id, 
+    logger.info('Utilisateur mis à jour', {
+      userId: id,
       changes: Object.keys(req.body),
-      updatedBy: currentUser.id 
+      updatedBy: currentUser.id
     });
 
     res.json({
@@ -449,7 +450,7 @@ router.patch('/:id/password',
   requireRoles(['admin']),
   validateParams(commonSchemas.idSchema),
   validateBody(UpdatePasswordSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const currentUser = (req as any).user;
     const { id } = req.params;
@@ -482,16 +483,16 @@ router.patch('/:id/password',
 
     // Enregistrer l'activité
     await logActivity(
-      currentUser.id, 
-      'UPDATE_USER_PASSWORD', 
+      currentUser.id,
+      'UPDATE_USER_PASSWORD',
       `Mot de passe réinitialisé pour: ${existingUser.firstName} ${existingUser.lastName}`,
       req,
       id
     );
 
-    logger.info('Mot de passe utilisateur mis à jour', { 
-      userId: id, 
-      updatedBy: currentUser.id 
+    logger.info('Mot de passe utilisateur mis à jour', {
+      userId: id,
+      updatedBy: currentUser.id
     });
 
     res.json({
@@ -507,7 +508,7 @@ router.delete('/:id',
   requireRoles(['admin']),
   validateParams(commonSchemas.idSchema),
   invalidateCache(['users', 'employees']),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const currentUser = (req as any).user;
     const { id } = req.params;
@@ -543,17 +544,17 @@ router.delete('/:id',
 
     // Enregistrer l'activité
     await logActivity(
-      currentUser.id, 
-      'DEACTIVATE_USER', 
+      currentUser.id,
+      'DEACTIVATE_USER',
       `Utilisateur désactivé: ${deactivatedUser.firstName} ${deactivatedUser.lastName}`,
       req,
       id
     );
 
-    logger.info('Utilisateur désactivé', { 
-      userId: id, 
+    logger.info('Utilisateur désactivé', {
+      userId: id,
       email: deactivatedUser.email,
-      deactivatedBy: currentUser.id 
+      deactivatedBy: currentUser.id
     });
 
     res.json({
@@ -568,7 +569,7 @@ router.get('/stats/overview',
   authenticateUser,
   requireRoles(['admin', 'manager']),
   cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['users', 'stats'] }),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
 
     const stats = await db

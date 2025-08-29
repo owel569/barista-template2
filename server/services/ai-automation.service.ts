@@ -103,8 +103,9 @@ interface AnomalyRequest {
 }
 
 // Placeholder types for clarity, replace with actual types if available
-type StaffingRecommendation = any;
-type MarketingOpportunity = any;
+// Removed duplicate interface definitions
+// type StaffingRecommendation = any;
+// type MarketingOpportunity = any;
 
 /**
  * Service central d'Intelligence Artificielle pour Barista Café
@@ -477,7 +478,7 @@ export class AIAutomationService {
   private async predictCustomerFlow(timeframe: string): Promise<CustomerFlowPrediction> {
     try {
       const db = getDb();
-      
+
       // Analyse des données historiques pour prédire le flux
       const historicalData = await db.select({
         hour: sql`EXTRACT(HOUR FROM created_at)`,
@@ -517,7 +518,7 @@ export class AIAutomationService {
   private async generateInventoryAlerts() {
     try {
       const db = getDb();
-      
+
       // Analyse des niveaux de stock et des tendances de vente
       const inventoryAnalysis = await db.select({
         itemName: menuItems.name,
@@ -559,11 +560,11 @@ export class AIAutomationService {
   private async generateStaffingRecommendations(customerFlow: CustomerFlowPrediction): Promise<StaffingRecommendation> {
     const totalPeakCustomers = customerFlow.peakPeriods.reduce((sum, period) => sum + period.expectedCustomers, 0);
     const totalQuietCustomers = customerFlow.quietPeriods.reduce((sum, period) => sum + period.expectedCustomers, 0);
-    
+
     // Calcul basé sur le ratio clients/employés optimisé pour un café
     const optimalPeakStaff = Math.ceil(totalPeakCustomers / 15);
     const optimalQuietStaff = Math.ceil(totalQuietCustomers / 25);
-    
+
     return {
       optimal: optimalPeakStaff,
       minimum: optimalQuietStaff,
@@ -580,7 +581,7 @@ export class AIAutomationService {
   private async identifyMarketingOpportunities(): Promise<MarketingOpportunity[]> {
     try {
       const db = getDb();
-      
+
       // Analyse des tendances des ventes par catégorie
       const salesTrends = await db.select({
         category: menuItems.category,
@@ -773,10 +774,10 @@ export class AIAutomationService {
 
     return entities;
   }
-  
+
   async analyzeVoiceInput(data: z.infer<typeof VoiceAnalysisSchema>) {
     const { audioData, language, userId } = VoiceAnalysisSchema.parse(data);
-    
+
     try {
       // Simulation d'analyse vocale - à remplacer par un vrai service ASR
       const transcribedText = this.simulateSpeechRecognition(audioData);
@@ -807,13 +808,13 @@ export class AIAutomationService {
       "Avez-vous des promotions en ce moment ?",
       "Peut-on venir en groupe ?"
     ];
-    
+
     return commonPhrases[Math.floor(Math.random() * commonPhrases.length)];
   }
 
   async detectAnomalies(data: AnomalyRequest) {
     const { metric, period } = data;
-    
+
     try {
       const db = getDb();
       const anomalies = await db.select({

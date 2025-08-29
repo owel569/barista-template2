@@ -24,7 +24,7 @@ declare global {
       requestId?: string;
       startTime?: number;
     }
-    
+
     interface Response {
       success?: boolean;
     }

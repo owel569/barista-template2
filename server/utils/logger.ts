@@ -19,24 +19,6 @@ export interface LogEntry {
   userAgent?: string;
 }
 
-export enum LogLevel {
-  ERROR = 'ERROR',
-  WARN = 'WARN',
-  INFO = 'INFO',
-  DEBUG = 'DEBUG'
-}
-
-export interface LogEntry {
-  timestamp: string;
-  level: LogLevel;
-  message: string;
-  context?: Record<string, any>;
-  requestId?: string;
-  userId?: number;
-  ip?: string;
-  userAgent?: string;
-}
-
 class Logger {
   private logDir: string;
   private maxFileSize: number = 10 * 1024 * 1024; // 10MB
@@ -78,7 +60,6 @@ class Logger {
     const logLine = this.formatLogEntry(entry) + '\n';
 
     try {
-      // Vérifier la taille du fichier et faire une rotation si nécessaire
       if (fs.existsSync(filepath)) {
         const stats = fs.statSync(filepath);
         if (stats.size > this.maxFileSize) {
@@ -97,7 +78,6 @@ class Logger {
     const ext = path.extname(filepath);
     const basename = path.basename(filepath, ext);
 
-    // Décaler les fichiers existants
     for (let i = this.maxFiles - 1; i > 0; i--) {
       const oldFile = path.join(dir, `${basename}.${i}${ext}`);
       const newFile = path.join(dir, `${basename}.${i + 1}${ext}`);
@@ -111,7 +91,6 @@ class Logger {
       }
     }
 
-    // Renommer le fichier actuel
     const rotatedFile = path.join(dir, `${basename}.1${ext}`);
     fs.renameSync(filepath, rotatedFile);
   }
@@ -121,14 +100,13 @@ class Logger {
       timestamp: new Date().toISOString(),
       level,
       message,
-      context,
-      requestId,
-      userId,
-      ip,
-      userAgent
+      ...(context && { context }),
+      ...(requestId && { requestId }),
+      ...(userId && { userId }),
+      ...(ip && { ip }),
+      ...(userAgent && { userAgent })
     };
 
-    // Log vers la console en développement
     if (process.env.NODE_ENV === 'development') {
       const colorMap = {
         [LogLevel.ERROR]: '\x1b[31m',
@@ -142,7 +120,6 @@ class Logger {
       console.log(`${color}${this.formatLogEntry(entry)}${resetColor}`);
     }
 
-    // Log vers fichier en production
     if (process.env.NODE_ENV === 'production') {
       this.writeToFile(level, entry);
     }
@@ -173,14 +150,14 @@ export interface LoggerMeta {
   [key: string]: unknown;
 }
 
-export interface Logger {
+export interface LoggerInterface {
   info: (message: string, meta?: LoggerMeta) => void;
   error: (message: string, meta?: LoggerMeta) => void;
   warn: (message: string, meta?: LoggerMeta) => void;
   debug: (message: string, meta?: LoggerMeta) => void;
 }
 
-export function createLogger(name: string): Logger {
+export function createLogger(name: string): LoggerInterface {
   return {
     info: (message: string, meta?: LoggerMeta) => {
       console.log(`[${name}] INFO: ${message}`, meta ? JSON.stringify(meta) : '');
