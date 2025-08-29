@@ -429,7 +429,7 @@ class UserProfileService {
         postalCode: address.postalCode,
         country: address.country,
         isDefault: address.isDefault,
-        notes: address.notes ?? undefined
+        notes: address.notes || ''
       }));
     } catch (error) {
       logger.error('Erreur récupération adresses', { 
@@ -496,7 +496,7 @@ class UserProfileService {
         postalCode: address.postalCode,
         country: address.country,
         isDefault: address.isDefault,
-        notes: address.notes ?? undefined
+        notes: address.notes || ''
       };
     } catch (error) {
       logger.error('Erreur sauvegarde adresse', { 
@@ -519,19 +519,21 @@ userProfileRouter.get('/profile',
   asyncHandler(async (req, res): Promise<void> => {
     const userId = req.user?.id;
     if (!userId) {
-      return res.status(401).json({ 
+      res.status(401).json({ 
         success: false,
         message: 'Utilisateur non authentifié' 
       });
+      return;
     }
 
     const profile = await UserProfileService.getUserProfile(userId);
 
     if (!profile) {
-      return res.status(404).json({ 
+      res.status(404).json({ 
         success: false,
         message: 'Profil utilisateur non trouvé' 
       });
+      return;
     }
 
     res.json({
@@ -550,10 +552,11 @@ userProfileRouter.put('/profile',
     const userId = req.user?.id;
 
     if (!userId) {
-      return res.status(401).json({ 
+      res.status(401).json({ 
         success: false,
         message: 'Utilisateur non authentifié' 
       });
+      return;
     }
 
     const db = await getDb();
@@ -568,10 +571,11 @@ userProfileRouter.put('/profile',
       .limit(1);
 
     if (existingUser) {
-      return res.status(409).json({ 
+      res.status(409).json({ 
         success: false,
         message: 'Email déjà utilisé' 
       });
+      return;
     }
 
     // Mettre à jour le profil
@@ -588,10 +592,11 @@ userProfileRouter.put('/profile',
       .returning();
 
     if (!updatedUser) {
-      return res.status(404).json({ 
+      res.status(404).json({ 
         success: false,
         message: 'Utilisateur non trouvé' 
       });
+      return;
     }
 
     logger.info('Profil utilisateur mis à jour', { userId });
@@ -615,10 +620,11 @@ userProfileRouter.get('/loyalty',
   asyncHandler(async (req, res): Promise<void> => {
     const userId = req.user?.id;
     if (!userId) {
-      return res.status(401).json({ 
+      res.status(401).json({ 
         success: false,
         message: 'Utilisateur non authentifié' 
       });
+      return;
     }
 
     const loyaltyData = await UserProfileService.calculateLoyaltyData(userId);
@@ -636,10 +642,11 @@ userProfileRouter.post('/loyalty/redeem',
   asyncHandler(async (req, res): Promise<void> => {
     const userId = req.user?.id;
     if (!userId) {
-      return res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
+      res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
+      return;
     }
     // Rewards persistence not available; inform client gracefully
-    return res.status(501).json({
+    res.status(501).json({
       success: false,
       message: 'Échange de récompenses non disponible dans cette configuration'
     });
@@ -655,10 +662,11 @@ userProfileRouter.get('/orders',
     const userId = req.user?.id;
 
     if (!userId) {
-      return res.status(401).json({ 
+      res.status(401).json({ 
         success: false,
         message: 'Utilisateur non authentifié' 
       });
+      return;
     }
 
     // Conversion des types
@@ -693,7 +701,8 @@ userProfileRouter.get('/addresses',
   asyncHandler(async (req, res): Promise<void> => {
     const userId = req.user?.id;
     if (!userId) {
-      return res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
+      res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
+      return;
     }
     // Address persistence not available; return empty list
     res.json({ success: true, data: [] });
@@ -706,9 +715,10 @@ userProfileRouter.post('/addresses',
   asyncHandler(async (req, res): Promise<void> => {
     const userId = req.user?.id;
     if (!userId) {
-      return res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
+      res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
+      return;
     }
-    return res.status(501).json({ success: false, message: 'Gestion d\'adresses non disponible' });
+    res.status(501).json({ success: false, message: 'Gestion d\'adresses non disponible' });
   })
 );
 
@@ -719,9 +729,10 @@ userProfileRouter.put('/addresses/:id',
     const userId = req.user?.id;
     const addressId = Number(req.params.id);
     if (!userId || isNaN(addressId)) {
-      return res.status(400).json({ success: false, message: 'Requête invalide' });
+      res.status(400).json({ success: false, message: 'Requête invalide' });
+      return;
     }
-    return res.status(501).json({ success: false, message: 'Gestion d\'adresses non disponible' });
+    res.status(501).json({ success: false, message: 'Gestion d\'adresses non disponible' });
   })
 );
 
@@ -731,9 +742,10 @@ userProfileRouter.delete('/addresses/:id',
     const userId = req.user?.id;
     const addressId = Number(req.params.id);
     if (!userId || isNaN(addressId)) {
-      return res.status(400).json({ success: false, message: 'Requête invalide' });
+      res.status(400).json({ success: false, message: 'Requête invalide' });
+      return;
     }
-    return res.status(501).json({ success: false, message: 'Gestion d\'adresses non disponible' });
+    res.status(501).json({ success: false, message: 'Gestion d\'adresses non disponible' });
   })
 );
 
@@ -743,10 +755,11 @@ userProfileRouter.get('/preferences',
   asyncHandler(async (req, res): Promise<void> => {
     const userId = req.user?.id;
     if (!userId) {
-      return res.status(401).json({ 
+      res.status(401).json({ 
         success: false,
         message: 'Utilisateur non authentifié' 
       });
+      return;
     }
 
     // Preferences persistence not available; return defaults for now
@@ -781,7 +794,8 @@ userProfileRouter.put('/preferences',
   asyncHandler(async (req, res): Promise<void> => {
     const userId = req.user?.id;
     if (!userId) {
-      return res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
+      res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
+      return;
     }
     // Echo preferences back since persistence layer is not available
     logger.info('Préférences (non persistées) reçues', { userId });

@@ -47,7 +47,7 @@ export class SecurityUtils {
       if (sensitiveFields.some(field => key.toLowerCase().includes(field))) {
         masked[key] = '[MASKED]';
       } else if (typeof value === 'object' && value !== null) {
-        masked[key] = this.maskSensitiveData(value);
+        masked[key] = this.maskSensitiveData(value as Record<string, unknown>);
       }
     }
 

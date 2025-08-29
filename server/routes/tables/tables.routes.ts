@@ -1,4 +1,3 @@
-
 import { Router } from 'express';
 import { z } from 'zod';
 import { asyncHandler } from '../../middleware/error-handler-enhanced';
@@ -89,7 +88,7 @@ async function logTableActivity(
 // Liste des tables avec filtres
 router.get('/',
   authenticateUser,
-  requireRoles(['admin', 'manager', 'staff']),
+  requireRoles(['admin', 'manager', 'waiter']),
   validateQuery(z.object({
     location: z.enum(['inside', 'outside', 'terrace', 'private_room']).optional(),
     section: z.string().optional(),
@@ -101,7 +100,7 @@ router.get('/',
     sortOrder: z.enum(['asc', 'desc']).default('asc')
   })),
   cacheMiddleware({ ttl: 1 * 60 * 1000, tags: ['tables'] }),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const {
       location,
@@ -184,9 +183,9 @@ router.get('/',
 // Statut en temps réel des tables
 router.get('/status',
   authenticateUser,
-  requireRoles(['admin', 'manager', 'staff']),
+  requireRoles(['admin', 'manager', 'waiter']),
   cacheMiddleware({ ttl: 30 * 1000, tags: ['tables', 'reservations'] }), // Cache très court pour temps réel
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const now = new Date();
 
@@ -202,17 +201,17 @@ router.get('/status',
       .select({
         id: reservations.id,
         tableId: reservations.tableId,
-        customerName: reservations.customerName,
-        startTime: reservations.dateTime,
-        endTime: sql<Date>`${reservations.dateTime} + INTERVAL '2 hours'`, // Durée par défaut
+        customerName: reservations.guestName,
+        startTime: reservations.reservationTime,
+        endTime: sql<Date>`${reservations.reservationTime} + INTERVAL '2 hours'`, // Durée par défaut
         partySize: reservations.partySize,
         status: reservations.status
       })
       .from(reservations)
       .where(
         and(
-          sql`${reservations.dateTime} <= ${now}`,
-          sql`${reservations.dateTime} + INTERVAL '2 hours' > ${now}`,
+          sql`${reservations.reservationTime} <= ${now}`,
+          sql`${reservations.reservationTime} + INTERVAL '2 hours' > ${now}`,
           eq(reservations.status, 'confirmed')
         )
       );
@@ -221,19 +220,19 @@ router.get('/status',
       .select({
         id: reservations.id,
         tableId: reservations.tableId,
-        customerName: reservations.customerName,
-        startTime: reservations.dateTime,
+        customerName: reservations.guestName,
+        startTime: reservations.reservationTime,
         partySize: reservations.partySize
       })
       .from(reservations)
       .where(
         and(
-          sql`${reservations.dateTime} > ${now}`,
-          sql`${reservations.dateTime} <= ${now} + INTERVAL '4 hours'`,
+          sql`${reservations.reservationTime} > ${now}`,
+          sql`${reservations.reservationTime} <= ${now} + INTERVAL '4 hours'`,
           eq(reservations.status, 'confirmed')
         )
       )
-      .orderBy(reservations.dateTime);
+      .orderBy(reservations.reservationTime);
 
     // Créer un map des réservations par table
     const currentReservationMap = new Map();
@@ -314,7 +313,7 @@ router.post('/',
   requireRoles(['admin', 'manager']),
   validateBody(CreateTableSchema),
   invalidateCache(['tables']),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const currentUser = (req as any).user;
 
@@ -376,7 +375,7 @@ router.put('/:id',
   validateParams(z.object({ id: z.string().uuid() })),
   validateBody(UpdateTableSchema.omit({ id: true })),
   invalidateCache(['tables']),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const currentUser = (req as any).user;
     const { id } = req.params;
@@ -448,11 +447,11 @@ router.put('/:id',
 // Changer le statut d'une table
 router.patch('/:id/status',
   authenticateUser,
-  requireRoles(['admin', 'manager', 'staff']),
+  requireRoles(['admin', 'manager', 'waiter']),
   validateParams(z.object({ id: z.string().uuid() })),
   validateBody(TableStatusSchema),
   invalidateCache(['tables']),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const currentUser = (req as any).user;
     const { id } = req.params;
@@ -514,7 +513,7 @@ router.delete('/:id',
   requireRoles(['admin']),
   validateParams(z.object({ id: z.string().uuid() })),
   invalidateCache(['tables']),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const currentUser = (req as any).user;
     const { id } = req.params;
@@ -526,7 +525,7 @@ router.delete('/:id',
       .where(
         and(
           eq(reservations.tableId, id),
-          sql`${reservations.dateTime} > NOW()`,
+          sql`${reservations.reservationTime} > NOW()`,
           eq(reservations.status, 'confirmed')
         )
       );
@@ -582,7 +581,7 @@ router.get('/stats',
   authenticateUser,
   requireRoles(['admin', 'manager']),
   cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['tables', 'stats'] }),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
 
     // Statistiques générales

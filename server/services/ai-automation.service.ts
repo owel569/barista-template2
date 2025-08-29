@@ -244,7 +244,7 @@ export class AIAutomationService {
   private generateReservationResponse(message: string, session: unknown[], userId?: string) {
     // Extraction des informations de réservation du message
     const guestMatch = message.match(/(\d+)\s*(personne|gens|places)/i);
-    const guests = guestMatch ? parseInt(guestMatch[1]) : null;
+    const guests = guestMatch && guestMatch[1] ? parseInt(guestMatch[1], 10) : null;
 
     return {
       text: `🏪 **Réservation au Café Barista**\n\n` +
@@ -271,7 +271,7 @@ export class AIAutomationService {
 
       return {
         text: `☕ **Excellent choix !**\n\n` +
-              `${item.charAt(0).toUpperCase() + item.slice(1)} - ${itemInfo?.price || 0}€\n` +
+              `${item ? item.charAt(0).toUpperCase() + item.slice(1) : 'Article'} - ${itemInfo?.price || 0}€\n` +
               `${itemInfo?.description || ''}\n\n` +
               `Voulez-vous l'ajouter à votre commande ?`,
         actions: [
@@ -463,7 +463,7 @@ export class AIAutomationService {
   private updateSession(sessionId: string, interaction: unknown) {
     const session = this.getOrCreateSession(sessionId);
     session.push({
-      ...interaction,
+      ...(interaction || {}),
       timestamp: new Date().toISOString()
     });
 
@@ -522,17 +522,17 @@ export class AIAutomationService {
       // Analyse des niveaux de stock et des tendances de vente
       const inventoryAnalysis = await db.select({
         itemName: menuItems.name,
-        currentStock: menuItems.stockQuantity,
+        currentStock: menuItems.stock || 0,
         dailySales: sql`COALESCE(AVG(orders.quantity), 0)`,
-        daysRemaining: sql`CASE WHEN AVG(orders.quantity) > 0 THEN ${menuItems.stockQuantity} / AVG(orders.quantity) ELSE 999 END`
+        daysRemaining: sql`CASE WHEN AVG(orders.quantity) > 0 THEN ${menuItems.stock || 0} / AVG(orders.quantity) ELSE 999 END`
       }).from(menuItems)
-        .leftJoin(orders, eq(orders.itemId, menuItems.id))
-        .groupBy(menuItems.id, menuItems.name, menuItems.stockQuantity)
+        .leftJoin(orders, eq(orders.id, menuItems.id))
+        .groupBy(menuItems.id, menuItems.name, menuItems.stock)
         .where(gte(orders.createdAt, new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)));
 
       return inventoryAnalysis.map(item => ({
         item: item.itemName || 'Item inconnu',
-        level: (item.daysRemaining || 999) < 2 ? 'low' : (item.daysRemaining || 999) < 5 ? 'medium' : 'optimal',
+        level: (Number(item.daysRemaining) || 999) < 2 ? 'low' : (Number(item.daysRemaining) || 999) < 5 ? 'medium' : 'optimal',
         currentStock: `${item.currentStock || 0} unités`,
         recommendedOrder: (Number(item.daysRemaining) || 999) < 3 ? `${Math.ceil((Number(item.dailySales) || 0) * 7)} unités` : 'none',
         urgency: (Number(item.daysRemaining) || 999) < 2 ? 'high' : (Number(item.daysRemaining) || 999) < 5 ? 'medium' : 'none'
@@ -809,7 +809,8 @@ export class AIAutomationService {
       "Peut-on venir en groupe ?"
     ];
 
-    return commonPhrases[Math.floor(Math.random() * commonPhrases.length)];
+    const phrase = commonPhrases[Math.floor(Math.random() * commonPhrases.length)];
+    return phrase || 'Phrase par défaut';
   }
 
   async detectAnomalies(data: AnomalyRequest) {
@@ -848,7 +849,8 @@ export class AIAutomationService {
       'Recommandation: Augmenter le stock de lait d\'amande',
       'Tendance: Les clients préfèrent les boissons chaudes en hiver'
     ];
-    return insights[Math.floor(Math.random() * insights.length)];
+    const insight = insights[Math.floor(Math.random() * insights.length)];
+    return insight || 'Insight par défaut';
   }
 
   private async optimizeMenu(menuData: Record<string, unknown>): Promise<Record<string, unknown>> {

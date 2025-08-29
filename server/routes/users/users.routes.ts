@@ -193,7 +193,16 @@ router.get('/:id',
   cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['users'] }),
   asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
-    const { id } = req.params;
+    const userIdParam = req.params.id;
+    const id = userIdParam ? parseInt(userIdParam, 10) : 0;
+
+    if (!id || isNaN(id) || id <= 0) {
+      res.status(400).json({
+        success: false,
+        message: 'ID utilisateur invalide'
+      });
+      return;
+    }
 
     const [user] = await db
       .select({
@@ -209,7 +218,7 @@ router.get('/:id',
         lastLoginAt: users.lastLoginAt
       })
       .from(users)
-      .where(eq(users.id, parseInt(id as string)));
+      .where(eq(users.id, id));
 
     if (!user) {
       return res.status(404).json({
@@ -309,7 +318,7 @@ router.post('/',
     if (userData.role === 'customer') {
       await db.insert(customers).values({
         id: crypto.randomUUID(),
-        userId,
+        userId: userIdNumber, // Utilisez userIdNumber ici
         firstName: userData.firstName,
         lastName: userData.lastName,
         email: userData.email,
@@ -327,11 +336,11 @@ router.post('/',
       'CREATE_USER',
       `Utilisateur créé: ${userData.firstName} ${userData.lastName}`,
       req,
-      userId
+      String(userIdNumber) // Convertir en string pour logActivity
     );
 
     logger.info('Utilisateur créé', {
-      userId,
+      userId: userIdNumber,
       email: userData.email,
       role: userData.role,
       createdBy: currentUser.id
@@ -355,7 +364,16 @@ router.put('/:id',
   asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const currentUser = (req as any).user;
-    const { id } = req.params;
+    const userIdParam = req.params.id;
+    const id = userIdParam ? parseInt(userIdParam, 10) : 0;
+
+    if (!id || isNaN(id) || id <= 0) {
+      res.status(400).json({
+        success: false,
+        message: 'ID utilisateur invalide'
+      });
+      return;
+    }
 
     // Vérifier que l'utilisateur existe
     const [existingUser] = await db
@@ -427,7 +445,7 @@ router.put('/:id',
       'UPDATE_USER',
       `Utilisateur mis à jour: ${Object.keys(req.body).join(', ')}`,
       req,
-      id
+      String(id)
     );
 
     logger.info('Utilisateur mis à jour', {
@@ -453,8 +471,16 @@ router.patch('/:id/password',
   asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const currentUser = (req as any).user;
-    const { id } = req.params;
-    const { password } = req.body;
+    const userIdParam = req.params.id;
+    const id = userIdParam ? parseInt(userIdParam, 10) : 0;
+
+    if (!id || isNaN(id) || id <= 0) {
+      res.status(400).json({
+        success: false,
+        message: 'ID utilisateur invalide'
+      });
+      return;
+    }
 
     // Vérifier que l'utilisateur existe
     const [existingUser] = await db
@@ -487,7 +513,7 @@ router.patch('/:id/password',
       'UPDATE_USER_PASSWORD',
       `Mot de passe réinitialisé pour: ${existingUser.firstName} ${existingUser.lastName}`,
       req,
-      id
+      String(id)
     );
 
     logger.info('Mot de passe utilisateur mis à jour', {
@@ -511,7 +537,16 @@ router.delete('/:id',
   asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const currentUser = (req as any).user;
-    const { id } = req.params;
+    const userIdParam = req.params.id;
+    const id = userIdParam ? parseInt(userIdParam, 10) : 0;
+
+    if (!id || isNaN(id) || id <= 0) {
+      res.status(400).json({
+        success: false,
+        message: 'ID utilisateur invalide'
+      });
+      return;
+    }
 
     // Empêcher la suppression de son propre compte
     if (id === currentUser.id) {
@@ -525,7 +560,7 @@ router.delete('/:id',
     const [deactivatedUser] = await db
       .update(users)
       .set({
-        active: false,
+        isActive: false, // Utilisation de isActive au lieu de active
         updatedAt: new Date()
       })
       .where(eq(users.id, id))
@@ -548,7 +583,7 @@ router.delete('/:id',
       'DEACTIVATE_USER',
       `Utilisateur désactivé: ${deactivatedUser.firstName} ${deactivatedUser.lastName}`,
       req,
-      id
+      String(id)
     );
 
     logger.info('Utilisateur désactivé', {
@@ -588,7 +623,7 @@ router.get('/stats/overview',
           acc[stat.role] = { total: 0, active: 0, inactive: 0 };
         }
         acc[stat.role].total += stat.count;
-        if (stat.active) {
+        if (stat.isActive) { // Utilisation de isActive
           acc[stat.role].active += stat.count;
         } else {
           acc[stat.role].inactive += stat.count;

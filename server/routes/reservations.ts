@@ -1,4 +1,3 @@
-
 import { Router } from 'express';
 import { z } from 'zod';
 import { asyncHandler } from '../middleware/error-handler';
@@ -46,7 +45,7 @@ let reservations = [
 // Routes publiques pour les clients
 router.post('/', 
   validateBody(ReservationSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     try {
       const newReservation = {
         id: (reservations.length + 1).toString(),
@@ -90,10 +89,10 @@ router.get('/availability',
     time: z.string(),
     partySize: z.string().transform(Number)
   })),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     try {
       const { date, time, partySize } = req.query;
-      
+
       // Logique de vérification de disponibilité
       const isAvailable = true; // TODO: Implémenter la logique réelle
 
@@ -119,8 +118,8 @@ router.get('/availability',
 // Routes protégées pour le staff
 router.get('/', 
   authenticateUser,
-  requireRoles(['admin', 'manager', 'staff']),
-  asyncHandler(async (req, res) => {
+  requireRoles(['admin', 'manager', 'waiter']),
+  asyncHandler(async (req, res): Promise<void> => {
     try {
       res.json({
         success: true,
@@ -137,16 +136,16 @@ router.get('/',
 
 router.patch('/:id/status',
   authenticateUser,
-  requireRoles(['admin', 'manager', 'staff']),
+  requireRoles(['admin', 'manager', 'waiter']),
   validateParams(z.object({ id: z.string() })),
   validateBody(UpdateStatusSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const { id } = req.params;
     const { status } = req.body;
 
     try {
       const reservation = reservations.find(r => r.id === id);
-      
+
       if (!reservation) {
         return res.status(404).json({
           success: false,
