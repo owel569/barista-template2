@@ -1,0 +1,323 @@
+
+server/routes/database.routes.ts:216:53 - error TS2339: Property 'rows' does not exist on type 'Record<string, unknown>[] & Iterable<Record<string, unknown>> & ResultQueryMeta<number, string>'.
+
+216         activeConnections: Number(connectionsResult.rows[0]?.active_connections) || 0,
+                                                        ~~~~
+
+server/routes/database.routes.ts:217:50 - error TS2339: Property 'rows' does not exist on type 'Record<string, unknown>[] & Iterable<Record<string, unknown>> & ResultQueryMeta<number, string>'.
+
+217         maxConnections: Number(connectionsResult.rows[0]?.max_connections) || 0
+                                                     ~~~~
+
+server/routes/database.routes.ts:253:16 - error TS7030: Not all code paths return a value.
+
+253   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/database.routes.ts:265:34 - error TS2339: Property 'rows' does not exist on type 'RowList<Record<string, unknown>[]>'.
+
+265       if (!migrationsTableExists.rows[0]?.exists) {
+                                     ~~~~
+
+server/routes/database.routes.ts:287:34 - error TS2339: Property 'rows' does not exist on type 'RowList<Record<string, unknown>[]>'.
+
+287           migrations: migrations.rows.map(row => ({
+                                     ~~~~
+
+server/routes/database.routes.ts:287:43 - error TS7006: Parameter 'row' implicitly has an 'any' type.
+
+287           migrations: migrations.rows.map(row => ({
+                                              ~~~
+
+server/routes/delivery.ts:217:37 - error TS2322: Type '"staff"' is not assignable to type 'AppRole'.
+
+217   requireRoles(['admin', 'manager', 'staff']),
+                                        ~~~~~~~
+
+server/routes/delivery.ts:347:37 - error TS2322: Type '"staff"' is not assignable to type 'AppRole'.
+
+347   requireRoles(['admin', 'manager', 'staff']),
+                                        ~~~~~~~
+
+server/routes/delivery.ts:349:16 - error TS7030: Not all code paths return a value.
+
+349   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/delivery.ts:353:63 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+353       const delivery = deliveries.find(d => d.id === parseInt(id));
+                                                                  ~~
+
+server/routes/delivery.ts:402:37 - error TS2322: Type '"staff"' is not assignable to type 'AppRole'.
+
+402   requireRoles(['admin', 'manager', 'staff']),
+                                        ~~~~~~~
+
+server/routes/delivery.ts:469:37 - error TS2322: Type '"staff"' is not assignable to type 'AppRole'.
+
+469   requireRoles(['admin', 'manager', 'staff']),
+                                        ~~~~~~~
+
+server/routes/delivery.ts:472:16 - error TS7030: Not all code paths return a value.
+
+472   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/delivery.ts:477:63 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+477       const delivery = deliveries.find(d => d.id === parseInt(id));
+                                                                  ~~
+
+server/routes/delivery.ts:563:16 - error TS7030: Not all code paths return a value.
+
+563   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/delivery.ts:568:58 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+568       const driver = drivers.find(d => d.id === parseInt(id));
+                                                             ~~
+
+server/routes/feedback/feedback.routes.ts:73:7 - error TS2769: No overload matches this call.
+  Overload 2 of 2, '(values: { action: string | SQL<unknown> | Placeholder<string, any>; entity: string | SQL<unknown> | Placeholder<string, any>; details?: string | SQL<unknown> | Placeholder<...> | null | undefined; ... 5 more ...; userAgent?: string | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'id' does not exist in type '{ action: string | SQL<unknown> | Placeholder<string, any>; entity: string | SQL<unknown> | Placeholder<string, any>; details?: string | SQL<unknown> | Placeholder<...> | null | undefined; ... 5 more ...; userAgent?: string | ... 3 more ... | undefined; }[]'.
+
+73       id: crypto.randomUUID(),
+         ~~
+
+
+server/routes/feedback/feedback.routes.ts:93:37 - error TS2322: Type '"staff"' is not assignable to type 'AppRole'.
+
+93   requireRoles(['admin', 'manager', 'staff']),
+                                       ~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:126:13 - error TS2304: Cannot find name 'feedback'.
+
+126         id: feedback.id,
+                ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:127:21 - error TS2304: Cannot find name 'feedback'.
+
+127         customerId: feedback.customerId,
+                        ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:129:18 - error TS2304: Cannot find name 'feedback'.
+
+129           WHEN ${feedback.isAnonymous} = true THEN 'Client anonyme'
+                     ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:132:18 - error TS2304: Cannot find name 'feedback'.
+
+132         orderId: feedback.orderId,
+                     ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:133:17 - error TS2304: Cannot find name 'feedback'.
+
+133         rating: feedback.rating,
+                    ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:134:19 - error TS2304: Cannot find name 'feedback'.
+
+134         category: feedback.category,
+                      ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:135:16 - error TS2304: Cannot find name 'feedback'.
+
+135         title: feedback.title,
+                   ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:136:18 - error TS2304: Cannot find name 'feedback'.
+
+136         comment: feedback.comment,
+                     ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:137:17 - error TS2304: Cannot find name 'feedback'.
+
+137         status: feedback.status,
+                    ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:138:22 - error TS2304: Cannot find name 'feedback'.
+
+138         isAnonymous: feedback.isAnonymous,
+                         ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:139:37 - error TS2304: Cannot find name 'feedback'.
+
+139         hasResponse: sql<boolean>`${feedback.response} IS NOT NULL`,
+                                        ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:140:20 - error TS2304: Cannot find name 'feedback'.
+
+140         createdAt: feedback.createdAt,
+                       ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:141:22 - error TS2304: Cannot find name 'feedback'.
+
+141         respondedAt: feedback.respondedAt
+                         ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:143:13 - error TS2304: Cannot find name 'feedback'.
+
+143       .from(feedback)
+                ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:144:31 - error TS2304: Cannot find name 'feedback'.
+
+144       .leftJoin(customers, eq(feedback.customerId, customers.id));
+                                  ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:150:26 - error TS2304: Cannot find name 'feedback'.
+
+150       conditions.push(eq(feedback.category, category));
+                             ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:154:26 - error TS2304: Cannot find name 'feedback'.
+
+154       conditions.push(eq(feedback.rating, rating));
+                             ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:158:27 - error TS2304: Cannot find name 'feedback'.
+
+158       conditions.push(gte(feedback.rating, minRating));
+                              ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:162:26 - error TS2304: Cannot find name 'feedback'.
+
+162       conditions.push(eq(feedback.status, status));
+                             ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:168:17 - error TS2304: Cannot find name 'feedback'.
+
+168           ilike(feedback.title, `%${search}%`),
+                    ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:169:17 - error TS2304: Cannot find name 'feedback'.
+
+169           ilike(feedback.comment, `%${search}%`),
+                    ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:177:27 - error TS2304: Cannot find name 'feedback'.
+
+177       conditions.push(gte(feedback.createdAt, new Date(startDate)));
+                              ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:177:56 - error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'string | string[] | ParsedQs | ParsedQs[]' is not assignable to parameter of type 'string | number | Date'.
+      Type 'string[]' is not assignable to type 'string | number | Date'.
+        Type 'string[]' is missing the following properties from type 'Date': toDateString, toTimeString, toLocaleDateString, toLocaleTimeString, and 37 more.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'string | string[] | ParsedQs | ParsedQs[]' is not assignable to parameter of type 'string | number'.
+      Type 'string[]' is not assignable to type 'string | number'.
+
+177       conditions.push(gte(feedback.createdAt, new Date(startDate)));
+                                                           ~~~~~~~~~
+
+
+server/routes/feedback/feedback.routes.ts:181:27 - error TS2304: Cannot find name 'feedback'.
+
+181       conditions.push(lte(feedback.createdAt, new Date(endDate)));
+                              ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:181:56 - error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'string | string[] | ParsedQs | ParsedQs[]' is not assignable to parameter of type 'string | number | Date'.
+      Type 'string[]' is not assignable to type 'string | number | Date'.
+        Type 'string[]' is missing the following properties from type 'Date': toDateString, toTimeString, toLocaleDateString, toLocaleTimeString, and 37 more.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'string | string[] | ParsedQs | ParsedQs[]' is not assignable to parameter of type 'string | number'.
+      Type 'string[]' is not assignable to type 'string | number'.
+
+181       conditions.push(lte(feedback.createdAt, new Date(endDate)));
+                                                           ~~~~~~~
+
+
+server/routes/feedback/feedback.routes.ts:185:7 - error TS2741: Property 'where' is missing in type 'Omit<PgSelectBase<any, { id: any; customerId: any; customerName: SQL<string>; orderId: any; rating: any; category: any; title: any; comment: any; status: any; isAnonymous: any; hasResponse: SQL<boolean>; createdAt: any; respondedAt: any; }, ... 5 more ..., { ...; }>, "where">' but required in type 'Omit<PgSelectBase<any, { id: any; customerId: any; customerName: SQL<string>; orderId: any; rating: any; category: any; title: any; comment: any; status: any; isAnonymous: any; hasResponse: SQL<boolean>; createdAt: any; respondedAt: any; }, ... 5 more ..., { ...; }>, never>'.
+
+185       query = query.where(and(...conditions));
+          ~~~~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/select.d.ts:402:5
+    402     where(where: ((aliases: this['_']['selection']) => SQL | undefined) | SQL | undefined): PgSelectWithout<this, TDynamic, 'where'>;
+            ~~~~~
+    'where' is declared here.
+
+server/routes/feedback/feedback.routes.ts:189:47 - error TS2304: Cannot find name 'feedback'.
+
+189     const orderColumn = sortBy === 'rating' ? feedback.rating :
+                                                  ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:190:46 - error TS2304: Cannot find name 'feedback'.
+
+190                        sortBy === 'status' ? feedback.status :
+                                                 ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:191:48 - error TS2304: Cannot find name 'feedback'.
+
+191                        sortBy === 'category' ? feedback.category :
+                                                   ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:192:24 - error TS2304: Cannot find name 'feedback'.
+
+192                        feedback.createdAt;
+                           ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:194:5 - error TS2741: Property 'orderBy' is missing in type 'Omit<PgSelectBase<any, { id: any; customerId: any; customerName: SQL<string>; orderId: any; rating: any; category: any; title: any; comment: any; status: any; isAnonymous: any; hasResponse: SQL<boolean>; createdAt: any; respondedAt: any; }, ... 5 more ..., { ...; }>, "orderBy">' but required in type 'Omit<PgSelectBase<any, { id: any; customerId: any; customerName: SQL<string>; orderId: any; rating: any; category: any; title: any; comment: any; status: any; isAnonymous: any; hasResponse: SQL<boolean>; createdAt: any; respondedAt: any; }, ... 5 more ..., { ...; }>, never>'.
+
+194     query = sortOrder === 'desc' ?
+        ~~~~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/select.d.ts:471:5
+    471     orderBy(builder: (aliases: this['_']['selection']) => ValueOrArray<PgColumn | SQL | SQL.Aliased>): PgSelectWithout<this, TDynamic, 'orderBy'>;
+            ~~~~~~~
+    'orderBy' is declared here.
+
+server/routes/feedback/feedback.routes.ts:199:21 - error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+
+199     const offset = (page - 1) * limit;
+                        ~~~~
+
+server/routes/feedback/feedback.routes.ts:199:33 - error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+
+199     const offset = (page - 1) * limit;
+                                    ~~~~~
+
+server/routes/feedback/feedback.routes.ts:200:44 - error TS2345: Argument of type 'string | string[] | 20 | ParsedQs | ParsedQs[]' is not assignable to parameter of type 'number | Placeholder<string, any>'.
+  Type 'string' is not assignable to type 'number | Placeholder<string, any>'.
+
+200     const feedbackData = await query.limit(limit).offset(offset);
+                                               ~~~~~
+
+server/routes/feedback/feedback.routes.ts:205:13 - error TS2304: Cannot find name 'feedback'.
+
+205       .from(feedback)
+                ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:206:31 - error TS2304: Cannot find name 'feedback'.
+
+206       .leftJoin(customers, eq(feedback.customerId, customers.id))
+                                  ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:222:39 - error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+
+222         totalPages: Math.ceil(count / limit)
+                                          ~~~~~
+
+server/routes/feedback/feedback.routes.ts:231:37 - error TS2322: Type '"staff"' is not assignable to type 'AppRole'.
+
+231   requireRoles(['admin', 'manager', 'staff']),
+                                        ~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:234:16 - error TS7030: Not all code paths return a value.
+
+234   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:240:13 - error TS2304: Cannot find name 'feedback'.
+
+240         id: feedback.id,
+                ~~~~~~~~

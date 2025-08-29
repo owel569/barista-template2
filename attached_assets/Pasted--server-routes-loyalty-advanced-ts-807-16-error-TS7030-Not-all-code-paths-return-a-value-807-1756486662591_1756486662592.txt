@@ -1,0 +1,150 @@
+
+server/routes/loyalty-advanced.ts:807:16 - error TS7030: Not all code paths return a value.
+
+807   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/loyalty-advanced.ts:808:33 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+808     const customerId = parseInt(req.params.customerId);
+                                    ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/loyalty-advanced.ts:836:22 - error TS18048: 'customer' is possibly 'undefined'.
+
+836       const points = customer.loyaltyPoints || 0;
+                         ~~~~~~~~
+
+server/routes/loyalty-advanced.ts:847:71 - error TS2345: Argument of type '{ id: number; customerId: number | null; points: number; type: string; description: string | null; orderId: number | null; createdAt: Date; }[]' is not assignable to parameter of type 'LoyaltyTransaction[]'.
+  Property 'balance' is missing in type '{ id: number; customerId: number | null; points: number; type: string; description: string | null; orderId: number | null; createdAt: Date; }' but required in type 'LoyaltyTransaction'.
+
+847       const metrics = AdvancedLoyaltyService.calculateAdvancedMetrics(allTransactions);
+                                                                          ~~~~~~~~~~~~~~~
+
+  server/routes/loyalty-advanced.ts:90:3
+    90   balance: number;
+         ~~~~~~~
+    'balance' is declared here.
+
+server/routes/loyalty-advanced.ts:866:18 - error TS2339: Property 'rewardId' does not exist on type '{ id: number; customerId: number | null; points: number; type: string; description: string | null; orderId: number | null; createdAt: Date; }'.
+
+866           if (!t.rewardId) return null;
+                     ~~~~~~~~
+
+server/routes/loyalty-advanced.ts:867:56 - error TS2339: Property 'rewardId' does not exist on type '{ id: number; customerId: number | null; points: number; type: string; description: string | null; orderId: number | null; createdAt: Date; }'.
+
+867           return ENHANCED_REWARDS.find(r => r.id === t.rewardId) || null;
+                                                           ~~~~~~~~
+
+server/routes/loyalty-advanced.ts:896:26 - error TS18048: 'customer' is possibly 'undefined'.
+
+896             memberSince: customer.createdAt,
+                             ~~~~~~~~
+
+server/routes/loyalty-advanced.ts:897:27 - error TS18048: 'customer' is possibly 'undefined'.
+
+897             lastActivity: customer.updatedAt,
+                              ~~~~~~~~
+
+server/routes/loyalty-advanced.ts:911:30 - error TS2532: Object is possibly 'undefined'.
+
+911             recommendations: this.generateCustomerRecommendations(stats, level, metrics)
+                                 ~~~~
+
+server/routes/loyalty-advanced.ts:960:16 - error TS7030: Not all code paths return a value.
+
+960   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/loyalty-advanced.ts:980:29 - error TS18048: 'customer' is possibly 'undefined'.
+
+980       const currentPoints = customer.loyaltyPoints || 0;
+                                ~~~~~~~~
+
+server/routes/loyalty-advanced.ts:1031:13 - error TS2322: Type 'string' is not assignable to type 'Date | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined'.
+
+1031             updatedAt: new Date().toISOString()
+                 ~~~~~~~~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/update.d.ts:27:57
+    27 export type PgUpdateSetSource<TTable extends PgTable> = {
+                                                               ~
+    28     [Key in keyof TTable['$inferInsert']]?: GetColumnData<TTable['_']['columns'][Key]> | SQL | PgColumn | undefined;
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    29 } & {};
+       ~
+    The expected type comes from property 'updatedAt' which is declared here on type '{ email?: string | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined; firstName?: string | SQL<...> | PgColumn<...> | undefined; ... 9 more ...; loyaltyPoints?: number | ... 2 more ... | undefined; }'
+
+server/routes/loyalty-advanced.ts:1076:39 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { action: string | SQL<unknown> | Placeholder<string, any>; entity: string | SQL<unknown> | Placeholder<string, any>; details?: string | SQL<unknown> | Placeholder<...> | null | undefined; ... 5 more ...; userAgent?: string | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Type 'string' is not assignable to type 'Date | SQL<unknown> | Placeholder<string, any> | undefined'.
+  Overload 2 of 2, '(values: { action: string | SQL<unknown> | Placeholder<string, any>; entity: string | SQL<unknown> | Placeholder<string, any>; details?: string | SQL<unknown> | Placeholder<...> | null | undefined; ... 5 more ...; userAgent?: string | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'userId' does not exist in type '{ action: string | SQL<unknown> | Placeholder<string, any>; entity: string | SQL<unknown> | Placeholder<string, any>; details?: string | SQL<unknown> | Placeholder<...> | null | undefined; ... 5 more ...; userAgent?: string | ... 3 more ... | undefined; }[]'.
+
+1076         await tx.insert(activityLogs).values({
+                                           ~~~~~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/insert.d.ts:28:101
+     28 export type PgInsertValue<TTable extends PgTable<TableConfig>, OverrideT extends boolean = false> = {
+                                                                                                            ~
+     29     [Key in keyof InferInsertModel<TTable, {
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ... 
+     35     }>[Key] | SQL | Placeholder;
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     36 } & {};
+        ~
+    The expected type comes from property 'createdAt' which is declared here on type '{ action: string | SQL<unknown> | Placeholder<string, any>; entity: string | SQL<unknown> | Placeholder<string, any>; details?: string | SQL<unknown> | Placeholder<...> | null | undefined; ... 5 more ...; userAgent?: string | ... 3 more ... | undefined; }'
+
+server/routes/loyalty-advanced.ts:1140:16 - error TS7030: Not all code paths return a value.
+
+1140   asyncHandler(async (req, res) => {
+                    ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/loyalty-advanced.ts:1160:29 - error TS18048: 'customer' is possibly 'undefined'.
+
+1160       const currentPoints = customer.loyaltyPoints || 0;
+                                 ~~~~~~~~
+
+server/routes/loyalty-advanced.ts:1216:13 - error TS2322: Type 'string' is not assignable to type 'Date | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined'.
+
+1216             updatedAt: new Date().toISOString()
+                 ~~~~~~~~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/update.d.ts:27:57
+    27 export type PgUpdateSetSource<TTable extends PgTable> = {
+                                                               ~
+    28     [Key in keyof TTable['$inferInsert']]?: GetColumnData<TTable['_']['columns'][Key]> | SQL | PgColumn | undefined;
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    29 } & {};
+       ~
+    The expected type comes from property 'updatedAt' which is declared here on type '{ email?: string | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined; firstName?: string | SQL<...> | PgColumn<...> | undefined; ... 9 more ...; loyaltyPoints?: number | ... 2 more ... | undefined; }'
+
+server/routes/loyalty-advanced.ts:1248:53 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { type: string | SQL<unknown> | Placeholder<string, any>; points: number | SQL<unknown> | Placeholder<string, any>; id?: number | SQL<unknown> | Placeholder<string, any> | undefined; description?: string | ... 3 more ... | undefined; createdAt?: Date | ... 2 more ... | undefined; customerId?: number | ... 3 more ... | undefined; orderId?: number | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Argument of type '{ customerId: any; type: "redeemed"; points: number; rewardId: any; description: any; createdAt: string; balance: number; metadata: string; }' is not assignable to parameter of type '{ type: string | SQL<unknown> | Placeholder<string, any>; points: number | SQL<unknown> | Placeholder<string, any>; id?: number | SQL<unknown> | Placeholder<string, any> | undefined; description?: string | ... 3 more ... | undefined; createdAt?: Date | ... 2 more ... | undefined; customerId?: number | ... 3 more ......'.
+      Types of property 'createdAt' are incompatible.
+        Type 'string' is not assignable to type 'Date | SQL<unknown> | Placeholder<string, any> | undefined'.
+  Overload 2 of 2, '(values: { type: string | SQL<unknown> | Placeholder<string, any>; points: number | SQL<unknown> | Placeholder<string, any>; id?: number | SQL<unknown> | Placeholder<string, any> | undefined; description?: string | ... 3 more ... | undefined; createdAt?: Date | ... 2 more ... | undefined; customerId?: number | ... 3 more ... | undefined; orderId?: number | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Argument of type '{ customerId: any; type: "redeemed"; points: number; rewardId: any; description: any; createdAt: string; balance: number; metadata: string; }' is not assignable to parameter of type '{ type: string | SQL<unknown> | Placeholder<string, any>; points: number | SQL<unknown> | Placeholder<string, any>; id?: number | SQL<unknown> | Placeholder<string, any> | undefined; description?: string | ... 3 more ... | undefined; createdAt?: Date | ... 2 more ... | undefined; customerId?: number | ... 3 more ......'.
+      Type '{ customerId: any; type: "redeemed"; points: number; rewardId: any; description: any; createdAt: string; balance: number; metadata: string; }' is missing the following properties from type '{ type: string | SQL<unknown> | Placeholder<string, any>; points: number | SQL<unknown> | Placeholder<string, any>; id?: number | SQL<unknown> | Placeholder<string, any> | undefined; description?: string | ... 3 more ... | undefined; createdAt?: Date | ... 2 more ... | undefined; customerId?: number | ... 3 more ......': length, pop, push, concat, and 29 more.
+
+1248         await tx.insert(loyaltyTransactions).values(transactionData);
+                                                         ~~~~~~~~~~~~~~~
+
+
+server/routes/loyalty-advanced.ts:1251:39 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { action: string | SQL<unknown> | Placeholder<string, any>; entity: string | SQL<unknown> | Placeholder<string, any>; details?: string | SQL<unknown> | Placeholder<...> | null | undefined; ... 5 more ...; userAgent?: string | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Type 'string' is not assignable to type 'Date | SQL<unknown> | Placeholder<string, any> | undefined'.
+  Overload 2 of 2, '(values: { action: string | SQL<unknown> | Placeholder<string, any>; entity: string | SQL<unknown> | Placeholder<string, any>; details?: string | SQL<unknown> | Placeholder<...> | null | undefined; ... 5 more ...; userAgent?: string | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'userId' does not exist in type '{ action: string | SQL<unknown> | Placeholder<string, any>; entity: string | SQL<unknown> | Placeholder<string, any>; details?: string | SQL<unknown> | Placeholder<...> | null | undefined; ... 5 more ...; userAgent?: string | ... 3 more ... | undefined; }[]'.
+
+1251         await tx.insert(activityLogs).values({
+                                           ~~~~~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/insert.d.ts:28:101
+     28 export type PgInsertValue<TTable extends PgTable<TableConfig>, OverrideT extends boolean = false> = {
+                                                                                                            ~
+     29     [Key in keyof InferInsertModel<TTable, {
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ... 

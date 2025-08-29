@@ -1,0 +1,63 @@
+  node_modules/drizzle-orm/pg-core/query-builders/select.d.ts:402:5
+    402     where(where: ((aliases: this['_']['selection']) => SQL | undefined) | SQL | undefined): PgSelectWithout<this, TDynamic, 'where'>;
+            ~~~~~
+    'where' is declared here.
+
+server/routes/orders/orders.routes.ts:128:5 - error TS2741: Property 'orderBy' is missing in type 'Omit<import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"orders", { id: import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam:...' but required in type 'Omit<import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"orders", { id: import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam:...'.
+
+128     query = sortOrder === 'desc' ?
+        ~~~~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/select.d.ts:471:5
+    471     orderBy(builder: (aliases: this['_']['selection']) => ValueOrArray<PgColumn | SQL | SQL.Aliased>): PgSelectWithout<this, TDynamic, 'orderBy'>;
+            ~~~~~~~
+    'orderBy' is declared here.
+
+server/routes/orders/orders.routes.ts:157:16 - error TS2538: Type 'null' cannot be used as an index type.
+
+157       if (!acc[item.orderId]) {
+                   ~~~~~~~~~~~~
+
+server/routes/orders/orders.routes.ts:158:13 - error TS2538: Type 'null' cannot be used as an index type.
+
+158         acc[item.orderId] = [];
+                ~~~~~~~~~~~~
+
+server/routes/orders/orders.routes.ts:160:11 - error TS2538: Type 'null' cannot be used as an index type.
+
+160       acc[item.orderId].push(item);
+              ~~~~~~~~~~~~
+
+server/routes/orders/orders.routes.ts:171:14 - error TS2339: Property 'count' does not exist on type '{ count: number; } | undefined'.
+
+171     const [{ count }] = await db
+                 ~~~~~
+
+server/routes/orders/orders.routes.ts:199:16 - error TS7030: Not all code paths return a value.
+
+199   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/orders/orders.routes.ts:224:14 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>, right: number | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'number | SQLWrapper'.
+      Type 'undefined' is not assignable to type 'number | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string | undefined>, right: string | SQLWrapper | undefined): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string | undefined>'.
+      Type 'PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string | undefined>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+224       .where(eq(orders.id, id));
+                 ~~
+
+
+server/routes/orders/orders.routes.ts:248:14 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "order_id"; tableName: "order_items"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>, right: number | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'number | SQLWrapper'.
+      Type 'undefined' is not assignable to type 'number | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string | undefined>, right: string | SQLWrapper | undefined): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "order_id"; tableName: "order_items"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string | undefined>'.
+      Type 'PgColumn<{ name: "order_id"; tableName: "order_items"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string | undefined>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "order_id"; tableName: "order_items"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.

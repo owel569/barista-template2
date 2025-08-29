@@ -1,0 +1,428 @@
+
+client/src/components/ui/sidebar.tsx:115:5 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+115     React.useEffect(() => {
+        ~~~~~
+
+client/src/components/ui/sidebar.tsx:136:26 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+136     const contextValue = React.useMemo<SidebarContextValue>(
+                             ~~~~~
+
+client/src/components/ui/sidebar.tsx:179:17 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+179 const Sidebar = React.forwardRef<
+                    ~~~~~
+
+client/src/components/ui/sidebar.tsx:286:24 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+286 const SidebarTrigger = React.forwardRef<
+                           ~~~~~
+
+client/src/components/ui/sidebar.tsx:313:21 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+313 const SidebarRail = React.forwardRef<
+                        ~~~~~
+
+client/src/components/ui/sidebar.tsx:342:22 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+342 const SidebarInset = React.forwardRef<
+                         ~~~~~
+
+client/src/components/ui/sidebar.tsx:363:22 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+363 const SidebarInput = React.forwardRef<
+                         ~~~~~
+
+client/src/components/ui/sidebar.tsx:381:23 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+381 const SidebarHeader = React.forwardRef<
+                          ~~~~~
+
+client/src/components/ui/sidebar.tsx:396:23 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+396 const SidebarFooter = React.forwardRef<
+                          ~~~~~
+
+client/src/components/ui/sidebar.tsx:411:26 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+411 const SidebarSeparator = React.forwardRef<
+                             ~~~~~
+
+client/src/components/ui/sidebar.tsx:426:24 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+426 const SidebarContent = React.forwardRef<
+                           ~~~~~
+
+client/src/components/ui/sidebar.tsx:444:22 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+444 const SidebarGroup = React.forwardRef<
+                         ~~~~~
+
+client/src/components/ui/sidebar.tsx:459:27 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+459 const SidebarGroupLabel = React.forwardRef<
+                              ~~~~~
+
+client/src/components/ui/sidebar.tsx:480:28 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+480 const SidebarGroupAction = React.forwardRef<
+                               ~~~~~
+
+client/src/components/ui/sidebar.tsx:503:29 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+503 const SidebarGroupContent = React.forwardRef<
+                                ~~~~~
+
+client/src/components/ui/sidebar.tsx:516:21 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+516 const SidebarMenu = React.forwardRef<
+                        ~~~~~
+
+client/src/components/ui/sidebar.tsx:529:25 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+529 const SidebarMenuItem = React.forwardRef<
+                            ~~~~~
+
+client/src/components/ui/sidebar.tsx:564:27 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+564 const SidebarMenuButton = React.forwardRef<
+                              ~~~~~
+
+client/src/components/ui/sidebar.tsx:623:27 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+623 const SidebarMenuAction = React.forwardRef<
+                              ~~~~~
+
+client/src/components/ui/sidebar.tsx:654:26 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+654 const SidebarMenuBadge = React.forwardRef<
+                             ~~~~~
+
+client/src/components/ui/sidebar.tsx:675:29 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+675 const SidebarMenuSkeleton = React.forwardRef<
+                                ~~~~~
+
+client/src/components/ui/sidebar.tsx:682:17 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+682   const width = React.useMemo(() => {
+                    ~~~~~
+
+client/src/components/ui/sidebar.tsx:713:24 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+713 const SidebarMenuSub = React.forwardRef<
+                           ~~~~~
+
+client/src/components/ui/sidebar.tsx:730:28 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+730 const SidebarMenuSubItem = React.forwardRef<
+                               ~~~~~
+
+client/src/components/ui/sidebar.tsx:736:30 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+736 const SidebarMenuSubButton = React.forwardRef<
+                                 ~~~~~
+
+client/src/components/ui/sidebar.tsx:767:23 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+767 const SidebarToggle = React.forwardRef<
+                          ~~~~~
+
+client/src/components/ui/sidebar.tsx:792:24 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+792 const SidebarOverlay = React.forwardRef<
+                           ~~~~~
+
+client/src/components/ui/sidebar.tsx:816:26 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+816 const SidebarResizable = React.forwardRef<
+                             ~~~~~
+
+client/src/components/ui/sidebar.tsx:825:39 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+825   const [isResizing, setIsResizing] = React.useState(false)
+                                          ~~~~~
+
+client/src/components/ui/sidebar.tsx:826:22 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+826   const sidebarRef = React.useRef<HTMLDivElement>(null)
+                         ~~~~~
+
+client/src/components/ui/sidebar.tsx:828:25 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+828   const startResizing = React.useCallback(() => {
+                            ~~~~~
+
+client/src/components/ui/sidebar.tsx:832:24 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+832   const stopResizing = React.useCallback(() => {
+                           ~~~~~
+
+client/src/components/ui/sidebar.tsx:836:18 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+836   const resize = React.useCallback(
+                     ~~~~~
+
+client/src/components/ui/sidebar.tsx:848:3 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+848   React.useEffect(() => {
+      ~~~~~
+
+client/src/components/ui/sonner.tsx:12:6 - error TS2375: Type '{ id?: string; invert?: boolean; theme: "system" | "dark" | "light" | undefined; position?: Position; hotkey?: string[]; richColors?: boolean; expand?: boolean; duration?: number; gap?: number; ... 12 more ...; key?: Key | ... 1 more ... | undefined; }' is not assignable to type 'ToasterProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'theme' are incompatible.
+    Type '"system" | "dark" | "light" | undefined' is not assignable to type '"system" | "dark" | "light"'.
+      Type 'undefined' is not assignable to type '"system" | "dark" | "light"'.
+
+12     <Sonner
+        ~~~~~~
+
+client/src/components/ui/stats-card.tsx:32:18 - error TS2430: Interface 'StatsCardProps' incorrectly extends interface 'VariantProps<(props?: (ConfigVariants<{ variant: { default: string; gradient: string; highlighted: string; }; trend: { up: string; down: string; neutral: string; none: string; }; }> & ClassProp) | undefined) => string>'.
+  Types of property 'trend' are incompatible.
+    Type '{ value: number; label?: string; isPercentage?: boolean; }' is not assignable to type '"none" | "neutral" | "up" | "down" | null | undefined'.
+
+32 export interface StatsCardProps
+                    ~~~~~~~~~~~~~~
+
+client/src/components/ui/stats-card.tsx:92:13 - error TS2322: Type '"none" | "neutral" | "up" | "down" | { value: number; label?: string; isPercentage?: boolean; }' is not assignable to type '"none" | "neutral" | "up" | "down" | null | undefined'.
+  Type '{ value: number; label?: string; isPercentage?: boolean; }' is not assignable to type '"none" | "neutral" | "up" | "down" | null | undefined'.
+
+92             trend: trendVariant || determineTrendVariant()
+               ~~~~~
+
+client/src/components/ui/theme-provider.tsx:67:13 - error TS7030: Not all code paths return a value.
+
+67   useEffect(() => {
+               ~~~~~~~
+
+client/src/components/ui/types.ts:172:12 - error TS2304: Cannot find name 'Locale'.
+
+172   locale?: Locale
+               ~~~~~~
+
+client/src/components/ui/ui-utils.ts:26:29 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+26   const [state, setState] = React.useState<T>(initialValue)
+                               ~~~~~
+
+client/src/components/ui/ui-utils.ts:28:24 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+28   const setSafeState = React.useCallback((value: T) => {
+                          ~~~~~
+
+client/src/components/user-profile.tsx:210:95 - error TS2345: Argument of type 'UserProfile' is not assignable to parameter of type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'UserProfile'.
+
+210               <form onSubmit={profileForm.handleSubmit((data) => updateProfileMutation.mutate(data))} className="space-y-4">
+                                                                                                  ~~~~
+
+client/src/constants/permissions.ts:51:5 - error TS2322: Type 'undefined[]' is not assignable to type 'PermissionAction[]'.
+  Type 'undefined' is not assignable to type 'PermissionAction'.
+
+51     permissions: [,],
+       ~~~~~~~~~~~
+
+client/src/constants/permissions.ts:53:5 - error TS2322: Type 'undefined[]' is not assignable to type 'PermissionAction[]'.
+  Type 'undefined' is not assignable to type 'PermissionAction'.
+
+53     backups: [,],
+       ~~~~~~~
+
+client/src/constants/permissions.ts:54:5 - error TS2322: Type 'undefined[]' is not assignable to type 'PermissionAction[]'.
+  Type 'undefined' is not assignable to type 'PermissionAction'.
+
+54     accounting: [,],
+       ~~~~~~~~~~
+
+client/src/contexts/ThemeContext.tsx:43:3 - error TS2739: Type 'ThemeContextType' is missing the following properties from type 'ReactElement<any, any>': type, props, key
+
+43   return context;
+     ~~~~~~
+
+client/src/hooks/index.ts:26:10 - error TS2724: '"./use-mobile"' has no exported member named 'useMobile'. Did you mean 'useIsMobile'?
+
+26 export { useMobile } from './use-mobile';
+            ~~~~~~~~~
+
+  client/src/hooks/use-mobile.tsx:5:17
+    5 export function useIsMobile() {
+                      ~~~~~~~~~~~
+    'useIsMobile' is declared here.
+
+client/src/hooks/use-toast.ts:45:23 - error TS2379: Argument of type '{ title: string; description: string | undefined; variant: "success"; duration: number | undefined; }' is not assignable to parameter of type 'ToastProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'description' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+45     return this.toast({ title, description, variant: 'success', duration });
+                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/hooks/use-toast.ts:49:23 - error TS2379: Argument of type '{ title: string; description: string | undefined; variant: "destructive"; duration: number | undefined; }' is not assignable to parameter of type 'ToastProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'description' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+49     return this.toast({ title, description, variant: 'destructive', duration });
+                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/hooks/use-toast.ts:53:23 - error TS2379: Argument of type '{ title: string; description: string | undefined; variant: "warning"; duration: number | undefined; }' is not assignable to parameter of type 'ToastProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'description' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+53     return this.toast({ title, description, variant: 'warning', duration });
+                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/hooks/use-toast.ts:57:23 - error TS2379: Argument of type '{ title: string; description: string | undefined; variant: "info"; duration: number | undefined; }' is not assignable to parameter of type 'ToastProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'description' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+57     return this.toast({ title, description, variant: 'info', duration });
+                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/hooks/use-toast.ts:85:23 - error TS2379: Argument of type '{ title: string; description: string | undefined; variant: "warning"; action: { label: string; onClick: () => void; }; }' is not assignable to parameter of type 'ToastProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'description' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+ 85     return this.toast({
+                          ~
+ 86       title,
+    ~~~~~~~~~~~~
+... 
+ 95       }
+    ~~~~~~~
+ 96     });
+    ~~~~~
+
+client/src/hooks/use-toast.ts:100:23 - error TS2379: Argument of type '{ title: string; description: string | undefined; variant: "info"; duration: number; }' is not assignable to parameter of type 'ToastProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'description' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+100     return this.toast({
+                          ~
+101       title,
+    ~~~~~~~~~~~~
+... 
+104       duration: 0 // Persistant jusqu'à dismiss
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+105     });
+    ~~~~~
+
+client/src/hooks/use-toast.ts:159:33 - error TS2304: Cannot find name 'toast'.
+
+159   success: (message: string) => toast({ title: "Succès", description: message }),
+                                    ~~~~~
+
+client/src/hooks/use-toast.ts:160:31 - error TS2304: Cannot find name 'toast'.
+
+160   error: (message: string) => toast({ title: "Erreur", description: message, variant: "destructive" }),
+                                  ~~~~~
+
+client/src/hooks/use-toast.ts:161:30 - error TS2304: Cannot find name 'toast'.
+
+161   info: (message: string) => toast({ title: "Information", description: message }),
+                                 ~~~~~
+
+client/src/hooks/use-toast.ts:162:33 - error TS2304: Cannot find name 'toast'.
+
+162   warning: (message: string) => toast({ title: "Attention", description: message, variant: "destructive" })
+                                    ~~~~~
+
+client/src/hooks/use-user.tsx:2:15 - error TS2724: '"@shared/schema"' has no exported member named 'User'. Did you mean 'users'?
+
+2 import type { User } from "@shared/schema";
+                ~~~~
+
+  shared/schema.ts:19:14
+    19 export const users = pgTable('users', {
+                    ~~~~~
+    'users' is declared here.
+
+client/src/hooks/usePermissions.ts:124:7 - error TS2412: Type 'string | undefined' is not assignable to type 'number | undefined' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+
+124       userId: user?.id
+          ~~~~~~
+
+  client/src/hooks/usePermissions.ts:22:3
+    22   userId?: number;
+         ~~~~~~
+    The expected type comes from property 'userId' which is declared here on type 'PermissionsCache'
+
+client/src/hooks/usePermissions.ts:157:9 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(input: string | URL | Request, init?: RequestInit | undefined): Promise<Response>', gave the following error.
+    Object literal may only specify known properties, and 'timeout' does not exist in type 'RequestInit'.
+  Overload 2 of 2, '(input: URL | RequestInfo, init?: RequestInit | undefined): Promise<Response>', gave the following error.
+    Object literal may only specify known properties, and 'timeout' does not exist in type 'RequestInit'.
+
+157         timeout: 10000 // 10 secondes
+            ~~~~~~~
+
+
+client/src/hooks/usePermissionsSync.ts:69:38 - error TS2774: This condition will always return true since this function is always defined. Did you mean to call it instead?
+
+69     if (!isAuthenticated || !user || isAdmin) return;
+                                        ~~~~~~~
+
+client/src/hooks/usePermissionsSync.ts:84:38 - error TS2774: This condition will always return true since this function is always defined. Did you mean to call it instead?
+
+84     if (!isAuthenticated || !user || isAdmin) return;
+                                        ~~~~~~~
+
+client/src/hooks/useQRCode.ts:2:25 - error TS2307: Cannot find module 'qrcode' or its corresponding type declarations.
+
+2 import * as QRCode from 'qrcode';
+                          ~~~~~~~~
+
+client/src/hooks/useReservations.ts:192:34 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+192     return getReservationsByDate(today);
+                                     ~~~~~
+
+client/src/hooks/useReservations.ts:197:67 - error TS18048: 'today' is possibly 'undefined'.
+
+197     return reservations.filter(reservation => reservation.date >= today);
+                                                                      ~~~~~
+
+client/src/hooks/useUser.ts:201:15 - error TS2345: Argument of type 'User' is not assignable to parameter of type 'SetStateAction<User | null>'.
+  Property 'username' is missing in type 'import("/home/runner/workspace/client/src/hooks/useAuth").User' but required in type 'User'.
+
+201       setUser(contextUser);
+                  ~~~~~~~~~~~
+
+  client/src/hooks/useUser.ts:7:3
+    7   username: string;
+        ~~~~~~~~
+    'username' is declared here.
+
+client/src/hooks/useUser.ts:206:5 - error TS2322: Type 'User | User | null' is not assignable to type 'User | null'.
+  Property 'username' is missing in type 'import("/home/runner/workspace/client/src/hooks/useAuth").User' but required in type 'User'.
+
+206     user: user || contextUser,
+        ~~~~
+
+  client/src/hooks/useUser.ts:7:3
+    7   username: string;
+        ~~~~~~~~
+    'username' is declared here.
+  client/src/hooks/useUser.ts:22:3
+    22   user: User | null;
+         ~~~~
+    The expected type comes from property 'user' which is declared here on type 'UseUserReturn'
+
+client/src/lib/auth-utils.ts:117:38 - error TS2379: Argument of type '{ method: string; body: string | undefined; }' is not assignable to parameter of type 'RequestInit' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'body' are incompatible.
+    Type 'string | undefined' is not assignable to type 'BodyInit | null'.
+      Type 'undefined' is not assignable to type 'BodyInit | null'.
+
+117     return this.request<T>(endpoint, {
+                                         ~
+118       method: 'POST',
+    ~~~~~~~~~~~~~~~~~~~~~
+119       body: data ? JSON.stringify(data) : undefined,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+120     });
+    ~~~~~

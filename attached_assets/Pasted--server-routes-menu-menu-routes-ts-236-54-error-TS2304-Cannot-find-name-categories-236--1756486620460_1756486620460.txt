@@ -1,0 +1,141 @@
+
+server/routes/menu/menu.routes.ts:236:54 - error TS2304: Cannot find name 'categories'.
+
+236       .leftJoin(categories, eq(menuItems.categoryId, categories.id))
+                                                         ~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:237:14 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>, right: number | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'number | SQLWrapper'.
+      Type 'undefined' is not assignable to type 'number | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string | undefined>, right: string | SQLWrapper | undefined): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string | undefined>'.
+      Type 'PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string | undefined>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+237       .where(eq(menuItems.id, id));
+                 ~~
+
+
+server/routes/menu/menu.routes.ts:261:16 - error TS7030: Not all code paths return a value.
+
+261   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:267:23 - error TS2304: Cannot find name 'categories'.
+
+267       .select({ name: categories.name })
+                          ~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:268:13 - error TS2304: Cannot find name 'categories'.
+
+268       .from(categories)
+                ~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:269:17 - error TS2304: Cannot find name 'categories'.
+
+269       .where(eq(categories.id, req.body.categoryId));
+                    ~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:331:32 - error TS2339: Property 'idSchema' does not exist on type '{ id: ZodNumber; email: ZodString; password: ZodString; username: ZodString; phone: ZodOptional<ZodString>; date: ZodString; time: ZodString; pagination: ZodObject<...>; sortOrder: ZodDefault<...>; }'.
+
+331   validateParams(commonSchemas.idSchema),
+                                   ~~~~~~~~
+
+server/routes/menu/menu.routes.ts:334:16 - error TS7030: Not all code paths return a value.
+
+334   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:343:14 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>, right: number | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'number | SQLWrapper'.
+      Type 'undefined' is not assignable to type 'number | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string | undefined>, right: string | SQLWrapper | undefined): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string | undefined>'.
+      Type 'PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string | undefined>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+343       .where(eq(menuItems.id, id));
+                 ~~
+
+
+server/routes/menu/menu.routes.ts:377:14 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>, right: number | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'number | SQLWrapper'.
+      Type 'undefined' is not assignable to type 'number | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string | undefined>, right: string | SQLWrapper | undefined): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string | undefined>'.
+      Type 'PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string | undefined>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+377       .where(eq(menuItems.id, id))
+                 ~~
+
+
+server/routes/menu/menu.routes.ts:407:32 - error TS2339: Property 'idSchema' does not exist on type '{ id: ZodNumber; email: ZodString; password: ZodString; username: ZodString; phone: ZodOptional<ZodString>; date: ZodString; time: ZodString; pagination: ZodObject<...>; sortOrder: ZodDefault<...>; }'.
+
+407   validateParams(commonSchemas.idSchema),
+                                   ~~~~~~~~
+
+server/routes/menu/menu.routes.ts:409:16 - error TS7030: Not all code paths return a value.
+
+409   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:421:14 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>, right: number | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'number | SQLWrapper'.
+      Type 'undefined' is not assignable to type 'number | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string | undefined>, right: string | SQLWrapper | undefined): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string | undefined>'.
+      Type 'PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string | undefined>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+421       .where(eq(menuItems.id, id))
+                 ~~
+
+
+server/routes/menu/menu.routes.ts:463:13 - error TS2304: Cannot find name 'categories'.
+
+463       .from(categories)
+                ~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:464:17 - error TS2304: Cannot find name 'categories'.
+
+464       .where(eq(categories.isActive, true))
+                    ~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:465:16 - error TS2304: Cannot find name 'categories'.
+
+465       .orderBy(categories.displayOrder, categories.name);
+                   ~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:465:41 - error TS2304: Cannot find name 'categories'.
+
+465       .orderBy(categories.displayOrder, categories.name);
+                                            ~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:482:16 - error TS7030: Not all code paths return a value.
+
+482   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:488:21 - error TS2304: Cannot find name 'categories'.
+
+488       .select({ id: categories.id })
+                        ~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:489:13 - error TS2304: Cannot find name 'categories'.
+
+489       .from(categories)
+                ~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:490:17 - error TS2304: Cannot find name 'categories'.
+
+490       .where(eq(categories.name, req.body.name));
+                    ~~~~~~~~~~

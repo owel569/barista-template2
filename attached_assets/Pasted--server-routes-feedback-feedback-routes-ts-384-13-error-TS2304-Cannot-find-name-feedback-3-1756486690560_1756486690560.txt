@@ -1,0 +1,222 @@
+
+server/routes/feedback/feedback.routes.ts:384:13 - error TS2304: Cannot find name 'feedback'.
+
+384       .from(feedback)
+                ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:385:17 - error TS2304: Cannot find name 'feedback'.
+
+385       .where(eq(feedback.id, id));
+                    ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:406:15 - error TS2304: Cannot find name 'feedback'.
+
+406       .update(feedback)
+                  ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:408:17 - error TS2304: Cannot find name 'feedback'.
+
+408       .where(eq(feedback.id, id))
+                    ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:442:16 - error TS7030: Not all code paths return a value.
+
+442   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:451:13 - error TS2304: Cannot find name 'feedback'.
+
+451       .from(feedback)
+                ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:452:17 - error TS2304: Cannot find name 'feedback'.
+
+452       .where(eq(feedback.id, id));
+                    ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:463:15 - error TS2304: Cannot find name 'feedback'.
+
+463       .update(feedback)
+                  ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:472:17 - error TS2304: Cannot find name 'feedback'.
+
+472       .where(eq(feedback.id, id))
+                    ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:513:27 - error TS2304: Cannot find name 'feedback'.
+
+513       conditions.push(gte(feedback.createdAt, new Date(startDate)));
+                              ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:513:56 - error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'string | string[] | ParsedQs | ParsedQs[]' is not assignable to parameter of type 'string | number | Date'.
+      Type 'string[]' is not assignable to type 'string | number | Date'.
+        Type 'string[]' is missing the following properties from type 'Date': toDateString, toTimeString, toLocaleDateString, toLocaleTimeString, and 37 more.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'string | string[] | ParsedQs | ParsedQs[]' is not assignable to parameter of type 'string | number'.
+      Type 'string[]' is not assignable to type 'string | number'.
+
+513       conditions.push(gte(feedback.createdAt, new Date(startDate)));
+                                                           ~~~~~~~~~
+
+
+server/routes/feedback/feedback.routes.ts:516:27 - error TS2304: Cannot find name 'feedback'.
+
+516       conditions.push(lte(feedback.createdAt, new Date(endDate)));
+                              ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:516:56 - error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'string | string[] | ParsedQs | ParsedQs[]' is not assignable to parameter of type 'string | number | Date'.
+      Type 'string[]' is not assignable to type 'string | number | Date'.
+        Type 'string[]' is missing the following properties from type 'Date': toDateString, toTimeString, toLocaleDateString, toLocaleTimeString, and 37 more.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'string | string[] | ParsedQs | ParsedQs[]' is not assignable to parameter of type 'string | number'.
+      Type 'string[]' is not assignable to type 'string | number'.
+
+516       conditions.push(lte(feedback.createdAt, new Date(endDate)));
+                                                           ~~~~~~~
+
+
+server/routes/feedback/feedback.routes.ts:523:42 - error TS2304: Cannot find name 'feedback'.
+
+523         averageRating: sql<number>`avg(${feedback.rating})`,
+                                             ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:524:62 - error TS2304: Cannot find name 'feedback'.
+
+524         totalResponded: sql<number>`count(*) filter (where ${feedback.status} = 'responded')`,
+                                                                 ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:525:60 - error TS2304: Cannot find name 'feedback'.
+
+525         totalPending: sql<number>`count(*) filter (where ${feedback.status} = 'pending')`
+                                                               ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:527:13 - error TS2304: Cannot find name 'feedback'.
+
+527       .from(feedback)
+                ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:533:17 - error TS2304: Cannot find name 'feedback'.
+
+533         rating: feedback.rating,
+                    ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:536:13 - error TS2304: Cannot find name 'feedback'.
+
+536       .from(feedback)
+                ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:538:16 - error TS2304: Cannot find name 'feedback'.
+
+538       .groupBy(feedback.rating)
+                   ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:539:16 - error TS2304: Cannot find name 'feedback'.
+
+539       .orderBy(feedback.rating);
+                   ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:544:19 - error TS2304: Cannot find name 'feedback'.
+
+544         category: feedback.category,
+                      ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:545:42 - error TS2304: Cannot find name 'feedback'.
+
+545         averageRating: sql<number>`avg(${feedback.rating})`,
+                                             ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:548:13 - error TS2304: Cannot find name 'feedback'.
+
+548       .from(feedback)
+                ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:550:16 - error TS2304: Cannot find name 'feedback'.
+
+550       .groupBy(feedback.category);
+                   ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:555:17 - error TS2304: Cannot find name 'feedback'.
+
+555         status: feedback.status,
+                    ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:558:13 - error TS2304: Cannot find name 'feedback'.
+
+558       .from(feedback)
+                ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:560:16 - error TS2304: Cannot find name 'feedback'.
+
+560       .groupBy(feedback.status);
+                   ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:565:34 - error TS2304: Cannot find name 'feedback'.
+
+565         date: sql<string>`date(${feedback.createdAt})`,
+                                     ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:567:42 - error TS2304: Cannot find name 'feedback'.
+
+567         averageRating: sql<number>`avg(${feedback.rating})`
+                                             ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:569:13 - error TS2304: Cannot find name 'feedback'.
+
+569       .from(feedback)
+                ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:570:18 - error TS2304: Cannot find name 'feedback'.
+
+570       .where(gte(feedback.createdAt, sql`NOW() - INTERVAL '30 days'`))
+                     ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:571:27 - error TS2304: Cannot find name 'feedback'.
+
+571       .groupBy(sql`date(${feedback.createdAt})`)
+                              ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:572:27 - error TS2304: Cannot find name 'feedback'.
+
+572       .orderBy(sql`date(${feedback.createdAt})`);
+                              ~~~~~~~~
+
+server/routes/image-routes.ts:39:28 - error TS7030: Not all code paths return a value.
+
+39 router.param('menuItemId', (req, res, next, value) => {
+                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/image-routes.ts:47:25 - error TS7030: Not all code paths return a value.
+
+47 router.param('imageId', (req, res, next, value) => {
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/image-routes.ts:81:57 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+
+81     const images = await imageManager.getMenuItemImages(menuItemId);
+                                                           ~~~~~~~~~~
+
+server/routes/image-routes.ts:121:52 - error TS2379: Argument of type '{ imageUrl: string; menuItemId: number; metadata?: Record<string, unknown> | undefined; altText?: string | undefined; isPrimary?: boolean | undefined; uploadMethod?: "url" | "generated" | "upload" | "pexels" | undefined; }' is not assignable to parameter of type 'InsertMenuItemImage' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'altText' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string | null'.
+      Type 'undefined' is not assignable to type 'string | null'.
+
+121       const newImage = await imageManager.addImage(req.body);
+                                                       ~~~~~~~~
+
+server/routes/image-routes.ts:166:3 - error TS7030: Not all code paths return a value.
+
+166   async (req, res) => {
+      ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/image-routes.ts:169:68 - error TS2379: Argument of type '{ metadata?: Record<string, unknown> | undefined; imageUrl?: string | undefined; altText?: string | undefined; isPrimary?: boolean | undefined; }' is not assignable to parameter of type 'Partial<InsertMenuItemImage>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'imageUrl' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+169       const updatedImage = await imageManager.updateImage(imageId, req.body);
+                                                                       ~~~~~~~~

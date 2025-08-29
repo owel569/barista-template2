@@ -1,0 +1,79 @@
+
+     35     }>[Key] | SQL | Placeholder;
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     36 } & {};
+        ~
+    The expected type comes from property 'createdAt' which is declared here on type '{ action: string | SQL<unknown> | Placeholder<string, any>; entity: string | SQL<unknown> | Placeholder<string, any>; details?: string | SQL<unknown> | Placeholder<...> | null | undefined; ... 5 more ...; userAgent?: string | ... 3 more ... | undefined; }'
+
+server/routes/menu/menu.routes.ts:62:7 - error TS2769: No overload matches this call.
+  Overload 2 of 2, '(values: { action: string | SQL<unknown> | Placeholder<string, any>; entity: string | SQL<unknown> | Placeholder<string, any>; details?: string | SQL<unknown> | Placeholder<...> | null | undefined; ... 5 more ...; userAgent?: string | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'id' does not exist in type '{ action: string | SQL<unknown> | Placeholder<string, any>; entity: string | SQL<unknown> | Placeholder<string, any>; details?: string | SQL<unknown> | Placeholder<...> | null | undefined; ... 5 more ...; userAgent?: string | ... 3 more ... | undefined; }[]'.
+
+62       id: crypto.randomUUID(),
+         ~~
+
+
+server/routes/menu/menu.routes.ts:115:23 - error TS2304: Cannot find name 'categories'.
+
+115         categoryName: categories.name,
+                          ~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:119:28 - error TS2339: Property 'isVegan' does not exist on type 'PgTableWithColumns<{ name: "menu_items"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 13 more ...; updatedAt: PgCo...'.
+
+119         isVegan: menuItems.isVegan,
+                               ~~~~~~~
+
+server/routes/menu/menu.routes.ts:121:36 - error TS2339: Property 'preparationTime' does not exist on type 'PgTableWithColumns<{ name: "menu_items"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 13 more ...; updatedAt: PgCo...'.
+
+121         preparationTime: menuItems.preparationTime,
+                                       ~~~~~~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:128:17 - error TS2304: Cannot find name 'categories'.
+
+128       .leftJoin(categories, eq(menuItems.categoryId, categories.id));
+                    ~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:128:54 - error TS2304: Cannot find name 'categories'.
+
+128       .leftJoin(categories, eq(menuItems.categoryId, categories.id));
+                                                         ~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:134:23 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "category_id"; tableName: "menu_items"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>, right: number | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string | string[] | ParsedQs | ParsedQs[]' is not assignable to parameter of type 'number | SQLWrapper'.
+      Type 'string' is not assignable to type 'number | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string | string[] | ParsedQs | ParsedQs[]>, right: string | string[] | SQLWrapper | ParsedQs | ParsedQs[]): SQL<...>', gave the following error.
+    Argument of type 'PgColumn<{ name: "category_id"; tableName: "menu_items"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string | string[] | ParsedQs | ParsedQs[]>'.
+      Type 'PgColumn<{ name: "category_id"; tableName: "menu_items"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string | string[] | ParsedQs | ParsedQs[]>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "category_id"; tableName: "menu_items"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+134       conditions.push(eq(menuItems.categoryId, categoryId));
+                          ~~
+
+
+server/routes/menu/menu.routes.ts:138:23 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "is_available"; tableName: "menu_items"; dataType: "boolean"; columnType: "PgBoolean"; data: boolean; driverParam: boolean; notNull: true; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>, right: boolean | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string | string[] | ParsedQs | ParsedQs[]' is not assignable to parameter of type 'boolean | SQLWrapper'.
+      Type 'string' is not assignable to type 'boolean | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string | string[] | ParsedQs | ParsedQs[]>, right: string | string[] | SQLWrapper | ParsedQs | ParsedQs[]): SQL<...>', gave the following error.
+    Argument of type 'PgColumn<{ name: "is_available"; tableName: "menu_items"; dataType: "boolean"; columnType: "PgBoolean"; data: boolean; driverParam: boolean; notNull: true; hasDefault: true; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string | string[] | ParsedQs | ParsedQs[]>'.
+      Type 'PgColumn<{ name: "is_available"; tableName: "menu_items"; dataType: "boolean"; columnType: "PgBoolean"; data: boolean; driverParam: boolean; notNull: true; hasDefault: true; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string | string[] | ParsedQs | ParsedQs[]>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "is_available"; tableName: "menu_items"; dataType: "boolean"; columnType: "PgBoolean"; data: boolean; driverParam: boolean; notNull: true; hasDefault: true; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+138       conditions.push(eq(menuItems.isAvailable, isAvailable));
+                          ~~
+
+
+server/routes/menu/menu.routes.ts:142:23 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "is_vegetarian"; tableName: "menu_items"; dataType: "boolean"; columnType: "PgBoolean"; data: boolean; driverParam: boolean; notNull: true; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>, right: boolean | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string | string[] | ParsedQs | ParsedQs[]' is not assignable to parameter of type 'boolean | SQLWrapper'.
+      Type 'string' is not assignable to type 'boolean | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string | string[] | ParsedQs | ParsedQs[]>, right: string | string[] | SQLWrapper | ParsedQs | ParsedQs[]): SQL<...>', gave the following error.
+    Argument of type 'PgColumn<{ name: "is_vegetarian"; tableName: "menu_items"; dataType: "boolean"; columnType: "PgBoolean"; data: boolean; driverParam: boolean; notNull: true; hasDefault: true; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string | string[] | ParsedQs | ParsedQs[]>'.
+      Type 'PgColumn<{ name: "is_vegetarian"; tableName: "menu_items"; dataType: "boolean"; columnType: "PgBoolean"; data: boolean; driverParam: boolean; notNull: true; hasDefault: true; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string | string[] | ParsedQs | ParsedQs[]>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "is_vegetarian"; tableName: "menu_items"; dataType: "boolean"; columnType: "PgBoolean"; data: boolean; driverParam: boolean; notNull: true; hasDefault: true; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+142       conditions.push(eq(menuItems.isVegetarian, isVegetarian));

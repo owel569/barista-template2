@@ -1,0 +1,109 @@
+
+server/routes/menu/menu.routes.ts:146:36 - error TS2339: Property 'isVegan' does not exist on type 'PgTableWithColumns<{ name: "menu_items"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 13 more ...; updatedAt: PgCo...'.
+
+146       conditions.push(eq(menuItems.isVegan, isVegan));
+                                       ~~~~~~~
+
+server/routes/menu/menu.routes.ts:150:23 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "is_gluten_free"; tableName: "menu_items"; dataType: "boolean"; columnType: "PgBoolean"; data: boolean; driverParam: boolean; notNull: true; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>, right: boolean | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string | string[] | ParsedQs | ParsedQs[]' is not assignable to parameter of type 'boolean | SQLWrapper'.
+      Type 'string' is not assignable to type 'boolean | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string | string[] | ParsedQs | ParsedQs[]>, right: string | string[] | SQLWrapper | ParsedQs | ParsedQs[]): SQL<...>', gave the following error.
+    Argument of type 'PgColumn<{ name: "is_gluten_free"; tableName: "menu_items"; dataType: "boolean"; columnType: "PgBoolean"; data: boolean; driverParam: boolean; notNull: true; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string | string[] | ParsedQs | ParsedQs[]>'.
+      Type 'PgColumn<{ name: "is_gluten_free"; tableName: "menu_items"; dataType: "boolean"; columnType: "PgBoolean"; data: boolean; driverParam: boolean; notNull: true; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string | string[] | ParsedQs | ParsedQs[]>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "is_gluten_free"; tableName: "menu_items"; dataType: "boolean"; columnType: "PgBoolean"; data: boolean; driverParam: boolean; notNull: true; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+150       conditions.push(eq(menuItems.isGlutenFree, isGlutenFree));
+                          ~~
+
+
+server/routes/menu/menu.routes.ts:163:7 - error TS2741: Property 'where' is missing in type 'Omit<import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"menu_items", { id: import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driv...' but required in type 'Omit<import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"menu_items", { id: import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driv...'.
+
+163       query = query.where(and(...conditions));
+          ~~~~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/select.d.ts:402:5
+    402     where(where: ((aliases: this['_']['selection']) => SQL | undefined) | SQL | undefined): PgSelectWithout<this, TDynamic, 'where'>;
+            ~~~~~
+    'where' is declared here.
+
+server/routes/menu/menu.routes.ts:169:65 - error TS2339: Property 'preparationTime' does not exist on type 'PgTableWithColumns<{ name: "menu_items"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 13 more ...; updatedAt: PgCo...'.
+
+169                        sortBy === 'preparationTime' ? menuItems.preparationTime :
+                                                                    ~~~~~~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:173:5 - error TS2741: Property 'orderBy' is missing in type 'Omit<import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"menu_items", { id: import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driv...' but required in type 'Omit<import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"menu_items", { id: import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driv...'.
+
+173     query = sortOrder === 'desc' ?
+        ~~~~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/select.d.ts:471:5
+    471     orderBy(builder: (aliases: this['_']['selection']) => ValueOrArray<PgColumn | SQL | SQL.Aliased>): PgSelectWithout<this, TDynamic, 'orderBy'>;
+            ~~~~~~~
+    'orderBy' is declared here.
+
+server/routes/menu/menu.routes.ts:178:21 - error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+
+178     const offset = (page - 1) * limit;
+                        ~~~~
+
+server/routes/menu/menu.routes.ts:178:33 - error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+
+178     const offset = (page - 1) * limit;
+                                    ~~~~~
+
+server/routes/menu/menu.routes.ts:179:40 - error TS2345: Argument of type 'string | string[] | 20 | ParsedQs | ParsedQs[]' is not assignable to parameter of type 'number | Placeholder<string, any>'.
+  Type 'string' is not assignable to type 'number | Placeholder<string, any>'.
+
+179     const menuData = await query.limit(limit).offset(offset);
+                                           ~~~~~
+
+server/routes/menu/menu.routes.ts:185:17 - error TS2304: Cannot find name 'categories'.
+
+185       .leftJoin(categories, eq(menuItems.categoryId, categories.id))
+                    ~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:185:54 - error TS2304: Cannot find name 'categories'.
+
+185       .leftJoin(categories, eq(menuItems.categoryId, categories.id))
+                                                         ~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:201:39 - error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+
+201         totalPages: Math.ceil(count / limit)
+                                          ~~~~~
+
+server/routes/menu/menu.routes.ts:209:32 - error TS2339: Property 'idSchema' does not exist on type '{ id: ZodNumber; email: ZodString; password: ZodString; username: ZodString; phone: ZodOptional<ZodString>; date: ZodString; time: ZodString; pagination: ZodObject<...>; sortOrder: ZodDefault<...>; }'.
+
+209   validateParams(commonSchemas.idSchema),
+                                   ~~~~~~~~
+
+server/routes/menu/menu.routes.ts:211:16 - error TS7030: Not all code paths return a value.
+
+211   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:222:23 - error TS2304: Cannot find name 'categories'.
+
+222         categoryName: categories.name,
+                          ~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:226:28 - error TS2339: Property 'isVegan' does not exist on type 'PgTableWithColumns<{ name: "menu_items"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 13 more ...; updatedAt: PgCo...'.
+
+226         isVegan: menuItems.isVegan,
+                               ~~~~~~~
+
+server/routes/menu/menu.routes.ts:228:36 - error TS2339: Property 'preparationTime' does not exist on type 'PgTableWithColumns<{ name: "menu_items"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 13 more ...; updatedAt: PgCo...'.
+
+228         preparationTime: menuItems.preparationTime,
+                                       ~~~~~~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:231:32 - error TS2339: Property 'ingredients' does not exist on type 'PgTableWithColumns<{ name: "menu_items"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 13 more ...; updatedAt: PgCo...'.
+
+231         ingredients: menuItems.ingredients,
+                                   ~~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:236:17 - error TS2304: Cannot find name 'categories'.
+
+236       .leftJoin(categories, eq(menuItems.categoryId, categories.id))

@@ -1,0 +1,327 @@
+
+client/src/components/ui/form.tsx:224:27 - error TS2345: Argument of type '{ field: any; }' is not assignable to parameter of type '{ field: ControllerRenderProps<TFieldValues, TName>; fieldState: ControllerFieldState; formState: UseFormStateReturn<TFieldValues>; }'.
+  Type '{ field: any; }' is missing the following properties from type '{ field: ControllerRenderProps<TFieldValues, TName>; fieldState: ControllerFieldState; formState: UseFormStateReturn<TFieldValues>; }': fieldState, formState
+
+224             {props.render({ field })}
+                              ~~~~~~~~~
+
+client/src/components/ui/index.ts:75:1 - error TS2308: Module "./toaster" has already exported a member named 'Toaster'. Consider explicitly re-exporting to resolve the ambiguity.
+
+75 export * from "./sonner"
+   ~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:89:1 - error TS2308: Module "./avatar" has already exported a member named 'AvatarProps'. Consider explicitly re-exporting to resolve the ambiguity.
+
+89 export * from "./types"
+   ~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:89:1 - error TS2308: Module "./date-picker" has already exported a member named 'DateRangePickerProps'. Consider explicitly re-exporting to resolve the ambiguity.
+
+89 export * from "./types"
+   ~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:89:1 - error TS2308: Module "./radio-group" has already exported a member named 'RadioGroupItemProps'. Consider explicitly re-exporting to resolve the ambiguity.
+
+89 export * from "./types"
+   ~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:90:1 - error TS2308: Module "./types" has already exported a member named 'ToastVariant'. Consider explicitly re-exporting to resolve the ambiguity.
+
+90 export * from './use-toast'
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:93:27 - error TS2300: Duplicate identifier 'ComponentSize'.
+
+93 export type { SafeObject, ComponentSize, ComponentVariant, BaseUIComponentProps } from './ui-utils'
+                             ~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:93:42 - error TS2300: Duplicate identifier 'ComponentVariant'.
+
+93 export type { SafeObject, ComponentSize, ComponentVariant, BaseUIComponentProps } from './ui-utils'
+                                            ~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:100:3 - error TS2724: '"./types"' has no exported member named 'LabelProps'. Did you mean 'TableProps'?
+
+100   LabelProps,
+      ~~~~~~~~~~
+
+client/src/components/ui/index.ts:101:3 - error TS2305: Module '"./types"' has no exported member 'TextareaProps'.
+
+101   TextareaProps,
+      ~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:114:3 - error TS2724: '"./types"' has no exported member named 'DataTableProps'. Did you mean 'TableProps'?
+
+114   DataTableProps,
+      ~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:125:3 - error TS2724: '"./types"' has no exported member named 'AlertProps'. Did you mean 'TableProps'?
+
+125   AlertProps,
+      ~~~~~~~~~~
+
+client/src/components/ui/index.ts:128:3 - error TS2300: Duplicate identifier 'ComponentVariant'.
+
+128   ComponentVariant,
+      ~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:128:3 - error TS2305: Module '"./types"' has no exported member 'ComponentVariant'.
+
+128   ComponentVariant,
+      ~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:129:3 - error TS2300: Duplicate identifier 'ComponentSize'.
+
+129   ComponentSize,
+      ~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:134:3 - error TS2305: Module '"./types"' has no exported member 'Country'.
+
+134   Country,
+      ~~~~~~~
+
+client/src/components/ui/index.ts:135:3 - error TS2305: Module '"./types"' has no exported member 'InternationalPhoneInputProps'.
+
+135   InternationalPhoneInputProps,
+      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:138:3 - error TS2305: Module '"./types"' has no exported member 'LoadingSpinnerProps'.
+
+138   LoadingSpinnerProps,
+      ~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:139:3 - error TS2305: Module '"./types"' has no exported member 'LoadingPageProps'.
+
+139   LoadingPageProps,
+      ~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:140:3 - error TS2724: '"./types"' has no exported member named 'SkeletonLoaderProps'. Did you mean 'SkeletonProps'?
+
+140   SkeletonLoaderProps,
+      ~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:143:3 - error TS2305: Module '"./types"' has no exported member 'ChartConfig'.
+
+143   ChartConfig,
+      ~~~~~~~~~~~
+
+client/src/components/ui/index.ts:144:3 - error TS2305: Module '"./types"' has no exported member 'StatsCardProps'.
+
+144   StatsCardProps,
+      ~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:147:3 - error TS2305: Module '"./types"' has no exported member 'BreadcrumbProps'.
+
+147   BreadcrumbProps,
+      ~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:148:3 - error TS2305: Module '"./types"' has no exported member 'PaginationProps'.
+
+148   PaginationProps,
+      ~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:151:3 - error TS2305: Module '"./types"' has no exported member 'ConfirmationDialogProps'.
+
+151   ConfirmationDialogProps,
+      ~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:154:3 - error TS2305: Module '"./types"' has no exported member 'ResizableLayoutProps'.
+
+154   ResizableLayoutProps,
+      ~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:155:3 - error TS2305: Module '"./types"' has no exported member 'ResizablePanelGroupProps'.
+
+155   ResizablePanelGroupProps,
+      ~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:156:3 - error TS2305: Module '"./types"' has no exported member 'ResizableHandleProps'.
+
+156   ResizableHandleProps,
+      ~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:159:3 - error TS2305: Module '"./types"' has no exported member 'AspectRatioProps'.
+
+159   AspectRatioProps,
+      ~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:162:3 - error TS2305: Module '"./types"' has no exported member 'CollapsibleTriggerButtonProps'.
+
+162   CollapsibleTriggerButtonProps,
+      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:163:3 - error TS2305: Module '"./types"' has no exported member 'CollapsibleContentWrapperProps'.
+
+163   CollapsibleContentWrapperProps,
+      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/input-otp.tsx:9:33 - error TS2312: An interface can only extend an object type or intersection of object types with statically known members.
+
+9 interface InputOTPProps extends React.ComponentPropsWithoutRef<typeof OTPInput> {
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/input-otp.tsx:22:17 - error TS2339: Property 'containerClassName' does not exist on type 'InputOTPProps'.
+
+22 >(({ className, containerClassName, ...props }, ref) => (
+                   ~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/input-otp.tsx:23:4 - error TS2322: Type '{ ref: ForwardedRef<HTMLInputElement>; containerClassName: string; className: string; }' is not assignable to type 'IntrinsicAttributes & (OTPInputProps & RefAttributes<HTMLInputElement>)'.
+  Property 'maxLength' is missing in type '{ ref: ForwardedRef<HTMLInputElement>; containerClassName: string; className: string; }' but required in type '{ value?: string; onChange?: (newValue: string) => unknown; maxLength: number; textAlign?: "center" | "right" | "left"; onComplete?: (...args: any[]) => unknown; pushPasswordManagerStrategy?: "none" | "increase-width"; pasteTransformer?: (pasted: string) => string; containerClassName?: string; noScriptCSSFallback?: ...'.
+
+23   <OTPInput
+      ~~~~~~~~
+
+  node_modules/input-otp/dist/index.d.ts:18:5
+    18     maxLength: number;
+           ~~~~~~~~~
+    'maxLength' is declared here.
+
+client/src/components/ui/input-otp.tsx:48:11 - error TS2339: Property 'char' does not exist on type 'SlotProps | undefined'.
+
+48   const { char, hasFakeCaret, isActive } = inputOTPContext.slots[index]
+             ~~~~
+
+client/src/components/ui/input-otp.tsx:48:17 - error TS2339: Property 'hasFakeCaret' does not exist on type 'SlotProps | undefined'.
+
+48   const { char, hasFakeCaret, isActive } = inputOTPContext.slots[index]
+                   ~~~~~~~~~~~~
+
+client/src/components/ui/input-otp.tsx:48:31 - error TS2339: Property 'isActive' does not exist on type 'SlotProps | undefined'.
+
+48   const { char, hasFakeCaret, isActive } = inputOTPContext.slots[index]
+                                 ~~~~~~~~
+
+client/src/components/ui/international-phone-input.tsx:63:18 - error TS2320: Interface 'InternationalPhoneInputProps' cannot simultaneously extend types 'Omit<InputHTMLAttributes<HTMLInputElement>, "value" | "onChange">' and 'VariantProps<(props?: (ConfigVariants<{ variant: { default: string; compact: string; separated: string; }; size: { sm: string; default: string; lg: string; }; }> & ClassProp) | undefined) => string>'.
+  Named property 'size' of types 'Omit<InputHTMLAttributes<HTMLInputElement>, "value" | "onChange">' and 'VariantProps<(props?: (ConfigVariants<{ variant: { default: string; compact: string; separated: string; }; size: { sm: string; default: string; lg: string; }; }> & ClassProp) | undefined) => string>' are not identical.
+
+63 export interface InternationalPhoneInputProps
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/international-phone-input.tsx:103:7 - error TS2322: Type 'Country | undefined' is not assignable to type 'Country'.
+  Type 'undefined' is not assignable to type 'Country'.
+
+103       return countries.find(c => c.code === defaultCountry) || countries[0]
+          ~~~~~~
+
+client/src/components/ui/international-phone-input.tsx:108:5 - error TS2322: Type 'Country | undefined' is not assignable to type 'Country'.
+  Type 'undefined' is not assignable to type 'Country'.
+
+108     return country || countries.find(c => c.code === defaultCountry) || countries[0]
+        ~~~~~~
+
+client/src/components/ui/international-phone-input.tsx:213:56 - error TS2322: Type 'number | undefined' is not assignable to type '"default" | "sm" | "lg" | null | undefined'.
+  Type 'number' is not assignable to type '"default" | "sm" | "lg" | null | undefined'.
+
+213       <div className={cn(phoneInputVariants({ variant, size }), className)}>
+                                                           ~~~~
+
+client/src/components/ui/international-phone-input.tsx:269:13 - error TS2322: Type 'HTMLInputTypeAttribute | undefined' is not assignable to type '"number" | "search" | "time" | "text" | "password" | "email" | "url" | "tel" | "date" | "datetime-local"'.
+  Type 'undefined' is not assignable to type '"number" | "search" | "time" | "text" | "password" | "email" | "url" | "tel" | "date" | "datetime-local"'.
+
+269             type="tel"
+                ~~~~
+
+  client/src/components/ui/input.tsx:42:3
+    42   type?: AllowedInputType
+         ~~~~
+    The expected type comes from property 'type' which is declared here on type 'IntrinsicAttributes & InputProps & RefAttributes<HTMLInputElement>'
+
+client/src/components/ui/international-phone-input.tsx:392:6 - error TS2375: Type '{ placeholder?: string; required?: boolean; disabled?: boolean; className?: string; value: string | undefined; onChange: (newValue: string, isValid: boolean) => void; }' is not assignable to type 'InternationalPhoneInputProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'value' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+392     <InternationalPhoneInput
+         ~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/menubar.tsx:130:4 - error TS2375: Type '{ children: (Element | ReactNode)[]; slot?: string | undefined; style?: CSSProperties | undefined; title?: string | undefined; role?: AriaRole | undefined; ... 265 more ...; checked: CheckedState | undefined; }' is not assignable to type 'MenubarCheckboxItemProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'checked' are incompatible.
+    Type 'CheckedState | undefined' is not assignable to type 'CheckedState'.
+      Type 'undefined' is not assignable to type 'CheckedState'.
+
+130   <MenubarPrimitive.CheckboxItem
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/performance.tsx:30:13 - error TS7030: Not all code paths return a value.
+
+30   useEffect(() => {
+               ~~~~~~~
+
+client/src/components/ui/performance.tsx:78:32 - error TS18048: 'entry' is possibly 'undefined'.
+
+78         const isIntersecting = entry.isIntersecting;
+                                  ~~~~~
+
+client/src/components/ui/performance.tsx:285:15 - error TS18048: 'entry' is possibly 'undefined'.
+
+285           if (entry.isIntersecting) {
+                  ~~~~~
+
+client/src/components/ui/phone-input.tsx:75:67 - error TS2345: Argument of type 'Country | undefined' is not assignable to parameter of type 'Country | (() => Country)'.
+  Type 'undefined' is not assignable to type 'Country | (() => Country)'.
+
+75   const [selectedCountry, setSelectedCountry] = useState<Country>(countries[0]); // Maroc par défaut
+                                                                     ~~~~~~~~~~~~
+
+client/src/components/ui/radio-group.tsx:156:10 - error TS2375: Type '{ key: string; value: string; variant: "default" | "destructive" | "outline" | "secondary" | null | undefined; size: "default" | "sm" | "lg" | null | undefined; label: string; description: string | undefined; disabled: boolean | undefined; }' is not assignable to type 'RadioGroupItemProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'description' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+156         <RadioGroupItem
+             ~~~~~~~~~~~~~~
+
+client/src/components/ui/resizable.tsx:24:18 - error TS2320: Interface 'ResizablePanelGroupProps' cannot simultaneously extend types 'Omit<Omit<HTMLAttributes<keyof HTMLElementTagNameMap>, "id"> & { autoSaveId?: string | null | undefined; className?: string | undefined; ... 7 more ...; dir?: "auto" | ... 2 more ... | undefined; } & { ...; } & RefAttributes<...>, "ref">' and 'VariantProps<(props?: (ConfigVariants<{ direction: { horizontal: string; vertical: string; }; }> & ClassProp) | undefined) => string>'.
+  Named property 'direction' of types 'Omit<Omit<HTMLAttributes<keyof HTMLElementTagNameMap>, "id"> & { autoSaveId?: string | null | undefined; className?: string | undefined; ... 7 more ...; dir?: "auto" | ... 2 more ... | undefined; } & { ...; } & RefAttributes<...>, "ref">' and 'VariantProps<(props?: (ConfigVariants<{ direction: { horizontal: string; vertical: string; }; }> & ClassProp) | undefined) => string>' are not identical.
+
+24 export interface ResizablePanelGroupProps
+                    ~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/resizable.tsx:92:5 - error TS2375: Type '{ children: false | Element | undefined; slot?: string | undefined; style?: CSSProperties; title?: string | undefined; role?: AriaRole | undefined; ... 263 more ...; className: string; }' is not assignable to type 'IntrinsicAttributes & Omit<HTMLAttributes<keyof HTMLElementTagNameMap>, "id" | "onClick" | "onFocus" | "onBlur" | "onPointerDown" | "onPointerUp"> & { ...; } & { ...; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Property 'ref' does not exist on type 'IntrinsicAttributes & Omit<HTMLAttributes<keyof HTMLElementTagNameMap>, "id" | "onClick" | "onFocus" | "onBlur" | "onPointerDown" | "onPointerUp"> & { ...; } & { ...; }'.
+
+92     ref={ref}
+       ~~~
+
+client/src/components/ui/resizable.tsx:172:6 - error TS2375: Type '{ children: Element[]; direction: "horizontal" | "vertical"; onLayout: (newSizes: number[]) => void; className: string | undefined; }' is not assignable to type 'ResizablePanelGroupProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'className' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+172     <ResizablePanelGroup
+         ~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/sidebar.tsx:56:24 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+56 const SidebarContext = React.createContext<SidebarContextValue | null>(null)
+                          ~~~~~
+
+client/src/components/ui/sidebar.tsx:59:19 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+59   const context = React.useContext(SidebarContext)
+                     ~~~~~
+
+client/src/components/ui/sidebar.tsx:66:25 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+66 const SidebarProvider = React.forwardRef<
+                           ~~~~~
+
+client/src/components/ui/sidebar.tsx:86:41 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+86     const [openMobile, setOpenMobile] = React.useState(false)
+                                           ~~~~~
+
+client/src/components/ui/sidebar.tsx:90:31 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+90     const [_open, _setOpen] = React.useState(defaultOpen)
+                                 ~~~~~
+
+client/src/components/ui/sidebar.tsx:92:21 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+92     const setOpen = React.useCallback(
+                       ~~~~~
+
+client/src/components/ui/sidebar.tsx:108:27 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+108     const toggleSidebar = React.useCallback(() => {
+                              ~~~~~

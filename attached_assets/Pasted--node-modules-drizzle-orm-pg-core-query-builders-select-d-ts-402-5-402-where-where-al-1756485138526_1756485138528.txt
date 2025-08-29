@@ -1,0 +1,656 @@
+
+  node_modules/drizzle-orm/pg-core/query-builders/select.d.ts:402:5
+    402     where(where: ((aliases: this['_']['selection']) => SQL | undefined) | SQL | undefined): PgSelectWithout<this, TDynamic, 'where'>;
+            ~~~~~
+    'where' is declared here.
+
+server/routes/orders/orders.routes.ts:128:5 - error TS2741: Property 'orderBy' is missing in type 'Omit<import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"orders", { id: import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam:...' but required in type 'Omit<import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"orders", { id: import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam:...'.
+
+128     query = sortOrder === 'desc' ?
+        ~~~~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/select.d.ts:471:5
+    471     orderBy(builder: (aliases: this['_']['selection']) => ValueOrArray<PgColumn | SQL | SQL.Aliased>): PgSelectWithout<this, TDynamic, 'orderBy'>;
+            ~~~~~~~
+    'orderBy' is declared here.
+
+server/routes/orders/orders.routes.ts:157:16 - error TS2538: Type 'null' cannot be used as an index type.
+
+157       if (!acc[item.orderId]) {
+                   ~~~~~~~~~~~~
+
+server/routes/orders/orders.routes.ts:158:13 - error TS2538: Type 'null' cannot be used as an index type.
+
+158         acc[item.orderId] = [];
+                ~~~~~~~~~~~~
+
+server/routes/orders/orders.routes.ts:160:11 - error TS2538: Type 'null' cannot be used as an index type.
+
+160       acc[item.orderId].push(item);
+              ~~~~~~~~~~~~
+
+server/routes/orders/orders.routes.ts:171:14 - error TS2339: Property 'count' does not exist on type '{ count: number; } | undefined'.
+
+171     const [{ count }] = await db
+                 ~~~~~
+
+server/routes/orders/orders.routes.ts:199:16 - error TS7030: Not all code paths return a value.
+
+199   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/orders/orders.routes.ts:224:14 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>, right: number | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'number | SQLWrapper'.
+      Type 'undefined' is not assignable to type 'number | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string | undefined>, right: string | SQLWrapper | undefined): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string | undefined>'.
+      Type 'PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string | undefined>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+224       .where(eq(orders.id, id));
+                 ~~
+
+
+server/routes/orders/orders.routes.ts:248:14 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "order_id"; tableName: "order_items"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>, right: number | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'number | SQLWrapper'.
+      Type 'undefined' is not assignable to type 'number | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string | undefined>, right: string | SQLWrapper | undefined): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "order_id"; tableName: "order_items"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string | undefined>'.
+      Type 'PgColumn<{ name: "order_id"; tableName: "order_items"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string | undefined>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "order_id"; tableName: "order_items"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+248       .where(eq(orderItems.orderId, id));
+                 ~~
+
+
+server/routes/orders/orders.routes.ts:267:16 - error TS7030: Not all code paths return a value.
+
+267   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/orders/orders.routes.ts:272:44 - error TS7006: Parameter 'item' implicitly has an 'any' type.
+
+272     const menuItemIds = orderItemsData.map(item => item.menuItemId);
+                                               ~~~~
+
+server/routes/orders/orders.routes.ts:290:48 - error TS7006: Parameter 'item' implicitly has an 'any' type.
+
+290     const itemsWithPrices = orderItemsData.map(item => {
+                                                   ~~~~
+
+server/routes/orders/orders.routes.ts:296:26 - error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+
+296       const totalPrice = menuItem.price * item.quantity;
+                             ~~~~~~~~~~~~~~
+
+server/routes/orders/orders.routes.ts:326:52 - error TS7006: Parameter 'item' implicitly has an 'any' type.
+
+326     const orderItemsToInsert = itemsWithPrices.map(item => ({
+                                                       ~~~~
+
+server/routes/orders/orders.routes.ts:327:16 - error TS18048: 'newOrder' is possibly 'undefined'.
+
+327       orderId: newOrder.id,
+                   ~~~~~~~~
+
+server/routes/orders/orders.routes.ts:339:16 - error TS18048: 'newOrder' is possibly 'undefined'.
+
+339       orderId: newOrder.id,
+                   ~~~~~~~~
+
+server/routes/orders/orders.routes.ts:359:37 - error TS2322: Type '"staff"' is not assignable to type 'AppRole'.
+
+359   requireRoles(['admin', 'manager', 'staff']),
+                                        ~~~~~~~
+
+server/routes/orders/orders.routes.ts:363:16 - error TS7030: Not all code paths return a value.
+
+363   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/orders/orders.routes.ts:374:14 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>, right: number | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'number | SQLWrapper'.
+      Type 'undefined' is not assignable to type 'number | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string | undefined>, right: string | SQLWrapper | undefined): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string | undefined>'.
+      Type 'PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string | undefined>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+374       .where(eq(orders.id, id))
+                 ~~
+
+
+server/routes/permissions.routes.ts:8:74 - error TS2322: Type '"directeur"' is not assignable to type 'AppRole'.
+
+8 router.get('/users/:userId/permissions', authenticateUser, requireRoles(['directeur']), async (req, res) => {
+                                                                           ~~~~~~~~~~~
+
+server/routes/permissions.routes.ts:25:74 - error TS2322: Type '"directeur"' is not assignable to type 'AppRole'.
+
+25 router.put('/users/:userId/permissions', authenticateUser, requireRoles(['directeur']), async (req, res) => {
+                                                                            ~~~~~~~~~~~
+
+server/routes/permissions.routes.ts:43:69 - error TS2322: Type '"directeur"' is not assignable to type 'AppRole'.
+
+43 router.put('/users/:userId/status', authenticateUser, requireRoles(['directeur']), async (req, res) => {
+                                                                       ~~~~~~~~~~~
+
+server/routes/permissions.routes.ts:61:58 - error TS2322: Type '"directeur"' is not assignable to type 'AppRole'.
+
+61 router.get('/available', authenticateUser, requireRoles(['directeur']), async (req, res) => {
+                                                            ~~~~~~~~~~~
+
+server/routes/permissions.routes.ts:136:47 - error TS7030: Not all code paths return a value.
+
+136 router.get('/user/:userId', authenticateUser, async (req, res) => {
+                                                  ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/permissions.routes.ts:161:61 - error TS2322: Type '"directeur"' is not assignable to type 'AppRole'.
+
+161 router.put('/user/:userId', authenticateUser, requireRoles(['directeur']), async (req, res) => {
+                                                                ~~~~~~~~~~~
+
+server/routes/permissions.routes.ts:161:76 - error TS7030: Not all code paths return a value.
+
+161 router.put('/user/:userId', authenticateUser, requireRoles(['directeur']), async (req, res) => {
+                                                                               ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/permissions.routes.ts:192:54 - error TS2322: Type '"directeur"' is not assignable to type 'AppRole'.
+
+192 router.get('/roles', authenticateUser, requireRoles(['directeur']), async (req, res) => {
+                                                         ~~~~~~~~~~~
+
+server/routes/permissions.ts:19:65 - error TS2307: Cannot find module '@custom-types' or its corresponding type declarations.
+
+19 import type { Permission, ApiResponse, PaginatedResponse } from '@custom-types';
+                                                                   ~~~~~~~~~~~~~~~
+
+server/routes/tables/tables.routes.ts:71:7 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { action: string | SQL<unknown> | Placeholder<string, any>; entity: string | SQL<unknown> | Placeholder<string, any>; id?: number | SQL<unknown> | Placeholder<string, any> | undefined; ... 5 more ...; userAgent?: string | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Type 'string' is not assignable to type 'number | SQL<unknown> | Placeholder<string, any> | null | undefined'.
+  Overload 2 of 2, '(values: { action: string | SQL<unknown> | Placeholder<string, any>; entity: string | SQL<unknown> | Placeholder<string, any>; id?: number | SQL<unknown> | Placeholder<string, any> | undefined; ... 5 more ...; userAgent?: string | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'userId' does not exist in type '{ action: string | SQL<unknown> | Placeholder<string, any>; entity: string | SQL<unknown> | Placeholder<string, any>; id?: number | SQL<unknown> | Placeholder<string, any> | undefined; ... 5 more ...; userAgent?: string | ... 3 more ... | undefined; }[]'.
+
+71       userId,
+         ~~~~~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/insert.d.ts:28:101
+     28 export type PgInsertValue<TTable extends PgTable<TableConfig>, OverrideT extends boolean = false> = {
+                                                                                                            ~
+     29     [Key in keyof InferInsertModel<TTable, {
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ... 
+     35     }>[Key] | SQL | Placeholder;
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     36 } & {};
+        ~
+    The expected type comes from property 'userId' which is declared here on type '{ action: string | SQL<unknown> | Placeholder<string, any>; entity: string | SQL<unknown> | Placeholder<string, any>; id?: number | SQL<unknown> | Placeholder<string, any> | undefined; ... 5 more ...; userAgent?: string | ... 3 more ... | undefined; }'
+
+server/routes/tables/tables.routes.ts:135:23 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "is_active"; tableName: "tables"; dataType: "boolean"; columnType: "PgBoolean"; data: boolean; driverParam: boolean; notNull: true; hasDefault: true; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>, right: boolean | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string | string[] | ParsedQs | ParsedQs[]' is not assignable to parameter of type 'boolean | SQLWrapper'.
+      Type 'string' is not assignable to type 'boolean | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string | string[] | ParsedQs | ParsedQs[]>, right: string | string[] | SQLWrapper | ParsedQs | ParsedQs[]): SQL<...>', gave the following error.
+    Argument of type 'PgColumn<{ name: "is_active"; tableName: "tables"; dataType: "boolean"; columnType: "PgBoolean"; data: boolean; driverParam: boolean; notNull: true; hasDefault: true; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string | string[] | ParsedQs | ParsedQs[]>'.
+      Type 'PgColumn<{ name: "is_active"; tableName: "tables"; dataType: "boolean"; columnType: "PgBoolean"; data: boolean; driverParam: boolean; notNull: true; hasDefault: true; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string | string[] | ParsedQs | ParsedQs[]>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "is_active"; tableName: "tables"; dataType: "boolean"; columnType: "PgBoolean"; data: boolean; driverParam: boolean; notNull: true; hasDefault: true; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+135       conditions.push(eq(tables.isActive, isActive));
+                          ~~
+
+
+server/routes/tables/tables.routes.ts:139:7 - error TS2740: Type 'Omit<PgSelectBase<"tables", { id: PgColumn<{ name: "id"; tableName: "tables"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>; ... 9 more ...; updatedAt: PgColu...' is missing the following properties from type 'PgSelectBase<"tables", { id: PgColumn<{ name: "id"; tableName: "tables"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>; ... 9 more ...; updatedAt: PgColumn<.....': config, joinsNotNullableMap, tableName, isPartialSelect, and 5 more.
+
+139       query = query.where(and(...conditions));
+          ~~~~~
+
+server/routes/tables/tables.routes.ts:149:5 - error TS2740: Type 'Omit<PgSelectBase<"tables", { id: PgColumn<{ name: "id"; tableName: "tables"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>; ... 9 more ...; updatedAt: PgColu...' is missing the following properties from type 'PgSelectBase<"tables", { id: PgColumn<{ name: "id"; tableName: "tables"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>; ... 9 more ...; updatedAt: PgColumn<.....': config, joinsNotNullableMap, tableName, isPartialSelect, and 5 more.
+
+149     query = sortOrder === 'desc' ?
+        ~~~~~
+
+server/routes/tables/tables.routes.ts:154:21 - error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+
+154     const offset = (page - 1) * limit;
+                        ~~~~
+
+server/routes/tables/tables.routes.ts:154:33 - error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+
+154     const offset = (page - 1) * limit;
+                                    ~~~~~
+
+server/routes/tables/tables.routes.ts:155:42 - error TS2345: Argument of type 'string | 50 | string[] | ParsedQs | ParsedQs[]' is not assignable to parameter of type 'number | Placeholder<string, any>'.
+  Type 'string' is not assignable to type 'number | Placeholder<string, any>'.
+
+155     const tablesData = await query.limit(limit).offset(offset);
+                                             ~~~~~
+
+server/routes/tables/tables.routes.ts:158:14 - error TS2339: Property 'count' does not exist on type '{ count: number; } | undefined'.
+
+158     const [{ count }] = await db
+                 ~~~~~
+
+server/routes/tables/tables.routes.ts:176:39 - error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+
+176         totalPages: Math.ceil(count / limit)
+                                          ~~~~~
+
+server/routes/tables/tables.routes.ts:252:11 - error TS2322: Type '{ id: number; number: number; capacity: number; location: string | null; section: string | null; status: "available" | "occupied" | "reserved" | "maintenance"; currentReservation: { ...; } | undefined; nextReservation: { ...; } | undefined; }[]' is not assignable to type 'TableStatus[]'.
+  Type '{ id: number; number: number; capacity: number; location: string | null; section: string | null; status: "available" | "occupied" | "reserved" | "maintenance"; currentReservation: { ...; } | undefined; nextReservation: { ...; } | undefined; }' is not assignable to type 'TableStatus' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'location' are incompatible.
+      Type 'string | null' is not assignable to type 'string'.
+        Type 'null' is not assignable to type 'string'.
+
+252     const tableStatuses: TableStatus[] = allTables.map(table => {
+              ~~~~~~~~~~~~~
+
+server/routes/tables/tables.routes.ts:350:7 - error TS18048: 'newTable' is possibly 'undefined'.
+
+350       newTable.id.toString()
+          ~~~~~~~~
+
+server/routes/tables/tables.routes.ts:354:16 - error TS18048: 'newTable' is possibly 'undefined'.
+
+354       tableId: newTable.id,
+                   ~~~~~~~~
+
+server/routes/tables/tables.routes.ts:379:25 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+379     const id = parseInt(req.params.id, 10);
+                            ~~~~~~~~~~~~~
+
+server/routes/tables/tables.routes.ts:388:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+388       return res.status(404).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:405:9 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+405         return res.status(409).json({
+            ~~~~~~
+
+server/routes/tables/tables.routes.ts:426:30 - error TS18048: 'updatedTable' is possibly 'undefined'.
+
+426       `Table mise à jour: #${updatedTable.number} - ${Object.keys(req.body).join(', ')}`,
+                                 ~~~~~~~~~~~~
+
+server/routes/tables/tables.routes.ts:428:7 - error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+
+428       id
+          ~~
+
+server/routes/tables/tables.routes.ts:455:25 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+455     const id = parseInt(req.params.id, 10);
+                            ~~~~~~~~~~~~~
+
+server/routes/tables/tables.routes.ts:465:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+465       return res.status(404).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:476:9 - error TS2353: Object literal may only specify known properties, and 'notes' does not exist in type '{ number?: number | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined; capacity?: number | SQL<...> | PgColumn<...> | undefined; ... 8 more ...; updatedAt?: Date | ... 2 more ... | undefined; }'.
+
+476         notes,
+            ~~~~~
+
+server/routes/tables/tables.routes.ts:488:7 - error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+
+488       id
+          ~~
+
+server/routes/tables/tables.routes.ts:517:25 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+517     const id = parseInt(req.params.id, 10);
+                            ~~~~~~~~~~~~~
+
+server/routes/tables/tables.routes.ts:521:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+521       return res.status(400).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:534:30 - error TS2339: Property 'reservationTime' does not exist on type 'PgTableWithColumns<{ name: "reservations"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>; ... 9 more ...; updatedAt: PgColumn<...>; }; d...'.
+
+534           sql`${reservations.reservationTime} > NOW()`,
+                                 ~~~~~~~~~~~~~~~
+
+server/routes/tables/tables.routes.ts:541:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+541       return res.status(400).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:558:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+558       return res.status(404).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:570:7 - error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+
+570       id
+          ~~
+
+server/routes/user-profile.ts:211:7 - error TS2375: Type '{ id: number; username: string; email: string; firstName: string; lastName: string; phone: string | undefined; role: string; isActive: boolean; createdAt: string; updatedAt: string; avatarUrl: undefined; }' is not assignable to type 'UserProfile' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'phone' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+211       return {
+          ~~~~~~
+
+server/routes/user-profile.ts:280:11 - error TS2532: Object is possibly 'undefined'.
+
+280           itemCounts[item.id].count++;
+              ~~~~~~~~~~~~~~~~~~~
+
+server/routes/user-profile.ts:281:43 - error TS2532: Object is possibly 'undefined'.
+
+281           if (new Date(order.createdAt) > itemCounts[item.id].lastOrdered) {
+                                              ~~~~~~~~~~~~~~~~~~~
+
+server/routes/user-profile.ts:282:13 - error TS2532: Object is possibly 'undefined'.
+
+282             itemCounts[item.id].lastOrdered = new Date(order.createdAt);
+                ~~~~~~~~~~~~~~~~~~~
+
+server/routes/user-profile.ts:361:23 - error TS2339: Property 'where' does not exist on type 'Omit<PgSelectBase<"orders", { id: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>; ... 5 more ...; updatedAt: PgColu...'.
+
+361         query = query.where(eq(orders.status, filters.status));
+                          ~~~~~
+
+server/routes/user-profile.ts:361:29 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "status"; tableName: "orders"; dataType: "string"; columnType: "PgEnumColumn"; data: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>, right: "pending" | ... 4 more ... | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type '"pending" | "cancelled" | "preparing" | "ready" | "delivered" | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string>, right: string | SQLWrapper): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "status"; tableName: "orders"; dataType: "string"; columnType: "PgEnumColumn"; data: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string>'.
+      Type 'PgColumn<{ name: "status"; tableName: "orders"; dataType: "string"; columnType: "PgEnumColumn"; data: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "status"; tableName: "orders"; dataType: "string"; columnType: "PgEnumColumn"; data: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+361         query = query.where(eq(orders.status, filters.status));
+                                ~~
+
+
+server/routes/user-profile.ts:365:23 - error TS2339: Property 'where' does not exist on type 'Omit<PgSelectBase<"orders", { id: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>; ... 5 more ...; updatedAt: PgColu...'.
+
+365         query = query.where(gte(orders.createdAt, new Date(filters.from)));
+                          ~~~~~
+
+server/routes/user-profile.ts:369:23 - error TS2339: Property 'where' does not exist on type 'Omit<PgSelectBase<"orders", { id: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>; ... 5 more ...; updatedAt: PgColu...'.
+
+369         query = query.where(lte(orders.createdAt, new Date(filters.to)));
+                          ~~~~~
+
+server/routes/user-profile.ts:403:9 - error TS2322: Type '{ id: number; orderNumber: string; totalAmount: number; status: "pending" | "cancelled" | "completed" | "processing"; items: { id: number; name: string; quantity: number; price: number; specialRequests?: string; }[]; createdAt: string; updatedAt: string; deliveryAddress: { ...; } | undefined; }[]' is not assignable to type 'OrderHistory[]'.
+  Type '{ id: number; orderNumber: string; totalAmount: number; status: "pending" | "processing" | "completed" | "cancelled"; items: Array<{ id: number; name: string; quantity: number; price: number; specialRequests?: string; }>; createdAt: string; updatedAt: string; deliveryAddress: { ...; } | undefined; }' is not assignable to type 'OrderHistory' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'deliveryAddress' are incompatible.
+      Type '{ id: any; title: any; street: any; city: any; postalCode: any; country: any; } | undefined' is not assignable to type 'Address'.
+        Type 'undefined' is not assignable to type 'Address'.
+
+403         orders: ordersWithAddresses.map(order => ({
+            ~~~~~~
+
+  server/routes/user-profile.ts:341:15
+    341   ): Promise<{orders: OrderHistory[], total: number}> {
+                      ~~~~~~
+    The expected type comes from property 'orders' which is declared here on type '{ orders: OrderHistory[]; total: number; }'
+
+server/routes/user-profile.ts:494:9 - error TS2740: Type '{ [x: string]: any; }' is missing the following properties from type 'Address': id, title, street, city, and 3 more.
+
+494         address = updated;
+            ~~~~~~~
+
+server/routes/user-profile.ts:606:9 - error TS2353: Object literal may only specify known properties, and 'avatarUrl' does not exist in type '{ username?: string | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined; password?: string | SQL<...> | PgColumn<...> | undefined; ... 10 more ...; lastLoginAt?: Date | ... 3 more ... | undefined; }'.
+
+606         avatarUrl: avatarUrl ?? null,
+            ~~~~~~~~~
+
+server/routes/user-profile.ts:629:32 - error TS2339: Property 'avatarUrl' does not exist on type '{ id: number; email: string; username: string; password: string; firstName: string | null; lastName: string | null; phone: string | null; role: string; isActive: boolean; permissions: string[] | null; lastLoginAt: Date | null; createdAt: Date; updatedAt: Date; }'.
+
+629         avatarUrl: updatedUser.avatarUrl ?? undefined
+                                   ~~~~~~~~~
+
+server/routes/user-profile.ts:698:9 - error TS2412: Type 'string | string[] | ParsedQs | ParsedQs[] | undefined' is not assignable to type 'string | undefined' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+
+698       { status, from, to }
+            ~~~~~~
+
+server/routes/user-profile.ts:698:17 - error TS2412: Type 'string | string[] | ParsedQs | ParsedQs[] | undefined' is not assignable to type 'string | undefined' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+
+698       { status, from, to }
+                    ~~~~
+
+server/routes/user-profile.ts:698:23 - error TS2412: Type 'string | string[] | ParsedQs | ParsedQs[] | undefined' is not assignable to type 'string | undefined' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+
+698       { status, from, to }
+                          ~~
+
+server/routes/user-profile.ts:736:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+736       return res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
+          ~~~~~~
+
+server/routes/user-profile.ts:749:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+749       return res.status(400).json({ success: false, message: 'Requête invalide' });
+          ~~~~~~
+
+server/routes/user-profile.ts:761:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+761       return res.status(400).json({ success: false, message: 'Requête invalide' });
+          ~~~~~~
+
+server/routes/users/users.routes.ts:140:7 - error TS2740: Type 'Omit<PgSelectBase<"users", { id: PgColumn<{ name: "id"; tableName: "users"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>; ... 7 more ...; lastLoginAt: PgColu...' is missing the following properties from type 'PgSelectBase<"users", { id: PgColumn<{ name: "id"; tableName: "users"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>; ... 7 more ...; lastLoginAt: PgColumn<.....': config, joinsNotNullableMap, tableName, isPartialSelect, and 5 more.
+
+140       query = query.where(and(...conditions));
+          ~~~~~
+
+server/routes/users/users.routes.ts:151:5 - error TS2740: Type 'Omit<PgSelectBase<"users", { id: PgColumn<{ name: "id"; tableName: "users"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>; ... 7 more ...; lastLoginAt: PgColu...' is missing the following properties from type 'PgSelectBase<"users", { id: PgColumn<{ name: "id"; tableName: "users"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>; ... 7 more ...; lastLoginAt: PgColumn<.....': config, joinsNotNullableMap, tableName, isPartialSelect, and 5 more.
+
+151     query = sortOrder === 'desc' ?
+        ~~~~~
+
+server/routes/users/users.routes.ts:224:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+224       return res.status(404).json({
+          ~~~~~~
+
+server/routes/users/users.routes.ts:236:29 - error TS2339: Property 'userId' does not exist on type 'PgTableWithColumns<{ name: "customers"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "customers"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 10 more ...; updatedAt: PgColu...'.
+
+236         .where(eq(customers.userId, id));
+                                ~~~~~~
+
+server/routes/users/users.routes.ts:286:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+286       return res.status(409).json({
+          ~~~~~~
+
+server/routes/users/users.routes.ts:320:9 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { email: string | SQL<unknown> | Placeholder<string, any>; firstName: string | SQL<unknown> | Placeholder<string, any>; lastName: string | SQL<unknown> | Placeholder<...>; ... 8 more ...; loyaltyPoints?: number | ... 2 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Type '`${string}-${string}-${string}-${string}-${string}`' is not assignable to type 'number | SQL<unknown> | Placeholder<string, any> | undefined'.
+  Overload 2 of 2, '(values: { email: string | SQL<unknown> | Placeholder<string, any>; firstName: string | SQL<unknown> | Placeholder<string, any>; lastName: string | SQL<unknown> | Placeholder<...>; ... 8 more ...; loyaltyPoints?: number | ... 2 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'id' does not exist in type '{ email: string | SQL<unknown> | Placeholder<string, any>; firstName: string | SQL<unknown> | Placeholder<string, any>; lastName: string | SQL<unknown> | Placeholder<...>; ... 8 more ...; loyaltyPoints?: number | ... 2 more ... | undefined; }[]'.
+
+320         id: crypto.randomUUID(),
+            ~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/insert.d.ts:28:101
+     28 export type PgInsertValue<TTable extends PgTable<TableConfig>, OverrideT extends boolean = false> = {
+                                                                                                            ~
+     29     [Key in keyof InferInsertModel<TTable, {
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ... 
+     35     }>[Key] | SQL | Placeholder;
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     36 } & {};
+        ~
+    The expected type comes from property 'id' which is declared here on type '{ email: string | SQL<unknown> | Placeholder<string, any>; firstName: string | SQL<unknown> | Placeholder<string, any>; lastName: string | SQL<unknown> | Placeholder<...>; ... 8 more ...; loyaltyPoints?: number | ... 2 more ... | undefined; }'
+
+server/routes/users/users.routes.ts:385:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+385       return res.status(404).json({
+          ~~~~~~
+
+server/routes/users/users.routes.ts:402:9 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+402         return res.status(409).json({
+            ~~~~~~
+
+server/routes/users/users.routes.ts:429:9 - error TS18048: 'updatedUser' is possibly 'undefined'.
+
+429     if (updatedUser.role === 'customer') {
+            ~~~~~~~~~~~
+
+server/routes/users/users.routes.ts:433:11 - error TS2322: Type 'string | null' is not assignable to type 'string | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined'.
+  Type 'null' is not assignable to type 'string | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined'.
+
+433           firstName: updatedUser.firstName,
+              ~~~~~~~~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/update.d.ts:27:57
+    27 export type PgUpdateSetSource<TTable extends PgTable> = {
+                                                               ~
+    28     [Key in keyof TTable['$inferInsert']]?: GetColumnData<TTable['_']['columns'][Key]> | SQL | PgColumn | undefined;
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    29 } & {};
+       ~
+    The expected type comes from property 'firstName' which is declared here on type '{ email?: string | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined; firstName?: string | SQL<...> | PgColumn<...> | undefined; ... 9 more ...; loyaltyPoints?: number | ... 2 more ... | undefined; }'
+
+server/routes/users/users.routes.ts:433:22 - error TS18048: 'updatedUser' is possibly 'undefined'.
+
+433           firstName: updatedUser.firstName,
+                         ~~~~~~~~~~~
+
+server/routes/users/users.routes.ts:434:11 - error TS2322: Type 'string | null' is not assignable to type 'string | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined'.
+  Type 'null' is not assignable to type 'string | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined'.
+
+434           lastName: updatedUser.lastName,
+              ~~~~~~~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/update.d.ts:27:57
+    27 export type PgUpdateSetSource<TTable extends PgTable> = {
+                                                               ~
+    28     [Key in keyof TTable['$inferInsert']]?: GetColumnData<TTable['_']['columns'][Key]> | SQL | PgColumn | undefined;
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    29 } & {};
+       ~
+    The expected type comes from property 'lastName' which is declared here on type '{ email?: string | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined; firstName?: string | SQL<...> | PgColumn<...> | undefined; ... 9 more ...; loyaltyPoints?: number | ... 2 more ... | undefined; }'
+
+server/routes/users/users.routes.ts:434:21 - error TS18048: 'updatedUser' is possibly 'undefined'.
+
+434           lastName: updatedUser.lastName,
+                        ~~~~~~~~~~~
+
+server/routes/users/users.routes.ts:435:18 - error TS18048: 'updatedUser' is possibly 'undefined'.
+
+435           email: updatedUser.email,
+                     ~~~~~~~~~~~
+
+server/routes/users/users.routes.ts:436:18 - error TS18048: 'updatedUser' is possibly 'undefined'.
+
+436           phone: updatedUser.phone,
+                     ~~~~~~~~~~~
+
+server/routes/users/users.routes.ts:439:29 - error TS2339: Property 'userId' does not exist on type 'PgTableWithColumns<{ name: "customers"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "customers"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 10 more ...; updatedAt: PgColu...'.
+
+439         .where(eq(customers.userId, id));
+                                ~~~~~~
+
+server/routes/users/users.routes.ts:492:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+492       return res.status(404).json({
+          ~~~~~~
+
+server/routes/users/users.routes.ts:499:39 - error TS2304: Cannot find name 'password'.
+
+499     const hashedPassword = await hash(password, 12);
+                                          ~~~~~~~~
+
+server/routes/users/users.routes.ts:553:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+553       return res.status(400).json({
+          ~~~~~~
+
+server/routes/users/users.routes.ts:574:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+574       return res.status(404).json({
+          ~~~~~~
+
+server/routes/users/users.routes.ts:617:34 - error TS2551: Property 'active' does not exist on type 'PgTableWithColumns<{ name: "users"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "users"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 11 more ...; updatedAt: PgColumn<...>;...'. Did you mean 'isActive'?
+
+617       .groupBy(users.role, users.active);
+                                     ~~~~~~
+
+server/routes/users/users.routes.ts:625:9 - error TS2532: Object is possibly 'undefined'.
+
+625         acc[stat.role].total += stat.count;
+            ~~~~~~~~~~~~~~
+
+server/routes/users/users.routes.ts:627:11 - error TS2532: Object is possibly 'undefined'.
+
+627           acc[stat.role].active += stat.count;
+              ~~~~~~~~~~~~~~
+
+server/routes/users/users.routes.ts:629:11 - error TS2532: Object is possibly 'undefined'.
+
+629           acc[stat.role].inactive += stat.count;
+              ~~~~~~~~~~~~~~
+
+server/services/ai-automation.service.ts:525:33 - error TS2339: Property 'stock' does not exist on type 'PgTableWithColumns<{ name: "menu_items"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 13 more ...; updatedAt: PgCo...'.
+
+525         currentStock: menuItems.stock || 0,
+                                    ~~~~~
+
+server/services/ai-automation.service.ts:527:80 - error TS2339: Property 'stock' does not exist on type 'PgTableWithColumns<{ name: "menu_items"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 13 more ...; updatedAt: PgCo...'.
+
+527         daysRemaining: sql`CASE WHEN AVG(orders.quantity) > 0 THEN ${menuItems.stock || 0} / AVG(orders.quantity) ELSE 999 END`
+                                                                                   ~~~~~
+
+server/services/ai-automation.service.ts:530:58 - error TS2339: Property 'stock' does not exist on type 'PgTableWithColumns<{ name: "menu_items"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 13 more ...; updatedAt: PgCo...'.
+
+530         .groupBy(menuItems.id, menuItems.name, menuItems.stock)
+                                                             ~~~~~
+
+server/services/ai-automation.service.ts:598:41 - error TS2339: Property 'itemId' does not exist on type 'PgTableWithColumns<{ name: "orders"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 15 more ...; updatedAt: PgColumn<......'.
+
+598         .innerJoin(menuItems, eq(orders.itemId, menuItems.id))
+                                            ~~~~~~
+
+server/types/auth.ts:26:7 - error TS2717: Subsequent property declarations must have the same type.  Property 'user' must be of type 'AuthUser | undefined', but here has type 'AuthenticatedUser | undefined'.
+
+26       user?: AuthenticatedUser;
+         ~~~~
+
+  server/middleware/auth.ts:415:7
+    415       user?: AuthUser;
+              ~~~~
+    'user' was also declared here.
+
+server/types/auth.ts:89:14 - error TS2741: Property 'staff' is missing in type '{ customer: string[]; waiter: string[]; serveur: string[]; chef: string[]; cuisinier: string[]; employe: string[]; employee: string[]; manager: string[]; directeur: string[]; admin: string[]; }' but required in type 'Record<AppRole, string[]>'.
+
+89 export const ROLE_PERMISSIONS: Record<AppRole, string[]> = {
+                ~~~~~~~~~~~~~~~~
+
+server/types/auth.ts:171:14 - error TS2741: Property 'staff' is missing in type '{ customer: number; waiter: number; serveur: number; chef: number; cuisinier: number; employe: number; employee: number; manager: number; directeur: number; admin: number; }' but required in type 'Record<AppRole, number>'.
+
+171 export const ROLE_HIERARCHY: Record<AppRole, number> = {
+                 ~~~~~~~~~~~~~~
+
+server/types/auth.ts:187:7 - error TS2717: Subsequent property declarations must have the same type.  Property 'user' must be of type 'AuthUser | undefined', but here has type 'AuthenticatedUser | undefined'.
+
+187       user?: AuthenticatedUser;
+          ~~~~
+
+  server/middleware/auth.ts:415:7
+    415       user?: AuthUser;
+              ~~~~
+    'user' was also declared here.

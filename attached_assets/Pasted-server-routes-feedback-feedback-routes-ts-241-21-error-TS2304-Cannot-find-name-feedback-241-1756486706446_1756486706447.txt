@@ -1,0 +1,148 @@
+server/routes/feedback/feedback.routes.ts:241:21 - error TS2304: Cannot find name 'feedback'.
+
+241         customerId: feedback.customerId,
+                        ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:243:18 - error TS2304: Cannot find name 'feedback'.
+
+243           WHEN ${feedback.isAnonymous} = true THEN 'Client anonyme'
+                     ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:247:18 - error TS2304: Cannot find name 'feedback'.
+
+247           WHEN ${feedback.isAnonymous} = true THEN ${feedback.contactEmail}
+                     ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:247:54 - error TS2304: Cannot find name 'feedback'.
+
+247           WHEN ${feedback.isAnonymous} = true THEN ${feedback.contactEmail}
+                                                         ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:250:18 - error TS2304: Cannot find name 'feedback'.
+
+250         orderId: feedback.orderId,
+                     ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:251:17 - error TS2304: Cannot find name 'feedback'.
+
+251         rating: feedback.rating,
+                    ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:252:19 - error TS2304: Cannot find name 'feedback'.
+
+252         category: feedback.category,
+                      ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:253:16 - error TS2304: Cannot find name 'feedback'.
+
+253         title: feedback.title,
+                   ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:254:18 - error TS2304: Cannot find name 'feedback'.
+
+254         comment: feedback.comment,
+                     ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:255:22 - error TS2304: Cannot find name 'feedback'.
+
+255         suggestions: feedback.suggestions,
+                         ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:256:17 - error TS2304: Cannot find name 'feedback'.
+
+256         status: feedback.status,
+                    ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:257:19 - error TS2304: Cannot find name 'feedback'.
+
+257         response: feedback.response,
+                      ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:258:21 - error TS2304: Cannot find name 'feedback'.
+
+258         responseBy: feedback.responseBy,
+                        ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:259:22 - error TS2304: Cannot find name 'feedback'.
+
+259         respondedAt: feedback.respondedAt,
+                         ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:260:24 - error TS2304: Cannot find name 'feedback'.
+
+260         internalNotes: feedback.internalNotes,
+                           ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:261:22 - error TS2304: Cannot find name 'feedback'.
+
+261         isAnonymous: feedback.isAnonymous,
+                         ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:262:20 - error TS2304: Cannot find name 'feedback'.
+
+262         createdAt: feedback.createdAt,
+                       ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:263:20 - error TS2304: Cannot find name 'feedback'.
+
+263         updatedAt: feedback.updatedAt
+                       ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:265:13 - error TS2304: Cannot find name 'feedback'.
+
+265       .from(feedback)
+                ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:266:31 - error TS2304: Cannot find name 'feedback'.
+
+266       .leftJoin(customers, eq(feedback.customerId, customers.id))
+                                  ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:267:17 - error TS2304: Cannot find name 'feedback'.
+
+267       .where(eq(feedback.id, id));
+                    ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:308:16 - error TS7030: Not all code paths return a value.
+
+308   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:337:15 - error TS2304: Cannot find name 'feedback'.
+
+337       .insert(feedback)
+                  ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:346:13 - error TS2304: Cannot find name 'feedback'.
+
+346         id: feedback.id,
+                ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:347:17 - error TS2304: Cannot find name 'feedback'.
+
+347         rating: feedback.rating,
+                    ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:348:19 - error TS2304: Cannot find name 'feedback'.
+
+348         category: feedback.category,
+                      ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:349:16 - error TS2304: Cannot find name 'feedback'.
+
+349         title: feedback.title,
+                   ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:350:17 - error TS2304: Cannot find name 'feedback'.
+
+350         status: feedback.status,
+                    ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:351:20 - error TS2304: Cannot find name 'feedback'.
+
+351         createdAt: feedback.createdAt
+                       ~~~~~~~~
+
+server/routes/feedback/feedback.routes.ts:376:16 - error TS7030: Not all code paths return a value.
+
+376   asyncHandler(async (req, res) => {

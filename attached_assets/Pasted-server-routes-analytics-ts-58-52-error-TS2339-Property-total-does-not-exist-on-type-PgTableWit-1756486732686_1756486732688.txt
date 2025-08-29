@@ -1,0 +1,230 @@
+server/routes/analytics.ts:58:52 - error TS2339: Property 'total' does not exist on type 'PgTableWithColumns<{ name: "orders"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 15 more ...; updatedAt: PgColumn<......'.
+
+58           total: sql<number>`COALESCE(SUM(${orders.total}), 0)`,
+                                                      ~~~~~
+
+server/routes/analytics.ts:92:54 - error TS2339: Property 'total' does not exist on type 'PgTableWithColumns<{ name: "orders"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 15 more ...; updatedAt: PgColumn<......'.
+
+92           average: sql<number>`COALESCE(AVG(${orders.total}), 0)`
+                                                        ~~~~~
+
+server/routes/analytics.ts:98:11 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "status"; tableName: "orders"; dataType: "string"; columnType: "PgEnumColumn"; data: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>, right: "pending" | ... 4 more ... | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type '"completed"' is not assignable to parameter of type '"pending" | "cancelled" | "preparing" | "ready" | "delivered" | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string>, right: string | SQLWrapper): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "status"; tableName: "orders"; dataType: "string"; columnType: "PgEnumColumn"; data: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string>'.
+      Type 'PgColumn<{ name: "status"; tableName: "orders"; dataType: "string"; columnType: "PgEnumColumn"; data: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "status"; tableName: "orders"; dataType: "string"; columnType: "PgEnumColumn"; data: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+98           eq(orders.status, 'completed')
+             ~~
+
+
+server/routes/analytics.ts:175:44 - error TS2352: Conversion of type 'ParsedQs' to type '{ period: "month" | "week" | "day" | "year"; limit: number; startDate?: string | undefined; endDate?: string | undefined; }' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'ParsedQs' is missing the following properties from type '{ period: "month" | "week" | "day" | "year"; limit: number; startDate?: string | undefined; endDate?: string | undefined; }': period, limit
+
+175     const { startDate, endDate, period } = req.query as z.infer<typeof analyticsQuerySchema>;
+                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/analytics.ts:183:52 - error TS2339: Property 'total' does not exist on type 'PgTableWithColumns<{ name: "orders"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 15 more ...; updatedAt: PgColumn<......'.
+
+183         revenue: sql<number>`COALESCE(SUM(${orders.total}), 0)`,
+                                                       ~~~~~
+
+server/routes/analytics.ts:190:9 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "status"; tableName: "orders"; dataType: "string"; columnType: "PgEnumColumn"; data: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>, right: "pending" | ... 4 more ... | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type '"completed"' is not assignable to parameter of type '"pending" | "cancelled" | "preparing" | "ready" | "delivered" | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string>, right: string | SQLWrapper): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "status"; tableName: "orders"; dataType: "string"; columnType: "PgEnumColumn"; data: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string>'.
+      Type 'PgColumn<{ name: "status"; tableName: "orders"; dataType: "string"; columnType: "PgEnumColumn"; data: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "status"; tableName: "orders"; dataType: "string"; columnType: "PgEnumColumn"; data: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+190         eq(orders.status, 'completed')
+            ~~
+
+
+server/routes/analytics.ts:234:43 - error TS2352: Conversion of type 'ParsedQs' to type '{ period: "month" | "week" | "day" | "year"; limit: number; startDate?: string | undefined; endDate?: string | undefined; }' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'ParsedQs' is missing the following properties from type '{ period: "month" | "week" | "day" | "year"; limit: number; startDate?: string | undefined; endDate?: string | undefined; }': period, limit
+
+234     const { startDate, endDate, limit } = req.query as z.infer<typeof analyticsQuerySchema>;
+                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/auth/auth.routes.ts:83:14 - error TS2769: No overload matches this call.
+  Overload 1 of 5, '(payload: string | object | Buffer<ArrayBufferLike>, secretOrPrivateKey: null, options?: (SignOptions & { algorithm: "none"; }) | undefined): string', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'null'.
+  Overload 2 of 5, '(payload: string | object | Buffer<ArrayBufferLike>, secretOrPrivateKey: Buffer<ArrayBufferLike> | Secret | PrivateKeyInput | JsonWebKeyInput, options?: SignOptions | undefined): string', gave the following error.
+    Type 'string' is not assignable to type 'number | StringValue | undefined'.
+  Overload 3 of 5, '(payload: string | object | Buffer<ArrayBufferLike>, secretOrPrivateKey: Buffer<ArrayBufferLike> | Secret | PrivateKeyInput | JsonWebKeyInput, callback: SignCallback): void', gave the following error.
+    Object literal may only specify known properties, and 'expiresIn' does not exist in type 'SignCallback'.
+
+83   return jwt.sign(
+                ~~~~
+
+
+server/routes/auth/auth.routes.ts:127:16 - error TS7030: Not all code paths return a value.
+
+127   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/auth/auth.routes.ts:164:23 - error TS2551: Property 'active' does not exist on type 'PgTableWithColumns<{ name: "users"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "users"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 11 more ...; updatedAt: PgColumn<...>;...'. Did you mean 'isActive'?
+
+164         active: users.active,
+                          ~~~~~~
+
+server/routes/auth/auth.routes.ts:212:16 - error TS7030: Not all code paths return a value.
+
+212   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/auth/auth.routes.ts:228:23 - error TS2551: Property 'active' does not exist on type 'PgTableWithColumns<{ name: "users"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "users"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 11 more ...; updatedAt: PgColumn<...>;...'. Did you mean 'isActive'?
+
+228         active: users.active,
+                          ~~~~~~
+
+server/routes/auth/auth.routes.ts:234:24 - error TS2551: Property 'isActive' does not exist on type '{ id: number; firstName: string | null; lastName: string | null; email: string; password: string; role: string; active: any; createdAt: Date; }'. Did you mean 'active'?
+
+234     if (!user || !user.isActive) {
+                           ~~~~~~~~
+
+server/routes/dashboard.routes.ts:27:9 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "date"; tableName: "reservations"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>, right: Date | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'Date | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string>, right: string | SQLWrapper): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "date"; tableName: "reservations"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string>'.
+      Type 'PgColumn<{ name: "date"; tableName: "reservations"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "date"; tableName: "reservations"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+27         gte(reservations.date, startOfDay.toISOString()),
+           ~~~
+
+
+server/routes/dashboard.routes.ts:28:9 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "date"; tableName: "reservations"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>, right: Date | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'Date | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string>, right: string | SQLWrapper): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "date"; tableName: "reservations"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string>'.
+      Type 'PgColumn<{ name: "date"; tableName: "reservations"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "date"; tableName: "reservations"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+28         lte(reservations.date, endOfDay.toISOString())
+           ~~~
+
+
+server/routes/dashboard.routes.ts:42:9 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "created_at"; tableName: "orders"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: true; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>, right: Date | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'Date | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string>, right: string | SQLWrapper): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "created_at"; tableName: "orders"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: true; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string>'.
+      Type 'PgColumn<{ name: "created_at"; tableName: "orders"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: true; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "created_at"; tableName: "orders"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: true; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+42         gte(orders.createdAt, startOfMonth.toISOString()),
+           ~~~
+
+
+server/routes/dashboard.routes.ts:43:9 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "status"; tableName: "orders"; dataType: "string"; columnType: "PgEnumColumn"; data: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>, right: "pending" | ... 4 more ... | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type '"completed"' is not assignable to parameter of type '"pending" | "cancelled" | "preparing" | "ready" | "delivered" | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string>, right: string | SQLWrapper): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "status"; tableName: "orders"; dataType: "string"; columnType: "PgEnumColumn"; data: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string>'.
+      Type 'PgColumn<{ name: "status"; tableName: "orders"; dataType: "string"; columnType: "PgEnumColumn"; data: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "status"; tableName: "orders"; dataType: "string"; columnType: "PgEnumColumn"; data: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+43         eq(orders.status, 'completed')
+           ~~
+
+
+server/routes/dashboard.routes.ts:50:14 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "status"; tableName: "orders"; dataType: "string"; columnType: "PgEnumColumn"; data: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>, right: "pending" | ... 4 more ... | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type '"completed"' is not assignable to parameter of type '"pending" | "cancelled" | "preparing" | "ready" | "delivered" | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string>, right: string | SQLWrapper): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "status"; tableName: "orders"; dataType: "string"; columnType: "PgEnumColumn"; data: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string>'.
+      Type 'PgColumn<{ name: "status"; tableName: "orders"; dataType: "string"; columnType: "PgEnumColumn"; data: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "status"; tableName: "orders"; dataType: "string"; columnType: "PgEnumColumn"; data: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+50       .where(eq(orders.status, 'completed'));
+                ~~
+
+
+server/routes/dashboard.routes.ts:106:36 - error TS2339: Property 'customerName' does not exist on type 'PgTableWithColumns<{ name: "reservations"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>; ... 9 more ...; updatedAt: PgColumn<...>; }; d...'.
+
+106         customerName: reservations.customerName,
+                                       ~~~~~~~~~~~~
+
+server/routes/dashboard.routes.ts:107:35 - error TS2339: Property 'tableNumber' does not exist on type 'PgTableWithColumns<{ name: "reservations"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>; ... 9 more ...; updatedAt: PgColumn<...>; }; d...'.
+
+107         tableNumber: reservations.tableNumber,
+                                      ~~~~~~~~~~~
+
+server/routes/dashboard.routes.ts:139:43 - error TS2367: This comparison appears to be unintentional because the types '"pending" | "cancelled" | "preparing" | "ready" | "delivered"' and '"completed"' have no overlap.
+
+139         message: `Commande #${order.id} ${order.status === 'completed' ? 'terminée' : 'en cours'}`,
+                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/dashboard.routes.ts:141:17 - error TS2367: This comparison appears to be unintentional because the types '"pending" | "cancelled" | "preparing" | "ready" | "delivered"' and '"completed"' have no overlap.
+
+141         status: order.status === 'completed' ? 'success' as const : 'info' as const,
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/dashboard/dashboard.routes.ts:75:41 - error TS2345: Argument of type 'string | string[] | ParsedQs | ParsedQs[] | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+75     const { start, end } = getDateRange(period, startDate, endDate);
+                                           ~~~~~~
+
+server/routes/dashboard/dashboard.routes.ts:241:115 - error TS2339: Property 'contactPhone' does not exist on type 'PgTableWithColumns<{ name: "reservations"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>; ... 9 more ...; updatedAt: PgColumn<...>; }; d...'.
+
+241         customerName: sql<string>`coalesce(${customers.firstName} || ' ' || ${customers.lastName}, ${reservations.contactPhone})`
+                                                                                                                      ~~~~~~~~~~~~
+
+server/routes/dashboard/dashboard.routes.ts:311:41 - error TS2345: Argument of type 'string | string[] | ParsedQs | ParsedQs[] | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+311     const { start, end } = getDateRange(period, startDate, endDate);
+                                            ~~~~~~
+
+server/routes/database.routes.ts:9:30 - error TS2307: Cannot find module '../db/schema' or its corresponding type declarations.
+
+9 import { activityLogs } from '../db/schema';
+                               ~~~~~~~~~~~~~~
+
+server/routes/database.routes.ts:139:47 - error TS2339: Property 'rows' does not exist on type 'Record<string, unknown>[] & Iterable<Record<string, unknown>> & ResultQueryMeta<number, string>'.
+
+139         connections: Number(connectionsResult.rows[0]?.connections) || 0,
+                                                  ~~~~
+
+server/routes/database.routes.ts:141:32 - error TS2339: Property 'rows' does not exist on type 'Record<string, unknown>[] & Iterable<Record<string, unknown>> & ResultQueryMeta<number, string>'.
+
+141         version: versionResult.rows[0]?.version || 'Unknown'
+                                   ~~~~
+
+server/routes/database.routes.ts:211:32 - error TS2339: Property 'rows' does not exist on type 'Record<string, unknown>[] & Iterable<Record<string, unknown>> & ResultQueryMeta<number, string>'.
+
+211         database: dbInfoResult.rows[0]?.database_name || 'Unknown',
+                                   ~~~~
+
+server/routes/database.routes.ts:212:32 - error TS2339: Property 'rows' does not exist on type 'Record<string, unknown>[] & Iterable<Record<string, unknown>> & ResultQueryMeta<number, string>'.
+
+212         version: versionResult.rows[0]?.version || 'Unknown',
+                                   ~~~~
+
+server/routes/database.routes.ts:213:28 - error TS2339: Property 'rows' does not exist on type 'Record<string, unknown>[] & Iterable<Record<string, unknown>> & ResultQueryMeta<number, string>'.
+
+213         size: dbInfoResult.rows[0]?.size || 'Unknown',
+                               ~~~~
+
+server/routes/database.routes.ts:214:33 - error TS2339: Property 'rows' does not exist on type 'Record<string, unknown>[] & Iterable<Record<string, unknown>> & ResultQueryMeta<number, string>'.
+
+214         sizeBytes: dbInfoResult.rows[0]?.size_bytes || 0,
+                                    ~~~~
+
+server/routes/database.routes.ts:215:37 - error TS2339: Property 'rows' does not exist on type 'Record<string, unknown>[] & Iterable<Record<string, unknown>> & ResultQueryMeta<number, string>'.
+
+215         tables: Number(tablesResult.rows[0]?.count) || 0,
