@@ -1,26 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { MetricCard } from '@/components/admin/analytics/MetricCard';
+import { useWebSocket } from '@/hooks/useWebSocket';
 import { 
-  Activity, 
-  Wifi, 
-  WifiOff, 
-  Users, 
-  ShoppingCart, 
-  Calendar, 
-  MessageSquare,
-  TrendingUp,
-  Clock,
-  AlertTriangle,
-  CheckCircle,
-  RefreshCw,
-  Signal,
-  Zap,
-  Eye,
-  Bell
+  Activity, Users, ShoppingCart, DollarSign, TrendingUp, 
+  AlertTriangle, CheckCircle, Clock, Wifi, WifiOff, Signal
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
@@ -93,7 +79,7 @@ export default function RealTimeUpdates() {
           lastHeartbeat: new Date(),
           reconnectAttempts: 0
         }));
-        
+
         toast({
           title: "Connexion temps réel établie",
           description: "Réception des mises à jour en direct"
@@ -103,7 +89,7 @@ export default function RealTimeUpdates() {
           if (websocket.readyState === WebSocket.OPEN) {
             const start = Date.now();
             websocket.send(JSON.stringify({ type: 'ping' }));
-            
+
             setTimeout(() => {
               setConnectionStatus(prev => ({
                 ...prev,
@@ -138,7 +124,7 @@ export default function RealTimeUpdates() {
             ...prev,
             reconnectAttempts: prev.reconnectAttempts + 1
           }));
-          
+
           if (connectionStatus.reconnectAttempts < 5) {
             connectWebSocket();
           }
@@ -200,7 +186,7 @@ export default function RealTimeUpdates() {
   const addNewEvent = useCallback((event: RealTimeEvent) => {
     setEvents(prev => {
       const newEvents = [event, ...prev].slice(0, 100);
-      
+
       if (soundEnabled && (event.priority === 'high' || event.priority === 'critical')) {
         playNotificationSound(event.priority);
       }
@@ -308,12 +294,12 @@ export default function RealTimeUpdates() {
   const filteredEvents = events.filter((event) => {
     const typeMatch = filters.types.includes(event.type);
     const priorityMatch = filters.priorities.includes(event.priority);
-    
+
     let timeMatch = true;
     if (filters.timeRange !== 'all') {
       const now = new Date();
       const timeLimit = new Date();
-      
+
       switch (filters.timeRange) {
         case '15m':
           timeLimit.setMinutes(now.getMinutes() - 15);
@@ -328,10 +314,10 @@ export default function RealTimeUpdates() {
           timeLimit.setDate(now.getDate() - 1);
           break;
       }
-      
+
       timeMatch = event.timestamp >= timeLimit;
     }
-    
+
     return typeMatch && priorityMatch && timeMatch;
   });
 
@@ -413,65 +399,11 @@ export default function RealTimeUpdates() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Connexions</p>
-                <p className="text-2xl font-bold">{liveMetrics.activeConnections}</p>
-              </div>
-              <Users className="h-8 w-8 text-blue-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Événements/min</p>
-                <p className="text-2xl font-bold">{liveMetrics.eventsPerMinute}</p>
-              </div>
-              <Zap className="h-8 w-8 text-yellow-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Charge système</p>
-                <p className="text-2xl font-bold">{liveMetrics.systemLoad}%</p>
-              </div>
-              <Activity className="h-8 w-8 text-green-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Latence</p>
-                <p className="text-2xl font-bold">{connectionStatus.latency}ms</p>
-              </div>
-              <Signal className="h-8 w-8 text-purple-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Taux erreur</p>
-                <p className="text-2xl font-bold">{liveMetrics.errorRate.toFixed(1)}%</p>
-              </div>
-              <AlertTriangle className="h-8 w-8 text-red-500" />
-            </div>
-          </CardContent>
-        </Card>
+        <MetricCard title="Connexions" value={liveMetrics.activeConnections} icon={Users} color="blue" />
+        <MetricCard title="Événements/min" value={liveMetrics.eventsPerMinute} icon={Zap} color="yellow" />
+        <MetricCard title="Charge système" value={`${liveMetrics.systemLoad}%`} icon={Activity} color="green" />
+        <MetricCard title="Latence" value={`${connectionStatus.latency}ms`} icon={Signal} color="purple" />
+        <MetricCard title="Taux erreur" value={`${liveMetrics.errorRate.toFixed(1)}%`} icon={AlertTriangle} color="red" />
       </div>
 
       <Tabs defaultValue="events" className="space-y-4">

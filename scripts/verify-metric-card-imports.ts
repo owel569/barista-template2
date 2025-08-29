@@ -1,6 +1,4 @@
 
-#!/usr/bin/env tsx
-
 /**
  * Script de vérification des imports MetricCard après unification
  */
