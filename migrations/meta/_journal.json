@@ -8,6 +8,13 @@
       "when": 1756380513874,
       "tag": "0000_naive_thena",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1756474177782,
+      "tag": "0001_blushing_domino",
+      "breakpoints": true
     }
   ]
 }

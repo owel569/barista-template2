@@ -9,12 +9,12 @@ export default defineConfig({
     jsxImportSource: 'react'
   })],
   server: {
-    port: 3000,
+    port: 5000,
     host: '0.0.0.0',
     strictPort: false,
     allowedHosts: true,
     hmr: {
-      clientPort: 3000
+      clientPort: 5000
     }
   },
   resolve: {
@@ -35,7 +35,7 @@ export default defineConfig({
     }
   },
   preview: {
-    port: 3000,
+    port: 5000,
     host: '0.0.0.0'
   },
   optimizeDeps: {
