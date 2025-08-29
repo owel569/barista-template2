@@ -2,8 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   ShoppingCart,
   CreditCard,
@@ -11,14 +9,12 @@ import {
   Plus,
   Minus,
   Trash2,
-  Receipt,
   Calculator,
   Smartphone,
   QrCode,
   Zap,
   Printer,
   Check,
-  X,
   Search,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';

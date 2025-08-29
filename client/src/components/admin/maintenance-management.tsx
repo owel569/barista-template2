@@ -1,4 +1,3 @@
-import React from 'react';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,21 +5,27 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  Wrench, Plus, Edit, Trash2, AlertTriangle, CheckCircle, Clock, 
-  Coffee, Wifi, Printer, Fridge, Oven, Calendar, BarChart2, Filter
+  Wrench, Plus, Edit, Trash2, AlertTriangle, 
+  Coffee, Wifi, Printer, Calendar, BarChart2, Filter
 } from 'lucide-react';
-import { Calendar as BigCalendar, momentLocalizer, Views } from 'react-big-calendar';
-import moment from 'moment';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { MaintenanceTaskForm } from './MaintenanceTaskForm';
 import { EquipmentForm } from './EquipmentForm';
 import { toast } from 'sonner';
 
-// Configuration du calendrier
-moment.locale('fr');
-const localizer = momentLocalizer(moment);
+// Configuration du calendrier - composant simplifié
+interface CalendarEvent {
+  id: number;
+  title: string;
+  start: Date;
+  end: Date;
+  resource?: {
+    status: string;
+    priority: string;
+    assignedTo: string;
+  };
+}
 
 interface MaintenanceTask {
   id: number;
@@ -360,8 +365,8 @@ export default function MaintenanceManagement() : JSX.Element {
   const getEquipmentIcon = (type: string) => {
     switch (type.toLowerCase()) {
       case 'machine à café': return <Coffee className="h-5 w-5" />;
-      case 'four': return <Oven className="h-5 w-5" />;
-      case 'réfrigérateur': return <Fridge className="h-5 w-5" />;
+      case 'four': return <Wrench className="h-5 w-5" />;
+      case 'réfrigérateur': return <Wrench className="h-5 w-5" />;
       case 'réseau': return <Wifi className="h-5 w-5" />;
       case 'imprimante': return <Printer className="h-5 w-5" />;
       default: return <Wrench className="h-5 w-5" />;
@@ -382,7 +387,7 @@ export default function MaintenanceManagement() : JSX.Element {
   });
 
   // Préparation des événements pour le calendrier
-  const calendarEvents = tasks.map(task => ({
+  const calendarEvents: CalendarEvent[] = tasks.map(task => ({
     id: task.id,
     title: `${task.title} (${task.equipment})`,
     start: new Date(task.scheduledDate),
@@ -758,35 +763,50 @@ export default function MaintenanceManagement() : JSX.Element {
             </div>
           ) : (
             <div className="h-[600px] mt-4">
-              <BigCalendar
-                localizer={localizer}
-                events={calendarEvents}
-                startAccessor="start"
-                endAccessor="end"
-                defaultView={Views.WEEK}
-                views={[Views.DAY, Views.WEEK, Views.MONTH]}
-                messages={{
-                  today: "Aujourd'hui",
-                  previous: 'Précédent',
-                  next: 'Suivant',
-                  month: 'Mois',
-                  week: 'Semaine',
-                  day: 'Jour',
-                  agenda: 'Agenda',
-                  date: 'Date',
-                  time: 'Heure',
-                  event: 'Événement'
-                }}
-                eventPropGetter={(event) => {
-                  const backgroundColor = 
-                    event.resource.priority === 'urgent' ? '#f87171' :
-                    event.resource.priority === 'high' ? '#fb923c' :
-                    event.resource.priority === 'medium' ? '#facc15' :
-                    '#4ade80';
-                  
-                  return { style: { backgroundColor } };
-                }}
-              />
+              <Card>
+                <CardHeader>
+                  <CardTitle>Vue Calendrier</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-4">
+                    {calendarEvents.length === 0 ? (
+                      <p className="text-center text-gray-500 py-8">
+                        Aucun événement de maintenance planifié
+                      </p>
+                    ) : (
+                      calendarEvents.map((event) => (
+                        <div key={event.id} className="flex items-center justify-between p-3 border rounded-lg">
+                          <div>
+                            <h4 className="font-semibold">{event.title}</h4>
+                            <p className="text-sm text-gray-600">
+                              {event.start.toLocaleDateString('fr-FR')} à {event.start.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                            {event.resource && (
+                              <p className="text-sm text-gray-500">
+                                Assigné à: {event.resource.assignedTo}
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {event.resource && (
+                              <Badge 
+                                className={
+                                  event.resource.priority === 'urgent' ? 'bg-red-100 text-red-800' :
+                                  event.resource.priority === 'high' ? 'bg-orange-100 text-orange-800' :
+                                  event.resource.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                                  'bg-green-100 text-green-800'
+                                }
+                              >
+                                {getPriorityText(event.resource.priority)}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           )}
         </TabsContent>

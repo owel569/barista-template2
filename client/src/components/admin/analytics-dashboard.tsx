@@ -71,44 +71,30 @@ export default function AnalyticsDashboard() {
 
     switch (format) {
       case 'json':
-        exportToJSON(exportData, filename);
+        exportToJSON(exportData as Record<string, unknown>, filename);
         break;
       case 'csv':
         // Export plus complet pour CSV
-        exportToCSV({
-          data: [
+        const csvData = [
           {
-            metrics: {
-              revenue: metrics.revenue,
-              orders: metrics.orders,
-              customers: metrics.customers,
-              avgOrderValue: metrics.avgOrderValue
-            }
+            revenue: metrics.revenue.current,
+            orders: metrics.orders.current,
+            customers: metrics.customers.current,
+            avgOrderValue: metrics.avgOrderValue.current
           }
-        ],
-          revenueData,
-          productData,
-          hourlyData,
-          trendsData
-        }, filename);
+        ];
+        exportToCSV(csvData, filename);
         break;
       case 'excel':
-        exportToExcel({
-          data: [
+        const excelData = [
           {
-            metrics: {
-              revenue: metrics.revenue,
-              orders: metrics.orders,
-              customers: metrics.customers,
-              avgOrderValue: metrics.avgOrderValue
-            }
+            revenue: metrics.revenue.current,
+            orders: metrics.orders.current,
+            customers: metrics.customers.current,
+            avgOrderValue: metrics.avgOrderValue.current
           }
-        ],
-          revenueData,
-          productData,
-          hourlyData,
-          trendsData
-        }, filename);
+        ];
+        exportToExcel(excelData, filename);
         break;
       default:
         console.warn(`Format d'export non supporté: ${format}`);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { 
   Card, CardContent, CardDescription, CardHeader, CardTitle 
 } from '@/components/ui/card';
@@ -32,24 +32,17 @@ import {
   User, 
   Settings, 
   ShoppingCart, 
-  Calendar,
   AlertTriangle,
   CheckCircle,
-  Clock,
   Search,
-  Filter,
   Download,
   RefreshCw,
   Eye,
   Shield,
   Database,
-  Bell,
   Trash2,
   Lock,
-  Unlock,
-  Edit,
-  Plus,
-  Minus
+  Unlock
 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
@@ -102,6 +95,66 @@ export default function ActivityLogs(): JSX.Element {
     searchTerm: ''
   });
 
+  // Génération d'activité simulée
+  const generateMockActivity = useCallback((): void => {
+    const activities: Omit<ActivityLog, 'id' | 'timestamp'>[] = [
+      {
+        action: 'ORDER_CREATED',
+        category: 'order' as ActivityCategory,
+        description: 'Nouvelle commande créée',
+        severity: 'info' as const,
+        userId: 'customer-' + Math.floor(Math.random() * 1000),
+        userName: 'Client ' + Math.floor(Math.random() * 1000),
+        userRole: 'customer',
+        ipAddress: `192.168.1.${Math.floor(Math.random() * 255)}`,
+        userAgent: '',
+        metadata: {},
+        affectedResource: '',
+        previousValue: '',
+        newValue: ''
+      },
+      {
+        action: 'RESERVATION_CONFIRMED',
+        category: 'reservation' as ActivityCategory,
+        description: 'Réservation confirmée pour ce soir',
+        severity: 'success' as const,
+        userId: 'manager-' + Math.floor(Math.random() * 10),
+        userName: 'Manager ' + Math.floor(Math.random() * 10),
+        userRole: 'manager',
+        ipAddress: `192.168.1.${Math.floor(Math.random() * 255)}`,
+        userAgent: '',
+        metadata: {},
+        affectedResource: '',
+        previousValue: '',
+        newValue: ''
+      },
+      {
+        action: 'INVENTORY_LOW',
+        category: 'system' as ActivityCategory,
+        description: 'Stock faible détecté - Grains de café',
+        severity: 'warning' as const,
+        userId: 'system',
+        userName: 'Système',
+        userRole: 'system',
+        ipAddress: `192.168.1.${Math.floor(Math.random() * 255)}`,
+        userAgent: '',
+        metadata: {},
+        affectedResource: '',
+        previousValue: '',
+        newValue: ''
+      }
+    ];
+
+    const activity = activities[Math.floor(Math.random() * activities.length)];
+    const newLog: ActivityLog = {
+      id: Date.now().toString(),
+      timestamp: new Date(),
+      ...activity
+    };
+
+    setLogs(prev => [newLog, ...prev].slice(0, 1000)); // Garder seulement les 1000 derniers logs
+  }, []);
+
   // Simulation de données en temps réel
   useEffect(() => {
     loadActivityLogs();
@@ -113,7 +166,7 @@ export default function ActivityLogs(): JSX.Element {
 
       return () => clearInterval(interval);
     }
-  }, [isRealTimeEnabled, generateMockActivity]);
+  }, [isRealTimeEnabled, generateMockActivity, loadActivityLogs]);
 
   // Filtrage des logs
   useEffect(() => {
@@ -133,7 +186,7 @@ export default function ActivityLogs(): JSX.Element {
     setFilteredLogs(filtered.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()));
   }, [logs, filters]);
 
-  const loadActivityLogs = async (): Promise<void> => {
+  const loadActivityLogs = useCallback(async (): Promise<void> => {
     try {
       setIsLoading(true);
 
@@ -219,71 +272,9 @@ export default function ActivityLogs(): JSX.Element {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
 
-  const generateMockActivity = useCallback((): void => {
-    const activities: Omit<ActivityLog, 'id' | 'timestamp'>[] = [
-      {
-        action: 'ORDER_CREATED',
-        category: 'order' as ActivityCategory,
-        description: 'Nouvelle commande créée',
-        severity: 'info' as const,
-        userId: 'customer-' + Math.floor(Math.random() * 1000),
-        userName: 'Client ' + Math.floor(Math.random() * 1000),
-        userRole: 'customer',
-        ipAddress: `192.168.1.${Math.floor(Math.random() * 255)}`,
-        userAgent: '',
-        metadata: {},
-        affectedResource: '',
-        previousValue: '',
-        newValue: ''
-      },
-      {
-        action: 'RESERVATION_CONFIRMED',
-        category: 'reservation' as ActivityCategory,
-        description: 'Réservation confirmée pour ce soir',
-        severity: 'success' as const,
-        userId: 'manager-' + Math.floor(Math.random() * 10),
-        userName: 'Manager ' + Math.floor(Math.random() * 10),
-        userRole: 'manager',
-        ipAddress: `192.168.1.${Math.floor(Math.random() * 255)}`,
-        userAgent: '',
-        metadata: {},
-        affectedResource: '',
-        previousValue: '',
-        newValue: ''
-      },
-      {
-        action: 'INVENTORY_LOW',
-        category: 'system' as ActivityCategory,
-        description: 'Stock faible détecté - Grains de café',
-        severity: 'warning' as const,
-        userId: 'system',
-        userName: 'Système',
-        userRole: 'system',
-        ipAddress: `192.168.1.${Math.floor(Math.random() * 255)}`,
-        userAgent: '',
-        metadata: {},
-        affectedResource: '',
-        previousValue: '',
-        newValue: ''
-      }
-    ];
-
-    const activity = activities[Math.floor(Math.random() * activities.length)];
-    const newLog: ActivityLog = {
-      id: Date.now().toString(),
-      timestamp: new Date(),
-      ...activity
-    };
-
-    setLogs(prev => [newLog, ...prev].slice(0, 1000)); // Garder seulement les 1000 derniers logs
-  }, []);
-
-  const handleExport = () => {
-    generateMockActivity();
-    // Export logic here
-  };
+  
 
   const exportLogs = useCallback((): void => {
     try {
