@@ -1,0 +1,149 @@
+
+server/services/ai-automation.service.ts:536:74 - error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+
+536         recommendedOrder: (item.daysRemaining || 999) < 3 ? `${Math.ceil((item.dailySales || 0) * 7)} unités` : 'none',
+                                                                             ~~~~~~~~~~~~~~~~~~~~~~
+
+server/services/ai-automation.service.ts:537:18 - error TS2365: Operator '<' cannot be applied to types '{}' and 'number'.
+
+537         urgency: (item.daysRemaining || 999) < 2 ? 'high' : (item.daysRemaining || 999) < 5 ? 'medium' : 'none'
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/services/ai-automation.service.ts:537:61 - error TS2365: Operator '<' cannot be applied to types '{}' and 'number'.
+
+537         urgency: (item.daysRemaining || 999) < 2 ? 'high' : (item.daysRemaining || 999) < 5 ? 'medium' : 'none'
+                                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/services/ai-automation.service.ts:597:41 - error TS2339: Property 'itemId' does not exist on type 'PgTableWithColumns<{ name: "orders"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 15 more ...; updatedAt: PgColumn<......'.
+
+597         .innerJoin(menuItems, eq(orders.itemId, menuItems.id))
+                                            ~~~~~~
+
+server/services/ai-automation.service.ts:811:5 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+811     return commonPhrases[Math.floor(Math.random() * commonPhrases.length)];
+        ~~~~~~
+
+server/services/ai-automation.service.ts:850:5 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+850     return insights[Math.floor(Math.random() * insights.length)];
+        ~~~~~~
+
+server/types/auth.ts:23:7 - error TS2717: Subsequent property declarations must have the same type.  Property 'user' must be of type 'AuthUser | undefined', but here has type 'AuthenticatedUser | undefined'.
+
+23       user?: AuthenticatedUser;
+         ~~~~
+
+  server/middleware/auth.ts:415:7
+    415       user?: AuthUser;
+              ~~~~
+    'user' was also declared here.
+
+server/types/auth.ts:184:7 - error TS2717: Subsequent property declarations must have the same type.  Property 'user' must be of type 'AuthUser | undefined', but here has type 'AuthenticatedUser | undefined'.
+
+184       user?: AuthenticatedUser;
+          ~~~~
+
+  server/middleware/auth.ts:415:7
+    415       user?: AuthUser;
+              ~~~~
+    'user' was also declared here.
+
+server/utils/logger.ts:5:3 - error TS2300: Duplicate identifier 'ERROR'.
+
+5   ERROR = 'ERROR',
+    ~~~~~
+
+server/utils/logger.ts:6:3 - error TS2300: Duplicate identifier 'WARN'.
+
+6   WARN = 'WARN',
+    ~~~~
+
+server/utils/logger.ts:7:3 - error TS2300: Duplicate identifier 'INFO'.
+
+7   INFO = 'INFO',
+    ~~~~
+
+server/utils/logger.ts:8:3 - error TS2300: Duplicate identifier 'DEBUG'.
+
+8   DEBUG = 'DEBUG'
+    ~~~~~
+
+server/utils/logger.ts:23:3 - error TS2300: Duplicate identifier 'ERROR'.
+
+23   ERROR = 'ERROR',
+     ~~~~~
+
+server/utils/logger.ts:24:3 - error TS2300: Duplicate identifier 'WARN'.
+
+24   WARN = 'WARN',
+     ~~~~
+
+server/utils/logger.ts:25:3 - error TS2300: Duplicate identifier 'INFO'.
+
+25   INFO = 'INFO',
+     ~~~~
+
+server/utils/logger.ts:26:3 - error TS2300: Duplicate identifier 'DEBUG'.
+
+26   DEBUG = 'DEBUG'
+     ~~~~~
+
+server/utils/logger.ts:40:7 - error TS2395: Individual declarations in merged declaration 'Logger' must be all exported or all local.
+
+40 class Logger {
+         ~~~~~~
+
+server/utils/logger.ts:120:11 - error TS2375: Type '{ timestamp: string; level: LogLevel; message: string; context: Record<string, any> | undefined; requestId: string | undefined; userId: number | undefined; ip: string | undefined; userAgent: string | undefined; }' is not assignable to type 'LogEntry' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'context' are incompatible.
+    Type 'Record<string, any> | undefined' is not assignable to type 'Record<string, any>'.
+      Type 'undefined' is not assignable to type 'Record<string, any>'.
+
+120     const entry: LogEntry = {
+              ~~~~~
+
+server/utils/logger.ts:176:18 - error TS2395: Individual declarations in merged declaration 'Logger' must be all exported or all local.
+
+176 export interface Logger {
+                     ~~~~~~
+
+server/utils/logger.ts:184:3 - error TS2740: Type '{ info: (message: string, meta?: LoggerMeta | undefined) => void; error: (message: string, meta?: LoggerMeta | undefined) => void; warn: (message: string, meta?: LoggerMeta | undefined) => void; debug: (message: string, meta?: LoggerMeta | undefined) => void; }' is missing the following properties from type 'Logger': logDir, maxFileSize, maxFiles, ensureLogDirectory, and 4 more.
+
+184   return {
+      ~~~~~~
+
+server/utils/security.ts:50:46 - error TS2345: Argument of type 'object' is not assignable to parameter of type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type '{}'.
+
+50         masked[key] = this.maskSensitiveData(value);
+                                                ~~~~~
+
+server/vite.ts:6:24 - error TS2307: Cannot find module '../vite.config' or its corresponding type declarations.
+
+6 import viteConfig from "../vite.config";
+                         ~~~~~~~~~~~~~~~~
+
+shared/types.ts:211:3 - error TS2687: All declarations of 'supplier' must have identical modifiers.
+
+211   supplier?: Supplier;
+      ~~~~~~~~
+
+shared/types.ts:556:3 - error TS2687: All declarations of 'supplier' must have identical modifiers.
+
+556   supplier: string;
+      ~~~~~~~~
+
+shared/types.ts:556:3 - error TS2717: Subsequent property declarations must have the same type.  Property 'supplier' must be of type 'Supplier | undefined', but here has type 'string'.
+
+556   supplier: string;
+      ~~~~~~~~
+
+  shared/types.ts:211:3
+    211   supplier?: Supplier;
+          ~~~~~~~~
+    'supplier' was also declared here.
+
+
+Found 1149 errors in 142 files.
