@@ -18,15 +18,17 @@ export const tableLocationEnum = pgEnum('table_location', ['inside', 'outside', 
 
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
-  username: varchar('username', { length: 50 }).notNull().unique(),
-  email: varchar('email', { length: 100 }).notNull().unique(),
+  email: varchar('email', { length: 255 }).unique().notNull(),
+  username: varchar('username', { length: 100 }).unique().notNull(),
   password: varchar('password', { length: 255 }).notNull(),
-  firstName: varchar('first_name', { length: 50 }).notNull(),
-  lastName: varchar('last_name', { length: 50 }).notNull(),
-  role: userRoleEnum('role').notNull().default('user'),
-  isActive: boolean('is_active').notNull().default(true),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow()
+  firstName: varchar('first_name', { length: 100 }),
+  lastName: varchar('last_name', { length: 100 }),
+  role: varchar('role', { length: 50 }).default('customer').notNull(),
+  isActive: boolean('is_active').default(true).notNull(),
+  permissions: text('permissions').array(),
+  lastLoginAt: timestamp('last_login_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull()
 });
 
 export const menuCategories = pgTable("menu_categories", {

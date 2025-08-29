@@ -45,6 +45,7 @@ const UserCreateSchema = z.object({
 // Configuration du restaurant - Seuls les managers+ peuvent voir
 router.get('/settings', 
   authenticateUser, 
+  requireRoles(['manager', 'admin']),
   asyncHandler(async (req: Request, res: Response) => {
   try {
     // TODO: Récupérer depuis la base de données
@@ -85,6 +86,7 @@ router.get('/settings',
 // Mettre à jour la configuration - Seuls les admins peuvent modifier
 router.put('/settings', 
   authenticateUser, 
+  requireRoles(['admin']),
   validateBody(SettingsSchema), 
   asyncHandler(async (req: Request, res: Response) => {
     const settings = req.body;

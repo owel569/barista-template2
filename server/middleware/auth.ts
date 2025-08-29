@@ -1,4 +1,3 @@
-
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
@@ -235,10 +234,10 @@ export class AuthService {
    */
   static hasPermission(user: AuthUser, permission: string): boolean {
     if (!user.isActive) return false;
-    
+
     // Admin a toutes les permissions
     if (user.role === 'admin') return true;
-    
+
     return user.permissions.includes(permission);
   }
 
@@ -254,14 +253,14 @@ export class AuthService {
 export const authenticateUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       throw new AuthenticationError('Token d\'authentification requis');
     }
 
     const token = authHeader.substring(7);
     const decoded = AuthService.verifyToken(token);
-    
+
     const user = await AuthService.getUserById(decoded.userId);
     if (!user) {
       throw new AuthenticationError('Utilisateur non trouvé');
@@ -273,7 +272,7 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
 
     // Attacher l'utilisateur à la requête
     req.user = user;
-    
+
     logger.info('Utilisateur authentifié', { 
       userId: user.id, 
       email: user.email, 
@@ -285,7 +284,7 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
     if (error instanceof AppError) {
       throw error;
     }
-    
+
     logger.error('Erreur authentification', { 
       error: error instanceof Error ? error.message : 'Erreur inconnue' 
     });
@@ -293,9 +292,9 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
   }
 };
 
-// Middleware de vérification des rôles
+// Middleware pour vérifier les rôles requis
 export const requireRoles = (roles: AppRole[]) => {
-  return (req: Request, res: Response, next: NextFunction): void => {
+  return (req: Request, res: Response, next: NextFunction) => {
     try {
       if (!req.user) {
         throw new AuthenticationError('Authentification requise');
@@ -354,12 +353,12 @@ export const requireRoleLevel = (requiredRole: AppRole) => {
 export const optionalAuth = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
-    
+
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
       const decoded = AuthService.verifyToken(token);
       const user = await AuthService.getUserById(decoded.userId);
-      
+
       if (user && user.isActive) {
         req.user = user;
       }
@@ -370,11 +369,11 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
       error: error instanceof Error ? error.message : 'Erreur inconnue' 
     });
   }
-  
+
   next();
 };
 
-// Middleware de validation de propriété
+// Middleware de vérification de propriété
 export const requireOwnership = (resourceIdParam: string = 'id') => {
   return (req: Request, res: Response, next: NextFunction): void => {
     try {

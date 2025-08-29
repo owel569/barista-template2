@@ -1,13 +1,6 @@
-import { Request as ExpressRequest } from 'express';
 
-interface AuthenticatedUser {
-  id: number;
-  username: string;
-  role: 'directeur' | 'employe' | 'admin';
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-}
+import { Request as ExpressRequest } from 'express';
+import { AuthenticatedUser as AuthUser } from './auth';
 
 declare global {
   namespace Express {
@@ -17,8 +10,12 @@ declare global {
       role: string;
       permissions: string[];
       name?: string;
+      firstName?: string;
+      lastName?: string;
+      username?: string;
       createdAt?: Date;
       updatedAt?: Date;
+      isActive?: boolean;
     }
 
     interface Request {
@@ -33,4 +30,4 @@ declare global {
   }
 }
 
-export { AuthenticatedUser };
+export { AuthUser as AuthenticatedUser };

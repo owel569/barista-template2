@@ -1,14 +1,13 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { asyncHandler } from '../middleware/error-handler';
+import { asyncHandler } from '../middleware/error-handler-enhanced';
 import { createLogger } from '../middleware/logging';
 import { authenticateUser, requireRoles } from '../middleware/auth';
 import { requirePermission } from '../middleware/authorization';
-import { validateBody, validateParams, validateQuery } from '../middleware/validation';
+import { validateBody, validateParams } from '../middleware/validation';
 import { getDb } from '../db';
 import { permissions, users, activityLogs } from '../../shared/schema';
-import { eq, and, inArray } from 'drizzle-orm';
-import { sql } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 
 const router = Router();
 const logger = createLogger('PERMISSIONS');
@@ -17,15 +16,7 @@ const logger = createLogger('PERMISSIONS');
 // TYPES ET INTERFACES
 // ==========================================
 
-export interface Permission {
-  id: number;
-  userId: number;
-  module: string;
-  canView: boolean;
-  canCreate: boolean;
-  canUpdate: boolean;
-  canDelete: boolean;
-}
+import type { Permission, ApiResponse, PaginatedResponse } from '../types';
 
 export interface PermissionTemplate {
   name: string;

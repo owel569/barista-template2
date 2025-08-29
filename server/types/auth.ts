@@ -16,6 +16,21 @@ export interface AuthenticatedUser extends UserPayload {
   exp?: number;
 }
 
+// Interface pour étendre Express Request
+declare global {
+  namespace Express {
+    interface Request {
+      user?: AuthenticatedUser;
+      requestId?: string;
+      startTime?: number;
+    }
+    
+    interface Response {
+      success?: boolean;
+    }
+  }
+}
+
 export interface JWTPayload {
   userId: number;
   email: string;
