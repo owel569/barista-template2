@@ -38,6 +38,8 @@ import {
 } from 'lucide-react';
 import { AnalyticsViewProps, TimePeriod } from '../types/schedule.types';
 import { formatDuration, formatCurrency, DEPARTMENTS, POSITIONS } from '../utils/schedule.utils';
+import { MetricCard } from '@/components/admin/analytics/MetricCard';
+
 
 const AnalyticsView: React.FC<AnalyticsViewProps> = ({
   stats,
@@ -76,10 +78,10 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
 
   const employeePerformanceData = useMemo(() => {
     if (reports.length === 0) return [];
-    
+
     const currentReport = reports[0];
     if (!currentReport) return [];
-    
+
     return currentReport.employeeBreakdown.map(emp => ({
       name: emp.employeeName,
       heures: emp.totalHours,
@@ -93,11 +95,11 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
     // Simulation de données de tendance - à remplacer par de vraies données
     const currentDate = new Date();
     const data = [];
-    
+
     for (let i = 6; i >= 0; i--) {
       const date = new Date(currentDate);
       date.setDate(date.getDate() - i);
-      
+
       data.push({
         date: date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }),
         heures: Math.floor(Math.random() * 50) + 30,
@@ -105,7 +107,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
         employes: Math.floor(Math.random() * 10) + 5
       });
     }
-    
+
     return data;
   }, []);
 
@@ -115,9 +117,9 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
   // Métriques principales
   const mainMetrics = useMemo(() => {
     const avgHoursPerEmployee = stats.averageHoursPerEmployee;
-    const overtimeRate = stats.overtimeHours / stats.scheduledHours * 100;
-    const costPerHour = stats.totalPayroll / stats.scheduledHours;
-    
+    const overtimeRate = stats.scheduledHours === 0 ? 0 : stats.overtimeHours / stats.scheduledHours * 100;
+    const costPerHour = stats.scheduledHours === 0 ? 0 : stats.totalPayroll / stats.scheduledHours;
+
     return {
       avgHoursPerEmployee,
       overtimeRate,
@@ -130,7 +132,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
   // Alertes et recommandations
   const alerts = useMemo(() => {
     const alerts = [];
-    
+
     if (mainMetrics.overtimeRate > 20) {
       alerts.push({
         type: 'warning',
@@ -138,7 +140,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
         suggestion: 'Considérez recruter plus d\'employés ou réorganiser les shifts'
       });
     }
-    
+
     if (mainMetrics.costPerHour > 25) {
       alerts.push({
         type: 'warning',
@@ -146,7 +148,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
         suggestion: 'Optimisez la répartition des postes et les taux horaires'
       });
     }
-    
+
     if (mainMetrics.utilization < 70) {
       alerts.push({
         type: 'info',
@@ -154,42 +156,11 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
         suggestion: 'Réduisez les heures programmées ou réaffectez les employés'
       });
     }
-    
+
     return alerts;
   }, [mainMetrics]);
 
-  // Composant de métrique
-  const MetricCard: React.FC<{
-    title: string;
-    value: string;
-    change?: number;
-    icon: React.ElementType;
-    color: string;
-  }> = ({ title, value, change, icon: Icon, color }) => (
-    <Card>
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{title}</p>
-            <p className="text-2xl font-bold" style={{ color }}>{value}</p>
-          </div>
-          <Icon className="h-8 w-8" style={{ color }} />
-        </div>
-        {change !== undefined && (
-          <div className="flex items-center mt-2">
-            {change >= 0 ? (
-              <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-            ) : (
-              <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
-            )}
-            <span className={`text-sm ${change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {Math.abs(change).toFixed(1)}%
-            </span>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
+  // Composant de métrique - Ceci est maintenant remplacé par le composant MetricCard unifié importé
 
   return (
     <div className="space-y-6">
@@ -419,7 +390,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
                 Heures moyennes par employé
               </div>
             </div>
-            
+
             <div className="text-center">
               <div className={`text-3xl font-bold mb-2 ${
                 mainMetrics.overtimeRate > 15 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'
@@ -430,7 +401,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
                 Taux d'heures supplémentaires
               </div>
             </div>
-            
+
             <div className="text-center">
               <div className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-2">
                 {formatCurrency(mainMetrics.costPerHour)}

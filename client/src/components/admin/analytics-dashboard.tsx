@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Users, ShoppingCart, DollarSign, Target, Download } from 'lucide-react';
 
 // Composants modulaires
-import { MetricCard } from './analytics/MetricCard';
+import { MetricCard } from '@/components/admin/analytics/MetricCard';
 import RevenueView from './analytics/RevenueView';
 import ProductView from './analytics/ProductView';
 import HourView from './analytics/HourView';

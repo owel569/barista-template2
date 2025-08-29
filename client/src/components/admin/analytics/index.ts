@@ -3,16 +3,23 @@
  * Export centralisé des composants Analytics
  */
 
+// Composant principal unifié
 export { MetricCard, type MetricCardProps } from './MetricCard';
+
+// Vues spécialisées
 export { RevenueView } from './RevenueView';
 export { ProductView } from './ProductView'; 
 export { HourView } from './HourView';
 export { TrendsView } from './TrendsView';
 export { AdvancedAnalyticsDashboard } from './AdvancedAnalyticsDashboard';
 
-// Exports des utilitaires
+// Utilitaires
 export * from './dataGenerators';
 export * from './ExportUtils';
 
-// Exports des sous-composants
-export * from './components';
+// Sous-composants (uniquement ceux qui existent encore)
+export { AIInsightsPanel } from './components/AIInsightsPanel';
+export { CustomerBehaviorView } from './components/CustomerBehaviorView';
+export { PredictiveAnalyticsView } from './components/PredictiveAnalyticsView';
+export { RealTimeKPIs } from './components/RealTimeKPIs';
+export { RevenueView as ComponentRevenueView } from './components/RevenueView';

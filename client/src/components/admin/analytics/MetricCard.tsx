@@ -2,6 +2,7 @@
 /**
  * Composant MetricCard unifié et optimisé
  * Combine toutes les fonctionnalités des différentes versions
+ * Version: 2.0.0 - Optimisé et unifié
  */
 
 import React, { memo } from 'react';
@@ -29,6 +30,11 @@ export interface MetricCardProps {
   className?: string;
   showTrend?: boolean;
   customFormatter?: (value: number | string) => string;
+  // Nouvelles props pour l'accessibilité et UX
+  ariaLabel?: string;
+  testId?: string;
+  onClick?: () => void;
+  isClickable?: boolean;
 }
 
 /**
@@ -137,7 +143,11 @@ export const MetricCard: React.FC<MetricCardProps> = memo(({
   variant = 'default',
   className,
   showTrend = true,
-  customFormatter
+  customFormatter,
+  ariaLabel,
+  testId,
+  onClick,
+  isClickable = false
 }) => {
   const formattedValue = formatValue(value, format, customFormatter);
   const trendColor = getTrendColor(growth, changeType);
@@ -169,11 +179,19 @@ export const MetricCard: React.FC<MetricCardProps> = memo(({
   }
 
   return (
-    <Card className={cn(
-      "hover:shadow-lg transition-shadow duration-200 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700",
-      variant === 'compact' && "p-3",
-      className
-    )}>
+    <Card 
+      className={cn(
+        "hover:shadow-lg transition-shadow duration-200 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700",
+        variant === 'compact' && "p-3",
+        isClickable && "cursor-pointer hover:shadow-xl",
+        className
+      )}
+      onClick={onClick}
+      role={isClickable ? "button" : undefined}
+      tabIndex={isClickable ? 0 : undefined}
+      aria-label={ariaLabel || `${title}: ${formattedValue}`}
+      data-testid={testId}
+    >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-gray-700 dark:text-gray-300">
           {title}
