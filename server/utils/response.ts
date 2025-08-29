@@ -89,7 +89,7 @@ export class ResponseBuilder {
 }
 
 export const createSuccessResponse = <T>(data?: T, message?: string): ApiResponse<T> => {
-  return ResponseBuilder.success(data).message(message || '').build();
+  return ResponseBuilder.success(data).message(message || '').build() as ApiResponse<T>;
 };
 
 export const createErrorResponse = (message: string, errors?: Array<{ field: string; message: string }>): ApiResponse => {
@@ -97,4 +97,24 @@ export const createErrorResponse = (message: string, errors?: Array<{ field: str
     return ResponseBuilder.validationError(errors).build();
   }
   return ResponseBuilder.error(message).build();
+};
+
+export const createApiResponse = <T>(
+  success: boolean, 
+  data?: T, 
+  error?: string, 
+  message?: string, 
+  requestId?: string
+): ApiResponse<T> => {
+  const builder = success ? ResponseBuilder.success(data) : ResponseBuilder.error(error || 'Unknown error');
+  
+  if (message) {
+    builder.message(message);
+  }
+  
+  if (requestId) {
+    builder.requestId(requestId);
+  }
+  
+  return builder.build() as ApiResponse<T>;
 };
