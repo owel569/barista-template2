@@ -147,8 +147,12 @@ export const ROLE_PERMISSIONS: Record<AppRole, string[]> = {
 export const ROLE_HIERARCHY: Record<AppRole, number> = {
   customer: 1,
   waiter: 2,
+  serveur: 2,
   chef: 3,
+  cuisinier: 3,
+  employe: 3,
   manager: 4,
+  directeur: 4,
   admin: 5
 };
 

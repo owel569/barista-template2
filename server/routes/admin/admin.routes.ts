@@ -2,7 +2,10 @@ import { Router, Request, Response } from 'express';
 import { authenticateUser } from '../../middleware/auth';
 import { validateBody } from '../../middleware/validation';
 import { asyncHandler } from '../../middleware/error-handler-enhanced';
+import { createLogger } from '../../middleware/logging';
 import { z } from 'zod';
+
+const logger = createLogger('ADMIN');
 
 // Import des sous-routes admin
 import customersRoutes from './customers.routes';
@@ -67,6 +70,15 @@ router.get('/settings',
       success: true,
       data: settings
     });
+  } catch (error) {
+    logger.error('Erreur récupération settings', { 
+      error: error instanceof Error ? error.message : 'Erreur inconnue' 
+    });
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la récupération des paramètres'
+    });
+  }
   })
 );
 
@@ -95,7 +107,7 @@ router.post('/users',
     
     // TODO: Créer l'utilisateur en base de données
     
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'Utilisateur créé avec succès'
     });

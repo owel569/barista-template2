@@ -144,7 +144,7 @@ const statusUpdateSchema = z.object({
 // Récupérer toutes les commandes en ligne
 onlineOrdersRouter.get('/', 
   authenticateUser,
-  requireRoles(['admin', 'manager', 'staff']),
+  requireRoles(['admin', 'manager', 'employe']),
   asyncHandler(async (req, res) => {
     const { status, platform } = req.query;
     
@@ -241,13 +241,13 @@ onlineOrdersRouter.get('/stats',
 // Récupérer une commande par ID
 onlineOrdersRouter.get('/:id', 
   authenticateUser,
-  requireRoles(['admin', 'manager', 'staff']),
+  requireRoles(['admin', 'manager', 'employe']),
   validateParams(z.object({ id: z.string().regex(/^\d+$/) })),
   asyncHandler(async (req, res) => {
     const { id } = req.params;
     
     try {
-      const order = onlineOrders.find(o => o.id === parseInt(id));
+      const order = onlineOrders.find(o => o.id === parseInt(id || '0'));
       
       if (!order) {
         return res.status(404).json({ 
@@ -256,7 +256,7 @@ onlineOrdersRouter.get('/:id',
         });
       }
       
-      res.json({
+      return res.json({
         success: true,
         data: order
       });
@@ -276,7 +276,7 @@ onlineOrdersRouter.get('/:id',
 // Créer une nouvelle commande
 onlineOrdersRouter.post('/', 
   authenticateUser,
-  requireRoles(['admin', 'manager', 'staff']),
+  requireRoles(['admin', 'manager', 'employe']),
   validateBody(orderSchema),
   asyncHandler(async (req, res) => {
     try {
@@ -298,7 +298,7 @@ onlineOrdersRouter.post('/',
     } catch (error) {
       logger.error('Erreur création commande', { 
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
-      )});
+      });
       res.status(500).json({ 
         success: false,
         message: 'Erreur lors de la création de la commande' 
@@ -310,15 +310,15 @@ onlineOrdersRouter.post('/',
 // Mettre à jour le statut d'une commande
 onlineOrdersRouter.patch('/:id/status', 
   authenticateUser,
-  requireRoles(['admin', 'manager', 'staff']),
-  validateParams(z.object({ id: z.string()}).regex(/^\d+$/) })),
+  requireRoles(['admin', 'manager', 'employe']),
+  validateParams(z.object({ id: z.string().regex(/^\d+$/) })),
   validateBody(statusUpdateSchema),
   asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { status, estimatedTime, notes } = req.body;
     
     try {
-      const orderIndex = onlineOrders.findIndex(o => o.id === parseInt(id));
+      const orderIndex = onlineOrders.findIndex(o => o.id === parseInt(id || '0'));
       
       if (orderIndex === -1) {
         return res.status(404).json({ 
@@ -333,9 +333,9 @@ onlineOrdersRouter.patch('/:id/status',
         estimatedTime,
         notes,
         updatedAt: new Date().toISOString()
-      };
+      } as OnlineOrder;
       
-      res.json({
+      return res.json({
         success: true,
         data: onlineOrders[orderIndex]
       });
@@ -344,7 +344,7 @@ onlineOrdersRouter.patch('/:id/status',
         id, 
         status, 
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
-      )});
+      });
       res.status(500).json({ 
         success: false,
         message: 'Erreur lors de la mise à jour du statut' 

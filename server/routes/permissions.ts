@@ -157,8 +157,8 @@ router.get('/overview', authenticateUser, requireRoles(['admin']), asyncHandler(
       modules: AVAILABLE_MODULES
     };
 
-  res.json({
-    success: true,
+    res.json({
+      success: true,
       data: overview
     });
   } catch (error) {
@@ -203,8 +203,8 @@ router.get('/user/:userId', authenticateUser, requireRoles(['admin']), requirePe
       });
     }
 
-  res.json({
-    success: true,
+    res.json({
+      success: true,
       data: {
         user: user[0],
         permissions: userPermissions
@@ -293,15 +293,15 @@ router.post('/permission', authenticateUser, requireRoles(['admin']), requirePer
     }
     
     // Enregistrer l'activité
-  await db.insert(activityLogs).values({
-      userId: req.user?.id || 0,
+    await db.insert(activityLogs).values({
+      userId: req.user?.id,
       action: 'permission_updated',
-      details: `Permission ${module} mise à jour pour l'utilisateur ${userId}`,
-      timestamp: new Date().toISOString()
-  });
+      entity: 'permissions',
+      details: `Permission ${module} mise à jour pour l'utilisateur ${userId}`
+    });
 
-  res.json({
-    success: true,
+    res.json({
+      success: true,
       message: 'Permission mise à jour avec succès'
     });
   } catch (error) {
@@ -377,12 +377,12 @@ router.post('/bulk-update', authenticateUser, requireRoles(['admin']), requirePe
     await db.insert(activityLogs).values({
       userId: req.user?.id || 0,
       action: 'bulk_permissions_update',
-      details: `Mise à jour en masse de ${updates.length} utilisateurs`,
-      timestamp: new Date().toISOString()
+      entity: 'permissions',
+      details: `Mise à jour en masse de ${updates.length} utilisateurs`
     });
 
-  res.json({
-    success: true,
+    res.json({
+      success: true,
       message: 'Permissions mises à jour en masse avec succès'
     });
   } catch (error) {
@@ -447,8 +447,8 @@ router.post('/apply-template', authenticateUser, requireRoles(['admin']), requir
     await db.insert(activityLogs).values({
       userId: req.user?.id || 0,
       action: 'template_applied',
-      details: `Template ${templateName} appliqué à l'utilisateur ${userId}`,
-      timestamp: new Date().toISOString()
+      entity: 'permissions',
+      details: `Template ${templateName} appliqué à l'utilisateur ${userId}`
     });
 
     res.json({
@@ -466,7 +466,7 @@ router.post('/apply-template', authenticateUser, requireRoles(['admin']), requir
       message: 'Erreur lors de l\'application du template'
     });
   }
-}));
+});
 
 router.delete('/user/:userId', authenticateUser, requireRoles(['admin']), requirePermission('users', 'canDelete'), validateParams(z.object({
   userId: z.string().regex(/^\d+$/, 'ID utilisateur doit être un nombre')
