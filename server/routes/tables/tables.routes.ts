@@ -5,7 +5,7 @@ import { createLogger } from '../../middleware/logging';
 import { authenticateUser, requireRoles } from '../../middleware/auth';
 import { validateBody, validateParams, validateQuery } from '../../middleware/validation';
 import { getDb } from '../../db';
-import { tables, reservations, activityLogs } from '../../../shared/schema';
+import { tables, reservations, customers, activityLogs } from '../../../shared/schema';
 import { eq, and, or, desc, sql, ne, isNull } from 'drizzle-orm';
 import { cacheMiddleware, invalidateCache } from '../../middleware/cache-advanced';
 
@@ -36,7 +36,7 @@ const TableStatusSchema = z.object({
 
 // Interface pour le statut des tables
 interface TableStatus {
-  id: string;
+  id: number;
   number: number;
   capacity: number;
   location: string;
@@ -68,7 +68,6 @@ async function logTableActivity(
   try {
     const db = getDb();
     await db.insert(activityLogs).values({
-      id: crypto.randomUUID(),
       userId,
       action,
       details: tableId ? `${details} (Table: ${tableId})` : details,
@@ -120,15 +119,15 @@ router.get('/',
     // Construire les conditions
     const conditions = [];
 
-    if (location) {
+    if (location && typeof location === 'string') {
       conditions.push(eq(tables.location, location));
     }
 
-    if (section) {
+    if (section && typeof section === 'string') {
       conditions.push(eq(tables.section, section));
     }
 
-    if (capacity) {
+    if (capacity && typeof capacity === 'number') {
       conditions.push(eq(tables.capacity, capacity));
     }
 
@@ -201,17 +200,18 @@ router.get('/status',
       .select({
         id: reservations.id,
         tableId: reservations.tableId,
-        customerName: reservations.guestName,
-        startTime: reservations.reservationTime,
-        endTime: sql<Date>`${reservations.reservationTime} + INTERVAL '2 hours'`, // Durée par défaut
+        customerName: sql<string>`CONCAT(${customers.firstName}, ' ', ${customers.lastName})`,
+        startTime: sql<Date>`${reservations.date} + INTERVAL ${reservations.time}`,
+        endTime: sql<Date>`${reservations.date} + INTERVAL ${reservations.time} + INTERVAL '2 hours'`, // Durée par défaut
         partySize: reservations.partySize,
         status: reservations.status
       })
       .from(reservations)
+      .leftJoin(customers, eq(reservations.customerId, customers.id))
       .where(
         and(
-          sql`${reservations.reservationTime} <= ${now}`,
-          sql`${reservations.reservationTime} + INTERVAL '2 hours' > ${now}`,
+          sql`${reservations.date} + INTERVAL ${reservations.time} <= ${now}`,
+          sql`${reservations.date} + INTERVAL ${reservations.time} + INTERVAL '2 hours' > ${now}`,
           eq(reservations.status, 'confirmed')
         )
       );
@@ -220,19 +220,20 @@ router.get('/status',
       .select({
         id: reservations.id,
         tableId: reservations.tableId,
-        customerName: reservations.guestName,
-        startTime: reservations.reservationTime,
+        customerName: sql<string>`CONCAT(${customers.firstName}, ' ', ${customers.lastName})`,
+        startTime: sql<Date>`${reservations.date} + INTERVAL ${reservations.time}`,
         partySize: reservations.partySize
       })
       .from(reservations)
+      .leftJoin(customers, eq(reservations.customerId, customers.id))
       .where(
         and(
-          sql`${reservations.reservationTime} > ${now}`,
-          sql`${reservations.reservationTime} <= ${now} + INTERVAL '4 hours'`,
+          sql`${reservations.date} + INTERVAL ${reservations.time} > ${now}`,
+          sql`${reservations.date} + INTERVAL ${reservations.time} <= ${now} + INTERVAL '4 hours'`,
           eq(reservations.status, 'confirmed')
         )
       )
-      .orderBy(reservations.reservationTime);
+      .orderBy(sql`${reservations.date} + INTERVAL ${reservations.time}`);
 
     // Créer un map des réservations par table
     const currentReservationMap = new Map();
@@ -324,22 +325,19 @@ router.post('/',
       .where(eq(tables.number, req.body.number));
 
     if (existingTable) {
-      return res.status(409).json({
+      res.status(409).json({
         success: false,
         message: 'Une table avec ce numéro existe déjà'
       });
+      return;
     }
 
     // Créer la table
-    const tableId = crypto.randomUUID();
     const [newTable] = await db
       .insert(tables)
       .values({
-        id: tableId,
         ...req.body,
-        status: 'available',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        status: 'available'
       })
       .returning();
 
@@ -349,11 +347,11 @@ router.post('/',
       'CREATE_TABLE',
       `Table créée: #${req.body.number} (${req.body.capacity} places, ${req.body.location})`,
       req,
-      tableId
+      newTable.id.toString()
     );
 
     logger.info('Table créée', {
-      tableId,
+      tableId: newTable.id,
       number: req.body.number,
       capacity: req.body.capacity,
       location: req.body.location,
@@ -372,13 +370,13 @@ router.post('/',
 router.put('/:id',
   authenticateUser,
   requireRoles(['admin', 'manager']),
-  validateParams(z.object({ id: z.string().uuid() })),
+  validateParams(z.object({ id: z.coerce.number().int().positive() })),
   validateBody(UpdateTableSchema.omit({ id: true })),
   invalidateCache(['tables']),
   asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const currentUser = (req as any).user;
-    const { id } = req.params;
+    const id = parseInt(req.params.id, 10);
 
     // Vérifier que la table existe
     const [existingTable] = await db
@@ -448,13 +446,13 @@ router.put('/:id',
 router.patch('/:id/status',
   authenticateUser,
   requireRoles(['admin', 'manager', 'waiter']),
-  validateParams(z.object({ id: z.string().uuid() })),
+  validateParams(z.object({ id: z.coerce.number().int().positive() })),
   validateBody(TableStatusSchema),
   invalidateCache(['tables']),
   asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const currentUser = (req as any).user;
-    const { id } = req.params;
+    const id = parseInt(req.params.id, 10);
     const { status, notes } = req.body;
 
     // Vérifier que la table existe
@@ -516,7 +514,7 @@ router.delete('/:id',
   asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const currentUser = (req as any).user;
-    const { id } = req.params;
+    const id = parseInt(req.params.id, 10);
 
     // Vérifier que l'ID est valide
     if (!id) {

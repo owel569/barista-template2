@@ -151,7 +151,7 @@ export default function DeliveryTracking() : JSX.Element {
 
   const createDeliveryMutation = useMutation({
     mutationFn: (data: Record<string, unknown>) => 
-      apiRequest('/api/admin/deliveries', { method: 'POST', data }),
+      apiRequest('/api/admin/deliveries', { method: 'POST', body: JSON.stringify(data) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['deliveries'] });
       toast({ 
@@ -171,7 +171,7 @@ export default function DeliveryTracking() : JSX.Element {
 
   const updateDeliveryMutation = useMutation({
     mutationFn: ({ id, ...data }: { id: number; [key: string]: unknown }) => 
-      apiRequest(`/api/admin/deliveries/${id}`, { method: 'PUT', data }),
+      apiRequest(`/api/admin/deliveries/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['deliveries'] });
       toast({ 
@@ -311,7 +311,7 @@ export default function DeliveryTracking() : JSX.Element {
                         <FormLabel>Commande</FormLabel>
                         <Select 
                           onValueChange={(value) => field.onChange(parseInt(value))}
-                          defaultValue={field.value?.toString()}
+                          defaultValue={field.value ? field.value.toString() : ''}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -342,7 +342,7 @@ export default function DeliveryTracking() : JSX.Element {
                         <FormLabel>Livreur (optionnel)</FormLabel>
                         <Select 
                           onValueChange={(value) => field.onChange(value ? parseInt(value) : undefined)}
-                          defaultValue={field.value?.toString()}
+                          defaultValue={field.value ? field.value.toString() : ''}
                         >
                           <FormControl>
                             <SelectTrigger>

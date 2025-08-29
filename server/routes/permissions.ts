@@ -291,7 +291,7 @@ router.post('/permission', authenticateUser, requireRoles(['admin']), requirePer
       details: `Permission ${module} mise à jour pour l'utilisateur ${userId}`
     });
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Permission mise à jour avec succès'
     });
@@ -301,7 +301,7 @@ router.post('/permission', authenticateUser, requireRoles(['admin']), requirePer
       module, 
       error: error instanceof Error ? error.message : 'Erreur inconnue' 
     });
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Erreur lors de la mise à jour de la permission'
     });
@@ -452,7 +452,7 @@ router.post('/apply-template', authenticateUser, requireRoles(['admin']), requir
       templateName, 
       error: error instanceof Error ? error.message : 'Erreur inconnue' 
     });
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Erreur lors de l\'application du template'
     });

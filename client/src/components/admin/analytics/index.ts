@@ -8,10 +8,10 @@ export { MetricCard, type MetricCardProps } from './MetricCard';
 export { UnifiedStatsCard, type UnifiedStatsCardProps, type BaseStatsData, useStatsData } from './components/UnifiedStatsCard';
 
 // Vues spécialisées
-export { RevenueView } from './RevenueView';
-export { ProductView } from './ProductView'; 
-export { HourView } from './HourView';
-export { TrendsView } from './TrendsView';
+export { default as RevenueView } from './RevenueView';
+export { default as ProductView } from './ProductView'; 
+export { default as HourView } from './HourView';
+export { default as TrendsView } from './TrendsView';
 export { AdvancedAnalyticsDashboard } from './AdvancedAnalyticsDashboard';
 
 // Utilitaires

@@ -319,14 +319,17 @@ export default function DashboardConsolidated(): JSX.Element {
         });
       };
       
-      await toast.operation(
-        () => exportStatistics([dashboardData]),
-        {
-          loading: 'Export du dashboard en cours...',
-          success: 'Dashboard exporté avec succès',
-          error: 'Erreur lors de l\'export'
-        }
-      );
+      toast({ 
+        title: 'Export en cours', 
+        description: 'Export du dashboard en cours...' 
+      });
+      
+      await exportStatistics([dashboardData]);
+      
+      toast({ 
+        title: 'Export terminé', 
+        description: 'Dashboard exporté avec succès' 
+      });
     } catch (error) {
       console.error('Erreur export dashboard:', error);
     }

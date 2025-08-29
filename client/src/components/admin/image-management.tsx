@@ -87,7 +87,7 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
       toast({ 
         title: 'Erreur', 
         description: "Impossible d'ajouter l'image", 
-        variant: 'error' 
+        variant: 'destructive' 
       });
     }
   });
@@ -107,7 +107,7 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
       toast({ 
         title: 'Erreur', 
         description: "Impossible de supprimer l'image", 
-        variant: 'error' 
+        variant: 'destructive' 
       });
     }
   });
@@ -131,7 +131,7 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
       toast({ 
         title: 'Erreur', 
         description: "Impossible de mettre à jour l'image", 
-        variant: 'error' 
+        variant: 'destructive' 
       });
     }
   });
@@ -141,7 +141,7 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
       toast({ 
         title: 'Erreur', 
         description: 'URL d\'image requise', 
-        variant: 'error' 
+        variant: 'destructive' 
       });
       return;
     }

@@ -145,6 +145,16 @@ export interface Employee {
   status: 'active' | 'inactive';
 }
 
+export interface WorkShift {
+  id: number;
+  employeeId: number;
+  date: string;
+  startTime: string;
+  endTime: string;
+  position: string;
+  notes?: string;
+}
+
 export interface EmployeeFormData {
   firstName: string;
   lastName: string;

@@ -79,7 +79,7 @@ function Customers({ userRole, user }: CustomersProps) {
   // Initialiser WebSocket pour les notifications temps réel
   useWebSocket();
 
-  const isReadOnly = !hasPermission('customers', 'edit');
+  const isReadOnly = !hasPermission('customers', 'update');
 
   useEffect(() => {
     fetchCustomers();

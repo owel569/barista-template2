@@ -944,26 +944,23 @@ export default function InventoryManagement() : JSX.Element {
 
       {/* Modals */}
       {showAddForm && (
-        <InventoryItemForm
-          mode="create"
-          onClose={() => {
+        <div>
+          {/* TODO: Implement InventoryItemForm for create mode */}
+          <Button onClick={() => {
             setShowAddForm(false);
             fetchInventory();
-          }}
-          suppliers={suppliers}
-        />
+          }}>Close</Button>
+        </div>
       )}
 
       {editingItem && (
-        <InventoryItemForm
-          mode="edit"
-          item={editingItem}
-          onClose={() => {
+        <div>
+          {/* TODO: Implement InventoryItemForm for edit mode */}
+          <Button onClick={() => {
             setEditingItem(null);
             fetchInventory();
-          }}
-          suppliers={suppliers}
-        />
+          }}>Close</Button>
+        </div>
       )}
     </div>
   );

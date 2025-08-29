@@ -23,7 +23,7 @@ import {
 } from './analytics/dataGenerators';
 
 // Types
-interface ExportData {
+interface ExportData extends Record<string, unknown> {
   metrics: ReturnType<typeof generateMetrics>;
   revenueData: ReturnType<typeof generateRevenueData>;
   productData: ReturnType<typeof generateProductData>;

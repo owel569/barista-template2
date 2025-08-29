@@ -317,13 +317,22 @@ export default function EventsPromotions(): JSX.Element {
       // Simulation de création/modification pour la demo
       const newEvent: Event = {
         id: selectedEvent?.id || Math.floor(Math.random() * 1000),
-        ...data,
+        title: data.title,
+        description: data.description,
+        date: data.date,
+        startTime: data.startTime,
+        endTime: data.endTime,
+        location: data.location,
+        maxAttendees: data.maxAttendees,
+        price: data.price,
         type: data.type as EventType,
         status: selectedEvent?.status || 'draft',
         currentAttendees: selectedEvent?.currentAttendees || 0,
         tags: [],
         createdAt: selectedEvent?.createdAt || new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
+        ...(data.imageUrl !== undefined && { imageUrl: data.imageUrl }),
+        ...(data.requirements !== undefined && { requirements: data.requirements })
       };
 
       if (selectedEvent) {
@@ -379,14 +388,22 @@ export default function EventsPromotions(): JSX.Element {
       // Simulation de création/modification pour la demo
       const newPromotion: Promotion = {
         id: selectedPromotion?.id || Math.floor(Math.random() * 1000),
-        ...data,
+        name: data.name,
+        description: data.description,
+        discountValue: data.discountValue,
+        startDate: data.startDate,
+        endDate: data.endDate,
         type: data.type as PromotionType,
         customerSegment: data.customerSegment as CustomerSegment,
         isActive: selectedPromotion?.isActive ?? true,
         usageCount: selectedPromotion?.usageCount || 0,
         applicableItems: [],
         createdAt: selectedPromotion?.createdAt || new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
+        ...(data.minOrderValue !== undefined && { minOrderValue: data.minOrderValue }),
+        ...(data.maxDiscount !== undefined && { maxDiscount: data.maxDiscount }),
+        ...(data.usageLimit !== undefined && { usageLimit: data.usageLimit }),
+        ...(data.code !== undefined && { code: data.code })
       };
 
       if (selectedPromotion) {
