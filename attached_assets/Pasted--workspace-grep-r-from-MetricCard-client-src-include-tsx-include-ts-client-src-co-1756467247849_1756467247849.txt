@@ -1,0 +1,18 @@
+~/workspace$ grep -r "from.*MetricCard" client/src --include="*.tsx" --include="*.ts"
+client/src/components/admin/analytics/AdvancedAnalyticsDashboard.tsx:import { MetricCard } from './MetricCard';
+client/src/components/admin/analytics/index.ts:export { MetricCard, type MetricCardProps } from './MetricCard';
+client/src/components/admin/work-schedule/components/AnalyticsView.tsx:import { MetricCard } from '@/components/admin/analytics/MetricCard';
+client/src/components/admin/analytics-dashboard.tsx:import { MetricCard } from '@/components/admin/analytics/MetricCard';
+client/src/components/admin/real-time-updates.tsx:import { MetricCard } from '@/components/admin/analytics/MetricCard';
+~/workspace$ grep -r "interface.*Metric\|type.*Metric\|MetricProps\|CardProps" client/src --include="*.tsx" --include="*.ts"
+client/src/components/admin/analytics/components/AIInsightsPanel.tsx:interface AIMetrics {
+client/src/components/admin/analytics/components/UnifiedStatsCard.tsx:export interface UnifiedStatsCardProps {
+client/src/components/admin/analytics/components/UnifiedStatsCard.tsx:export const UnifiedStatsCard: React.FC<UnifiedStatsCardProps> = ({
+client/src/components/admin/analytics/MetricCard.tsx:export interface MetricCardProps {
+client/src/components/admin/analytics/MetricCard.tsx:  format: MetricCardProps['format'] = 'number',
+client/src/components/admin/analytics/MetricCard.tsx:export const MetricCard: React.FC<MetricCardProps> = memo(({
+client/src/components/admin/analytics/index.ts:export { MetricCard, type MetricCardProps } from './MetricCard';
+client/src/components/admin/analytics/index.ts:export { UnifiedStatsCard, type UnifiedStatsCardProps, type BaseStatsData, useStatsData } from './components/UnifiedStatsCard';
+client/src/components/admin/dashboard/AdvancedModulesManager.tsx:interface ModuleMetrics {
+client/src/components/admin/dashboard/AdvancedModulesManager.tsx:interface ModuleCardProps {
+client/src/components/admin/dashboard/AdvancedModulesManager.tsx:const ModuleCard: React.FC<ModuleCardProps> = ({ module, onToggle, onConfigure }) => {
