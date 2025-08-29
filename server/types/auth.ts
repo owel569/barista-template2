@@ -1,4 +1,7 @@
-export type AppRole = 'customer' | 'waiter' | 'chef' | 'manager' | 'admin' | 'directeur' | 'employe' | 'employee' | 'serveur' | 'cuisinier';
+export type AppRole = 'customer' | 'waiter' | 'chef' | 'manager' | 'admin' | 'directeur' | 'employe' | 'employee' | 'serveur' | 'cuisinier' | 'staff';
+
+// Alias pour compatibilité
+export type UserRole = AppRole;
 
 export interface UserPayload {
   id: number;

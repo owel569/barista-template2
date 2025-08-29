@@ -5,8 +5,8 @@ import { createLogger } from '../middleware/logging';
 import { authenticateUser } from '../middleware/auth';
 import { validateBody, validateQuery } from '../middleware/validation';
 import { getDb } from '../db';
-import { users, customers, orders } from '../../shared/schema';
-import { eq, and, gte, lte, desc } from 'drizzle-orm';
+import { users, customers, orders, addresses } from '../../shared/schema';
+import { eq, and, gte, lte, desc, sql } from 'drizzle-orm';
 
 const userProfileRouter = Router();
 const logger = createLogger('USER_PROFILE');
@@ -516,7 +516,7 @@ class UserProfileService {
 // Récupérer le profil utilisateur
 userProfileRouter.get('/profile', 
   authenticateUser,
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const userId = req.user?.id;
     if (!userId) {
       return res.status(401).json({ 
@@ -545,7 +545,7 @@ userProfileRouter.get('/profile',
 userProfileRouter.put('/profile', 
   authenticateUser,
   validateBody(UpdateProfileSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const { firstName, lastName, email, phone, avatarUrl } = req.body;
     const userId = req.user?.id;
 
@@ -612,7 +612,7 @@ userProfileRouter.put('/profile',
 // Données de fidélité
 userProfileRouter.get('/loyalty', 
   authenticateUser,
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const userId = req.user?.id;
     if (!userId) {
       return res.status(401).json({ 
@@ -633,7 +633,7 @@ userProfileRouter.get('/loyalty',
 userProfileRouter.post('/loyalty/redeem', 
   authenticateUser,
   validateBody(RedeemRewardSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const userId = req.user?.id;
     if (!userId) {
       return res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
@@ -650,7 +650,7 @@ userProfileRouter.post('/loyalty/redeem',
 userProfileRouter.get('/orders', 
   authenticateUser,
   validateQuery(OrderHistoryQuerySchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const { limit: rawLimit, offset: rawOffset, status, from, to } = req.query;
     const userId = req.user?.id;
 
@@ -690,7 +690,7 @@ userProfileRouter.get('/orders',
 // Gestion des adresses
 userProfileRouter.get('/addresses', 
   authenticateUser,
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const userId = req.user?.id;
     if (!userId) {
       return res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
@@ -703,7 +703,7 @@ userProfileRouter.get('/addresses',
 userProfileRouter.post('/addresses', 
   authenticateUser,
   validateBody(AddressSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const userId = req.user?.id;
     if (!userId) {
       return res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
@@ -715,7 +715,7 @@ userProfileRouter.post('/addresses',
 userProfileRouter.put('/addresses/:id', 
   authenticateUser,
   validateBody(AddressSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const userId = req.user?.id;
     const addressId = Number(req.params.id);
     if (!userId || isNaN(addressId)) {
@@ -727,7 +727,7 @@ userProfileRouter.put('/addresses/:id',
 
 userProfileRouter.delete('/addresses/:id', 
   authenticateUser,
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const userId = req.user?.id;
     const addressId = Number(req.params.id);
     if (!userId || isNaN(addressId)) {
@@ -740,7 +740,7 @@ userProfileRouter.delete('/addresses/:id',
 // Préférences utilisateur
 userProfileRouter.get('/preferences', 
   authenticateUser,
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const userId = req.user?.id;
     if (!userId) {
       return res.status(401).json({ 
@@ -778,7 +778,7 @@ userProfileRouter.get('/preferences',
 userProfileRouter.put('/preferences', 
   authenticateUser,
   validateBody(PreferencesSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const userId = req.user?.id;
     if (!userId) {
       return res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });

@@ -148,6 +148,10 @@ export const logger = new Logger();
 
 export interface LoggerMeta {
   [key: string]: unknown;
+  error?: Error | string;
+  userId?: number;
+  requestId?: string;
+  duration?: number;
 }
 
 export interface LoggerInterface {

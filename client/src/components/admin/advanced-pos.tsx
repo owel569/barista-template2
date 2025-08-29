@@ -84,21 +84,32 @@ export default function AdvancedPOS(): JSX.Element {
     fetchMenuItems();
   }, []);
 
-  const fetchMenuItems = async () => {
+  const fetchMenuItems = async (): Promise<void> => {
     try {
       const response = await fetch('/api/menu');
       if (response.ok) {
         const data = await response.json();
         setMenuItems(data.menu || []);
+      } else {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
     } catch (error) {
       console.error('Erreur lors du chargement du menu:', error);
-      // Données par défaut
+      toast({
+        title: "Erreur de chargement",
+        description: "Utilisation du menu par défaut",
+        variant: "destructive",
+      });
+      // Données par défaut améliorées
       setMenuItems([
         { id: 1, name: 'Espresso', price: 2.50, category: 'Cafés', stock: 50 },
         { id: 2, name: 'Cappuccino', price: 3.50, category: 'Cafés', stock: 30 },
-        { id: 3, name: 'Croissant', price: 2.00, category: 'Pâtisseries', stock: 20 },
-        { id: 4, name: 'Sandwich Club', price: 8.50, category: 'Plats', stock: 15 },
+        { id: 3, name: 'Latte', price: 4.00, category: 'Cafés', stock: 25 },
+        { id: 4, name: 'Croissant', price: 2.00, category: 'Pâtisseries', stock: 20 },
+        { id: 5, name: 'Pain au chocolat', price: 2.20, category: 'Pâtisseries', stock: 18 },
+        { id: 6, name: 'Sandwich Club', price: 8.50, category: 'Plats', stock: 15 },
+        { id: 7, name: 'Salade César', price: 9.50, category: 'Plats', stock: 12 },
+        { id: 8, name: 'Jus d\'orange', price: 3.50, category: 'Boissons', stock: 30 },
       ]);
     }
   };

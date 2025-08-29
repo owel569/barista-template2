@@ -534,8 +534,8 @@ export class AIAutomationService {
         item: item.itemName || 'Item inconnu',
         level: (item.daysRemaining || 999) < 2 ? 'low' : (item.daysRemaining || 999) < 5 ? 'medium' : 'optimal',
         currentStock: `${item.currentStock || 0} unités`,
-        recommendedOrder: (item.daysRemaining || 999) < 3 ? `${Math.ceil((item.dailySales || 0) * 7)} unités` : 'none',
-        urgency: (item.daysRemaining || 999) < 2 ? 'high' : (item.daysRemaining || 999) < 5 ? 'medium' : 'none'
+        recommendedOrder: (Number(item.daysRemaining) || 999) < 3 ? `${Math.ceil((Number(item.dailySales) || 0) * 7)} unités` : 'none',
+        urgency: (Number(item.daysRemaining) || 999) < 2 ? 'high' : (Number(item.daysRemaining) || 999) < 5 ? 'medium' : 'none'
       }));
     } catch (error) {
       logger.error('Erreur analyse inventaire:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });

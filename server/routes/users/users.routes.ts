@@ -209,7 +209,7 @@ router.get('/:id',
         lastLoginAt: users.lastLoginAt
       })
       .from(users)
-      .where(eq(users.id, parseInt(id || '0')));
+      .where(eq(users.id, parseInt(id as string)));
 
     if (!user) {
       return res.status(404).json({
@@ -284,11 +284,11 @@ router.post('/',
     const hashedPassword = await hash(password, 12);
 
     // Créer l'utilisateur
-    const userId = crypto.randomUUID();
+    const userIdNumber = Math.floor(Math.random() * 1000000) + 1;
     const [newUser] = await db
       .insert(users)
       .values({
-        id: userId,
+        id: userIdNumber,
         ...userData,
         password: hashedPassword,
         createdAt: new Date(),
