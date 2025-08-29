@@ -1,6 +1,17 @@
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+interface CategoryData {
+  name: string;
+  value: number;
+  color: string;
+}
+
+interface CategoryPieChartProps {
+  data: CategoryData[];
+  title?: string;
+}
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface CategoryData {

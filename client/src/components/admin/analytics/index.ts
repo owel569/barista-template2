@@ -5,6 +5,7 @@
 
 // Composant principal unifié
 export { MetricCard, type MetricCardProps } from './MetricCard';
+export { UnifiedStatsCard, type UnifiedStatsCardProps, type BaseStatsData, useStatsData } from './components/UnifiedStatsCard';
 
 // Vues spécialisées
 export { RevenueView } from './RevenueView';
