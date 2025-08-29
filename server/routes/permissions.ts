@@ -16,7 +16,7 @@ const logger = createLogger('PERMISSIONS');
 // TYPES ET INTERFACES
 // ==========================================
 
-import type { Permission, ApiResponse, PaginatedResponse } from '../types';
+import type { Permission, ApiResponse, PaginatedResponse } from '@custom-types';
 
 export interface PermissionTemplate {
   name: string;

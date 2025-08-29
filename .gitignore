@@ -1,8 +1,8 @@
 # Dépendances
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+
+# TypeScript build info
+.tsbuildinfo
 
 # Variables d'environnement
 .env
@@ -16,7 +16,6 @@ dist/
 build/
 
 # Logs
-logs
 *.log
 
 # Cache

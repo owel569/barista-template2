@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { authenticateUser } from '../../middleware/auth';
+import { authenticateUser, requireRoles } from '../../middleware/auth';
 import { validateBody } from '../../middleware/validation';
 import { asyncHandler } from '../../middleware/error-handler-enhanced';
 import { createLogger } from '../../middleware/logging';

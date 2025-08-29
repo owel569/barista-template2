@@ -1,15 +1,19 @@
+
 {
   "include": ["client/src/**/*", "shared/**/*", "server/**/*"],
   "exclude": ["node_modules", "build", "dist", "**/*.test.ts", "scripts/**/*"],
   "compilerOptions": {
+    // Build incremental
     "incremental": true,
-    "tsBuildInfoFile": "./node_modules/typescript/tsbuildinfo",
-    "noEmit": true,
+    "tsBuildInfoFile": "./.tsbuildinfo",
+    
+    // Target et module
     "module": "ESNext",
     "target": "ES2022",
-    "useDefineForClassFields": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "skipLibCheck": false,
+    "useDefineForClassFields": true,
+    
+    // Strictness
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -17,18 +21,32 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
+    
+    // JSX
     "jsx": "react-jsx",
-    "esModuleInterop": true,
-    "allowImportingTsExtensions": true,
+    
+    // Module resolution
     "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    
+    // Paths et base URL
     "baseUrl": ".",
-    "types": ["node"],
-    "typeRoots": ["./node_modules/@types", "./server/types"],
     "paths": {
       "@/*": ["./client/src/*"],
       "@shared/*": ["./shared/*"],
       "@server/*": ["./server/*"],
-      "@types/*": ["./server/types/*"]
-    }
+      "@custom-types/*": ["./server/types/*"]
+    },
+    
+    // Types
+    "types": ["node"],
+    "typeRoots": ["./node_modules/@types", "./server/types"],
+    
+    // Autres options utiles
+    "forceConsistentCasingInFileNames": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true
   }
 }
