@@ -5,7 +5,7 @@ import { asyncHandler } from '../../middleware/error-handler-enhanced';
 import { createLogger } from '../../middleware/logging';
 import { authenticateUser, requireRoles } from '../../middleware/auth';
 import { validateBody, validateParams, validateQuery } from '../../middleware/validation';
-import { commonSchemas } from '../../middleware/validation';
+import { commonSchemas } from '../../utils/validation';
 import { getDb } from '../../db';
 import { menuItems, menuCategories, activityLogs } from '../../../shared/schema';
 import { eq, and, or, desc, sql, ilike, inArray } from 'drizzle-orm';
@@ -85,8 +85,9 @@ router.get('/',
     isVegan: z.boolean().optional(),
     isGlutenFree: z.boolean().optional(),
     search: z.string().optional(),
-    ...commonSchemas.paginationSchema.shape,
-    ...commonSchemas.sortSchema.shape
+    ...commonSchemas.pagination.shape,
+    sortBy: z.string().optional(),
+    sortOrder: commonSchemas.sortOrder
   })),
   cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['menu', 'categories'] }),
   asyncHandler(async (req, res) => {

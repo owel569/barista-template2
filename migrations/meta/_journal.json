@@ -15,6 +15,13 @@
       "when": 1756474177782,
       "tag": "0001_blushing_domino",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1756483923832,
+      "tag": "0002_lowly_layla_miller",
+      "breakpoints": true
     }
   ]
 }

@@ -20,7 +20,7 @@ const router = Router();
 
 // Routes publiques
 router.use('/auth', authRoutes);
-// router.use('/menu', menuRoutes); // Menu public pour consultation
+router.use('/menu', menuRoutes); // Menu public pour consultation
 
 // Routes protégées (nécessitent une authentification)
 // router.use('/users', authenticateUser, userRoutes);
@@ -34,8 +34,8 @@ router.use('/auth', authRoutes);
 router.use('/inventory', authenticateUser, inventoryRoutes);
 
 // Routes avec authentification mixte (certaines publiques, certaines protégées)
-// router.use('/reservations', reservationRoutes); // POST public, GET/PUT/DELETE protégées
-// router.use('/feedback', feedbackRoutes); // POST public, GET/DELETE protégées
+router.use('/reservations', reservationRoutes); // POST public, GET/PUT/DELETE protégées
+router.use('/feedback', feedbackRoutes); // POST public, GET/DELETE protégées
 
 // Health check
 router.get('/health', (req, res) => {

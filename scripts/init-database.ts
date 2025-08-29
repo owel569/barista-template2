@@ -10,7 +10,6 @@ import {
   orderItems,
   customers,
   tables,
-  workShifts,
   employees
 } from '../shared/schema';
 import { getItemImageUrl } from '../client/src/lib/image-mapping';
