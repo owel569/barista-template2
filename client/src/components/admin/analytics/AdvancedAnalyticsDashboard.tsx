@@ -35,7 +35,7 @@ import { AIInsightsPanel } from './components/AIInsightsPanel';
 import { CustomerBehaviorView } from './components/CustomerBehaviorView';
 import { PredictiveAnalyticsView } from './components/PredictiveAnalyticsView';
 import { RealTimeKPIs } from './components/RealTimeKPIs';
-import { MetricCard } from './components/MetricCard';
+import { MetricCard } from './MetricCard';
 
 // Types sécurisés pour les données analytics
 interface AnalyticsData {
