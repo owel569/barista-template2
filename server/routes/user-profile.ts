@@ -5,7 +5,7 @@ import { createLogger } from '../middleware/logging';
 import { authenticateUser } from '../middleware/auth';
 import { validateBody, validateQuery } from '../middleware/validation';
 import { getDb } from '../db';
-import { users, customers, orders, addresses } from '../../shared/schema';
+import { users, customers, orders } from '../../shared/schema';
 import { eq, and, gte, lte, desc, sql } from 'drizzle-orm';
 
 const userProfileRouter = Router();
@@ -194,14 +194,14 @@ class UserProfileService {
         id: user.id,
         username: user.username,
         email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
         phone: user.phone ?? undefined,
         role: user.role,
         isActive: user.isActive,
         createdAt: user.createdAt.toISOString(),
         updatedAt: user.updatedAt.toISOString(),
-        avatarUrl: user.avatarUrl ?? undefined
+        avatarUrl: undefined
       };
     } catch (error) {
       logger.error('Erreur récupération profil utilisateur', { 
@@ -386,7 +386,7 @@ class UserProfileService {
           id: order.id,
           orderNumber: order.orderNumber,
           totalAmount: Number(order.totalAmount),
-          status: order.status,
+          status: order.status as 'pending' | 'processing' | 'completed' | 'cancelled',
           items: order.items as Array<{
             id: number;
             name: string;
@@ -496,7 +496,7 @@ class UserProfileService {
         postalCode: address.postalCode,
         country: address.country,
         isDefault: address.isDefault,
-        notes: address.notes || ''
+        notes: address.notes ?? undefined
       };
     } catch (error) {
       logger.error('Erreur sauvegarde adresse', { 
@@ -701,8 +701,7 @@ userProfileRouter.get('/addresses',
   asyncHandler(async (req, res): Promise<void> => {
     const userId = req.user?.id;
     if (!userId) {
-      res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
-      return;
+      return res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
     }
     // Address persistence not available; return empty list
     res.json({ success: true, data: [] });
@@ -715,8 +714,7 @@ userProfileRouter.post('/addresses',
   asyncHandler(async (req, res): Promise<void> => {
     const userId = req.user?.id;
     if (!userId) {
-      res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
-      return;
+      return res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
     }
     res.status(501).json({ success: false, message: 'Gestion d\'adresses non disponible' });
   })
@@ -729,8 +727,7 @@ userProfileRouter.put('/addresses/:id',
     const userId = req.user?.id;
     const addressId = Number(req.params.id);
     if (!userId || isNaN(addressId)) {
-      res.status(400).json({ success: false, message: 'Requête invalide' });
-      return;
+      return res.status(400).json({ success: false, message: 'Requête invalide' });
     }
     res.status(501).json({ success: false, message: 'Gestion d\'adresses non disponible' });
   })
@@ -742,8 +739,7 @@ userProfileRouter.delete('/addresses/:id',
     const userId = req.user?.id;
     const addressId = Number(req.params.id);
     if (!userId || isNaN(addressId)) {
-      res.status(400).json({ success: false, message: 'Requête invalide' });
-      return;
+      return res.status(400).json({ success: false, message: 'Requête invalide' });
     }
     res.status(501).json({ success: false, message: 'Gestion d\'adresses non disponible' });
   })

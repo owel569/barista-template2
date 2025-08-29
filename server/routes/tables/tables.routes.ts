@@ -511,29 +511,38 @@ router.patch('/:id/status',
 router.delete('/:id',
   authenticateUser,
   requireRoles(['admin']),
-  validateParams(z.object({ id: z.string().uuid() })),
+  validateParams(z.object({ id: z.string() })),
   invalidateCache(['tables']),
   asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const currentUser = (req as any).user;
     const { id } = req.params;
+    const tableId = parseInt(id, 10);
+
+    if (!tableId || isNaN(tableId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID de table invalide'
+      });
+    }
 
     // Vérifier s'il y a des réservations futures
-    const [futureReservations] = await db
+    const futureReservations = await db
       .select({ count: sql<number>`count(*)` })
       .from(reservations)
       .where(
         and(
-          eq(reservations.tableId, id),
+          eq(reservations.tableId, tableId),
           sql`${reservations.reservationTime} > NOW()`,
           eq(reservations.status, 'confirmed')
         )
       );
 
-    if (futureReservations.count > 0) {
+    const reservationCount = futureReservations[0]?.count || 0;
+    if (reservationCount > 0) {
       return res.status(400).json({
         success: false,
-        message: `Impossible de supprimer la table: ${futureReservations.count} réservation(s) future(s)`
+        message: `Impossible de supprimer la table: ${reservationCount} réservation(s) future(s)`
       });
     }
 
@@ -544,7 +553,7 @@ router.delete('/:id',
         isActive: false,
         updatedAt: new Date()
       })
-      .where(eq(tables.id, id))
+      .where(eq(tables.id, tableId))
       .returning();
 
     if (!deactivatedTable) {
