@@ -142,7 +142,28 @@ async function startApplication() {
   httpServer.on('error', (err: NodeJS.ErrnoException) => {
     if (err.code === 'EADDRINUSE') {
       console.error(`❌ Port ${PORT} is already in use`);
-      process.exit(1);
+      console.log('🔄 Attempting to kill existing processes and retry...');
+      
+      // Try to kill existing process on the port
+      const { exec } = require('child_process');
+      exec(`lsof -ti:${PORT} | xargs kill -9`, (error) => {
+        if (!error) {
+          console.log('✅ Killed existing process, retrying...');
+          setTimeout(() => {
+            httpServer.listen(PORT, HOST, () => {
+              console.log(`✅ Serveur démarré avec succès (retry)`);
+              console.log(`🚀 Server running on http://${HOST}:${PORT}`);
+              console.log(`⚡ API: http://${HOST}:${PORT}/api`);
+              console.log(`✨ Vite: http://${HOST}:${PORT}`);
+              console.log(`🔌 WebSocket: ws://${HOST}:${PORT}/ws`);
+              console.log(`❤️ Health: http://${HOST}:${PORT}/health`);
+            });
+          }, 1000);
+        } else {
+          console.error('❌ Could not kill existing process');
+          process.exit(1);
+        }
+      });
     } else {
       console.error('❌ Server error:', err);
       process.exit(1);
