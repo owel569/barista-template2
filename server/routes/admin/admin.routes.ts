@@ -130,7 +130,7 @@ router.patch('/users/:id/status',
     
     // TODO: Mettre à jour le statut en base de données
     
-    res.json({
+    return res.json({
       success: true,
       message: `Utilisateur ${active ? 'activé' : 'désactivé'} avec succès`
     });

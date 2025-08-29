@@ -1,4 +1,4 @@
-export type AppRole = 'customer' | 'waiter' | 'chef' | 'manager' | 'admin' | 'directeur' | 'employe' | 'serveur' | 'cuisinier';
+export type AppRole = 'customer' | 'waiter' | 'chef' | 'manager' | 'admin' | 'directeur' | 'employe' | 'employee' | 'serveur' | 'cuisinier';
 
 export interface UserPayload {
   id: number;
@@ -115,6 +115,12 @@ export const ROLE_PERMISSIONS: Record<AppRole, string[]> = {
     'inventory:read',
     'basic:operations'
   ],
+  employee: [
+    'orders:read',
+    'customers:read',
+    'inventory:read',
+    'basic:operations'
+  ],
   manager: [
     'users:read',
     'users:update',
@@ -151,6 +157,7 @@ export const ROLE_HIERARCHY: Record<AppRole, number> = {
   chef: 3,
   cuisinier: 3,
   employe: 3,
+  employee: 3,
   manager: 4,
   directeur: 4,
   admin: 5

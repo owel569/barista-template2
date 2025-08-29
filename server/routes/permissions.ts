@@ -157,7 +157,7 @@ router.get('/overview', authenticateUser, requireRoles(['admin']), asyncHandler(
       modules: AVAILABLE_MODULES
     };
 
-    res.json({
+    return res.json({
       success: true,
       data: overview
     });
@@ -165,7 +165,7 @@ router.get('/overview', authenticateUser, requireRoles(['admin']), asyncHandler(
     logger.error('Erreur overview permissions', { 
       error: error instanceof Error ? error.message : 'Erreur inconnue' 
     });
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Erreur lors de la récupération des permissions'
     });
@@ -203,7 +203,7 @@ router.get('/user/:userId', authenticateUser, requireRoles(['admin']), requirePe
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         user: user[0],
@@ -215,7 +215,7 @@ router.get('/user/:userId', authenticateUser, requireRoles(['admin']), requirePe
       userId, 
       error: error instanceof Error ? error.message : 'Erreur inconnue' 
     });
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Erreur lors de la récupération des permissions'
     });
@@ -224,7 +224,7 @@ router.get('/user/:userId', authenticateUser, requireRoles(['admin']), requirePe
 
 router.get('/templates', authenticateUser, requireRoles(['admin']), asyncHandler(async (req, res) => {
   try {
-  res.json({
+  return res.json({
     success: true,
       data: PERMISSION_TEMPLATES
     });
@@ -232,7 +232,7 @@ router.get('/templates', authenticateUser, requireRoles(['admin']), asyncHandler
     logger.error('Erreur templates permissions', { 
       error: error instanceof Error ? error.message : 'Erreur inconnue' 
     });
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Erreur lors de la récupération des templates'
     });
@@ -451,7 +451,7 @@ router.post('/apply-template', authenticateUser, requireRoles(['admin']), requir
       details: `Template ${templateName} appliqué à l'utilisateur ${userId}`
     });
 
-    res.json({
+    return res.json({
       success: true,
       message: `Template ${templateName} appliqué avec succès`
     });

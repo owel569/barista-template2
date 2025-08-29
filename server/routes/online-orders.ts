@@ -144,7 +144,7 @@ const statusUpdateSchema = z.object({
 // Récupérer toutes les commandes en ligne
 onlineOrdersRouter.get('/', 
   authenticateUser,
-  requireRoles(['admin', 'manager', 'employe']),
+  requireRoles(['admin', 'manager', 'employee']),
   asyncHandler(async (req, res) => {
     const { status, platform } = req.query;
     
@@ -159,7 +159,7 @@ onlineOrdersRouter.get('/',
         filteredOrders = filteredOrders.filter(order => order.platform === platform);
       }
       
-      res.json({
+      return res.json({
         success: true,
         data: filteredOrders
       });
@@ -169,7 +169,7 @@ onlineOrdersRouter.get('/',
         platform, 
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
       });
-      res.status(500).json({ 
+      return res.status(500).json({ 
         success: false,
         message: 'Erreur lors de la récupération des commandes' 
       });
@@ -183,7 +183,7 @@ onlineOrdersRouter.get('/platforms',
   requireRoles(['admin', 'manager']),
   asyncHandler(async (req, res) => {
     try {
-      res.json({
+      return res.json({
         success: true,
         data: platforms
       });
@@ -191,7 +191,7 @@ onlineOrdersRouter.get('/platforms',
       logger.error('Erreur récupération plateformes', { 
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
       });
-      res.status(500).json({ 
+      return res.status(500).json({ 
         success: false,
         message: 'Erreur lors de la récupération des plateformes' 
       });
@@ -222,7 +222,7 @@ onlineOrdersRouter.get('/stats',
         }))
       };
       
-      res.json({
+      return res.json({
         success: true,
         data: stats
       });
@@ -230,7 +230,7 @@ onlineOrdersRouter.get('/stats',
       logger.error('Erreur statistiques commandes', { 
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
       });
-      res.status(500).json({ 
+      return res.status(500).json({ 
         success: false,
         message: 'Erreur lors de la récupération des statistiques' 
       });
@@ -241,7 +241,7 @@ onlineOrdersRouter.get('/stats',
 // Récupérer une commande par ID
 onlineOrdersRouter.get('/:id', 
   authenticateUser,
-  requireRoles(['admin', 'manager', 'employe']),
+  requireRoles(['admin', 'manager', 'employee']),
   validateParams(z.object({ id: z.string().regex(/^\d+$/) })),
   asyncHandler(async (req, res) => {
     const { id } = req.params;
@@ -265,7 +265,7 @@ onlineOrdersRouter.get('/:id',
         id, 
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
       });
-      res.status(500).json({ 
+      return res.status(500).json({ 
         success: false,
         message: 'Erreur lors de la récupération de la commande' 
       });
@@ -276,7 +276,7 @@ onlineOrdersRouter.get('/:id',
 // Créer une nouvelle commande
 onlineOrdersRouter.post('/', 
   authenticateUser,
-  requireRoles(['admin', 'manager', 'employe']),
+  requireRoles(['admin', 'manager', 'employee']),
   validateBody(orderSchema),
   asyncHandler(async (req, res) => {
     try {
@@ -291,7 +291,7 @@ onlineOrdersRouter.post('/',
       
       onlineOrders.push(newOrder);
       
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
         data: newOrder
       });
@@ -299,7 +299,7 @@ onlineOrdersRouter.post('/',
       logger.error('Erreur création commande', { 
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
       });
-      res.status(500).json({ 
+      return res.status(500).json({ 
         success: false,
         message: 'Erreur lors de la création de la commande' 
       });
@@ -310,7 +310,7 @@ onlineOrdersRouter.post('/',
 // Mettre à jour le statut d'une commande
 onlineOrdersRouter.patch('/:id/status', 
   authenticateUser,
-  requireRoles(['admin', 'manager', 'employe']),
+  requireRoles(['admin', 'manager', 'employee']),
   validateParams(z.object({ id: z.string().regex(/^\d+$/) })),
   validateBody(statusUpdateSchema),
   asyncHandler(async (req, res) => {
@@ -345,7 +345,7 @@ onlineOrdersRouter.patch('/:id/status',
         status, 
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
       });
-      res.status(500).json({ 
+      return res.status(500).json({ 
         success: false,
         message: 'Erreur lors de la mise à jour du statut' 
       });
