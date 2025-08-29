@@ -517,9 +517,9 @@ router.delete('/:id',
     const db = getDb();
     const currentUser = (req as any).user;
     const { id } = req.params;
-    const tableId = parseInt(id, 10);
 
-    if (!tableId || isNaN(tableId)) {
+    // Vérifier que l'ID est valide
+    if (!id) {
       return res.status(400).json({
         success: false,
         message: 'ID de table invalide'
@@ -532,7 +532,7 @@ router.delete('/:id',
       .from(reservations)
       .where(
         and(
-          eq(reservations.tableId, tableId),
+          eq(reservations.tableId, id),
           sql`${reservations.reservationTime} > NOW()`,
           eq(reservations.status, 'confirmed')
         )
@@ -553,7 +553,7 @@ router.delete('/:id',
         isActive: false,
         updatedAt: new Date()
       })
-      .where(eq(tables.id, tableId))
+      .where(eq(tables.id, id))
       .returning();
 
     if (!deactivatedTable) {

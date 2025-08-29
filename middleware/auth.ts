@@ -3,12 +3,13 @@ import type { User } from '../shared/schema'; // Doit contenir le champ "role"
 // Import corrigé pour lru-cache
 
 // Typage strict des rôles
-export type AppRole = 'customer' | 'waiter' | 'chef' | 'manager' | 'admin';
+export type AppRole = 'customer' | 'waiter' | 'staff' | 'chef' | 'manager' | 'admin';
 
 // Hiérarchie des rôles (plus le chiffre est élevé, plus le rôle est élevé)
 const ROLE_HIERARCHY: Record<AppRole, number> = {
   customer: 1,
   waiter: 2,
+  staff: 2,
   chef: 3,
   manager: 4,
   admin: 5

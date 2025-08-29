@@ -147,10 +147,11 @@ router.patch('/:id/status',
       const reservation = reservations.find(r => r.id === id);
 
       if (!reservation) {
-        return res.status(404).json({
+        res.status(404).json({
           success: false,
           message: 'Réservation non trouvée'
         });
+        return;
       }
 
       reservation.status = status;

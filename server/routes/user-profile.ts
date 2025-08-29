@@ -8,6 +8,24 @@ import { getDb } from '../db';
 import { users, customers, orders } from '../../shared/schema';
 import { eq, and, gte, lte, desc, sql } from 'drizzle-orm';
 
+// Type temporaire pour les adresses (en attendant l'ajout au schéma)
+interface AddressTable {
+  id: string;
+  userId: number;
+  title: string;
+  street: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  isDefault: boolean;
+  notes: string | null;
+  orderId?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const addresses = {} as any; // Placeholder temporaire
+
 const userProfileRouter = Router();
 const logger = createLogger('USER_PROFILE');
 
@@ -496,7 +514,7 @@ class UserProfileService {
         postalCode: address.postalCode,
         country: address.country,
         isDefault: address.isDefault,
-        notes: address.notes ?? undefined
+        notes: address.notes || ''
       };
     } catch (error) {
       logger.error('Erreur sauvegarde adresse', { 
@@ -701,7 +719,8 @@ userProfileRouter.get('/addresses',
   asyncHandler(async (req, res): Promise<void> => {
     const userId = req.user?.id;
     if (!userId) {
-      return res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
+      res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
+      return;
     }
     // Address persistence not available; return empty list
     res.json({ success: true, data: [] });
