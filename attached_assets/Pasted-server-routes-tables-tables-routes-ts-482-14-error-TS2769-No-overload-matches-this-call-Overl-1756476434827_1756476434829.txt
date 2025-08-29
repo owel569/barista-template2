@@ -1,0 +1,140 @@
+server/routes/tables/tables.routes.ts:482:14 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "id"; tableName: "tables"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>, right: number | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'number | SQLWrapper'.
+      Type 'undefined' is not assignable to type 'number | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string | undefined>, right: string | SQLWrapper | undefined): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "id"; tableName: "tables"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string | undefined>'.
+      Type 'PgColumn<{ name: "id"; tableName: "tables"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string | undefined>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "id"; tableName: "tables"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+482       .where(eq(tables.id, id))
+                 ~~
+
+
+server/routes/tables/tables.routes.ts:517:16 - error TS7030: Not all code paths return a value.
+
+517   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/tables/tables.routes.ts:528:11 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "table_id"; tableName: "reservations"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>, right: number | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'number | SQLWrapper'.
+      Type 'undefined' is not assignable to type 'number | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string | undefined>, right: string | SQLWrapper | undefined): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "table_id"; tableName: "reservations"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string | undefined>'.
+      Type 'PgColumn<{ name: "table_id"; tableName: "reservations"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string | undefined>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "table_id"; tableName: "reservations"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+528           eq(reservations.tableId, id),
+              ~~
+
+
+server/routes/tables/tables.routes.ts:529:30 - error TS2339: Property 'dateTime' does not exist on type 'PgTableWithColumns<{ name: "reservations"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>; ... 9 more ...; updatedAt: PgColumn<...>; }; d...'.
+
+529           sql`${reservations.dateTime} > NOW()`,
+                                 ~~~~~~~~
+
+server/routes/tables/tables.routes.ts:534:9 - error TS18048: 'futureReservations' is possibly 'undefined'.
+
+534     if (futureReservations.count > 0) {
+            ~~~~~~~~~~~~~~~~~~
+
+server/routes/tables/tables.routes.ts:537:55 - error TS18048: 'futureReservations' is possibly 'undefined'.
+
+537         message: `Impossible de supprimer la table: ${futureReservations.count} réservation(s) future(s)`
+                                                          ~~~~~~~~~~~~~~~~~~
+
+server/routes/tables/tables.routes.ts:548:14 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "id"; tableName: "tables"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>, right: number | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'number | SQLWrapper'.
+      Type 'undefined' is not assignable to type 'number | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string | undefined>, right: string | SQLWrapper | undefined): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "id"; tableName: "tables"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string | undefined>'.
+      Type 'PgColumn<{ name: "id"; tableName: "tables"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string | undefined>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "id"; tableName: "tables"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+548       .where(eq(tables.id, id))
+                 ~~
+
+
+server/routes/user-profile.ts:8:36 - error TS2305: Module '"../../shared/schema"' has no exported member 'addresses'.
+
+8 import { users, customers, orders, addresses } from '../../shared/schema';
+                                     ~~~~~~~~~
+
+server/routes/user-profile.ts:197:9 - error TS2322: Type 'string | null' is not assignable to type 'string'.
+  Type 'null' is not assignable to type 'string'.
+
+197         firstName: user.firstName,
+            ~~~~~~~~~
+
+server/routes/user-profile.ts:198:9 - error TS2322: Type 'string | null' is not assignable to type 'string'.
+  Type 'null' is not assignable to type 'string'.
+
+198         lastName: user.lastName,
+            ~~~~~~~~
+
+server/routes/user-profile.ts:204:25 - error TS2339: Property 'avatarUrl' does not exist on type '{ id: number; email: string; username: string; password: string; firstName: string | null; lastName: string | null; phone: string | null; role: string; isActive: boolean; permissions: string[] | null; lastLoginAt: Date | null; createdAt: Date; updatedAt: Date; }'.
+
+204         avatarUrl: user.avatarUrl ?? undefined
+                            ~~~~~~~~~
+
+server/routes/user-profile.ts:262:11 - error TS2532: Object is possibly 'undefined'.
+
+262           itemCounts[item.id].count++;
+              ~~~~~~~~~~~~~~~~~~~
+
+server/routes/user-profile.ts:263:43 - error TS2532: Object is possibly 'undefined'.
+
+263           if (new Date(order.createdAt) > itemCounts[item.id].lastOrdered) {
+                                              ~~~~~~~~~~~~~~~~~~~
+
+server/routes/user-profile.ts:264:13 - error TS2532: Object is possibly 'undefined'.
+
+264             itemCounts[item.id].lastOrdered = new Date(order.createdAt);
+                ~~~~~~~~~~~~~~~~~~~
+
+server/routes/user-profile.ts:343:23 - error TS2339: Property 'where' does not exist on type 'Omit<PgSelectBase<"orders", { id: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>; ... 5 more ...; updatedAt: PgColu...'.
+
+343         query = query.where(eq(orders.status, filters.status));
+                          ~~~~~
+
+server/routes/user-profile.ts:343:29 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "status"; tableName: "orders"; dataType: "string"; columnType: "PgEnumColumn"; data: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>, right: "pending" | ... 4 more ... | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type '"pending" | "cancelled" | "preparing" | "ready" | "delivered" | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string>, right: string | SQLWrapper): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "status"; tableName: "orders"; dataType: "string"; columnType: "PgEnumColumn"; data: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string>'.
+      Type 'PgColumn<{ name: "status"; tableName: "orders"; dataType: "string"; columnType: "PgEnumColumn"; data: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "status"; tableName: "orders"; dataType: "string"; columnType: "PgEnumColumn"; data: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+343         query = query.where(eq(orders.status, filters.status));
+                                ~~
+
+
+server/routes/user-profile.ts:347:23 - error TS2339: Property 'where' does not exist on type 'Omit<PgSelectBase<"orders", { id: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>; ... 5 more ...; updatedAt: PgColu...'.
+
+347         query = query.where(gte(orders.createdAt, new Date(filters.from)));
+                          ~~~~~
+
+server/routes/user-profile.ts:351:23 - error TS2339: Property 'where' does not exist on type 'Omit<PgSelectBase<"orders", { id: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>; ... 5 more ...; updatedAt: PgColu...'.
+
+351         query = query.where(lte(orders.createdAt, new Date(filters.to)));
+                          ~~~~~
+
+server/routes/user-profile.ts:385:9 - error TS2322: Type '{ id: number; orderNumber: string; totalAmount: number; status: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; items: { id: number; name: string; quantity: number; price: number; specialRequests?: string; }[]; createdAt: string; updatedAt: string; deliveryAddress: { ...; } | undefined; }[]' is not assignable to type 'OrderHistory[]'.
+  Type '{ id: number; orderNumber: string; totalAmount: number; status: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; items: Array<{ id: number; name: string; quantity: number; price: number; specialRequests?: string; }>; createdAt: string; updatedAt: string; deliveryAddress: { ...; } | undefined; }' is not assignable to type 'OrderHistory' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'status' are incompatible.
+      Type '"pending" | "cancelled" | "preparing" | "ready" | "delivered"' is not assignable to type '"pending" | "completed" | "cancelled" | "processing"'.
+        Type '"preparing"' is not assignable to type '"pending" | "completed" | "cancelled" | "processing"'.
+
+385         orders: ordersWithAddresses.map(order => ({
+            ~~~~~~
+
+  server/routes/user-profile.ts:323:15
+    323   ): Promise<{orders: OrderHistory[], total: number}> {
+                      ~~~~~~
+    The expected type comes from property 'orders' which is declared here on type '{ orders: OrderHistory[]; total: number; }'

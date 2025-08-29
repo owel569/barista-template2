@@ -1,0 +1,141 @@
+server/routes/user-profile.ts:491:7 - error TS2375: Type '{ id: number; title: string; street: string; city: string; postalCode: string; country: string; isDefault: boolean; notes: string | undefined; }' is not assignable to type 'Address' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'notes' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+491       return {
+          ~~~~~~
+
+server/routes/user-profile.ts:522:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+522       return res.status(401).json({
+          ~~~~~~
+
+server/routes/user-profile.ts:531:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+531       return res.status(404).json({
+          ~~~~~~
+
+server/routes/user-profile.ts:553:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+553       return res.status(401).json({
+          ~~~~~~
+
+server/routes/user-profile.ts:571:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+571       return res.status(409).json({
+          ~~~~~~
+
+server/routes/user-profile.ts:584:9 - error TS2353: Object literal may only specify known properties, and 'avatarUrl' does not exist in type '{ password?: string | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined; email?: string | SQL<unknown> | PgColumn<...> | undefined; ... 10 more ...; updatedAt?: Date | ... 2 more ... | undefined; }'.
+
+584         avatarUrl: avatarUrl ?? null,
+            ~~~~~~~~~
+
+server/routes/user-profile.ts:591:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+591       return res.status(404).json({
+          ~~~~~~
+
+server/routes/user-profile.ts:606:32 - error TS2339: Property 'avatarUrl' does not exist on type '{ id: number; email: string; username: string; password: string; firstName: string | null; lastName: string | null; phone: string | null; role: string; isActive: boolean; permissions: string[] | null; lastLoginAt: Date | null; createdAt: Date; updatedAt: Date; }'.
+
+606         avatarUrl: updatedUser.avatarUrl ?? undefined
+                                   ~~~~~~~~~
+
+server/routes/user-profile.ts:618:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+618       return res.status(401).json({
+          ~~~~~~
+
+server/routes/user-profile.ts:639:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+639       return res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
+          ~~~~~~
+
+server/routes/user-profile.ts:642:5 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+642     return res.status(501).json({
+        ~~~~~~
+
+server/routes/user-profile.ts:658:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+658       return res.status(401).json({
+          ~~~~~~
+
+server/routes/user-profile.ts:672:9 - error TS2412: Type 'string | string[] | ParsedQs | ParsedQs[] | undefined' is not assignable to type 'string | undefined' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+
+672       { status, from, to }
+            ~~~~~~
+
+server/routes/user-profile.ts:672:17 - error TS2412: Type 'string | string[] | ParsedQs | ParsedQs[] | undefined' is not assignable to type 'string | undefined' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+
+672       { status, from, to }
+                    ~~~~
+
+server/routes/user-profile.ts:672:23 - error TS2412: Type 'string | string[] | ParsedQs | ParsedQs[] | undefined' is not assignable to type 'string | undefined' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+
+672       { status, from, to }
+                          ~~
+
+server/routes/user-profile.ts:696:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+696       return res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
+          ~~~~~~
+
+server/routes/user-profile.ts:709:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+709       return res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
+          ~~~~~~
+
+server/routes/user-profile.ts:711:5 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+711     return res.status(501).json({ success: false, message: 'Gestion d\'adresses non disponible' });
+        ~~~~~~
+
+server/routes/user-profile.ts:722:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+722       return res.status(400).json({ success: false, message: 'Requête invalide' });
+          ~~~~~~
+
+server/routes/user-profile.ts:724:5 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+724     return res.status(501).json({ success: false, message: 'Gestion d\'adresses non disponible' });
+        ~~~~~~
+
+server/routes/user-profile.ts:734:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+734       return res.status(400).json({ success: false, message: 'Requête invalide' });
+          ~~~~~~
+
+server/routes/user-profile.ts:736:5 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+736     return res.status(501).json({ success: false, message: 'Gestion d\'adresses non disponible' });
+        ~~~~~~
+
+server/routes/user-profile.ts:746:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+746       return res.status(401).json({
+          ~~~~~~
+
+server/routes/user-profile.ts:784:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+784       return res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
+          ~~~~~~
+
+server/routes/users/users.routes.ts:140:7 - error TS2740: Type 'Omit<PgSelectBase<"users", { id: PgColumn<{ name: "id"; tableName: "users"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>; ... 7 more ...; lastLoginAt: PgColu...' is missing the following properties from type 'PgSelectBase<"users", { id: PgColumn<{ name: "id"; tableName: "users"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>; ... 7 more ...; lastLoginAt: PgColumn<.....': config, joinsNotNullableMap, tableName, isPartialSelect, and 5 more.
+
+140       query = query.where(and(...conditions));
+          ~~~~~
+
+server/routes/users/users.routes.ts:151:5 - error TS2740: Type 'Omit<PgSelectBase<"users", { id: PgColumn<{ name: "id"; tableName: "users"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>; ... 7 more ...; lastLoginAt: PgColu...' is missing the following properties from type 'PgSelectBase<"users", { id: PgColumn<{ name: "id"; tableName: "users"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>; ... 7 more ...; lastLoginAt: PgColumn<.....': config, joinsNotNullableMap, tableName, isPartialSelect, and 5 more.
+
+151     query = sortOrder === 'desc' ?
+        ~~~~~
+
+server/routes/users/users.routes.ts:215:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+215       return res.status(404).json({
+          ~~~~~~
+
+server/routes/users/users.routes.ts:227:29 - error TS2339: Property 'userId' does not exist on type 'PgTableWithColumns<{ name: "customers"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "customers"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 10 more ...; updatedAt: PgColu...'.
+
+227         .where(eq(customers.userId, id));

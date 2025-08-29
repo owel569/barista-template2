@@ -1,0 +1,153 @@
+server/routes/users/users.routes.ts:531:14 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "id"; tableName: "users"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>, right: number | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'number | SQLWrapper'.
+      Type 'undefined' is not assignable to type 'number | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string | undefined>, right: string | SQLWrapper | undefined): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "id"; tableName: "users"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; hasRuntimeDefault: false; enumValues: undefined; baseColumn: never; identity: undefined; generated: undefined; }, {}, ...' is not assignable to parameter of type 'Aliased<string | undefined>'.
+      Type 'PgColumn<{ name: "id"; tableName: "users"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; hasRuntimeDefault: false; enumValues: undefined; baseColumn: never; identity: undefined; generated: undefined; }, {}, ...' is missing the following properties from type 'Aliased<string | undefined>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "id"; tableName: "users"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; hasRuntimeDefault: false; enumValues: undefined; baseColumn: never; identity: undefined; generated: undefined; }, {}, ...' is not assignable to parameter of type 'never'.
+
+531       .where(eq(users.id, id))
+                 ~~
+
+
+server/routes/users/users.routes.ts:539:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+539       return res.status(404).json({
+          ~~~~~~
+
+server/routes/users/users.routes.ts:582:34 - error TS2551: Property 'active' does not exist on type 'PgTableWithColumns<{ name: "users"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "users"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 11 more ...; updatedAt: PgColumn<...>;...'. Did you mean 'isActive'?
+
+582       .groupBy(users.role, users.active);
+                                     ~~~~~~
+
+server/routes/users/users.routes.ts:590:9 - error TS2532: Object is possibly 'undefined'.
+
+590         acc[stat.role].total += stat.count;
+            ~~~~~~~~~~~~~~
+
+server/routes/users/users.routes.ts:591:18 - error TS2551: Property 'active' does not exist on type '{ role: string; isActive: boolean; count: number; }'. Did you mean 'isActive'?
+
+591         if (stat.active) {
+                     ~~~~~~
+
+server/routes/users/users.routes.ts:592:11 - error TS2532: Object is possibly 'undefined'.
+
+592           acc[stat.role].active += stat.count;
+              ~~~~~~~~~~~~~~
+
+server/routes/users/users.routes.ts:594:11 - error TS2532: Object is possibly 'undefined'.
+
+594           acc[stat.role].inactive += stat.count;
+              ~~~~~~~~~~~~~~
+
+server/services/ai-automation.service.ts:247:42 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+247     const guests = guestMatch ? parseInt(guestMatch[1]) : null;
+                                             ~~~~~~~~~~~~~
+
+server/services/ai-automation.service.ts:274:18 - error TS18048: 'item' is possibly 'undefined'.
+
+274               `${item.charAt(0).toUpperCase() + item.slice(1)} - ${itemInfo?.price || 0}€\n` +
+                     ~~~~
+
+server/services/ai-automation.service.ts:274:49 - error TS18048: 'item' is possibly 'undefined'.
+
+274               `${item.charAt(0).toUpperCase() + item.slice(1)} - ${itemInfo?.price || 0}€\n` +
+                                                    ~~~~
+
+server/services/ai-automation.service.ts:466:7 - error TS2698: Spread types may only be created from object types.
+
+466       ...interaction,
+          ~~~~~~~~~~~~~~
+
+server/services/ai-automation.service.ts:525:33 - error TS2339: Property 'stockQuantity' does not exist on type 'PgTableWithColumns<{ name: "menu_items"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 13 more ...; updatedAt: PgCo...'.
+
+525         currentStock: menuItems.stockQuantity,
+                                    ~~~~~~~~~~~~~
+
+server/services/ai-automation.service.ts:527:80 - error TS2339: Property 'stockQuantity' does not exist on type 'PgTableWithColumns<{ name: "menu_items"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 13 more ...; updatedAt: PgCo...'.
+
+527         daysRemaining: sql`CASE WHEN AVG(orders.quantity) > 0 THEN ${menuItems.stockQuantity} / AVG(orders.quantity) ELSE 999 END`
+                                                                                   ~~~~~~~~~~~~~
+
+server/services/ai-automation.service.ts:529:37 - error TS2339: Property 'itemId' does not exist on type 'PgTableWithColumns<{ name: "orders"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 15 more ...; updatedAt: PgColumn<......'.
+
+529         .leftJoin(orders, eq(orders.itemId, menuItems.id))
+                                        ~~~~~~
+
+server/services/ai-automation.service.ts:530:58 - error TS2339: Property 'stockQuantity' does not exist on type 'PgTableWithColumns<{ name: "menu_items"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 13 more ...; updatedAt: PgCo...'.
+
+530         .groupBy(menuItems.id, menuItems.name, menuItems.stockQuantity)
+                                                             ~~~~~~~~~~~~~
+
+server/services/ai-automation.service.ts:535:16 - error TS2365: Operator '<' cannot be applied to types '{}' and 'number'.
+
+535         level: (item.daysRemaining || 999) < 2 ? 'low' : (item.daysRemaining || 999) < 5 ? 'medium' : 'optimal',
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/services/ai-automation.service.ts:535:58 - error TS2365: Operator '<' cannot be applied to types '{}' and 'number'.
+
+535         level: (item.daysRemaining || 999) < 2 ? 'low' : (item.daysRemaining || 999) < 5 ? 'medium' : 'optimal',
+                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/services/ai-automation.service.ts:598:41 - error TS2339: Property 'itemId' does not exist on type 'PgTableWithColumns<{ name: "orders"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 15 more ...; updatedAt: PgColumn<......'.
+
+598         .innerJoin(menuItems, eq(orders.itemId, menuItems.id))
+                                            ~~~~~~
+
+server/services/ai-automation.service.ts:812:5 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+812     return commonPhrases[Math.floor(Math.random() * commonPhrases.length)];
+        ~~~~~~
+
+server/services/ai-automation.service.ts:851:5 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+851     return insights[Math.floor(Math.random() * insights.length)];
+        ~~~~~~
+
+server/types/auth.ts:26:7 - error TS2717: Subsequent property declarations must have the same type.  Property 'user' must be of type 'AuthUser | undefined', but here has type 'AuthenticatedUser | undefined'.
+
+26       user?: AuthenticatedUser;
+         ~~~~
+
+  server/middleware/auth.ts:415:7
+    415       user?: AuthUser;
+              ~~~~
+    'user' was also declared here.
+
+server/types/auth.ts:89:14 - error TS2741: Property 'staff' is missing in type '{ customer: string[]; waiter: string[]; serveur: string[]; chef: string[]; cuisinier: string[]; employe: string[]; employee: string[]; manager: string[]; directeur: string[]; admin: string[]; }' but required in type 'Record<AppRole, string[]>'.
+
+89 export const ROLE_PERMISSIONS: Record<AppRole, string[]> = {
+                ~~~~~~~~~~~~~~~~
+
+server/types/auth.ts:171:14 - error TS2741: Property 'staff' is missing in type '{ customer: number; waiter: number; serveur: number; chef: number; cuisinier: number; employe: number; employee: number; manager: number; directeur: number; admin: number; }' but required in type 'Record<AppRole, number>'.
+
+171 export const ROLE_HIERARCHY: Record<AppRole, number> = {
+                 ~~~~~~~~~~~~~~
+
+server/types/auth.ts:187:7 - error TS2717: Subsequent property declarations must have the same type.  Property 'user' must be of type 'AuthUser | undefined', but here has type 'AuthenticatedUser | undefined'.
+
+187       user?: AuthenticatedUser;
+          ~~~~
+
+  server/middleware/auth.ts:415:7
+    415       user?: AuthUser;
+              ~~~~
+    'user' was also declared here.
+
+server/utils/security.ts:50:46 - error TS2345: Argument of type 'object' is not assignable to parameter of type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type '{}'.
+
+50         masked[key] = this.maskSensitiveData(value);
+                                                ~~~~~
+
+server/vite.ts:24:8 - error TS2304: Cannot find name 'viteConfig'.
+
+24     ...viteConfig,
+          ~~~~~~~~~~
+
