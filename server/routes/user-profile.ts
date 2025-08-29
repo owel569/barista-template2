@@ -651,7 +651,7 @@ userProfileRouter.get('/orders',
   authenticateUser,
   validateQuery(OrderHistoryQuerySchema),
   asyncHandler(async (req, res) => {
-    const { limit, offset, status, from, to } = req.query;
+    const { limit: rawLimit, offset: rawOffset, status, from, to } = req.query;
     const userId = req.user?.id;
 
     if (!userId) {
@@ -660,6 +660,10 @@ userProfileRouter.get('/orders',
         message: 'Utilisateur non authentifié' 
       });
     }
+
+    // Conversion des types
+    const limit = typeof rawLimit === 'string' ? parseInt(rawLimit, 10) : 20;
+    const offset = typeof rawOffset === 'string' ? parseInt(rawOffset, 10) : 0;
 
     const { orders, total } = await UserProfileService.getOrderHistory(
       userId, 

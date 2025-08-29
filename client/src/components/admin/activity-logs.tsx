@@ -96,6 +96,40 @@ export default function ActivityLogs(): JSX.Element {
     searchTerm: ''
   });
 
+  // Initial load of activity logs
+  const loadActivityLogs = useCallback(async (): Promise<void> => {
+    try {
+      setIsLoading(true);
+
+      // Simulation de données réelles
+      const mockLogs: ActivityLog[] = [
+        {
+          id: '1',
+          timestamp: new Date(),
+          userId: 'admin-123',
+          userName: 'Admin Système',
+          userRole: 'admin',
+          action: 'LOGIN',
+          category: 'auth',
+          description: 'Connexion administrateur réussie',
+          severity: 'success',
+          ipAddress: '192.168.1.100',
+          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          metadata: {},
+          affectedResource: '',
+          previousValue: '',
+          newValue: ''
+        }
+      ];
+
+      setLogs(mockLogs);
+    } catch (error) {
+      console.error('Erreur lors du chargement des logs:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   // Génération d'activité simulée
   const generateMockActivity = useCallback((): void => {
     const activities: Omit<ActivityLog, 'id' | 'timestamp'>[] = [
@@ -147,10 +181,24 @@ export default function ActivityLogs(): JSX.Element {
     ];
 
     const activity = activities[Math.floor(Math.random() * activities.length)];
+    if (!activity) return;
+    
     const newLog: ActivityLog = {
       id: Date.now().toString(),
       timestamp: new Date(),
-      ...activity
+      userId: activity.userId,
+      userName: activity.userName,
+      userRole: activity.userRole,
+      action: activity.action,
+      category: activity.category,
+      description: activity.description,
+      severity: activity.severity,
+      ipAddress: activity.ipAddress,
+      userAgent: activity.userAgent || '',
+      metadata: activity.metadata || {},
+      affectedResource: activity.affectedResource,
+      previousValue: activity.previousValue,
+      newValue: activity.newValue || ''
     };
 
     setLogs(prev => [newLog, ...prev].slice(0, 1000)); // Garder seulement les 1000 derniers logs
@@ -187,94 +235,6 @@ export default function ActivityLogs(): JSX.Element {
     setFilteredLogs(filtered.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()));
   }, [logs, filters]);
 
-  // Initial load of activity logs
-  const loadActivityLogs = useCallback(async (): Promise<void> => {
-    try {
-      setIsLoading(true);
-
-      // Simulation de données réelles
-      const mockLogs: ActivityLog[] = [
-        {
-          id: '1',
-          timestamp: new Date(),
-          userId: 'admin-123',
-          userName: 'Admin Système',
-          userRole: 'admin',
-          action: 'LOGIN',
-          category: 'auth',
-          description: 'Connexion administrateur réussie',
-          severity: 'success',
-          ipAddress: '192.168.1.100',
-          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          metadata: {},
-          affectedResource: '',
-          previousValue: '',
-          newValue: ''
-        },
-        {
-          id: '2',
-          timestamp: new Date(Date.now() - 300000),
-          userId: 'user-456',
-          userName: 'Marie Dubois',
-          userRole: 'manager',
-          action: 'UPDATE_MENU',
-          category: 'menu',
-          description: 'Modification du prix du café expresso',
-          severity: 'info',
-          ipAddress: '192.168.1.101',
-          affectedResource: 'menu_item_15',
-          previousValue: '2.50€',
-          newValue: '2.80€',
-          userAgent: '',
-          metadata: {}
-        },
-        {
-          id: '3',
-          timestamp: new Date(Date.now() - 600000),
-          userId: 'user-789',
-          userName: 'Jean Martin',
-          userRole: 'employee',
-          action: 'FAILED_LOGIN',
-          category: 'security',
-          description: 'Tentative de connexion échouée - mot de passe incorrect',
-          severity: 'warning',
-          ipAddress: '192.168.1.102',
-          userAgent: '',
-          metadata: {},
-          affectedResource: '',
-          previousValue: '',
-          newValue: ''
-        },
-        {
-          id: '4',
-          timestamp: new Date(Date.now() - 900000),
-          userId: 'system',
-          userName: 'Système',
-          userRole: 'system',
-          action: 'BACKUP_COMPLETED',
-          category: 'system',
-          description: 'Sauvegarde automatique de la base de données terminée',
-          severity: 'success',
-          ipAddress: '127.0.0.1',
-          userAgent: '',
-          metadata: {},
-          affectedResource: '',
-          previousValue: '',
-          newValue: ''
-        }
-      ];
-
-      setLogs(mockLogs);
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de charger les journaux d'activité",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [toast]);
 
 
 

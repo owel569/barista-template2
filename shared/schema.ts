@@ -23,6 +23,7 @@ export const users = pgTable('users', {
   password: varchar('password', { length: 255 }).notNull(),
   firstName: varchar('first_name', { length: 100 }),
   lastName: varchar('last_name', { length: 100 }),
+  phone: varchar('phone', { length: 20 }),
   role: varchar('role', { length: 50 }).default('customer').notNull(),
   isActive: boolean('is_active').default(true).notNull(),
   permissions: text('permissions').array(),

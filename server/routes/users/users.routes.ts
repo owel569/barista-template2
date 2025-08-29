@@ -24,7 +24,7 @@ const CreateUserSchema = z.object({
     .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Mot de passe doit contenir au moins une majuscule, une minuscule et un chiffre'),
   phone: z.string().optional(),
   role: z.enum(['admin', 'manager', 'staff', 'customer']),
-  active: z.boolean().default(true)
+  isActive: z.boolean().default(true)
 });
 
 const UpdateUserSchema = z.object({
@@ -33,7 +33,7 @@ const UpdateUserSchema = z.object({
   email: z.string().email().optional(),
   phone: z.string().optional(),
   role: z.enum(['admin', 'manager', 'staff', 'customer']).optional(),
-  active: z.boolean().optional()
+  isActive: z.boolean().optional()
 });
 
 const UpdatePasswordSchema = z.object({
@@ -53,13 +53,13 @@ async function logActivity(
   try {
     const db = getDb();
     await db.insert(activityLogs).values({
-      id: crypto.randomUUID(),
-      userId,
+      userId: parseInt(userId, 10),
       action,
+      entity: 'users',
+      entityId: targetUserId ? parseInt(targetUserId, 10) : undefined,
       details: targetUserId ? `${details} (Utilisateur: ${targetUserId})` : details,
       ipAddress: req.ip || req.connection.remoteAddress,
-      userAgent: req.get('User-Agent'),
-      createdAt: new Date()
+      userAgent: req.get('User-Agent')
     });
   } catch (error) {
     logger.error('Erreur enregistrement activité', { 
@@ -76,23 +76,29 @@ router.get('/',
   requireRoles(['admin', 'manager']),
   validateQuery(z.object({
     role: z.enum(['admin', 'manager', 'staff', 'customer']).optional(),
-    active: z.boolean().optional(),
+    isActive: z.boolean().optional(),
     search: z.string().optional(),
-    ...commonSchemas.paginationSchema.shape,
-    ...commonSchemas.sortSchema.shape
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+    sortBy: z.string().optional(),
+    sortOrder: z.enum(['asc', 'desc']).default('asc')
   })),
   cacheMiddleware({ ttl: 2 * 60 * 1000, tags: ['users', 'employees'] }),
   asyncHandler(async (req, res) => {
     const db = getDb();
     const { 
-      role, 
-      active, 
+      role: rawRole, 
+      isActive: rawIsActive, 
       search, 
-      page = 1, 
-      limit = 20, 
+      page = '1', 
+      limit = '20', 
       sortBy = 'createdAt', 
       sortOrder = 'desc' 
     } = req.query;
+
+    // Conversion des types
+    const role = typeof rawRole === 'string' ? rawRole : undefined;
+    const isActive = rawIsActive === 'true' ? true : rawIsActive === 'false' ? false : undefined;
 
     let query = db
       .select({
@@ -102,7 +108,7 @@ router.get('/',
         email: users.email,
         phone: users.phone,
         role: users.role,
-        active: users.active,
+        isActive: users.isActive,
         createdAt: users.createdAt,
         lastLoginAt: users.lastLoginAt
       })
@@ -115,8 +121,8 @@ router.get('/',
       conditions.push(eq(users.role, role));
     }
 
-    if (active !== undefined) {
-      conditions.push(eq(users.active, active));
+    if (isActive !== undefined) {
+      conditions.push(eq(users.isActive, isActive));
     }
 
     if (search) {
@@ -146,29 +152,33 @@ router.get('/',
       query.orderBy(orderColumn);
 
     // Pagination
-    const offset = (page - 1) * limit;
-    const usersData = await query.limit(limit).offset(offset);
+    const pageNum = parseInt(String(page));
+    const limitNum = parseInt(String(limit));
+    const offset = (pageNum - 1) * limitNum;
+    const usersData = await query.limit(limitNum).offset(offset);
 
     // Compte total
-    const [{ count }] = await db
+    const countResult = await db
       .select({ count: sql<number>`count(*)` })
       .from(users)
       .where(conditions.length > 0 ? and(...conditions) : undefined);
+    
+    const count = countResult[0]?.count || 0;
 
     logger.info('Utilisateurs récupérés', { 
       count: usersData.length, 
       total: count,
-      filters: { role, active, search }
+      filters: { role, isActive, search }
     });
 
     res.json({
       success: true,
       data: usersData,
       pagination: {
-        page,
-        limit,
+        page: pageNum,
+        limit: limitNum,
         total: count,
-        totalPages: Math.ceil(count / limit)
+        totalPages: Math.ceil(count / limitNum)
       }
     });
   })
@@ -192,7 +202,7 @@ router.get('/:id',
         email: users.email,
         phone: users.phone,
         role: users.role,
-        active: users.active,
+        isActive: users.isActive,
         createdAt: users.createdAt,
         updatedAt: users.updatedAt,
         lastLoginAt: users.lastLoginAt
@@ -290,7 +300,7 @@ router.post('/',
         email: users.email,
         phone: users.phone,
         role: users.role,
-        active: users.active,
+        isActive: users.isActive,
         createdAt: users.createdAt
       });
 
@@ -392,7 +402,7 @@ router.put('/:id',
         email: users.email,
         phone: users.phone,
         role: users.role,
-        active: users.active,
+        isActive: users.isActive,
         updatedAt: users.updatedAt
       });
 
@@ -564,7 +574,7 @@ router.get('/stats/overview',
     const stats = await db
       .select({
         role: users.role,
-        active: users.active,
+        isActive: users.isActive,
         count: sql<number>`count(*)`
       })
       .from(users)

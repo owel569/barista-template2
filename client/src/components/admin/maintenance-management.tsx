@@ -30,7 +30,7 @@ interface CalendarEvent {
   };
 }
 
-interface MaintenanceTask {
+export interface MaintenanceTask {
   id: number;
   title: string;
   description: string;
@@ -47,7 +47,7 @@ interface MaintenanceTask {
   notes?: string;
 }
 
-interface Equipment {
+export interface Equipment {
   id: number;
   name: string;
   type: string;
@@ -63,7 +63,7 @@ interface Equipment {
   vendor: string;
 }
 
-interface Technician {
+export interface Technician {
   id: number;
   name: string;
   email: string;

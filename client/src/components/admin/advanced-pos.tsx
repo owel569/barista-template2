@@ -50,7 +50,7 @@ interface Order {
 interface PaymentMethod {
   id: string;
   name: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<any>;
   enabled: boolean;
   processingFee?: number;
 }
@@ -159,8 +159,8 @@ export default function AdvancedPOS(): JSX.Element {
         tax: totals.tax,
         subtotal: totals.subtotal,
         paymentMethod,
-        customerName: customerName || undefined,
-        tableNumber: tableNumber || undefined,
+        ...(customerName && { customerName }),
+        ...(tableNumber && { tableNumber }),
         timestamp: new Date(),
         status: 'completed',
       };

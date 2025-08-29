@@ -146,7 +146,7 @@ async function startApplication() {
       
       // Try to kill existing process on the port
       const { exec } = require('child_process');
-      exec(`lsof -ti:${PORT} | xargs kill -9`, (error) => {
+      exec(`lsof -ti:${PORT} | xargs kill -9`, (error: Error | null) => {
         if (!error) {
           console.log('✅ Killed existing process, retrying...');
           setTimeout(() => {

@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Equipment } from './MaintenanceManagement';
+import { Equipment } from './maintenance-management';
 
 interface EquipmentFormProps {
   initialData?: Equipment | null;
@@ -35,7 +35,6 @@ export function EquipmentForm({ initialData, onSubmit, onCancel }: EquipmentForm
       lastMaintenance: new Date().toISOString(),
       nextMaintenance: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
       maintenanceFrequency: 30,
-      warrantyExpiry: undefined,
       purchaseDate: new Date().toISOString(),
       vendor: '',
     }
@@ -215,7 +214,7 @@ export function EquipmentForm({ initialData, onSubmit, onCancel }: EquipmentForm
               <Calendar
                 mode="single"
                 selected={purchaseDate}
-                onSelect={setPurchaseDate}
+                onSelect={(date) => date && setPurchaseDate(date)}
                 initialFocus
                 locale={fr}
               />
@@ -239,7 +238,7 @@ export function EquipmentForm({ initialData, onSubmit, onCancel }: EquipmentForm
               <Calendar
                 mode="single"
                 selected={warrantyDate}
-                onSelect={setWarrantyDate}
+                onSelect={(date) => date && setWarrantyDate(date)}
                 initialFocus
                 locale={fr}
               />
@@ -286,7 +285,7 @@ export function EquipmentForm({ initialData, onSubmit, onCancel }: EquipmentForm
               <Calendar
                 mode="single"
                 selected={lastMaintenanceDate}
-                onSelect={setLastMaintenanceDate}
+                onSelect={(date) => date && setLastMaintenanceDate(date)}
                 initialFocus
                 locale={fr}
               />
@@ -310,7 +309,7 @@ export function EquipmentForm({ initialData, onSubmit, onCancel }: EquipmentForm
               <Calendar
                 mode="single"
                 selected={nextMaintenanceDate}
-                onSelect={setNextMaintenanceDate}
+                onSelect={(date) => date && setNextMaintenanceDate(date)}
                 initialFocus
                 locale={fr}
               />

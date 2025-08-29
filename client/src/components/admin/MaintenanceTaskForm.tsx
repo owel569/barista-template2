@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { MaintenanceTask, Equipment, Technician } from './MaintenanceManagement';
+import { MaintenanceTask, Equipment, Technician } from './maintenance-management';
 
 interface MaintenanceTaskFormProps {
   equipmentList: Equipment[];
@@ -211,7 +211,7 @@ export function MaintenanceTaskForm({
               <Calendar
                 mode="single"
                 selected={date}
-                onSelect={setDate}
+                onSelect={(date) => date && setDate(date)}
                 initialFocus
                 locale={fr}
               />

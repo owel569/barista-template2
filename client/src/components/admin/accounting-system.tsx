@@ -269,7 +269,7 @@ export default function AccountingSystem(): JSX.Element {
         date: new Date(),
         status: 'completed',
         paymentMethod: transactionForm.paymentMethod,
-        reference: transactionForm.reference || undefined
+        ...(transactionForm.reference && { reference: transactionForm.reference })
       };
 
       setTransactions(prev => [newTransaction, ...prev]);
