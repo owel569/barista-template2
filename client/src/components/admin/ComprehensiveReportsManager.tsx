@@ -235,7 +235,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
     generateReportMutation.mutate(config);
   };
 
-  
+
 
   const renderPredefinedReports = () => (
     <div className="space-y-6">

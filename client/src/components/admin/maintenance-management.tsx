@@ -6,13 +6,16 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Wrench, Plus, Edit, Trash2, AlertTriangle, 
-  Coffee, Wifi, Printer, Calendar, BarChart2, Filter
+  Coffee, Wifi, Printer, Calendar, BarChart2, Filter,
+  Clock
 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { MaintenanceTaskForm } from './MaintenanceTaskForm';
 import { EquipmentForm } from './EquipmentForm';
 import { toast } from 'sonner';
+
+// Calendar functionality simplified without external dependencies
 
 // Configuration du calendrier - composant simplifié
 interface CalendarEvent {
@@ -105,7 +108,7 @@ export default function MaintenanceManagement() : JSX.Element {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      
+
       const [tasksRes, equipmentRes, statsRes, techniciansRes] = await Promise.all([
         fetch('/api/admin/maintenance/tasks', {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -128,7 +131,7 @@ export default function MaintenanceManagement() : JSX.Element {
           statsRes.json(),
           techniciansRes.json()
         ]);
-        
+
         setTasks(tasksData);
         setEquipment(equipmentData);
         setStats(statsData);
@@ -382,7 +385,7 @@ export default function MaintenanceManagement() : JSX.Element {
     const matchesPriority = selectedPriority === 'all' || task.priority === selectedPriority;
     const matchesEquipment = selectedEquipment === 'all' || task.equipmentId.toString() === selectedEquipment;
     const matchesTechnician = selectedTechnician === 'all' || task.assignedToId.toString() === selectedTechnician;
-    
+
     return matchesSearch && matchesStatus && matchesPriority && matchesEquipment && matchesTechnician;
   });
 
@@ -436,7 +439,7 @@ export default function MaintenanceManagement() : JSX.Element {
             />
             <Filter className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
           </div>
-          
+
           <div className="flex gap-2 w-full md:w-auto">
             <Select value={selectedStatus} onValueChange={setSelectedStatus}>
               <SelectTrigger className="w-full md:w-40">
@@ -685,7 +688,7 @@ export default function MaintenanceManagement() : JSX.Element {
                               'text-yellow-600 dark:text-yellow-400'
                             }`} />
                           </div>
-                          
+
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2">
                               <h3 className="font-semibold text-gray-900 dark:text-white">
@@ -698,11 +701,11 @@ export default function MaintenanceManagement() : JSX.Element {
                                 {getPriorityText(task.priority)}
                               </Badge>
                             </div>
-                            
+
                             <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                               {task.description}
                             </p>
-                            
+
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                               <div>
                                 <span className="text-gray-600 dark:text-gray-400">Équipement:</span>
@@ -725,7 +728,7 @@ export default function MaintenanceManagement() : JSX.Element {
                             </div>
                           </div>
                         </div>
-                        
+
                         <div className="flex items-center gap-2">
                           {task.status !== 'completed' && (
                             <Button 
@@ -1008,7 +1011,7 @@ export default function MaintenanceManagement() : JSX.Element {
                   {['pending', 'in_progress', 'completed', 'cancelled'].map(status => {
                     const statusTasks = tasks.filter(t => t.status === status);
                     const percentage = tasks.length > 0 ? (statusTasks.length / tasks.length) * 100 : 0;
-                    
+
                     return (
                       <div key={status} className="flex items-center justify-between">
                         <Badge className={getStatusColor(status)}>{getStatusText(status)}</Badge>

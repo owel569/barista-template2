@@ -42,7 +42,8 @@ import {
   Database,
   Trash2,
   Lock,
-  Unlock
+  Unlock,
+  Calendar
 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
@@ -186,6 +187,7 @@ export default function ActivityLogs(): JSX.Element {
     setFilteredLogs(filtered.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()));
   }, [logs, filters]);
 
+  // Initial load of activity logs
   const loadActivityLogs = useCallback(async (): Promise<void> => {
     try {
       setIsLoading(true);
@@ -274,7 +276,7 @@ export default function ActivityLogs(): JSX.Element {
     }
   }, [toast]);
 
-  
+
 
   const exportLogs = useCallback((): void => {
     try {
@@ -625,9 +627,9 @@ export default function ActivityLogs(): JSX.Element {
       <Dialog open={!!selectedLog} onOpenChange={() => setSelectedLog(null)}>
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Détails de l'Activité</DialogTitle>
+            <DialogTitle>Détails de l\'Activité</DialogTitle>
             <DialogDescription>
-              Informations complètes sur l'événement sélectionné
+              Informations complètes sur l\'événement sélectionné
             </DialogDescription>
           </DialogHeader>
           {selectedLog && (

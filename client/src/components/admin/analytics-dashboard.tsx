@@ -71,7 +71,7 @@ export default function AnalyticsDashboard() {
 
     switch (format) {
       case 'json':
-        exportToJSON(exportData as Record<string, unknown>, filename);
+        exportToJSON(exportData, filename);
         break;
       case 'csv':
         // Export plus complet pour CSV
