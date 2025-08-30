@@ -247,7 +247,7 @@ export const usePermissions = () => {
     if (!modulePermission) return 'none';
 
     if (modulePermission.actions.includes('manage')) return 'manage';
-    if (modulePermission.actions.includes('create') || modulePermission.actions.includes('update')) return 'write';
+    if (modulePermission.actions.includes('create') || module.includes('update')) return 'write';
     if (modulePermission.actions.includes('read') || modulePermission.actions.includes('view')) return 'read';
 
     return 'none';

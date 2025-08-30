@@ -858,9 +858,9 @@ export default function LoyaltySystem() : JSX.Element {
                   <div className="space-y-3">
                     {loyaltyLevels.slice(0, -1).map((level, index) => (
                       <div key={level.name} className="flex items-center justify-between">
-                        <span>{level.name} → {loyaltyLevels[index + 1].name}</span>
+                        <span>{level.name} → {loyaltyLevels[index + 1]?.name || 'Niveau supérieur'}</span>
                         <Badge variant="outline">
-                          {loyaltyLevels[index + 1].threshold}€
+                          {loyaltyLevels[index + 1]?.threshold || 0}€
                         </Badge>
                       </div>
                     ))}

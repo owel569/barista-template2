@@ -21,7 +21,7 @@ interface MaintenanceTaskFormProps {
   equipmentList: Equipment[];
   technicians: Technician[];
   initialData?: MaintenanceTask | null;
-  onSubmit: (data: Omit<MaintenanceTask, 'id'> | Partial<MaintenanceTask>) => void;
+  onSubmit: (data: Omit<MaintenanceTask, 'id'>) => void;
   onCancel: () => void;
 }
 

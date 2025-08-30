@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-// import { Switch } from '../ui/switch';
+import { Switch } from '../ui/switch';
 import { LoadingButton } from '../ui/loading-button';
 import { ConfirmationDialog } from '../ui/confirmation-dialog';
 import { 
@@ -107,7 +107,7 @@ interface User {
   role: UserRole;
   isActive: boolean;
   lastLogin?: string;
-  permissions?: Record<string, boolean>;
+  permissions?: Record<string, { view?: boolean; edit?: boolean; admin?: boolean }>;
 }
 
 export function PermissionsManagementImproved(): JSX.Element {
@@ -203,7 +203,7 @@ export function PermissionsManagementImproved(): JSX.Element {
         (user.email?.toLowerCase().includes(searchTerm.toLowerCase()));
 
       const matchesRole = roleFilter === 'all' || user.role === roleFilter;
-      
+
       const matchesStatus = statusFilter === 'all' || 
         (statusFilter === 'active' && user.isActive) ||
         (statusFilter === 'inactive' && !user.isActive);
@@ -217,7 +217,7 @@ export function PermissionsManagementImproved(): JSX.Element {
   // Gestion des changements de formulaire
   const handleFormChange = useCallback((field: keyof UserFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    
+
     // Effacer l'erreur du champ modifié
     if (formErrors[field]) {
       setFormErrors(prev => ({ ...prev, [field]: undefined }));
@@ -227,7 +227,7 @@ export function PermissionsManagementImproved(): JSX.Element {
   // Créer un utilisateur
   const handleCreateUser = useCallback(async () => {
     const errors = validateForm(formData);
-    
+
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
       return;
@@ -239,7 +239,7 @@ export function PermissionsManagementImproved(): JSX.Element {
         title: "Utilisateur créé",
         description: `L'utilisateur ${formData.username} a été créé avec succès.`,
       });
-      
+
       // Reset form
       setFormData({
         username: '',
@@ -311,7 +311,7 @@ export function PermissionsManagementImproved(): JSX.Element {
         module,
         [permission]: value
       });
-      
+
       toast({
         title: "Permission mise à jour",
         description: `Permission ${permission} pour le module ${MODULE_LABELS[module]} mise à jour.`,
@@ -370,7 +370,7 @@ export function PermissionsManagementImproved(): JSX.Element {
             Gérez les utilisateurs et leurs permissions d'accès aux modules
           </p>
         </div>
-        
+
         {canPerform('create') && (
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
@@ -412,7 +412,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                     )}
                   </div>
                 </div>
-                
+
                 <div>
                   <Label htmlFor="username">Nom d'utilisateur *</Label>
                   <Input
@@ -426,7 +426,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                     <p className="text-red-500 text-sm mt-1">{formErrors.username}</p>
                   )}
                 </div>
-                
+
                 <div>
                   <Label htmlFor="password">Mot de passe *</Label>
                   <Input
@@ -441,7 +441,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                     <p className="text-red-500 text-sm mt-1">{formErrors.password}</p>
                   )}
                 </div>
-                
+
                 <div>
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -456,7 +456,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                     <p className="text-red-500 text-sm mt-1">{formErrors.email}</p>
                   )}
                 </div>
-                
+
                 <div>
                   <Label htmlFor="phone">Téléphone</Label>
                   <Input
@@ -470,7 +470,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                     <p className="text-red-500 text-sm mt-1">{formErrors.phone}</p>
                   )}
                 </div>
-                
+
                 <div>
                   <Label htmlFor="role">Rôle</Label>
                   <Select 
@@ -486,7 +486,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="flex justify-end space-x-2 pt-4">
                   <Button 
                     variant="outline" 
@@ -530,7 +530,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                 />
               </div>
             </div>
-            
+
             <Select value={roleFilter} onValueChange={(value) => setRoleFilter(value as UserRole | 'all')}>
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Filtrer par rôle" />
@@ -541,7 +541,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                 <SelectItem value={UserRole.EMPLOYE}>Employé</SelectItem>
               </SelectContent>
             </Select>
-            
+
             <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as 'all' | 'active' | 'inactive')}>
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Filtrer par statut" />
@@ -552,7 +552,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                 <SelectItem value="inactive">Inactif</SelectItem>
               </SelectContent>
             </Select>
-            
+
             <div className="flex items-center space-x-2">
               <Switch
                 id="show-inactive"
@@ -680,7 +680,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                                       <Label htmlFor={`${module}-view`}>Voir</Label>
                                       <Switch
                                         id={`${module}-view`}
-                                        checked={user.permissions?.[module]?.view ?? false}
+                                        checked={user.permissions?.[module as ModuleName]?.view ?? false}
                                         onCheckedChange={(checked) => 
                                           handleUpdatePermission(user.id, module as ModuleName, 'view', checked)
                                         }
@@ -691,7 +691,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                                       <Label htmlFor={`${module}-edit`}>Modifier</Label>
                                       <Switch
                                         id={`${module}-edit`}
-                                        checked={user.permissions?.[module]?.edit ?? false}
+                                        checked={user.permissions?.[module as ModuleName]?.edit ?? false}
                                         onCheckedChange={(checked) => 
                                           handleUpdatePermission(user.id, module as ModuleName, 'edit', checked)
                                         }
@@ -703,7 +703,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                                         <Label htmlFor={`${module}-admin`}>Admin</Label>
                                         <Switch
                                           id={`${module}-admin`}
-                                          checked={user.permissions?.[module]?.admin ?? false}
+                                          checked={user.permissions?.[module as ModuleName]?.admin ?? false}
                                           onCheckedChange={(checked) => 
                                             handleUpdatePermission(user.id, module as ModuleName, 'admin', checked)
                                           }
@@ -724,7 +724,7 @@ export function PermissionsManagementImproved(): JSX.Element {
               </TableBody>
             </Table>
           </div>
-          
+
           {filteredUsers.length === 0 && (
             <div className="text-center py-8">
               <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />

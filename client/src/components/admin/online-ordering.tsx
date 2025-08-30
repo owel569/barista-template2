@@ -64,7 +64,7 @@ import { OrderCard } from '@/components/order-card';
 import { ExportDialog } from '@/components/export-dialog';
 import { AnalyticsDashboard } from '@/components/analytics-dashboard';
 
-// ... (le reste du code reste identique mais avec les icônes utilisées)
+// Define interfaces and types
 interface OnlineOrder {
   id: number;
   orderNumber: string;
@@ -131,7 +131,8 @@ interface Notification {
   createdAt: string;
 }
 
-const statusColors = {
+// Constants for styling and labels
+const statusColors: Record<OnlineOrder['status'], string> = {
   pending: 'bg-yellow-100 text-yellow-800',
   confirmed: 'bg-blue-100 text-blue-800',
   preparing: 'bg-purple-100 text-purple-800',
@@ -140,7 +141,7 @@ const statusColors = {
   cancelled: 'bg-red-100 text-red-800',
 };
 
-const statusLabels = {
+const statusLabels: Record<OnlineOrder['status'], string> = {
   pending: 'En attente',
   confirmed: 'Confirmée',
   preparing: 'En préparation',
@@ -149,12 +150,13 @@ const statusLabels = {
   cancelled: 'Annulée',
 };
 
-const platformIcons = {
+const platformIcons: Record<OnlineOrder['platform'], React.ElementType> = {
   website: Monitor,
   mobile_app: Smartphone,
   phone: Tablet,
 };
 
+// Main component
 export default function OnlineOrdering(): JSX.Element {
   const [selectedOrder, setSelectedOrder] = useState<OnlineOrder | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -168,26 +170,41 @@ export default function OnlineOrdering(): JSX.Element {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  useWebSocket('orders', (data) => {
-    if (data.type === 'new_order') {
-      setNotifications(prev => [...prev, {
-        id: Date.now(),
-        type: 'new_order',
-        message: `Nouvelle commande #${data.order.orderNumber}`,
-        orderId: data.order.id,
-        read: false,
-        createdAt: new Date().toISOString()
-      }]);
+  // WebSocket hook for real-time updates
+  useWebSocket('orders', {
+    onMessage: (data: any) => {
+      if (data.type === 'new_order') {
+        setNotifications(prev => [...prev, {
+          id: Date.now(),
+          type: 'new_order',
+          message: `Nouvelle commande #${data.order.orderNumber}`,
+          orderId: data.order.id,
+          read: false,
+          createdAt: new Date().toISOString()
+        }]);
 
-      toast({
-        title: "Nouvelle commande!",
-        description: `Commande #${data.order.orderNumber} reçue`,
-      });
+        toast({
+          title: "Nouvelle commande!",
+          description: `Commande #${data.order.orderNumber} reçue`,
+        });
 
-      queryClient.invalidateQueries({ queryKey: ['onlineOrders'] });
+        queryClient.invalidateQueries({ queryKey: ['onlineOrders'] });
+      } else if (data.type === 'ORDER_UPDATE') {
+        // Handle order status updates
+        queryClient.setQueryData<OnlineOrder[]>(['onlineOrders'], (oldOrders) => 
+          oldOrders
+            ? oldOrders.map(order => 
+                order.id === data.orderId 
+                  ? { ...order, status: data.status }
+                  : order
+              )
+            : []
+        );
+      }
     }
   });
 
+  // Queries for fetching data
   const { data: orders = [], isLoading, isError } = useQuery<OnlineOrder[]>({
     queryKey: ['onlineOrders'],
     queryFn: () => apiRequest('/api/admin/online-orders'),
@@ -214,6 +231,7 @@ export default function OnlineOrdering(): JSX.Element {
     queryFn: () => apiRequest('/api/admin/notifications'),
   });
 
+  // Effects for state management
   useEffect(() => {
     if (settings) {
       setSettingsForm(settings);
@@ -224,7 +242,7 @@ export default function OnlineOrdering(): JSX.Element {
     setNotifications(storedNotifications);
   }, [storedNotifications]);
 
-  // Raccourcis clavier
+  // Keyboard shortcuts for status updates
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (e.ctrlKey && selectedOrder) {
@@ -241,7 +259,6 @@ export default function OnlineOrdering(): JSX.Element {
           case '4': 
             updateOrderStatus(selectedOrder.id, 'completed');
             break;
-          case 'Esc':
           case 'Escape':
             setSelectedOrder(null);
             break;
@@ -253,6 +270,7 @@ export default function OnlineOrdering(): JSX.Element {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [selectedOrder]);
 
+  // Mutations for data manipulation
   const updateOrderMutation = useMutation({
     mutationFn: ({ id, ...data }: { id: number; [key: string]: unknown }) => 
       apiRequest(`/api/admin/online-orders/${id}`, { 
@@ -367,7 +385,8 @@ export default function OnlineOrdering(): JSX.Element {
     },
   });
 
-  const updateOrderStatus = (id: number, status: string) => {
+  // Handlers for UI interactions
+  const updateOrderStatus = (id: number, status: OnlineOrder['status']) => {
     updateOrderMutation.mutate({ id, status });
   };
 
@@ -378,6 +397,7 @@ export default function OnlineOrdering(): JSX.Element {
     }));
   };
 
+  // Memoized filtered orders based on current filters
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
       const statusMatch = statusFilter === 'all' || order.status === statusFilter;
@@ -396,11 +416,13 @@ export default function OnlineOrdering(): JSX.Element {
     [notifications]
   );
 
+  // Helper function to get platform icon
   const getPlatformIcon = (platform: string) => {
     const IconComponent = platformIcons[platform as keyof typeof platformIcons] || Monitor;
     return <IconComponent className="h-4 w-4" />;
   };
 
+  // Loading state UI
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -462,6 +484,7 @@ export default function OnlineOrdering(): JSX.Element {
     );
   }
 
+  // Error state UI
   if (isError) {
     return (
       <div className="p-4 text-center text-red-500">
@@ -470,9 +493,10 @@ export default function OnlineOrdering(): JSX.Element {
     );
   }
 
+  // Main component rendering
   return (
     <div className="space-y-6">
-      {/* Header avec actions */}
+      {/* Header with actions */}
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Commandes en Ligne</h2>
         <div className="flex items-center space-x-2">
@@ -553,7 +577,7 @@ export default function OnlineOrdering(): JSX.Element {
                       </p>
                     </div>
                     <Switch 
-                      checked={settingsForm.onlineOrderingEnabled || false} 
+                      checked={settingsForm.onlineOrderingEnabled ?? false} 
                       onCheckedChange={(val) => handleSettingsChange('onlineOrderingEnabled', val)}
                     />
                   </div>
@@ -565,7 +589,7 @@ export default function OnlineOrdering(): JSX.Element {
                       </p>
                     </div>
                     <Switch 
-                      checked={settingsForm.deliveryEnabled || false} 
+                      checked={settingsForm.deliveryEnabled ?? false} 
                       onCheckedChange={(val) => handleSettingsChange('deliveryEnabled', val)}
                     />
                   </div>
@@ -577,7 +601,7 @@ export default function OnlineOrdering(): JSX.Element {
                       </p>
                     </div>
                     <Switch 
-                      checked={settingsForm.pickupEnabled || false} 
+                      checked={settingsForm.pickupEnabled ?? false} 
                       onCheckedChange={(val) => handleSettingsChange('pickupEnabled', val)}
                     />
                   </div>
@@ -589,7 +613,7 @@ export default function OnlineOrdering(): JSX.Element {
                       </p>
                     </div>
                     <Switch 
-                      checked={settingsForm.onlinePaymentEnabled || false} 
+                      checked={settingsForm.onlinePaymentEnabled ?? false} 
                       onCheckedChange={(val) => handleSettingsChange('onlinePaymentEnabled', val)}
                     />
                   </div>
@@ -600,7 +624,7 @@ export default function OnlineOrdering(): JSX.Element {
                     <Label>Temps de préparation min.</Label>
                     <Input 
                       type="number" 
-                      value={settingsForm.minPrepTime || 15} 
+                      value={settingsForm.minPrepTime ?? 15} 
                       onChange={(e) => handleSettingsChange('minPrepTime', parseInt(e.target.value))}
                       placeholder="15" 
                     />
@@ -609,7 +633,7 @@ export default function OnlineOrdering(): JSX.Element {
                     <Label>Temps de livraison min.</Label>
                     <Input 
                       type="number" 
-                      value={settingsForm.minDeliveryTime || 30} 
+                      value={settingsForm.minDeliveryTime ?? 30} 
                       onChange={(e) => handleSettingsChange('minDeliveryTime', parseInt(e.target.value))}
                       placeholder="30" 
                   />
@@ -621,7 +645,7 @@ export default function OnlineOrdering(): JSX.Element {
                   <Input 
                     type="number" 
                     step="0.01" 
-                    value={settingsForm.deliveryFee || 0} 
+                    value={settingsForm.deliveryFee ?? 0} 
                     onChange={(e) => handleSettingsChange('deliveryFee', parseFloat(e.target.value))}
                     placeholder="5.00" 
                   />
@@ -632,7 +656,7 @@ export default function OnlineOrdering(): JSX.Element {
                   <Input 
                     type="number" 
                     step="0.01" 
-                    value={settingsForm.minDeliveryAmount || 0} 
+                    value={settingsForm.minDeliveryAmount ?? 0} 
                     onChange={(e) => handleSettingsChange('minDeliveryAmount', parseFloat(e.target.value))}
                     placeholder="25.00" 
                   />

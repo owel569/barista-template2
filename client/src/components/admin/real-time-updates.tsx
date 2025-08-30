@@ -6,9 +6,13 @@ import { MetricCard } from '@/components/admin/analytics/MetricCard';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { 
   Activity, Users, ShoppingCart, DollarSign, TrendingUp, 
-  AlertTriangle, CheckCircle, Clock, Wifi, WifiOff, Signal
+  AlertTriangle, CheckCircle, Clock, Wifi, WifiOff, Signal,
+  Bell, RefreshCw, Calendar, Eye, Zap, CreditCard, Settings
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Switch } from '@/components/ui/switch';
 
 interface RealTimeEvent {
   id: string;
@@ -204,7 +208,7 @@ export default function RealTimeUpdates() {
   }, [soundEnabled]);
 
   const generateMockEvent = useCallback(() => {
-    const eventTypes = ['order', 'reservation', 'payment', 'customer', 'system'];
+    const eventTypes = ['order', 'reservation', 'payment', 'customer', 'system', 'alert'];
     const priorities = ['low', 'medium', 'high', 'critical'];
     const type = eventTypes[Math.floor(Math.random() * eventTypes.length)] as any;
     const priority = priorities[Math.floor(Math.random() * priorities.length)] as any;

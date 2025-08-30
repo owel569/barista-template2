@@ -184,3 +184,113 @@ export interface StringIndexedObject {
 export interface NumberIndexedObject {
   [key: string]: number;
 }
+
+// Types pour l'administration
+export interface AdminUser {
+  id: string;
+  email: string;
+  role: 'admin' | 'manager' | 'staff';
+  permissions: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Types pour les messages de contact
+export interface ContactMessage {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string;
+  subject: string;
+  message: string;
+  status: 'unread' | 'read' | 'replied' | 'archived';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  assignedTo?: string;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+  repliedAt?: string;
+  notes?: string;
+}
+
+// Types pour les équipements
+export interface Equipment {
+  id: number;
+  name: string;
+  type: string;
+  model: string;
+  serialNumber: string;
+  purchaseDate: string;
+  warrantyExpiry: string;
+  status: 'operational' | 'maintenance' | 'repair' | 'retired';
+  location: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Types pour les tâches de maintenance
+export interface MaintenanceTask {
+  id: number;
+  title: string;
+  description: string;
+  equipmentId: number;
+  assignedTo: string;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  scheduledDate: string;
+  completedDate?: string;
+  estimatedDuration: number;
+  actualDuration?: number;
+  cost?: number;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Types pour le contrôle qualité
+export interface QualityCheck {
+  id: number;
+  date: string;
+  category: string;
+  item: string;
+  inspector: string;
+  score: number;
+  maxScore: number;
+  status: 'excellent' | 'good' | 'average' | 'poor';
+  notes?: string;
+  photos?: string[];
+  correctionActions: string[];
+  completed: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Types pour les commandes en ligne
+export interface OnlineOrder {
+  id: number;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  items: OrderItem[];
+  totalAmount: number;
+  status: 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered' | 'cancelled';
+  paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
+  paymentMethod: 'card' | 'cash' | 'transfer';
+  orderType: 'delivery' | 'pickup';
+  deliveryAddress?: string;
+  scheduledTime?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OrderItem {
+  id: number;
+  menuItemId: number;
+  name: string;
+  price: number;
+  quantity: number;
+  customizations?: string[];
+  notes?: string;
+}

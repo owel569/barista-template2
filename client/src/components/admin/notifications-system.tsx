@@ -122,8 +122,8 @@ export default function NotificationsSystem(): JSX.Element {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('notifications');
-  const [filterType, setFilterType] = useState<string>('all');
-  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [filterType, setFilterType] = useState<string | undefined>(undefined);
+  const [filterStatus, setFilterStatus] = useState<string | undefined>(undefined);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedNotifications, setSelectedNotifications] = useState<string[]>([]);
   const [isCreating, setIsCreating] = useState(false);
@@ -292,8 +292,8 @@ export default function NotificationsSystem(): JSX.Element {
         notification.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         notification.message.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesType = filterType === 'all' || notification.type === filterType;
-      const matchesStatus = filterStatus === 'all' || notification.status === filterStatus;
+      const matchesType = filterType === 'all' || !filterType || notification.type === filterType;
+      const matchesStatus = filterStatus === 'all' || !filterStatus || notification.status === filterStatus;
 
       return matchesSearch && matchesType && matchesStatus;
     });
@@ -429,6 +429,42 @@ export default function NotificationsSystem(): JSX.Element {
       default: return 'bg-gray-500';
     }
   };
+
+  // Helper to update settings safely
+  const updateSetting = useCallback((key: keyof NotificationSettings, value: any) => {
+    if (settings) {
+      updateSettingsMutation.mutate({ ...settings, [key]: value });
+    }
+  }, [settings, updateSettingsMutation]);
+
+  // Specific update handlers for nested settings
+  const updateCategory = useCallback((category: string, checked: boolean) => {
+    if (settings) {
+      updateSettingsMutation.mutate({
+        ...settings,
+        categories: { ...settings.categories, [category]: checked }
+      });
+    }
+  }, [settings, updateSettingsMutation]);
+
+  const updatePriority = useCallback((priority: string, checked: boolean) => {
+    if (settings) {
+      updateSettingsMutation.mutate({
+        ...settings,
+        priorities: { ...settings.priorities, [priority]: checked }
+      });
+    }
+  }, [settings, updateSettingsMutation]);
+
+  const updateQuietHours = useCallback((field: 'start' | 'end', value: string) => {
+    if (settings) {
+      updateSettingsMutation.mutate({
+        ...settings,
+        quietHours: { ...settings.quietHours, [field]: value }
+      });
+    }
+  }, [settings, updateSettingsMutation]);
+
 
   if (isLoading) {
     return (
@@ -581,7 +617,7 @@ export default function NotificationsSystem(): JSX.Element {
               </div>
             </div>
 
-            <Select value={filterType} onValueChange={setFilterType}>
+            <Select value={filterType || ''} onValueChange={(value) => setFilterType(value === 'all' ? undefined : value as any)}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Type" />
               </SelectTrigger>
@@ -595,7 +631,7 @@ export default function NotificationsSystem(): JSX.Element {
               </SelectContent>
             </Select>
 
-            <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <Select value={filterStatus || ''} onValueChange={(value) => setFilterStatus(value === 'all' ? undefined : value as any)}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Statut" />
               </SelectTrigger>
@@ -773,7 +809,7 @@ export default function NotificationsSystem(): JSX.Element {
                   <Label htmlFor="type">Type</Label>
                   <Select
                     value={newNotification.type}
-                    onValueChange={(value) => setNewNotification(prev => ({ ...prev, type: value as any }))}
+                    onValueChange={(value) => setNewNotification(prev => ({ ...prev, type: value as Notification['type'] }))}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -792,7 +828,7 @@ export default function NotificationsSystem(): JSX.Element {
                   <Label htmlFor="priority">Priorité</Label>
                   <Select
                     value={newNotification.priority}
-                    onValueChange={(value) => setNewNotification(prev => ({ ...prev, priority: value as any }))}
+                    onValueChange={(value) => setNewNotification(prev => ({ ...prev, priority: value as Notification['priority'] }))}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -810,7 +846,7 @@ export default function NotificationsSystem(): JSX.Element {
                   <Label htmlFor="category">Catégorie</Label>
                   <Select
                     value={newNotification.category}
-                    onValueChange={(value) => setNewNotification(prev => ({ ...prev, category: value as any }))}
+                    onValueChange={(value) => setNewNotification(prev => ({ ...prev, category: value as Notification['category'] }))}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -935,12 +971,8 @@ export default function NotificationsSystem(): JSX.Element {
                       <p className="text-sm text-gray-500">Recevoir toutes les notifications</p>
                     </div>
                     <Switch
-                      checked={settings?.enabled}
-                      onCheckedChange={(checked) => {
-                        if (settings) {
-                          updateSettingsMutation.mutate({ ...settings, enabled: checked });
-                        }
-                      }}
+                      checked={Boolean(settings?.enabled)}
+                      onCheckedChange={(checked) => updateSetting('enabled', checked)}
                     />
                   </div>
 
@@ -950,12 +982,8 @@ export default function NotificationsSystem(): JSX.Element {
                       <p className="text-sm text-gray-500">Jouer un son pour les nouvelles notifications</p>
                     </div>
                     <Switch
-                      checked={settings?.sound}
-                      onCheckedChange={(checked) => {
-                        if (settings) {
-                          updateSettingsMutation.mutate({ ...settings, sound: checked });
-                        }
-                      }}
+                      checked={Boolean(settings?.sound)}
+                      onCheckedChange={(checked) => updateSetting('sound', checked)}
                     />
                   </div>
 
@@ -965,12 +993,30 @@ export default function NotificationsSystem(): JSX.Element {
                       <p className="text-sm text-gray-500">Afficher les notifications du navigateur</p>
                     </div>
                     <Switch
-                      checked={settings?.desktop}
-                      onCheckedChange={(checked) => {
-                        if (settings) {
-                          updateSettingsMutation.mutate({ ...settings, desktop: checked });
-                        }
-                      }}
+                      checked={Boolean(settings?.desktop)}
+                      onCheckedChange={(checked) => updateSetting('desktop', checked)}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>Notifications par email</Label>
+                      <p className="text-sm text-gray-500">Recevoir des notifications par email</p>
+                    </div>
+                    <Switch
+                      checked={Boolean(settings?.email)}
+                      onCheckedChange={(checked) => updateSetting('email', checked)}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>Notifications par SMS</Label>
+                      <p className="text-sm text-gray-500">Recevoir des notifications par SMS</p>
+                    </div>
+                    <Switch
+                      checked={Boolean(settings?.sms)}
+                      onCheckedChange={(checked) => updateSetting('sms', checked)}
                     />
                   </div>
                 </div>
@@ -983,15 +1029,8 @@ export default function NotificationsSystem(): JSX.Element {
                       <div key={category} className="flex items-center justify-between">
                         <Label className="capitalize">{category}</Label>
                         <Switch
-                          checked={enabled as boolean}
-                          onCheckedChange={(checked) => {
-                            if (settings) {
-                              updateSettingsMutation.mutate({
-                                ...settings,
-                                categories: { ...settings.categories, [category]: checked }
-                              });
-                            }
-                          }}
+                          checked={Boolean(enabled)}
+                          onCheckedChange={(checked) => updateCategory(category, checked)}
                         />
                       </div>
                     ))}
@@ -1006,15 +1045,8 @@ export default function NotificationsSystem(): JSX.Element {
                       <div key={priority} className="flex items-center justify-between">
                         <Label className="capitalize">{priority}</Label>
                         <Switch
-                          checked={enabled as boolean}
-                          onCheckedChange={(checked) => {
-                            if (settings) {
-                              updateSettingsMutation.mutate({
-                                ...settings,
-                                priorities: { ...settings.priorities, [priority]: checked }
-                              });
-                            }
-                          }}
+                          checked={Boolean(enabled)}
+                          onCheckedChange={(checked) => updatePriority(priority, checked)}
                         />
                       </div>
                     ))}
@@ -1028,15 +1060,11 @@ export default function NotificationsSystem(): JSX.Element {
                   <div className="flex items-center justify-between">
                     <Label>Activer les heures silencieuses</Label>
                     <Switch
-                      checked={settings?.quietHours?.enabled}
-                      onCheckedChange={(checked) => {
-                        if (settings) {
-                          updateSettingsMutation.mutate({
-                            ...settings,
-                            quietHours: { ...settings.quietHours, enabled: checked }
-                          });
-                        }
-                      }}
+                      checked={Boolean(settings?.quietHours?.enabled)}
+                      onCheckedChange={(checked) => updateSettingsMutation.mutate({
+                        ...settings!,
+                        quietHours: { ...settings!.quietHours, enabled: checked }
+                      })}
                     />
                   </div>
 
@@ -1047,12 +1075,7 @@ export default function NotificationsSystem(): JSX.Element {
                         <Input
                           type="time"
                           value={settings.quietHours.start}
-                          onChange={(e) => {
-                            updateSettingsMutation.mutate({
-                              ...settings,
-                              quietHours: { ...settings.quietHours, start: e.target.value }
-                            });
-                          }}
+                          onChange={(e) => updateQuietHours('start', e.target.value)}
                         />
                       </div>
                       <div className="space-y-2">
@@ -1060,12 +1083,7 @@ export default function NotificationsSystem(): JSX.Element {
                         <Input
                           type="time"
                           value={settings.quietHours.end}
-                          onChange={(e) => {
-                            updateSettingsMutation.mutate({
-                              ...settings,
-                              quietHours: { ...settings.quietHours, end: e.target.value }
-                            });
-                          }}
+                          onChange={(e) => updateQuietHours('end', e.target.value)}
                         />
                       </div>
                     </div>
