@@ -1,0 +1,102 @@
+683                                         checked={user.permissions?.[module]?.view ?? false}
+                                                                        ~~~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:684:59 - error TS7006: Parameter 'checked' implicitly has an 'any' type.
+
+684                                         onCheckedChange={(checked) =>
+                                                              ~~~~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:692:40 - error TS2304: Cannot find name 'Switch'.
+
+692                                       <Switch
+                                           ~~~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:694:69 - error TS7015: Element implicitly has an 'any' type because index expression is not of type 'number'.
+
+694                                         checked={user.permissions?.[module]?.edit ?? false}
+                                                                        ~~~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:695:59 - error TS7006: Parameter 'checked' implicitly has an 'any' type.
+
+695                                         onCheckedChange={(checked) =>
+                                                              ~~~~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:704:42 - error TS2304: Cannot find name 'Switch'.
+
+704                                         <Switch
+                                             ~~~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:706:71 - error TS7015: Element implicitly has an 'any' type because index expression is not of type 'number'.
+
+706                                           checked={user.permissions?.[module]?.admin ?? false}
+                                                                          ~~~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:707:61 - error TS7006: Parameter 'checked' implicitly has an 'any' type.
+
+707                                           onCheckedChange={(checked) =>
+                                                                ~~~~~~~
+
+client/src/components/admin/permissions-management.tsx:212:11 - error TS2739: Type 'ReactElement<any, any>' is missing the following properties from type '{ label: string; onClick: () => void; }': label, onClick
+
+212           action: <CheckCircle className="h-5 w-5 text-green-500" />
+              ~~~~~~
+
+  client/src/hooks/use-toast.ts:8:3
+    8   action?: {
+        ~~~~~~
+    The expected type comes from property 'action' which is declared here on type 'ToastProps'
+
+client/src/components/admin/permissions-management.tsx:223:9 - error TS2739: Type 'ReactElement<any, any>' is missing the following properties from type '{ label: string; onClick: () => void; }': label, onClick
+
+223         action: <XCircle className="h-5 w-5 text-red-500" />
+            ~~~~~~
+
+  client/src/hooks/use-toast.ts:8:3
+    8   action?: {
+        ~~~~~~
+    The expected type comes from property 'action' which is declared here on type 'ToastProps'
+
+client/src/components/admin/permissions-management.tsx:261:11 - error TS2739: Type 'ReactElement<any, any>' is missing the following properties from type '{ label: string; onClick: () => void; }': label, onClick
+
+261           action: <CheckCircle className="h-5 w-5 text-green-500" />
+              ~~~~~~
+
+  client/src/hooks/use-toast.ts:8:3
+    8   action?: {
+        ~~~~~~
+    The expected type comes from property 'action' which is declared here on type 'ToastProps'
+
+client/src/components/admin/permissions-management.tsx:272:9 - error TS2739: Type 'ReactElement<any, any>' is missing the following properties from type '{ label: string; onClick: () => void; }': label, onClick
+
+272         action: <XCircle className="h-5 w-5 text-red-500" />
+            ~~~~~~
+
+  client/src/hooks/use-toast.ts:8:3
+    8   action?: {
+        ~~~~~~
+    The expected type comes from property 'action' which is declared here on type 'ToastProps'
+
+client/src/components/admin/permissions-management.tsx:300:11 - error TS2739: Type 'ReactElement<any, any>' is missing the following properties from type '{ label: string; onClick: () => void; }': label, onClick
+
+300           action: <CheckCircle className="h-5 w-5 text-green-500" />
+              ~~~~~~
+
+  client/src/hooks/use-toast.ts:8:3
+    8   action?: {
+        ~~~~~~
+    The expected type comes from property 'action' which is declared here on type 'ToastProps'
+
+client/src/components/admin/permissions-management.tsx:311:9 - error TS2739: Type 'ReactElement<any, any>' is missing the following properties from type '{ label: string; onClick: () => void; }': label, onClick
+
+311         action: <XCircle className="h-5 w-5 text-red-500" />
+            ~~~~~~
+
+  client/src/hooks/use-toast.ts:8:3
+    8   action?: {
+        ~~~~~~
+    The expected type comes from property 'action' which is declared here on type 'ToastProps'
+
+client/src/components/admin/permissions-management.tsx:435:69 - error TS2322: Type '"directeur" | "employe"' is not assignable to type '"employe"'.
+  Type '"directeur"' is not assignable to type '"employe"'.
+
+435                   onValueChange={(value) => setNewUser({...newUser, role: value as 'directeur' | 'employe'})}

@@ -1,0 +1,97 @@
+
+952                     <Switch
+                         ~~~~~~
+
+client/src/components/admin/notifications-system.tsx:967:22 - error TS2375: Type '{ checked: boolean | undefined; onCheckedChange: (checked: boolean) => void; }' is not assignable to type 'SwitchProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'checked' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+
+967                     <Switch
+                         ~~~~~~
+
+client/src/components/admin/notifications-system.tsx:1030:22 - error TS2375: Type '{ checked: boolean | undefined; onCheckedChange: (checked: boolean) => void; }' is not assignable to type 'SwitchProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'checked' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+
+1030                     <Switch
+                          ~~~~~~
+
+client/src/components/admin/online-ordering.tsx:171:26 - error TS2559: Type '(data: any) => void' has no properties in common with type 'WebSocketConfig'.
+
+171   useWebSocket('orders', (data) => {
+                             ~~~~~~~~~~~
+
+client/src/components/admin/online-ordering.tsx:171:27 - error TS7006: Parameter 'data' implicitly has an 'any' type.
+
+171   useWebSocket('orders', (data) => {
+                              ~~~~
+
+client/src/components/admin/online-ordering.tsx:921:19 - error TS2322: Type 'Dispatch<SetStateAction<OnlineOrder | null>>' is not assignable to type '(order: OnlineOrder) => void'.
+  Types of parameters 'value' and 'order' are incompatible.
+    Type 'OnlineOrder' is not assignable to type 'SetStateAction<OnlineOrder | null>'.
+      Type 'OnlineOrder' is missing the following properties from type 'OnlineOrder': items, paymentStatus, paymentMethod, updatedAt
+
+921                   onSelect={setSelectedOrder}
+                      ~~~~~~~~
+
+  client/src/components/order-card.tsx:26:3
+    26   onSelect: (order: OnlineOrder) => void;
+         ~~~~~~~~
+    The expected type comes from property 'onSelect' which is declared here on type 'IntrinsicAttributes & OrderCardProps'
+
+client/src/components/admin/permissions-management-improved.tsx:557:16 - error TS2304: Cannot find name 'Switch'.
+
+557               <Switch
+                   ~~~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:618:28 - error TS2304: Cannot find name 'Switch'.
+
+618                           <Switch
+                               ~~~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:620:47 - error TS7006: Parameter 'checked' implicitly has an 'any' type.
+
+620                             onCheckedChange={(checked) => handleToggleUserStatus(user.id, checked)}
+                                                  ~~~~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:621:59 - error TS2367: This comparison appears to be unintentional because the types 'number' and 'string | undefined' have no overlap.
+
+621                             disabled={isTogglingStatus || user.id === currentUser?.id}
+                                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:629:37 - error TS2345: Argument of type 'Date | null | undefined' is not assignable to parameter of type 'string | undefined'.
+  Type 'null' is not assignable to type 'string | undefined'.
+
+629                         {formatDate(user.lastLogin)}
+                                        ~~~~~~~~~~~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:648:61 - error TS2345: Argument of type 'User' is not assignable to parameter of type 'SetStateAction<User | null>'.
+  Type 'import("/home/runner/workspace/client/src/hooks/useUsers").User' is not assignable to type 'User' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Property 'firstName' is optional in type 'User' but required in type 'User'.
+
+648                               onClick={() => setEditingUser(user)}
+                                                                ~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:653:52 - error TS2367: This comparison appears to be unintentional because the types 'number' and 'string | undefined' have no overlap.
+
+653                           {canPerform('delete') && user.id !== currentUser?.id && (
+                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:657:62 - error TS2345: Argument of type 'User' is not assignable to parameter of type 'SetStateAction<User | null>'.
+  Type 'import("/home/runner/workspace/client/src/hooks/useUsers").User' is not assignable to type 'User' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Property 'firstName' is optional in type 'User' but required in type 'User'.
+
+657                               onClick={() => setUserToDelete(user)}
+                                                                 ~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:681:40 - error TS2304: Cannot find name 'Switch'.
+
+681                                       <Switch
+                                           ~~~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:683:69 - error TS7015: Element implicitly has an 'any' type because index expression is not of type 'number'.
+
+683                                         checked={user.permissions?.[module]?.view ?? false}
+              

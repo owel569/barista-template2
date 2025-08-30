@@ -1,0 +1,232 @@
+        updatedHours[index] = {
+                                  ~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/settings.tsx:748:38 - error TS2532: Object is possibly 'undefined'.
+
+748                                   ...updatedHours[index].openingHours,
+                                         ~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/settings.tsx:761:64 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+761                           disabled={!hasPermission('settings', 'edit')}
+                                                                   ~~~~~~
+
+client/src/components/admin/settings.tsx:769:40 - error TS7006: Parameter 'value' implicitly has an 'any' type.
+
+769                             onChange={(value) => {
+                                           ~~~~~
+
+client/src/components/admin/settings.tsx:773:33 - error TS2322: Type '{ openingHours: { open: any; close: string; closed: boolean; }; date?: string; note?: string; }' is not assignable to type '{ date: string; openingHours: OpeningHours; note: string; }'.
+  Property 'date' is optional in type '{ openingHours: { open: any; close: string; closed: boolean; }; date?: string; note?: string; }' but required in type '{ date: string; openingHours: OpeningHours; note: string; }'.
+
+773                                 updatedHours[index] = {
+                                    ~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/settings.tsx:776:40 - error TS2532: Object is possibly 'undefined'.
+
+776                                     ...updatedHours[index].openingHours,
+                                           ~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/settings.tsx:789:66 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+789                             disabled={!hasPermission('settings', 'edit')}
+                                                                     ~~~~~~
+
+client/src/components/admin/settings.tsx:794:40 - error TS7006: Parameter 'value' implicitly has an 'any' type.
+
+794                             onChange={(value) => {
+                                           ~~~~~
+
+client/src/components/admin/settings.tsx:798:33 - error TS2322: Type '{ openingHours: { close: any; open: string; closed: boolean; }; date?: string; note?: string; }' is not assignable to type '{ date: string; openingHours: OpeningHours; note: string; }'.
+  Property 'date' is optional in type '{ openingHours: { close: any; open: string; closed: boolean; }; date?: string; note?: string; }' but required in type '{ date: string; openingHours: OpeningHours; note: string; }'.
+
+798                                 updatedHours[index] = {
+                                    ~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/settings.tsx:801:40 - error TS2532: Object is possibly 'undefined'.
+
+801                                     ...updatedHours[index].openingHours,
+                                           ~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/settings.tsx:814:66 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+814                             disabled={!hasPermission('settings', 'edit')}
+                                                                     ~~~~~~
+
+client/src/components/admin/settings.tsx:826:31 - error TS2322: Type '{ note: string; date?: string; openingHours?: OpeningHours; }' is not assignable to type '{ date: string; openingHours: OpeningHours; note: string; }'.
+  Property 'date' is optional in type '{ note: string; date?: string; openingHours?: OpeningHours; }' but required in type '{ date: string; openingHours: OpeningHours; note: string; }'.
+
+826                               updatedHours[index] = {
+                                  ~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/settings.tsx:839:64 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+839                           disabled={!hasPermission('settings', 'edit')}
+                                                                   ~~~~~~
+
+client/src/components/admin/settings.tsx:851:40 - error TS7006: Parameter 'date' implicitly has an 'any' type.
+
+851                         onSelectDate={(date) => {
+                                           ~~~~
+
+client/src/components/admin/settings.tsx:857:62 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+857                         disabled={!hasPermission('settings', 'edit')}
+                                                                 ~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:129:13 - error TS2322: Type '{ id: number; firstName: string | undefined; lastName: string | undefined; email: string; phone: string; position: string | undefined; department: string | undefined; maxHours: number; ... 6 more ...; avatar: string; }[]' is not assignable to type 'Employee[]'.
+  Type '{ id: number; firstName: string | undefined; lastName: string | undefined; email: string; phone: string; position: string | undefined; department: string | undefined; maxHours: number; ... 6 more ...; avatar: string; }' is not assignable to type 'Employee'.
+    Types of property 'firstName' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+
+129       const mockEmployees: Employee[] = Array.from({ length: 12 }, (_, i) => ({
+                ~~~~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:166:13 - error TS2322: Type '{ id: number; employeeId: number; date: string | undefined; startTime: string; endTime: string; position: string | undefined; status: any; notes: string | undefined; createdAt: string; updatedAt: string; }[]' is not assignable to type 'Shift[]'.
+  Type '{ id: number; employeeId: number; date: string | undefined; startTime: string; endTime: string; position: string | undefined; status: any; notes: string | undefined; createdAt: string; updatedAt: string; }' is not assignable to type 'Shift' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'date' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+
+166       const mockShifts: Shift[] = Array.from({ length: 30 }, (_, i) => {
+                ~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:168:31 - error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'Date | undefined' is not assignable to parameter of type 'string | number | Date'.
+      Type 'undefined' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'Date | undefined' is not assignable to parameter of type 'string | number'.
+      Type 'undefined' is not assignable to type 'string | number'.
+
+168         const date = new Date(weekStart);
+                                  ~~~~~~~~~
+
+
+client/src/components/admin/staff-scheduling.tsx:256:13 - error TS18048: 'endHours' is possibly 'undefined'.
+
+256     return (endHours - startHours) + (endMinutes - startMinutes) / 60;
+                ~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:256:24 - error TS18048: 'startHours' is possibly 'undefined'.
+
+256     return (endHours - startHours) + (endMinutes - startMinutes) / 60;
+                           ~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:256:39 - error TS18048: 'endMinutes' is possibly 'undefined'.
+
+256     return (endHours - startHours) + (endMinutes - startMinutes) / 60;
+                                          ~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:256:52 - error TS18048: 'startMinutes' is possibly 'undefined'.
+
+256     return (endHours - startHours) + (endMinutes - startMinutes) / 60;
+                                                       ~~~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:285:7 - error TS2532: Object is possibly 'undefined'.
+
+285       shiftsByEmployee[shift.employeeId].push(shift);
+          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:295:13 - error TS18048: 'prevShift' is possibly 'undefined'.
+
+295         if (prevShift.date === currentShift.date &&
+                ~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:295:32 - error TS18048: 'currentShift' is possibly 'undefined'.
+
+295         if (prevShift.date === currentShift.date &&
+                                   ~~~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:296:13 - error TS18048: 'prevShift' is possibly 'undefined'.
+
+296             prevShift.endTime > currentShift.startTime) {
+                ~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:296:33 - error TS18048: 'currentShift' is possibly 'undefined'.
+
+296             prevShift.endTime > currentShift.startTime) {
+                                    ~~~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:301:22 - error TS18048: 'currentShift' is possibly 'undefined'.
+
+301             shiftId: currentShift.id,
+                         ~~~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:317:20 - error TS2532: Object is possibly 'undefined'.
+
+317           shiftId: empShifts[0].id,
+                       ~~~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:459:13 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+459             date: date.toISOString().split('T')[0],
+                ~~~~
+
+  client/src/components/admin/staff-scheduling.tsx:58:3
+    58   date: string;
+         ~~~~
+    The expected type comes from property 'date' which is declared here on type 'Shift'
+
+client/src/components/admin/staff-scheduling.tsx:459:19 - error TS18048: 'date' is possibly 'undefined'.
+
+459             date: date.toISOString().split('T')[0],
+                      ~~~~
+
+client/src/components/admin/staff-scheduling.tsx:598:18 - error TS2532: Object is possibly 'undefined'.
+
+598                 {shiftConflicts[0].message}
+                     ~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:685:17 - error TS2322: Type '{ value: number; indicatorClassName: string; }' is not assignable to type 'IntrinsicAttributes & Omit<ProgressProps & RefAttributes<HTMLDivElement>, "ref"> & RefAttributes<HTMLDivElement>'.
+  Property 'indicatorClassName' does not exist on type 'IntrinsicAttributes & Omit<ProgressProps & RefAttributes<HTMLDivElement>, "ref"> & RefAttributes<HTMLDivElement>'.
+
+685                 indicatorClassName={
+                    ~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:831:20 - error TS2304: Cannot find name 'X'.
+
+831                   <X className="h-4 w-4 mr-2" />
+                       ~
+
+client/src/components/admin/staff-scheduling.tsx:1063:27 - error TS2322: Type '{ value: number; className: string; indicatorClassName: string; }' is not assignable to type 'IntrinsicAttributes & Omit<ProgressProps & RefAttributes<HTMLDivElement>, "ref"> & RefAttributes<HTMLDivElement>'.
+  Property 'indicatorClassName' does not exist on type 'IntrinsicAttributes & Omit<ProgressProps & RefAttributes<HTMLDivElement>, "ref"> & RefAttributes<HTMLDivElement>'.
+
+1063                           indicatorClassName="bg-amber-500"
+                               ~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:1190:11 - error TS2532: Object is possibly 'undefined'.
+
+1190     date: weekDates[0].toISOString().split('T')[0],
+               ~~~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:1199:14 - error TS2345: Argument of type '{ employeeId: number; status: "draft"; date: string | undefined; startTime: string; endTime: string; position: string; notes: string; }' is not assignable to parameter of type 'Omit<Shift, "id" | "createdAt" | "updatedAt">'.
+  Types of property 'date' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+1199     onSubmit({
+                  ~
+1200       ...formData,
+     ~~~~~~~~~~~~~~~~~~
+ ... 
+1202       status: 'draft'
+     ~~~~~~~~~~~~~~~~~~~~~
+1203     });
+     ~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:1257:12 - error TS2375: Type '{ children: Element[]; value: string | undefined; onValueChange: (value: string) => void; required: true; }' is not assignable to type '{ value?: string; defaultValue?: string; onValueChange?(value: string): void; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'value' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+1257           <Select
+                ~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:1269:19 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+1269                   value={date.toISOString().split('T')[0]}
+                       ~~~~~
