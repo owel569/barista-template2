@@ -1,4 +1,4 @@
-import { pgTable, serial, text, varchar, integer, decimal, boolean, timestamp, json, pgEnum } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, varchar, integer, decimal, boolean, timestamp, json, pgEnum, date, time } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 
@@ -13,20 +13,53 @@ export const tableStatusEnum = pgEnum('table_status', ['available', 'occupied', 
 export const tableLocationEnum = pgEnum('table_location', ['inside', 'outside', 'terrace', 'private_room']);
 
 // ==========================================
+// TYPESCRIPT TYPES
+// ==========================================
+// Define specific types for JSON fields for better type safety
+
+// Example for menuItems nutritionalInfo
+interface NutritionalInfo {
+  calories: number;
+  protein: number;
+  carbohydrates: number;
+  fat: number;
+}
+
+// Example for orderItems items
+interface OrderItem {
+  menuItemId: number;
+  quantity: number;
+  price: number;
+  specialInstructions?: string;
+}
+
+// Example for tables features
+type TableFeatures = string[];
+
+// Example for customers preferences
+interface CustomerPreferences {
+  allergyInfo?: string;
+  preferredSeating?: string;
+}
+
+// ==========================================
 // TABLES
 // ==========================================
 
+// Table des utilisateurs
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
-  email: varchar('email', { length: 255 }).unique().notNull(),
-  username: varchar('username', { length: 100 }).unique().notNull(),
+  email: varchar('email', { length: 255 }).notNull().unique(),
+  username: varchar('username', { length: 50 }).notNull().unique(),
   password: varchar('password', { length: 255 }).notNull(),
-  firstName: varchar('first_name', { length: 100 }),
-  lastName: varchar('last_name', { length: 100 }),
+  firstName: varchar('first_name', { length: 50 }),
+  lastName: varchar('last_name', { length: 50 }),
   phone: varchar('phone', { length: 20 }),
-  role: varchar('role', { length: 50 }).default('customer').notNull(),
+  role: varchar('role', { length: 20 }).notNull().default('customer'),
   isActive: boolean('is_active').default(true).notNull(),
-  permissions: text('permissions').array(),
+  active: boolean('active').default(true).notNull(), // Alias pour compatibilité
+  avatarUrl: text('avatar_url'),
+  permissions: json('permissions').$type<string[]>().default([]),
   lastLoginAt: timestamp('last_login_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()
@@ -43,22 +76,24 @@ export const menuCategories = pgTable("menu_categories", {
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 });
 
+// Table des articles du menu
 export const menuItems = pgTable('menu_items', {
   id: serial('id').primaryKey(),
-  name: varchar('name', { length: 255 }).notNull(),
-  description: text('description'),
+  name: varchar('name', { length: 100 }).notNull(),
+  description: text('description').notNull(),
   price: decimal('price', { precision: 10, scale: 2 }).notNull(),
-  categoryId: integer('category_id').references(() => menuCategories.id),
+  categoryId: integer('category_id').references(() => menuCategories.id), // Changed from text to integer
+  category: varchar('category', { length: 100 }), // Nom de catégorie pour compatibilité, if categoryId is null or for simpler queries
   imageUrl: varchar('image_url', { length: 500 }),
   isAvailable: boolean('is_available').notNull().default(true),
   isVegetarian: boolean('is_vegetarian').notNull().default(false),
   isVegan: boolean('is_vegan').notNull().default(false),
   isGlutenFree: boolean('is_gluten_free').notNull().default(false),
+  preparationTime: integer('preparation_time'),
+  stock: integer('stock').default(0).notNull(),
   allergens: text('allergens').array(),
   ingredients: text('ingredients').array(),
-  nutritionalInfo: json('nutritional_info'),
-  preparationTime: integer('preparation_time'),
-  preparationTimeMinutes: integer('preparation_time_minutes'),
+  nutritionalInfo: json('nutritional_info').$type<NutritionalInfo>(),
   calories: integer('calories'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow()
@@ -74,58 +109,67 @@ export const categories = pgTable('categories', {
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 });
 
-export const tables = pgTable("tables", {
+// Table des tables
+export const tables = pgTable('tables', {
   id: serial('id').primaryKey(),
   number: integer('number').notNull().unique(),
   capacity: integer('capacity').notNull(),
   status: tableStatusEnum('status').notNull().default('available'),
   location: varchar('location', { length: 50 }),
   section: varchar('section', { length: 50 }),
-  features: json('features').default([]),
-  description: text('description'),
+  features: json('features').$type<TableFeatures>().default([]),
+  notes: text('notes'),
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 });
 
-export const customers = pgTable("customers", {
+// Table des clients
+export const customers = pgTable('customers', {
   id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => users.id), // Added userId
   firstName: varchar('first_name', { length: 50 }).notNull(),
   lastName: varchar('last_name', { length: 50 }).notNull(),
   email: varchar('email', { length: 100 }).notNull().unique(),
   phone: varchar('phone', { length: 20 }),
-  loyaltyPoints: integer('loyalty_points').notNull().default(0),
-  totalOrders: integer('total_orders').notNull().default(0),
-  totalSpent: decimal('total_spent', { precision: 10, scale: 2 }).notNull().default('0'),
+  dateOfBirth: date('date_of_birth'), // Assuming you meant pgEnum for date, or just `date` if date type is available
+  loyaltyPoints: integer('loyalty_points').default(0).notNull(),
+  totalSpent: decimal('total_spent', { precision: 10, scale: 2 }).default('0.00').notNull(),
   lastVisit: timestamp('last_visit'),
-  isActive: boolean('is_active').notNull().default(true),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow()
+  preferences: json('preferences').$type<CustomerPreferences>(),
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull()
 });
 
-export const reservations = pgTable("reservations", {
+// Table des réservations
+export const reservations = pgTable('reservations', {
   id: serial('id').primaryKey(),
-  customerId: integer('customer_id').references(() => customers.id),
-  tableId: integer('table_id').references(() => tables.id),
-  date: timestamp('date').notNull(),
-  time: varchar('time', { length: 10 }).notNull(),
+  customerId: integer('customer_id').references(() => customers.id).notNull(),
+  tableId: integer('table_id').references(() => tables.id).notNull(),
   partySize: integer('party_size').notNull(),
+  date: date('date').notNull(),
+  time: time('time').notNull(),
+  reservationTime: timestamp('reservation_time').notNull(), // Added reservationTime
   status: reservationStatusEnum('status').notNull().default('pending'),
   specialRequests: text('special_requests'),
-  notes: text('notes'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow()
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull()
 });
 
+// Table des commandes
 export const orders = pgTable('orders', {
   id: serial('id').primaryKey(),
   orderNumber: varchar('order_number', { length: 20 }).notNull().unique(),
   customerId: integer('customer_id').references(() => customers.id),
-  tableId: integer('table_id').references(() => tables.id),
+  tableId: integer('table_id').references(() => tables.id).notNull(),
   status: orderStatusEnum('status').notNull().default('pending'),
   orderType: varchar('order_type', { length: 50 }).notNull().default('dine-in'),
+  items: json('items').$type<OrderItem[]>().notNull(),
+  subtotal: decimal('subtotal', { precision: 10, scale: 2 }).notNull().default('0.00'),
+  tax: decimal('tax', { precision: 10, scale: 2 }).notNull().default('0.00'),
+  totalAmount: decimal('total_amount', { precision: 10, scale: 2 }).notNull().default('0.00'),
   total: decimal('total', { precision: 10, scale: 2 }).notNull().default('0.00'),
-  items: json('items'),
   specialRequests: text('special_requests'),
   customerInfo: json('customer_info'),
   paymentMethod: varchar('payment_method', { length: 20 }),
@@ -135,15 +179,15 @@ export const orders = pgTable('orders', {
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 });
 
-export const orderItems = pgTable("order_items", {
+// Table des articles de commande
+export const orderItems = pgTable('order_items', {
   id: serial('id').primaryKey(),
-  orderId: integer('order_id').references(() => orders.id),
-  menuItemId: integer('menu_item_id').references(() => menuItems.id),
-  quantity: integer('quantity').notNull(),
-  unitPrice: decimal('unit_price', { precision: 10, scale: 2 }).notNull(),
-  totalPrice: decimal('total_price', { precision: 10, scale: 2 }).notNull(),
+  orderId: integer('order_id').references(() => orders.id).notNull(),
+  menuItemId: integer('menu_item_id').references(() => menuItems.id).notNull(),
+  quantity: integer('quantity').notNull().default(1),
+  price: decimal('price', { precision: 10, scale: 2 }).notNull(),
   specialInstructions: text('special_instructions'),
-  createdAt: timestamp('created_at').notNull().defaultNow()
+  createdAt: timestamp('created_at').defaultNow().notNull()
 });
 
 export const contactMessages = pgTable("contact_messages", {
@@ -268,6 +312,14 @@ export const feedback = pgTable('feedback', {
 // RELATIONS
 // ==========================================
 
+export const usersRelations = relations(users, ({ many }) => ({
+  activityLogs: many(activityLogs),
+  permissions: many(permissions),
+  employee: many(employees),
+  feedback: many(feedback),
+  customer: many(customers) // Added relation for customer
+}));
+
 export const menuCategoriesRelations = relations(menuCategories, ({ many }) => ({
   menuItems: many(menuItems)
 }));
@@ -285,11 +337,31 @@ export const categoriesRelations = relations(categories, ({ many }) => ({
   menuItems: many(menuItems)
 }));
 
-export const customersRelations = relations(customers, ({ many }) => ({
+export const tablesRelations = relations(tables, ({ many }) => ({
+  reservations: many(reservations),
+  orders: many(orders)
+}));
+
+export const customersRelations = relations(customers, ({ one, many }) => ({
+  user: one(users, { // Added relation for user
+    fields: [customers.userId],
+    references: [users.id]
+  }),
   reservations: many(reservations),
   orders: many(orders),
   feedback: many(feedback),
   loyaltyTransactions: many(loyaltyTransactions)
+}));
+
+export const reservationsRelations = relations(reservations, ({ one }) => ({
+  customer: one(customers, {
+    fields: [reservations.customerId],
+    references: [customers.id]
+  }),
+  table: one(tables, {
+    fields: [reservations.tableId],
+    references: [tables.id]
+  })
 }));
 
 export const ordersRelations = relations(orders, ({ one, many }) => ({
@@ -309,35 +381,12 @@ export const ordersRelations = relations(orders, ({ one, many }) => ({
 export const orderItemsRelations = relations(orderItems, ({ one }) => ({
   order: one(orders, {
     fields: [orderItems.orderId],
-    references: [orders.id]
+    references: [orders.id],
   }),
   menuItem: one(menuItems, {
     fields: [orderItems.menuItemId],
-    references: [menuItems.id]
-  })
-}));
-
-export const reservationsRelations = relations(reservations, ({ one }) => ({
-  customer: one(customers, {
-    fields: [reservations.customerId],
-    references: [customers.id]
+    references: [menuItems.id],
   }),
-  table: one(tables, {
-    fields: [reservations.tableId],
-    references: [tables.id]
-  })
-}));
-
-export const tablesRelations = relations(tables, ({ many }) => ({
-  reservations: many(reservations),
-  orders: many(orders)
-}));
-
-export const usersRelations = relations(users, ({ many }) => ({
-  activityLogs: many(activityLogs),
-  permissions: many(permissions),
-  employee: many(employees),
-  feedback: many(feedback)
 }));
 
 export const menuItemImagesRelations = relations(menuItemImages, ({ one }) => ({

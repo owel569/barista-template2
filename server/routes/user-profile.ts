@@ -214,17 +214,17 @@ class UserProfileService {
         email: user.email,
         firstName: user.firstName || '',
         lastName: user.lastName || '',
-        phone: user.phone ?? undefined,
+        phone: user.phone || '',
         role: user.role,
         isActive: user.isActive,
         createdAt: user.createdAt.toISOString(),
         updatedAt: user.updatedAt.toISOString(),
-        avatarUrl: undefined
+        avatarUrl: user.avatarUrl || undefined
       };
     } catch (error) {
-      logger.error('Erreur récupération profil utilisateur', { 
-        userId, 
-        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      logger.error('Erreur récupération profil utilisateur', {
+        userId,
+        error: error instanceof Error ? error.message : 'Erreur inconnue'
       });
       return null;
     }
@@ -254,17 +254,17 @@ class UserProfileService {
 
       const visitsThisMonth = customerOrders.filter(order => {
         const orderDate = new Date(order.createdAt);
-        return orderDate.getMonth() === currentMonth && 
+        return orderDate.getMonth() === currentMonth &&
                orderDate.getFullYear() === currentYear;
       }).length;
 
       // Calcul des points et niveau
       const points = Math.floor(totalSpent);
-      const level = points < 100 ? 'Bronze' : 
-                   points < 500 ? 'Silver' : 
+      const level = points < 100 ? 'Bronze' :
+                   points < 500 ? 'Silver' :
                    points < 1000 ? 'Gold' : 'Platinum';
-      const nextLevelPoints = level === 'Bronze' ? 100 : 
-                            level === 'Silver' ? 500 : 
+      const nextLevelPoints = level === 'Bronze' ? 100 :
+                            level === 'Silver' ? 500 :
                             level === 'Gold' ? 1000 : 2000;
       const pointsToNextLevel = Math.max(0, nextLevelPoints - points);
 
@@ -311,9 +311,9 @@ class UserProfileService {
         redeemedRewards: []
       };
     } catch (error) {
-      logger.error('Erreur calcul données fidélité', { 
-        userId, 
-        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      logger.error('Erreur calcul données fidélité', {
+        userId,
+        error: error instanceof Error ? error.message : 'Erreur inconnue'
       });
 
       return {
@@ -334,8 +334,8 @@ class UserProfileService {
    * Récupère l'historique des commandes
    */
   static async getOrderHistory(
-    userId: number, 
-    limit: number, 
+    userId: number,
+    limit: number,
     offset: number,
     filters?: { status?: string, from?: string, to?: string }
   ): Promise<{orders: OrderHistory[], total: number}> {
@@ -419,9 +419,9 @@ class UserProfileService {
         total
       };
     } catch (error) {
-      logger.error('Erreur récupération historique commandes', { 
-        userId, 
-        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      logger.error('Erreur récupération historique commandes', {
+        userId,
+        error: error instanceof Error ? error.message : 'Erreur inconnue'
       });
       return { orders: [], total: 0 };
     }
@@ -450,9 +450,9 @@ class UserProfileService {
         notes: address.notes || ''
       }));
     } catch (error) {
-      logger.error('Erreur récupération adresses', { 
-        userId, 
-        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      logger.error('Erreur récupération adresses', {
+        userId,
+        error: error instanceof Error ? error.message : 'Erreur inconnue'
       });
       return [];
     }
@@ -517,10 +517,10 @@ class UserProfileService {
         notes: address.notes || ''
       };
     } catch (error) {
-      logger.error('Erreur sauvegarde adresse', { 
-        userId, 
+      logger.error('Erreur sauvegarde adresse', {
+        userId,
         addressId,
-        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+        error: error instanceof Error ? error.message : 'Erreur inconnue'
       });
       return null;
     }
@@ -532,14 +532,14 @@ class UserProfileService {
 // ==========================================
 
 // Récupérer le profil utilisateur
-userProfileRouter.get('/profile', 
+userProfileRouter.get('/profile',
   authenticateUser,
   asyncHandler(async (req, res): Promise<void> => {
     const userId = req.user?.id;
     if (!userId) {
-      res.status(401).json({ 
+      res.status(401).json({
         success: false,
-        message: 'Utilisateur non authentifié' 
+        message: 'Utilisateur non authentifié'
       });
       return;
     }
@@ -547,9 +547,9 @@ userProfileRouter.get('/profile',
     const profile = await UserProfileService.getUserProfile(userId);
 
     if (!profile) {
-      res.status(404).json({ 
+      res.status(404).json({
         success: false,
-        message: 'Profil utilisateur non trouvé' 
+        message: 'Profil utilisateur non trouvé'
       });
       return;
     }
@@ -562,7 +562,7 @@ userProfileRouter.get('/profile',
 );
 
 // Mettre à jour le profil utilisateur
-userProfileRouter.put('/profile', 
+userProfileRouter.put('/profile',
   authenticateUser,
   validateBody(UpdateProfileSchema),
   asyncHandler(async (req, res): Promise<void> => {
@@ -570,9 +570,9 @@ userProfileRouter.put('/profile',
     const userId = req.user?.id;
 
     if (!userId) {
-      res.status(401).json({ 
+      res.status(401).json({
         success: false,
-        message: 'Utilisateur non authentifié' 
+        message: 'Utilisateur non authentifié'
       });
       return;
     }
@@ -589,9 +589,9 @@ userProfileRouter.put('/profile',
       .limit(1);
 
     if (existingUser) {
-      res.status(409).json({ 
+      res.status(409).json({
         success: false,
-        message: 'Email déjà utilisé' 
+        message: 'Email déjà utilisé'
       });
       return;
     }
@@ -610,9 +610,9 @@ userProfileRouter.put('/profile',
       .returning();
 
     if (!updatedUser) {
-      res.status(404).json({ 
+      res.status(404).json({
         success: false,
-        message: 'Utilisateur non trouvé' 
+        message: 'Utilisateur non trouvé'
       });
       return;
     }
@@ -633,14 +633,14 @@ userProfileRouter.put('/profile',
 );
 
 // Données de fidélité
-userProfileRouter.get('/loyalty', 
+userProfileRouter.get('/loyalty',
   authenticateUser,
   asyncHandler(async (req, res): Promise<void> => {
     const userId = req.user?.id;
     if (!userId) {
-      res.status(401).json({ 
+      res.status(401).json({
         success: false,
-        message: 'Utilisateur non authentifié' 
+        message: 'Utilisateur non authentifié'
       });
       return;
     }
@@ -654,7 +654,7 @@ userProfileRouter.get('/loyalty',
 );
 
 // Échanger une récompense
-userProfileRouter.post('/loyalty/redeem', 
+userProfileRouter.post('/loyalty/redeem',
   authenticateUser,
   validateBody(RedeemRewardSchema),
   asyncHandler(async (req, res): Promise<void> => {
@@ -672,7 +672,7 @@ userProfileRouter.post('/loyalty/redeem',
 );
 
 // Historique des commandes
-userProfileRouter.get('/orders', 
+userProfileRouter.get('/orders',
   authenticateUser,
   validateQuery(OrderHistoryQuerySchema),
   asyncHandler(async (req, res): Promise<void> => {
@@ -680,9 +680,9 @@ userProfileRouter.get('/orders',
     const userId = req.user?.id;
 
     if (!userId) {
-      res.status(401).json({ 
+      res.status(401).json({
         success: false,
-        message: 'Utilisateur non authentifié' 
+        message: 'Utilisateur non authentifié'
       });
       return;
     }
@@ -692,8 +692,8 @@ userProfileRouter.get('/orders',
     const offset = typeof rawOffset === 'string' ? parseInt(rawOffset, 10) : 0;
 
     const { orders, total } = await UserProfileService.getOrderHistory(
-      userId, 
-      limit, 
+      userId,
+      limit,
       offset,
       { status, from, to }
     );
@@ -714,7 +714,7 @@ userProfileRouter.get('/orders',
 );
 
 // Gestion des adresses
-userProfileRouter.get('/addresses', 
+userProfileRouter.get('/addresses',
   authenticateUser,
   asyncHandler(async (req, res): Promise<void> => {
     const userId = req.user?.id;
@@ -727,7 +727,7 @@ userProfileRouter.get('/addresses',
   })
 );
 
-userProfileRouter.post('/addresses', 
+userProfileRouter.post('/addresses',
   authenticateUser,
   validateBody(AddressSchema),
   asyncHandler(async (req, res): Promise<void> => {
@@ -739,7 +739,7 @@ userProfileRouter.post('/addresses',
   })
 );
 
-userProfileRouter.put('/addresses/:id', 
+userProfileRouter.put('/addresses/:id',
   authenticateUser,
   validateBody(AddressSchema),
   asyncHandler(async (req, res): Promise<void> => {
@@ -752,7 +752,7 @@ userProfileRouter.put('/addresses/:id',
   })
 );
 
-userProfileRouter.delete('/addresses/:id', 
+userProfileRouter.delete('/addresses/:id',
   authenticateUser,
   asyncHandler(async (req, res): Promise<void> => {
     const userId = req.user?.id;
@@ -765,14 +765,14 @@ userProfileRouter.delete('/addresses/:id',
 );
 
 // Préférences utilisateur
-userProfileRouter.get('/preferences', 
+userProfileRouter.get('/preferences',
   authenticateUser,
   asyncHandler(async (req, res): Promise<void> => {
     const userId = req.user?.id;
     if (!userId) {
-      res.status(401).json({ 
+      res.status(401).json({
         success: false,
-        message: 'Utilisateur non authentifié' 
+        message: 'Utilisateur non authentifié'
       });
       return;
     }
@@ -803,7 +803,7 @@ userProfileRouter.get('/preferences',
   })
 );
 
-userProfileRouter.put('/preferences', 
+userProfileRouter.put('/preferences',
   authenticateUser,
   validateBody(PreferencesSchema),
   asyncHandler(async (req, res): Promise<void> => {

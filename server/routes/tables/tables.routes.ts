@@ -153,8 +153,8 @@ router.get('/',
       query.orderBy(orderColumn);
 
     // Pagination
-    const pageNum = typeof page === 'string' ? parseInt(page) : page;
-    const limitNum = typeof limit === 'string' ? parseInt(limit) : limit;
+    const pageNum = Number(page) || 1;
+    const limitNum = Number(limit) || 10;
     const offset = (pageNum - 1) * limitNum;
     const tablesData = await query.limit(limitNum).offset(offset);
 
@@ -389,10 +389,11 @@ router.put('/:id',
       .where(eq(tables.id, id));
 
     if (!existingTable) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Table non trouvée'
       });
+      return;
     }
 
     // Vérifier le numéro de table en cas de modification
@@ -406,10 +407,11 @@ router.put('/:id',
         ));
 
       if (numberExists) {
-        return res.status(409).json({
+        res.status(409).json({
           success: false,
           message: 'Une table avec ce numéro existe déjà'
         });
+        return;
       }
     }
 
@@ -429,7 +431,7 @@ router.put('/:id',
       'UPDATE_TABLE',
       `Table mise à jour: #${updatedTable.number} - ${Object.keys(req.body).join(', ')}`,
       req,
-      id
+      id.toString()
     );
 
     logger.info('Table mise à jour', {
@@ -466,10 +468,11 @@ router.patch('/:id/status',
       .where(eq(tables.id, id));
 
     if (!existingTable) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Table non trouvée'
       });
+      return;
     }
 
     // Mettre à jour le statut
@@ -489,7 +492,7 @@ router.patch('/:id/status',
       'UPDATE_TABLE_STATUS',
       `Statut table #${existingTable.number} changé: ${existingTable.status} → ${status}${notes ? ` (${notes})` : ''}`,
       req,
-      id
+      id.toString()
     );
 
     logger.info('Statut table mis à jour', {
@@ -522,10 +525,11 @@ router.delete('/:id',
 
     // Vérifier que l'ID est valide
     if (!id) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'ID de table invalide'
       });
+      return;
     }
 
     // Vérifier s'il y a des réservations futures
@@ -542,10 +546,11 @@ router.delete('/:id',
 
     const reservationCount = futureReservations[0]?.count || 0;
     if (reservationCount > 0) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: `Impossible de supprimer la table: ${reservationCount} réservation(s) future(s)`
       });
+      return;
     }
 
     // Désactiver la table au lieu de la supprimer
@@ -559,10 +564,11 @@ router.delete('/:id',
       .returning();
 
     if (!deactivatedTable) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Table non trouvée'
       });
+      return;
     }
 
     // Enregistrer l'activité
@@ -571,7 +577,7 @@ router.delete('/:id',
       'DEACTIVATE_TABLE',
       `Table désactivée: #${deactivatedTable.number}`,
       req,
-      id
+      id.toString()
     );
 
     logger.info('Table désactivée', {

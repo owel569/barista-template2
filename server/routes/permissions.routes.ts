@@ -1,14 +1,14 @@
-
 import { Router } from 'express';
 import { authenticateUser, requireRoles } from '../middleware/auth';
+import type { Permission, ApiResponse, PaginatedResponse } from '../../types';
 
 const router = Router();
 
 // Routes permissions utilisateur
-router.get('/users/:userId/permissions', authenticateUser, requireRoles(['directeur']), async (req, res) => {
+router.get('/users/:userId/permissions', authenticateUser, requireRoles(['admin']), async (req, res) => {
   try {
     const { userId } = req.params;
-    const permissions = [
+    const permissions: Permission[] = [
       { id: 1, name: 'Gérer les réservations', module: 'reservations', granted: true },
       { id: 2, name: 'Gérer les clients', module: 'customers', granted: true },
       { id: 3, name: 'Gérer les employés', module: 'employees', granted: false },
@@ -16,51 +16,65 @@ router.get('/users/:userId/permissions', authenticateUser, requireRoles(['direct
       { id: 5, name: 'Voir les statistiques', module: 'statistics', granted: true },
       { id: 6, name: 'Gérer les paramètres', module: 'settings', granted: false }
     ];
-    res.json(permissions);
+    const response: ApiResponse<Permission[]> = { data: permissions, success: true, message: 'Permissions récupérées avec succès' };
+    res.json(response);
   } catch (error) {
-    res.status(500).json({ error: 'Erreur lors de la récupération des permissions' });
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+    res.status(500).json({ error: 'Erreur lors de la récupération des permissions', details: errorMessage });
   }
 });
 
-router.put('/users/:userId/permissions', authenticateUser, requireRoles(['directeur']), async (req, res) => {
+router.put('/users/:userId/permissions', authenticateUser, requireRoles(['admin']), async (req, res) => {
   try {
     const { userId } = req.params;
     const { permissionId, granted } = req.body;
-    
+
+    // Validation des entrées
+    if (typeof permissionId === 'undefined' || typeof granted === 'undefined') {
+      return res.status(400).json({ error: 'permissionId et granted sont requis' });
+    }
+
     const updatedPermission = {
       userId: Number(userId),
       permissionId: Number(permissionId),
       granted: Boolean(granted),
       updatedAt: new Date().toISOString()
     };
-    
-    res.json({ message: 'Permission mise à jour avec succès', data: updatedPermission });
+    const response: ApiResponse<{ userId: number; permissionId: number; granted: boolean; updatedAt: string }> = { message: 'Permission mise à jour avec succès', data: updatedPermission, success: true };
+    res.json(response);
   } catch (error) {
-    res.status(500).json({ error: 'Erreur lors de la mise à jour de la permission' });
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+    res.status(500).json({ error: 'Erreur lors de la mise à jour de la permission', details: errorMessage });
   }
 });
 
-router.put('/users/:userId/status', authenticateUser, requireRoles(['directeur']), async (req, res) => {
+router.put('/users/:userId/status', authenticateUser, requireRoles(['admin']), async (req, res) => {
   try {
     const { userId } = req.params;
     const { active } = req.body;
-    
+
+    // Validation des entrées
+    if (typeof active === 'undefined') {
+      return res.status(400).json({ error: 'Le statut active est requis' });
+    }
+
     const updatedUser = {
       userId: Number(userId),
       active: Boolean(active),
       updatedAt: new Date().toISOString()
     };
-    
-    res.json({ message: 'Statut utilisateur mis à jour avec succès', data: updatedUser });
+    const response: ApiResponse<{ userId: number; active: boolean; updatedAt: string }> = { message: 'Statut utilisateur mis à jour avec succès', data: updatedUser, success: true };
+    res.json(response);
   } catch (error) {
-    res.status(500).json({ error: 'Erreur lors de la mise à jour du statut' });
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+    res.status(500).json({ error: 'Erreur lors de la mise à jour du statut', details: errorMessage });
   }
 });
 
 // Route pour obtenir toutes les permissions disponibles
-router.get('/available', authenticateUser, requireRoles(['directeur']), async (req, res) => {
+router.get('/available', authenticateUser, requireRoles(['admin']), async (req, res) => {
   try {
-    const permissions = [
+    const permissions: Permission[] = [
       {
         id: 1,
         name: 'manage_reservations',
@@ -126,9 +140,11 @@ router.get('/available', authenticateUser, requireRoles(['directeur']), async (r
         actions: ['create', 'read', 'update', 'delete']
       }
     ];
-    res.json(permissions);
+    const response: ApiResponse<Permission[]> = { data: permissions, success: true, message: 'Permissions disponibles récupérées avec succès' };
+    res.json(response);
   } catch (error) {
-    res.status(500).json({ error: 'Erreur lors de la récupération des permissions' });
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+    res.status(500).json({ error: 'Erreur lors de la récupération des permissions', details: errorMessage });
   }
 });
 
@@ -139,7 +155,7 @@ router.get('/user/:userId', authenticateUser, async (req, res) => {
     if (!userId) {
       return res.status(400).json({ error: 'ID utilisateur requis' });
     }
-    
+
     // Simuler la récupération des permissions utilisateur
     const userPermissions = {
       userId: parseInt(userId),
@@ -150,52 +166,54 @@ router.get('/user/:userId', authenticateUser, async (req, res) => {
         { permissionId: 4, granted: true, grantedAt: '2024-01-15T10:00:00Z' }
       ]
     };
-    
-    res.json(userPermissions);
+    const response: ApiResponse<typeof userPermissions> = { data: userPermissions, success: true, message: 'Permissions utilisateur récupérées avec succès' };
+    res.json(response);
   } catch (error) {
-    res.status(500).json({ error: 'Erreur lors de la récupération des permissions utilisateur' });
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+    res.status(500).json({ error: 'Erreur lors de la récupération des permissions utilisateur', details: errorMessage });
   }
 });
 
 // Route pour mettre à jour les permissions d'un utilisateur
-router.put('/user/:userId', authenticateUser, requireRoles(['directeur']), async (req, res) => {
+router.put('/user/:userId', authenticateUser, requireRoles(['admin']), async (req, res) => {
   try {
     const { userId } = req.params;
     if (!userId) {
       return res.status(400).json({ error: 'ID utilisateur requis' });
     }
     const { permissions } = req.body;
-    
+
     // Validation des données
     if (!Array.isArray(permissions)) {
       return res.status(400).json({ error: 'Format de permissions invalide' });
     }
-    
+
     // Simuler la mise à jour
     const updatedPermissions = permissions.map((perm: any) => ({
       ...perm,
       userId: parseInt(userId),
       updatedAt: new Date().toISOString()
     }));
-    
-    res.json({
+    const response: ApiResponse<typeof updatedPermissions> = {
       success: true,
       message: 'Permissions mises à jour avec succès',
-      permissions: updatedPermissions
-    });
+      data: updatedPermissions
+    };
+    res.json(response);
   } catch (error) {
-    res.status(500).json({ error: 'Erreur lors de la mise à jour des permissions' });
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+    res.status(500).json({ error: 'Erreur lors de la mise à jour des permissions', details: errorMessage });
   }
 });
 
 // Route pour les rôles prédéfinis
-router.get('/roles', authenticateUser, requireRoles(['directeur']), async (req, res) => {
+router.get('/roles', authenticateUser, requireRoles(['admin']), async (req, res) => {
   try {
     const roles = [
       {
         id: 1,
-        name: 'directeur',
-        displayName: 'Directeur',
+        name: 'admin',
+        displayName: 'Administrateur',
         description: 'Accès complet à toutes les fonctionnalités',
         permissions: [1, 2, 3, 4, 5, 6, 7, 8]
       },
@@ -221,9 +239,11 @@ router.get('/roles', authenticateUser, requireRoles(['directeur']), async (req, 
         permissions: [1, 2]
       }
     ];
-    res.json(roles);
+    const response: ApiResponse<typeof roles> = { data: roles, success: true, message: 'Rôles récupérés avec succès' };
+    res.json(response);
   } catch (error) {
-    res.status(500).json({ error: 'Erreur lors de la récupération des rôles' });
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+    res.status(500).json({ error: 'Erreur lors de la récupération des rôles', details: errorMessage });
   }
 });
 
