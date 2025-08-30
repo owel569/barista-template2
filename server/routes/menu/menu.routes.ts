@@ -529,4 +529,23 @@ router.post('/categories',
   })
 );
 
+// Obtenir toutes les catégories
+router.get('/categories', asyncHandler(async (req: Request, res: Response) => {
+  try {
+    const db = await getDb();
+    const categories = await db
+      .select()
+      .from(menuCategories)
+      .orderBy(menuCategories.displayOrder);
+
+    res.json({ success: true, categories });
+  } catch (error) {
+    logger.error('Erreur récupération catégories:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Erreur serveur lors de la récupération des catégories' 
+    });
+  }
+}));
+
 export default router;
