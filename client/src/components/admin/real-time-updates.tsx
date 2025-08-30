@@ -4,21 +4,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MetricCard } from '@/components/admin/analytics/MetricCard';
 import { useWebSocket } from '@/hooks/useWebSocket';
-import {
-  Zap,
-  TrendingUp,
-  Users,
-  ShoppingCart,
-  DollarSign,
-  Activity,
-  Bell,
-  RefreshCw,
-  Calendar,
-  Eye
+import { 
+  Activity, Users, ShoppingCart, DollarSign, TrendingUp, 
+  AlertTriangle, CheckCircle, Clock, Wifi, WifiOff, Signal
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface RealTimeEvent {
   id: string;
@@ -76,7 +66,7 @@ export default function RealTimeUpdates() {
 
   const connectWebSocket = useCallback(() => {
     try {
-      const wsUrl = window.location.protocol === 'https:'
+      const wsUrl = window.location.protocol === 'https:' 
         ? `wss://${window.location.host}/ws`
         : `ws://${window.location.host}/ws`;
 
@@ -90,7 +80,8 @@ export default function RealTimeUpdates() {
           reconnectAttempts: 0
         }));
 
-        toast.success("Connexion temps réel établie", {
+        toast({
+          title: "Connexion temps réel établie",
           description: "Réception des mises à jour en direct"
         });
 

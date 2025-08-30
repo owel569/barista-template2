@@ -1,15 +1,14 @@
 import { toast as sonnerToast } from 'sonner';
 
 export interface ToastProps {
-  id?: string;
-  title?: React.ReactNode;
-  description?: React.ReactNode;
-  action?: React.ReactNode | {
+  title?: string;
+  description?: string;
+  variant?: 'default' | 'destructive' | 'success' | 'warning' | 'info';
+  duration?: number;
+  action?: {
     label: string;
     onClick: () => void;
   };
-  duration?: number;
-  variant?: 'default' | 'destructive';
 }
 
 class ToastManager {
@@ -23,8 +22,8 @@ class ToastManager {
       description: title && description ? description : undefined,
       duration,
       action: action ? {
-        label: typeof action === 'object' ? action.label : 'Action',
-        onClick: typeof action === 'object' ? action.onClick : undefined
+        label: action.label,
+        onClick: action.onClick
       } : undefined
     };
 

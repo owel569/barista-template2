@@ -1,162 +1,102 @@
-
 import { Router } from 'express';
 import { z } from 'zod';
 import { asyncHandler } from '../../middleware/error-handler-enhanced';
 import { createLogger } from '../../middleware/logging';
 import { authenticateUser, requireRoles } from '../../middleware/auth';
-import { validateBody, validateParams, validateQuery } from '../../middleware/validation';
-import { commonSchemas } from '../../utils/validation';
+import { validateBody, validateParams, validateQuery, commonSchemas } from '../../middleware/validation';
 import { getDb } from '../../db';
-import { orders, orderItems, menuItems, customers, tables, activityLogs } from '../../../shared/schema';
-import { eq, and, or, desc, sql, ilike, gte, lte, count, sum } from 'drizzle-orm';
+import { orders, orderItems, menuItems, customers, tables } from '../../../shared/schema';
+import { eq, and, desc, sql, gte, lte, inArray } from 'drizzle-orm';
 import { cacheMiddleware, invalidateCache } from '../../middleware/cache-advanced';
 
 const router = Router();
 const logger = createLogger('ORDERS_ROUTES');
 
-// Types métier spécifiques pour les commandes
-interface OrderItem {
-  id: number;
-  menuItemId: number;
-  name: string;
-  price: number;
-  quantity: number;
-  specialRequests?: string;
-  subtotal: number;
-}
-
-interface OrderDetails {
-  id: number;
-  orderNumber: string;
-  customerId: number;
-  customerName: string;
-  tableId: number;
-  tableNumber: number;
-  status: 'pending' | 'preparing' | 'ready' | 'delivered' | 'cancelled';
-  items: OrderItem[];
-  subtotal: number;
-  tax: number;
-  totalAmount: number;
-  notes?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-interface OrderStatistics {
-  totalOrders: number;
-  totalRevenue: number;
-  averageOrderValue: number;
-  ordersByStatus: Record<string, number>;
-  popularItems: Array<{
-    itemId: number;
-    name: string;
-    count: number;
-    revenue: number;
-  }>;
-}
-
-// Schémas de validation Zod
+// Schémas de validation
 const CreateOrderSchema = z.object({
-  customerId: z.number().int().positive('ID client invalide').optional(),
-  tableId: z.number().int().positive('ID table invalide'),
+  customerId: z.number().int().positive().optional(),
+  tableId: z.number().int().positive().optional(),
   items: z.array(z.object({
     menuItemId: z.number().int().positive('ID article invalide'),
-    quantity: z.number().int().min(1, 'Quantité minimum: 1').max(10, 'Quantité maximum: 10'),
-    specialRequests: z.string().max(200, 'Demande spéciale trop longue').optional()
+    quantity: z.number().int().positive('Quantité doit être positive'),
+    specialInstructions: z.string().optional()
   })).min(1, 'Au moins un article requis'),
-  notes: z.string().max(500, 'Notes trop longues').optional()
+  specialRequests: z.string().optional(),
+  orderType: z.enum(['dine_in', 'takeaway', 'delivery']).default('dine_in'),
+  customerInfo: z.object({
+    name: z.string().optional(),
+    phone: z.string().optional(),
+    email: z.string().email().optional(),
+    address: z.string().optional()
+  }).optional()
 });
 
 const UpdateOrderStatusSchema = z.object({
-  status: z.enum(['pending', 'preparing', 'ready', 'delivered', 'cancelled'], {
-    errorMap: () => ({ message: 'Statut invalide' })
-  }),
-  notes: z.string().max(500).optional()
+  status: z.enum(['pending', 'confirmed', 'preparing', 'ready', 'served', 'cancelled']),
+  notes: z.string().optional()
 });
 
-// Fonction utilitaire pour log d'activité
-async function logOrderActivity(
-  userId: number,
-  action: string,
-  details: string,
-  req: any,
-  orderId?: number
-): Promise<void> {
-  try {
-    const db = await getDb();
-    await db.insert(activityLogs).values({
-      id: crypto.randomUUID(),
-      userId,
-      action,
-      details: orderId ? `${details} (Commande: ${orderId})` : details,
-      ipAddress: req.ip || req.connection.remoteAddress,
-      userAgent: req.get('User-Agent'),
-      createdAt: new Date()
-    });
-  } catch (error) {
-    logger.error('Erreur log activité commande', {
-      userId,
-      action,
-      error: error instanceof Error ? error.message : 'Erreur inconnue'
-    });
-  }
-}
-
-// Liste des commandes avec filtres avancés
+// Routes principales
 router.get('/',
   authenticateUser,
-  requireRoles(['admin', 'manager', 'staff', 'waiter']),
   validateQuery(z.object({
-    status: z.enum(['pending', 'preparing', 'ready', 'delivered', 'cancelled']).optional(),
-    customerId: z.coerce.number().int().positive().optional(),
-    tableId: z.coerce.number().int().positive().optional(),
+    status: z.enum(['pending', 'confirmed', 'preparing', 'ready', 'served', 'cancelled']).optional(),
+    orderType: z.enum(['dine_in', 'takeaway', 'delivery']).optional(),
+    customerId: z.number().int().positive().optional(),
+    tableId: z.number().int().positive().optional(),
     startDate: z.string().datetime().optional(),
     endDate: z.string().datetime().optional(),
-    search: z.string().optional(),
-    ...commonSchemas.pagination.shape,
-    sortBy: z.enum(['createdAt', 'totalAmount', 'status', 'tableId']).default('createdAt'),
-    sortOrder: commonSchemas.sortOrder
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+    sortBy: z.string().optional(),
+    sortOrder: z.enum(['asc', 'desc']).default('desc')
   })),
-  cacheMiddleware({ ttl: 2 * 60 * 1000, tags: ['orders'] }),
+  cacheMiddleware({ ttl: 30 * 1000, tags: ['orders', 'realtime'] }),
   asyncHandler(async (req, res) => {
-    const db = await getDb();
-    const {
-      status,
-      customerId,
-      tableId,
-      startDate,
+    const db = getDb();
+    const { 
+      status, 
+      orderType, 
+      customerId, 
+      tableId, 
+      startDate, 
       endDate,
-      search,
-      page = 1,
-      limit = 20,
-      sortBy = 'createdAt',
-      sortOrder = 'desc'
+      page = 1, 
+      limit = 20, 
+      sortBy = 'createdAt', 
+      sortOrder = 'desc' 
     } = req.query;
 
     let query = db
       .select({
         id: orders.id,
         customerId: orders.customerId,
-        customerName: sql<string>`CONCAT(${customers.firstName}, ' ', ${customers.lastName})`,
         tableId: orders.tableId,
-        tableNumber: tables.number,
         status: orders.status,
+        orderType: orders.orderType,
         subtotal: orders.subtotal,
         tax: orders.tax,
         totalAmount: orders.totalAmount,
-        notes: orders.notes,
+        specialRequests: orders.specialRequests,
+        customerInfo: orders.customerInfo,
         createdAt: orders.createdAt,
-        updatedAt: orders.updatedAt
+        updatedAt: orders.updatedAt,
+        customerName: customers.firstName,
+        tableNumber: tables.number
       })
       .from(orders)
       .leftJoin(customers, eq(orders.customerId, customers.id))
       .leftJoin(tables, eq(orders.tableId, tables.id));
 
-    // Construction des conditions de filtrage
+    // Construire les conditions
     const conditions = [];
 
     if (status) {
       conditions.push(eq(orders.status, status));
+    }
+
+    if (orderType) {
+      conditions.push(eq(orders.orderType, orderType));
     }
 
     if (customerId) {
@@ -175,16 +115,6 @@ router.get('/',
       conditions.push(lte(orders.createdAt, new Date(endDate)));
     }
 
-    if (search) {
-      conditions.push(
-        or(
-          ilike(customers.firstName, `%${search}%`),
-          ilike(customers.lastName, `%${search}%`),
-          sql`CAST(${tables.number} AS TEXT) ILIKE ${`%${search}%`}`
-        )
-      );
-    }
-
     if (conditions.length > 0) {
       query = query.where(and(...conditions));
     }
@@ -192,7 +122,7 @@ router.get('/',
     // Tri
     const orderColumn = sortBy === 'totalAmount' ? orders.totalAmount :
                        sortBy === 'status' ? orders.status :
-                       sortBy === 'tableId' ? orders.tableId :
+                       sortBy === 'updatedAt' ? orders.updatedAt :
                        orders.createdAt;
 
     query = sortOrder === 'desc' ?
@@ -200,96 +130,93 @@ router.get('/',
       query.orderBy(orderColumn);
 
     // Pagination
-    const offset = (Number(page) - 1) * Number(limit);
-    const ordersData = await query.limit(Number(limit)).offset(offset);
+    const pageNum = typeof page === 'number' ? page : 1;
+    const limitNum = typeof limit === 'number' ? limit : 20;
+    const offset = (pageNum - 1) * limitNum;
+    const ordersData = await query.limit(limitNum).offset(offset);
 
-    // Récupération des articles pour chaque commande
+    // Récupérer les articles pour chaque commande
     const orderIds = ordersData.map(order => order.id);
     const orderItemsData = orderIds.length > 0 ? await db
       .select({
         orderId: orderItems.orderId,
         menuItemId: orderItems.menuItemId,
         quantity: orderItems.quantity,
-        price: orderItems.price,
-        specialRequests: orderItems.specialRequests,
-        itemName: menuItems.name
+        unitPrice: orderItems.unitPrice,
+        totalPrice: orderItems.totalPrice,
+        specialInstructions: orderItems.specialInstructions,
+        menuItemName: menuItems.name,
+        menuItemImage: menuItems.imageUrl
       })
       .from(orderItems)
       .leftJoin(menuItems, eq(orderItems.menuItemId, menuItems.id))
-      .where(sql`${orderItems.orderId} IN (${orderIds.join(',')})`) : [];
+      .where(inArray(orderItems.orderId, orderIds)) : [];
 
-    // Groupement des articles par commande
+    // Regrouper les articles par commande
     const orderItemsMap = orderItemsData.reduce((acc, item) => {
-      const orderId = item.orderId;
-      if (orderId && !acc[orderId]) {
-        acc[orderId] = [];
+      if (!acc[item.orderId]) {
+        acc[item.orderId] = [];
       }
-      if (orderId) {
-        acc[orderId].push(item);
-      }
+      acc[item.orderId].push(item);
       return acc;
-    }, {} as Record<number, typeof orderItemsData>);
+    }, {} as Record<string, typeof orderItemsData>);
 
-    // Construction des commandes complètes
-    const completeOrders = ordersData.map(order => ({
+    // Combiner les données
+    const result = ordersData.map(order => ({
       ...order,
       items: orderItemsMap[order.id] || []
     }));
 
     // Compte total
-    const countResult = await db
-      .select({ count: count() })
+    const [{ count }] = await db
+      .select({ count: sql<number>`count(*)` })
       .from(orders)
-      .leftJoin(customers, eq(orders.customerId, customers.id))
-      .leftJoin(tables, eq(orders.tableId, tables.id))
       .where(conditions.length > 0 ? and(...conditions) : undefined);
 
-    const total = countResult[0]?.count || 0;
-
-    logger.info('Commandes récupérées', {
-      count: completeOrders.length,
-      total,
-      filters: { status, customerId, tableId, search }
+    logger.info('Commandes récupérées', { 
+      count: result.length, 
+      total: count,
+      filters: { status, orderType, customerId, tableId }
     });
 
     res.json({
       success: true,
-      data: completeOrders,
+      data: result,
       pagination: {
-        page: Number(page),
-        limit: Number(limit),
-        total,
-        totalPages: Math.ceil(total / Number(limit))
+        page: pageNum,
+        limit: limitNum,
+        total: count,
+        totalPages: Math.ceil(count / limitNum)
       }
     });
   })
 );
 
-// Détails d'une commande
 router.get('/:id',
   authenticateUser,
-  requireRoles(['admin', 'manager', 'staff', 'waiter']),
-  validateParams(z.object({ id: z.string().regex(/^\d+$/) })),
-  cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['orders'] }),
+  validateParams(commonSchemas.idSchema),
+  cacheMiddleware({ ttl: 30 * 1000, tags: ['orders'] }),
   asyncHandler(async (req, res) => {
-    const db = await getDb();
-    const id = parseInt(req.params.id!, 10);
+    const db = getDb();
+    const { id } = req.params;
 
     const [order] = await db
       .select({
         id: orders.id,
         customerId: orders.customerId,
-        customerName: sql<string>`CONCAT(${customers.firstName}, ' ', ${customers.lastName})`,
-        customerEmail: customers.email,
         tableId: orders.tableId,
-        tableNumber: tables.number,
         status: orders.status,
+        orderType: orders.orderType,
         subtotal: orders.subtotal,
         tax: orders.tax,
         totalAmount: orders.totalAmount,
-        notes: orders.notes,
+        specialRequests: orders.specialRequests,
+        customerInfo: orders.customerInfo,
         createdAt: orders.createdAt,
-        updatedAt: orders.updatedAt
+        updatedAt: orders.updatedAt,
+        customerName: customers.firstName,
+        customerEmail: customers.email,
+        tableNumber: tables.number
       })
       .from(orders)
       .leftJoin(customers, eq(orders.customerId, customers.id))
@@ -303,316 +230,206 @@ router.get('/:id',
       });
     }
 
-    // Récupération des articles de la commande
+    // Récupérer les articles de la commande
     const items = await db
       .select({
         id: orderItems.id,
         menuItemId: orderItems.menuItemId,
-        name: menuItems.name,
-        price: orderItems.price,
         quantity: orderItems.quantity,
-        specialRequests: orderItems.specialRequests,
-        subtotal: sql<number>`${orderItems.price} * ${orderItems.quantity}`
+        unitPrice: orderItems.unitPrice,
+        totalPrice: orderItems.totalPrice,
+        specialInstructions: orderItems.specialInstructions,
+        menuItemName: menuItems.name,
+        menuItemDescription: menuItems.description,
+        menuItemImage: menuItems.imageUrl
       })
       .from(orderItems)
       .leftJoin(menuItems, eq(orderItems.menuItemId, menuItems.id))
       .where(eq(orderItems.orderId, id));
 
-    const orderDetails: OrderDetails = {
+    const result = {
       ...order,
-      items: items.map(item => ({
-        id: item.id,
-        menuItemId: item.menuItemId,
-        name: item.name || '',
-        price: Number(item.price),
-        quantity: item.quantity,
-        specialRequests: item.specialRequests || undefined,
-        subtotal: Number(item.subtotal)
-      }))
+      items
     };
 
-    logger.info('Détails commande récupérés', { orderId: id });
+    logger.info('Commande récupérée', { orderId: id, itemsCount: items.length });
 
     res.json({
       success: true,
-      data: orderDetails
+      data: result
     });
   })
 );
 
-// Créer une nouvelle commande
 router.post('/',
-  authenticateUser,
-  requireRoles(['admin', 'manager', 'staff', 'waiter']),
   validateBody(CreateOrderSchema),
-  invalidateCache(['orders']),
+  invalidateCache(['orders', 'realtime', 'stats']),
   asyncHandler(async (req, res) => {
-    const db = await getDb();
-    const currentUser = (req as any).user;
-    const { customerId, tableId, items, notes } = req.body;
+    const db = getDb();
+    const { items: orderItemsData, ...orderData } = req.body;
 
-    // Récupération des prix des articles
-    const menuItemIds = items.map((item: any) => item.menuItemId);
-    const menuItemsData = await db
-      .select({
-        id: menuItems.id,
-        name: menuItems.name,
-        price: menuItems.price,
-        isAvailable: menuItems.isAvailable
-      })
+    // Vérifier les articles de menu
+    const menuItemIds = orderItemsData.map(item => item.menuItemId);
+    const menuItemsFromDb = await db
+      .select()
       .from(menuItems)
-      .where(sql`${menuItems.id} IN (${menuItemIds.join(',')})`);
+      .where(and(
+        inArray(menuItems.id, menuItemIds),
+        eq(menuItems.isAvailable, true)
+      ));
 
-    // Vérification de disponibilité
-    const unavailableItems = menuItemsData.filter(item => !item.isAvailable);
-    if (unavailableItems.length > 0) {
+    if (menuItemsFromDb.length !== menuItemIds.length) {
       return res.status(400).json({
         success: false,
-        message: `Articles non disponibles: ${unavailableItems.map(i => i.name).join(', ')}`
+        message: 'Certains articles ne sont pas disponibles'
       });
     }
 
-    // Calcul des totaux
-    const itemsWithPrices = items.map((item: any) => {
-      const menuItem = menuItemsData.find(mi => mi.id === item.menuItemId);
+    // Calculer les totaux
+    let subtotal = 0;
+    const itemsWithPrices = orderItemsData.map(item => {
+      const menuItem = menuItemsFromDb.find(mi => mi.id === item.menuItemId);
       if (!menuItem) {
-        throw new Error(`Article non trouvé: ${item.menuItemId}`);
+        throw new Error(`Article ${item.menuItemId} non trouvé`);
       }
 
-      const totalPrice = Number(menuItem.price) * item.quantity;
+      const totalPrice = menuItem.price * item.quantity;
+      subtotal += totalPrice;
 
       return {
         ...item,
-        price: Number(menuItem.price),
-        subtotal: totalPrice
+        unitPrice: menuItem.price,
+        totalPrice
       };
     });
 
-    const subtotal = itemsWithPrices.reduce((sum, item) => sum + item.subtotal, 0);
-    const tax = Math.round(subtotal * 0.20 * 100) / 100; // TVA 20%
+    const tax = subtotal * 0.1; // 10% de taxe
     const totalAmount = subtotal + tax;
 
-    // Transaction de base de données
-    const result = await db.transaction(async (tx) => {
-      // Création de la commande
-      const [newOrder] = await tx
-        .insert(orders)
-        .values({
-          customerId,
-          tableId,
-          status: 'pending',
-          subtotal: subtotal.toString(),
-          tax: tax.toString(),
-          totalAmount: totalAmount.toString(),
-          total: totalAmount.toString(),
-          notes,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        })
-        .returning();
+    // Créer la commande avec orderNumber
+    const orderNumber = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const [newOrder] = await db
+      .insert(orders)
+      .values({
+        ...orderData,
+        orderNumber,
+        subtotal: subtotal.toString(),
+        tax: tax.toString(),
+        totalAmount: totalAmount.toString(),
+        status: 'pending',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning();
 
-      if (!newOrder) {
-        throw new Error('Erreur création commande');
-      }
+    // Créer les articles de commande
+    const orderItemsToInsert = itemsWithPrices.map(item => ({
+      orderId: newOrder.id,
+      menuItemId: item.menuItemId,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice.toString(),
+      totalPrice: item.totalPrice.toString(),
+      specialInstructions: item.specialInstructions,
+      createdAt: new Date()
+    }));
 
-      // Création des articles de commande
-      const orderItemsToInsert = itemsWithPrices.map((item: any) => ({
-        orderId: newOrder.id,
-        menuItemId: item.menuItemId,
-        quantity: item.quantity,
-        price: item.price.toString(),
-        specialRequests: item.specialRequests,
-        createdAt: new Date()
-      }));
-
-      await tx.insert(orderItems).values(orderItemsToInsert);
-
-      // Log d'activité
-      await logOrderActivity(
-        currentUser.id,
-        'CREATE_ORDER',
-        `Commande créée pour table ${tableId}`,
-        req,
-        newOrder.id
-      );
-
-      return newOrder;
-    });
+    await db.insert(orderItems).values(orderItemsToInsert);
 
     logger.info('Commande créée', {
-      orderId: result.id,
-      customerId,
-      tableId,
+      orderId: newOrder.id,
+      customerId: orderData.customerId,
       totalAmount,
-      createdBy: currentUser.id
+      itemsCount: orderItemsData.length,
+      orderType: orderData.orderType
     });
 
     res.status(201).json({
       success: true,
-      data: result,
+      data: {
+        ...newOrder,
+        items: itemsWithPrices
+      },
       message: 'Commande créée avec succès'
     });
   })
 );
 
-// Mettre à jour le statut d'une commande
 router.patch('/:id/status',
   authenticateUser,
-  requireRoles(['admin', 'manager', 'staff', 'waiter']),
-  validateParams(z.object({ id: z.string().regex(/^\d+$/) })),
+  requireRoles(['admin', 'manager', 'staff']),
+  validateParams(z.object({ id: z.coerce.number().int().positive() })),
   validateBody(UpdateOrderStatusSchema),
-  invalidateCache(['orders']),
+  invalidateCache(['orders', 'realtime', 'stats']),
   asyncHandler(async (req, res) => {
-    const db = await getDb();
-    const currentUser = (req as any).user;
-    const id = parseInt(req.params.id!, 10);
+    const db = getDb();
+    const { id } = req.params;
     const { status, notes } = req.body;
 
-    // Vérification que la commande existe
-    const [existingOrder] = await db
-      .select()
-      .from(orders)
-      .where(eq(orders.id, id));
+    const [updatedOrder] = await db
+      .update(orders)
+      .set({
+        status,
+        updatedAt: new Date()
+      })
+      .where(eq(orders.id, id))
+      .returning();
 
-    if (!existingOrder) {
+    if (!updatedOrder) {
       return res.status(404).json({
         success: false,
         message: 'Commande non trouvée'
       });
     }
 
-    // Mise à jour du statut
-    const [updatedOrder] = await db
-      .update(orders)
-      .set({
-        status,
-        notes: notes || existingOrder.notes,
-        updatedAt: new Date()
-      })
-      .where(eq(orders.id, id))
-      .returning();
-
-    // Log d'activité
-    await logOrderActivity(
-      currentUser.id,
-      'UPDATE_ORDER_STATUS',
-      `Statut modifié: ${existingOrder.status} → ${status}`,
-      req,
-      id
-    );
-
-    logger.info('Statut commande mis à jour', {
+    logger.info('Statut de commande mis à jour', {
       orderId: id,
-      previousStatus: existingOrder.status,
+      oldStatus: updatedOrder.status,
       newStatus: status,
-      updatedBy: currentUser.id
+      userId: (req as any).user?.id,
+      notes
     });
 
     res.json({
       success: true,
       data: updatedOrder,
-      message: 'Statut de commande mis à jour'
+      message: `Commande ${status === 'cancelled' ? 'annulée' : 'mise à jour'} avec succès`
     });
   })
 );
 
-// Statistiques des commandes
-router.get('/stats/overview',
+// Statistiques des commandes en temps réel
+router.get('/stats/realtime',
   authenticateUser,
   requireRoles(['admin', 'manager']),
-  validateQuery(z.object({
-    startDate: z.string().datetime().optional(),
-    endDate: z.string().datetime().optional(),
-    period: z.enum(['today', 'week', 'month', 'year']).default('month')
-  })),
-  cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['orders', 'stats'] }),
+  cacheMiddleware({ ttl: 30 * 1000, tags: ['orders', 'stats'] }),
   asyncHandler(async (req, res) => {
-    const db = await getDb();
-    const { startDate, endDate, period } = req.query;
+    const db = getDb();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-    // Calcul des dates selon la période
-    const now = new Date();
-    let start: Date, end: Date;
-
-    if (startDate && endDate) {
-      start = new Date(startDate);
-      end = new Date(endDate);
-    } else {
-      switch (period) {
-        case 'today':
-          start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-          end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-          break;
-        case 'week':
-          start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-          end = now;
-          break;
-        case 'month':
-          start = new Date(now.getFullYear(), now.getMonth(), 1);
-          end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-          break;
-        case 'year':
-          start = new Date(now.getFullYear(), 0, 1);
-          end = new Date(now.getFullYear(), 11, 31);
-          break;
-        default:
-          start = new Date(now.getFullYear(), now.getMonth(), 1);
-          end = now;
-      }
-    }
-
-    // Statistiques générales
-    const [generalStats] = await db
-      .select({
-        totalOrders: count(),
-        totalRevenue: sql<number>`COALESCE(SUM(CAST(${orders.totalAmount} AS DECIMAL)), 0)`
-      })
-      .from(orders)
-      .where(and(
-        gte(orders.createdAt, start),
-        lte(orders.createdAt, end)
-      ));
-
-    // Calcul du panier moyen
-    const averageOrderValue = generalStats.totalOrders > 0 
-      ? Math.round((generalStats.totalRevenue / generalStats.totalOrders) * 100) / 100
-      : 0;
-
-    // Distribution par statut
-    const statusStats = await db
+    const stats = await db
       .select({
         status: orders.status,
-        count: count()
+        count: sql<number>`count(*)`,
+        totalRevenue: sql<number>`sum(${orders.totalAmount})`
       })
       .from(orders)
-      .where(and(
-        gte(orders.createdAt, start),
-        lte(orders.createdAt, end)
-      ))
+      .where(gte(orders.createdAt, today))
       .groupBy(orders.status);
 
-    const ordersByStatus = statusStats.reduce((acc, item) => {
-      acc[item.status] = item.count;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const statistics: OrderStatistics = {
-      totalOrders: generalStats.totalOrders,
-      totalRevenue: generalStats.totalRevenue,
-      averageOrderValue,
-      ordersByStatus,
-      popularItems: [] // À implémenter avec orderItems
+    const result = {
+      today: {
+        totalOrders: stats.reduce((sum, stat) => sum + stat.count, 0),
+        totalRevenue: stats.reduce((sum, stat) => sum + (stat.totalRevenue || 0), 0),
+        byStatus: stats
+      }
     };
 
-    logger.info('Statistiques commandes récupérées', {
-      period,
-      totalOrders: statistics.totalOrders,
-      totalRevenue: statistics.totalRevenue
-    });
+    logger.info('Statistiques temps réel récupérées', result.today);
 
     res.json({
       success: true,
-      data: statistics
+      data: result
     });
   })
 );
