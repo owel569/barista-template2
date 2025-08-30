@@ -106,10 +106,10 @@ export class AuthService {
     };
 
     return jwt.sign(payload, JWT_SECRET, {
-      expiresIn: JWT_EXPIRES_IN,
+      expiresIn: '24h',
       issuer: 'barista-cafe',
       audience: 'barista-cafe-users'
-    });
+    } as jwt.SignOptions);
   }
 
   /**

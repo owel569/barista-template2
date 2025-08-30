@@ -68,11 +68,12 @@ async function logTableActivity(
   try {
     const db = getDb();
     await db.insert(activityLogs).values({
-      userId,
+      userId: userId.toString(),
       action,
+      entity: 'table',
       details: tableId ? `${details} (Table: ${tableId})` : details,
-      ipAddress: req.ip || req.connection.remoteAddress,
-      userAgent: req.get('User-Agent'),
+      ipAddress: req.ip || req.connection.remoteAddress || '',
+      userAgent: req.get('User-Agent') || '',
       createdAt: new Date()
     });
   } catch (error) {
@@ -132,7 +133,8 @@ router.get('/',
     }
 
     if (isActive !== undefined) {
-      conditions.push(eq(tables.isActive, isActive));
+      const isActiveBool = typeof isActive === 'string' ? isActive === 'true' : Boolean(isActive);
+      conditions.push(eq(tables.isActive, isActiveBool));
     }
 
     if (conditions.length > 0) {
@@ -151,8 +153,10 @@ router.get('/',
       query.orderBy(orderColumn);
 
     // Pagination
-    const offset = (page - 1) * limit;
-    const tablesData = await query.limit(limit).offset(offset);
+    const pageNum = typeof page === 'string' ? parseInt(page) : page;
+    const limitNum = typeof limit === 'string' ? parseInt(limit) : limit;
+    const offset = (pageNum - 1) * limitNum;
+    const tablesData = await query.limit(limitNum).offset(offset);
 
     // Compte total
     const [{ count }] = await db

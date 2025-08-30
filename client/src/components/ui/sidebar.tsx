@@ -1,3 +1,5 @@
+import React from "react"
+import * as ReactDOM from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
 import { PanelLeft, PanelRight } from "lucide-react"

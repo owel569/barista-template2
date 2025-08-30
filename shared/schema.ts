@@ -43,20 +43,33 @@ export const menuCategories = pgTable("menu_categories", {
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 });
 
-export const menuItems = pgTable("menu_items", {
+export const menuItems = pgTable('menu_items', {
   id: serial('id').primaryKey(),
-  name: varchar('name', { length: 100 }).notNull(),
+  name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
   price: decimal('price', { precision: 10, scale: 2 }).notNull(),
   categoryId: integer('category_id').references(() => menuCategories.id),
-  category: varchar('category', { length: 50 }),
-  imageUrl: varchar('image_url', { length: 255 }),
+  imageUrl: varchar('image_url', { length: 500 }),
   isAvailable: boolean('is_available').notNull().default(true),
   isVegetarian: boolean('is_vegetarian').notNull().default(false),
+  isVegan: boolean('is_vegan').notNull().default(false),
   isGlutenFree: boolean('is_gluten_free').notNull().default(false),
-  allergens: json('allergens'),
+  allergens: text('allergens').array(),
+  ingredients: text('ingredients').array(),
   nutritionalInfo: json('nutritional_info'),
-  sortOrder: integer('sort_order').notNull().default(0),
+  preparationTime: integer('preparation_time'),
+  preparationTimeMinutes: integer('preparation_time_minutes'),
+  calories: integer('calories'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
+});
+
+export const categories = pgTable('categories', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  description: text('description'),
+  displayOrder: integer('display_order').default(0),
+  isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 });
@@ -104,16 +117,14 @@ export const reservations = pgTable("reservations", {
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 });
 
-export const orders = pgTable("orders", {
+export const orders = pgTable('orders', {
   id: serial('id').primaryKey(),
   orderNumber: varchar('order_number', { length: 20 }).notNull().unique(),
   customerId: integer('customer_id').references(() => customers.id),
   tableId: integer('table_id').references(() => tables.id),
   status: orderStatusEnum('status').notNull().default('pending'),
-  orderType: varchar('order_type', { length: 20 }).notNull().default('dine_in'),
-  subtotal: decimal('subtotal', { precision: 10, scale: 2 }).notNull(),
-  tax: decimal('tax', { precision: 10, scale: 2 }).notNull(),
-  totalAmount: decimal('total_amount', { precision: 10, scale: 2 }).notNull(),
+  orderType: varchar('order_type', { length: 50 }).notNull().default('dine-in'),
+  total: decimal('total', { precision: 10, scale: 2 }).notNull().default('0.00'),
   items: json('items'),
   specialRequests: text('special_requests'),
   customerInfo: json('customer_info'),
@@ -233,6 +244,26 @@ export const permissions = pgTable("permissions", {
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 });
 
+export const feedback = pgTable('feedback', {
+  id: serial('id').primaryKey(),
+  customerId: integer('customer_id').references(() => customers.id),
+  orderId: integer('order_id').references(() => orders.id),
+  rating: integer('rating').notNull(),
+  category: varchar('category', { length: 100 }).notNull(),
+  title: varchar('title', { length: 255 }),
+  comment: text('comment'),
+  suggestions: text('suggestions'),
+  status: varchar('status', { length: 50 }).notNull().default('pending'),
+  response: text('response'),
+  responseBy: integer('response_by').references(() => users.id),
+  respondedAt: timestamp('responded_at'),
+  internalNotes: text('internal_notes'),
+  isAnonymous: boolean('is_anonymous').notNull().default(false),
+  contactEmail: varchar('contact_email', { length: 255 }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
+});
+
 // ==========================================
 // RELATIONS
 // ==========================================
@@ -250,9 +281,15 @@ export const menuItemsRelations = relations(menuItems, ({ one, many }) => ({
   images: many(menuItemImages)
 }));
 
+export const categoriesRelations = relations(categories, ({ many }) => ({
+  menuItems: many(menuItems)
+}));
+
 export const customersRelations = relations(customers, ({ many }) => ({
   reservations: many(reservations),
-  orders: many(orders)
+  orders: many(orders),
+  feedback: many(feedback),
+  loyaltyTransactions: many(loyaltyTransactions)
 }));
 
 export const ordersRelations = relations(orders, ({ one, many }) => ({
@@ -264,7 +301,9 @@ export const ordersRelations = relations(orders, ({ one, many }) => ({
     fields: [orders.tableId],
     references: [tables.id]
   }),
-  orderItems: many(orderItems)
+  orderItems: many(orderItems),
+  feedback: many(feedback),
+  loyaltyTransactions: many(loyaltyTransactions)
 }));
 
 export const orderItemsRelations = relations(orderItems, ({ one }) => ({
@@ -297,7 +336,8 @@ export const tablesRelations = relations(tables, ({ many }) => ({
 export const usersRelations = relations(users, ({ many }) => ({
   activityLogs: many(activityLogs),
   permissions: many(permissions),
-  employee: many(employees)
+  employee: many(employees),
+  feedback: many(feedback)
 }));
 
 export const menuItemImagesRelations = relations(menuItemImages, ({ one }) => ({
@@ -354,6 +394,21 @@ export const loyaltyTransactionsRelations = relations(loyaltyTransactions, ({ on
   })
 }));
 
+export const feedbackRelations = relations(feedback, ({ one }) => ({
+  customer: one(customers, {
+    fields: [feedback.customerId],
+    references: [customers.id]
+  }),
+  order: one(orders, {
+    fields: [feedback.orderId],
+    references: [orders.id]
+  }),
+  responseBy: one(users, {
+    fields: [feedback.responseBy],
+    references: [users.id]
+  })
+}));
+
 // ==========================================
 // SCHÉMAS ZOD POUR VALIDATION
 // ==========================================
@@ -361,6 +416,7 @@ export const loyaltyTransactionsRelations = relations(loyaltyTransactions, ({ on
 export const insertUserSchema = createInsertSchema(users);
 export const insertMenuCategorySchema = createInsertSchema(menuCategories);
 export const insertMenuItemSchema = createInsertSchema(menuItems);
+export const insertCategorySchema = createInsertSchema(categories);
 export const insertTableSchema = createInsertSchema(tables);
 export const insertCustomerSchema = createInsertSchema(customers);
 export const insertReservationSchema = createInsertSchema(reservations);
@@ -369,11 +425,18 @@ export const insertOrderItemSchema = createInsertSchema(orderItems);
 export const insertContactMessageSchema = createInsertSchema(contactMessages);
 export const insertMenuItemImageSchema = createInsertSchema(menuItemImages);
 export const insertActivityLogSchema = createInsertSchema(activityLogs);
+export const insertEmployeeSchema = createInsertSchema(employees);
+export const insertSupplierSchema = createInsertSchema(suppliers);
+export const insertInventorySchema = createInsertSchema(inventory);
+export const insertLoyaltyTransactionSchema = createInsertSchema(loyaltyTransactions);
 export const insertPermissionSchema = createInsertSchema(permissions);
+export const insertFeedbackSchema = createInsertSchema(feedback);
+
 
 export const selectUserSchema = createSelectSchema(users);
 export const selectMenuCategorySchema = createSelectSchema(menuCategories);
 export const selectMenuItemSchema = createSelectSchema(menuItems);
+export const selectCategorySchema = createSelectSchema(categories);
 export const selectTableSchema = createSelectSchema(tables);
 export const selectCustomerSchema = createSelectSchema(customers);
 export const selectReservationSchema = createSelectSchema(reservations);
@@ -382,4 +445,9 @@ export const selectOrderItemSchema = createSelectSchema(orderItems);
 export const selectContactMessageSchema = createSelectSchema(contactMessages);
 export const selectMenuItemImageSchema = createSelectSchema(menuItemImages);
 export const selectActivityLogSchema = createSelectSchema(activityLogs);
+export const selectEmployeeSchema = createSelectSchema(employees);
+export const selectSupplierSchema = createSelectSchema(suppliers);
+export const selectInventorySchema = createSelectSchema(inventory);
+export const selectLoyaltyTransactionSchema = createSelectSchema(loyaltyTransactions);
 export const selectPermissionSchema = createSelectSchema(permissions);
+export const selectFeedbackSchema = createSelectSchema(feedback);
