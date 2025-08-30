@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+npm run type-check > output.txt 2>&1
+tail -100 output.txtimport React, { useState, useEffect } from 'react';
 import {
   Card, CardContent, CardHeader, CardTitle,
 } from '@/components/ui/card';
