@@ -109,7 +109,7 @@ export class AuthService {
       expiresIn: '24h',
       issuer: 'barista-cafe',
       audience: 'barista-cafe-users'
-    } as jwt.SignOptions);
+    });
   }
 
   /**

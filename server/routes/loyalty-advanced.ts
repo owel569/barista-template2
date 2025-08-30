@@ -1,5 +1,4 @@
-
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { asyncHandler } from '../middleware/error-handler-enhanced';
 import { createLogger } from '../middleware/logging';
@@ -334,7 +333,7 @@ class AdvancedLoyaltyService {
       }
       return points >= l.minPoints && points <= l.maxPoints;
     });
-    
+
     // Retourne le niveau le plus élevé si aucun match exact
     return level || LOYALTY_LEVELS[LOYALTY_LEVELS.length - 1];
   }
@@ -351,21 +350,21 @@ class AdvancedLoyaltyService {
   } {
     const currentLevel = this.getLevelForPoints(currentPoints);
     const currentLevelIndex = LOYALTY_LEVELS.findIndex(l => l.id === currentLevel.id);
-    
+
     if (currentLevelIndex === -1 || currentLevelIndex >= LOYALTY_LEVELS.length - 1) {
       return { progress: 100, pointsToNext: 0 };
     }
-    
+
     const nextLevel = LOYALTY_LEVELS[currentLevelIndex + 1];
     const pointsInCurrentLevel = currentPoints - currentLevel.minPoints;
     const pointsNeededForNextLevel = nextLevel.minPoints - currentLevel.minPoints;
     const progress = Math.min(100, (pointsInCurrentLevel / pointsNeededForNextLevel) * 100);
     const pointsToNext = Math.max(0, nextLevel.minPoints - currentPoints);
-    
+
     // Estimation basée sur une dépense moyenne de 1 point par euro
     const estimatedSpendingToNext = pointsToNext / currentLevel.pointsRate;
     const daysToNext = Math.ceil(pointsToNext / 10); // Estimation : 10 points par jour en moyenne
-    
+
     return {
       nextLevel,
       progress: Math.round(progress),
@@ -387,15 +386,15 @@ class AdvancedLoyaltyService {
   ): number {
     const level = this.getLevelForPoints(customerPoints);
     const levelMultiplier = level.pointsRate;
-    
+
     // Application des multiplicateurs en cascade
     const totalMultiplier = levelMultiplier * campaignMultiplier * bonusMultiplier * specialEventMultiplier;
     const calculatedPoints = Math.floor(basePoints * totalMultiplier);
-    
+
     // Bonus pour gros montants
     const bonusThreshold = 100;
     const bonus = calculatedPoints >= bonusThreshold ? Math.floor(calculatedPoints * 0.1) : 0;
-    
+
     return calculatedPoints + bonus;
   }
 
@@ -415,12 +414,12 @@ class AdvancedLoyaltyService {
   } {
     const totalCost = reward.cost * quantity;
     const requirements: string[] = [];
-    
+
     // Vérifications de base
     if (!reward.isActive) {
       return { canRedeem: false, reason: 'Cette récompense n\'est plus disponible' };
     }
-    
+
     if (reward.stock !== undefined && reward.stock < quantity) {
       return {
         canRedeem: false,
@@ -428,11 +427,11 @@ class AdvancedLoyaltyService {
         alternatives: this.getSimilarRewards(reward)
       };
     }
-    
+
     if (reward.validUntil && new Date(reward.validUntil) < new Date()) {
       return { canRedeem: false, reason: 'Cette récompense a expiré' };
     }
-    
+
     if (customerPoints < totalCost) {
       requirements.push(`${totalCost - customerPoints} points supplémentaires requis`);
       return {
@@ -442,14 +441,14 @@ class AdvancedLoyaltyService {
         alternatives: this.getAffordableRewards(customerPoints)
       };
     }
-    
+
     // Vérifications de niveau pour certaines récompenses premium
     const premiumRewards = ['experience', 'service'];
     if (premiumRewards.includes(reward.category) && customerLevel.id < 3) {
       requirements.push('Niveau Or minimum requis');
       return { canRedeem: false, reason: 'Niveau insuffisant', requirements };
     }
-    
+
     return { canRedeem: true };
   }
 
@@ -495,10 +494,10 @@ class AdvancedLoyaltyService {
 
     const earned = transactions.filter(t => ['earned', 'bonus'].includes(t.type));
     const redeemed = transactions.filter(t => t.type === 'redeemed');
-    
+
     const averageTransactionValue = earned.reduce((sum, t) => sum + t.points, 0) / earned.length;
     const redemptionRate = redeemed.length / Math.max(earned.length, 1);
-    
+
     // Score de fréquence basé sur l'activité récente
     const now = new Date();
     const recent = transactions.filter(t => {
@@ -506,9 +505,9 @@ class AdvancedLoyaltyService {
       const daysDiff = (now.getTime() - transactionDate.getTime()) / (1000 * 3600 * 24);
       return daysDiff <= 30;
     });
-    
+
     const frequencyScore = Math.min(100, (recent.length / 30) * 100);
-    
+
     // Niveau d'engagement
     let engagementLevel: 'low' | 'medium' | 'high' | 'exceptional';
     if (frequencyScore >= 80 && redemptionRate >= 0.7) {
@@ -520,15 +519,15 @@ class AdvancedLoyaltyService {
     } else {
       engagementLevel = 'low';
     }
-    
+
     // Prédiction de churn (simple)
     const daysSinceLastActivity = transactions.length > 0 ?
       (now.getTime() - new Date(transactions[0].createdAt).getTime()) / (1000 * 3600 * 24) : 365;
     const predictedChurn = Math.min(1, daysSinceLastActivity / 60); // 60 jours = churn probable
-    
+
     // Valeur vie client estimée
     const lifetimeValue = earned.reduce((sum, t) => sum + t.points, 0) * 0.05; // 1 point = 0.05€ estimé
-    
+
     return {
       averageTransactionValue,
       frequencyScore,
@@ -547,15 +546,15 @@ class AdvancedLoyaltyService {
     previousRedemptions: LoyaltyReward[],
     preferences?: string[]
   ): LoyaltyReward[] {
-    let availableRewards = ENHANCED_REWARDS.filter(r => 
-      r.isActive && 
+    let availableRewards = ENHANCED_REWARDS.filter(r =>
+      r.isActive &&
       r.cost <= customerPoints &&
       (r.stock === undefined || r.stock > 0)
     );
 
     // Filtrage par préférences si disponibles
     if (preferences && preferences.length > 0) {
-      const preferredCategories = availableRewards.filter(r => 
+      const preferredCategories = availableRewards.filter(r =>
         preferences.includes(r.category)
       );
       if (preferredCategories.length > 0) {
@@ -565,7 +564,7 @@ class AdvancedLoyaltyService {
 
     // Éviter les répétitions récentes
     const recentRedemptions = previousRedemptions.slice(0, 3);
-    availableRewards = availableRewards.filter(r => 
+    availableRewards = availableRewards.filter(r =>
       !recentRedemptions.some(recent => recent.id === r.id)
     );
 
@@ -666,7 +665,7 @@ router.get('/overview',
   asyncHandler(async (req, res) => {
     try {
       const db = await getDb();
-      
+
       // Statistiques générales avec requêtes optimisées
       const [
         totalCustomersResult,
@@ -804,12 +803,12 @@ router.get('/overview',
 router.get('/customer/:customerId',
   authenticateUser,
   validateParams(customerIdParamSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const customerId = parseInt(req.params.customerId);
-    
+
     try {
       const db = await getDb();
-      
+
       // Informations client avec jointures
       const customerResult = await db.select({
         id: customers.id,
@@ -824,7 +823,7 @@ router.get('/customer/:customerId',
       .from(customers)
       .where(eq(customers.id, customerId))
       .limit(1);
-      
+
       if (customerResult.length === 0) {
         return res.status(404).json({
           success: false,
@@ -867,7 +866,7 @@ router.get('/customer/:customerId',
           return ENHANCED_REWARDS.find(r => r.id === t.rewardId) || null;
         })
       );
-      
+
       const validPreviousRewards = previousRewards.filter((r): r is LoyaltyReward => r !== null);
       const personalizedRewards = AdvancedLoyaltyService.getPersonalizedRewards(
         points,
@@ -884,7 +883,7 @@ router.get('/customer/:customerId',
           gte(loyaltyCampaigns.endDate, new Date().toISOString())
         ));
 
-      const applicableCampaigns = activeCampaigns.filter(campaign => 
+      const applicableCampaigns = activeCampaigns.filter(campaign =>
         !campaign.targetLevel || campaign.targetLevel === level.name
       );
 
@@ -959,16 +958,16 @@ router.post('/earn-points',
   validateBody(earnPointsSchema),
   asyncHandler(async (req, res) => {
     const { customerId, points, orderId, campaignId, description, bonusMultiplier, expiresAt, metadata } = req.body;
-    
+
     try {
       const db = await getDb();
-      
+
       // Vérification du client avec informations étendues
       const customerResult = await db.select()
         .from(customers)
         .where(eq(customers.id, customerId))
         .limit(1);
-      
+
       if (customerResult.length === 0) {
         return res.status(404).json({
           success: false,
@@ -979,11 +978,11 @@ router.post('/earn-points',
       const customer = customerResult[0];
       const currentPoints = customer.loyaltyPoints || 0;
       const currentLevel = AdvancedLoyaltyService.getLevelForPoints(currentPoints);
-      
+
       // Vérification de campagne active
       let campaignMultiplier = 1;
       let campaignData = null;
-      
+
       if (campaignId) {
         const campaignResult = await db.select()
           .from(loyaltyCampaigns)
@@ -994,12 +993,12 @@ router.post('/earn-points',
             gte(loyaltyCampaigns.endDate, new Date().toISOString())
           ))
           .limit(1);
-        
+
         if (campaignResult.length > 0) {
           campaignData = campaignResult[0];
           campaignMultiplier = campaignData.pointsMultiplier;
-          
-          // Vérifier les limites d'utilisation
+
+          // Vérifier les limites d\'utilisation
           if (campaignData.maxUsage && campaignData.currentUsage >= campaignData.maxUsage) {
             return res.status(400).json({
               success: false,
@@ -1137,18 +1136,20 @@ router.post('/redeem-reward',
   authenticateUser,
   requirePermission('customers', 'canUpdate'),
   validateBody(redeemPointsSchema),
-  asyncHandler(async (req, res) => {
-    const { customerId, rewardId, quantity, description, deliveryAddress, notes } = req.body;
-    
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     try {
+      const { rewardId } = req.body;
+      const { customerId, quantity, description, deliveryAddress, notes } = req.body;
+
+
       const db = await getDb();
-      
+
       // Vérification du client
       const customerResult = await db.select()
         .from(customers)
         .where(eq(customers.id, customerId))
         .limit(1);
-      
+
       if (customerResult.length === 0) {
         return res.status(404).json({
           success: false,
@@ -1159,23 +1160,23 @@ router.post('/redeem-reward',
       const customer = customerResult[0];
       const currentPoints = customer.loyaltyPoints || 0;
       const customerLevel = AdvancedLoyaltyService.getLevelForPoints(currentPoints);
-      
+
       // Récupération de la récompense
       let reward: LoyaltyReward | undefined;
-      
+
       // D'abord chercher dans la base de données
       const dbRewardResult = await db.select()
         .from(loyaltyRewards)
         .where(eq(loyaltyRewards.id, rewardId))
         .limit(1);
-      
+
       if (dbRewardResult.length > 0) {
         reward = dbRewardResult[0] as LoyaltyReward;
       } else {
         // Fallback vers les récompenses par défaut
         reward = ENHANCED_REWARDS.find(r => r.id === rewardId);
       }
-      
+
       if (!reward) {
         return res.status(404).json({
           success: false,
@@ -1190,7 +1191,7 @@ router.post('/redeem-reward',
         reward,
         quantity
       );
-      
+
       if (!validation.canRedeem) {
         return res.status(400).json({
           success: false,

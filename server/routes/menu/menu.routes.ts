@@ -1,4 +1,3 @@
-
 import { Router } from 'express';
 import { z } from 'zod';
 import { asyncHandler } from '../../middleware/error-handler-enhanced';
@@ -7,7 +6,7 @@ import { authenticateUser, requireRoles } from '../../middleware/auth';
 import { validateBody, validateParams, validateQuery } from '../../middleware/validation';
 import { commonSchemas } from '../../utils/validation';
 import { getDb } from '../../db';
-import { menuItems, menuCategories, activityLogs } from '../../../shared/schema';
+import { menuItems, menuCategories, activityLogs, categories } from '../../../shared/schema';
 import { eq, and, or, desc, sql, ilike, inArray } from 'drizzle-orm';
 import { cacheMiddleware, invalidateCache } from '../../middleware/cache-advanced';
 
@@ -222,9 +221,9 @@ router.get('/:id',
         categoryName: categories.name,
         imageUrl: menuItems.imageUrl,
         isAvailable: menuItems.isAvailable,
-        isVegetarian: menuItems.isVegetarian,
-        isVegan: menuItems.isVegan,
-        isGlutenFree: menuItems.isGlutenFree,
+        isVegetarian: menuItem.isVegetarian || false,
+        isVegan: menuItem.isVegan || false,
+        isGlutenFree: menuItem.isGlutenFree || false,
         preparationTime: menuItems.preparationTime,
         allergens: menuItems.allergens,
         nutritionalInfo: menuItems.nutritionalInfo,

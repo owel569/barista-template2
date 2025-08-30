@@ -1,4 +1,3 @@
-
 import { Router } from 'express';
 import { z } from 'zod';
 import { asyncHandler } from '../../middleware/error-handler-enhanced';
@@ -6,7 +5,7 @@ import { createLogger } from '../../middleware/logging';
 import { authenticateUser, requireRoles } from '../../middleware/auth';
 import { validateBody, validateParams, validateQuery } from '../../middleware/validation';
 import { getDb } from '../../db';
-import { customers, orders, activityLogs, contactMessages } from '../../../shared/schema';
+import { customers, orders, activityLogs, contactMessages, feedback } from '../../../shared/schema';
 import { eq, and, or, desc, sql, ilike, gte, lte } from 'drizzle-orm';
 import { cacheMiddleware, invalidateCache } from '../../middleware/cache-advanced';
 
@@ -404,7 +403,9 @@ router.patch('/:id/status',
 
     const [updatedFeedback] = await db
       .update(feedback)
-      .set(updateData)
+      .set({
+        ...updateData
+      })
       .where(eq(feedback.id, id))
       .returning();
 

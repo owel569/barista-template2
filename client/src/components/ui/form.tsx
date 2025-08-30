@@ -162,10 +162,10 @@ const FormMessage = React.forwardRef<
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, children, ...props }, ref) => {
   const { error, formMessageId } = useFormField()
-  
+
   // Priorité à l'erreur du formulaire, puis aux children
   const body = error ? String(error?.message ?? "") : children
-  
+
   // Sanitisation du message d'erreur
   const sanitizedBody = typeof body === 'string' 
     ? sanitizeString(body, { maxLength: 200 }) 
@@ -213,21 +213,17 @@ const FormFieldWithLabel = <
 }: FormFieldProps<TFieldValues, TName>) => {
   return (
     <FormField {...props}>
-      {({ field }) => (
+      {({ field, fieldState, formState }) => (
         <FormItem className={className}>
-          {label && (
-            <FormLabel required={required}>
-              {label}
-            </FormLabel>
-          )}
+          <FormLabel className={cn(fieldState.error && "text-destructive")}>
+            {label}
+          </FormLabel>
           <FormControl>
             {props.render({ field })}
           </FormControl>
-          {description && (
-            <FormDescription>
-              {description}
-            </FormDescription>
-          )}
+          <FormDescription>
+            {description}
+          </FormDescription>
           <FormMessage />
         </FormItem>
       )}
