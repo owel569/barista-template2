@@ -151,9 +151,9 @@ router.get('/user/:userId', authenticateUser, async (req, res) => {
       ]
     };
     
-    res.json(userPermissions);
+    return res.json(userPermissions);
   } catch (error) {
-    res.status(500).json({ error: 'Erreur lors de la récupération des permissions utilisateur' });
+    return res.status(500).json({ error: 'Erreur lors de la récupération des permissions utilisateur' });
   }
 });
 
@@ -178,13 +178,13 @@ router.put('/user/:userId', authenticateUser, requireRoles(['admin']), async (re
       updatedAt: new Date().toISOString()
     }));
     
-    res.json({
+    return res.json({
       success: true,
       message: 'Permissions mises à jour avec succès',
       permissions: updatedPermissions
     });
   } catch (error) {
-    res.status(500).json({ error: 'Erreur lors de la mise à jour des permissions' });
+    return res.status(500).json({ error: 'Erreur lors de la mise à jour des permissions' });
   }
 });
 
@@ -221,9 +221,9 @@ router.get('/roles', authenticateUser, requireRoles(['admin']), async (req, res)
         permissions: [1, 2]
       }
     ];
-    res.json(roles);
+    return res.json(roles);
   } catch (error) {
-    res.status(500).json({ error: 'Erreur lors de la récupération des rôles' });
+    return res.status(500).json({ error: 'Erreur lors de la récupération des rôles' });
   }
 });
 

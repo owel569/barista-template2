@@ -194,11 +194,11 @@ export default function ActivityLogs(): JSX.Element {
       description: activity.description,
       severity: activity.severity,
       ipAddress: activity.ipAddress,
-      userAgent: activity.userAgent || '',
-      metadata: activity.metadata || {},
-      affectedResource: activity.affectedResource,
-      previousValue: activity.previousValue,
-      newValue: activity.newValue || ''
+      userAgent: activity.userAgent || undefined,
+      metadata: activity.metadata || undefined,
+      affectedResource: activity.affectedResource || undefined,
+      previousValue: activity.previousValue || undefined,
+      newValue: activity.newValue || undefined
     };
 
     setLogs(prev => [newLog, ...prev].slice(0, 1000)); // Garder seulement les 1000 derniers logs

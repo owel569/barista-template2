@@ -6,7 +6,7 @@ import { authenticateUser, requireRoles } from '../middleware/auth';
 import { validateBody, validateParams, validateQuery } from '../middleware/validation';
 import { getDb } from '../db';
 import { sql } from 'drizzle-orm';
-import { activityLogs } from '../db/schema';
+import { activityLogs } from '../../shared/schema';
 
 const router = Router();
 const logger = createLogger('DATABASE_ROUTES');
@@ -86,8 +86,8 @@ const logDatabaseActivity = async (userId: number, action: string, details: stri
     await db.insert(activityLogs).values({
       userId,
       action,
-      details,
-      timestamp: new Date()
+      entity: 'database',
+      details
     });
   } catch (error) {
     logger.error('Erreur lors de la journalisation de l\'activité', { error });
@@ -124,24 +124,24 @@ router.get('/health',
 
       // Récupération des informations
       const [versionResult, connectionsResult] = await Promise.all([
-        db.execute(sql`SELECT version()`),
+        db.execute(sql`SELECT version() as version`),
         db.execute(sql`
           SELECT count(*) as connections 
           FROM pg_stat_activity 
           WHERE datname = current_database()
         `)
-      ]);
+      ]) as [any[], any[]];
 
       const health: DatabaseHealth = {
         status: 'healthy',
         database: 'postgresql',
         responseTime,
-        connections: Number(connectionsResult.rows[0]?.connections) || 0,
+        connections: Number(connectionsResult[0]?.connections) || 0,
         uptime: '24h 30m 15s', // À implémenter avec pg_postmaster_start_time
-        version: versionResult.rows[0]?.version || 'Unknown'
+        version: versionResult[0]?.version || 'Unknown'
       };
 
-      res.json({
+      return res.json({
         success: true,
         data: health
       });
@@ -150,7 +150,7 @@ router.get('/health',
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
       });
 
-      res.status(503).json({
+      return res.status(503).json({
         success: false,
         error: 'Database unavailable',
         message: error instanceof Error ? error.message : 'Erreur inconnue'
@@ -205,19 +205,19 @@ router.get('/info',
           FROM pg_database 
           WHERE datname = current_database()
         `)
-      ]);
+      ]) as [any[], any[], any[], any[]];
 
       const dbInfo: DatabaseInfo = {
-        database: dbInfoResult.rows[0]?.database_name || 'Unknown',
-        version: versionResult.rows[0]?.version || 'Unknown',
-        size: dbInfoResult.rows[0]?.size || 'Unknown',
-        sizeBytes: dbInfoResult.rows[0]?.size_bytes || 0,
-        tables: Number(tablesResult.rows[0]?.count) || 0,
-        activeConnections: Number(connectionsResult.rows[0]?.active_connections) || 0,
-        maxConnections: Number(connectionsResult.rows[0]?.max_connections) || 0
+        database: dbInfoResult[0]?.database_name || 'Unknown',
+        version: versionResult[0]?.version || 'Unknown',
+        size: dbInfoResult[0]?.size || 'Unknown',
+        sizeBytes: dbInfoResult[0]?.size_bytes || 0,
+        tables: Number(tablesResult[0]?.count) || 0,
+        activeConnections: Number(connectionsResult[0]?.active_connections) || 0,
+        maxConnections: Number(connectionsResult[0]?.max_connections) || 0
       };
 
-      res.json({
+      return res.json({
         success: true,
         data: dbInfo
       });
@@ -226,7 +226,7 @@ router.get('/info',
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
       });
 
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Database info error',
         message: 'Erreur lors de la récupération des informations'
@@ -260,9 +260,9 @@ router.get('/migrations',
           WHERE table_schema = 'public'
             AND table_name = '__drizzle_migrations'
         ) as exists
-      `);
+      `) as any[];
 
-      if (!migrationsTableExists.rows[0]?.exists) {
+      if (!migrationsTableExists[0]?.exists) {
         return res.json({
           success: true,
           data: {
@@ -279,12 +279,12 @@ router.get('/migrations',
           created_at
         FROM __drizzle_migrations 
         ORDER BY created_at DESC
-      `);
+      `) as any[];
 
-      res.json({
+      return res.json({
         success: true,
         data: {
-          migrations: migrations.rows.map(row => ({
+          migrations: migrations.map(row => ({
             id: row.id,
             hash: row.hash,
             createdAt: row.created_at
@@ -297,7 +297,7 @@ router.get('/migrations',
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
       });
 
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Migrations error',
         message: 'Erreur lors de la récupération des migrations'
@@ -358,7 +358,7 @@ router.post('/backup',
 
       logger.info('Sauvegarde créée', { backupId: backupInfo.id, userId });
 
-      res.json({
+      return res.json({
         success: true,
         data: backupInfo,
         message: 'Sauvegarde créée avec succès'
@@ -369,7 +369,7 @@ router.post('/backup',
         userId
       });
 
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Backup failed',
         message: 'Erreur lors de la création de la sauvegarde'
@@ -427,7 +427,7 @@ router.post('/restore',
 
       logger.info('Base de données restaurée', { filename, userId });
 
-      res.json({
+      return res.json({
         success: true,
         data: restoreInfo,
         message: 'Base de données restaurée avec succès'
@@ -439,7 +439,7 @@ router.post('/restore',
         userId
       });
 
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Restore failed',
         message: 'Erreur lors de la restauration'
@@ -507,7 +507,7 @@ router.post('/optimize',
 
       logger.info('Base de données optimisée', { steps: optimizationSteps, userId });
 
-      res.json({
+      return res.json({
         success: true,
         data: {
           steps: optimizationSteps,
@@ -522,7 +522,7 @@ router.post('/optimize',
         userId
       });
 
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Optimization failed',
         message: 'Erreur lors de l\'optimisation'

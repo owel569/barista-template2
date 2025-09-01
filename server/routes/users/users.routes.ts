@@ -85,7 +85,7 @@ router.get('/',
     sortOrder: z.enum(['asc', 'desc']).default('asc')
   })),
   cacheMiddleware({ ttl: 2 * 60 * 1000, tags: ['users', 'employees'] }),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req, res) => {
     const db = getDb();
     const {
       role: rawRole,
@@ -191,7 +191,7 @@ router.get('/:id',
   requireRoles(['admin', 'manager']),
   validateParams(commonSchemas.idSchema),
   cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['users'] }),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req, res) => {
     const db = getDb();
     const userIdParam = req.params.id;
     const id = userIdParam ? parseInt(userIdParam, 10) : 0;
@@ -271,7 +271,7 @@ router.post('/',
   requireRoles(['admin']),
   validateBody(CreateUserSchema),
   invalidateCache(['users', 'employees']),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req, res) => {
     const db = getDb();
     const currentUser = (req as any).user;
     const { password, ...userData } = req.body;
@@ -360,7 +360,7 @@ router.put('/:id',
   validateParams(commonSchemas.idSchema),
   validateBody(UpdateUserSchema),
   invalidateCache(['users', 'employees']),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req, res) => {
     const db = getDb();
     const currentUser = (req as any).user;
     const userIdParam = req.params.id;
@@ -469,7 +469,7 @@ router.patch('/:id/password',
   requireRoles(['admin']),
   validateParams(commonSchemas.idSchema),
   validateBody(UpdatePasswordSchema),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req, res) => {
     const db = getDb();
     const currentUser = (req as any).user;
     const userIdParam = req.params.id;
@@ -535,7 +535,7 @@ router.delete('/:id',
   requireRoles(['admin']),
   validateParams(commonSchemas.idSchema),
   invalidateCache(['users', 'employees']),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req, res) => {
     const db = getDb();
     const currentUser = (req as any).user;
     const userIdParam = req.params.id;
@@ -605,7 +605,7 @@ router.get('/stats/overview',
   authenticateUser,
   requireRoles(['admin', 'manager']),
   cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['users', 'stats'] }),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req, res) => {
     const db = getDb();
 
     const stats = await db

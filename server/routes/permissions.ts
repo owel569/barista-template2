@@ -16,7 +16,21 @@ const logger = createLogger('PERMISSIONS');
 // TYPES ET INTERFACES
 // ==========================================
 
-import type { Permission, ApiResponse, PaginatedResponse } from '@custom-types';
+// Types locaux pour les réponses API
+interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: string;
+}
+
+interface PaginatedResponse<T = any> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
 
 export interface PermissionTemplate {
   name: string;
@@ -291,7 +305,7 @@ router.post('/permission', authenticateUser, requireRoles(['admin']), requirePer
       details: `Permission ${module} mise à jour pour l'utilisateur ${userId}`
     });
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Permission mise à jour avec succès'
     });
@@ -301,7 +315,7 @@ router.post('/permission', authenticateUser, requireRoles(['admin']), requirePer
       module, 
       error: error instanceof Error ? error.message : 'Erreur inconnue' 
     });
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Erreur lors de la mise à jour de la permission'
     });
@@ -372,7 +386,7 @@ router.post('/bulk-update', authenticateUser, requireRoles(['admin']), requirePe
       details: `Mise à jour en masse de ${updates.length} utilisateurs`
     });
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Permissions mises à jour en masse avec succès'
     });
@@ -380,7 +394,7 @@ router.post('/bulk-update', authenticateUser, requireRoles(['admin']), requirePe
     logger.error('Erreur mise à jour masse permissions', { 
       error: error instanceof Error ? error.message : 'Erreur inconnue' 
     });
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Erreur lors de la mise à jour en masse des permissions'
     });
@@ -452,7 +466,7 @@ router.post('/apply-template', authenticateUser, requireRoles(['admin']), requir
       templateName, 
       error: error instanceof Error ? error.message : 'Erreur inconnue' 
     });
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Erreur lors de l\'application du template'
     });
@@ -480,7 +494,7 @@ router.delete('/user/:userId', authenticateUser, requireRoles(['admin']), requir
       details: `Toutes les permissions supprimées pour l'utilisateur ${userIdNum}`
     });
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Permissions supprimées avec succès'
     });
@@ -489,7 +503,7 @@ router.delete('/user/:userId', authenticateUser, requireRoles(['admin']), requir
       userId, 
       error: error instanceof Error ? error.message : 'Erreur inconnue' 
     });
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Erreur lors de la suppression des permissions'
     });

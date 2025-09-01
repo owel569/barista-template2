@@ -356,31 +356,29 @@ class UserProfileService {
         updatedAt: orders.updatedAt
       })
       .from(orders)
-      .where(eq(orders.customerId, userId))
-      .orderBy(desc(orders.createdAt));
+      .where(eq(orders.customerId, userId));
 
       // Application des filtres
-      let filteredQuery = query;
-      
       if (filters?.status && filters.status !== 'all') {
-        filteredQuery = filteredQuery.where(eq(orders.status, filters.status as any));
+        query = query.where(eq(orders.status, filters.status as any));
       }
 
       if (filters?.from) {
-        filteredQuery = filteredQuery.where(gte(orders.createdAt, new Date(filters.from)));
+        query = query.where(gte(orders.createdAt, new Date(filters.from)));
       }
 
       if (filters?.to) {
-        filteredQuery = filteredQuery.where(lte(orders.createdAt, new Date(filters.to)));
+        query = query.where(lte(orders.createdAt, new Date(filters.to)));
       }
 
+      // Ajout du tri
+      query = query.orderBy(desc(orders.createdAt));
+
       // Requête pour le total (pour la pagination)
-      const totalQuery = filteredQuery.$dynamic();
-      const total = await totalQuery.execute().then(res => res.length);
+      const total = await query.execute().then(res => res.length);
 
       // Requête pour les données paginées
-      const paginatedQuery = filteredQuery.limit(limit).offset(offset);
-      const userOrders = await paginatedQuery.execute();
+      const userOrders = await query.limit(limit).offset(offset).execute();
 
       // Récupération des adresses associées
       const ordersWithAddresses = await Promise.all(
@@ -398,7 +396,9 @@ class UserProfileService {
               street: address.street,
               city: address.city,
               postalCode: address.postalCode,
-              country: address.country
+              country: address.country,
+              isDefault: address.isDefault || false,
+              notes: address.notes || undefined
             } : undefined
           };
         })
@@ -541,7 +541,7 @@ class UserProfileService {
 // Récupérer le profil utilisateur
 userProfileRouter.get('/profile', 
   authenticateUser,
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req, res) => {
     const userId = req.user?.id;
     if (!userId) {
       res.status(401).json({ 
@@ -572,7 +572,7 @@ userProfileRouter.get('/profile',
 userProfileRouter.put('/profile', 
   authenticateUser,
   validateBody(UpdateProfileSchema),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req, res) => {
     const { firstName, lastName, email, phone, avatarUrl } = req.body;
     const userId = req.user?.id;
 
@@ -640,7 +640,7 @@ userProfileRouter.put('/profile',
 // Données de fidélité
 userProfileRouter.get('/loyalty', 
   authenticateUser,
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req, res) => {
     const userId = req.user?.id;
     if (!userId) {
       res.status(401).json({ 
@@ -662,7 +662,7 @@ userProfileRouter.get('/loyalty',
 userProfileRouter.post('/loyalty/redeem', 
   authenticateUser,
   validateBody(RedeemRewardSchema),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req, res) => {
     const userId = req.user?.id;
     if (!userId) {
       res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
@@ -680,7 +680,7 @@ userProfileRouter.post('/loyalty/redeem',
 userProfileRouter.get('/orders', 
   authenticateUser,
   validateQuery(OrderHistoryQuerySchema),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req, res) => {
     const { limit: rawLimit, offset: rawOffset, status, from, to } = req.query;
     const userId = req.user?.id;
 
@@ -696,11 +696,19 @@ userProfileRouter.get('/orders',
     const limit = typeof rawLimit === 'string' ? parseInt(rawLimit, 10) : 20;
     const offset = typeof rawOffset === 'string' ? parseInt(rawOffset, 10) : 0;
     
-    const filters = {
-      status: typeof status === 'string' && status !== 'all' ? status : undefined,
-      from: typeof from === 'string' ? from : undefined,
-      to: typeof to === 'string' ? to : undefined
-    };
+    const filters: { status?: string, from?: string, to?: string } = {};
+    
+    if (typeof status === 'string' && status !== 'all') {
+      filters.status = status;
+    }
+    
+    if (typeof from === 'string') {
+      filters.from = from;
+    }
+    
+    if (typeof to === 'string') {
+      filters.to = to;
+    }
 
     const { orders, total } = await UserProfileService.getOrderHistory(
       userId, 
@@ -727,58 +735,58 @@ userProfileRouter.get('/orders',
 // Gestion des adresses
 userProfileRouter.get('/addresses', 
   authenticateUser,
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req, res) => {
     const userId = req.user?.id;
     if (!userId) {
       res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
       return;
     }
     // Address persistence not available; return empty list
-    res.json({ success: true, data: [] });
+    return res.json({ success: true, data: [] });
   })
 );
 
 userProfileRouter.post('/addresses', 
   authenticateUser,
   validateBody(AddressSchema),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req, res) => {
     const userId = req.user?.id;
     if (!userId) {
       return res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
     }
-    res.status(501).json({ success: false, message: 'Gestion d\'adresses non disponible' });
+    return res.status(501).json({ success: false, message: 'Gestion d\'adresses non disponible' });
   })
 );
 
 userProfileRouter.put('/addresses/:id', 
   authenticateUser,
   validateBody(AddressSchema),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req, res) => {
     const userId = req.user?.id;
     const addressId = Number(req.params.id);
     if (!userId || isNaN(addressId)) {
       return res.status(400).json({ success: false, message: 'Requête invalide' });
     }
-    res.status(501).json({ success: false, message: 'Gestion d\'adresses non disponible' });
+    return res.status(501).json({ success: false, message: 'Gestion d\'adresses non disponible' });
   })
 );
 
 userProfileRouter.delete('/addresses/:id', 
   authenticateUser,
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req, res) => {
     const userId = req.user?.id;
     const addressId = Number(req.params.id);
     if (!userId || isNaN(addressId)) {
       return res.status(400).json({ success: false, message: 'Requête invalide' });
     }
-    res.status(501).json({ success: false, message: 'Gestion d\'adresses non disponible' });
+    return res.status(501).json({ success: false, message: 'Gestion d\'adresses non disponible' });
   })
 );
 
 // Préférences utilisateur
 userProfileRouter.get('/preferences', 
   authenticateUser,
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req, res) => {
     const userId = req.user?.id;
     if (!userId) {
       res.status(401).json({ 
@@ -810,14 +818,14 @@ userProfileRouter.get('/preferences',
       }
     };
 
-    res.json({ success: true, data: defaultPrefs });
+    return res.json({ success: true, data: defaultPrefs });
   })
 );
 
 userProfileRouter.put('/preferences', 
   authenticateUser,
   validateBody(PreferencesSchema),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req, res) => {
     const userId = req.user?.id;
     if (!userId) {
       res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
@@ -825,7 +833,7 @@ userProfileRouter.put('/preferences',
     }
     // Echo preferences back since persistence layer is not available
     logger.info('Préférences (non persistées) reçues', { userId });
-    res.json({ success: true, data: req.body });
+    return res.json({ success: true, data: req.body });
   })
 );
 
