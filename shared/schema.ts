@@ -27,6 +27,7 @@ export const users = pgTable('users', {
   role: varchar('role', { length: 50 }).default('customer').notNull(),
   isActive: boolean('is_active').default(true).notNull(),
   permissions: text('permissions').array(),
+  avatarUrl: varchar('avatar_url', { length: 255 }), // Ajout du champ manquant
   lastLoginAt: timestamp('last_login_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()
@@ -54,6 +55,7 @@ export const menuItems = pgTable("menu_items", {
   isAvailable: boolean('is_available').notNull().default(true),
   isVegetarian: boolean('is_vegetarian').notNull().default(false),
   isGlutenFree: boolean('is_gluten_free').notNull().default(false),
+  stock: integer('stock').notNull().default(0), // Ajout du champ manquant
   allergens: json('allergens'),
   nutritionalInfo: json('nutritional_info'),
   sortOrder: integer('sort_order').notNull().default(0),
@@ -70,6 +72,7 @@ export const tables = pgTable("tables", {
   section: varchar('section', { length: 50 }),
   features: json('features').default([]),
   description: text('description'),
+  notes: text('notes'), // Ajout du champ manquant
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow()
@@ -77,6 +80,7 @@ export const tables = pgTable("tables", {
 
 export const customers = pgTable("customers", {
   id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => users.id), // Ajout du champ manquant
   firstName: varchar('first_name', { length: 50 }).notNull(),
   lastName: varchar('last_name', { length: 50 }).notNull(),
   email: varchar('email', { length: 100 }).notNull().unique(),
@@ -96,6 +100,8 @@ export const reservations = pgTable("reservations", {
   tableId: integer('table_id').references(() => tables.id),
   date: timestamp('date').notNull(),
   time: varchar('time', { length: 10 }).notNull(),
+  reservationTime: timestamp('reservation_time').notNull(), // Ajout du champ manquant
+  guestName: varchar('guest_name', { length: 100 }), // Ajout du champ manquant
   partySize: integer('party_size').notNull(),
   status: reservationStatusEnum('status').notNull().default('pending'),
   specialRequests: text('special_requests'),
@@ -109,6 +115,7 @@ export const orders = pgTable("orders", {
   orderNumber: varchar('order_number', { length: 20 }).notNull().unique(),
   customerId: integer('customer_id').references(() => customers.id),
   tableId: integer('table_id').references(() => tables.id),
+  itemId: integer('item_id').references(() => menuItems.id), // Ajout du champ manquant
   status: orderStatusEnum('status').notNull().default('pending'),
   orderType: varchar('order_type', { length: 20 }).notNull().default('dine_in'),
   subtotal: decimal('subtotal', { precision: 10, scale: 2 }).notNull(),

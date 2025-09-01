@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
-import { exportToJSON, exportToCSV, exportToExcel } from './analytics/ExportUtils';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Users, ShoppingCart, DollarSign, Target, Download } from 'lucide-react';
+import { DollarSign, ShoppingCart, Users, Target, TrendingUp, TrendingDown, Download } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 
 // Composants modulaires
 import { MetricCard } from '@/components/admin/analytics/MetricCard';
@@ -32,6 +31,39 @@ interface ExportData {
   timeRange: string;
   exportDate: string;
 }
+
+// Fonctions d'export
+const exportToJSON = (data: any, filename: string) => {
+  const jsonString = JSON.stringify(data, null, 2);
+  const blob = new Blob([jsonString], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${filename}.json`;
+  link.click();
+  URL.revokeObjectURL(url);
+};
+
+const exportToCSV = (data: any[], filename: string) => {
+  const headers = Object.keys(data[0]);
+  const csvContent = [
+    headers.join(','),
+    ...data.map(row => headers.map(header => row[header]).join(','))
+  ].join('\n');
+  
+  const blob = new Blob([csvContent], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${filename}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
+};
+
+const exportToExcel = (data: any[], filename: string) => {
+  // Export simple en CSV pour l'instant (Excel peut lire les CSV)
+  exportToCSV(data, filename);
+};
 
 export default function AnalyticsDashboard() {
   const [timeRange, setTimeRange] = useState('7d');

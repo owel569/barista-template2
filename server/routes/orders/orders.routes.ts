@@ -91,43 +91,44 @@ router.get('/',
     // Construire les conditions
     const conditions = [];
 
-    if (status) {
-      conditions.push(eq(orders.status, status));
+    // Filtres
+    if (status && typeof status === 'string') {
+      conditions.push(eq(orders.status, status as any));
     }
 
-    if (orderType) {
+    if (orderType && typeof orderType === 'string') {
       conditions.push(eq(orders.orderType, orderType));
     }
 
-    if (customerId) {
-      conditions.push(eq(orders.customerId, customerId));
+    if (customerId && typeof customerId === 'string') {
+      conditions.push(eq(orders.customerId, parseInt(customerId)));
     }
 
-    if (tableId) {
-      conditions.push(eq(orders.tableId, tableId));
+    if (tableId && typeof tableId === 'string') {
+      conditions.push(eq(orders.tableId, parseInt(tableId)));
     }
 
-    if (startDate) {
+    if (startDate && typeof startDate === 'string') {
       conditions.push(gte(orders.createdAt, new Date(startDate)));
     }
 
-    if (endDate) {
+    if (endDate && typeof endDate === 'string') {
       conditions.push(lte(orders.createdAt, new Date(endDate)));
     }
 
     if (conditions.length > 0) {
-      query = query.where(and(...conditions));
+      query = query.where(and(...conditions)) as typeof query;
     }
 
     // Tri
     const orderColumn = sortBy === 'totalAmount' ? orders.totalAmount :
                        sortBy === 'status' ? orders.status :
-                       sortBy === 'updatedAt' ? orders.updatedAt :
+                       sortBy === 'customerName' ? orders.customerInfo :
                        orders.createdAt;
 
-    query = sortOrder === 'desc' ?
+    query = (sortOrder === 'desc' ?
       query.orderBy(desc(orderColumn)) :
-      query.orderBy(orderColumn);
+      query.orderBy(orderColumn)) as typeof query;
 
     // Pagination
     const pageNum = typeof page === 'number' ? page : 1;
@@ -152,26 +153,31 @@ router.get('/',
       .leftJoin(menuItems, eq(orderItems.menuItemId, menuItems.id))
       .where(inArray(orderItems.orderId, orderIds)) : [];
 
-    // Regrouper les articles par commande
-    const orderItemsMap = orderItemsData.reduce((acc, item) => {
-      if (!acc[item.orderId]) {
-        acc[item.orderId] = [];
+    // Grouper par commande
+    const groupedItems = orderItemsData.reduce((acc, item) => {
+      const orderId = item.orderId;
+      if (orderId) {
+        if (!acc[orderId]) {
+          acc[orderId] = [];
+        }
+        acc[orderId].push(item);
       }
-      acc[item.orderId].push(item);
       return acc;
-    }, {} as Record<string, typeof orderItemsData>);
+    }, {} as Record<number, typeof orderItemsData>);
 
     // Combiner les données
     const result = ordersData.map(order => ({
       ...order,
-      items: orderItemsMap[order.id] || []
+      items: groupedItems[order.id] || []
     }));
 
     // Compte total
-    const [{ count }] = await db
+    const countResult = await db
       .select({ count: sql<number>`count(*)` })
       .from(orders)
       .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+    const count = countResult[0]?.count || 0;
 
     logger.info('Commandes récupérées', { 
       count: result.length, 
@@ -192,36 +198,20 @@ router.get('/',
   })
 );
 
+// Récupérer une commande par ID
 router.get('/:id',
   authenticateUser,
-  validateParams(commonSchemas.idSchema),
-  cacheMiddleware({ ttl: 30 * 1000, tags: ['orders'] }),
-  asyncHandler(async (req, res) => {
+  requireRoles(['admin', 'manager', 'staff']),
+  validateParams(z.object({ id: z.coerce.number().int().positive() })),
+  cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['orders'] }),
+  asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const { id } = req.params;
 
     const [order] = await db
-      .select({
-        id: orders.id,
-        customerId: orders.customerId,
-        tableId: orders.tableId,
-        status: orders.status,
-        orderType: orders.orderType,
-        subtotal: orders.subtotal,
-        tax: orders.tax,
-        totalAmount: orders.totalAmount,
-        specialRequests: orders.specialRequests,
-        customerInfo: orders.customerInfo,
-        createdAt: orders.createdAt,
-        updatedAt: orders.updatedAt,
-        customerName: customers.firstName,
-        customerEmail: customers.email,
-        tableNumber: tables.number
-      })
+      .select()
       .from(orders)
-      .leftJoin(customers, eq(orders.customerId, customers.id))
-      .leftJoin(tables, eq(orders.tableId, tables.id))
-      .where(eq(orders.id, id));
+      .where(eq(orders.id, Number(id)));
 
     if (!order) {
       return res.status(404).json({
@@ -230,33 +220,31 @@ router.get('/:id',
       });
     }
 
-    // Récupérer les articles de la commande
+    res.json({
+      success: true,
+      data: order
+    });
+  })
+);
+
+// Récupérer les articles d'une commande
+router.get('/:id/items',
+  authenticateUser,
+  requireRoles(['admin', 'manager', 'staff']),
+  validateParams(z.object({ id: z.coerce.number().int().positive() })),
+  cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['orders', 'order-items'] }),
+  asyncHandler(async (req, res): Promise<void> => {
+    const db = getDb();
+    const { id } = req.params;
+
     const items = await db
-      .select({
-        id: orderItems.id,
-        menuItemId: orderItems.menuItemId,
-        quantity: orderItems.quantity,
-        unitPrice: orderItems.unitPrice,
-        totalPrice: orderItems.totalPrice,
-        specialInstructions: orderItems.specialInstructions,
-        menuItemName: menuItems.name,
-        menuItemDescription: menuItems.description,
-        menuItemImage: menuItems.imageUrl
-      })
+      .select()
       .from(orderItems)
-      .leftJoin(menuItems, eq(orderItems.menuItemId, menuItems.id))
-      .where(eq(orderItems.orderId, id));
-
-    const result = {
-      ...order,
-      items
-    };
-
-    logger.info('Commande récupérée', { orderId: id, itemsCount: items.length });
+      .where(eq(orderItems.orderId, Number(id)));
 
     res.json({
       success: true,
-      data: result
+      data: items
     });
   })
 );

@@ -39,12 +39,12 @@ export interface UserProfile {
   email: string;
   firstName: string;
   lastName: string;
-  phone?: string;
+  phone?: string | undefined;
   role: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
-  avatarUrl?: string;
+  avatarUrl?: string | undefined;
 }
 
 export interface LoyaltyData {
@@ -111,7 +111,7 @@ export interface OrderHistory {
   }>;
   createdAt: string;
   updatedAt: string;
-  deliveryAddress?: Address;
+  deliveryAddress?: Address | undefined;
 }
 
 // Address storage is not available in current schema. Keep type for API shape if needed.
@@ -214,12 +214,12 @@ class UserProfileService {
         email: user.email,
         firstName: user.firstName || '',
         lastName: user.lastName || '',
-        phone: user.phone ?? undefined,
+        phone: user.phone || undefined,
         role: user.role,
         isActive: user.isActive,
         createdAt: user.createdAt.toISOString(),
         updatedAt: user.updatedAt.toISOString(),
-        avatarUrl: undefined
+        avatarUrl: user.avatarUrl || undefined
       };
     } catch (error) {
       logger.error('Erreur récupération profil utilisateur', { 
@@ -277,9 +277,12 @@ class UserProfileService {
           if (!itemCounts[item.id]) {
             itemCounts[item.id] = {id: item.id, count: 0, lastOrdered: new Date(order.createdAt)};
           }
-          itemCounts[item.id].count++;
-          if (new Date(order.createdAt) > itemCounts[item.id].lastOrdered) {
-            itemCounts[item.id].lastOrdered = new Date(order.createdAt);
+          const itemCount = itemCounts[item.id];
+          if (itemCount) {
+            itemCount.count++;
+            if (new Date(order.createdAt) > itemCount.lastOrdered) {
+              itemCount.lastOrdered = new Date(order.createdAt);
+            }
           }
         });
       });
@@ -357,24 +360,26 @@ class UserProfileService {
       .orderBy(desc(orders.createdAt));
 
       // Application des filtres
-      if (filters?.status) {
-        query = query.where(eq(orders.status, filters.status));
+      let filteredQuery = query;
+      
+      if (filters?.status && filters.status !== 'all') {
+        filteredQuery = filteredQuery.where(eq(orders.status, filters.status as any));
       }
 
       if (filters?.from) {
-        query = query.where(gte(orders.createdAt, new Date(filters.from)));
+        filteredQuery = filteredQuery.where(gte(orders.createdAt, new Date(filters.from)));
       }
 
       if (filters?.to) {
-        query = query.where(lte(orders.createdAt, new Date(filters.to)));
+        filteredQuery = filteredQuery.where(lte(orders.createdAt, new Date(filters.to)));
       }
 
       // Requête pour le total (pour la pagination)
-      const totalQuery = query.$dynamic();
+      const totalQuery = filteredQuery.$dynamic();
       const total = await totalQuery.execute().then(res => res.length);
 
       // Requête pour les données paginées
-      const paginatedQuery = query.limit(limit).offset(offset);
+      const paginatedQuery = filteredQuery.limit(limit).offset(offset);
       const userOrders = await paginatedQuery.execute();
 
       // Récupération des adresses associées
@@ -491,7 +496,7 @@ class UserProfileService {
           .returning();
 
         if (!updated) return null;
-        address = updated;
+        address = updated[0]; // Prendre le premier élément du tableau
       } else {
         // Création
         const [created] = await db.insert(addresses)
@@ -505,6 +510,8 @@ class UserProfileService {
 
         address = created;
       }
+
+      if (!address) return null; // Vérification supplémentaire
 
       return {
         id: address.id,
@@ -603,7 +610,6 @@ userProfileRouter.put('/profile',
         lastName,
         email,
         phone: phone ?? null,
-        avatarUrl: avatarUrl ?? null,
         updatedAt: new Date()
       })
       .where(eq(users.id, userId))
@@ -625,8 +631,7 @@ userProfileRouter.put('/profile',
         firstName: updatedUser.firstName,
         lastName: updatedUser.lastName,
         email: updatedUser.email,
-        phone: updatedUser.phone ?? undefined,
-        avatarUrl: updatedUser.avatarUrl ?? undefined
+        phone: updatedUser.phone ?? undefined
       }
     });
   })
@@ -690,12 +695,18 @@ userProfileRouter.get('/orders',
     // Conversion des types
     const limit = typeof rawLimit === 'string' ? parseInt(rawLimit, 10) : 20;
     const offset = typeof rawOffset === 'string' ? parseInt(rawOffset, 10) : 0;
+    
+    const filters = {
+      status: typeof status === 'string' && status !== 'all' ? status : undefined,
+      from: typeof from === 'string' ? from : undefined,
+      to: typeof to === 'string' ? to : undefined
+    };
 
     const { orders, total } = await UserProfileService.getOrderHistory(
       userId, 
       limit, 
       offset,
-      { status, from, to }
+      filters
     );
 
     res.json({

@@ -7,6 +7,7 @@ import { users } from '../../shared/schema';
 import { eq } from 'drizzle-orm';
 import { createLogger } from './logging';
 import { AppError, AuthenticationError, AuthorizationError } from './error-handler-enhanced';
+import { AuthenticatedUser } from '../types/auth';
 
 const logger = createLogger('AUTH');
 
@@ -412,7 +413,7 @@ export { loginSchema, registerSchema, userCache };
 declare global {
   namespace Express {
     interface Request {
-      user?: AuthUser;
+      user?: AuthenticatedUser;
     }
   }
 }

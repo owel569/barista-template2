@@ -36,41 +36,41 @@ const TableStatusSchema = z.object({
 
 // Interface pour le statut des tables
 interface TableStatus {
-  id: string;
+  id: number; // Changé de string à number pour correspondre au schéma
   number: number;
   capacity: number;
-  location: string;
-  section: string;
+  location: string | null;
+  section: string | null;
   status: 'available' | 'occupied' | 'reserved' | 'maintenance';
   currentReservation?: {
-    id: string;
+    id: number; // Changé de string à number
     customerName: string;
     startTime: Date;
     endTime: Date;
     partySize: number;
-  };
+  } | undefined;
   nextReservation?: {
-    id: string;
+    id: number; // Changé de string à number
     customerName: string;
     startTime: Date;
     partySize: number;
-  };
+  } | undefined;
 }
 
 // Fonction utilitaire pour enregistrer une activité
 async function logTableActivity(
-  userId: string,
+  userId: number, // Changé de string à number
   action: string,
   details: string,
   req: any,
-  tableId?: string
+  tableId?: number // Changé de string à number
 ): Promise<void> {
   try {
     const db = getDb();
     await db.insert(activityLogs).values({
-      id: crypto.randomUUID(),
       userId,
       action,
+      entity: 'table', // Ajout du champ manquant
       details: tableId ? `${details} (Table: ${tableId})` : details,
       ipAddress: req.ip || req.connection.remoteAddress,
       userAgent: req.get('User-Agent'),
@@ -120,24 +120,25 @@ router.get('/',
     // Construire les conditions
     const conditions = [];
 
-    if (location) {
+    // Filtres
+    if (location && typeof location === 'string') {
       conditions.push(eq(tables.location, location));
     }
 
-    if (section) {
+    if (section && typeof section === 'string') {
       conditions.push(eq(tables.section, section));
     }
 
-    if (capacity) {
+    if (capacity && typeof capacity === 'number') {
       conditions.push(eq(tables.capacity, capacity));
     }
 
-    if (isActive !== undefined) {
+    if (isActive !== undefined && typeof isActive === 'boolean') {
       conditions.push(eq(tables.isActive, isActive));
     }
 
     if (conditions.length > 0) {
-      query = query.where(and(...conditions));
+      query = query.where(and(...conditions)) as typeof query;
     }
 
     // Tri
@@ -145,21 +146,26 @@ router.get('/',
                        sortBy === 'capacity' ? tables.capacity :
                        sortBy === 'location' ? tables.location :
                        sortBy === 'section' ? tables.section :
-                       tables.createdAt;
+                       sortBy === 'createdAt' ? tables.createdAt :
+                       tables.number;
 
-    query = sortOrder === 'desc' ?
+    query = (sortOrder === 'desc' ?
       query.orderBy(desc(orderColumn)) :
-      query.orderBy(orderColumn);
+      query.orderBy(orderColumn)) as typeof query;
 
     // Pagination
-    const offset = (page - 1) * limit;
-    const tablesData = await query.limit(limit).offset(offset);
+    const pageNum = typeof page === 'number' ? page : 1;
+    const limitNum = typeof limit === 'number' ? limit : 50;
+    const offset = (pageNum - 1) * limitNum;
+    const tablesData = await query.limit(limitNum).offset(offset);
 
     // Compte total
-    const [{ count }] = await db
+    const countResult = await db
       .select({ count: sql<number>`count(*)` })
       .from(tables)
       .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+    const count = countResult[0]?.count || 0;
 
     logger.info('Tables récupérées', {
       count: tablesData.length,
@@ -174,7 +180,7 @@ router.get('/',
         page,
         limit,
         total: count,
-        totalPages: Math.ceil(count / limit)
+        totalPages: Math.ceil(count / limitNum)
       }
     });
   })
@@ -331,11 +337,9 @@ router.post('/',
     }
 
     // Créer la table
-    const tableId = crypto.randomUUID();
     const [newTable] = await db
       .insert(tables)
       .values({
-        id: tableId,
         ...req.body,
         status: 'available',
         createdAt: new Date(),
@@ -344,21 +348,23 @@ router.post('/',
       .returning();
 
     // Enregistrer l'activité
-    await logTableActivity(
-      currentUser.id,
-      'CREATE_TABLE',
-      `Table créée: #${req.body.number} (${req.body.capacity} places, ${req.body.location})`,
-      req,
-      tableId
-    );
+    if (newTable) {
+      await logTableActivity(
+        currentUser.id,
+        'CREATE_TABLE',
+        `Table créée: #${req.body.number} (${req.body.capacity} places, ${req.body.location})`,
+        req,
+        newTable.id
+      );
 
-    logger.info('Table créée', {
-      tableId,
-      number: req.body.number,
-      capacity: req.body.capacity,
-      location: req.body.location,
-      createdBy: currentUser.id
-    });
+      logger.info('Table créée', {
+        tableId: newTable.id,
+        number: req.body.number,
+        capacity: req.body.capacity,
+        location: req.body.location,
+        createdBy: currentUser.id
+      });
+    }
 
     res.status(201).json({
       success: true,
@@ -372,7 +378,7 @@ router.post('/',
 router.put('/:id',
   authenticateUser,
   requireRoles(['admin', 'manager']),
-  validateParams(z.object({ id: z.string().uuid() })),
+  validateParams(z.object({ id: z.coerce.number().int().positive() })),
   validateBody(UpdateTableSchema.omit({ id: true })),
   invalidateCache(['tables']),
   asyncHandler(async (req, res): Promise<void> => {
@@ -384,7 +390,7 @@ router.put('/:id',
     const [existingTable] = await db
       .select()
       .from(tables)
-      .where(eq(tables.id, id));
+      .where(eq(tables.id, Number(id)));
 
     if (!existingTable) {
       return res.status(404).json({
@@ -400,7 +406,7 @@ router.put('/:id',
         .from(tables)
         .where(and(
           eq(tables.number, req.body.number),
-          ne(tables.id, id)
+          ne(tables.id, Number(id))
         ));
 
       if (numberExists) {
@@ -418,8 +424,15 @@ router.put('/:id',
         ...req.body,
         updatedAt: new Date()
       })
-      .where(eq(tables.id, id))
+      .where(eq(tables.id, Number(id)))
       .returning();
+
+    if (!updatedTable) {
+      return res.status(404).json({
+        success: false,
+        message: 'Table non trouvée'
+      });
+    }
 
     // Enregistrer l'activité
     await logTableActivity(
@@ -427,7 +440,7 @@ router.put('/:id',
       'UPDATE_TABLE',
       `Table mise à jour: #${updatedTable.number} - ${Object.keys(req.body).join(', ')}`,
       req,
-      id
+      Number(id)
     );
 
     logger.info('Table mise à jour', {
@@ -448,7 +461,7 @@ router.put('/:id',
 router.patch('/:id/status',
   authenticateUser,
   requireRoles(['admin', 'manager', 'waiter']),
-  validateParams(z.object({ id: z.string().uuid() })),
+  validateParams(z.object({ id: z.coerce.number().int().positive() })),
   validateBody(TableStatusSchema),
   invalidateCache(['tables']),
   asyncHandler(async (req, res): Promise<void> => {
@@ -461,7 +474,7 @@ router.patch('/:id/status',
     const [existingTable] = await db
       .select()
       .from(tables)
-      .where(eq(tables.id, id));
+      .where(eq(tables.id, Number(id)));
 
     if (!existingTable) {
       return res.status(404).json({
@@ -478,8 +491,15 @@ router.patch('/:id/status',
         notes,
         updatedAt: new Date()
       })
-      .where(eq(tables.id, id))
+      .where(eq(tables.id, Number(id)))
       .returning();
+
+    if (!updatedTable) {
+      return res.status(404).json({
+        success: false,
+        message: 'Table non trouvée'
+      });
+    }
 
     // Enregistrer l'activité
     await logTableActivity(
@@ -487,7 +507,7 @@ router.patch('/:id/status',
       'UPDATE_TABLE_STATUS',
       `Statut table #${existingTable.number} changé: ${existingTable.status} → ${status}${notes ? ` (${notes})` : ''}`,
       req,
-      id
+      Number(id)
     );
 
     logger.info('Statut table mis à jour', {
@@ -511,7 +531,7 @@ router.patch('/:id/status',
 router.delete('/:id',
   authenticateUser,
   requireRoles(['admin']),
-  validateParams(z.object({ id: z.string() })),
+  validateParams(z.object({ id: z.coerce.number().int().positive() })),
   invalidateCache(['tables']),
   asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
@@ -532,7 +552,7 @@ router.delete('/:id',
       .from(reservations)
       .where(
         and(
-          eq(reservations.tableId, id),
+          eq(reservations.tableId, Number(id)),
           sql`${reservations.reservationTime} > NOW()`,
           eq(reservations.status, 'confirmed')
         )
@@ -553,7 +573,7 @@ router.delete('/:id',
         isActive: false,
         updatedAt: new Date()
       })
-      .where(eq(tables.id, id))
+      .where(eq(tables.id, Number(id)))
       .returning();
 
     if (!deactivatedTable) {
@@ -569,11 +589,11 @@ router.delete('/:id',
       'DEACTIVATE_TABLE',
       `Table désactivée: #${deactivatedTable.number}`,
       req,
-      id
+      Number(id)
     );
 
     logger.info('Table désactivée', {
-      tableId: id,
+      tableId: Number(id),
       number: deactivatedTable.number,
       deactivatedBy: currentUser.id
     });
