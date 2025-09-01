@@ -1,29 +1,40 @@
 import { toast as sonnerToast } from 'sonner';
+import React from 'react';
 
 export interface ToastProps {
+  id?: string;
   title?: string;
   description?: string;
-  variant?: 'default' | 'destructive' | 'success' | 'warning' | 'info';
-  duration?: number;
   action?: {
     label: string;
     onClick: () => void;
-  };
+  } | React.ReactElement;
+  duration?: number;
+  variant?: 'default' | 'destructive' | 'success' | 'warning';
 }
 
-class ToastManager {
+export interface ToastFunction {
+  (props: ToastProps): void;
+  success: (props: Omit<ToastProps, 'variant'>) => void;
+  error: (props: Omit<ToastProps, 'variant'>) => void;
+  warning: (props: Omit<ToastProps, 'variant'>) => void;
+}
+
+export type ToastManager = ToastFunction;
+
+class ToastManagerImpl {
   private defaultDuration = 4000;
 
   toast(props: ToastProps) {
     const { title, description, variant = 'default', duration = this.defaultDuration, action } = props;
 
     const message = title || description || '';
-    const options = {
+    const options: any = { // Using 'any' temporarily for sonnerToast options compatibility
       description: title && description ? description : undefined,
       duration,
       action: action ? {
-        label: action.label,
-        onClick: action.onClick
+        label: typeof action === 'object' && 'label' in action ? action.label : undefined,
+        onClick: typeof action === 'object' && 'onClick' in action ? action.onClick : undefined,
       } : undefined
     };
 
@@ -34,27 +45,21 @@ class ToastManager {
         return sonnerToast.error(message, options);
       case 'warning':
         return sonnerToast.warning(message, options);
-      case 'info':
-        return sonnerToast.info(message, options);
       default:
         return sonnerToast(message, options);
     }
   }
 
-  success(title: string, description?: string, duration?: number) {
-    return this.toast({ title, description, variant: 'success', duration });
+  success(props: Omit<ToastProps, 'variant'>) {
+    return this.toast({ ...props, variant: 'success' });
   }
 
-  error(title: string, description?: string, duration?: number) {
-    return this.toast({ title, description, variant: 'destructive', duration });
+  error(props: Omit<ToastProps, 'variant'>) {
+    return this.toast({ ...props, variant: 'destructive' });
   }
 
-  warning(title: string, description?: string, duration?: number) {
-    return this.toast({ title, description, variant: 'warning', duration });
-  }
-
-  info(title: string, description?: string, duration?: number) {
-    return this.toast({ title, description, variant: 'info', duration });
+  warning(props: Omit<ToastProps, 'variant'>) {
+    return this.toast({ ...props, variant: 'warning' });
   }
 
   dismiss(toastId?: string | number) {
@@ -100,7 +105,7 @@ class ToastManager {
     return this.toast({
       title,
       description,
-      variant: 'info',
+      variant: 'info', // Assuming 'info' is the closest for loading, or create a new variant if needed
       duration: 0 // Persistant jusqu'à dismiss
     });
   }
@@ -118,12 +123,12 @@ class ToastManager {
     return operation()
       .then((result) => {
         this.dismiss(loadingToast);
-        this.success(messages.success);
+        this.success({ title: messages.success });
         return result;
       })
       .catch((error) => {
         this.dismiss(loadingToast);
-        this.error(messages.error, error.message);
+        this.error({ title: messages.error, description: error.message });
         throw error;
       });
   }
@@ -133,15 +138,14 @@ class ToastManager {
   }
 }
 
-const toastManager = new ToastManager();
+const toastManager = new ToastManagerImpl();
 
-export const useToast = () => {
+export const useToast = (): ToastManager => {
   return {
     toast: toastManager.toast.bind(toastManager),
     success: toastManager.success.bind(toastManager),
     error: toastManager.error.bind(toastManager),
     warning: toastManager.warning.bind(toastManager),
-    info: toastManager.info.bind(toastManager),
     dismiss: toastManager.dismiss.bind(toastManager),
     promise: toastManager.promise.bind(toastManager),
     confirm: toastManager.confirm.bind(toastManager),

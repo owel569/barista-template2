@@ -1,0 +1,320 @@
+
+server/middleware/auth.ts:108:16 - error TS2769: No overload matches this call.
+  Overload 1 of 5, '(payload: string | object | Buffer<ArrayBufferLike>, secretOrPrivateKey: null, options?: (SignOptions & { algorithm: "none"; }) | undefined): string', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'null'.
+  Overload 2 of 5, '(payload: string | object | Buffer<ArrayBufferLike>, secretOrPrivateKey: Buffer<ArrayBufferLike> | Secret | PrivateKeyInput | JsonWebKeyInput, options?: SignOptions | undefined): string', gave the following error.
+    Type 'string' is not assignable to type 'number | StringValue | undefined'.
+  Overload 3 of 5, '(payload: string | object | Buffer<ArrayBufferLike>, secretOrPrivateKey: Buffer<ArrayBufferLike> | Secret | PrivateKeyInput | JsonWebKeyInput, callback: SignCallback): void', gave the following error.
+    Object literal may only specify known properties, and 'expiresIn' does not exist in type 'SignCallback'.
+
+108     return jwt.sign(payload, JWT_SECRET, {
+                   ~~~~
+
+
+server/middleware/auth.ts:163:13 - error TS18048: 'user' is possibly 'undefined'.
+
+163         id: user.id,
+                ~~~~
+
+server/middleware/auth.ts:164:16 - error TS18048: 'user' is possibly 'undefined'.
+
+164         email: user.email,
+                   ~~~~
+
+server/middleware/auth.ts:165:20 - error TS18048: 'user' is possibly 'undefined'.
+
+165         firstName: user.firstName || '',
+                       ~~~~
+
+server/middleware/auth.ts:166:19 - error TS18048: 'user' is possibly 'undefined'.
+
+166         lastName: user.lastName || '',
+                      ~~~~
+
+server/middleware/auth.ts:167:16 - error TS18048: 'user' is possibly 'undefined'.
+
+167         role: (user.role as AppRole) || 'customer',
+                   ~~~~
+
+server/middleware/auth.ts:168:46 - error TS18048: 'user' is possibly 'undefined'.
+
+168         permissions: this.getRolePermissions(user.role as AppRole),
+                                                 ~~~~
+
+server/middleware/auth.ts:169:19 - error TS18048: 'user' is possibly 'undefined'.
+
+169         isActive: user.isActive ?? true
+                      ~~~~
+
+server/middleware/auth.ts:389:35 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+389       const resourceId = parseInt(req.params[resourceIdParam]);
+                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/middleware/authorization.ts:20:52 - error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+
+20         .where(and(eq(permissions.userId, parseInt(user.id)), eq(permissions.module, moduleName)))
+                                                      ~~~~~~~
+
+server/middleware/cache-advanced.ts:275:21 - error TS2683: 'this' implicitly has type 'any' because it does not have a type annotation.
+
+275     metrics: typeof this.metrics;
+                        ~~~~
+
+  server/middleware/cache-advanced.ts:275:5
+    275     metrics: typeof this.metrics;
+            ~~~~~~~
+    An outer value of 'this' is shadowed by this container.
+
+server/middleware/cache-advanced.ts:359:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+359       return res.json(cachedData);
+          ~~~~~~
+
+server/middleware/cache-advanced.ts:500:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+500       return res.status(400).json({
+          ~~~~~~
+
+server/middleware/database-middleware.ts:2:10 - error TS2614: Module '"../db"' has no exported member 'checkDatabaseHealth'. Did you mean to use 'import checkDatabaseHealth from "../db"' instead?
+
+2 import { checkDatabaseHealth, initializeDatabase } from '../db';
+           ~~~~~~~~~~~~~~~~~~~
+
+server/middleware/database-middleware.ts:2:31 - error TS2614: Module '"../db"' has no exported member 'initializeDatabase'. Did you mean to use 'import initializeDatabase from "../db"' instead?
+
+2 import { checkDatabaseHealth, initializeDatabase } from '../db';
+                                ~~~~~~~~~~~~~~~~~~
+
+server/middleware/database-middleware.ts:24:50 - error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+
+24       logger.error('❌ Échec de la reconnexion:', reconnectError);
+                                                    ~~~~~~~~~~~~~~
+
+server/middleware/error-handler-enhanced.ts:25:5 - error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+
+25     this.requestId = requestId;
+       ~~~~~~~~~~~~~~
+
+server/middleware/error-handler-enhanced.ts:37:5 - error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+
+37     this.field = field;
+       ~~~~~~~~~~
+
+server/middleware/error-handler-enhanced.ts:162:7 - error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+
+162       errorResponse.error.stack = error.stack;
+          ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/middleware/error-handler.ts:18:11 - error TS2395: Individual declarations in merged declaration 'AppError' must be all exported or all local.
+
+18 interface AppError extends Error {
+             ~~~~~~~~
+
+server/middleware/error-handler.ts:34:11 - error TS2395: Individual declarations in merged declaration 'ValidationError' must be all exported or all local.
+
+34 interface ValidationError extends AppError {
+             ~~~~~~~~~~~~~~~
+
+server/middleware/error-handler.ts:102:5 - error TS2304: Cannot find name 'metrics'.
+
+102     metrics.increment('server.errors', 1);
+        ~~~~~~~
+
+server/middleware/error-handler.ts:187:7 - error TS2304: Cannot find name 'metrics'.
+
+187       metrics.increment('database.errors', 1);
+          ~~~~~~~
+
+server/middleware/error-handler.ts:255:65 - error TS2379: Argument of type '{ code: string | undefined; details: any; expose: true; }' is not assignable to parameter of type '{ code?: string; details?: any; retryAfter?: number; expose?: boolean; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'code' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+255         createErrorResponse(err.statusCode || 500, err.message, {
+                                                                    ~
+256           code: err.code?.toString(),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... 
+258           expose: true
+    ~~~~~~~~~~~~~~~~~~~~~~
+259         })
+    ~~~~~~~~~
+
+server/middleware/error-handler.ts:297:14 - error TS2395: Individual declarations in merged declaration 'AppError' must be all exported or all local.
+
+297 export class AppError extends Error {
+                 ~~~~~~~~
+
+server/middleware/error-handler.ts:327:14 - error TS2395: Individual declarations in merged declaration 'ValidationError' must be all exported or all local.
+
+327 export class ValidationError extends AppError {
+                 ~~~~~~~~~~~~~~~
+
+server/middleware/logger.ts:42:11 - error TS2375: Type '{ timestamp: string; level: "INFO"; message: string; metadata: Record<string, unknown> | undefined; }' is not assignable to type 'LogEntry' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'metadata' are incompatible.
+    Type 'Record<string, unknown> | undefined' is not assignable to type 'Record<string, unknown>'.
+      Type 'undefined' is not assignable to type 'Record<string, unknown>'.
+
+42     const entry: LogEntry = {
+             ~~~~~
+
+server/middleware/logger.ts:54:11 - error TS2375: Type '{ timestamp: string; level: "WARN"; message: string; metadata: Record<string, unknown> | undefined; }' is not assignable to type 'LogEntry' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'metadata' are incompatible.
+    Type 'Record<string, unknown> | undefined' is not assignable to type 'Record<string, unknown>'.
+      Type 'undefined' is not assignable to type 'Record<string, unknown>'.
+
+54     const entry: LogEntry = {
+             ~~~~~
+
+server/middleware/logger.ts:73:43 - error TS2345: Argument of type 'Error | ""' is not assignable to parameter of type 'Error | undefined'.
+  Type 'string' is not assignable to type 'Error'.
+
+73     logger.error(`🚨 [ERROR] ${message}`, error || '');
+                                             ~~~~~~~~~~~
+
+server/middleware/logger.ts:83:9 - error TS2322: Type 'unknown' is not assignable to type 'Record<string, unknown>'.
+
+83         metadata
+           ~~~~~~~~
+
+  server/middleware/logger.ts:17:3
+    17   metadata?: Record<string, unknown>;
+         ~~~~~~~~
+    The expected type comes from property 'metadata' which is declared here on type 'LogEntry'
+
+server/middleware/logger.ts:101:11 - error TS2375: Type '{ timestamp: string; level: "ERROR" | "INFO"; method: string; url: string; statusCode: number; responseTime: number; userAgent: string | undefined; ip: string | undefined; userId: any; message: string; metadata: { ...; }; }' is not assignable to type 'LogEntry' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'userAgent' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+101     const logEntry: LogEntry = {
+              ~~~~~~~~
+
+server/middleware/logger.ts:119:12 - error TS2341: Property 'writeLog' is private and only accessible within class 'Logger'.
+
+119     logger.writeLog(logEntry);
+               ~~~~~~~~
+
+server/middleware/logging.ts:216:11 - error TS2375: Type '{ timestamp: string; level: LogLevel; module: string; message: string; meta: Record<string, unknown> | undefined; }' is not assignable to type 'LogEntry' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'meta' are incompatible.
+    Type 'Record<string, unknown> | undefined' is not assignable to type 'Record<string, unknown>'.
+      Type 'undefined' is not assignable to type 'Record<string, unknown>'.
+
+216     const entry: LogEntry = {
+              ~~~~~
+
+server/middleware/logging.ts:230:57 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+230       const logFileDate = this.currentLogFile?.includes(currentDate);
+                                                            ~~~~~~~~~~~
+
+server/middleware/metrics.ts:13:7 - error TS2300: Duplicate identifier 'MetricsCollector'.
+
+13 class MetricsCollector {
+         ~~~~~~~~~~~~~~~~
+
+server/middleware/metrics.ts:29:7 - error TS2451: Cannot redeclare block-scoped variable 'metricsCollector'.
+
+29 const metricsCollector = new MetricsCollector();
+         ~~~~~~~~~~~~~~~~
+
+server/middleware/metrics.ts:31:14 - error TS2451: Cannot redeclare block-scoped variable 'metricsMiddleware'.
+
+31 export const metricsMiddleware = (req: Request, res: Response, next: NextFunction): void => {
+                ~~~~~~~~~~~~~~~~~
+
+server/middleware/metrics.ts:43:7 - error TS2412: Type 'number | undefined' is not assignable to type 'string | undefined' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+
+43       userId: req.user?.id
+         ~~~~~~
+
+  server/middleware/metrics.ts:10:3
+    10   userId?: string;
+         ~~~~~~
+    The expected type comes from property 'userId' which is declared here on type 'MetricsData'
+
+server/middleware/metrics.ts:50:10 - error TS2300: Duplicate identifier 'metricsCollector'.
+
+50 export { metricsCollector };
+            ~~~~~~~~~~~~~~~~
+
+server/middleware/metrics.ts:83:7 - error TS2300: Duplicate identifier 'MetricsCollector'.
+
+83 class MetricsCollector {
+         ~~~~~~~~~~~~~~~~
+
+server/middleware/metrics.ts:84:11 - error TS2564: Property 'metrics' has no initializer and is not definitely assigned in the constructor.
+
+84   private metrics: Metrics;
+             ~~~~~~~
+
+server/middleware/metrics.ts:209:7 - error TS2451: Cannot redeclare block-scoped variable 'metricsCollector'.
+
+209 const metricsCollector = new MetricsCollector();
+          ~~~~~~~~~~~~~~~~
+
+server/middleware/metrics.ts:211:14 - error TS2451: Cannot redeclare block-scoped variable 'metricsMiddleware'.
+
+211 export const metricsMiddleware = (req: Request, res: Response, next: NextFunction) => {
+                 ~~~~~~~~~~~~~~~~~
+
+server/middleware/metrics.ts:219:22 - error TS2339: Property 'recordRequest' does not exist on type 'MetricsCollector'.
+
+219     metricsCollector.recordRequest(req.method, route, res.statusCode, responseTime);
+                         ~~~~~~~~~~~~~
+
+server/middleware/metrics.ts:227:10 - error TS2300: Duplicate identifier 'metricsCollector'.
+
+227 export { metricsCollector };
+             ~~~~~~~~~~~~~~~~
+
+server/middleware/validation.ts:123:22 - error TS2339: Property 'input' does not exist on type 'ZodIssue'.
+  Property 'input' does not exist on type 'ZodCustomIssue & { fatal?: boolean | undefined; message: string; }'.
+
+123           value: err.input
+                         ~~~~~
+
+server/middleware/validation.ts:391:47 - error TS2339: Property 'partial' does not exist on type 'ZodType<T, ZodTypeDef, T>'.
+
+391   update: <T>(schema: ZodSchema<T>) => schema.partial(),
+                                                  ~~~~~~~
+
+server/middleware/validation.ts:404:32 - error TS2339: Property 'shape' does not exist on type 'ZodEffects<ZodObject<{ startDate: ZodOptional<ZodString>; endDate: ZodOptional<ZodString>; }, "strip", ZodTypeAny, { startDate?: string | undefined; endDate?: string | undefined; }, { ...; }>, { ...; }, { ...; }>'.
+
+404     ...commonSchemas.dateRange.shape
+                                   ~~~~~
+
+server/modules/ai-automation.ts:83:52 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+83       const command = await this.parseVoiceCommand(transcript);
+                                                      ~~~~~~~~~~
+
+server/modules/ai-automation.ts:282:27 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+282     const hour = parseInt(time.split(':')[0]);
+                              ~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/customers.routes.ts:76:40 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+76       .where(eq(customers.id, parseInt(id)))
+                                          ~~
+
+server/routes/admin/customers.routes.ts:80:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+80       return res.status(404).json({
+         ~~~~~~
+
+server/routes/admin/customers.routes.ts:111:40 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+111       .where(eq(customers.id, parseInt(id)))
+                                           ~~

@@ -75,11 +75,16 @@ export * from "./toaster"
 export * from "./sonner"
 
 // ===== COMPOSANTS AVANCÉS =====
-export * from "./toggle"
-export * from "./toggle-group"
-export * from "./avatar"
-export * from "./drawer"
-export * from "./theme-provider"
+export { Toggle } from './toggle';
+export { ToggleGroup } from './toggle-group';
+export { Avatar } from './avatar';
+export { Drawer } from './drawer';
+
+// Restaurant Specific Components
+export { MenuItemCard } from './menu-item-card';
+export { ReservationCalendar } from './reservation-calendar';
+export { OrderStatus } from './order-status';
+export { Rating, useRating } from './rating';
 export * from "./virtual-list"
 export * from "./data-grid"
 export * from "./performance"

@@ -1,0 +1,110 @@
+server/routes/menu/menu.routes.ts:502:15 - error TS2304: Cannot find name 'categories'.
+
+502       .insert(categories)
+                  ~~~~~~~~~~
+
+server/routes/online-orders.ts:147:37 - error TS2322: Type '"employee"' is not assignable to type 'AppRole'.
+
+147   requireRoles(['admin', 'manager', 'employee']),
+                                        ~~~~~~~~~~
+
+server/routes/online-orders.ts:244:37 - error TS2322: Type '"employee"' is not assignable to type 'AppRole'.
+
+244   requireRoles(['admin', 'manager', 'employee']),
+                                        ~~~~~~~~~~
+
+server/routes/online-orders.ts:279:37 - error TS2322: Type '"employee"' is not assignable to type 'AppRole'.
+
+279   requireRoles(['admin', 'manager', 'employee']),
+                                        ~~~~~~~~~~
+
+server/routes/online-orders.ts:313:37 - error TS2322: Type '"employee"' is not assignable to type 'AppRole'.
+
+313   requireRoles(['admin', 'manager', 'employee']),
+                                        ~~~~~~~~~~
+
+server/routes/orders/orders.routes.ts:95:23 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "status"; tableName: "orders"; dataType: "string"; columnType: "PgEnumColumn"; data: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>, right: "pending" | ... 4 more ... | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string | string[] | ParsedQs | ParsedQs[]' is not assignable to parameter of type '"pending" | "cancelled" | "preparing" | "ready" | "delivered" | SQLWrapper'.
+      Type 'string' is not assignable to type '"pending" | "cancelled" | "preparing" | "ready" | "delivered" | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string | string[] | ParsedQs | ParsedQs[]>, right: string | string[] | SQLWrapper | ParsedQs | ParsedQs[]): SQL<...>', gave the following error.
+    Argument of type 'PgColumn<{ name: "status"; tableName: "orders"; dataType: "string"; columnType: "PgEnumColumn"; data: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string | string[] | ParsedQs | ParsedQs[]>'.
+      Type 'PgColumn<{ name: "status"; tableName: "orders"; dataType: "string"; columnType: "PgEnumColumn"; data: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string | string[] | ParsedQs | ParsedQs[]>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "status"; tableName: "orders"; dataType: "string"; columnType: "PgEnumColumn"; data: "pending" | "cancelled" | "preparing" | "ready" | "delivered"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+95       conditions.push(eq(orders.status, status));
+                         ~~
+
+
+server/routes/orders/orders.routes.ts:99:23 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "order_type"; tableName: "orders"; dataType: "string"; columnType: "PgVarchar"; data: string; driverParam: string; notNull: true; hasDefault: true; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, { ...; }>, right: string | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string | string[] | ParsedQs | ParsedQs[]' is not assignable to parameter of type 'string | SQLWrapper'.
+      Type 'string[]' is not assignable to type 'string | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string | string[] | ParsedQs | ParsedQs[]>, right: string | string[] | SQLWrapper | ParsedQs | ParsedQs[]): SQL<...>', gave the following error.
+    Argument of type 'PgColumn<{ name: "order_type"; tableName: "orders"; dataType: "string"; columnType: "PgVarchar"; data: string; driverParam: string; notNull: true; hasDefault: true; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, { ...; }>' is not assignable to parameter of type 'Aliased<string | string[] | ParsedQs | ParsedQs[]>'.
+      Type 'PgColumn<{ name: "order_type"; tableName: "orders"; dataType: "string"; columnType: "PgVarchar"; data: string; driverParam: string; notNull: true; hasDefault: true; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, { ...; }>' is missing the following properties from type 'Aliased<string | string[] | ParsedQs | ParsedQs[]>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "order_type"; tableName: "orders"; dataType: "string"; columnType: "PgVarchar"; data: string; driverParam: string; notNull: true; hasDefault: true; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, { ...; }>' is not assignable to parameter of type 'never'.
+
+99       conditions.push(eq(orders.orderType, orderType));
+                         ~~
+
+
+server/routes/orders/orders.routes.ts:103:23 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "customer_id"; tableName: "orders"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>, right: number | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string | string[] | ParsedQs | ParsedQs[]' is not assignable to parameter of type 'number | SQLWrapper'.
+      Type 'string' is not assignable to type 'number | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string | string[] | ParsedQs | ParsedQs[]>, right: string | string[] | SQLWrapper | ParsedQs | ParsedQs[]): SQL<...>', gave the following error.
+    Argument of type 'PgColumn<{ name: "customer_id"; tableName: "orders"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string | string[] | ParsedQs | ParsedQs[]>'.
+      Type 'PgColumn<{ name: "customer_id"; tableName: "orders"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string | string[] | ParsedQs | ParsedQs[]>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "customer_id"; tableName: "orders"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+103       conditions.push(eq(orders.customerId, customerId));
+                          ~~
+
+
+server/routes/orders/orders.routes.ts:107:23 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "table_id"; tableName: "orders"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>, right: number | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string | string[] | ParsedQs | ParsedQs[]' is not assignable to parameter of type 'number | SQLWrapper'.
+      Type 'string' is not assignable to type 'number | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string | string[] | ParsedQs | ParsedQs[]>, right: string | string[] | SQLWrapper | ParsedQs | ParsedQs[]): SQL<...>', gave the following error.
+    Argument of type 'PgColumn<{ name: "table_id"; tableName: "orders"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string | string[] | ParsedQs | ParsedQs[]>'.
+      Type 'PgColumn<{ name: "table_id"; tableName: "orders"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string | string[] | ParsedQs | ParsedQs[]>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "table_id"; tableName: "orders"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+107       conditions.push(eq(orders.tableId, tableId));
+                          ~~
+
+
+server/routes/orders/orders.routes.ts:111:54 - error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'string | string[] | ParsedQs | ParsedQs[]' is not assignable to parameter of type 'string | number | Date'.
+      Type 'string[]' is not assignable to type 'string | number | Date'.
+        Type 'string[]' is missing the following properties from type 'Date': toDateString, toTimeString, toLocaleDateString, toLocaleTimeString, and 37 more.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'string | string[] | ParsedQs | ParsedQs[]' is not assignable to parameter of type 'string | number'.
+      Type 'string[]' is not assignable to type 'string | number'.
+
+111       conditions.push(gte(orders.createdAt, new Date(startDate)));
+                                                         ~~~~~~~~~
+
+
+server/routes/orders/orders.routes.ts:115:54 - error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'string | string[] | ParsedQs | ParsedQs[]' is not assignable to parameter of type 'string | number | Date'.
+      Type 'string[]' is not assignable to type 'string | number | Date'.
+        Type 'string[]' is missing the following properties from type 'Date': toDateString, toTimeString, toLocaleDateString, toLocaleTimeString, and 37 more.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'string | string[] | ParsedQs | ParsedQs[]' is not assignable to parameter of type 'string | number'.
+      Type 'string[]' is not assignable to type 'string | number'.
+
+115       conditions.push(lte(orders.createdAt, new Date(endDate)));
+                                                         ~~~~~~~
+
+
+server/routes/orders/orders.routes.ts:119:7 - error TS2741: Property 'where' is missing in type 'Omit<import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"orders", { id: import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam:...' but required in type 'Omit<import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"orders", { id: import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam:...'.
+
+119       query = query.where(and(...conditions));

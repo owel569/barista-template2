@@ -19,7 +19,7 @@ import { Equipment } from './maintenance-management';
 
 interface EquipmentFormProps {
   initialData?: Equipment | null;
-  onSubmit: (data: Omit<Equipment, 'id'> | Partial<Equipment>) => void;
+  onSubmit: (data: Omit<Equipment, 'id'>) => void;
   onCancel: () => void;
 }
 

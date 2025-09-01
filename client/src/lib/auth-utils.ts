@@ -78,7 +78,7 @@ export class AuthTokenManager {
   static isTokenExpiringSoon(): boolean {
     const token = this.getToken();
     if (!token) return false;
-    
+
     try {
       const decoded = jwtDecode<TokenPayload>(token);
       const currentTime = Date.now() / 1000;
@@ -116,6 +116,9 @@ export class ApiClient {
   static async post<T>(endpoint: string, data?: Record<string, unknown>): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: data ? JSON.stringify(data) : undefined,
     });
   }
@@ -127,6 +130,9 @@ export class ApiClient {
   static async put<T>(endpoint: string, data?: unknown): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: data ? JSON.stringify(data) : undefined,
     });
   }

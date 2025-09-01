@@ -22,7 +22,7 @@ import {
   Download, Upload, AlertCircle, CheckCircle, User,
   Coffee, Utensils, UserCheck, RotateCw, Bell, Search,
   Filter, ChevronDown, ChevronUp, BarChart2, AlertTriangle,
-  Mail, MessageSquare, Printer, Share2, Settings, RefreshCw
+  Mail, MessageSquare, Printer, Share2, Settings, RefreshCw, X
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { Toaster } from '@/components/ui/toaster';

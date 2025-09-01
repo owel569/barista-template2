@@ -228,17 +228,17 @@ export default function Settings({ userRole }: SettingsProps) {
       const newSettings = { ...prev };
       const keys = path.split('.');
       let current: any = newSettings;
-      
+
       for (let i = 0; i < keys.length - 1; i++) {
         current = current[keys[i]];
       }
-      
+
       current[keys[keys.length - 1]] = value;
       return newSettings;
     });
   }, []);
 
-  const updateOpeningHours = useCallback((day: string, field: string, value: string | boolean) => {
+  const updateOpeningHours = useCallback((day: string, field: keyof OpeningHours, value: string | boolean) => {
     setDraftSettings(prev => ({
       ...prev,
       openingHours: {
@@ -346,8 +346,8 @@ export default function Settings({ userRole }: SettingsProps) {
           <p className="text-muted-foreground">Configurez les paramètres généraux</p>
         </div>
         {hasPermission('settings', 'edit') && (
-          <Button 
-            onClick={handleSave} 
+          <Button
+            onClick={handleSave}
             disabled={!hasChanges || saveMutation.isPending}
             className="min-w-32"
           >
@@ -423,7 +423,7 @@ export default function Settings({ userRole }: SettingsProps) {
                   />
                 </div>
               </div>
-              
+
               <div>
                 <Label htmlFor="address">Adresse</Label>
                 <Input
@@ -433,7 +433,7 @@ export default function Settings({ userRole }: SettingsProps) {
                   disabled={!hasPermission('settings', 'edit')}
                 />
               </div>
-              
+
               <div>
                 <Label htmlFor="description">Description</Label>
                 <Textarea
@@ -557,7 +557,7 @@ export default function Settings({ userRole }: SettingsProps) {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
-                  <Label>Réservation maximum (jours à l'avance)</Label>
+                  <Label>Réservation maximum (jours à l\'avance)</Label>
                   <Input
                     type="number"
                     min="1"
@@ -663,7 +663,7 @@ export default function Settings({ userRole }: SettingsProps) {
               </div>
 
               <div className="space-y-2">
-                <Label>Modèle de notification d'annulation</Label>
+                <Label>Modèle de notification d\'annulation</Label>
                 <Textarea
                   value={draftSettings.notificationSettings.cancellationTemplate}
                   onChange={(e) => handleChange('notificationSettings.cancellationTemplate', e.target.value)}
@@ -696,14 +696,14 @@ export default function Settings({ userRole }: SettingsProps) {
                   {draftSettings.specialDates.closedDates.length > 0 && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                       {draftSettings.specialDates.closedDates.map(date => (
-                        <Badge 
-                          key={date} 
-                          variant="outline" 
+                        <Badge
+                          key={date}
+                          variant="outline"
                           className="flex justify-between items-center"
                         >
                           {new Date(date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                           {hasPermission('settings', 'edit') && (
-                            <button 
+                            <button
                               onClick={() => removeClosedDate(date)}
                               className="ml-2 text-muted-foreground hover:text-destructive"
                             >
@@ -727,7 +727,7 @@ export default function Settings({ userRole }: SettingsProps) {
                           {new Date(date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                         </span>
                         {hasPermission('settings', 'edit') && (
-                          <button 
+                          <button
                             onClick={() => removeSpecialHours(date)}
                             className="text-sm text-destructive"
                           >
@@ -743,9 +743,10 @@ export default function Settings({ userRole }: SettingsProps) {
                             const index = updatedHours.findIndex(sh => sh.date === date);
                             if (index >= 0) {
                               updatedHours[index] = {
-                                ...updatedHours[index],
+                                date: updatedHours[index]?.date || '',
+                                note: updatedHours[index]?.note || '',
                                 openingHours: {
-                                  ...updatedHours[index].openingHours,
+                                  ...updatedHours[index]?.openingHours,
                                   closed: !checked
                                 }
                               };
@@ -771,9 +772,10 @@ export default function Settings({ userRole }: SettingsProps) {
                               const index = updatedHours.findIndex(sh => sh.date === date);
                               if (index >= 0) {
                                 updatedHours[index] = {
-                                  ...updatedHours[index],
+                                  date: updatedHours[index]?.date || '',
+                                  note: updatedHours[index]?.note || '',
                                   openingHours: {
-                                    ...updatedHours[index].openingHours,
+                                    ...updatedHours[index]?.openingHours,
                                     open: value
                                   }
                                 };
@@ -796,9 +798,10 @@ export default function Settings({ userRole }: SettingsProps) {
                               const index = updatedHours.findIndex(sh => sh.date === date);
                               if (index >= 0) {
                                 updatedHours[index] = {
-                                  ...updatedHours[index],
+                                  date: updatedHours[index]?.date || '',
+                                  note: updatedHours[index]?.note || '',
                                   openingHours: {
-                                    ...updatedHours[index].openingHours,
+                                    ...updatedHours[index]?.openingHours,
                                     close: value
                                   }
                                 };
@@ -824,8 +827,11 @@ export default function Settings({ userRole }: SettingsProps) {
                             const index = updatedHours.findIndex(sh => sh.date === date);
                             if (index >= 0) {
                               updatedHours[index] = {
-                                ...updatedHours[index],
-                                note: e.target.value
+                                date: updatedHours[index]?.date || '',
+                                note: updatedHours[index]?.note || '',
+                                openingHours: {
+                                  ...updatedHours[index]?.openingHours,
+                                }
                               };
                               setDraftSettings(prev => ({
                                 ...prev,

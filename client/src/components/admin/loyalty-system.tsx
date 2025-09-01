@@ -16,7 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { toast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -86,6 +86,7 @@ export default function LoyaltySystem() : JSX.Element {
   const [sortConfig, setSortConfig] = useState<{key: keyof LoyaltyCustomer; direction: 'ascending' | 'descending'} | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<{type: 'customer' | 'reward', id: number} | null>(null);
+  const { toast } = useToast();
 
   // Niveaux de fidélité avec seuils
   const loyaltyLevels = [
@@ -206,10 +207,14 @@ export default function LoyaltySystem() : JSX.Element {
     // Sort if sortConfig exists
     if (sortConfig) {
       result.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
+        if (!a || !b) return 0;
+        const aValue = a[sortConfig.key];
+        const bValue = b[sortConfig.key];
+        if (aValue === undefined || bValue === undefined) return 0;
+        if (aValue < bValue) {
           return sortConfig.direction === 'ascending' ? -1 : 1;
         }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
+        if (aValue > bValue) {
           return sortConfig.direction === 'ascending' ? 1 : -1;
         }
         return 0;
@@ -266,8 +271,7 @@ export default function LoyaltySystem() : JSX.Element {
       if (response.ok) {
         toast({
           title: 'Succès',
-          description: `${points} points ont été ajoutés avec succès`,
-          action: <Check className="h-4 w-4 text-green-500" />
+          description: `${points} points ont été ajoutés avec succès`
         });
         await fetchLoyaltyData();
         setPointsToAdd('');
@@ -305,8 +309,7 @@ export default function LoyaltySystem() : JSX.Element {
       if (response.ok) {
         toast({
           title: 'Succès',
-          description: `Le ${itemToDelete.type === 'customer' ? 'client' : 'récompense'} a été supprimé avec succès`,
-          action: <Check className="h-4 w-4 text-green-500" />
+          description: `Le ${itemToDelete.type === 'customer' ? 'client' : 'récompense'} a été supprimé avec succès`
         });
         await fetchLoyaltyData();
       } else {
@@ -855,9 +858,9 @@ export default function LoyaltySystem() : JSX.Element {
                   <div className="space-y-3">
                     {loyaltyLevels.slice(0, -1).map((level, index) => (
                       <div key={level.name} className="flex items-center justify-between">
-                        <span>{level.name} → {loyaltyLevels[index + 1].name}</span>
+                        <span>{level.name} → {loyaltyLevels[index + 1]?.name || 'Niveau supérieur'}</span>
                         <Badge variant="outline">
-                          {loyaltyLevels[index + 1].threshold}€
+                          {loyaltyLevels[index + 1]?.threshold || 0}€
                         </Badge>
                       </div>
                     ))}

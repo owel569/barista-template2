@@ -194,11 +194,13 @@ export default function ActivityLogs(): JSX.Element {
       description: activity.description,
       severity: activity.severity,
       ipAddress: activity.ipAddress,
-      userAgent: activity.userAgent || undefined,
-      metadata: activity.metadata || undefined,
-      affectedResource: activity.affectedResource || undefined,
-      previousValue: activity.previousValue || undefined,
-      newValue: activity.newValue || undefined
+
+      ...(activity.userAgent && { userAgent: activity.userAgent }),
+      ...(activity.metadata && { metadata: activity.metadata }),
+      ...(activity.affectedResource && { affectedResource: activity.affectedResource }),
+      ...(activity.previousValue && { previousValue: activity.previousValue }),
+      ...(activity.newValue && { newValue: activity.newValue })
+
     };
 
     setLogs(prev => [newLog, ...prev].slice(0, 1000)); // Garder seulement les 1000 derniers logs
@@ -215,6 +217,8 @@ export default function ActivityLogs(): JSX.Element {
 
       return () => clearInterval(interval);
     }
+    
+    return () => {}; // Cleanup function même si pas d'interval
   }, [isRealTimeEnabled, generateMockActivity, loadActivityLogs]);
 
   // Filtrage des logs

@@ -1,0 +1,306 @@
+client/src/lib/auth-utils.ts:128:38 - error TS2379: Argument of type '{ method: string; body: string | undefined; }' is not assignable to parameter of type 'RequestInit' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'body' are incompatible.
+    Type 'string | undefined' is not assignable to type 'BodyInit | null'.
+      Type 'undefined' is not assignable to type 'BodyInit | null'.
+
+128     return this.request<T>(endpoint, {
+                                         ~
+129       method: 'PUT',
+    ~~~~~~~~~~~~~~~~~~~~
+130       body: data ? JSON.stringify(data) : undefined,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+131     });
+    ~~~~~
+
+client/src/lib/excel-export.ts:98:44 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(o: {}): string[]', gave the following error.
+    Argument of type 'ExportData | undefined' is not assignable to parameter of type '{}'.
+      Type 'undefined' is not assignable to type '{}'.
+  Overload 2 of 2, '(o: object): string[]', gave the following error.
+    Argument of type 'ExportData | undefined' is not assignable to parameter of type 'object'.
+      Type 'undefined' is not assignable to type 'object'.
+
+98     const columns = headers || Object.keys(data[0]);
+                                              ~~~~~~~
+
+
+client/src/lib/security.ts:271:32 - error TS2532: Object is possibly 'undefined'.
+
+271     while (calls.length > 0 && calls[0] <= now - windowMs) {
+                                   ~~~~~~~~
+
+client/src/pages/AdminFinal.tsx:79:44 - error TS2554: Expected 0 arguments, but got 1.
+
+79   const { hasPermission } = usePermissions(user?.role || 'employe');
+                                              ~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/pages/Reservations.tsx:39:20 - error TS2339: Property 'mutate' does not exist on type 'UseMutateFunction<Reservation, Error, ReservationForm, unknown>'.
+
+39     addReservation.mutate(form, {
+                      ~~~~~~
+
+client/src/pages/Reservations.tsx:102:56 - error TS2339: Property 'isPending' does not exist on type 'UseMutateFunction<Reservation, Error, ReservationForm, unknown>'.
+
+102         <button type="submit" disabled={addReservation.isPending}>
+                                                           ~~~~~~~~~
+
+client/src/pages/Reservations.tsx:103:27 - error TS2339: Property 'isPending' does not exist on type 'UseMutateFunction<Reservation, Error, ReservationForm, unknown>'.
+
+103           {addReservation.isPending ? "Envoi..." : "Réserver"}
+                              ~~~~~~~~~
+
+client/src/pages/register.tsx:26:5 - error TS2322: Type 'null' is not assignable to type 'Element'.
+
+26     return null;
+       ~~~~~~
+
+client/src/pages/reservation-with-cart.tsx:81:7 - error TS2322: Type 'string' is not assignable to type 'Date'.
+
+81       date: "",
+         ~~~~
+
+client/src/pages/reservation-with-cart.tsx:92:38 - error TS2559: Type '"/api/menu/categories"' has no properties in common with type 'RequestInit'.
+
+92     queryFn: () => apiRequest("GET", "/api/menu/categories").then(res => res.json()),
+                                        ~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/pages/reservation-with-cart.tsx:98:38 - error TS2559: Type '"/api/menu/items"' has no properties in common with type 'RequestInit'.
+
+98     queryFn: () => apiRequest("GET", "/api/menu/items").then(res => res.json()),
+                                        ~~~~~~~~~~~~~~~~~
+
+client/src/pages/reservation-with-cart.tsx:223:18 - error TS2375: Type '{ children: any[]; value: string | undefined; onValueChange: (value: string) => void; }' is not assignable to type 'TabsProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'value' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+223                 <Tabs value={selectedCategory?.toString()} onValueChange={(value) => setSelectedCategory(parseInt(value))}>
+                     ~~~~
+
+client/src/pages/reservation-with-cart.tsx:346:46 - error TS2345: Argument of type '(data: ReservationFormData) => void' is not assignable to parameter of type 'SubmitHandler<TFieldValues>'.
+  Types of parameters 'data' and 'data' are incompatible.
+    Type 'TFieldValues' is not assignable to type '{ time: string; date: Date; partySize: number; id?: number | undefined; status?: "confirmed" | "pending" | "cancelled" | "completed" | undefined; specialRequests?: string | null | undefined; ... 4 more ...; tableId?: number | ... 1 more ... | undefined; }'.
+      Type 'FieldValues' is missing the following properties from type '{ time: string; date: Date; partySize: number; id?: number | undefined; status?: "confirmed" | "pending" | "cancelled" | "completed" | undefined; specialRequests?: string | null | undefined; ... 4 more ...; tableId?: number | ... 1 more ... | undefined; }': time, date, partySize
+
+346                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                                                 ~~~~~~~~
+
+client/src/pages/reservation-with-cart.tsx:352:38 - error TS2345: Argument of type '"customerName"' is not assignable to parameter of type '"time" | "id" | "status" | "date" | "partySize" | "specialRequests" | "notes" | "createdAt" | "updatedAt" | "customerId" | "tableId"'.
+
+352                         {...register("customerName")}
+                                         ~~~~~~~~~~~~~~
+
+client/src/pages/reservation-with-cart.tsx:355:31 - error TS2339: Property 'customerName' does not exist on type 'FieldErrors<{ time: string; date: Date; partySize: number; id?: number | undefined; status?: "confirmed" | "pending" | "cancelled" | "completed" | undefined; specialRequests?: string | null | undefined; ... 4 more ...; tableId?: number | ... 1 more ... | undefined; }>'.
+
+355                       {errors.customerName && (
+                                  ~~~~~~~~~~~~
+
+client/src/pages/reservation-with-cart.tsx:357:35 - error TS2339: Property 'customerName' does not exist on type 'FieldErrors<{ time: string; date: Date; partySize: number; id?: number | undefined; status?: "confirmed" | "pending" | "cancelled" | "completed" | undefined; specialRequests?: string | null | undefined; ... 4 more ...; tableId?: number | ... 1 more ... | undefined; }>'.
+
+357                           {errors.customerName.message}
+                                      ~~~~~~~~~~~~
+
+client/src/pages/reservation-with-cart.tsx:367:38 - error TS2345: Argument of type '"customerEmail"' is not assignable to parameter of type '"time" | "id" | "status" | "date" | "partySize" | "specialRequests" | "notes" | "createdAt" | "updatedAt" | "customerId" | "tableId"'.
+
+367                         {...register("customerEmail")}
+                                         ~~~~~~~~~~~~~~~
+
+client/src/pages/reservation-with-cart.tsx:370:31 - error TS2551: Property 'customerEmail' does not exist on type 'FieldErrors<{ time: string; date: Date; partySize: number; id?: number | undefined; status?: "confirmed" | "pending" | "cancelled" | "completed" | undefined; specialRequests?: string | null | undefined; ... 4 more ...; tableId?: number | ... 1 more ... | undefined; }>'. Did you mean 'customerId'?
+
+370                       {errors.customerEmail && (
+                                  ~~~~~~~~~~~~~
+
+client/src/pages/reservation-with-cart.tsx:372:35 - error TS2551: Property 'customerEmail' does not exist on type 'FieldErrors<{ time: string; date: Date; partySize: number; id?: number | undefined; status?: "confirmed" | "pending" | "cancelled" | "completed" | undefined; specialRequests?: string | null | undefined; ... 4 more ...; tableId?: number | ... 1 more ... | undefined; }>'. Did you mean 'customerId'?
+
+372                           {errors.customerEmail.message}
+                                      ~~~~~~~~~~~~~
+
+client/src/pages/reservation-with-cart.tsx:381:38 - error TS2345: Argument of type '"customerPhone"' is not assignable to parameter of type '"time" | "id" | "status" | "date" | "partySize" | "specialRequests" | "notes" | "createdAt" | "updatedAt" | "customerId" | "tableId"'.
+
+381                         {...register("customerPhone")}
+                                         ~~~~~~~~~~~~~~~
+
+client/src/pages/reservation-with-cart.tsx:385:31 - error TS2339: Property 'customerPhone' does not exist on type 'FieldErrors<{ time: string; date: Date; partySize: number; id?: number | undefined; status?: "confirmed" | "pending" | "cancelled" | "completed" | undefined; specialRequests?: string | null | undefined; ... 4 more ...; tableId?: number | ... 1 more ... | undefined; }>'.
+
+385                       {errors.customerPhone && (
+                                  ~~~~~~~~~~~~~
+
+client/src/pages/reservation-with-cart.tsx:387:35 - error TS2339: Property 'customerPhone' does not exist on type 'FieldErrors<{ time: string; date: Date; partySize: number; id?: number | undefined; status?: "confirmed" | "pending" | "cancelled" | "completed" | undefined; specialRequests?: string | null | undefined; ... 4 more ...; tableId?: number | ... 1 more ... | undefined; }>'.
+
+387                           {errors.customerPhone.message}
+                                      ~~~~~~~~~~~~~
+
+client/src/pages/reservation-with-cart.tsx:438:38 - error TS2345: Argument of type '"guests"' is not assignable to parameter of type '"time" | "id" | "status" | "date" | "partySize" | "specialRequests" | "notes" | "createdAt" | "updatedAt" | "customerId" | "tableId"'.
+
+438                         {...register("guests", { valueAsNumber: true })}
+                                         ~~~~~~~~
+
+client/src/pages/reservation-with-cart.tsx:441:31 - error TS2339: Property 'guests' does not exist on type 'FieldErrors<{ time: string; date: Date; partySize: number; id?: number | undefined; status?: "confirmed" | "pending" | "cancelled" | "completed" | undefined; specialRequests?: string | null | undefined; ... 4 more ...; tableId?: number | ... 1 more ... | undefined; }>'.
+
+441                       {errors.guests && (
+                                  ~~~~~~
+
+client/src/pages/reservation-with-cart.tsx:443:35 - error TS2339: Property 'guests' does not exist on type 'FieldErrors<{ time: string; date: Date; partySize: number; id?: number | undefined; status?: "confirmed" | "pending" | "cancelled" | "completed" | undefined; specialRequests?: string | null | undefined; ... 4 more ...; tableId?: number | ... 1 more ... | undefined; }>'.
+
+443                           {errors.guests.message}
+                                      ~~~~~~
+
+client/src/types/admin.ts:128:3 - error TS2717: Subsequent property declarations must have the same type.  Property 'role' must be of type '"directeur" | "employe"', but here has type 'string'.
+
+128   role: string;
+      ~~~~
+
+  client/src/types/admin.ts:4:3
+    4   role: 'directeur' | 'employe';
+        ~~~~
+    'role' was also declared here.
+
+client/src/types/admin.ts:171:10 - error TS2304: Cannot find name 'AuthenticatedUser'.
+
+171   user?: AuthenticatedUser;
+             ~~~~~~~~~~~~~~~~~
+
+server/ImageManager.ts:31:36 - error TS2322: Type '{ id: number; menuItemId: number | null; imageUrl: string; altText: string | null; isPrimary: boolean; sortOrder: number; createdAt: Date; } | undefined' is not assignable to type 'MenuItemImage | null'.
+  Type 'undefined' is not assignable to type 'MenuItemImage | null'.
+
+31         return result.length > 0 ? result[0] : null;
+                                      ~~~~~~~~~
+
+server/ImageManager.ts:39:9 - error TS2322: Type '{ id: number; menuItemId: number | null; imageUrl: string; altText: string | null; isPrimary: boolean; sortOrder: number; createdAt: Date; }[]' is not assignable to type 'MenuItemImage[]'.
+  Type '{ id: number; menuItemId: number | null; imageUrl: string; altText: string | null; isPrimary: boolean; sortOrder: number; createdAt: Date; }' is missing the following properties from type 'MenuItemImage': uploadMethod, updatedAt
+
+39         return await db
+           ~~~~~~
+
+server/ImageManager.ts:60:57 - error TS2532: Object is possibly 'undefined'.
+
+60             altText = menuItem.length > 0 ? `Image de ${menuItem[0].name}` : 'Image du menu';
+                                                           ~~~~~~~~~~~
+
+server/ImageManager.ts:73:14 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { imageUrl: string | SQL<unknown> | Placeholder<string, any>; id?: number | SQL<unknown> | Placeholder<string, any> | undefined; createdAt?: Date | SQL<...> | Placeholder<...> | undefined; sortOrder?: number | ... 2 more ... | undefined; altText?: string | ... 3 more ... | undefined; menuItemId?: number | ... 3 more ... | undefined; isPrimary?: boolean | ... 2 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'uploadMethod' does not exist in type '{ imageUrl: string | SQL<unknown> | Placeholder<string, any>; id?: number | SQL<unknown> | Placeholder<string, any> | undefined; createdAt?: Date | SQL<...> | Placeholder<...> | undefined; sortOrder?: number | ... 2 more ... | undefined; altText?: string | ... 3 more ... | undefined; menuItemId?: number | ... 3 more...'.
+  Overload 2 of 2, '(values: { imageUrl: string | SQL<unknown> | Placeholder<string, any>; id?: number | SQL<unknown> | Placeholder<string, any> | undefined; createdAt?: Date | SQL<...> | Placeholder<...> | undefined; sortOrder?: number | ... 2 more ... | undefined; altText?: string | ... 3 more ... | undefined; menuItemId?: number | ... 3 more ... | undefined; isPrimary?: boolean | ... 2 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'altText' does not exist in type '{ imageUrl: string | SQL<unknown> | Placeholder<string, any>; id?: number | SQL<unknown> | Placeholder<string, any> | undefined; createdAt?: Date | SQL<...> | Placeholder<...> | undefined; sortOrder?: number | ... 2 more ... | undefined; altText?: string | ... 3 more ... | undefined; menuItemId?: number | ... 3 more...'.
+
+73             .values({
+                ~~~~~~
+
+
+server/ImageManager.ts:80:9 - error TS2322: Type '{ id: number; imageUrl: string; createdAt: Date; sortOrder: number; altText: string | null; menuItemId: number | null; isPrimary: boolean; } | undefined' is not assignable to type 'MenuItemImage'.
+  Type 'undefined' is not assignable to type 'MenuItemImage'.
+
+80         return newImage;
+           ~~~~~~
+
+server/ImageManager.ts:101:28 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "menu_item_id"; tableName: "menu_item_images"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>, right: number | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'number | null' is not assignable to parameter of type 'number | SQLWrapper'.
+      Type 'null' is not assignable to type 'number | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<number | null>, right: number | SQLWrapper | null): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "menu_item_id"; tableName: "menu_item_images"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<number | null>'.
+      Type 'PgColumn<{ name: "menu_item_id"; tableName: "menu_item_images"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<number | null>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "menu_item_id"; tableName: "menu_item_images"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+101                     .where(eq(menuItemImages.menuItemId, existingImage[0].menuItemId));
+                               ~~
+
+
+server/ImageManager.ts:101:58 - error TS2532: Object is possibly 'undefined'.
+
+101                     .where(eq(menuItemImages.menuItemId, existingImage[0].menuItemId));
+                                                             ~~~~~~~~~~~~~~~~
+
+server/ImageManager.ts:107:32 - error TS2353: Object literal may only specify known properties, and 'updatedAt' does not exist in type '{ imageUrl?: string | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined; id?: number | SQL<unknown> | PgColumn<...> | undefined; ... 4 more ...; isPrimary?: boolean | ... 2 more ... | undefined; }'.
+
+107             .set({ ...updates, updatedAt: new Date() })
+                                   ~~~~~~~~~
+
+server/ImageManager.ts:111:9 - error TS2322: Type '{ id: number; menuItemId: number | null; imageUrl: string; altText: string | null; isPrimary: boolean; sortOrder: number; createdAt: Date; } | null' is not assignable to type 'MenuItemImage | null'.
+  Type '{ id: number; menuItemId: number | null; imageUrl: string; altText: string | null; isPrimary: boolean; sortOrder: number; createdAt: Date; }' is missing the following properties from type 'MenuItemImage': uploadMethod, updatedAt
+
+111         return result[0] || null;
+            ~~~~~~
+
+server/ImageManager.ts:148:52 - error TS2532: Object is possibly 'undefined'.
+
+148         const menuItemName = menuItem.length > 0 ? menuItem[0].name : 'Élément de menu';
+                                                       ~~~~~~~~~~~
+
+server/ImageManager.ts:190:25 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+190                         imageUrl: imageMapping[menuItem.name],
+                            ~~~~~~~~
+
+  server/image-manager.ts:16:3
+    16   imageUrl: string;
+         ~~~~~~~~
+    The expected type comes from property 'imageUrl' which is declared here on type 'InsertMenuItemImage'
+
+server/ImageManager.ts:205:17 - error TS2304: Cannot find name 'logger'.
+
+205                 logger.error(`❌ Erreur migration image pour ${menuItem.name}:`, { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+                    ~~~~~~
+
+server/config/production.ts:5:23 - error TS2307: Cannot find module 'express-rate-limit' or its corresponding type declarations.
+
+5 import rateLimit from 'express-rate-limit';
+                        ~~~~~~~~~~~~~~~~~~~~
+
+server/config/production.ts:55:17 - error TS7006: Parameter 'req' implicitly has an 'any' type.
+
+55       handler: (req, res) => {
+                   ~~~
+
+server/config/production.ts:55:22 - error TS7006: Parameter 'res' implicitly has an 'any' type.
+
+55       handler: (req, res) => {
+                        ~~~
+
+server/config/production.ts:114:9 - error TS18048: 'allowed' is possibly 'undefined'.
+
+114         allowed.includes('*') ?
+            ~~~~~~~
+
+server/config/production.ts:115:22 - error TS18048: 'allowed' is possibly 'undefined'.
+
+115         origin.match(allowed.replace('*', '.*')) :
+                         ~~~~~~~
+
+server/middleware/api-validator.ts:60:59 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'Error'.
+
+60         logger.error('🚨 Réponse API non-JSON détectée:', body.substring(0, 100));
+                                                             ~~~~~~~~~~~~~~~~~~~~~~
+
+server/middleware/api-validator.ts:91:53 - error TS2345: Argument of type 'ApiResponse<unknown>' is not assignable to parameter of type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'ApiResponse<unknown>'.
+
+91       logger.warn('Schéma de réponse non standard', response);
+                                                       ~~~~~~~~
+
+server/middleware/api-validator.ts:102:70 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'Error'.
+
+102         logger.error('🚨 Tentative d\'envoi de HTML sur route API:', req.path);
+                                                                         ~~~~~~~~
+
+server/middleware/api-validator.ts:150:5 - error TS2353: Object literal may only specify known properties, and 'error' does not exist in type 'Error'.
+
+150     error: error,
+        ~~~~~
+
+server/middleware/api-validator.ts:178:55 - error TS2345: Argument of type 'ApiResponse<unknown>' is not assignable to parameter of type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'ApiResponse<unknown>'.
+
+178     logger.warn('Response schema validation failed:', response);
+                                                          ~~~~~~~~
+
+server/middleware/api-validator.ts:204:5 - error TS2322: Type '{ name: string; message: string; stack: string | undefined; details: {} | null | undefined; }' is not assignable to type 'string | StandardError'.
+  Type '{ name: string; message: string; stack: string | undefined; details: {} | null | undefined; }' is not assignable to type 'StandardError' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'stack' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+
+204     return {
+        ~~~~~~

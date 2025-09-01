@@ -27,7 +27,7 @@ export const users = pgTable('users', {
   role: varchar('role', { length: 50 }).default('customer').notNull(),
   isActive: boolean('is_active').default(true).notNull(),
   permissions: text('permissions').array(),
-  avatarUrl: varchar('avatar_url', { length: 255 }), // Ajout du champ manquant
+  avatarUrl: varchar('avatar_url', { length: 255 }),
   lastLoginAt: timestamp('last_login_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()
@@ -44,21 +44,34 @@ export const menuCategories = pgTable("menu_categories", {
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 });
 
-export const menuItems = pgTable("menu_items", {
+export const menuItems = pgTable('menu_items', {
   id: serial('id').primaryKey(),
-  name: varchar('name', { length: 100 }).notNull(),
+  name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
   price: decimal('price', { precision: 10, scale: 2 }).notNull(),
   categoryId: integer('category_id').references(() => menuCategories.id),
-  category: varchar('category', { length: 50 }),
-  imageUrl: varchar('image_url', { length: 255 }),
+  imageUrl: varchar('image_url', { length: 500 }),
   isAvailable: boolean('is_available').notNull().default(true),
   isVegetarian: boolean('is_vegetarian').notNull().default(false),
+  isVegan: boolean('is_vegan').notNull().default(false),
   isGlutenFree: boolean('is_gluten_free').notNull().default(false),
-  stock: integer('stock').notNull().default(0), // Ajout du champ manquant
-  allergens: json('allergens'),
+  stock: integer('stock').notNull().default(0),
+  allergens: text('allergens').array(),
+  ingredients: text('ingredients').array(),
   nutritionalInfo: json('nutritional_info'),
-  sortOrder: integer('sort_order').notNull().default(0),
+  preparationTime: integer('preparation_time'),
+  preparationTimeMinutes: integer('preparation_time_minutes'),
+  calories: integer('calories'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
+});
+
+export const categories = pgTable('categories', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  description: text('description'),
+  displayOrder: integer('display_order').default(0),
+  isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 });
@@ -72,7 +85,7 @@ export const tables = pgTable("tables", {
   section: varchar('section', { length: 50 }),
   features: json('features').default([]),
   description: text('description'),
-  notes: text('notes'), // Ajout du champ manquant
+  notes: text('notes'),
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow()
@@ -80,7 +93,7 @@ export const tables = pgTable("tables", {
 
 export const customers = pgTable("customers", {
   id: serial('id').primaryKey(),
-  userId: integer('user_id').references(() => users.id), // Ajout du champ manquant
+  userId: integer('user_id').references(() => users.id),
   firstName: varchar('first_name', { length: 50 }).notNull(),
   lastName: varchar('last_name', { length: 50 }).notNull(),
   email: varchar('email', { length: 100 }).notNull().unique(),
@@ -100,8 +113,8 @@ export const reservations = pgTable("reservations", {
   tableId: integer('table_id').references(() => tables.id),
   date: timestamp('date').notNull(),
   time: varchar('time', { length: 10 }).notNull(),
-  reservationTime: timestamp('reservation_time').notNull(), // Ajout du champ manquant
-  guestName: varchar('guest_name', { length: 100 }), // Ajout du champ manquant
+  reservationTime: timestamp('reservation_time').notNull(),
+  guestName: varchar('guest_name', { length: 100 }),
   partySize: integer('party_size').notNull(),
   status: reservationStatusEnum('status').notNull().default('pending'),
   specialRequests: text('special_requests'),
@@ -110,17 +123,15 @@ export const reservations = pgTable("reservations", {
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 });
 
-export const orders = pgTable("orders", {
+export const orders = pgTable('orders', {
   id: serial('id').primaryKey(),
   orderNumber: varchar('order_number', { length: 20 }).notNull().unique(),
   customerId: integer('customer_id').references(() => customers.id),
   tableId: integer('table_id').references(() => tables.id),
-  itemId: integer('item_id').references(() => menuItems.id), // Ajout du champ manquant
+  itemId: integer('item_id').references(() => menuItems.id),
   status: orderStatusEnum('status').notNull().default('pending'),
-  orderType: varchar('order_type', { length: 20 }).notNull().default('dine_in'),
-  subtotal: decimal('subtotal', { precision: 10, scale: 2 }).notNull(),
-  tax: decimal('tax', { precision: 10, scale: 2 }).notNull(),
-  totalAmount: decimal('total_amount', { precision: 10, scale: 2 }).notNull(),
+  orderType: varchar('order_type', { length: 50 }).notNull().default('dine-in'),
+  total: decimal('total', { precision: 10, scale: 2 }).notNull().default('0.00'),
   items: json('items'),
   specialRequests: text('special_requests'),
   customerInfo: json('customer_info'),
@@ -157,18 +168,17 @@ export const feedback = pgTable("feedback", {
   customerId: integer('customer_id').references(() => customers.id),
   orderId: integer('order_id').references(() => orders.id),
   rating: integer('rating').notNull(),
-  category: varchar('category', { length: 50 }).notNull(),
-  title: varchar('title', { length: 100 }).notNull(),
-  comment: text('comment').notNull(),
-  isAnonymous: boolean('is_anonymous').notNull().default(false),
-  contactEmail: varchar('contact_email', { length: 100 }),
+  category: varchar('category', { length: 100 }).notNull(),
+  title: varchar('title', { length: 255 }),
+  comment: text('comment'),
   suggestions: text('suggestions'),
-  status: varchar('status', { length: 20 }).notNull().default('pending'),
+  status: varchar('status', { length: 50 }).notNull().default('pending'),
   response: text('response'),
   responseBy: integer('response_by').references(() => users.id),
   respondedAt: timestamp('responded_at'),
-  isPublic: boolean('is_public').notNull().default(true),
   internalNotes: text('internal_notes'),
+  isAnonymous: boolean('is_anonymous').notNull().default(false),
+  contactEmail: varchar('contact_email', { length: 255 }),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 });
@@ -278,10 +288,15 @@ export const menuItemsRelations = relations(menuItems, ({ one, many }) => ({
   images: many(menuItemImages)
 }));
 
+export const categoriesRelations = relations(categories, ({ many }) => ({
+  menuItems: many(menuItems)
+}));
+
 export const customersRelations = relations(customers, ({ many }) => ({
   reservations: many(reservations),
   orders: many(orders),
-  feedback: many(feedback)
+  feedback: many(feedback),
+  loyaltyTransactions: many(loyaltyTransactions)
 }));
 
 export const ordersRelations = relations(orders, ({ one, many }) => ({
@@ -294,7 +309,8 @@ export const ordersRelations = relations(orders, ({ one, many }) => ({
     references: [tables.id]
   }),
   orderItems: many(orderItems),
-  feedback: many(feedback)
+  feedback: many(feedback),
+  loyaltyTransactions: many(loyaltyTransactions)
 }));
 
 export const orderItemsRelations = relations(orderItems, ({ one }) => ({
@@ -328,7 +344,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   activityLogs: many(activityLogs),
   permissions: many(permissions),
   employee: many(employees),
-  feedbackResponses: many(feedback, { relationName: 'responseBy' })
+  feedback: many(feedback)
 }));
 
 export const menuItemImagesRelations = relations(menuItemImages, ({ one }) => ({
@@ -394,10 +410,9 @@ export const feedbackRelations = relations(feedback, ({ one }) => ({
     fields: [feedback.orderId],
     references: [orders.id]
   }),
-  responseUser: one(users, {
+  responseBy: one(users, {
     fields: [feedback.responseBy],
-    references: [users.id],
-    relationName: 'responseBy'
+    references: [users.id]
   })
 }));
 
@@ -408,6 +423,7 @@ export const feedbackRelations = relations(feedback, ({ one }) => ({
 export const insertUserSchema = createInsertSchema(users);
 export const insertMenuCategorySchema = createInsertSchema(menuCategories);
 export const insertMenuItemSchema = createInsertSchema(menuItems);
+export const insertCategorySchema = createInsertSchema(categories);
 export const insertTableSchema = createInsertSchema(tables);
 export const insertCustomerSchema = createInsertSchema(customers);
 export const insertReservationSchema = createInsertSchema(reservations);
@@ -417,11 +433,16 @@ export const insertContactMessageSchema = createInsertSchema(contactMessages);
 export const insertFeedbackSchema = createInsertSchema(feedback);
 export const insertMenuItemImageSchema = createInsertSchema(menuItemImages);
 export const insertActivityLogSchema = createInsertSchema(activityLogs);
+export const insertEmployeeSchema = createInsertSchema(employees);
+export const insertSupplierSchema = createInsertSchema(suppliers);
+export const insertInventorySchema = createInsertSchema(inventory);
+export const insertLoyaltyTransactionSchema = createInsertSchema(loyaltyTransactions);
 export const insertPermissionSchema = createInsertSchema(permissions);
 
 export const selectUserSchema = createSelectSchema(users);
 export const selectMenuCategorySchema = createSelectSchema(menuCategories);
 export const selectMenuItemSchema = createSelectSchema(menuItems);
+export const selectCategorySchema = createSelectSchema(categories);
 export const selectTableSchema = createSelectSchema(tables);
 export const selectCustomerSchema = createSelectSchema(customers);
 export const selectReservationSchema = createSelectSchema(reservations);
@@ -431,4 +452,8 @@ export const selectContactMessageSchema = createSelectSchema(contactMessages);
 export const selectFeedbackSchema = createSelectSchema(feedback);
 export const selectMenuItemImageSchema = createSelectSchema(menuItemImages);
 export const selectActivityLogSchema = createSelectSchema(activityLogs);
+export const selectEmployeeSchema = createSelectSchema(employees);
+export const selectSupplierSchema = createSelectSchema(suppliers);
+export const selectInventorySchema = createSelectSchema(inventory);
+export const selectLoyaltyTransactionSchema = createSelectSchema(loyaltyTransactions);
 export const selectPermissionSchema = createSelectSchema(permissions);

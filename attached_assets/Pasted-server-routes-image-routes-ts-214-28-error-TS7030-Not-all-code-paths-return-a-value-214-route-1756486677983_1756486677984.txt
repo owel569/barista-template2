@@ -1,0 +1,170 @@
+server/routes/image-routes.ts:214:28 - error TS7030: Not all code paths return a value.
+
+214 router.delete("/:imageId", async (req, res) => {
+                               ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/image-routes.ts:217:52 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+
+217     const deleted = await imageManager.deleteImage(imageId);
+                                                       ~~~~~~~
+
+server/routes/image-routes.ts:268:54 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+
+268     const image = await imageManager.getOptimalImage(menuItemId, categorySlug);
+                                                         ~~~~~~~~~~
+
+server/routes/image-routes.ts:275:26 - error TS2339: Property 'isPrimary' does not exist on type '{ url: string; alt: string; }'.
+
+275         isPrimary: image.isPrimary,
+                             ~~~~~~~~~
+
+server/routes/image-routes.ts:276:27 - error TS2339: Property 'dimensions' does not exist on type '{ url: string; alt: string; }'.
+
+276         dimensions: image.dimensions
+                              ~~~~~~~~~~
+
+server/routes/inventory/inventory.routes.ts:171:23 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "supplier_id"; tableName: "inventory"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>, right: number | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string | string[] | ParsedQs | ParsedQs[]' is not assignable to parameter of type 'number | SQLWrapper'.
+      Type 'string' is not assignable to type 'number | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string | string[] | ParsedQs | ParsedQs[]>, right: string | string[] | SQLWrapper | ParsedQs | ParsedQs[]): SQL<...>', gave the following error.
+    Argument of type 'PgColumn<{ name: "supplier_id"; tableName: "inventory"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string | string[] | ParsedQs | ParsedQs[]>'.
+      Type 'PgColumn<{ name: "supplier_id"; tableName: "inventory"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string | string[] | ParsedQs | ParsedQs[]>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "supplier_id"; tableName: "inventory"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+171       conditions.push(eq(inventory.supplierId, supplierId));
+                          ~~
+
+
+server/routes/inventory/inventory.routes.ts:186:7 - error TS2741: Property 'where' is missing in type 'Omit<import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"inventory", { id: import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "inventory"; dataType: "number"; columnType: "PgSerial"; data: number; driver...' but required in type 'Omit<import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"inventory", { id: import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "inventory"; dataType: "number"; columnType: "PgSerial"; data: number; driver...'.
+
+186       query = query.where(and(...conditions));
+          ~~~~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/select.d.ts:402:5
+    402     where(where: ((aliases: this['_']['selection']) => SQL | undefined) | SQL | undefined): PgSelectWithout<this, TDynamic, 'where'>;
+            ~~~~~
+    'where' is declared here.
+
+server/routes/inventory/inventory.routes.ts:214:7 - error TS2741: Property 'where' is missing in type 'Omit<PgSelectBase<"inventory", { count: SQL<number>; }, "partial", Record<"inventory", "not-null"> & { menu_items: "nullable"; }, false, "where", { count: number; }[], { count: DrizzleTypeError<"You cannot reference this field without assigning it an alias first - use `.as(<alias>)`">; }>, "where">' but required in type 'Omit<PgSelectBase<"inventory", { count: SQL<number>; }, "partial", Record<"inventory", "not-null"> & { menu_items: "nullable"; }, false, never, { count: number; }[], { count: DrizzleTypeError<"You cannot reference this field without assigning it an alias first - use `.as(<alias>)`">; }>, never>'.
+
+214       countQuery = countQuery.where(and(...conditions));
+          ~~~~~~~~~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/select.d.ts:402:5
+    402     where(where: ((aliases: this['_']['selection']) => SQL | undefined) | SQL | undefined): PgSelectWithout<this, TDynamic, 'where'>;
+            ~~~~~
+    'where' is declared here.
+
+server/routes/inventory/inventory.routes.ts:342:16 - error TS7030: Not all code paths return a value.
+
+342   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/inventory/inventory.routes.ts:420:16 - error TS7030: Not all code paths return a value.
+
+420   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/inventory/inventory.routes.ts:445:40 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+445       .where(eq(inventory.id, parseInt(id)))
+                                           ~~
+
+server/routes/inventory/inventory.routes.ts:477:16 - error TS7030: Not all code paths return a value.
+
+477   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/inventory/inventory.routes.ts:535:7 - error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type 'Record<MovementType, string>'.
+
+535       actionMap[type],
+          ~~~~~~~~~~~~~~~
+
+server/routes/kpis.routes.ts:125:49 - error TS7030: Not all code paths return a value.
+
+125 router.get('/period/:period', authenticateUser, async (req, res) => {
+                                                    ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/loyalty-advanced.ts:10:64 - error TS2305: Module '"../../shared/schema"' has no exported member 'loyaltyCampaigns'.
+
+10 import { customers, orders, loyaltyTransactions, activityLogs, loyaltyCampaigns, loyaltyRewards } from '../../shared/schema';
+                                                                  ~~~~~~~~~~~~~~~~
+
+server/routes/loyalty-advanced.ts:10:82 - error TS2305: Module '"../../shared/schema"' has no exported member 'loyaltyRewards'.
+
+10 import { customers, orders, loyaltyTransactions, activityLogs, loyaltyCampaigns, loyaltyRewards } from '../../shared/schema';
+                                                                                    ~~~~~~~~~~~~~~
+
+server/routes/loyalty-advanced.ts:209:3 - error TS2375: Type '{ id: number; name: string; minPoints: number; maxPoints: undefined; pointsRate: number; benefits: string[]; color: string; discountPercentage: number; icon: string; description: string; }' is not assignable to type 'LoyaltyLevel' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'maxPoints' are incompatible.
+    Type 'undefined' is not assignable to type 'number'.
+
+209   {
+      ~
+210     id: 5,
+    ~~~~~~~~~~
+... 
+226     description: 'Le summum de l\'expérience client'
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+227   }
+    ~~~
+
+server/routes/loyalty-advanced.ts:339:5 - error TS2322: Type 'LoyaltyLevel | undefined' is not assignable to type 'LoyaltyLevel'.
+  Type 'undefined' is not assignable to type 'LoyaltyLevel'.
+
+339     return level || LOYALTY_LEVELS[LOYALTY_LEVELS.length - 1];
+        ~~~~~~
+
+server/routes/loyalty-advanced.ts:361:38 - error TS18048: 'nextLevel' is possibly 'undefined'.
+
+361     const pointsNeededForNextLevel = nextLevel.minPoints - currentLevel.minPoints;
+                                         ~~~~~~~~~
+
+server/routes/loyalty-advanced.ts:363:38 - error TS18048: 'nextLevel' is possibly 'undefined'.
+
+363     const pointsToNext = Math.max(0, nextLevel.minPoints - currentPoints);
+                                         ~~~~~~~~~
+
+server/routes/loyalty-advanced.ts:369:5 - error TS2375: Type '{ nextLevel: LoyaltyLevel | undefined; progress: number; pointsToNext: number; daysToNext: number; estimatedSpendingToNext: number; }' is not assignable to type '{ nextLevel?: LoyaltyLevel; progress: number; pointsToNext: number; daysToNext?: number; estimatedSpendingToNext?: number; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'nextLevel' are incompatible.
+    Type 'LoyaltyLevel | undefined' is not assignable to type 'LoyaltyLevel'.
+      Type 'undefined' is not assignable to type 'LoyaltyLevel'.
+
+369     return {
+        ~~~~~~
+
+server/routes/loyalty-advanced.ts:526:33 - error TS2532: Object is possibly 'undefined'.
+
+526       (now.getTime() - new Date(transactions[0].createdAt).getTime()) / (1000 * 3600 * 24) : 365;
+                                    ~~~~~~~~~~~~~~~
+
+server/routes/loyalty-advanced.ts:728:75 - error TS2345: Argument of type '{ id: number; customerId: number | null; points: number; type: string; description: string | null; orderId: number | null; createdAt: Date; }[]' is not assignable to parameter of type 'LoyaltyTransaction[]'.
+  Property 'balance' is missing in type '{ id: number; customerId: number | null; points: number; type: string; description: string | null; orderId: number | null; createdAt: Date; }' but required in type 'LoyaltyTransaction'.
+
+728           const metrics = AdvancedLoyaltyService.calculateAdvancedMetrics(transactions);
+                                                                              ~~~~~~~~~~~~
+
+  server/routes/loyalty-advanced.ts:90:3
+    90   balance: number;
+         ~~~~~~~
+    'balance' is declared here.
+
+server/routes/loyalty-advanced.ts:745:38 - error TS2339: Property 'rewardId' does not exist on type 'PgTableWithColumns<{ name: "loyalty_transactions"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "loyalty_transactions"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; ... 8 more ...; generated: undefined; }, {}, {}>; ... 5 more ...; createdAt: PgColumn<...>; }; ...'.
+
+745               eq(loyaltyTransactions.rewardId, reward.id),
+                                         ~~~~~~~~
+
+server/routes/loyalty-advanced.ts:764:14 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "created_at"; tableName: "loyalty_transactions"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>, right: Date | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'Date | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string>, right: string | SQLWrapper): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "created_at"; tableName: "loyalty_transactions"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string>'.
+      Type 'PgColumn<{ name: "created_at"; tableName: "loyalty_transactions"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "created_at"; tableName: "loyalty_transactions"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+764       .where(gte(loyaltyTransactions.createdAt, last30Days.toISOString()));
+                 ~~~

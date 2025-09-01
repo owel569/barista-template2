@@ -1,5 +1,6 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import { Server as HttpServer } from 'http';
+import { IncomingMessage } from 'http'; // Importation nécessaire pour req: IncomingMessage
 
 export interface WebSocketMessage {
   type: 'notification' | 'update' | 'refresh';
@@ -18,8 +19,8 @@ class WebSocketManager {
   private clients: Set<WebSocket> = new Set();
 
   initialize(server: HttpServer) {
-    this.wss = new WebSocketServer({ 
-      server, 
+    this.wss = new WebSocketServer({
+      server,
       path: '/ws',
       verifyClient: (info: any) => {
         // Vérification simple pour l'authentification
@@ -27,36 +28,57 @@ class WebSocketManager {
       }
     });
 
-    this.wss.on('connection', (ws: WebSocket, req) => {
-      console.log('📡 Nouvelle connexion WebSocket');
-      this.clients.add(ws);
+    this.wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
+      console.log('✅ Nouvelle connexion WebSocket');
 
-      // Heartbeat pour maintenir la connexion
-      const heartbeat = setInterval(() => {
-        if (ws.readyState === WebSocket.OPEN) {
-          ws.ping();
+      // Gérer l'authentification WebSocket
+      const token = req.url?.split('token=')[1];
+      let isAuthenticated = false;
+
+      if (token) {
+        try {
+          // Vérifier le token ici si nécessaire
+          isAuthenticated = true;
+        } catch (error) {
+          console.warn('Token WebSocket invalide');
         }
-      }, 30000);
+      }
 
       ws.on('message', (message: Buffer) => {
         try {
           const data = JSON.parse(message.toString());
-          this.handleMessage(ws, data);
+
+          // Gérer les différents types de messages
+          switch (data.type) {
+            case 'ping':
+              ws.send(JSON.stringify({ type: 'pong', timestamp: Date.now() }));
+              break;
+            case 'subscribe':
+              console.log(`📡 Abonnement au channel: ${data.channel}`);
+              break;
+            case 'unsubscribe':
+              console.log(`📡 Désabonnement du channel: ${data.channel}`);
+              break;
+            default:
+              console.log('📨 Message reçu:', data);
+          }
         } catch (error) {
-          logger.error('Erreur parsing message WebSocket:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+          console.error('❌ Erreur parsing message WebSocket:', error);
+          ws.send(JSON.stringify({
+            type: 'error',
+            message: 'Format de message invalide'
+          }));
         }
       });
 
-      ws.on('close', () => {
-        console.log('📡 Connexion WebSocket fermée');
+      ws.on('close', (code: number, reason: Buffer) => {
+        console.log(`❌ Connexion WebSocket fermée (${code}): ${reason.toString()}`);
         this.clients.delete(ws);
-        clearInterval(heartbeat);
       });
 
-      ws.on('error', (error) => {
-        logger.error('Erreur WebSocket:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+      ws.on('error', (error: Error) => {
+        console.error('❌ Erreur WebSocket:', error);
         this.clients.delete(ws);
-        clearInterval(heartbeat);
       });
 
       // Envoyer un message de bienvenue

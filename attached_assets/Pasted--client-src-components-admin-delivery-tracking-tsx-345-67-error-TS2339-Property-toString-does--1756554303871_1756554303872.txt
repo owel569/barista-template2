@@ -1,0 +1,105 @@
+
+client/src/components/admin/delivery-tracking.tsx:345:67 - error TS2339: Property 'toString' does not exist on type 'never'.
+
+345                           defaultValue={field.value ? field.value.toString() : ''}
+                                                                      ~~~~~~~~
+
+client/src/components/admin/loyalty-system.tsx:861:47 - error TS2532: Object is possibly 'undefined'.
+
+861                         <span>{level.name} → {loyaltyLevels[index + 1].name}</span>
+                                                  ~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/loyalty-system.tsx:863:28 - error TS2532: Object is possibly 'undefined'.
+
+863                           {loyaltyLevels[index + 1].threshold}€
+                               ~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/maintenance-management.tsx:489:19 - error TS2322: Type '(taskData: Omit<MaintenanceTask, "id">) => Promise<void>' is not assignable to type '(data: Omit<MaintenanceTask, "id"> | Partial<MaintenanceTask>) => void'.
+  Types of parameters 'taskData' and 'data' are incompatible.
+    Type 'Omit<MaintenanceTask, "id"> | Partial<MaintenanceTask>' is not assignable to type 'Omit<MaintenanceTask, "id">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+      Type 'Partial<MaintenanceTask>' is not assignable to type 'Omit<MaintenanceTask, "id">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+        Property 'title' is optional in type 'Partial<MaintenanceTask>' but required in type 'Omit<MaintenanceTask, "id">'.
+
+489                   onSubmit={editingTask ?
+                      ~~~~~~~~
+
+  client/src/components/admin/MaintenanceTaskForm.tsx:24:3
+    24   onSubmit: (data: Omit<MaintenanceTask, 'id'> | Partial<MaintenanceTask>) => void;
+         ~~~~~~~~
+    The expected type comes from property 'onSubmit' which is declared here on type 'IntrinsicAttributes & MaintenanceTaskFormProps'
+
+client/src/components/admin/maintenance-management.tsx:515:19 - error TS2322: Type '(equipmentData: Omit<Equipment, "id">) => Promise<void>' is not assignable to type '(data: Omit<Equipment, "id"> | Partial<Equipment>) => void'.
+  Types of parameters 'equipmentData' and 'data' are incompatible.
+    Type 'Omit<Equipment, "id"> | Partial<Equipment>' is not assignable to type 'Omit<Equipment, "id">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+      Type 'Partial<Equipment>' is not assignable to type 'Omit<Equipment, "id">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+        Property 'name' is optional in type 'Partial<Equipment>' but required in type 'Omit<Equipment, "id">'.
+
+515                   onSubmit={editingEquipment ?
+                      ~~~~~~~~
+
+  client/src/components/admin/EquipmentForm.tsx:22:3
+    22   onSubmit: (data: Omit<Equipment, 'id'> | Partial<Equipment>) => void;
+         ~~~~~~~~
+    The expected type comes from property 'onSubmit' which is declared here on type 'IntrinsicAttributes & EquipmentFormProps'
+
+client/src/components/admin/messages.tsx:4:10 - error TS2305: Module '"@/types/admin"' has no exported member 'ContactMessage'.
+
+4 import { ContactMessage } from '@/types/admin';
+           ~~~~~~~~~~~~~~
+
+client/src/components/admin/messages.tsx:56:44 - error TS2554: Expected 0 arguments, but got 1.
+
+56   const { hasPermission } = usePermissions(user);
+                                              ~~~~
+
+client/src/components/admin/messages.tsx:377:50 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+377                       {hasPermission('messages', 'edit') && (
+                                                     ~~~~~~
+
+client/src/components/admin/messages.tsx:501:42 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+501               {hasPermission('messages', 'edit') && (
+                                             ~~~~~~
+
+client/src/components/admin/notifications-system.tsx:347:33 - error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
+
+347         const data = JSON.parse(lastMessage.data);
+                                    ~~~~~~~~~~~~~~~~
+
+client/src/components/admin/notifications-system.tsx:774:20 - error TS2375: Type '{ children: Element[]; value: "error" | "success" | "warning" | "info" | "system" | undefined; onValueChange: (value: string) => void; }' is not assignable to type '{ value?: string; defaultValue?: string; onValueChange?(value: string): void; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'value' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+774                   <Select
+                       ~~~~~~
+
+client/src/components/admin/notifications-system.tsx:793:20 - error TS2375: Type '{ children: Element[]; value: "high" | "low" | "medium" | "urgent" | undefined; onValueChange: (value: string) => void; }' is not assignable to type '{ value?: string; defaultValue?: string; onValueChange?(value: string): void; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'value' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+793                   <Select
+                       ~~~~~~
+
+client/src/components/admin/notifications-system.tsx:811:20 - error TS2375: Type '{ children: Element[]; value: "order" | "user" | "reservation" | "payment" | "system" | "maintenance" | "inventory" | undefined; onValueChange: (value: string) => void; }' is not assignable to type '{ value?: string; defaultValue?: string; onValueChange?(value: string): void; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'value' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+811                   <Select
+                       ~~~~~~
+
+client/src/components/admin/notifications-system.tsx:937:22 - error TS2375: Type '{ checked: boolean | undefined; onCheckedChange: (checked: boolean) => void; }' is not assignable to type 'SwitchProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'checked' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+
+937                     <Switch
+                         ~~~~~~
+
+client/src/components/admin/notifications-system.tsx:952:22 - error TS2375: Type '{ checked: boolean | undefined; onCheckedChange: (checked: boolean) => void; }' is not assignable to type 'SwitchProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'checked' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.

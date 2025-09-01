@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { authenticateUser } from '../../middleware/auth';
 import { requireRoleHierarchy } from '../../middleware/security';
 import { validateBody } from '../../middleware/security';
@@ -21,7 +21,7 @@ const CustomerCreateSchema = z.object({
 const CustomerUpdateSchema = CustomerCreateSchema.partial();
 
 // GET /api/admin/customers - Récupérer tous les clients
-router.get('/', authenticateUser, requireRoleHierarchy('staff'), async (req, res): Promise<void> => {
+router.get('/', authenticateUser, requireRoleHierarchy('staff'), async (req: Request, res: Response): Promise<void> => {
   try {
     const allCustomers = await db
       .select()
@@ -42,10 +42,10 @@ router.get('/', authenticateUser, requireRoleHierarchy('staff'), async (req, res
 });
 
 // POST /api/admin/customers - Créer un nouveau client
-router.post('/', authenticateUser, requireRoleHierarchy('staff'), validateBody(CustomerCreateSchema), async (req, res): Promise<void> => {
+router.post('/', authenticateUser, requireRoleHierarchy('staff'), validateBody(CustomerCreateSchema), async (req: Request, res: Response): Promise<void> => {
   try {
     const customerData = req.body;
-    
+
     const [newCustomer] = await db
       .insert(customers)
       .values(customerData)
@@ -66,10 +66,10 @@ router.post('/', authenticateUser, requireRoleHierarchy('staff'), validateBody(C
 });
 
 // GET /api/admin/customers/:id - Récupérer un client spécifique
-router.get('/:id', authenticateUser, requireRoleHierarchy('staff'), async (req, res): Promise<void> => {
+router.get('/:id', authenticateUser, requireRoleHierarchy('staff'), async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    
+
     const [customer] = await db
       .select()
       .from(customers)
@@ -97,7 +97,7 @@ router.get('/:id', authenticateUser, requireRoleHierarchy('staff'), async (req, 
 });
 
 // PUT /api/admin/customers/:id - Mettre à jour un client
-router.put('/:id', authenticateUser, requireRoleHierarchy('staff'), validateBody(CustomerUpdateSchema), async (req, res): Promise<void> => {
+router.put('/:id', authenticateUser, requireRoleHierarchy('staff'), validateBody(CustomerUpdateSchema), async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const updateData = req.body;
@@ -133,7 +133,7 @@ router.put('/:id', authenticateUser, requireRoleHierarchy('staff'), validateBody
 });
 
 // DELETE /api/admin/customers/:id - Supprimer un client
-router.delete('/:id', authenticateUser, requireRoleHierarchy('manager'), async (req, res): Promise<void> => {
+router.delete('/:id', authenticateUser, requireRoleHierarchy('manager'), async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
 
@@ -163,7 +163,7 @@ router.delete('/:id', authenticateUser, requireRoleHierarchy('manager'), async (
 });
 
 // GET /api/admin/customers/stats - Statistiques des clients
-router.get('/stats/overview', authenticateUser, requireRoleHierarchy('staff'), async (req, res): Promise<void> => {
+router.get('/stats/overview', authenticateUser, requireRoleHierarchy('staff'), async (req: Request, res: Response): Promise<void> => {
   try {
     const [
       totalCustomers,

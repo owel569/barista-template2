@@ -1,4 +1,3 @@
-
 import { Router } from 'express';
 import { z } from 'zod';
 import { asyncHandler } from '../middleware/error-handler-enhanced';
@@ -33,7 +32,7 @@ const kpiQuerySchema = z.object({
  * Récupère les KPIs principaux
  * GET /api/analytics/kpis
  */
-router.get('/kpis', 
+router.get('/kpis',
   authenticateUser,
   requireRoles(['admin', 'manager']),
   validateRequest(kpiQuerySchema, 'query'),
@@ -205,8 +204,8 @@ router.get('/revenue',
           summary: {
             totalRevenue: revenueData.reduce((sum, item) => sum + item.revenue, 0),
             totalOrders: revenueData.reduce((sum, item) => sum + item.orderCount, 0),
-            averageDaily: revenueData.length > 0 
-              ? revenueData.reduce((sum, item) => sum + item.revenue, 0) / revenueData.length 
+            averageDaily: revenueData.length > 0
+              ? revenueData.reduce((sum, item) => sum + item.revenue, 0) / revenueData.length
               : 0
           }
         }

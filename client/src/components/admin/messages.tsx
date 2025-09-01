@@ -53,7 +53,7 @@ const ITEMS_PER_PAGE = 10;
 
 export default function Messages({ userRole = 'directeur' }: MessagesProps) {
   const { user } = useAuth();
-  const { hasPermission } = usePermissions(user);
+  const { hasPermission } = usePermissions();
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -62,7 +62,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
+
   // Initialiser WebSocket pour les notifications temps réel
   useWebSocket();
 
@@ -85,7 +85,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
         },
         body: JSON.stringify({ status })
       });
-      
+
       if (!response.ok) {
         throw new Error('Erreur lors de la mise à jour');
       }
@@ -183,9 +183,9 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
         message.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         message.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         message.subject.toLowerCase().includes(searchTerm.toLowerCase());
-      
+
       const matchesStatus = statusFilter === 'all' || message.status === statusFilter;
-      
+
       return matchesSearch && matchesStatus;
     });
   }, [messages, searchTerm, statusFilter]);
@@ -310,7 +310,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                 <SelectItem value="nouveau">Nouveau</SelectItem>
                 <SelectItem value="non_lu">Non lu</SelectItem>
                 <SelectItem value="lu">Lu</SelectItem>
-                <SelectItem value="traite">Traité</SelectItem>
+                <SelectItem value="traite"> Traité</SelectItem>
                 <SelectItem value="archive">Archivé</SelectItem>
               </SelectContent>
             </Select>
@@ -374,7 +374,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
-                      {hasPermission('messages', 'edit') && (
+                      {hasPermission('messages', 'update') && (
                         <Select
                           value={message.status}
                           onValueChange={(value) => handleStatusChange(message.id, value)}
@@ -386,7 +386,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                             <SelectItem value="nouveau">Nouveau</SelectItem>
                             <SelectItem value="non_lu">Non lu</SelectItem>
                             <SelectItem value="lu">Lu</SelectItem>
-                            <SelectItem value="traite">Traité</SelectItem>
+                            <SelectItem value="traite"> Traité</SelectItem>
                             <SelectItem value="archive">Archivé</SelectItem>
                           </SelectContent>
                         </Select>
@@ -476,12 +476,12 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                   <p>Statut: <Badge className={getStatusColor(selectedMessage.status)}>{selectedMessage.status}</Badge></p>
                 </div>
               </div>
-              
+
               <div>
                 <h3 className="font-semibold">Sujet</h3>
                 <p>{selectedMessage.subject}</p>
               </div>
-              
+
               <div>
                 <h3 className="font-semibold">Message</h3>
                 <div className="p-3 bg-muted rounded-md">
@@ -498,7 +498,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                 </div>
               )}
 
-              {hasPermission('messages', 'edit') && (
+              {hasPermission('messages', 'update') && (
                 <>
                   <div>
                     <h3 className="font-semibold">Réponse</h3>

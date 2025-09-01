@@ -1,0 +1,112 @@
+
+client/src/components/admin/real-time-updates.tsx:416:10 - error TS2304: Cannot find name 'TabsContent'.
+
+416         <TabsContent value="events" className="space-y-4">
+             ~~~~~~~~~~~
+
+client/src/components/admin/real-time-updates.tsx:418:14 - error TS2304: Cannot find name 'Alert'.
+
+418             <Alert>
+                 ~~~~~
+
+client/src/components/admin/real-time-updates.tsx:420:16 - error TS2304: Cannot find name 'AlertDescription'.
+
+420               <AlertDescription>
+                   ~~~~~~~~~~~~~~~~
+
+client/src/components/admin/real-time-updates.tsx:430:17 - error TS2304: Cannot find name 'AlertDescription'.
+
+430               </AlertDescription>
+                    ~~~~~~~~~~~~~~~~
+
+client/src/components/admin/real-time-updates.tsx:431:15 - error TS2304: Cannot find name 'Alert'.
+
+431             </Alert>
+                  ~~~~~
+
+client/src/components/admin/real-time-updates.tsx:438:20 - error TS2304: Cannot find name 'Eye'.
+
+438                   <Eye className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                       ~~~
+
+client/src/components/admin/real-time-updates.tsx:484:11 - error TS2304: Cannot find name 'TabsContent'.
+
+484         </TabsContent>
+              ~~~~~~~~~~~
+
+client/src/components/admin/real-time-updates.tsx:486:10 - error TS2304: Cannot find name 'TabsContent'.
+
+486         <TabsContent value="filters" className="space-y-4">
+             ~~~~~~~~~~~
+
+client/src/components/admin/real-time-updates.tsx:564:11 - error TS2304: Cannot find name 'TabsContent'.
+
+564         </TabsContent>
+              ~~~~~~~~~~~
+
+client/src/components/admin/real-time-updates.tsx:566:10 - error TS2304: Cannot find name 'TabsContent'.
+
+566         <TabsContent value="settings" className="space-y-4">
+             ~~~~~~~~~~~
+
+client/src/components/admin/real-time-updates.tsx:628:11 - error TS2304: Cannot find name 'TabsContent'.
+
+628         </TabsContent>
+              ~~~~~~~~~~~
+
+client/src/components/admin/real-time-updates.tsx:629:9 - error TS2304: Cannot find name 'Tabs'.
+
+629       </Tabs>
+            ~~~~
+
+client/src/components/admin/reports-system.tsx:73:7 - error TS2349: This expression is not callable.
+  Type 'ToastManager' has no call signatures.
+
+73       toast({
+         ~~~~~
+
+client/src/components/admin/reports-system.tsx:107:7 - error TS2322: Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'ComponentType<{ className?: string; }>'.
+  Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'FunctionComponent<{ className?: string; }>'.
+    Types of property 'defaultProps' are incompatible.
+      Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | undefined' is not assignable to type 'Partial<{ className?: string; }> | undefined'.
+        Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'Partial<{ className?: string; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'className' are incompatible.
+            Type 'string | undefined' is not assignable to type 'string'.
+              Type 'undefined' is not assignable to type 'string'.
+
+107       icon: BarChart3
+          ~~~~
+
+  client/src/components/admin/reports-system.tsx:19:3
+    19   icon: React.ComponentType<{ className?: string }>;
+         ~~~~
+    The expected type comes from property 'icon' which is declared here on type 'Report'
+
+client/src/components/admin/reports-system.tsx:116:7 - error TS2322: Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'ComponentType<{ className?: string; }>'.
+  Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'FunctionComponent<{ className?: string; }>'.
+    Types of property 'defaultProps' are incompatible.
+      Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | undefined' is not assignable to type 'Partial<{ className?: string; }> | undefined'.
+        Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'Partial<{ className?: string; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'className' are incompatible.
+            Type 'string | undefined' is not assignable to type 'string'.
+              Type 'undefined' is not assignable to type 'string'.
+
+116       icon: Users
+          ~~~~
+
+  client/src/components/admin/reports-system.tsx:19:3
+    19   icon: React.ComponentType<{ className?: string }>;
+         ~~~~
+    The expected type comes from property 'icon' which is declared here on type 'Report'
+
+client/src/components/admin/reports-system.tsx:125:7 - error TS2322: Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'ComponentType<{ className?: string; }>'.
+  Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'FunctionComponent<{ className?: string; }>'.
+    Types of property 'defaultProps' are incompatible.
+      Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | undefined' is not assignable to type 'Partial<{ className?: string; }> | undefined'.
+        Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'Partial<{ className?: string; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'className' are incompatible.
+            Type 'string | undefined' is not assignable to type 'string'.
+              Type 'undefined' is not assignable to type 'string'.
+
+125       icon: FileText
+          ~~

@@ -5,8 +5,8 @@ import { createLogger } from '../../middleware/logging';
 import { authenticateUser, requireRoles } from '../../middleware/auth';
 import { validateBody, validateParams, validateQuery } from '../../middleware/validation';
 import { getDb } from '../../db';
-import { tables, reservations, activityLogs } from '../../../shared/schema';
-import { eq, and, or, desc, sql, ne, isNull } from 'drizzle-orm';
+import { tables, reservations, customers, activityLogs } from '../../../shared/schema';
+import { eq, and, or, desc, sql, ne } from 'drizzle-orm';
 import { cacheMiddleware, invalidateCache } from '../../middleware/cache-advanced';
 
 const router = Router();
@@ -36,44 +36,44 @@ const TableStatusSchema = z.object({
 
 // Interface pour le statut des tables
 interface TableStatus {
-  id: number; // Changé de string à number pour correspondre au schéma
+  id: number;
   number: number;
   capacity: number;
   location: string | null;
   section: string | null;
   status: 'available' | 'occupied' | 'reserved' | 'maintenance';
   currentReservation?: {
-    id: number; // Changé de string à number
+    id: number;
     customerName: string;
     startTime: Date;
     endTime: Date;
     partySize: number;
-  } | undefined;
+  };
   nextReservation?: {
-    id: number; // Changé de string à number
+    id: number;
     customerName: string;
     startTime: Date;
     partySize: number;
-  } | undefined;
+  };
 }
 
 // Fonction utilitaire pour enregistrer une activité
 async function logTableActivity(
-  userId: number, // Changé de string à number
+  userId: number,
   action: string,
   details: string,
   req: any,
-  tableId?: number // Changé de string à number
+  tableId?: number
 ): Promise<void> {
   try {
     const db = getDb();
     await db.insert(activityLogs).values({
       userId,
       action,
-      entity: 'table', // Ajout du champ manquant
+      entity: 'table',
       details: tableId ? `${details} (Table: ${tableId})` : details,
-      ipAddress: req.ip || req.connection.remoteAddress,
-      userAgent: req.get('User-Agent'),
+      ipAddress: req.ip || req.connection.remoteAddress || '',
+      userAgent: req.get('User-Agent') || '',
       createdAt: new Date()
     });
   } catch (error) {
@@ -113,28 +113,23 @@ router.get('/',
       sortOrder = 'asc'
     } = req.query;
 
-    let query = db
-      .select()
-      .from(tables);
+    let query = db.select().from(tables);
 
     // Construire les conditions
     const conditions = [];
 
-    // Filtres
     if (location && typeof location === 'string') {
       conditions.push(eq(tables.location, location));
     }
-
     if (section && typeof section === 'string') {
       conditions.push(eq(tables.section, section));
     }
-
     if (capacity && typeof capacity === 'number') {
       conditions.push(eq(tables.capacity, capacity));
     }
-
-    if (isActive !== undefined && typeof isActive === 'boolean') {
-      conditions.push(eq(tables.isActive, isActive));
+    if (isActive !== undefined) {
+      const isActiveBool = typeof isActive === 'string' ? isActive === 'true' : Boolean(isActive);
+      conditions.push(eq(tables.isActive, isActiveBool));
     }
 
     if (conditions.length > 0) {
@@ -154,8 +149,8 @@ router.get('/',
       query.orderBy(orderColumn)) as typeof query;
 
     // Pagination
-    const pageNum = typeof page === 'number' ? page : 1;
-    const limitNum = typeof limit === 'number' ? limit : 50;
+    const pageNum = typeof page === 'string' ? parseInt(page) : page;
+    const limitNum = typeof limit === 'string' ? parseInt(limit) : limit;
     const offset = (pageNum - 1) * limitNum;
     const tablesData = await query.limit(limitNum).offset(offset);
 
@@ -177,8 +172,8 @@ router.get('/',
       success: true,
       data: tablesData,
       pagination: {
-        page,
-        limit,
+        page: pageNum,
+        limit: limitNum,
         total: count,
         totalPages: Math.ceil(count / limitNum)
       }
@@ -190,7 +185,7 @@ router.get('/',
 router.get('/status',
   authenticateUser,
   requireRoles(['admin', 'manager', 'waiter']),
-  cacheMiddleware({ ttl: 30 * 1000, tags: ['tables', 'reservations'] }), // Cache très court pour temps réel
+  cacheMiddleware({ ttl: 30 * 1000, tags: ['tables', 'reservations'] }),
   asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const now = new Date();
@@ -207,17 +202,18 @@ router.get('/status',
       .select({
         id: reservations.id,
         tableId: reservations.tableId,
-        customerName: reservations.guestName,
-        startTime: reservations.reservationTime,
-        endTime: sql<Date>`${reservations.reservationTime} + INTERVAL '2 hours'`, // Durée par défaut
+        customerName: sql<string>`CONCAT(${customers.firstName}, ' ', ${customers.lastName})`,
+        startTime: sql<Date>`${reservations.date} + INTERVAL ${reservations.time}`,
+        endTime: sql<Date>`${reservations.date} + INTERVAL ${reservations.time} + INTERVAL '2 hours'`,
         partySize: reservations.partySize,
         status: reservations.status
       })
       .from(reservations)
+      .leftJoin(customers, eq(reservations.customerId, customers.id))
       .where(
         and(
-          sql`${reservations.reservationTime} <= ${now}`,
-          sql`${reservations.reservationTime} + INTERVAL '2 hours' > ${now}`,
+          sql`${reservations.date} + INTERVAL ${reservations.time} <= ${now}`,
+          sql`${reservations.date} + INTERVAL ${reservations.time} + INTERVAL '2 hours' > ${now}`,
           eq(reservations.status, 'confirmed')
         )
       );
@@ -226,19 +222,20 @@ router.get('/status',
       .select({
         id: reservations.id,
         tableId: reservations.tableId,
-        customerName: reservations.guestName,
-        startTime: reservations.reservationTime,
+        customerName: sql<string>`CONCAT(${customers.firstName}, ' ', ${customers.lastName})`,
+        startTime: sql<Date>`${reservations.date} + INTERVAL ${reservations.time}`,
         partySize: reservations.partySize
       })
       .from(reservations)
+      .leftJoin(customers, eq(reservations.customerId, customers.id))
       .where(
         and(
-          sql`${reservations.reservationTime} > ${now}`,
-          sql`${reservations.reservationTime} <= ${now} + INTERVAL '4 hours'`,
+          sql`${reservations.date} + INTERVAL ${reservations.time} > ${now}`,
+          sql`${reservations.date} + INTERVAL ${reservations.time} <= ${now} + INTERVAL '4 hours'`,
           eq(reservations.status, 'confirmed')
         )
       )
-      .orderBy(reservations.reservationTime);
+      .orderBy(sql`${reservations.date} + INTERVAL ${reservations.time}`);
 
     // Créer un map des réservations par table
     const currentReservationMap = new Map();
@@ -265,7 +262,6 @@ router.get('/status',
       } else if (currentRes) {
         status = 'occupied';
       } else if (nextRes && new Date(nextRes.startTime).getTime() - now.getTime() < 60 * 60 * 1000) {
-        // Table réservée dans l'heure qui vient
         status = 'reserved';
       }
 
@@ -292,7 +288,6 @@ router.get('/status',
       };
     });
 
-    // Statistiques rapides
     const stats = {
       total: tableStatuses.length,
       available: tableStatuses.filter(t => t.status === 'available').length,
@@ -323,48 +318,42 @@ router.post('/',
     const db = getDb();
     const currentUser = (req as any).user;
 
-    // Vérifier que le numéro de table n'existe pas déjà
     const [existingTable] = await db
       .select({ id: tables.id })
       .from(tables)
       .where(eq(tables.number, req.body.number));
 
     if (existingTable) {
-      return res.status(409).json({
+      res.status(409).json({
         success: false,
         message: 'Une table avec ce numéro existe déjà'
       });
+      return;
     }
 
-    // Créer la table
     const [newTable] = await db
       .insert(tables)
       .values({
         ...req.body,
-        status: 'available',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        status: 'available'
       })
       .returning();
 
-    // Enregistrer l'activité
-    if (newTable) {
-      await logTableActivity(
-        currentUser.id,
-        'CREATE_TABLE',
-        `Table créée: #${req.body.number} (${req.body.capacity} places, ${req.body.location})`,
-        req,
-        newTable.id
-      );
+    await logTableActivity(
+      currentUser.id,
+      'CREATE_TABLE',
+      `Table créée: #${req.body.number} (${req.body.capacity} places, ${req.body.location})`,
+      req,
+      newTable.id
+    );
 
-      logger.info('Table créée', {
-        tableId: newTable.id,
-        number: req.body.number,
-        capacity: req.body.capacity,
-        location: req.body.location,
-        createdBy: currentUser.id
-      });
-    }
+    logger.info('Table créée', {
+      tableId: newTable.id,
+      number: req.body.number,
+      capacity: req.body.capacity,
+      location: req.body.location,
+      createdBy: currentUser.id
+    });
 
     res.status(201).json({
       success: true,
@@ -384,9 +373,8 @@ router.put('/:id',
   asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const currentUser = (req as any).user;
-    const { id } = req.params;
+    const id = parseInt(req.params.id, 10);
 
-    // Vérifier que la table existe
     const [existingTable] = await db
       .select()
       .from(tables)
@@ -399,7 +387,6 @@ router.put('/:id',
       });
     }
 
-    // Vérifier le numéro de table en cas de modification
     if (req.body.number && req.body.number !== existingTable.number) {
       const [numberExists] = await db
         .select({ id: tables.id })
@@ -417,7 +404,6 @@ router.put('/:id',
       }
     }
 
-    // Mettre à jour la table
     const [updatedTable] = await db
       .update(tables)
       .set({
@@ -434,7 +420,6 @@ router.put('/:id',
       });
     }
 
-    // Enregistrer l'activité
     await logTableActivity(
       currentUser.id,
       'UPDATE_TABLE',
@@ -467,10 +452,9 @@ router.patch('/:id/status',
   asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const currentUser = (req as any).user;
-    const { id } = req.params;
+    const id = parseInt(req.params.id, 10);
     const { status, notes } = req.body;
 
-    // Vérifier que la table existe
     const [existingTable] = await db
       .select()
       .from(tables)
@@ -483,7 +467,6 @@ router.patch('/:id/status',
       });
     }
 
-    // Mettre à jour le statut
     const [updatedTable] = await db
       .update(tables)
       .set({
@@ -501,7 +484,6 @@ router.patch('/:id/status',
       });
     }
 
-    // Enregistrer l'activité
     await logTableActivity(
       currentUser.id,
       'UPDATE_TABLE_STATUS',
@@ -536,9 +518,8 @@ router.delete('/:id',
   asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const currentUser = (req as any).user;
-    const { id } = req.params;
+    const id = parseInt(req.params.id, 10);
 
-    // Vérifier que l'ID est valide
     if (!id) {
       return res.status(400).json({
         success: false,
@@ -546,7 +527,6 @@ router.delete('/:id',
       });
     }
 
-    // Vérifier s'il y a des réservations futures
     const futureReservations = await db
       .select({ count: sql<number>`count(*)` })
       .from(reservations)
@@ -566,7 +546,6 @@ router.delete('/:id',
       });
     }
 
-    // Désactiver la table au lieu de la supprimer
     const [deactivatedTable] = await db
       .update(tables)
       .set({
@@ -583,7 +562,6 @@ router.delete('/:id',
       });
     }
 
-    // Enregistrer l'activité
     await logTableActivity(
       currentUser.id,
       'DEACTIVATE_TABLE',
@@ -613,7 +591,6 @@ router.get('/stats',
   asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
 
-    // Statistiques générales
     const [stats] = await db
       .select({
         totalTables: sql<number>`count(*)`,
@@ -623,7 +600,6 @@ router.get('/stats',
       })
       .from(tables);
 
-    // Répartition par emplacement
     const locationStats = await db
       .select({
         location: tables.location,
@@ -634,7 +610,6 @@ router.get('/stats',
       .where(eq(tables.isActive, true))
       .groupBy(tables.location);
 
-    // Répartition par section
     const sectionStats = await db
       .select({
         section: tables.section,

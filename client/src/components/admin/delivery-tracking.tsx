@@ -151,7 +151,7 @@ export default function DeliveryTracking() : JSX.Element {
 
   const createDeliveryMutation = useMutation({
     mutationFn: (data: Record<string, unknown>) => 
-      apiRequest('/api/admin/deliveries', { method: 'POST', data }),
+      apiRequest('/api/admin/deliveries', { method: 'POST', body: JSON.stringify(data) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['deliveries'] });
       toast({ 
@@ -171,7 +171,7 @@ export default function DeliveryTracking() : JSX.Element {
 
   const updateDeliveryMutation = useMutation({
     mutationFn: ({ id, ...data }: { id: number; [key: string]: unknown }) => 
-      apiRequest(`/api/admin/deliveries/${id}`, { method: 'PUT', data }),
+      apiRequest(`/api/admin/deliveries/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['deliveries'] });
       toast({ 
@@ -237,7 +237,7 @@ export default function DeliveryTracking() : JSX.Element {
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-10 w-40" />
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
             <Card key={i}>
@@ -311,7 +311,7 @@ export default function DeliveryTracking() : JSX.Element {
                         <FormLabel>Commande</FormLabel>
                         <Select 
                           onValueChange={(value) => field.onChange(parseInt(value))}
-                          defaultValue={field.value?.toString()}
+                          defaultValue={field.value ? String(field.value) : ''}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -342,7 +342,7 @@ export default function DeliveryTracking() : JSX.Element {
                         <FormLabel>Livreur (optionnel)</FormLabel>
                         <Select 
                           onValueChange={(value) => field.onChange(value ? parseInt(value) : undefined)}
-                          defaultValue={field.value?.toString()}
+                          defaultValue={field.value ? String(field.value) : ''}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -618,7 +618,7 @@ export default function DeliveryTracking() : JSX.Element {
                                   {delivery.customerPhone}
                                 </p>
                               </div>
-                              
+
                               <div>
                                 <h4 className="font-medium">Adresse</h4>
                                 <p>{delivery.address}</p>
@@ -626,7 +626,7 @@ export default function DeliveryTracking() : JSX.Element {
                                   {delivery.city} {delivery.postalCode}
                                 </p>
                               </div>
-                              
+
                               <div>
                                 <h4 className="font-medium">Articles</h4>
                                 <ul className="space-y-1">
@@ -637,14 +637,14 @@ export default function DeliveryTracking() : JSX.Element {
                                   ))}
                                 </ul>
                               </div>
-                              
+
                               <div>
                                 <h4 className="font-medium">Statut</h4>
                                 <Badge className={statusColors[delivery.status]}>
                                   {statusLabels[delivery.status]}
                                 </Badge>
                               </div>
-                              
+
                               {delivery.notes && (
                                 <div>
                                   <h4 className="font-medium">Notes</h4>

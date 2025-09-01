@@ -126,8 +126,8 @@ router.get('/health',
       const [versionResult, connectionsResult] = await Promise.all([
         db.execute(sql`SELECT version() as version`),
         db.execute(sql`
-          SELECT count(*) as connections 
-          FROM pg_stat_activity 
+          SELECT count(*) as connections
+          FROM pg_stat_activity
           WHERE datname = current_database()
         `)
       ]) as [any[], any[]];
@@ -146,8 +146,8 @@ router.get('/health',
         data: health
       });
     } catch (error) {
-      logger.error('Erreur de health check', { 
-        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      logger.error('Erreur de health check', {
+        error: error instanceof Error ? error.message : 'Erreur inconnue'
       });
 
       return res.status(503).json({
@@ -171,38 +171,38 @@ router.get('/health',
  *       200:
  *         description: Informations détaillées sur la base de données
  */
-router.get('/info', 
-  authenticateUser, 
-  requireRoles(['admin']), 
+router.get('/info',
+  authenticateUser,
+  requireRoles(['admin']),
   asyncHandler(async (req, res) => {
     try {
       const db = await getDb();
 
       const [
-        versionResult, 
+        versionResult,
         connectionsResult,
         tablesResult,
         dbInfoResult
       ] = await Promise.all([
         db.execute(sql`SELECT version() as version`),
         db.execute(sql`
-          SELECT 
+          SELECT
             count(*) as active_connections,
             max_conn as max_connections
-          FROM pg_stat_activity, pg_settings 
+          FROM pg_stat_activity, pg_settings
           WHERE name = 'max_connections'
         `),
         db.execute(sql`
           SELECT count(*) as count
-          FROM pg_tables 
+          FROM pg_tables
           WHERE schemaname = 'public'
         `),
         db.execute(sql`
-          SELECT 
+          SELECT
             datname as database_name,
             pg_size_pretty(pg_database_size(datname)) as size,
             pg_database_size(datname) as size_bytes
-          FROM pg_database 
+          FROM pg_database
           WHERE datname = current_database()
         `)
       ]) as [any[], any[], any[], any[]];
@@ -222,8 +222,8 @@ router.get('/info',
         data: dbInfo
       });
     } catch (error) {
-      logger.error('Erreur info base de données', { 
-        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      logger.error('Erreur info base de données', {
+        error: error instanceof Error ? error.message : 'Erreur inconnue'
       });
 
       return res.status(500).json({
@@ -247,16 +247,16 @@ router.get('/info',
  *       200:
  *         description: Liste des migrations appliquées
  */
-router.get('/migrations', 
-  authenticateUser, 
-  requireRoles(['admin']), 
+router.get('/migrations',
+  authenticateUser,
+  requireRoles(['admin']),
   asyncHandler(async (req, res) => {
     try {
       const db = await getDb();
 
       const migrationsTableExists = await db.execute(sql`
         SELECT EXISTS (
-          SELECT FROM information_schema.tables 
+          SELECT FROM information_schema.tables
           WHERE table_schema = 'public'
             AND table_name = '__drizzle_migrations'
         ) as exists
@@ -273,11 +273,11 @@ router.get('/migrations',
       }
 
       const migrations = await db.execute(sql`
-        SELECT 
+        SELECT
           id,
           hash,
           created_at
-        FROM __drizzle_migrations 
+        FROM __drizzle_migrations
         ORDER BY created_at DESC
       `) as any[];
 
@@ -293,8 +293,8 @@ router.get('/migrations',
         }
       });
     } catch (error) {
-      logger.error('Erreur migrations base de données', { 
-        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      logger.error('Erreur migrations base de données', {
+        error: error instanceof Error ? error.message : 'Erreur inconnue'
       });
 
       return res.status(500).json({
@@ -331,9 +331,9 @@ router.get('/migrations',
  *       200:
  *         description: Résultat de la sauvegarde
  */
-router.post('/backup', 
-  authenticateUser, 
-  requireRoles(['admin']), 
+router.post('/backup',
+  authenticateUser,
+  requireRoles(['admin']),
   validateBody(BackupSchema),
   asyncHandler(async (req, res) => {
     const { includeData, includeSchema, compression } = req.body;
@@ -351,8 +351,8 @@ router.post('/backup',
       };
 
       await logDatabaseActivity(
-        userId, 
-        'database_backup', 
+        userId,
+        'database_backup',
         `Sauvegarde créée: ${backupInfo.filename}`
       );
 
@@ -364,7 +364,7 @@ router.post('/backup',
         message: 'Sauvegarde créée avec succès'
       });
     } catch (error) {
-      logger.error('Erreur sauvegarde base de données', { 
+      logger.error('Erreur sauvegarde base de données', {
         error: error instanceof Error ? error.message : 'Erreur inconnue',
         userId
       });
@@ -401,9 +401,9 @@ router.post('/backup',
  *       200:
  *         description: Résultat de la restauration
  */
-router.post('/restore', 
-  authenticateUser, 
-  requireRoles(['admin']), 
+router.post('/restore',
+  authenticateUser,
+  requireRoles(['admin']),
   validateBody(RestoreSchema),
   asyncHandler(async (req, res) => {
     const { filename, tables } = req.body;
@@ -420,8 +420,8 @@ router.post('/restore',
       };
 
       await logDatabaseActivity(
-        userId, 
-        'database_restore', 
+        userId,
+        'database_restore',
         `Restauration depuis: ${filename}`
       );
 
@@ -433,7 +433,7 @@ router.post('/restore',
         message: 'Base de données restaurée avec succès'
       });
     } catch (error) {
-      logger.error('Erreur restauration base de données', { 
+      logger.error('Erreur restauration base de données', {
         filename,
         error: error instanceof Error ? error.message : 'Erreur inconnue',
         userId
@@ -473,9 +473,9 @@ router.post('/restore',
  *       200:
  *         description: Résultat de l'optimisation
  */
-router.post('/optimize', 
-  authenticateUser, 
-  requireRoles(['admin']), 
+router.post('/optimize',
+  authenticateUser,
+  requireRoles(['admin']),
   validateBody(OptimizeSchema),
   asyncHandler(async (req, res) => {
     const { analyze, vacuum, reindex } = req.body;
@@ -500,8 +500,8 @@ router.post('/optimize',
       }
 
       await logDatabaseActivity(
-        userId, 
-        'database_optimize', 
+        userId,
+        'database_optimize',
         `Optimisation effectuée: ${optimizationSteps.join(', ')}`
       );
 
@@ -517,7 +517,7 @@ router.post('/optimize',
         message: 'Base de données optimisée avec succès'
       });
     } catch (error) {
-      logger.error('Erreur optimisation base de données', { 
+      logger.error('Erreur optimisation base de données', {
         error: error instanceof Error ? error.message : 'Erreur inconnue',
         userId
       });

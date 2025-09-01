@@ -1,14 +1,13 @@
-
 import { Router } from 'express';
 import { z } from 'zod';
 import { asyncHandler } from '../../middleware/error-handler-enhanced';
 import { createLogger } from '../../middleware/logging';
 import { authenticateUser, requireRoles } from '../../middleware/auth';
 import { validateBody, validateParams, validateQuery } from '../../middleware/validation';
-import { commonSchemas } from '../../middleware/validation';
+import { commonSchemas } from '../../utils/validation';
 import { getDb } from '../../db';
 import { menuItems, menuCategories, activityLogs } from '../../../shared/schema';
-import { eq, and, or, desc, sql, ilike, inArray } from 'drizzle-orm';
+import { eq, and, or, desc, sql, ilike } from 'drizzle-orm';
 import { cacheMiddleware, invalidateCache } from '../../middleware/cache-advanced';
 
 const router = Router();
@@ -77,7 +76,7 @@ router.get('/',
     search: z.string().optional(),
     ...commonSchemas.pagination.shape,
     sortBy: z.string().optional(),
-    sortOrder: z.enum(['asc', 'desc']).default('asc')
+    sortOrder: commonSchemas.sortOrder
   })),
   cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['menu', 'categories'] }),
   asyncHandler(async (req, res) => {
@@ -284,7 +283,7 @@ router.post('/',
     logger.info('Article menu créé', {
       itemId: newItem.id,
       name: req.body.name,
-      category: req.body.categoryId, // Assuming categoryId is passed in req.body
+      category: req.body.categoryId,
       createdBy: currentUser.id
     });
 
@@ -514,5 +513,24 @@ router.post('/categories',
     });
   })
 );
+
+// Obtenir toutes les catégories
+router.get('/categories', asyncHandler(async (req, res) => {
+  try {
+    const db = await getDb();
+    const categories = await db
+      .select()
+      .from(menuCategories)
+      .orderBy(menuCategories.displayOrder);
+
+    res.json({ success: true, categories });
+  } catch (error) {
+    logger.error('Erreur récupération catégories:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Erreur serveur lors de la récupération des catégories' 
+    });
+  }
+}));
 
 export default router;

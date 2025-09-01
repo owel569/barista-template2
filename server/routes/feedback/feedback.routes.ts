@@ -1,4 +1,3 @@
-
 import { Router } from 'express';
 import { z } from 'zod';
 import { asyncHandler } from '../../middleware/error-handler-enhanced';
@@ -383,6 +382,7 @@ router.post('/public',
   })
 );
 
+
 // Mettre à jour le statut d'un commentaire
 router.patch('/:id/status',
   authenticateUser,
@@ -421,8 +421,8 @@ router.patch('/:id/status',
 
     const [updatedFeedback] = await db
       .update(feedback)
-      .set(updateData)
-      .where(eq(feedback.id, Number(id)))
+      .set(updateData) // ← Version recommandée
+      .where(eq(feedback.id, Number(id))) // ← Version recommandée
       .returning();
 
     // Enregistrer l'activité
@@ -447,7 +447,6 @@ router.patch('/:id/status',
       message: 'Statut du commentaire mis à jour avec succès'
     });
   })
-);
 
 // Répondre à un commentaire
 router.post('/:id/response',

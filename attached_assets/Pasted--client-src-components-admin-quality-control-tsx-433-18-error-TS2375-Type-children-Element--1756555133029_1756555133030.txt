@@ -1,0 +1,119 @@
+
+client/src/components/admin/quality-control.tsx:433:18 - error TS2375: Type '{ children: Element[]; value: string | undefined; onValueChange: (value: string) => void; }' is not assignable to type '{ value?: string; defaultValue?: string; onValueChange?(value: string): void; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'value' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+433                 <Select
+                     ~~~~~~
+
+client/src/components/admin/quality-control.tsx:488:18 - error TS2375: Type '{ children: Element[]; value: "average" | "excellent" | "good" | "poor" | undefined; onValueChange: (value: string) => void; }' is not assignable to type '{ value?: string; defaultValue?: string; onValueChange?(value: string): void; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'value' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+488                 <Select
+                     ~~~~~~
+
+client/src/components/admin/quality-control.tsx:527:52 - error TS2345: Argument of type '{ correctionActions: string[] | undefined; id?: number; date?: string; category?: string; item?: string; inspector?: string; score?: number; maxScore?: number; status?: "excellent" | "good" | "average" | "poor"; notes?: string; photos?: string[]; completed?: boolean; }' is not assignable to parameter of type 'SetStateAction<Partial<QualityCheck>>'.
+  Type '{ correctionActions: string[] | undefined; id?: number; date?: string; category?: string; item?: string; inspector?: string; score?: number; maxScore?: number; status?: "excellent" | "good" | "average" | "poor"; notes?: string; photos?: string[]; completed?: boolean; }' is not assignable to type 'Partial<QualityCheck>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'correctionActions' are incompatible.
+      Type 'string[] | undefined' is not assignable to type 'string[]'.
+        Type 'undefined' is not assignable to type 'string[]'.
+
+527                         onClick={() => setNewCheck({
+                                                       ~
+528                           ...newCheck,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+529                           correctionActions: newCheck.correctionActions?.filter((_, i) => i !== index)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+530                         })}
+    ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/real-time-updates.tsx:83:9 - error TS2349: This expression is not callable.
+  Type 'ToastManager' has no call signatures.
+
+83         toast({
+           ~~~~~
+
+client/src/components/admin/real-time-updates.tsx:136:9 - error TS2349: This expression is not callable.
+  Type 'ToastManager' has no call signatures.
+
+136         toast({
+            ~~~~~
+
+client/src/components/admin/real-time-updates.tsx:198:7 - error TS2349: This expression is not callable.
+  Type 'ToastManager' has no call signatures.
+
+198       toast({
+          ~~~~~
+
+client/src/components/admin/real-time-updates.tsx:245:20 - error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ order: string[]; reservation: string[]; payment: string[]; customer: string[]; system: string[]; }'.
+
+245     const titles = mockEvents[type];
+                       ~~~~~~~~~~~~~~~~
+
+client/src/components/admin/real-time-updates.tsx:337:34 - error TS2304: Cannot find name 'Calendar'.
+
+337       case 'reservation': return Calendar;
+                                     ~~~~~~~~
+
+client/src/components/admin/real-time-updates.tsx:387:14 - error TS2304: Cannot find name 'Bell'.
+
+387             <Bell className={`h-4 w-4 ${soundEnabled ? 'text-blue-500' : 'text-gray-400'}`} />
+                 ~~~~
+
+client/src/components/admin/real-time-updates.tsx:395:14 - error TS2304: Cannot find name 'RefreshCw'.
+
+395             <RefreshCw className="h-4 w-4 mr-2" />
+                 ~~~~~~~~~
+
+client/src/components/admin/real-time-updates.tsx:403:86 - error TS2304: Cannot find name 'Zap'.
+
+403         <MetricCard title="Événements/min" value={liveMetrics.eventsPerMinute} icon={Zap} color="yellow" />
+                                                                                         ~~~
+
+client/src/components/admin/real-time-updates.tsx:409:8 - error TS2304: Cannot find name 'Tabs'.
+
+409       <Tabs defaultValue="events" className="space-y-4">
+           ~~~~
+
+client/src/components/admin/real-time-updates.tsx:410:10 - error TS2304: Cannot find name 'TabsList'.
+
+410         <TabsList>
+             ~~~~~~~~
+
+client/src/components/admin/real-time-updates.tsx:411:12 - error TS2304: Cannot find name 'TabsTrigger'.
+
+411           <TabsTrigger value="events">Événements</TabsTrigger>
+               ~~~~~~~~~~~
+
+client/src/components/admin/real-time-updates.tsx:411:51 - error TS2304: Cannot find name 'TabsTrigger'.
+
+411           <TabsTrigger value="events">Événements</TabsTrigger>
+                                                      ~~~~~~~~~~~
+
+client/src/components/admin/real-time-updates.tsx:412:12 - error TS2304: Cannot find name 'TabsTrigger'.
+
+412           <TabsTrigger value="filters">Filtres</TabsTrigger>
+               ~~~~~~~~~~~
+
+client/src/components/admin/real-time-updates.tsx:412:49 - error TS2304: Cannot find name 'TabsTrigger'.
+
+412           <TabsTrigger value="filters">Filtres</TabsTrigger>
+                                                    ~~~~~~~~~~~
+
+client/src/components/admin/real-time-updates.tsx:413:12 - error TS2304: Cannot find name 'TabsTrigger'.
+
+413           <TabsTrigger value="settings">Paramètres</TabsTrigger>
+               ~~~~~~~~~~~
+
+client/src/components/admin/real-time-updates.tsx:413:53 - error TS2304: Cannot find name 'TabsTrigger'.
+
+413           <TabsTrigger value="settings">Paramètres</TabsTrigger>
+                                                        ~~~~~~~~~~~
+
+client/src/components/admin/real-time-updates.tsx:414:11 - error TS2304: Cannot find name 'TabsList'.
+
+414         </TabsList>
+         
