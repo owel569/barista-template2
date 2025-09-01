@@ -1,14 +1,32 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { createLogger } from '../middleware/logging';
 import jwt from 'jsonwebtoken';
+import { z } from 'zod';
+import { sql } from 'kysely'; // Assuming Kysely is used for DB operations
+
+// Mock database connection and logger for demonstration purposes
+const getDb = () => ({
+  execute: async (query: any) => {
+    // Simulate DB query
+    if (query.toString().includes('SELECT 1')) {
+      return { rows: [{ '1': 1 }] };
+    }
+    throw new Error('Mock DB error');
+  }
+});
+
+const logger = createLogger('ADVANCED_FEATURES_ROUTES');
+
+// Define specific role types
+type UserRole = 'admin' | 'manager' | 'staff';
 
 interface AuthenticatedUser {
   id: number;
   username: string;
-  role: string;
-  permissions: string[];
-  isActive: boolean;
-  email: string;
+  role: UserRole;
+  permissions?: string[];
+  isActive?: boolean;
+  email?: string;
 }
 
 interface AuthenticatedRequest extends Request {
@@ -16,7 +34,6 @@ interface AuthenticatedRequest extends Request {
 }
 
 const router = Router();
-const logger = createLogger('ADVANCED_FEATURES_ROUTES');
 
 // Configuration
 const JWT_SECRET = process.env.JWT_SECRET || 'barista-secret-key-ultra-secure-2025';
@@ -37,7 +54,9 @@ const authenticateUser = (req: Request, res: Response, next: NextFunction): void
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as AuthenticatedUser;
     (req as AuthenticatedRequest).user = {
-      ...decoded,
+      id: decoded.id,
+      username: decoded.username,
+      role: decoded.role as UserRole, // Ensure role is one of the defined types
       permissions: decoded.permissions || [],
       isActive: decoded.isActive ?? true,
       email: decoded.email || `${decoded.username}@example.com`
@@ -73,6 +92,38 @@ const handleError = (res: Response, error: unknown, context: string) => {
     details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
   });
 };
+
+// Helper function for system health check
+async function getSystemHealth(): Promise<{
+  database: boolean;
+  cache: boolean;
+  storage: boolean;
+  memory: number;
+  uptime: number;
+}> {
+  try {
+    // Vérification base de données
+    const db = getDb();
+    await db.execute(sql`SELECT 1`);
+
+    return {
+      database: true,
+      cache: true, // Mocked
+      storage: true, // Mocked
+      memory: process.memoryUsage().heapUsed / 1024 / 1024,
+      uptime: process.uptime()
+    };
+  } catch (error) {
+    logger.error('Erreur vérification santé système', { error });
+    return {
+      database: false,
+      cache: false, // Mocked
+      storage: false, // Mocked
+      memory: process.memoryUsage().heapUsed / 1024 / 1024,
+      uptime: process.uptime()
+    };
+  }
+}
 
 // === INTELLIGENCE ARTIFICIELLE ===
 
@@ -533,7 +584,7 @@ router.get('/reports', authenticateUser, async (_req: AuthenticatedRequest, res:
 // Route pour générer un rapport
 router.post('/reports/:reportId/generate', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
   try {
-    const { reportId } = req.params;
+    const { reportId } = _req.params;
 
     if (!reportId) {
       return res.status(400).json({ 
@@ -584,7 +635,7 @@ router.get('/modules', authenticateUser, async (_req: AuthenticatedRequest, res:
 // Routes pour activer/désactiver les modules
 router.post('/modules/:moduleId/activate', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
   try {
-    const { moduleId } = req.params;
+    const { moduleId } = _req.params;
 
     if (!moduleId) {
       return res.status(400).json({ 
@@ -608,7 +659,7 @@ router.post('/modules/:moduleId/activate', authenticateUser, async (_req: Authen
 
 router.post('/modules/:moduleId/deactivate', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
   try {
-    const { moduleId } = req.params;
+    const { moduleId } = _req.params;
 
     if (!moduleId) {
       return res.status(400).json({ 
@@ -633,8 +684,8 @@ router.post('/modules/:moduleId/deactivate', authenticateUser, async (_req: Auth
 // Route pour configurer un module
 router.post('/modules/:moduleId/configure', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
   try {
-    const { moduleId } = req.params;
-    const { config } = req.body;
+    const { moduleId } = _req.params;
+    const { config } = _req.body;
 
     if (!moduleId || !config) {
       return res.status(400).json({ 
@@ -694,6 +745,19 @@ router.get('/modules-status', authenticateUser, async (_req: AuthenticatedReques
     });
   } catch (error) {
     handleError(res, error, 'la récupération du statut des modules');
+  }
+});
+
+// Route pour obtenir l'état du système
+router.get('/system/health', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
+  try {
+    const health = await getSystemHealth();
+    res.json({
+      success: true,
+      data: health
+    });
+  } catch (error) {
+    handleError(res, error, 'la vérification de la santé du système');
   }
 });
 

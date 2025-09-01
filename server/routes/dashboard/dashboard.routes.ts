@@ -1,4 +1,3 @@
-
 import { Router } from 'express';
 import { z } from 'zod';
 import { asyncHandler } from '../../middleware/error-handler-enhanced';
@@ -6,13 +5,13 @@ import { createLogger } from '../../middleware/logging';
 import { authenticateUser, requireRoles } from '../../middleware/auth';
 import { validateQuery } from '../../middleware/validation';
 import { getDb } from '../../db';
-import { 
-  orders, 
-  orderItems, 
-  menuItems, 
+import {
+  orders,
+  orderItems,
+  menuItems,
   menuCategories,
-  customers, 
-  users, 
+  customers,
+  users,
   reservations,
   tables
 } from '../../../shared/schema';
@@ -87,7 +86,7 @@ router.get('/overview',
       .select({
         status: orders.status,
         count: sql<number>`count(*)`,
-        totalRevenue: sql<number>`coalesce(sum(${orders.totalAmount}), 0)`
+        totalRevenue: sql<number>`coalesce(sum(${orders.total}), 0)`
       })
       .from(orders)
       .where(and(
@@ -100,8 +99,8 @@ router.get('/overview',
     const [generalStats] = await db
       .select({
         totalOrders: sql<number>`count(*)`,
-        totalRevenue: sql<number>`coalesce(sum(${orders.totalAmount}), 0)`,
-        averageOrderValue: sql<number>`coalesce(avg(${orders.totalAmount}), 0)`
+        totalRevenue: sql<number>`coalesce(sum(${orders.total}), 0)`,
+        averageOrderValue: sql<number>`coalesce(avg(${orders.total}), 0)`
       })
       .from(orders)
       .where(and(
@@ -193,10 +192,10 @@ router.get('/overview',
       topCategories
     };
 
-    logger.info('Vue d\'ensemble tableau de bord récupérée', { 
-      period, 
+    logger.info('Vue d\'ensemble tableau de bord récupérée', {
+      period,
       totalOrders: result.overview.totalOrders,
-      totalRevenue: result.overview.totalRevenue 
+      totalRevenue: result.overview.totalRevenue
     });
 
     res.json({
@@ -209,17 +208,17 @@ router.get('/overview',
 // Route pour récupérer les statistiques du dashboard
 router.get('/statistics', authenticateUser, asyncHandler(async (req, res) => {
   const db = getDb();
-  
+
   // Récupérer les statistiques de base
   const [reservationCount] = await db.select({ count: count() }).from(reservations);
   const [orderCount] = await db.select({ count: count() }).from(orders);
   const [userCount] = await db.select({ count: count() }).from(users);
-  
+
   // Calculer le chiffre d'affaires
   const revenueQuery = await db.select({
-    total: sql<number>`COALESCE(SUM(CASE WHEN ${orders.status} = 'completed' THEN ${orders.totalAmount} ELSE 0 END), 0)`
+    total: sql<number>`COALESCE(SUM(CASE WHEN ${orders.status} = 'completed' THEN ${orders.total} ELSE 0 END), 0)`
   }).from(orders);
-  
+
   const stats = {
     reservations: reservationCount.count,
     orders: orderCount.count,
@@ -238,11 +237,11 @@ router.get('/statistics', authenticateUser, asyncHandler(async (req, res) => {
 router.get('/revenue', authenticateUser, asyncHandler(async (req, res) => {
   const period = getQueryParam(req.query.period) || 'week';
   const db = getDb();
-  
+
   // Données de revenus basées sur les commandes
   const revenueData = await db.select({
     date: sql<string>`DATE(${orders.createdAt})`,
-    revenue: sql<number>`COALESCE(SUM(CASE WHEN ${orders.status} = 'completed' THEN ${orders.totalAmount} ELSE 0 END), 0)`
+    revenue: sql<number>`COALESCE(SUM(CASE WHEN ${orders.status} = 'completed' THEN ${orders.total} ELSE 0 END), 0)`
   })
   .from(orders)
   .groupBy(sql`DATE(${orders.createdAt})`)
@@ -273,7 +272,7 @@ router.get('/realtime',
         id: orders.id,
         status: orders.status,
         orderType: orders.orderType,
-        totalAmount: orders.totalAmount,
+        totalAmount: orders.total,
         createdAt: orders.createdAt,
         tableNumber: tables.number,
         customerName: sql<string>`coalesce(${customers.firstName} || ' ' || ${customers.lastName}, ${orders.customerInfo}->>'name')`
@@ -324,7 +323,7 @@ router.get('/realtime',
     const [performanceMetrics] = await db
       .select({
         ordersToday: sql<number>`count(case when ${orders.createdAt} >= ${today} then 1 end)`,
-        revenueToday: sql<number>`coalesce(sum(case when ${orders.createdAt} >= ${today} then ${orders.totalAmount} end), 0)`,
+        revenueToday: sql<number>`coalesce(sum(case when ${orders.createdAt} >= ${today} then ${orders.total} end), 0)`,
         avgPreparationTime: sql<number>`coalesce(avg(extract(epoch from ${orders.updatedAt} - ${orders.createdAt})), 0)`
       })
       .from(orders)
@@ -344,10 +343,10 @@ router.get('/realtime',
       }
     };
 
-    logger.info('Données temps réel récupérées', { 
+    logger.info('Données temps réel récupérées', {
       activeOrders: result.activeOrders.length,
       todayReservations: result.todayReservations.length,
-      occupiedTables: result.occupiedTables.length 
+      occupiedTables: result.occupiedTables.length
     });
 
     res.json({
@@ -361,12 +360,12 @@ router.get('/realtime',
 router.get('/recent-orders', authenticateUser, asyncHandler(async (req, res) => {
   const limit = parseInt(getQueryParam(req.query.limit)) || 10;
   const db = getDb();
-  
+
   const recentOrders = await db.select({
     id: orders.id,
     customerName: orders.customerName,
     status: orders.status,
-    totalAmount: orders.totalAmount,
+    totalAmount: orders.total,
     createdAt: orders.createdAt
   })
   .from(orders)
@@ -393,7 +392,7 @@ router.get('/revenue-chart',
     // Déterminer le format de groupement selon la période
     let dateFormat: string;
     let dateLabel: string;
-    
+
     switch (period) {
       case 'today':
         dateFormat = 'HH24:MI';
@@ -419,7 +418,7 @@ router.get('/revenue-chart',
     const revenueData = await db
       .select({
         period: sql<string>`to_char(${orders.createdAt}, '${dateFormat}')`,
-        revenue: sql<number>`coalesce(sum(${orders.totalAmount}), 0)`,
+        revenue: sql<number>`coalesce(sum(${orders.total}), 0)`,
         orderCount: sql<number>`count(*)`
       })
       .from(orders)
@@ -439,15 +438,15 @@ router.get('/revenue-chart',
       summary: {
         totalRevenue: revenueData.reduce((sum, item) => sum + item.revenue, 0),
         totalOrders: revenueData.reduce((sum, item) => sum + item.orderCount, 0),
-        averageRevenuePerPeriod: revenueData.length > 0 ? 
+        averageRevenuePerPeriod: revenueData.length > 0 ?
           revenueData.reduce((sum, item) => sum + item.revenue, 0) / revenueData.length : 0
       }
     };
 
-    logger.info('Graphique de revenus récupéré', { 
-      period, 
+    logger.info('Graphique de revenus récupéré', {
+      period,
       dataPoints: revenueData.length,
-      totalRevenue: result.summary.totalRevenue 
+      totalRevenue: result.summary.totalRevenue
     });
 
     res.json({
@@ -471,7 +470,7 @@ router.get('/alerts',
       .select({
         id: orders.id,
         createdAt: orders.createdAt,
-        totalAmount: orders.totalAmount
+        totalAmount: orders.total
       })
       .from(orders)
       .where(and(
@@ -551,9 +550,9 @@ router.get('/alerts',
       }
     };
 
-    logger.info('Alertes récupérées', { 
+    logger.info('Alertes récupérées', {
       totalAlerts: alerts.length,
-      categories: Object.keys(result.summary.byCategory) 
+      categories: Object.keys(result.summary.byCategory)
     });
 
     res.json({
