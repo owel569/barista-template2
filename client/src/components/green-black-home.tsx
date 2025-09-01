@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+
+import { useState, useEffect, useCallback } from 'react';
 import { 
   ChevronLeft, ChevronRight, Star, MapPin, Phone, Clock,
   Coffee, Utensils, Sunset, Calendar, Image, MessageSquare, Home
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useInView } from 'react-intersection-observer';
+import { Card, CardContent } from "@/components/ui/card";
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Types
@@ -24,15 +24,18 @@ interface Testimonial {
   date: string;
 }
 
+interface NavItem {
+  id: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
 export default function GreenBlackHome(): JSX.Element {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-  const [ref, inView] = useInView({ threshold: 0.1, triggerOnce: false });
+  const [inView, setInView] = useState(false);
 
-  // Configurations responsive
-  const slidesToShow = window.innerWidth < 768 ? 1 : 3;
-  const totalSlides = Math.ceil(menuCategories.length / slidesToShow);
-
+  // Configuration des catégories du menu
   const menuCategories: MenuCategory[] = [
     {
       id: 1,
@@ -74,6 +77,10 @@ export default function GreenBlackHome(): JSX.Element {
     }
   ];
 
+  // Configurations responsive
+  const slidesToShow = typeof window !== 'undefined' && window.innerWidth < 768 ? 1 : 3;
+  const totalSlides = Math.ceil(menuCategories.length / slidesToShow);
+
   const testimonials: Testimonial[] = [
     {
       text: "Endroit très sympa et surtout personnels aux petits soins.",
@@ -95,7 +102,7 @@ export default function GreenBlackHome(): JSX.Element {
     }
   ];
 
-  const navItems = [
+  const navItems: NavItem[] = [
     { id: 'accueil', label: 'ACCUEIL', icon: Home },
     { id: 'apropos', label: 'À PROPOS', icon: Coffee },
     { id: 'menu', label: 'MENU', icon: Utensils },
@@ -117,6 +124,17 @@ export default function GreenBlackHome(): JSX.Element {
     setIsAutoPlaying(false);
     setTimeout(() => setIsAutoPlaying(true), 10000);
   };
+
+  // Intersection Observer simulation
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      setInView(scrollY > 100);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     if (!isAutoPlaying || !inView) return;
@@ -153,16 +171,19 @@ export default function GreenBlackHome(): JSX.Element {
               </div>
               <div className="hidden md:block ml-10">
                 <div className="flex space-x-8">
-                  {navItems.map((item) => (
-                    <a
-                      key={item.id}
-                      href={`#${item.id}`}
-                      className="text-gray-300 hover:text-amber-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300 flex items-center"
-                    >
-                      <item.icon className="h-4 w-4 mr-2" />
-                      {item.label}
-                    </a>
-                  ))}
+                  {navItems.map((item) => {
+                    const IconComponent = item.icon;
+                    return (
+                      <a
+                        key={item.id}
+                        href={`#${item.id}`}
+                        className="text-gray-300 hover:text-amber-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300 flex items-center"
+                      >
+                        <IconComponent className="h-4 w-4 mr-2" />
+                        {item.label}
+                      </a>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -224,7 +245,6 @@ export default function GreenBlackHome(): JSX.Element {
                }}>
         <div className="max-w-7xl mx-auto px-6 text-white relative z-10">
           <motion.div 
-            ref={ref}
             initial="hidden"
             animate={inView ? "visible" : "hidden"}
             variants={staggerContainer}
@@ -278,7 +298,7 @@ export default function GreenBlackHome(): JSX.Element {
       </section>
 
       {/* Menu Carousel amélioré */}
-      <section id="menu" className="py-20 bg-gray-900" ref={ref}>
+      <section id="menu" className="py-20 bg-gray-900">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div 
             initial="hidden"
@@ -398,8 +418,8 @@ export default function GreenBlackHome(): JSX.Element {
                   whileHover={{ scale: 1.03 }}
                 >
                   <Card className="bg-gray-900 border-gray-700 h-full">
-                    <CardHeader>
-                      <div className="flex justify-center mb-2">
+                    <CardContent className="p-6 text-center">
+                      <div className="flex justify-center mb-4">
                         {[...Array(5)].map((_, i) => (
                           <Star 
                             key={i} 
@@ -407,8 +427,6 @@ export default function GreenBlackHome(): JSX.Element {
                           />
                         ))}
                       </div>
-                    </CardHeader>
-                    <CardContent className="text-center">
                       <blockquote className="text-gray-300 italic mb-6 text-lg leading-relaxed">
                         "{testimonial.text}"
                       </blockquote>

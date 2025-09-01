@@ -1,5 +1,4 @@
 
-import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -20,36 +19,76 @@ interface AnalyticsDashboardProps {
   orders: OnlineOrder[];
 }
 
+interface DailyData {
+  date: string;
+  orders: number;
+  revenue: number;
+}
+
+interface PlatformStats {
+  orders: number;
+  revenue: number;
+}
+
 export function AnalyticsDashboard({ open, onOpenChange, orders }: AnalyticsDashboardProps) {
   const today = new Date();
   const last7Days = Array.from({ length: 7 }, (_, i) => {
     const date = new Date();
     date.setDate(today.getDate() - i);
-    return date.toISOString().split('T')[0];
-  }).reverse();
+    return date.toISOString().split('T')[0] || '';
+  }).reverse().filter(date => date);
 
-  const dailyData = last7Days.map(date => {
-    const dayOrders = orders.filter(order => order.createdAt.startsWith(date));
+  const dailyData: DailyData[] = last7Days.map(date => {
+    const dayOrders = orders.filter(order => order.createdAt?.startsWith(date));
     return {
       date,
       orders: dayOrders.length,
-      revenue: dayOrders.reduce((sum, order) => sum + order.totalAmount, 0)
+      revenue: dayOrders.reduce((sum, order) => sum + (order.totalAmount || 0), 0)
     };
   });
 
-  const platformStats = orders.reduce((acc, order) => {
-    if (!acc[order.platform]) {
-      acc[order.platform] = { orders: 0, revenue: 0 };
+  const platformStats: Record<string, PlatformStats> = orders.reduce((acc, order) => {
+    const platform = order.platform || 'unknown';
+    if (!acc[platform]) {
+      acc[platform] = { orders: 0, revenue: 0 };
     }
-    acc[order.platform].orders++;
-    acc[order.platform].revenue += order.totalAmount;
+    acc[platform].orders++;
+    acc[platform].revenue += order.totalAmount || 0;
     return acc;
-  }, {} as Record<string, { orders: number; revenue: number }>);
+  }, {} as Record<string, PlatformStats>);
 
-  const statusStats = orders.reduce((acc, order) => {
-    acc[order.status] = (acc[order.status] || 0) + 1;
+  const statusStats: Record<string, number> = orders.reduce((acc, order) => {
+    const status = order.status || 'unknown';
+    acc[status] = (acc[status] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
+
+  const todayOrdersCount = orders.filter(order => 
+    order.createdAt?.startsWith(today.toISOString().split('T')[0] || '')
+  ).length;
+
+  const totalRevenue = orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+
+  const getPlatformDisplayName = (platform: string): string => {
+    switch (platform) {
+      case 'website': return 'Site Web';
+      case 'mobile_app': return 'App Mobile';
+      case 'phone': return 'Téléphone';
+      default: return platform;
+    }
+  };
+
+  const getStatusDisplayName = (status: string): string => {
+    switch (status) {
+      case 'pending': return 'En attente';
+      case 'confirmed': return 'Confirmé';
+      case 'preparing': return 'En préparation';
+      case 'ready': return 'Prêt';
+      case 'delivered': return 'Livré';
+      case 'cancelled': return 'Annulé';
+      default: return status;
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -73,7 +112,7 @@ export function AnalyticsDashboard({ open, onOpenChange, orders }: AnalyticsDash
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold">
-                {orders.reduce((sum, order) => sum + order.totalAmount, 0).toFixed(2)}€
+                {totalRevenue.toFixed(2)}€
               </p>
             </CardContent>
           </Card>
@@ -83,7 +122,7 @@ export function AnalyticsDashboard({ open, onOpenChange, orders }: AnalyticsDash
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold">
-                {orders.filter(order => order.createdAt.startsWith(today.toISOString().split('T')[0])).length}
+                {todayOrdersCount}
               </p>
             </CardContent>
           </Card>
@@ -114,9 +153,8 @@ export function AnalyticsDashboard({ open, onOpenChange, orders }: AnalyticsDash
             <CardContent>
               {Object.entries(platformStats).map(([platform, stats]) => (
                 <div key={platform} className="flex justify-between py-2 border-b">
-                  <span className="capitalize">
-                    {platform === 'website' ? 'Site Web' : 
-                     platform === 'mobile_app' ? 'App Mobile' : 'Téléphone'}
+                  <span>
+                    {getPlatformDisplayName(platform)}
                   </span>
                   <span>{stats.orders} commandes ({stats.revenue.toFixed(2)}€)</span>
                 </div>
@@ -131,7 +169,7 @@ export function AnalyticsDashboard({ open, onOpenChange, orders }: AnalyticsDash
             <CardContent>
               {Object.entries(statusStats).map(([status, count]) => (
                 <div key={status} className="flex justify-between py-2 border-b">
-                  <span className="capitalize">{status}</span>
+                  <span>{getStatusDisplayName(status)}</span>
                   <span>{count} commandes</span>
                 </div>
               ))}

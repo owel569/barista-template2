@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,7 +6,6 @@ import { Spinner } from "@/components/ui/spinner";
 import { 
   Calendar, 
   Users, 
-  ShoppingCart, 
   TrendingUp,
   Coffee,
   Clock,
@@ -33,7 +32,6 @@ interface Customer {
   id: number;
   name: string;
   email: string;
-  // autres propriétés...
 }
 
 interface MenuItem {
@@ -45,8 +43,20 @@ interface MenuItem {
   category_id?: number;
 }
 
+interface StatItem {
+  title: string;
+  value: string | number;
+  icon: React.ComponentType<{ className?: string }>;
+  color: string;
+  bgColor: string;
+}
+
+interface TranslationFunction {
+  (key: string, fallback?: string): string;
+}
+
 export default function DashboardStats(): JSX.Element {
-  const { t } = useLanguage();
+  const { t }: { t: TranslationFunction } = useLanguage();
 
   const { 
     data: todayReservations = { count: 0 }, 
@@ -77,8 +87,7 @@ export default function DashboardStats(): JSX.Element {
   });
 
   const { 
-    data: menuItems = [], 
-    isLoading: loadingMenu 
+    data: menuItems = []
   } = useQuery<MenuItem[]>({
     queryKey: ['/api/menu/items'],
   });
@@ -88,30 +97,30 @@ export default function DashboardStats(): JSX.Element {
     (o: OrderStatus) => o.status === 'pending'
   )?.count || 0;
 
-  const stats = [
+  const stats: StatItem[] = [
     {
-      title: t('dashboard.todayReservations', "Réservations Aujourd'hui"),
+      title: t('dashboard.todayReservations') || "Réservations Aujourd'hui",
       value: todayReservations.count,
       icon: Calendar,
       color: "text-blue-600",
       bgColor: "bg-blue-50"
     },
     {
-      title: t('dashboard.pendingOrders', "Commandes en Cours"),
+      title: t('dashboard.pendingOrders') || "Commandes en Cours",
       value: pendingOrdersCount,
       icon: Clock,
       color: "text-orange-600",
       bgColor: "bg-orange-50"
     },
     {
-      title: t('dashboard.activeCustomers', "Clients Actifs"),
+      title: t('dashboard.activeCustomers') || "Clients Actifs",
       value: customers.length,
       icon: Users,
       color: "text-green-600",
       bgColor: "bg-green-50"
     },
     {
-      title: t('dashboard.occupancyRate', "Taux d'Occupation"),
+      title: t('dashboard.occupancyRate') || "Taux d'Occupation",
       value: `${Math.round(occupancyRate.rate)}%`,
       icon: TrendingUp,
       color: "text-purple-600",
@@ -122,12 +131,20 @@ export default function DashboardStats(): JSX.Element {
   // Fonction pour traduire les statuts de commande
   const translateOrderStatus = (status: string): string => {
     const statusTranslations: Record<string, string> = {
-      'pending': t('orderStatus.pending', 'En Attente'),
-      'confirmed': t('orderStatus.confirmed', 'Confirmées'),
-      'completed': t('orderStatus.completed', 'Terminées'),
-      'cancelled': t('orderStatus.cancelled', 'Annulées')
+      'pending': t('orderStatus.pending') || 'En Attente',
+      'confirmed': t('orderStatus.confirmed') || 'Confirmées',
+      'completed': t('orderStatus.completed') || 'Terminées',
+      'cancelled': t('orderStatus.cancelled') || 'Annulées'
     };
     return statusTranslations[status] || status;
+  };
+
+  const getStatusVariant = (status: string): "warning" | "success" | "default" => {
+    switch (status) {
+      case 'pending': return 'warning';
+      case 'completed': return 'success';
+      default: return 'default';
+    }
   };
 
   return (
@@ -165,7 +182,7 @@ export default function DashboardStats(): JSX.Element {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Coffee className="h-5 w-5" />
-              {t('dashboard.topProducts', 'Produits les Plus Vendus')}
+              {t('dashboard.topProducts') || 'Produits les Plus Vendus'}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -183,7 +200,7 @@ export default function DashboardStats(): JSX.Element {
               ))}
               {menuItems.length === 0 && (
                 <p className="text-gray-500 text-center py-4">
-                  {t('dashboard.noProducts', 'Aucun produit disponible')}
+                  {t('dashboard.noProducts') || 'Aucun produit disponible'}
                 </p>
               )}
             </div>
@@ -194,7 +211,7 @@ export default function DashboardStats(): JSX.Element {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5" />
-              {t('dashboard.orderStatus', 'État des Commandes')}
+              {t('dashboard.orderStatus') || 'État des Commandes'}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -205,7 +222,7 @@ export default function DashboardStats(): JSX.Element {
                     {translateOrderStatus(status.status)}
                   </span>
                   <Badge 
-                    variant={status.status === 'pending' ? 'warning' : status.status === 'completed' ? 'success' : 'default'}
+                    variant={getStatusVariant(status.status)}
                     className="text-sm font-medium"
                   >
                     {status.count}
@@ -214,7 +231,7 @@ export default function DashboardStats(): JSX.Element {
               ))}
               {ordersByStatus.length === 0 && (
                 <p className="text-gray-500 text-center py-4">
-                  {t('dashboard.noOrders', 'Aucune commande')}
+                  {t('dashboard.noOrders') || 'Aucune commande'}
                 </p>
               )}
             </div>
