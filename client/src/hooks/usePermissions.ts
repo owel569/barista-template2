@@ -3,8 +3,8 @@ import { useAuth } from './useAuth';
 
 export type UserRole = 'directeur' | 'admin' | 'manager' | 'barista' | 'employee' | 'staff';
 export type PermissionAction = 'create' | 'read' | 'update' | 'delete' | 'manage' | 'view';
-export type ModuleName = 
-  | 'dashboard' | 'orders' | 'menu' | 'inventory' | 'customers' | 'employees' 
+export type ModuleName =
+  | 'dashboard' | 'orders' | 'menu' | 'inventory' | 'customers' | 'employees'
   | 'reservations' | 'analytics' | 'reports' | 'settings' | 'permissions'
   | 'loyalty' | 'maintenance' | 'accounting' | 'backup' | 'quality'
   | 'suppliers' | 'calendar' | 'messages' | 'notifications' | 'pos'
@@ -141,8 +141,8 @@ export const usePermissions = () => {
       setLoading(true);
       setError(null);
 
-      const token = localStorage.getItem('token') || 
-                   localStorage.getItem('auth_token') || 
+      const token = localStorage.getItem('token') ||
+                   localStorage.getItem('auth_token') ||
                    localStorage.getItem('barista_auth_token');
 
       if (!token) {
@@ -203,7 +203,7 @@ export const usePermissions = () => {
     return userRole ? DEFAULT_PERMISSIONS[userRole] || [] : [];
   }, [permissionsCache?.permissions, userRole]);
 
-  const hasPermission = useCallback((module: ModuleName, action: PermissionAction): boolean => {
+  const hasPermission = useCallback((module: string, action: string): boolean => {
     if (!isAuthenticated || !userRole) return false;
 
     // Super admin bypass
@@ -212,7 +212,7 @@ export const usePermissions = () => {
     const permissions = getCurrentPermissions();
     const modulePermission = permissions.find(p => p.module === module);
 
-    return modulePermission?.actions.includes(action) ?? false;
+    return modulePermission?.actions.includes(action as PermissionAction) ?? false;
   }, [isAuthenticated, userRole, getCurrentPermissions]);
 
   // API optimisée

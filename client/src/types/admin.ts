@@ -1,13 +1,17 @@
 export interface User {
-  id: number;
-  username: string;
-  role: 'directeur' | 'employe';
-  firstName?: string;
-  lastName?: string;
-  email?: string;
+  id: string;
+  role: 'directeur' | 'employe' | 'admin' | 'manager' | 'staff' | 'customer' | 'employee';
+  permissions?: UserPermissions;
+  profile?: UserProfile;
+  firstName: string;
+  lastName: string;
+  email: string;
   phone?: string;
-  active?: boolean;
+  username?: string;
+  createdAt: Date;
+  updatedAt: Date;
   lastLogin?: Date;
+  isActive: boolean;
 }
 
 export interface Permission {
@@ -172,7 +176,7 @@ export interface DashboardProps {
   children?: React.ReactNode;
 }
 
-// Types avec signatures d'index pour éviter les erreurs 'any'
+// Types with index signatures to avoid 'any' errors
 export interface IndexedObject {
   [key: string]: unknown;
 }
@@ -185,7 +189,7 @@ export interface NumberIndexedObject {
   [key: string]: number;
 }
 
-// Types pour l'administration
+// Types for administration
 export interface AdminUser {
   id: string;
   email: string;
@@ -195,7 +199,7 @@ export interface AdminUser {
   updatedAt: string;
 }
 
-// Types pour les messages de contact
+// Types for contact messages
 export interface ContactMessage {
   id: number;
   name: string;
@@ -213,7 +217,7 @@ export interface ContactMessage {
   notes?: string;
 }
 
-// Types pour les équipements
+// Types for equipment
 export interface Equipment {
   id: number;
   name: string;
@@ -229,7 +233,7 @@ export interface Equipment {
   updatedAt: string;
 }
 
-// Types pour les tâches de maintenance
+// Types for maintenance tasks
 export interface MaintenanceTask {
   id: number;
   title: string;
@@ -248,7 +252,7 @@ export interface MaintenanceTask {
   updatedAt: string;
 }
 
-// Types pour le contrôle qualité
+// Types for quality control
 export interface QualityCheck {
   id: number;
   date: string;
@@ -266,7 +270,7 @@ export interface QualityCheck {
   updatedAt: string;
 }
 
-// Types pour les commandes en ligne
+// Types for online orders
 export interface OnlineOrder {
   id: number;
   customerName: string;

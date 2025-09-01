@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import type { MaintenanceTask } from '@/types/maintenance';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -15,13 +16,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { MaintenanceTask, Equipment, Technician } from './maintenance-management';
+import { MaintenanceTask as MaintenanceTaskType, Equipment, Technician } from './maintenance-management'; // Renamed to avoid conflict
 
 interface MaintenanceTaskFormProps {
   equipmentList: Equipment[];
   technicians: Technician[];
-  initialData?: MaintenanceTask | null;
-  onSubmit: (data: Omit<MaintenanceTask, 'id'>) => void;
+  initialData?: MaintenanceTaskType | null;
+  onSubmit: (data: Omit<MaintenanceTaskType, 'id'>) => void;
   onCancel: () => void;
 }
 
@@ -32,7 +33,7 @@ export function MaintenanceTaskForm({
   onSubmit,
   onCancel,
 }: MaintenanceTaskFormProps) {
-  const [formData, setFormData] = useState<Omit<MaintenanceTask, 'id'>>(
+  const [formData, setFormData] = useState<Omit<MaintenanceTaskType, 'id'>>(
     initialData ? {
       title: initialData.title,
       description: initialData.description,
@@ -52,8 +53,8 @@ export function MaintenanceTaskForm({
       description: '',
       equipment: '',
       equipmentId: 0,
-      priority: 'medium' as const,
-      status: 'pending' as const,
+      priority: 'medium',
+      status: 'pending',
       assignedTo: '',
       assignedToId: 0,
       scheduledDate: new Date().toISOString(),

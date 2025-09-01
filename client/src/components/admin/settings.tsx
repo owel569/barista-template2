@@ -232,11 +232,21 @@ export default function Settings({ userRole }: SettingsProps) {
       for (let i = 0; i < keys.length - 1; i++) {
         current = current[keys[i]];
       }
+      const lastKey = keys[keys.length - 1];
 
-      current[keys[keys.length - 1]] = value;
+      if (keys.length === 2 && keys[0] === 'openingHours') {
+        current[lastKey] = {
+          ...prev.openingHours[keys[0]], // Ensure previous values are carried over
+          ...prev.openingHours[keys[0]][lastKey], // Spread existing properties of the specific day
+          [path.split('.').pop()!]: value
+        };
+      } else {
+        current[lastKey] = value;
+      }
       return newSettings;
     });
   }, []);
+
 
   const updateOpeningHours = useCallback((day: string, field: keyof OpeningHours, value: string | boolean) => {
     setDraftSettings(prev => ({
@@ -828,10 +838,8 @@ export default function Settings({ userRole }: SettingsProps) {
                             if (index >= 0) {
                               updatedHours[index] = {
                                 date: updatedHours[index]?.date || '',
-                                note: updatedHours[index]?.note || '',
-                                openingHours: {
-                                  ...updatedHours[index]?.openingHours,
-                                }
+                                note: e.target.value, // Directly use the new value for the note
+                                openingHours: updatedHours[index]?.openingHours || { open: '09:00', close: '18:00', closed: false }
                               };
                               setDraftSettings(prev => ({
                                 ...prev,

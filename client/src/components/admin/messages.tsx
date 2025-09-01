@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import { ContactMessage } from '@/types/admin';
+import type { ContactMessage } from '@/types/maintenance';
 import {
   Card,
   CardContent,
@@ -75,7 +75,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
   });
 
   const updateStatusMutation = useMutation({
-    mutationFn: async ({ id, status }: { id: number; status: string }) => {
+    mutationFn: async ({ id, status }: { id: number; status: ContactMessage['status'] }) => {
       const token = localStorage.getItem('token');
       const response = await fetch(`/api/admin/messages/${id}/status`, {
         method: 'PUT',
@@ -151,7 +151,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
     },
   });
 
-  const handleStatusChange = (messageId: number, newStatus: string) => {
+  const handleStatusChange = (messageId: number, newStatus: ContactMessage['status']) => {
     updateStatusMutation.mutate({ id: messageId, status: newStatus });
   };
 
@@ -166,7 +166,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: ContactMessage['status']) => {
     switch (status) {
       case 'nouveau': return 'bg-blue-100 text-blue-800';
       case 'non_lu': return 'bg-red-100 text-red-800';
@@ -377,7 +377,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                       {hasPermission('messages', 'update') && (
                         <Select
                           value={message.status}
-                          onValueChange={(value) => handleStatusChange(message.id, value)}
+                          onValueChange={(value) => handleStatusChange(message.id, value as ContactMessage['status'])}
                         >
                           <SelectTrigger className="w-28">
                             <SelectValue />

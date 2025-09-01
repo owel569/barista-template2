@@ -15,6 +15,8 @@ import {
 import { useToast } from '@/components/ui/use-toast';
 import { format, addDays, isBefore, isAfter } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { ScrollArea } from '@/components/ui/scroll-area';
+
 
 interface ReservationDialogProps {
   isOpen: boolean;
@@ -68,6 +70,18 @@ export default function ReservationDialog({
         guests: reservation.guests || 2,
         notes: reservation.notes || '',
         status: reservation.status || 'pending'
+      });
+    } else if (isOpen && !reservation) {
+      // Reset form if opening a new reservation dialog
+      setFormData({
+        customerName: '',
+        email: '',
+        phone: '',
+        date: '',
+        time: '',
+        guests: 2,
+        notes: '',
+        status: 'pending'
       });
     }
   }, [isOpen, reservation]);
@@ -135,6 +149,7 @@ export default function ReservationDialog({
         action: <Check className="h-4 w-4 text-green-500" />
       });
     } catch (error) {
+      console.error("Error saving reservation:", error); // Log the error for debugging
       toast({
         title: 'Erreur',
         description: 'Une erreur est survenue lors de l\'enregistrement',
@@ -145,17 +160,24 @@ export default function ReservationDialog({
     }
   };
 
-  const handleChange = (field: keyof ReservationData, value: string | number) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error when field is edited
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
-    }
+  const handleChange = (field: keyof ReservationData, value: string | number | undefined) => {
+    setFormData(prev => {
+      const newState = { ...prev, [field]: value };
+      // Clear error when field is edited
+      if (errors[field as keyof typeof errors]) {
+        setErrors(prevErrors => {
+          const newErrors = { ...prevErrors };
+          delete newErrors[field as keyof typeof newErrors];
+          return newErrors;
+        });
+      }
+      return newState;
+    });
   };
 
   // Generate time slots from opening hours
   const generateTimeSlots = () => {
-    const slots = [];
+    const slots: string[] = [];
     const openingHour = 8; // 8:00 AM
     const closingHour = 22; // 10:00 PM
 
@@ -165,7 +187,6 @@ export default function ReservationDialog({
         slots.push(timeString);
       }
     }
-
     return slots;
   };
 
@@ -326,7 +347,10 @@ export default function ReservationDialog({
               </Label>
               <Select 
                 value={formData.guests.toString()} 
-                onValueChange={(value) => handleChange('guests', parseInt(value))}
+                onValueChange={(value) => {
+                  const numGuests = parseInt(value);
+                  handleChange('guests', isNaN(numGuests) ? 2 : numGuests);
+                }}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -339,9 +363,9 @@ export default function ReservationDialog({
                       </div>
                     </SelectItem>
                   ))}
-                  <SelectItem value="9+">
+                  <SelectItem value="9">
                     <div className="flex items-center gap-2">
-                      Groupe (9+ personnes)
+                      9+ personnes
                     </div>
                   </SelectItem>
                 </SelectContent>

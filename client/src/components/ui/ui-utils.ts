@@ -1,7 +1,7 @@
-
 // Utilitaires pour les composants UI
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
+import React from 'react';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -24,13 +24,13 @@ export function isValidRecord(value: unknown): value is Record<string, unknown> 
 // Hook utilitaire pour les états sécurisés
 export function useSafeState<T>(initialValue: T): [T, (value: T) => void] {
   const [state, setState] = React.useState<T>(initialValue)
-  
+
   const setSafeState = React.useCallback((value: T) => {
     if (value !== null && value !== undefined) {
       setState(value)
     }
   }, [])
-  
+
   return [state, setSafeState]
 }
 

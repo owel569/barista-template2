@@ -70,9 +70,8 @@ export * from "./collapsible"
 export * from "./carousel"
 
 // ===== COMPOSANTS DE NOTIFICATION =====
-export * from "./toast"
-export * from "./toaster"
-export * from "./sonner"
+export { Toaster } from "./toaster"
+export { Toaster as SonnerToaster } from "./sonner"
 
 // ===== COMPOSANTS AVANCÉS =====
 export { Toggle } from './toggle';
@@ -91,79 +90,70 @@ export * from "./performance"
 export * from "./error-boundary"
 
 // ===== TYPES ET UTILITAIRES =====
-export * from "./types"
 export * from './use-toast'
-export * from './ui-utils'
-export { createSafeObject, isValidRecord, UI_CONSTANTS } from './ui-utils'
-export type { SafeObject, ComponentSize, ComponentVariant, BaseUIComponentProps } from './ui-utils'
 
-// ===== EXPORTS SPÉCIFIQUES POUR COMPATIBILITÉ =====
+// Types consolidés pour éviter les conflits
+export type { SafeObject, BaseUIComponentProps } from './ui-utils'
+
+// Types spécifiques
 export type {
-  // Types de base
-  ButtonProps,
-  InputProps,
+  // Basic components
   LabelProps,
   TextareaProps,
 
-  // Types de formulaire
+  // Form components
   CheckboxProps,
   RadioGroupProps,
   SwitchProps,
   SelectProps,
   FormFieldProps,
 
-  // Types de données
+  // Data types
   ComboboxOption,
   MultiSelectOption,
   TableColumn,
   DataTableProps,
-
-  // Types de layout
+  DateRangePickerProps,
   DatePickerProps,
-  SkeletonProps,
-  CardProps,
-  BadgeProps,
 
-  // Types d'interaction
-  DialogProps,
-  ToastProps,
+  // Alert components
   AlertProps,
+  AlertDescriptionProps,
 
-  // Types utilitaires
   ComponentVariant,
   ComponentSize,
   AccessibilityProps,
   SafeEventHandler,
 
-  // Types de pays et téléphone
+  // Country and Phone
   Country,
   InternationalPhoneInputProps,
 
-  // Types de chargement
+  // Loading states  
   LoadingSpinnerProps,
   LoadingPageProps,
   SkeletonLoaderProps,
 
-  // Types de données avancés
+  // Chart types
   ChartConfig,
   StatsCardProps,
 
-  // Types de navigation
+  // Navigation
   BreadcrumbProps,
   PaginationProps,
 
-  // Types de confirmation
+  // Modals
   ConfirmationDialogProps,
 
-  // Types de redimensionnement
+  // Layout
   ResizableLayoutProps,
   ResizablePanelGroupProps,
   ResizableHandleProps,
 
-  // Types d'aspect ratio
+  // Media
   AspectRatioProps,
 
-  // Types de collapsible
+  // Collapsible
   CollapsibleTriggerButtonProps,
   CollapsibleContentWrapperProps,
 } from "./types"
