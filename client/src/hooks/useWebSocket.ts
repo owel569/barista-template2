@@ -202,7 +202,7 @@ export function useWebSocket(
     reconnectCount.current = maxReconnectAttempts; // Empêcher la reconnexion automatique
   }, [maxReconnectAttempts]);
 
-  const reconnect = useCallback(() => {
+  const reconnectWebSocket = useCallback(() => {
     disconnect();
     reconnectCount.current = 0;
     // Ensure there's a slight delay before attempting to reconnect
@@ -246,7 +246,7 @@ export function useWebSocket(
     connectionStatus,
     sendMessage,
     disconnect,
-    reconnect,
+    reconnect: reconnectWebSocket,
     getConnectionInfo
   };
 }
