@@ -7,12 +7,9 @@ import { users } from '../../shared/schema';
 import { eq } from 'drizzle-orm';
 import { createLogger } from './logging';
 import { AppError, AuthenticationError, AuthorizationError } from './error-handler-enhanced';
-import { AuthenticatedUser } from '../types/auth';
+import { AuthenticatedUser, AppRole } from '../types/auth';
 
 const logger = createLogger('AUTH');
-
-// Types stricts pour l'authentification
-export type AppRole = 'customer' | 'waiter' | 'chef' | 'manager' | 'admin';
 
 export interface AuthUser {
   id: number;
@@ -33,13 +30,7 @@ export interface JWTPayload {
 }
 
 // Hiérarchie des rôles (plus le chiffre est élevé, plus le rôle est élevé)
-const ROLE_HIERARCHY: Record<AppRole, number> = {
-  customer: 1,
-  waiter: 2,
-  chef: 3,
-  manager: 4,
-  admin: 5
-};
+import { ROLE_HIERARCHY } from '../types/auth';
 
 // Configuration JWT sécurisée
 const JWT_SECRET = process.env.JWT_SECRET || 'barista-cafe-secret-key-2024';

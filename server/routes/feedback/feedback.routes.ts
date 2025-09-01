@@ -6,7 +6,7 @@ import { createLogger } from '../../middleware/logging';
 import { authenticateUser, requireRoles } from '../../middleware/auth';
 import { validateBody, validateParams, validateQuery } from '../../middleware/validation';
 import { getDb } from '../../db';
-import { customers, orders, activityLogs, contactMessages } from '../../../shared/schema';
+import { customers, orders, activityLogs, contactMessages, feedback } from '../../../shared/schema';
 import { eq, and, or, desc, sql, ilike, gte, lte } from 'drizzle-orm';
 import { cacheMiddleware, invalidateCache } from '../../middleware/cache-advanced';
 
@@ -15,8 +15,8 @@ const logger = createLogger('FEEDBACK_ROUTES');
 
 // Schémas de validation
 const CreateFeedbackSchema = z.object({
-  customerId: z.string().uuid('ID client invalide').optional(),
-  orderId: z.string().uuid('ID commande invalide').optional(),
+  customerId: z.number().int().positive('ID client invalide').optional(),
+  orderId: z.number().int().positive('ID commande invalide').optional(),
   rating: z.number().int().min(1, 'Note minimum: 1').max(5, 'Note maximum: 5'),
   category: z.enum(['food', 'service', 'ambiance', 'cleanliness', 'value', 'overall'], {
     errorMap: () => ({ message: 'Catégorie doit être: food, service, ambiance, cleanliness, value, ou overall' })
@@ -61,18 +61,19 @@ interface FeedbackStats {
 
 // Fonction utilitaire pour enregistrer une activité
 async function logFeedbackActivity(
-  userId: string,
+  userId: number,
   action: string,
   details: string,
   req: any,
-  feedbackId?: string
+  feedbackId?: number
 ): Promise<void> {
   try {
     const db = getDb();
     await db.insert(activityLogs).values({
-      id: crypto.randomUUID(),
       userId,
       action,
+      entity: 'feedback',
+      entityId: feedbackId,
       details: feedbackId ? `${details} (Feedback: ${feedbackId})` : details,
       ipAddress: req.ip || req.connection.remoteAddress,
       userAgent: req.get('User-Agent'),
@@ -146,23 +147,23 @@ router.get('/',
     // Construire les conditions
     const conditions = [];
 
-    if (category) {
+    if (category && typeof category === 'string') {
       conditions.push(eq(feedback.category, category));
     }
 
-    if (rating) {
-      conditions.push(eq(feedback.rating, rating));
+    if (rating && typeof rating === 'string') {
+      conditions.push(eq(feedback.rating, Number(rating)));
     }
 
-    if (minRating) {
-      conditions.push(gte(feedback.rating, minRating));
+    if (minRating && typeof minRating === 'string') {
+      conditions.push(gte(feedback.rating, Number(minRating)));
     }
 
-    if (status) {
+    if (status && typeof status === 'string') {
       conditions.push(eq(feedback.status, status));
     }
 
-    if (search) {
+    if (search && typeof search === 'string') {
       conditions.push(
         or(
           ilike(feedback.title, `%${search}%`),
@@ -173,16 +174,12 @@ router.get('/',
       );
     }
 
-    if (startDate) {
+    if (startDate && typeof startDate === 'string') {
       conditions.push(gte(feedback.createdAt, new Date(startDate)));
     }
 
-    if (endDate) {
+    if (endDate && typeof endDate === 'string') {
       conditions.push(lte(feedback.createdAt, new Date(endDate)));
-    }
-
-    if (conditions.length > 0) {
-      query = query.where(and(...conditions));
     }
 
     // Tri
@@ -191,20 +188,35 @@ router.get('/',
                        sortBy === 'category' ? feedback.category :
                        feedback.createdAt;
 
-    query = sortOrder === 'desc' ?
-      query.orderBy(desc(orderColumn)) :
-      query.orderBy(orderColumn);
+    // Appliquer les conditions et le tri
+    let filteredQuery = query as any;
+    
+    // Appliquer les conditions d'abord
+    if (conditions.length > 0) {
+      filteredQuery = filteredQuery.where(and(...conditions));
+    }
+    
+    // Puis appliquer le tri
+    if (sortOrder === 'desc') {
+      filteredQuery = filteredQuery.orderBy(desc(orderColumn));
+    } else {
+      filteredQuery = filteredQuery.orderBy(orderColumn);
+    }
 
     // Pagination
-    const offset = (page - 1) * limit;
-    const feedbackData = await query.limit(limit).offset(offset);
+    const pageNum = Number(page);
+    const limitNum = Number(limit);
+    const offset = (pageNum - 1) * limitNum;
+    const feedbackData = await filteredQuery.limit(limitNum).offset(offset);
 
     // Compte total
-    const [{ count }] = await db
+    const countResult = await db
       .select({ count: sql<number>`count(*)` })
       .from(feedback)
       .leftJoin(customers, eq(feedback.customerId, customers.id))
       .where(conditions.length > 0 ? and(...conditions) : undefined);
+    
+    const count = countResult[0]?.count || 0;
 
     logger.info('Commentaires récupérés', {
       count: feedbackData.length,
@@ -216,10 +228,10 @@ router.get('/',
       success: true,
       data: feedbackData,
       pagination: {
-        page,
-        limit,
+        page: pageNum,
+        limit: limitNum,
         total: count,
-        totalPages: Math.ceil(count / limit)
+        totalPages: Math.ceil(count / limitNum)
       }
     });
   })
@@ -229,7 +241,7 @@ router.get('/',
 router.get('/:id',
   authenticateUser,
   requireRoles(['admin', 'manager', 'staff']),
-  validateParams(z.object({ id: z.string().uuid() })),
+  validateParams(z.object({ id: z.coerce.number().int().positive() })),
   cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['feedback'] }),
   asyncHandler(async (req, res) => {
     const db = getDb();
@@ -264,7 +276,7 @@ router.get('/:id',
       })
       .from(feedback)
       .leftJoin(customers, eq(feedback.customerId, customers.id))
-      .where(eq(feedback.id, id));
+      .where(eq(feedback.id, Number(id)));
 
     if (!feedbackItem) {
       return res.status(404).json({
@@ -295,7 +307,7 @@ router.get('/:id',
 
     logger.info('Commentaire récupéré', { feedbackId: id });
 
-    res.json({
+    return res.json({
       success: true,
       data: result
     });
@@ -332,11 +344,9 @@ router.post('/public',
     }
 
     // Créer le commentaire
-    const feedbackId = crypto.randomUUID();
     const [newFeedback] = await db
       .insert(feedback)
       .values({
-        id: feedbackId,
         ...req.body,
         status: 'pending',
         createdAt: new Date(),
@@ -351,14 +361,21 @@ router.post('/public',
         createdAt: feedback.createdAt
       });
 
+    if (!newFeedback) {
+      return res.status(500).json({
+        success: false,
+        message: 'Erreur lors de la création du commentaire'
+      });
+    }
+
     logger.info('Commentaire public créé', {
-      feedbackId,
+      feedbackId: newFeedback.id,
       rating: req.body.rating,
       category: req.body.category,
       isAnonymous: req.body.isAnonymous
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       data: newFeedback,
       message: 'Merci pour votre commentaire ! Il sera examiné par notre équipe.'
@@ -370,7 +387,7 @@ router.post('/public',
 router.patch('/:id/status',
   authenticateUser,
   requireRoles(['admin', 'manager']),
-  validateParams(z.object({ id: z.string().uuid() })),
+  validateParams(z.object({ id: z.coerce.number().int().positive() })),
   validateBody(UpdateFeedbackStatusSchema),
   invalidateCache(['feedback']),
   asyncHandler(async (req, res) => {
@@ -382,7 +399,7 @@ router.patch('/:id/status',
     const [existingFeedback] = await db
       .select()
       .from(feedback)
-      .where(eq(feedback.id, id));
+      .where(eq(feedback.id, Number(id)));
 
     if (!existingFeedback) {
       return res.status(404).json({
@@ -405,7 +422,7 @@ router.patch('/:id/status',
     const [updatedFeedback] = await db
       .update(feedback)
       .set(updateData)
-      .where(eq(feedback.id, id))
+      .where(eq(feedback.id, Number(id)))
       .returning();
 
     // Enregistrer l'activité
@@ -414,7 +431,7 @@ router.patch('/:id/status',
       'UPDATE_FEEDBACK_STATUS',
       `Statut commentaire mis à jour: ${existingFeedback.status} → ${req.body.status}`,
       req,
-      id
+      Number(id)
     );
 
     logger.info('Statut commentaire mis à jour', {
@@ -424,7 +441,7 @@ router.patch('/:id/status',
       updatedBy: currentUser.id
     });
 
-    res.json({
+    return res.json({
       success: true,
       data: updatedFeedback,
       message: 'Statut du commentaire mis à jour avec succès'
@@ -436,7 +453,7 @@ router.patch('/:id/status',
 router.post('/:id/response',
   authenticateUser,
   requireRoles(['admin', 'manager']),
-  validateParams(z.object({ id: z.string().uuid() })),
+  validateParams(z.object({ id: z.coerce.number().int().positive() })),
   validateBody(FeedbackResponseSchema),
   invalidateCache(['feedback']),
   asyncHandler(async (req, res) => {
@@ -449,7 +466,7 @@ router.post('/:id/response',
     const [existingFeedback] = await db
       .select()
       .from(feedback)
-      .where(eq(feedback.id, id));
+      .where(eq(feedback.id, Number(id)));
 
     if (!existingFeedback) {
       return res.status(404).json({
@@ -469,7 +486,7 @@ router.post('/:id/response',
         isPublic,
         updatedAt: new Date()
       })
-      .where(eq(feedback.id, id))
+      .where(eq(feedback.id, Number(id)))
       .returning();
 
     // Enregistrer l'activité
@@ -478,7 +495,7 @@ router.post('/:id/response',
       'RESPOND_TO_FEEDBACK',
       `Réponse ajoutée au commentaire (${isPublic ? 'publique' : 'privée'})`,
       req,
-      id
+      Number(id)
     );
 
     logger.info('Réponse ajoutée au commentaire', {
@@ -487,7 +504,7 @@ router.post('/:id/response',
       respondedBy: currentUser.id
     });
 
-    res.json({
+    return res.json({
       success: true,
       data: updatedFeedback,
       message: 'Réponse ajoutée avec succès'
@@ -509,10 +526,10 @@ router.get('/stats/overview',
     const { startDate, endDate } = req.query;
 
     const conditions = [];
-    if (startDate) {
+    if (startDate && typeof startDate === 'string') {
       conditions.push(gte(feedback.createdAt, new Date(startDate)));
     }
-    if (endDate) {
+    if (endDate && typeof endDate === 'string') {
       conditions.push(lte(feedback.createdAt, new Date(endDate)));
     }
 
@@ -571,6 +588,13 @@ router.get('/stats/overview',
       .groupBy(sql`date(${feedback.createdAt})`)
       .orderBy(sql`date(${feedback.createdAt})`);
 
+    if (!generalStats) {
+      return res.status(500).json({
+        success: false,
+        message: 'Erreur lors du calcul des statistiques'
+      });
+    }
+
     const stats: FeedbackStats = {
       total: generalStats.total,
       averageRating: Number(generalStats.averageRating?.toFixed(2)) || 0,
@@ -591,7 +615,7 @@ router.get('/stats/overview',
       averageRating: stats.averageRating
     });
 
-    res.json({
+    return res.json({
       success: true,
       data: stats
     });

@@ -12,6 +12,13 @@ import { cacheMiddleware, invalidateCache } from '../../middleware/cache-advance
 const router = Router();
 const logger = createLogger('ORDERS_ROUTES');
 
+// Types pour les articles de commande
+interface OrderItemData {
+  menuItemId: number;
+  quantity: number;
+  specialInstructions?: string;
+}
+
 // Schémas de validation
 const CreateOrderSchema = z.object({
   customerId: z.number().int().positive().optional(),
@@ -204,7 +211,7 @@ router.get('/:id',
   requireRoles(['admin', 'manager', 'staff']),
   validateParams(z.object({ id: z.coerce.number().int().positive() })),
   cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['orders'] }),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req, res) => {
     const db = getDb();
     const { id } = req.params;
 
@@ -220,7 +227,7 @@ router.get('/:id',
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: order
     });
@@ -233,7 +240,7 @@ router.get('/:id/items',
   requireRoles(['admin', 'manager', 'staff']),
   validateParams(z.object({ id: z.coerce.number().int().positive() })),
   cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['orders', 'order-items'] }),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req, res) => {
     const db = getDb();
     const { id } = req.params;
 
@@ -242,7 +249,7 @@ router.get('/:id/items',
       .from(orderItems)
       .where(eq(orderItems.orderId, Number(id)));
 
-    res.json({
+    return res.json({
       success: true,
       data: items
     });
@@ -254,10 +261,10 @@ router.post('/',
   invalidateCache(['orders', 'realtime', 'stats']),
   asyncHandler(async (req, res) => {
     const db = getDb();
-    const { items: orderItemsData, ...orderData } = req.body;
+    const { items: orderItemsData, ...orderData } = req.body as { items: OrderItemData[]; [key: string]: any };
 
     // Vérifier les articles de menu
-    const menuItemIds = orderItemsData.map(item => item.menuItemId);
+    const menuItemIds = orderItemsData.map((item: OrderItemData) => item.menuItemId);
     const menuItemsFromDb = await db
       .select()
       .from(menuItems)
@@ -275,18 +282,18 @@ router.post('/',
 
     // Calculer les totaux
     let subtotal = 0;
-    const itemsWithPrices = orderItemsData.map(item => {
+    const itemsWithPrices = orderItemsData.map((item: OrderItemData) => {
       const menuItem = menuItemsFromDb.find(mi => mi.id === item.menuItemId);
       if (!menuItem) {
         throw new Error(`Article ${item.menuItemId} non trouvé`);
       }
 
-      const totalPrice = menuItem.price * item.quantity;
+      const totalPrice = Number(menuItem.price) * item.quantity;
       subtotal += totalPrice;
 
       return {
         ...item,
-        unitPrice: menuItem.price,
+        unitPrice: Number(menuItem.price),
         totalPrice
       };
     });
@@ -310,6 +317,13 @@ router.post('/',
       })
       .returning();
 
+    if (!newOrder) {
+      return res.status(500).json({
+        success: false,
+        message: 'Erreur lors de la création de la commande'
+      });
+    }
+
     // Créer les articles de commande
     const orderItemsToInsert = itemsWithPrices.map(item => ({
       orderId: newOrder.id,
@@ -331,7 +345,7 @@ router.post('/',
       orderType: orderData.orderType
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       data: {
         ...newOrder,
@@ -359,7 +373,7 @@ router.patch('/:id/status',
         status,
         updatedAt: new Date()
       })
-      .where(eq(orders.id, id))
+      .where(eq(orders.id, Number(id)))
       .returning();
 
     if (!updatedOrder) {
@@ -377,7 +391,7 @@ router.patch('/:id/status',
       notes
     });
 
-    res.json({
+    return res.json({
       success: true,
       data: updatedOrder,
       message: `Commande ${status === 'cancelled' ? 'annulée' : 'mise à jour'} avec succès`
@@ -415,7 +429,7 @@ router.get('/stats/realtime',
 
     logger.info('Statistiques temps réel récupérées', result.today);
 
-    res.json({
+    return res.json({
       success: true,
       data: result
     });

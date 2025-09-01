@@ -152,6 +152,27 @@ export const contactMessages = pgTable("contact_messages", {
   createdAt: timestamp('created_at').notNull().defaultNow()
 });
 
+export const feedback = pgTable("feedback", {
+  id: serial('id').primaryKey(),
+  customerId: integer('customer_id').references(() => customers.id),
+  orderId: integer('order_id').references(() => orders.id),
+  rating: integer('rating').notNull(),
+  category: varchar('category', { length: 50 }).notNull(),
+  title: varchar('title', { length: 100 }).notNull(),
+  comment: text('comment').notNull(),
+  isAnonymous: boolean('is_anonymous').notNull().default(false),
+  contactEmail: varchar('contact_email', { length: 100 }),
+  suggestions: text('suggestions'),
+  status: varchar('status', { length: 20 }).notNull().default('pending'),
+  response: text('response'),
+  responseBy: integer('response_by').references(() => users.id),
+  respondedAt: timestamp('responded_at'),
+  isPublic: boolean('is_public').notNull().default(true),
+  internalNotes: text('internal_notes'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
+});
+
 export const menuItemImages = pgTable('menu_item_images', {
   id: serial('id').primaryKey(),
   menuItemId: integer('menu_item_id').references(() => menuItems.id),
@@ -259,7 +280,8 @@ export const menuItemsRelations = relations(menuItems, ({ one, many }) => ({
 
 export const customersRelations = relations(customers, ({ many }) => ({
   reservations: many(reservations),
-  orders: many(orders)
+  orders: many(orders),
+  feedback: many(feedback)
 }));
 
 export const ordersRelations = relations(orders, ({ one, many }) => ({
@@ -271,7 +293,8 @@ export const ordersRelations = relations(orders, ({ one, many }) => ({
     fields: [orders.tableId],
     references: [tables.id]
   }),
-  orderItems: many(orderItems)
+  orderItems: many(orderItems),
+  feedback: many(feedback)
 }));
 
 export const orderItemsRelations = relations(orderItems, ({ one }) => ({
@@ -304,7 +327,8 @@ export const tablesRelations = relations(tables, ({ many }) => ({
 export const usersRelations = relations(users, ({ many }) => ({
   activityLogs: many(activityLogs),
   permissions: many(permissions),
-  employee: many(employees)
+  employee: many(employees),
+  feedbackResponses: many(feedback, { relationName: 'responseBy' })
 }));
 
 export const menuItemImagesRelations = relations(menuItemImages, ({ one }) => ({
@@ -361,6 +385,22 @@ export const loyaltyTransactionsRelations = relations(loyaltyTransactions, ({ on
   })
 }));
 
+export const feedbackRelations = relations(feedback, ({ one }) => ({
+  customer: one(customers, {
+    fields: [feedback.customerId],
+    references: [customers.id]
+  }),
+  order: one(orders, {
+    fields: [feedback.orderId],
+    references: [orders.id]
+  }),
+  responseUser: one(users, {
+    fields: [feedback.responseBy],
+    references: [users.id],
+    relationName: 'responseBy'
+  })
+}));
+
 // ==========================================
 // SCHÉMAS ZOD POUR VALIDATION
 // ==========================================
@@ -374,6 +414,7 @@ export const insertReservationSchema = createInsertSchema(reservations);
 export const insertOrderSchema = createInsertSchema(orders);
 export const insertOrderItemSchema = createInsertSchema(orderItems);
 export const insertContactMessageSchema = createInsertSchema(contactMessages);
+export const insertFeedbackSchema = createInsertSchema(feedback);
 export const insertMenuItemImageSchema = createInsertSchema(menuItemImages);
 export const insertActivityLogSchema = createInsertSchema(activityLogs);
 export const insertPermissionSchema = createInsertSchema(permissions);
@@ -387,6 +428,7 @@ export const selectReservationSchema = createSelectSchema(reservations);
 export const selectOrderSchema = createSelectSchema(orders);
 export const selectOrderItemSchema = createSelectSchema(orderItems);
 export const selectContactMessageSchema = createSelectSchema(contactMessages);
+export const selectFeedbackSchema = createSelectSchema(feedback);
 export const selectMenuItemImageSchema = createSelectSchema(menuItemImages);
 export const selectActivityLogSchema = createSelectSchema(activityLogs);
 export const selectPermissionSchema = createSelectSchema(permissions);
