@@ -4,7 +4,7 @@ import { asyncHandler } from '../../middleware/error-handler-enhanced';
 import { createLogger } from '../../middleware/logging';
 import { authenticateUser, requireRoles } from '../../middleware/auth';
 import { validateBody, validateParams, validateQuery } from '../../middleware/validation';
-import { commonSchemas } from '../../utils/validation';
+// Import retiré car non utilisé
 import { getDb } from '../../db';
 import { menuItems, menuCategories, activityLogs } from '../../../shared/schema';
 import { eq, and, or, desc, sql, ilike } from 'drizzle-orm';
@@ -43,7 +43,7 @@ async function logMenuActivity(
   userId: number,
   action: string,
   details: string,
-  req: any,
+  req: { ip?: string; connection?: { remoteAddress?: string }; get?: (header: string) => string | undefined },
   itemId?: number
 ): Promise<void> {
   try {
@@ -279,13 +279,13 @@ router.post('/categories',
 // Obtenir toutes les catégories
 router.get('/categories', asyncHandler(async (req, res) => {
   try {
-    const db = await getDb();
+    const db = getDb();
     const categories = await db
       .select()
       .from(menuCategories)
-      .orderBy(menuCategories.displayOrder);
+      .orderBy(menuCategories.sortOrder);
 
-    res.json({ success: true, categories });
+    res.json({ success: true, data: categories });
   } catch (error) {
     logger.error('Erreur récupération catégories:', error);
     res.status(500).json({

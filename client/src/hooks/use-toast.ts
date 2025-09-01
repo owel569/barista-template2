@@ -1,155 +1,205 @@
-import { toast as sonnerToast } from 'sonner';
-import React from 'react';
+
+import * as React from "react"
+
+type ToastActionElement = React.ReactElement<any, string | React.JSXElementConstructor<any>>
 
 export interface ToastProps {
-  id?: string;
-  title?: string;
-  description?: string;
-  action?: {
-    label: string;
-    onClick: () => void;
-  } | React.ReactElement;
-  duration?: number;
-  variant?: 'default' | 'destructive' | 'success' | 'warning';
+  id?: string
+  title?: React.ReactNode
+  description?: React.ReactNode
+  action?: ToastActionElement
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  variant?: "default" | "destructive"
 }
 
-export interface ToastManager {
-  (props: ToastProps): string | number;
-  toast: (props: ToastProps) => string | number;
-  success: (title: string, description?: string) => string | number;
-  error: (title: string, description?: string) => string | number;
-  warning: (title: string, description?: string) => string | number;
-  info: (title: string, description?: string) => string | number;
-  loading: (title: string, description?: string) => string | number;
-  dismiss: (toastId?: string | number) => void;
-  promise: <T>(promise: Promise<T>, messages: {
-    loading: string;
-    success: string | ((data: T) => string);
-    error: string | ((error: Error) => string);
-  }) => Promise<T>;
-  operation: <T>(operation: () => Promise<T>, messages: {
-    loading: string;
-    success: string;
-    error: string;
-  }) => Promise<T>;
+const TOAST_LIMIT = 1
+const TOAST_REMOVE_DELAY = 1000000
+
+type ToasterToast = ToastProps & {
+  id: string
+  title?: React.ReactNode
+  description?: React.ReactNode
+  action?: ToastActionElement
 }
 
-// Mock useToastFunction and dismiss for demonstration purposes if they are not provided elsewhere
-// In a real scenario, these would be imported from your UI library or context.
-const useToastFunction = () => sonnerToast;
-const dismiss = (toastId?: string | number) => {
-  if (toastId) {
-    sonnerToast.dismiss(toastId);
-  } else {
-    sonnerToast.dismiss();
+const actionTypes = {
+  ADD_TOAST: "ADD_TOAST",
+  UPDATE_TOAST: "UPDATE_TOAST",
+  DISMISS_TOAST: "DISMISS_TOAST",
+  REMOVE_TOAST: "REMOVE_TOAST",
+} as const
+
+let count = 0
+
+function genId() {
+  count = (count + 1) % Number.MAX_SAFE_INTEGER
+  return count.toString()
+}
+
+type ActionType = typeof actionTypes
+
+type Action =
+  | {
+      type: ActionType["ADD_TOAST"]
+      toast: ToasterToast
+    }
+  | {
+      type: ActionType["UPDATE_TOAST"]
+      toast: Partial<ToasterToast>
+    }
+  | {
+      type: ActionType["DISMISS_TOAST"]
+      toastId?: ToasterToast["id"]
+    }
+  | {
+      type: ActionType["REMOVE_TOAST"]
+      toastId?: ToasterToast["id"]
+    }
+
+interface State {
+  toasts: ToasterToast[]
+}
+
+const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
+
+const addToRemoveQueue = (toastId: string) => {
+  if (toastTimeouts.has(toastId)) {
+    return
   }
-};
 
+  const timeout = setTimeout(() => {
+    toastTimeouts.delete(toastId)
+    dispatch({
+      type: "REMOVE_TOAST",
+      toastId: toastId,
+    })
+  }, TOAST_REMOVE_DELAY)
 
-export const useToast = (): ToastManager => {
-  const toast = useToastFunction();
-
-  const showToast = (props: ToastProps): string | number => {
-    return toast(props);
-  };
-
-  const toastManager: ToastManager = {
-    toast: showToast,
-    success: (title: string, description?: string) => {
-      return toast({
-        title,
-        description,
-        variant: 'default'
-      });
-    },
-    error: (title: string, description?: string) => {
-      return toast({
-        title,
-        description,
-        variant: 'destructive'
-      });
-    },
-    warning: (title: string, description?: string) => {
-      return toast({
-        title,
-        description,
-        variant: 'warning'
-      });
-    },
-    info: (title: string, description?: string) => {
-      return toast({
-        title,
-        description,
-        variant: 'default'
-      });
-    },
-    loading: (title: string, description?: string) => {
-      return toast({
-        title,
-        description,
-        variant: 'default',
-        duration: 0
-      });
-    },
-    promise: async <T>(
-      promise: Promise<T>,
-      options: {
-        loading: string;
-        success: string | ((data: T) => string);
-        error: string | ((error: Error) => string);
-      }
-    ): Promise<T> => {
-      const loadingId = toastManager.loading(options.loading);
-
-      try {
-        const result = await promise;
-        dismiss(loadingId.toString());
-        const successMessage = typeof options.success === 'function'
-          ? options.success(result)
-          : options.success;
-        toastManager.success(successMessage);
-        return result;
-      } catch (error) {
-        dismiss(loadingId.toString());
-        const errorMessage = typeof options.error === 'function'
-          ? options.error(error as Error)
-          : options.error;
-        toastManager.error(errorMessage);
-        throw error;
-      }
-    },
-    operation: async <T>(
-      operation: () => Promise<T>,
-      messages: {
-        loading: string;
-        success: string;
-        error: string;
-      }
-    ): Promise<T> => {
-      return toastManager.promise(operation(), messages);
-    },
-    dismiss
-  };
-
-  return toastManager;
-};
-
-// Export the toastManager directly for convenience if needed elsewhere
-export const toast = useToast();
-
-// Compatibility export for older usage patterns
-export interface SimpleToastManager {
-  success: (message: string) => string | number;
-  error: (message: string) => string | number;
-  info: (message: string) => string | number;
-  warning: (message: string) => string | number;
+  toastTimeouts.set(toastId, timeout)
 }
 
-const SIMPLE_TOAST_MANAGER: SimpleToastManager = {
-  success: (message: string) => useToastFunction()({ title: "Succès", description: message }),
-  error: (message: string) => useToastFunction()({ title: "Erreur", description: message, variant: "destructive" }),
-  info: (message: string) => useToastFunction()({ title: "Information", description: message }),
-  warning: (message: string) => useToastFunction()({ title: "Attention", description: message, variant: "destructive" })
+export const reducer = (state: State, action: Action): State => {
+  switch (action.type) {
+    case "ADD_TOAST":
+      return {
+        ...state,
+        toasts: [action.toast, ...state.toasts].slice(0, TOAST_LIMIT),
+      }
+
+    case "UPDATE_TOAST":
+      return {
+        ...state,
+        toasts: state.toasts.map((t) =>
+          t.id === action.toast.id ? { ...t, ...action.toast } : t
+        ),
+      }
+
+    case "DISMISS_TOAST": {
+      const { toastId } = action
+
+      if (toastId) {
+        addToRemoveQueue(toastId)
+      } else {
+        state.toasts.forEach((toast) => {
+          addToRemoveQueue(toast.id)
+        })
+      }
+
+      return {
+        ...state,
+        toasts: state.toasts.map((t) =>
+          t.id === toastId || toastId === undefined
+            ? {
+                ...t,
+                open: false,
+              }
+            : t
+        ),
+      }
+    }
+    case "REMOVE_TOAST":
+      if (action.toastId === undefined) {
+        return {
+          ...state,
+          toasts: [],
+        }
+      }
+      return {
+        ...state,
+        toasts: state.toasts.filter((t) => t.id !== action.toastId),
+      }
+  }
+}
+
+const listeners: Array<(state: State) => void> = []
+
+let memoryState: State = { toasts: [] }
+
+function dispatch(action: Action) {
+  memoryState = reducer(memoryState, action)
+  listeners.forEach((listener) => {
+    listener(memoryState)
+  })
+}
+
+type Toast = Omit<ToasterToast, "id">
+
+function toast({ ...props }: Toast) {
+  const id = genId()
+
+  const update = (props: ToasterToast) =>
+    dispatch({
+      type: "UPDATE_TOAST",
+      toast: { ...props, id },
+    })
+  const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id })
+
+  dispatch({
+    type: "ADD_TOAST",
+    toast: {
+      ...props,
+      id,
+      open: true,
+      onOpenChange: (open) => {
+        if (!open) dismiss()
+      },
+    },
+  })
+
+  return {
+    id: id,
+    dismiss,
+    update,
+  }
+}
+
+// Gestionnaire de toast global
+export const toastManager = {
+  success: (title: string, description?: string) => toast({ title, description, variant: "default" }),
+  error: (title: string, description?: string) => toast({ title, description, variant: "destructive" }),
+  info: (title: string, description?: string) => toast({ title, description, variant: "default" }),
+  warning: (title: string, description?: string) => toast({ title, description, variant: "destructive" }),
 };
 
-export { SIMPLE_TOAST_MANAGER as toastManagerCompat };
+function useToast() {
+  const [state, setState] = React.useState<State>(memoryState)
+
+  React.useEffect(() => {
+    listeners.push(setState)
+    return () => {
+      const index = listeners.indexOf(setState)
+      if (index > -1) {
+        listeners.splice(index, 1)
+      }
+    }
+  }, [state])
+
+  return {
+    ...state,
+    toast,
+    dismiss: (toastId?: string) => dispatch({ type: "DISMISS_TOAST", toastId }),
+  }
+}
+
+export { useToast, toast }
