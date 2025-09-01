@@ -1,0 +1,124 @@
+Copilot said: Tu as beaucoup d’erreurs TypeScript, souvent liées
+Tu as beaucoup d’erreurs TypeScript, souvent liées à des types trop stricts (ou mal adaptés à tes données) et à des valeurs undefined ou des enums qui ne correspondent pas.
+Voici une méthodologie et des exemples concrets pour corriger la plupart des erreurs de ton projet :
+
+1. Erreurs sur types optionnels vs obligatoires (string | undefined VS string)
+Exemple
+
+ts
+// Mauvais
+firstName: string | undefined // dans un type Employee
+// Bon
+firstName: string
+Correction :
+
+Si le champ doit toujours être présent, mets-le en string.
+Si tu veux autoriser l’absence, adapte le type du tableau ou de l’objet parent pour accepter undefined.
+Astuce :
+Quand tu génères du mock, fais en sorte que la valeur soit toujours un string, même si vide:
+
+ts
+firstName: firstName ?? ""
+2. Enum valeurs non reconnues
+Exemple d’erreur :
+
+ts
+Type '"nouveau"' is not comparable to type '"read" | "unread" | "replied" | "archived"'
+Correction :
+
+Soit tu ajoutes ces valeurs à ton enum/type, soit tu convertis tes valeurs mock en valeurs autorisées.
+Recommandation : uniformise partout, par exemple :
+ts
+export type MessageStatus = "read" | "unread" | "replied" | "archived";
+Et dans tes mocks :
+ts
+status: "unread"
+3. Fonctions qui attendent un type et reçoivent un autre
+Exemple :
+
+ts
+handleStatusChange(message.id, 'lu') // mais attend (id: number, status: MessageStatus)
+Correction :
+
+Vérifie que tu passes bien le bon type (number pour id, pas string), et que le status est bien du type attendu.
+Utilise un mapping si tu veux supporter des valeurs traduites :
+ts
+const statusMap: Record<string, MessageStatus> = {
+  'lu': 'read',
+  'non_lu': 'unread',
+  'traite': 'replied',
+  'archive': 'archived'
+}
+handleStatusChange(message.id, statusMap[status])
+4. Optionnel -> Obligatoire dans structures de mock
+Exemple:
+
+ts
+const mockEmployees: Employee[] = [{ firstName: undefined }] // Employee exige string
+Correction:
+
+ts
+firstName: firstName ?? ""
+5. Props React avec value: string | undefined alors qu’on attend string
+Correction :
+Toujours passer une valeur string :
+
+TSX
+<Select value={myValue ?? ""} ... />
+6. Erreurs sur la structure des objets (Record, index signatures)
+Exemple:
+
+ts
+(prev: RestaurantSettings) => ({
+  openingHours: { [x: string]: OpeningHours | { open?: string; close?: string; closed?: boolean } }
+})
+Mais le type attend :
+
+ts
+Record<string, OpeningHours>
+Correction :
+Assure-toi que tu utilises le bon type partout, quitte à réordonner les valeurs pour matcher le type attendu.
+
+7. Utilisation d’API ou librairies : fonctions inexistantes, import incorrect
+Correction :
+
+Vérifie la documentation ou l’index de tes modules.
+Pour les imports:
+ts
+// Mauvais
+import { exportToExcel } from '@/lib/excel-export';
+// Bon (si export default)
+import exportToExcel from '@/lib/excel-export';
+8. Erreurs sur types de fonctions passées en props
+Exemple:
+
+ts
+onSelect={setSelectedOrder} // setSelectedOrder n’a pas la bonne signature
+Correction :
+Adapte le type ou utilise une fonction intermédiaire:
+
+TSX
+onSelect={(order) => setSelectedOrder(order)}
+9. Erreur d’accès index sur type potentiellement undefined
+Exemple:
+
+ts
+current = current[keys[i]];
+Correction: Utilise une vérification:
+
+ts
+if (current && keys[i]) current = current[keys[i]];
+10. Erreur sur propriétés optionnelles dans structures React (exactOptionalPropertyTypes)
+Correction: Assure-toi que les props attendues optionnelles soient bien passées avec undefined ou une valeur, et que leurs types sont bien alignés partout.
+
+11. Erreurs sur date, toISOString, split etc.
+Toujours vérifier la présence de la valeur avant d’appeler une méthode sur elle :
+
+ts
+date ? date.toISOString().split('T')[0] : ""
+12. Erreurs sur les imports de modules tiers (ex: Lucide, Radix, ...)
+Vérifie que le type attendu correspond bien à l’export.
+Pour les icons Lucide, tu peux utiliser :
+ts
+import { BarChart3 } from 'lucide-react';
+// puis dans les props, tu passes bien le type attendu
