@@ -1,4 +1,3 @@
-
 import * as React from "react"
 
 type ToastActionElement = React.ReactElement<any, string | React.JSXElementConstructor<any>>
@@ -176,10 +175,17 @@ function toast({ ...props }: Toast) {
 
 // Gestionnaire de toast global
 export const toastManager = {
-  success: (title: string, description?: string) => toast({ title, description, variant: "default" }),
-  error: (title: string, description?: string) => toast({ title, description, variant: "destructive" }),
-  info: (title: string, description?: string) => toast({ title, description, variant: "default" }),
-  warning: (title: string, description?: string) => toast({ title, description, variant: "destructive" }),
+  success: (message: string, options?: Partial<ToastActionElement>) => 
+    toast({ ...options, title: "Succès", description: message }),
+
+  error: (message: string, options?: Partial<ToastActionElement>) => 
+    toast({ ...options, title: "Erreur", description: message, variant: "destructive" }),
+
+  warning: (message: string, options?: Partial<ToastActionElement>) => 
+    toast({ ...options, title: "Attention", description: message }),
+
+  info: (message: string, options?: Partial<ToastActionElement>) => 
+    toast({ ...options, title: "Information", description: message }),
 };
 
 function useToast() {

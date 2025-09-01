@@ -132,6 +132,7 @@ export const orders = pgTable('orders', {
   status: orderStatusEnum('status').notNull().default('pending'),
   orderType: varchar('order_type', { length: 50 }).notNull().default('dine-in'),
   total: decimal('total', { precision: 10, scale: 2 }).notNull().default('0.00'),
+  totalAmount: decimal('total_amount', { precision: 10, scale: 2 }).notNull(),
   items: json('items'),
   specialRequests: text('special_requests'),
   customerInfo: json('customer_info'),

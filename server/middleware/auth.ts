@@ -265,10 +265,10 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
     // Attacher l'utilisateur à la requête
     req.user = user;
 
-    logger.info('Utilisateur authentifié', { 
-      userId: user.id, 
-      email: user.email, 
-      role: user.role 
+    logger.info('Utilisateur authentifié', {
+      userId: user.id,
+      email: user.email,
+      role: user.role
     });
 
     next();
@@ -277,8 +277,8 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
       throw error;
     }
 
-    logger.error('Erreur authentification', { 
-      error: error instanceof Error ? error.message : 'Erreur inconnue' 
+    logger.error('Erreur authentification', {
+      error: error instanceof Error ? error.message : 'Erreur inconnue'
     });
     throw new AuthenticationError('Échec de l\'authentification');
   }
@@ -357,8 +357,8 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
     }
   } catch (error) {
     // Ignorer les erreurs en mode optionnel
-    logger.debug('Auth optionnelle échouée', { 
-      error: error instanceof Error ? error.message : 'Erreur inconnue' 
+    logger.debug('Auth optionnelle échouée', {
+      error: error instanceof Error ? error.message : 'Erreur inconnue'
     });
   }
 

@@ -66,6 +66,8 @@ async function logMenuActivity(
   }
 }
 
+// === ROUTES SPÉCIFIQUES AVANT LES PARAMÈTRES ===
+
 // Liste des articles du menu avec filtres
 router.get('/',
   validateQuery(z.object({
@@ -297,7 +299,7 @@ router.get('/categories', asyncHandler(async (req, res) => {
 
 // === ROUTES AVEC PARAMÈTRES APRÈS ===
 
-// Détails d'un article
+// Détails d'un article du menu
 router.get('/:id',
   validateParams(z.object({ id: z.coerce.number().int().positive('ID invalide') })),
   cacheMiddleware({ ttl: 10 * 60 * 1000, tags: ['menu'] }),
