@@ -1,0 +1,270 @@
+
+
+client/src/components/advanced-loyalty.tsx:348:55 - error TS2379: Argument of type '{ pointsCost: number | undefined; id?: number; name?: string; description?: string; type?: "discount" | "free_item" | "special_offer"; value?: number; category?: string; available?: boolean; expiryDate?: string; usageCount?: number; maxUsage?: number; imageUrl?: string; }' is not assignable to parameter of type 'SetStateAction<Partial<LoyaltyReward>>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Type '{ pointsCost: number | undefined; id?: number; name?: string; description?: string; type?: "discount" | "free_item" | "special_offer"; value?: number; category?: string; available?: boolean; expiryDate?: string; usageCount?: number; maxUsage?: number; imageUrl?: string; }' is not assignable to type 'Partial<LoyaltyReward>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'pointsCost' are incompatible.
+      Type 'number | undefined' is not assignable to type 'number'.
+        Type 'undefined' is not assignable to type 'number'.
+
+348                     onChange={(e) => setNewRewardData({...newRewardData, pointsCost: parseInt(e.target.value) || undefined})}
+                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/advanced-loyalty.tsx:353:20 - error TS2375: Type '{ children: Element[]; value: "free_item" | "discount" | "special_offer" | undefined; onValueChange: (value: string) => void; }' is not assignable to type '{ value?: string; defaultValue?: string; onValueChange?(value: string): void; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'value' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+353                   <Select
+                       ~~~~~~
+
+client/src/components/analytics-dashboard.tsx:32:73 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+32     const dayOrders = orders.filter(order => order.createdAt.startsWith(date));
+                                                                           ~~~~
+
+client/src/components/analytics-dashboard.tsx:44:5 - error TS2532: Object is possibly 'undefined'.
+
+44     acc[order.platform].orders++;
+       ~~~~~~~~~~~~~~~~~~~
+
+client/src/components/analytics-dashboard.tsx:45:5 - error TS2532: Object is possibly 'undefined'.
+
+45     acc[order.platform].revenue += order.totalAmount;
+       ~~~~~~~~~~~~~~~~~~~
+
+client/src/components/analytics-dashboard.tsx:86:68 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+86                 {orders.filter(order => order.createdAt.startsWith(today.toISOString().split('T')[0])).length}
+                                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/auth/PermissionGuard.tsx:26:26 - error TS2339: Property 'isLoading' does not exist on type '{ permissions: Permission[]; userRole: UserRole | null; loading: boolean; error: string | null; hasPermission: (module: ModuleName, action: PermissionAction) => boolean; ... 10 more ...; getUserAccessLevel: () => "admin" | ... 2 more ... | "basic"; }'.
+
+26   const { hasPermission, isLoading } = usePermissions(user);
+                            ~~~~~~~~~
+
+client/src/components/auth/PermissionGuard.tsx:26:55 - error TS2554: Expected 0 arguments, but got 1.
+
+26   const { hasPermission, isLoading } = usePermissions(user);
+                                                         ~~~~
+
+client/src/components/auth/PermissionGuard.tsx:32:22 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'ModuleName'.
+
+32   if (!hasPermission(module, action)) {
+                        ~~~~~~
+
+client/src/components/auth/PermissionGuard.tsx:61:44 - error TS2554: Expected 0 arguments, but got 1.
+
+61   const { hasPermission } = usePermissions(user);
+                                              ~~~~
+
+client/src/components/auth/PermissionGuard.tsx:63:24 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'ModuleName'.
+
+63   return hasPermission(module, action);
+                          ~~~~~~
+
+client/src/components/dashboard-charts.tsx:387:26 - error TS18048: 'data' is possibly 'undefined'.
+
+387                         {data.icon}
+                             ~~~~
+
+client/src/components/dashboard-charts.tsx:476:26 - error TS18048: 'data' is possibly 'undefined'.
+
+476                         {data.icon}
+                             ~~~~
+
+client/src/components/dashboard-main.tsx:106:69 - error TS2339: Property 'count' does not exist on type '{}'.
+
+106             <div className="text-2xl font-bold">{todayReservations?.count || 12}</div>
+                                                                        ~~~~~
+
+client/src/components/dashboard-main.tsx:121:64 - error TS2339: Property 'count' does not exist on type '{}'.
+
+121             <div className="text-2xl font-bold">{activeOrders?.count || 8}</div>
+                                                                   ~~~~~
+
+client/src/components/dashboard-main.tsx:136:66 - error TS2339: Property 'revenue' does not exist on type '{}'.
+
+136             <div className="text-2xl font-bold">{monthlyRevenue?.revenue || "0"}€</div>
+                                                                     ~~~~~~~
+
+client/src/components/dashboard-main.tsx:151:65 - error TS2339: Property 'rate' does not exist on type '{}'.
+
+151             <div className="text-2xl font-bold">{occupancyRate?.rate || "78"}%</div>
+                                                                    ~~~~
+
+client/src/components/dashboard-main.tsx:171:26 - error TS2740: Type '{}' is missing the following properties from type 'any[]': length, pop, push, concat, and 29 more.
+
+171               <LineChart data={dailyData}>
+                             ~~~~
+
+  node_modules/recharts/types/chart/generateCategoricalChart.d.ts:62:5
+    62     data?: any[];
+           ~~~~
+    The expected type comes from property 'data' which is declared here on type 'IntrinsicAttributes & CategoricalChartProps & RefAttributes<{ readonly eventEmitterSymbol: Symbol; clipPathId: string; accessibilityManager: AccessibilityManager; ... 65 more ...; UNSAFE_componentWillUpdate?(nextProps: Readonly<...>, nextState: Readonly<...>, nextContext: any): void; }>'
+
+client/src/components/dashboard-main.tsx:200:19 - error TS2740: Type '{}' is missing the following properties from type 'any[]': length, pop, push, concat, and 29 more.
+
+200                   data={statusData.length > 0 ? statusData : [
+                      ~~~~
+
+  node_modules/recharts/types/polar/Pie.d.ts:54:5
+    54     data?: any[];
+           ~~~~
+    The expected type comes from property 'data' which is declared here on type 'IntrinsicAttributes & IntrinsicClassAttributes<Pie> & Pick<Readonly<Props>, "string" | "ref" | "children" | ... 482 more ... | "cornerRadius"> & InexactPartial<...> & InexactPartial<...>'
+
+client/src/components/dashboard-main.tsx:200:36 - error TS2339: Property 'length' does not exist on type '{}'.
+
+200                   data={statusData.length > 0 ? statusData : [
+                                       ~~~~~~
+
+client/src/components/dashboard-main.tsx:210:32 - error TS2339: Property 'length' does not exist on type '{}'.
+
+210                   {(statusData.length > 0 ? statusData : [{ name: "Aucune donnée", value: 1, color: "#9CA3AF" }]).map((entry, index) => (
+                                   ~~~~~~
+
+client/src/components/dashboard-main.tsx:210:115 - error TS2339: Property 'map' does not exist on type '{}'.
+
+210                   {(statusData.length > 0 ? statusData : [{ name: "Aucune donnée", value: 1, color: "#9CA3AF" }]).map((entry, index) => (
+                                                                                                                      ~~~
+
+client/src/components/dashboard-main.tsx:210:120 - error TS7006: Parameter 'entry' implicitly has an 'any' type.
+
+210                   {(statusData.length > 0 ? statusData : [{ name: "Aucune donnée", value: 1, color: "#9CA3AF" }]).map((entry, index) => (
+                                                                                                                           ~~~~~
+
+client/src/components/dashboard-main.tsx:210:127 - error TS7006: Parameter 'index' implicitly has an 'any' type.
+
+210                   {(statusData.length > 0 ? statusData : [{ name: "Aucune donnée", value: 1, color: "#9CA3AF" }]).map((entry, index) => (
+                                                                                                                                  ~~~~~
+
+client/src/components/dashboard-main.tsx:218:27 - error TS2339: Property 'length' does not exist on type '{}'.
+
+218               {statusData.length > 0 ? statusData.map((item, index: unknown) => (
+                              ~~~~~~
+
+client/src/components/dashboard-main.tsx:218:51 - error TS2339: Property 'map' does not exist on type '{}'.
+
+218               {statusData.length > 0 ? statusData.map((item, index: unknown) => (
+                                                      ~~~
+
+client/src/components/dashboard-main.tsx:218:56 - error TS7006: Parameter 'item' implicitly has an 'any' type.
+
+218               {statusData.length > 0 ? statusData.map((item, index: unknown) => (
+                                                           ~~~~
+
+client/src/components/dashboard-main.tsx:219:22 - error TS2322: Type 'unknown' is not assignable to type 'Key | null | undefined'.
+
+219                 <div key={index} className="flex items-center gap-2">
+                         ~~~
+
+  node_modules/@types/react/index.d.ts:262:9
+    262         key?: Key | null | undefined;
+                ~~~
+    The expected type comes from property 'key' which is declared here on type 'DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>'
+
+client/src/components/dashboard-stats.tsx:93:47 - error TS2554: Expected 1 arguments, but got 2.
+
+93       title: t('dashboard.todayReservations', "Réservations Aujourd'hui"),
+                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/dashboard-stats.tsx:100:43 - error TS2554: Expected 1 arguments, but got 2.
+
+100       title: t('dashboard.pendingOrders', "Commandes en Cours"),
+                                              ~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/dashboard-stats.tsx:107:45 - error TS2554: Expected 1 arguments, but got 2.
+
+107       title: t('dashboard.activeCustomers', "Clients Actifs"),
+                                                ~~~~~~~~~~~~~~~~
+
+client/src/components/dashboard-stats.tsx:114:43 - error TS2554: Expected 1 arguments, but got 2.
+
+114       title: t('dashboard.occupancyRate', "Taux d'Occupation"),
+                                              ~~~~~~~~~~~~~~~~~~~
+
+client/src/components/dashboard-stats.tsx:125:43 - error TS2554: Expected 1 arguments, but got 2.
+
+125       'pending': t('orderStatus.pending', 'En Attente'),
+                                              ~~~~~~~~~~~~
+
+client/src/components/dashboard-stats.tsx:126:47 - error TS2554: Expected 1 arguments, but got 2.
+
+126       'confirmed': t('orderStatus.confirmed', 'Confirmées'),
+                                                  ~~~~~~~~~~~~
+
+client/src/components/dashboard-stats.tsx:127:47 - error TS2554: Expected 1 arguments, but got 2.
+
+127       'completed': t('orderStatus.completed', 'Terminées'),
+                                                  ~~~~~~~~~~~
+
+client/src/components/dashboard-stats.tsx:128:47 - error TS2554: Expected 1 arguments, but got 2.
+
+128       'cancelled': t('orderStatus.cancelled', 'Annulées')
+                                                  ~~~~~~~~~~
+
+client/src/components/dashboard-stats.tsx:168:43 - error TS2554: Expected 1 arguments, but got 2.
+
+168               {t('dashboard.topProducts', 'Produits les Plus Vendus')}
+                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/dashboard-stats.tsx:186:46 - error TS2554: Expected 1 arguments, but got 2.
+
+186                   {t('dashboard.noProducts', 'Aucun produit disponible')}
+                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/dashboard-stats.tsx:197:43 - error TS2554: Expected 1 arguments, but got 2.
+
+197               {t('dashboard.orderStatus', 'État des Commandes')}
+                                              ~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/dashboard-stats.tsx:217:44 - error TS2554: Expected 1 arguments, but got 2.
+
+217                   {t('dashboard.noOrders', 'Aucune commande')}
+                                               ~~~~~~~~~~~~~~~~~
+
+client/src/components/dashboard/dashboard-main.tsx:244:11 - error TS2322: Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'ComponentType<{ className?: string; }>'.
+  Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'FunctionComponent<{ className?: string; }>'.
+    Types of property 'defaultProps' are incompatible.
+      Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | undefined' is not assignable to type 'Partial<{ className?: string; }> | undefined'.
+        Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'Partial<{ className?: string; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'className' are incompatible.
+            Type 'string | undefined' is not assignable to type 'string'.
+              Type 'undefined' is not assignable to type 'string'.
+
+244           icon={Calendar}
+              ~~~~
+
+  client/src/components/dashboard/dashboard-main.tsx:59:3
+    59   icon: React.ComponentType<{ className?: string }>;
+         ~~~~
+    The expected type comes from property 'icon' which is declared here on type 'IntrinsicAttributes & StatsCardProps'
+
+client/src/components/dashboard/dashboard-main.tsx:252:11 - error TS2322: Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'ComponentType<{ className?: string; }>'.
+  Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'FunctionComponent<{ className?: string; }>'.
+    Types of property 'defaultProps' are incompatible.
+      Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | undefined' is not assignable to type 'Partial<{ className?: string; }> | undefined'.
+        Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'Partial<{ className?: string; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'className' are incompatible.
+            Type 'string | undefined' is not assignable to type 'string'.
+              Type 'undefined' is not assignable to type 'string'.
+
+252           icon={ShoppingCart}
+              ~~~~
+
+  client/src/components/dashboard/dashboard-main.tsx:59:3
+    59   icon: React.ComponentType<{ className?: string }>;
+         ~~~~
+    The expected type comes from property 'icon' which is declared here on type 'IntrinsicAttributes & StatsCardProps'
+
+client/src/components/dashboard/dashboard-main.tsx:260:11 - error TS2322: Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'ComponentType<{ className?: string; }>'.
+  Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'FunctionComponent<{ className?: string; }>'.
+    Types of property 'defaultProps' are incompatible.
+      Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | undefined' is not assignable to type 'Partial<{ className?: string; }> | undefined'.
+        Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'Partial<{ className?: string; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'className' are incompatible.
+            Type 'string | undefined' is not assignable to type 'string'.
+              Type 'undefined' is not assignable to type 'string'.
+
+260           icon={DollarSign}

@@ -1,0 +1,96 @@
+                                            ~~~~~~
+
+client/src/components/admin/settings.tsx:413:58 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+413                     disabled={!hasPermission('settings', 'edit')}
+                                                             ~~~~~~
+
+client/src/components/admin/settings.tsx:422:58 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+422                     disabled={!hasPermission('settings', 'edit')}
+                                                             ~~~~~~
+
+client/src/components/admin/settings.tsx:433:56 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+433                   disabled={!hasPermission('settings', 'edit')}
+                                                           ~~~~~~
+
+client/src/components/admin/settings.tsx:443:56 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+443                   disabled={!hasPermission('settings', 'edit')}
+                                                           ~~~~~~
+
+client/src/components/admin/settings.tsx:456:56 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+456                   disabled={!hasPermission('settings', 'edit')}
+                                                           ~~~~~~
+
+client/src/components/admin/settings.tsx:481:60 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+481                       disabled={!hasPermission('settings', 'edit')}
+                                                               ~~~~~~
+
+client/src/components/admin/settings.tsx:490:62 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+490                         disabled={!hasPermission('settings', 'edit')}
+                                                                 ~~~~~~
+
+client/src/components/admin/settings.tsx:496:62 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+496                         disabled={!hasPermission('settings', 'edit')}
+                                                                 ~~~~~~
+
+client/src/components/admin/settings.tsx:520:58 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+520                     disabled={!hasPermission('settings', 'edit')}
+                                                             ~~~~~~
+
+client/src/components/admin/settings.tsx:529:58 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+529                     disabled={!hasPermission('settings', 'edit')}
+                                                             ~~~~~~
+
+client/src/components/admin/settings.tsx:538:58 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+538                     disabled={!hasPermission('settings', 'edit')}
+                                                             ~~~~~~
+
+client/src/components/admin/settings.tsx:552:60 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+552                       disabled={!hasPermission('settings', 'edit')}
+                                                               ~~~~~~
+
+client/src/components/admin/settings.tsx:567:58 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+567                     disabled={!hasPermission('settings', 'edit')}
+                                                             ~~~~~~
+
+client/src/components/admin/settings.tsx:577:58 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+577                     disabled={!hasPermission('settings', 'edit')}
+                                                             ~~~~~~
+
+client/src/components/admin/settings.tsx:587:58 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+587                     disabled={!hasPermission('settings', 'edit')}
+                                                             ~~~~~~
+
+client/src/components/admin/settings.tsx:597:56 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+597                   disabled={!hasPermission('settings', 'edit')}
+                                                           ~~~~~~
+
+client/src/components/admin/settings.tsx:625:58 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+625                     disabled={!hasPermission('settings', 'edit')}
+                                                             ~~~~~~
+
+client/src/components/admin/settings.tsx:634:58 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+634                     disabled={!hasPermission('settings', 'edit')}
+                                                             ~~~~~~
+
+client/src/components/admin/settings.tsx:647:58 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+647                     disabled={!hasPermission('settings', 'edit')}
+                                                             ~~~~~~

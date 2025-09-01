@@ -1,0 +1,150 @@
+
+client/src/components/admin/permissions-management.tsx:435:69 - error TS2322: Type '"directeur" | "employe"' is not assignable to type '"employe"'.
+  Type '"directeur"' is not assignable to type '"employe"'.
+
+435                   onValueChange={(value) => setNewUser({...newUser, role: value as 'directeur' | 'employe'})}
+                                                                        ~~~~
+
+client/src/components/admin/real-time-updates.tsx:87:9 - error TS2349: This expression is not callable.
+  Type 'ToastManagerImpl' has no call signatures.
+
+87         toast({
+           ~~~~~
+
+client/src/components/admin/real-time-updates.tsx:140:9 - error TS2349: This expression is not callable.
+  Type 'ToastManagerImpl' has no call signatures.
+
+140         toast({
+            ~~~~~
+
+client/src/components/admin/real-time-updates.tsx:202:7 - error TS2349: This expression is not callable.
+  Type 'ToastManagerImpl' has no call signatures.
+
+202       toast({
+          ~~~~~
+
+client/src/components/admin/real-time-updates.tsx:249:20 - error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ order: string[]; reservation: string[]; payment: string[]; customer: string[]; system: string[]; }'.
+
+249     const titles = mockEvents[type];
+                       ~~~~~~~~~~~~~~~~
+
+client/src/components/admin/reports-system.tsx:73:7 - error TS2349: This expression is not callable.
+  Type 'ToastManagerImpl' has no call signatures.
+
+73       toast({
+         ~~~~~
+
+client/src/components/admin/reports-system.tsx:107:7 - error TS2322: Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'ComponentType<{ className?: string; }>'.
+  Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'FunctionComponent<{ className?: string; }>'.
+    Types of property 'defaultProps' are incompatible.
+      Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | undefined' is not assignable to type 'Partial<{ className?: string; }> | undefined'.
+        Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'Partial<{ className?: string; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'className' are incompatible.
+            Type 'string | undefined' is not assignable to type 'string'.
+              Type 'undefined' is not assignable to type 'string'.
+
+107       icon: BarChart3
+          ~~~~
+
+  client/src/components/admin/reports-system.tsx:19:3
+    19   icon: React.ComponentType<{ className?: string }>;
+         ~~~~
+    The expected type comes from property 'icon' which is declared here on type 'Report'
+
+client/src/components/admin/reports-system.tsx:116:7 - error TS2322: Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'ComponentType<{ className?: string; }>'.
+  Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'FunctionComponent<{ className?: string; }>'.
+    Types of property 'defaultProps' are incompatible.
+      Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | undefined' is not assignable to type 'Partial<{ className?: string; }> | undefined'.
+        Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'Partial<{ className?: string; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'className' are incompatible.
+            Type 'string | undefined' is not assignable to type 'string'.
+              Type 'undefined' is not assignable to type 'string'.
+
+116       icon: Users
+          ~~~~
+
+  client/src/components/admin/reports-system.tsx:19:3
+    19   icon: React.ComponentType<{ className?: string }>;
+         ~~~~
+    The expected type comes from property 'icon' which is declared here on type 'Report'
+
+client/src/components/admin/reports-system.tsx:125:7 - error TS2322: Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'ComponentType<{ className?: string; }>'.
+  Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'FunctionComponent<{ className?: string; }>'.
+    Types of property 'defaultProps' are incompatible.
+      Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | undefined' is not assignable to type 'Partial<{ className?: string; }> | undefined'.
+        Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'Partial<{ className?: string; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'className' are incompatible.
+            Type 'string | undefined' is not assignable to type 'string'.
+              Type 'undefined' is not assignable to type 'string'.
+
+125       icon: FileText
+          ~~~~
+
+  client/src/components/admin/reports-system.tsx:19:3
+    19   icon: React.ComponentType<{ className?: string }>;
+         ~~~~
+    The expected type comes from property 'icon' which is declared here on type 'Report'
+
+client/src/components/admin/reports-system.tsx:134:7 - error TS2322: Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'ComponentType<{ className?: string; }>'.
+  Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'FunctionComponent<{ className?: string; }>'.
+    Types of property 'defaultProps' are incompatible.
+      Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | undefined' is not assignable to type 'Partial<{ className?: string; }> | undefined'.
+        Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'Partial<{ className?: string; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'className' are incompatible.
+            Type 'string | undefined' is not assignable to type 'string'.
+              Type 'undefined' is not assignable to type 'string'.
+
+134       icon: DollarSign
+          ~~~~
+
+  client/src/components/admin/reports-system.tsx:19:3
+    19   icon: React.ComponentType<{ className?: string }>;
+         ~~~~
+    The expected type comes from property 'icon' which is declared here on type 'Report'
+
+client/src/components/admin/reports-system.tsx:143:7 - error TS2322: Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'ComponentType<{ className?: string; }>'.
+  Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'FunctionComponent<{ className?: string; }>'.
+    Types of property 'defaultProps' are incompatible.
+      Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | undefined' is not assignable to type 'Partial<{ className?: string; }> | undefined'.
+        Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'Partial<{ className?: string; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'className' are incompatible.
+            Type 'string | undefined' is not assignable to type 'string'.
+              Type 'undefined' is not assignable to type 'string'.
+
+143       icon: TrendingUp
+          ~~~~
+
+  client/src/components/admin/reports-system.tsx:19:3
+    19   icon: React.ComponentType<{ className?: string }>;
+         ~~~~
+    The expected type comes from property 'icon' which is declared here on type 'Report'
+
+client/src/components/admin/reports-system.tsx:172:9 - error TS2349: This expression is not callable.
+  Type 'ToastManagerImpl' has no call signatures.
+
+172         toast({
+            ~~~~~
+
+client/src/components/admin/reports-system.tsx:182:7 - error TS2349: This expression is not callable.
+  Type 'ToastManagerImpl' has no call signatures.
+
+182       toast({
+          ~~~~~
+
+client/src/components/admin/reports-system.tsx:194:7 - error TS2349: This expression is not callable.
+  Type 'ToastManagerImpl' has no call signatures.
+
+194       toast({
+          ~~~~~
+
+client/src/components/admin/reports-system.tsx:227:9 - error TS2349: This expression is not callable.
+  Type 'ToastManagerImpl' has no call signatures.
+
+227         toast({
+            ~~~~~
+
+client/src/components/admin/reports-system.tsx:235:7 - error TS2349: This expression is not callable.
+  Type 'ToastManagerImpl' has no call signatures.
+
+235       toast({
+          ~~~~~

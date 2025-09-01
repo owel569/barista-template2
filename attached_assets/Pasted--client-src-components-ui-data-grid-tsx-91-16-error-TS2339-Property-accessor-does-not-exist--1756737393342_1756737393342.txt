@@ -1,0 +1,160 @@
+
+
+client/src/components/ui/data-grid.tsx:91:16 - error TS2339: Property 'accessor' does not exist on type 'DataGridColumn<T>'.
+
+91     if (column.accessor) {
+                  ~~~~~~~~
+
+client/src/components/ui/data-grid.tsx:92:21 - error TS2339: Property 'accessor' does not exist on type 'DataGridColumn<T>'.
+
+92       return column.accessor(row);
+                       ~~~~~~~~
+
+client/src/components/ui/data-grid.tsx:94:16 - error TS2339: Property 'accessorKey' does not exist on type 'DataGridColumn<T>'.
+
+94     if (column.accessorKey) {
+                  ~~~~~~~~~~~
+
+client/src/components/ui/data-grid.tsx:95:34 - error TS2339: Property 'accessorKey' does not exist on type 'DataGridColumn<T>'.
+
+95       return (row as any)[column.accessorKey];
+                                    ~~~~~~~~~~~
+
+client/src/components/ui/data-grid.tsx:118:48 - error TS2339: Property 'id' does not exist on type 'DataGridColumn<T>'.
+
+118         const column = columns.find(col => col.id === columnId);
+                                                   ~~
+
+client/src/components/ui/data-grid.tsx:122:24 - error TS2339: Property 'type' does not exist on type 'DataGridColumn<T>'.
+
+122             if (column.type === 'boolean') {
+                           ~~~~
+
+client/src/components/ui/data-grid.tsx:133:46 - error TS2339: Property 'id' does not exist on type 'DataGridColumn<T>'.
+
+133       const column = columns.find(col => col.id === sortState.columnId);
+                                                 ~~
+
+client/src/components/ui/data-grid.tsx:140:22 - error TS2339: Property 'type' does not exist on type 'DataGridColumn<T>'.
+
+140           if (column.type === 'number') {
+                         ~~~~
+
+client/src/components/ui/data-grid.tsx:142:29 - error TS2339: Property 'type' does not exist on type 'DataGridColumn<T>'.
+
+142           } else if (column.type === 'date') {
+                                ~~~~
+
+client/src/components/ui/data-grid.tsx:164:44 - error TS2339: Property 'id' does not exist on type 'DataGridColumn<T>'.
+
+164     const column = columns.find(col => col.id === columnId);
+                                               ~~
+
+client/src/components/ui/data-grid.tsx:219:20 - error TS2339: Property 'type' does not exist on type 'DataGridColumn<T>'.
+
+219     switch (column.type) {
+                       ~~~~
+
+client/src/components/ui/data-grid.tsx:322:33 - error TS2339: Property 'id' does not exist on type 'DataGridColumn<T>'.
+
+322                     key={column.id}
+                                    ~~
+
+client/src/components/ui/data-grid.tsx:335:73 - error TS2339: Property 'id' does not exist on type 'DataGridColumn<T>'.
+
+335                     onClick={() => column.sortable && handleSort(column.id)}
+                                                                            ~~
+
+client/src/components/ui/data-grid.tsx:338:23 - error TS2322: Type 'ComponentType<{ column: DataGridColumn<T>; }> | undefined' is not assignable to type 'ReactNode'.
+  Type 'ComponentClass<{ column: DataGridColumn<T>; }, any>' is not assignable to type 'ReactNode'.
+
+338                       {column.header}
+                          ~~~~~~~~~~~~~~~
+
+client/src/components/ui/data-grid.tsx:339:73 - error TS2339: Property 'id' does not exist on type 'DataGridColumn<T>'.
+
+339                       {column.sortable && sortState.columnId === column.id && (
+                                                                            ~~
+
+client/src/components/ui/data-grid.tsx:385:57 - error TS2339: Property 'id' does not exist on type 'DataGridColumn<T>'.
+
+385                           key={`${globalIndex}-${column.id}`}
+                                                            ~~
+
+client/src/components/ui/data-grid.tsx:485:47 - error TS2339: Property 'id' does not exist on type 'DataGridColumn<T>'.
+
+485     setColumns(prev => prev.filter(col => col.id !== columnId));
+                                                  ~~
+
+client/src/components/ui/data-grid.tsx:489:44 - error TS2339: Property 'id' does not exist on type 'DataGridColumn<T>'.
+
+489     setColumns(prev => prev.map(col => col.id === columnId ? { ...col, ...updates } : col));
+                                               ~~
+
+client/src/components/ui/data-table.tsx:138:31 - error TS2379: Argument of type '{ data: TData[]; columns: ColumnDef<TData, TValue>[]; onSortingChange: React.Dispatch<React.SetStateAction<SortingState>>; ... 13 more ...; enableGlobalFilter: boolean | undefined; }' is not assignable to parameter of type 'TableOptions<TData>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'enableColumnFilters' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+
+138   const table = useReactTable({
+                                  ~
+139     data,
+    ~~~~~~~~~
+... 
+162     enableGlobalFilter: filtering.globalFilter,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+163   })
+    ~~~
+
+client/src/components/ui/day-picker.tsx:8:50 - error TS2312: An interface can only extend an object type or intersection of object types with statically known members.
+
+8 export interface DayPickerComponentProps extends DayPickerProps {
+                                                   ~~~~~~~~~~~~~~
+
+client/src/components/ui/day-picker.tsx:14:3 - error TS2339: Property 'classNames' does not exist on type 'DayPickerComponentProps'.
+
+14   classNames,
+     ~~~~~~~~~~
+
+client/src/components/ui/day-picker.tsx:15:3 - error TS2339: Property 'showOutsideDays' does not exist on type 'DayPickerComponentProps'.
+
+15   showOutsideDays = true,
+     ~~~~~~~~~~~~~~~
+
+client/src/components/ui/dropdown-menu.tsx:97:4 - error TS2375: Type '{ children: (Element | ReactNode)[]; slot?: string | undefined; style?: CSSProperties | undefined; title?: string | undefined; role?: AriaRole | undefined; ... 265 more ...; checked: CheckedState | undefined; }' is not assignable to type 'DropdownMenuCheckboxItemProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'checked' are incompatible.
+    Type 'CheckedState | undefined' is not assignable to type 'CheckedState'.
+      Type 'undefined' is not assignable to type 'CheckedState'.
+
+97   <DropdownMenuPrimitive.CheckboxItem
+      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/error-boundary.tsx:44:3 - error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'Component<ErrorBoundaryProps, ErrorBoundaryState, any>'.
+
+44   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+     ~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/error-boundary.tsx:82:3 - error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'Component<ErrorBoundaryProps, ErrorBoundaryState, any>'.
+
+82   render() {
+     ~~~~~~
+
+client/src/components/ui/file-upload.tsx:85:23 - error TS2379: Argument of type '{ file: File; id: string; progress: number; error: string | undefined; preview: string | undefined; }' is not assignable to parameter of type 'UploadedFile' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'error' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+ 85         newFiles.push({
+                          ~
+ 86           file,
+    ~~~~~~~~~~~~~~~
+... 
+ 90           preview,
+    ~~~~~~~~~~~~~~~~~~
+ 91         });
+    ~~~~~~~~~
+
+client/src/components/ui/form.tsx:216:11 - error TS7031: Binding element 'field' implicitly has an 'any' type.
+
+216       {({ field, fieldState, formState }) => (
+              ~~~~~

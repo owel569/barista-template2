@@ -1,0 +1,69 @@
+
+client/src/components/admin/MaintenanceTaskForm.tsx:36:5 - error TS2345: Argument of type '{ title: string; description: string; equipment: string; equipmentId: number; priority: "low" | "medium" | "high" | "urgent"; status: "pending" | "in_progress" | "completed" | "cancelled"; ... 6 more ...; notes: string; } | { ...; }' is not assignable to parameter of type 'Omit<MaintenanceTask, "id"> | (() => Omit<MaintenanceTask, "id">)'.
+  Type '{ title: string; description: string; equipment: string; equipmentId: number; priority: "low" | "medium" | "high" | "urgent"; status: "pending" | "in_progress" | "completed" | "cancelled"; ... 6 more ...; notes: string; }' is not assignable to type 'Omit<MaintenanceTask, "id"> | (() => Omit<MaintenanceTask, "id">)'.
+    Type '{ title: string; description: string; equipment: string; equipmentId: number; priority: "low" | "medium" | "high" | "urgent"; status: "pending" | "in_progress" | "completed" | "cancelled"; ... 6 more ...; notes: string; }' is not assignable to type 'Omit<MaintenanceTask, "id">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+      Types of property 'completedDate' are incompatible.
+        Type 'string | undefined' is not assignable to type 'string'.
+          Type 'undefined' is not assignable to type 'string'.
+
+ 36     initialData ? {
+        ~~~~~~~~~~~~~~~
+ 37       title: initialData.title,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... 
+ 62       notes: '',
+    ~~~~~~~~~~~~~~~~
+ 63     }
+    ~~~~~
+
+client/src/components/admin/messages.tsx:204:38 - error TS2367: This comparison appears to be unintentional because the types '"read" | "unread" | "replied" | "archived"' and '"nouveau"' have no overlap.
+
+204       unread: messages.filter(msg => msg.status === 'nouveau' || msg.status === 'non_lu').length,
+                                         ~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/messages.tsx:204:66 - error TS2367: This comparison appears to be unintentional because the types '"read" | "unread" | "replied" | "archived"' and '"non_lu"' have no overlap.
+
+204       unread: messages.filter(msg => msg.status === 'nouveau' || msg.status === 'non_lu').length,
+                                                                     ~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/messages.tsx:205:39 - error TS2367: This comparison appears to be unintentional because the types '"read" | "unread" | "replied" | "archived"' and '"traite"' have no overlap.
+
+205       treated: messages.filter(msg => msg.status === 'traite').length,
+                                          ~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/messages.tsx:368:47 - error TS2339: Property 'response' does not exist on type 'ContactMessage'.
+
+368                           setResponse(message.response || '');
+                                                  ~~~~~~~~
+
+client/src/components/admin/messages.tsx:370:31 - error TS2367: This comparison appears to be unintentional because the types '"read" | "unread" | "replied" | "archived"' and '"nouveau"' have no overlap.
+
+370                           if (message.status === 'nouveau' || message.status === 'non_lu') {
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/messages.tsx:370:63 - error TS2367: This comparison appears to be unintentional because the types '"read" | "unread" | "replied" | "archived"' and '"non_lu"' have no overlap.
+
+370                           if (message.status === 'nouveau' || message.status === 'non_lu') {
+                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/messages.tsx:492:32 - error TS2339: Property 'response' does not exist on type 'ContactMessage'.
+
+492               {selectedMessage.response && (
+                                   ~~~~~~~~
+
+client/src/components/admin/messages.tsx:496:73 - error TS2339: Property 'response' does not exist on type 'ContactMessage'.
+
+496                     <p className="whitespace-pre-wrap">{selectedMessage.response}</p>
+                                                                            ~~~~~~~~
+
+client/src/components/admin/notifications-system.tsx:347:33 - error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
+
+347         const data = JSON.parse(lastMessage.data);
+                                    ~~~~~~~~~~~~~~~~
+
+client/src/components/admin/notifications-system.tsx:810:20 - error TS2375: Type '{ children: Element[]; value: "success" | "warning" | "info" | "error" | "system" | undefined; onValueChange: (value: string) => void; }' is not assignable to type '{ value?: string; defaultValue?: string; onValueChange?(value: string): void; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'value' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+810                   <Select

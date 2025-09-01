@@ -1,0 +1,303 @@
+
+
+  client/src/components/dashboard/dashboard-main.tsx:59:3
+    59   icon: React.ComponentType<{ className?: string }>;
+         ~~~~
+    The expected type comes from property 'icon' which is declared here on type 'IntrinsicAttributes & StatsCardProps'
+
+client/src/components/dashboard/dashboard-main.tsx:268:11 - error TS2322: Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'ComponentType<{ className?: string; }>'.
+  Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'FunctionComponent<{ className?: string; }>'.
+    Types of property 'defaultProps' are incompatible.
+      Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | undefined' is not assignable to type 'Partial<{ className?: string; }> | undefined'.
+        Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'Partial<{ className?: string; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'className' are incompatible.
+            Type 'string | undefined' is not assignable to type 'string'.
+              Type 'undefined' is not assignable to type 'string'.
+
+268           icon={TrendingUp}
+              ~~~~
+
+  client/src/components/dashboard/dashboard-main.tsx:59:3
+    59   icon: React.ComponentType<{ className?: string }>;
+         ~~~~
+    The expected type comes from property 'icon' which is declared here on type 'IntrinsicAttributes & StatsCardProps'
+
+client/src/components/dashboard/dashboard-main.tsx:281:13 - error TS2322: Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'ComponentType<{ className?: string; }>'.
+  Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'FunctionComponent<{ className?: string; }>'.
+    Types of property 'defaultProps' are incompatible.
+      Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | undefined' is not assignable to type 'Partial<{ className?: string; }> | undefined'.
+        Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'Partial<{ className?: string; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'className' are incompatible.
+            Type 'string | undefined' is not assignable to type 'string'.
+              Type 'undefined' is not assignable to type 'string'.
+
+281             icon={Users}
+                ~~~~
+
+  client/src/components/dashboard/dashboard-main.tsx:59:3
+    59   icon: React.ComponentType<{ className?: string }>;
+         ~~~~
+    The expected type comes from property 'icon' which is declared here on type 'IntrinsicAttributes & StatsCardProps'
+
+client/src/components/dashboard/dashboard-main.tsx:288:13 - error TS2322: Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'ComponentType<{ className?: string; }>'.
+  Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'FunctionComponent<{ className?: string; }>'.
+    Types of property 'defaultProps' are incompatible.
+      Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | undefined' is not assignable to type 'Partial<{ className?: string; }> | undefined'.
+        Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'Partial<{ className?: string; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'className' are incompatible.
+            Type 'string | undefined' is not assignable to type 'string'.
+              Type 'undefined' is not assignable to type 'string'.
+
+288             icon={Coffee}
+                ~~~~
+
+  client/src/components/dashboard/dashboard-main.tsx:59:3
+    59   icon: React.ComponentType<{ className?: string }>;
+         ~~~~
+    The expected type comes from property 'icon' which is declared here on type 'IntrinsicAttributes & StatsCardProps'
+
+client/src/components/dashboard/dashboard-main.tsx:296:13 - error TS2322: Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'ComponentType<{ className?: string; }>'.
+  Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'FunctionComponent<{ className?: string; }>'.
+    Types of property 'defaultProps' are incompatible.
+      Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | undefined' is not assignable to type 'Partial<{ className?: string; }> | undefined'.
+        Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'Partial<{ className?: string; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'className' are incompatible.
+            Type 'string | undefined' is not assignable to type 'string'.
+              Type 'undefined' is not assignable to type 'string'.
+
+296             icon={CheckCircle}
+                ~~~~
+
+  client/src/components/dashboard/dashboard-main.tsx:59:3
+    59   icon: React.ComponentType<{ className?: string }>;
+         ~~~~
+    The expected type comes from property 'icon' which is declared here on type 'IntrinsicAttributes & StatsCardProps'
+
+client/src/components/dashboard/dashboard-main.tsx:304:13 - error TS2322: Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'ComponentType<{ className?: string; }>'.
+  Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'FunctionComponent<{ className?: string; }>'.
+    Types of property 'defaultProps' are incompatible.
+      Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | undefined' is not assignable to type 'Partial<{ className?: string; }> | undefined'.
+        Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'Partial<{ className?: string; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'className' are incompatible.
+            Type 'string | undefined' is not assignable to type 'string'.
+              Type 'undefined' is not assignable to type 'string'.
+
+304             icon={Clock}
+                ~~~~
+
+  client/src/components/dashboard/dashboard-main.tsx:59:3
+    59   icon: React.ComponentType<{ className?: string }>;
+         ~~~~
+    The expected type comes from property 'icon' which is declared here on type 'IntrinsicAttributes & StatsCardProps'
+
+client/src/components/dashboard/sidebar.tsx:75:7 - error TS2322: Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'ComponentType<{ className?: string; }>'.
+  Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'FunctionComponent<{ className?: string; }>'.
+    Types of property 'defaultProps' are incompatible.
+      Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | undefined' is not assignable to type 'Partial<{ className?: string; }> | undefined'.
+        Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'Partial<{ className?: string; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'className' are incompatible.
+            Type 'string | undefined' is not assignable to type 'string'.
+              Type 'undefined' is not assignable to type 'string'.
+
+75       icon: Home,
+         ~~~~
+
+  client/src/components/dashboard/sidebar.tsx:42:3
+    42   icon: React.ComponentType<{ className?: string }>;
+         ~~~~
+    The expected type comes from property 'icon' which is declared here on type 'NavItem'
+
+client/src/components/dashboard/sidebar.tsx:82:7 - error TS2322: Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'ComponentType<{ className?: string; }>'.
+  Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'FunctionComponent<{ className?: string; }>'.
+    Types of property 'defaultProps' are incompatible.
+      Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | undefined' is not assignable to type 'Partial<{ className?: string; }> | undefined'.
+        Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'Partial<{ className?: string; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'className' are incompatible.
+            Type 'string | undefined' is not assignable to type 'string'.
+              Type 'undefined' is not assignable to type 'string'.
+
+82       icon: Calendar,
+         ~~~~
+
+  client/src/components/dashboard/sidebar.tsx:42:3
+    42   icon: React.ComponentType<{ className?: string }>;
+         ~~~~
+    The expected type comes from property 'icon' which is declared here on type 'NavItem'
+
+client/src/components/dashboard/sidebar.tsx:87:9 - error TS2322: Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'ComponentType<{ className?: string; }>'.
+  Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'FunctionComponent<{ className?: string; }>'.
+    Types of property 'defaultProps' are incompatible.
+      Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | undefined' is not assignable to type 'Partial<{ className?: string; }> | undefined'.
+        Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'Partial<{ className?: string; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'className' are incompatible.
+            Type 'string | undefined' is not assignable to type 'string'.
+              Type 'undefined' is not assignable to type 'string'.
+
+87         icon: Plus,
+           ~~~~
+
+client/src/components/dashboard/sidebar.tsx:95:7 - error TS2322: Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'ComponentType<{ className?: string; }>'.
+  Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'FunctionComponent<{ className?: string; }>'.
+    Types of property 'defaultProps' are incompatible.
+      Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | undefined' is not assignable to type 'Partial<{ className?: string; }> | undefined'.
+        Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'Partial<{ className?: string; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'className' are incompatible.
+            Type 'string | undefined' is not assignable to type 'string'.
+              Type 'undefined' is not assignable to type 'string'.
+
+95       icon: ShoppingCart,
+         ~~~~
+
+  client/src/components/dashboard/sidebar.tsx:42:3
+    42   icon: React.ComponentType<{ className?: string }>;
+         ~~~~
+    The expected type comes from property 'icon' which is declared here on type 'NavItem'
+
+client/src/components/dashboard/sidebar.tsx:103:7 - error TS2322: Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'ComponentType<{ className?: string; }>'.
+  Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'FunctionComponent<{ className?: string; }>'.
+    Types of property 'defaultProps' are incompatible.
+      Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | undefined' is not assignable to type 'Partial<{ className?: string; }> | undefined'.
+        Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'Partial<{ className?: string; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'className' are incompatible.
+            Type 'string | undefined' is not assignable to type 'string'.
+              Type 'undefined' is not assignable to type 'string'.
+
+103       icon: Users,
+          ~~~~
+
+  client/src/components/dashboard/sidebar.tsx:42:3
+    42   icon: React.ComponentType<{ className?: string }>;
+         ~~~~
+    The expected type comes from property 'icon' which is declared here on type 'NavItem'
+
+client/src/components/dashboard/sidebar.tsx:110:7 - error TS2322: Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'ComponentType<{ className?: string; }>'.
+  Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'FunctionComponent<{ className?: string; }>'.
+    Types of property 'defaultProps' are incompatible.
+      Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | undefined' is not assignable to type 'Partial<{ className?: string; }> | undefined'.
+        Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'Partial<{ className?: string; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'className' are incompatible.
+            Type 'string | undefined' is not assignable to type 'string'.
+              Type 'undefined' is not assignable to type 'string'.
+
+110       icon: MenuIcon,
+          ~~~~
+
+  client/src/components/dashboard/sidebar.tsx:42:3
+    42   icon: React.ComponentType<{ className?: string }>;
+         ~~~~
+    The expected type comes from property 'icon' which is declared here on type 'NavItem'
+
+client/src/components/dashboard/sidebar.tsx:117:7 - error TS2322: Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'ComponentType<{ className?: string; }>'.
+  Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'FunctionComponent<{ className?: string; }>'.
+    Types of property 'defaultProps' are incompatible.
+      Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | undefined' is not assignable to type 'Partial<{ className?: string; }> | undefined'.
+        Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'Partial<{ className?: string; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'className' are incompatible.
+            Type 'string | undefined' is not assignable to type 'string'.
+              Type 'undefined' is not assignable to type 'string'.
+
+117       icon: MessageSquare,
+          ~~~~
+
+  client/src/components/dashboard/sidebar.tsx:42:3
+    42   icon: React.ComponentType<{ className?: string }>;
+         ~~~~
+    The expected type comes from property 'icon' which is declared here on type 'NavItem'
+
+client/src/components/dashboard/sidebar.tsx:125:7 - error TS2322: Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'ComponentType<{ className?: string; }>'.
+  Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'FunctionComponent<{ className?: string; }>'.
+    Types of property 'defaultProps' are incompatible.
+      Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | undefined' is not assignable to type 'Partial<{ className?: string; }> | undefined'.
+        Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'Partial<{ className?: string; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'className' are incompatible.
+            Type 'string | undefined' is not assignable to type 'string'.
+              Type 'undefined' is not assignable to type 'string'.
+
+125       icon: User,
+          ~~~~
+
+  client/src/components/dashboard/sidebar.tsx:42:3
+    42   icon: React.ComponentType<{ className?: string }>;
+         ~~~~
+    The expected type comes from property 'icon' which is declared here on type 'NavItem'
+
+client/src/components/dashboard/sidebar.tsx:132:7 - error TS2322: Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'ComponentType<{ className?: string; }>'.
+  Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'FunctionComponent<{ className?: string; }>'.
+    Types of property 'defaultProps' are incompatible.
+      Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | undefined' is not assignable to type 'Partial<{ className?: string; }> | undefined'.
+        Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'Partial<{ className?: string; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'className' are incompatible.
+            Type 'string | undefined' is not assignable to type 'string'.
+              Type 'undefined' is not assignable to type 'string'.
+
+132       icon: BarChart3,
+          ~~~~
+
+  client/src/components/dashboard/sidebar.tsx:42:3
+    42   icon: React.ComponentType<{ className?: string }>;
+         ~~~~
+    The expected type comes from property 'icon' which is declared here on type 'NavItem'
+
+client/src/components/dashboard/sidebar.tsx:139:7 - error TS2322: Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'ComponentType<{ className?: string; }>'.
+  Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'FunctionComponent<{ className?: string; }>'.
+    Types of property 'defaultProps' are incompatible.
+      Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | undefined' is not assignable to type 'Partial<{ className?: string; }> | undefined'.
+        Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'Partial<{ className?: string; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'className' are incompatible.
+            Type 'string | undefined' is not assignable to type 'string'.
+              Type 'undefined' is not assignable to type 'string'.
+
+139       icon: History,
+          ~~~~
+
+  client/src/components/dashboard/sidebar.tsx:42:3
+    42   icon: React.ComponentType<{ className?: string }>;
+         ~~~~
+    The expected type comes from property 'icon' which is declared here on type 'NavItem'
+
+client/src/components/dashboard/sidebar.tsx:146:7 - error TS2322: Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'ComponentType<{ className?: string; }>'.
+  Type 'ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'FunctionComponent<{ className?: string; }>'.
+    Types of property 'defaultProps' are incompatible.
+      Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> | undefined' is not assignable to type 'Partial<{ className?: string; }> | undefined'.
+        Type 'Partial<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>' is not assignable to type 'Partial<{ className?: string; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'className' are incompatible.
+            Type 'string | undefined' is not assignable to type 'string'.
+              Type 'undefined' is not assignable to type 'string'.
+
+146       icon: Settings,
+          ~~~~
+
+  client/src/components/dashboard/sidebar.tsx:42:3
+    42   icon: React.ComponentType<{ className?: string }>;
+         ~~~~
+    The expected type comes from property 'icon' which is declared here on type 'NavItem'
+
+client/src/components/green-black-home.tsx:8:27 - error TS2307: Cannot find module 'react-intersection-observer' or its corresponding type declarations.
+
+8 import { useInView } from 'react-intersection-observer';
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/green-black-home.tsx:34:33 - error TS2448: Block-scoped variable 'menuCategories' used before its declaration.
+
+34   const totalSlides = Math.ceil(menuCategories.length / slidesToShow);
+                                   ~~~~~~~~~~~~~~
+
+  client/src/components/green-black-home.tsx:36:9
+    36   const menuCategories: MenuCategory[] = [
+               ~~~~~~~~~~~~~~
+    'menuCategories' is declared here.
+
+client/src/components/green-black-home.tsx:34:33 - error TS2454: Variable 'menuCategories' is used before being assigned.
+
+34   const totalSlides = Math.ceil(menuCategories.length / slidesToShow);
+                                   ~~~~~~~~~~~~~~
+
+client/src/components/interactive-reservation.tsx:135:48 - error TS2559: Type '"/api/menu/categories"' has no properties in common with type 'RequestInit'.
+
+135       const response = await apiRequest('GET', '/api/menu/categories');
+                                                   ~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/interactive-reservation.tsx:150:48 - error TS2559: Type '"/api/menu/items"' has no properties in common with type 'RequestInit'.
+
+150       const response = await apiRequest('GET', '/api/menu/items');
+                                                

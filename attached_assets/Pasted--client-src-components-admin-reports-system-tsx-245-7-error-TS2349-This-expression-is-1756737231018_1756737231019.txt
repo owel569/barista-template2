@@ -1,0 +1,137 @@
+    ~~~~~
+
+client/src/components/admin/reports-system.tsx:245:7 - error TS2349: This expression is not callable.
+  Type 'ToastManagerImpl' has no call signatures.
+
+245       toast({
+          ~~~~~
+
+client/src/components/admin/reports-system.tsx:273:9 - error TS2349: This expression is not callable.
+  Type 'ToastManagerImpl' has no call signatures.
+
+273         toast({
+            ~~~~~
+
+client/src/components/admin/reports-system.tsx:281:7 - error TS2349: This expression is not callable.
+  Type 'ToastManagerImpl' has no call signatures.
+
+281       toast({
+          ~~~~~
+
+client/src/components/admin/reservation-dialog.tsx:301:22 - error TS2552: Cannot find name 'ScrollArea'. Did you mean 'scrollbars'?
+
+301                     <ScrollArea className="h-60">
+                         ~~~~~~~~~~
+
+  node_modules/typescript/lib/lib.dom.d.ts:38630:13
+    38630 declare var scrollbars: BarProp;
+                      ~~~~~~~~~~
+    'scrollbars' is declared here.
+
+client/src/components/admin/reservation-dialog.tsx:307:23 - error TS2552: Cannot find name 'ScrollArea'. Did you mean 'scrollbars'?
+
+307                     </ScrollArea>
+                          ~~~~~~~~~~
+
+  node_modules/typescript/lib/lib.dom.d.ts:38630:13
+    38630 declare var scrollbars: BarProp;
+                      ~~~~~~~~~~
+    'scrollbars' is declared here.
+
+client/src/components/admin/settings.tsx:135:44 - error TS2554: Expected 0 arguments, but got 1.
+
+135   const { hasPermission } = usePermissions(user);
+                                               ~~~~
+
+client/src/components/admin/settings.tsx:210:36 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+210     if (!hasPermission('settings', 'edit') || !hasChanges) return;
+                                       ~~~~~~
+
+client/src/components/admin/settings.tsx:218:37 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+218       if (hasPermission('settings', 'edit')) {
+                                        ~~~~~~
+
+client/src/components/admin/settings.tsx:233:27 - error TS2538: Type 'undefined' cannot be used as an index type.
+
+233         current = current[keys[i]];
+                              ~~~~~~~
+
+client/src/components/admin/settings.tsx:236:15 - error TS2538: Type 'undefined' cannot be used as an index type.
+
+236       current[keys[keys.length - 1]] = value;
+                  ~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/settings.tsx:242:22 - error TS2345: Argument of type '(prev: RestaurantSettings) => { openingHours: { [x: string]: OpeningHours | { open?: string; close?: string; closed?: boolean; }; }; restaurantName: string; ... 8 more ...; specialDates: { ...; }; }' is not assignable to parameter of type 'SetStateAction<RestaurantSettings>'.
+  Type '(prev: RestaurantSettings) => { openingHours: { [x: string]: OpeningHours | { open?: string; close?: string; closed?: boolean; }; }; restaurantName: string; ... 8 more ...; specialDates: { ...; }; }' is not assignable to type '(prevState: RestaurantSettings) => RestaurantSettings'.
+    Call signature return types '{ openingHours: { [x: string]: OpeningHours | { open?: string; close?: string; closed?: boolean; }; }; restaurantName: string; address: string; phone: string; email: string; website: string; ... 4 more ...; specialDates: { ...; }; }' and 'RestaurantSettings' are incompatible.
+      The types of 'openingHours' are incompatible between these types.
+        Type '{ [x: string]: OpeningHours | { open?: string; close?: string; closed?: boolean; }; }' is not assignable to type 'Record<string, OpeningHours>'.
+          'string' index signatures are incompatible.
+            Type 'OpeningHours | { open?: string; close?: string; closed?: boolean; }' is not assignable to type 'OpeningHours'.
+              Type '{ open?: string; close?: string; closed?: boolean; }' is not assignable to type 'OpeningHours'.
+                Property 'open' is optional in type '{ open?: string; close?: string; closed?: boolean; }' but required in type 'OpeningHours'.
+
+242     setDraftSettings(prev => ({
+                         ~~~~~~~~~~
+243       ...prev,
+    ~~~~~~~~~~~~~~
+... 
+250       }
+    ~~~~~~~
+251     }));
+    ~~~~~~
+
+client/src/components/admin/settings.tsx:256:22 - error TS2345: Argument of type '(prev: RestaurantSettings) => { specialDates: { closedDates: (string | undefined)[]; specialHours: { date: string; openingHours: OpeningHours; note: string; }[]; }; ... 9 more ...; notificationSettings: { ...; }; }' is not assignable to parameter of type 'SetStateAction<RestaurantSettings>'.
+  Type '(prev: RestaurantSettings) => { specialDates: { closedDates: (string | undefined)[]; specialHours: { date: string; openingHours: OpeningHours; note: string; }[]; }; ... 9 more ...; notificationSettings: { ...; }; }' is not assignable to type '(prevState: RestaurantSettings) => RestaurantSettings'.
+    Call signature return types '{ specialDates: { closedDates: (string | undefined)[]; specialHours: { date: string; openingHours: OpeningHours; note: string; }[]; }; restaurantName: string; address: string; phone: string; ... 6 more ...; notificationSettings: { ...; }; }' and 'RestaurantSettings' are incompatible.
+      The types of 'specialDates.closedDates' are incompatible between these types.
+        Type '(string | undefined)[]' is not assignable to type 'string[]'.
+          Type 'string | undefined' is not assignable to type 'string'.
+            Type 'undefined' is not assignable to type 'string'.
+
+256     setDraftSettings(prev => ({
+                         ~~~~~~~~~~
+257       ...prev,
+    ~~~~~~~~~~~~~~
+... 
+261       }
+    ~~~~~~~
+262     }));
+    ~~~~~~
+
+client/src/components/admin/settings.tsx:277:22 - error TS2345: Argument of type '(prev: RestaurantSettings) => { specialDates: { specialHours: { date: string | undefined; openingHours: OpeningHours; note: string; }[]; closedDates: string[]; }; ... 9 more ...; notificationSettings: { ...; }; }' is not assignable to parameter of type 'SetStateAction<RestaurantSettings>'.
+  Type '(prev: RestaurantSettings) => { specialDates: { specialHours: { date: string | undefined; openingHours: OpeningHours; note: string; }[]; closedDates: string[]; }; ... 9 more ...; notificationSettings: { ...; }; }' is not assignable to type '(prevState: RestaurantSettings) => RestaurantSettings'.
+    Call signature return types '{ specialDates: { specialHours: { date: string | undefined; openingHours: OpeningHours; note: string; }[]; closedDates: string[]; }; restaurantName: string; address: string; phone: string; ... 6 more ...; notificationSettings: { ...; }; }' and 'RestaurantSettings' are incompatible.
+      The types of 'specialDates.specialHours' are incompatible between these types.
+        Type '{ date: string | undefined; openingHours: OpeningHours; note: string; }[]' is not assignable to type '{ date: string; openingHours: OpeningHours; note: string; }[]'.
+          Type '{ date: string | undefined; openingHours: OpeningHours; note: string; }' is not assignable to type '{ date: string; openingHours: OpeningHours; note: string; }'.
+            Types of property 'date' are incompatible.
+              Type 'string | undefined' is not assignable to type 'string'.
+                Type 'undefined' is not assignable to type 'string'.
+
+277     setDraftSettings(prev => ({
+                         ~~~~~~~~~~
+278       ...prev,
+    ~~~~~~~~~~~~~~
+... 
+285       }
+    ~~~~~~~
+286     }));
+    ~~~~~~
+
+client/src/components/admin/settings.tsx:348:36 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+348         {hasPermission('settings', 'edit') && (
+                                       ~~~~~~
+
+client/src/components/admin/settings.tsx:394:58 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+394                     disabled={!hasPermission('settings', 'edit')}
+                                                             ~~~~~~
+
+client/src/components/admin/settings.tsx:403:58 - error TS2345: Argument of type '"edit"' is not assignable to parameter of type 'PermissionAction'.
+
+403                     disabled={!hasPermission('settings', 'edit')}
+               

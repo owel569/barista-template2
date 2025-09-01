@@ -1,0 +1,205 @@
+
+         ~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/menubar.tsx:130:4 - error TS2375: Type '{ children: (Element | ReactNode)[]; slot?: string | undefined; style?: CSSProperties | undefined; title?: string | undefined; role?: AriaRole | undefined; ... 265 more ...; checked: CheckedState | undefined; }' is not assignable to type 'MenubarCheckboxItemProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'checked' are incompatible.
+    Type 'CheckedState | undefined' is not assignable to type 'CheckedState'.
+      Type 'undefined' is not assignable to type 'CheckedState'.
+
+130   <MenubarPrimitive.CheckboxItem
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/performance.tsx:30:13 - error TS7030: Not all code paths return a value.
+
+30   useEffect(() => {
+               ~~~~~~~
+
+client/src/components/ui/performance.tsx:78:32 - error TS18048: 'entry' is possibly 'undefined'.
+
+78         const isIntersecting = entry.isIntersecting;
+                                  ~~~~~
+
+client/src/components/ui/performance.tsx:285:15 - error TS18048: 'entry' is possibly 'undefined'.
+
+285           if (entry.isIntersecting) {
+                  ~~~~~
+
+client/src/components/ui/phone-input.tsx:75:67 - error TS2345: Argument of type 'Country | undefined' is not assignable to parameter of type 'Country | (() => Country)'.
+  Type 'undefined' is not assignable to type 'Country | (() => Country)'.
+
+75   const [selectedCountry, setSelectedCountry] = useState<Country>(countries[0]); // Maroc par défaut
+                                                                     ~~~~~~~~~~~~
+
+client/src/components/ui/radio-group.tsx:156:10 - error TS2375: Type '{ key: string; value: string; variant: "default" | "destructive" | "outline" | "secondary" | null | undefined; size: "default" | "sm" | "lg" | null | undefined; label: string; description: string | undefined; disabled: boolean | undefined; }' is not assignable to type 'RadioGroupItemProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'description' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+156         <RadioGroupItem
+             ~~~~~~~~~~~~~~
+
+client/src/components/ui/reservation-calendar.tsx:52:32 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+52     const startHour = parseInt(restaurantHours.open.split(':')[0]);
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/reservation-calendar.tsx:53:30 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+53     const endHour = parseInt(restaurantHours.close.split(':')[0]);
+                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/reservation-calendar.tsx:109:13 - error TS2412: Type '((date: Date) => void) | undefined' is not assignable to type 'SelectSingleEventHandler | undefined' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+
+109             onSelect={onDateSelect}
+                ~~~~~~~~
+
+client/src/components/ui/resizable.tsx:24:18 - error TS2320: Interface 'ResizablePanelGroupProps' cannot simultaneously extend types 'Omit<Omit<HTMLAttributes<keyof HTMLElementTagNameMap>, "id"> & { autoSaveId?: string | null | undefined; className?: string | undefined; ... 7 more ...; dir?: "auto" | ... 2 more ... | undefined; } & { ...; } & RefAttributes<...>, "ref">' and 'VariantProps<(props?: (ConfigVariants<{ direction: { horizontal: string; vertical: string; }; }> & ClassProp) | undefined) => string>'.
+  Named property 'direction' of types 'Omit<Omit<HTMLAttributes<keyof HTMLElementTagNameMap>, "id"> & { autoSaveId?: string | null | undefined; className?: string | undefined; ... 7 more ...; dir?: "auto" | ... 2 more ... | undefined; } & { ...; } & RefAttributes<...>, "ref">' and 'VariantProps<(props?: (ConfigVariants<{ direction: { horizontal: string; vertical: string; }; }> & ClassProp) | undefined) => string>' are not identical.
+
+24 export interface ResizablePanelGroupProps
+                    ~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/resizable.tsx:92:5 - error TS2375: Type '{ children: false | Element | undefined; slot?: string | undefined; style?: CSSProperties; title?: string | undefined; role?: AriaRole | undefined; ... 263 more ...; className: string; }' is not assignable to type 'IntrinsicAttributes & Omit<HTMLAttributes<keyof HTMLElementTagNameMap>, "id" | "onClick" | "onFocus" | "onBlur" | "onPointerDown" | "onPointerUp"> & { ...; } & { ...; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Property 'ref' does not exist on type 'IntrinsicAttributes & Omit<HTMLAttributes<keyof HTMLElementTagNameMap>, "id" | "onClick" | "onFocus" | "onBlur" | "onPointerDown" | "onPointerUp"> & { ...; } & { ...; }'.
+
+92     ref={ref}
+       ~~~
+
+client/src/components/ui/resizable.tsx:172:6 - error TS2375: Type '{ children: Element[]; direction: "horizontal" | "vertical"; onLayout: (newSizes: number[]) => void; className: string | undefined; }' is not assignable to type 'ResizablePanelGroupProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'className' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+172     <ResizablePanelGroup
+         ~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/sonner.tsx:12:6 - error TS2375: Type '{ id?: string; invert?: boolean; theme: "system" | "dark" | "light" | undefined; position?: Position; hotkey?: string[]; richColors?: boolean; expand?: boolean; duration?: number; gap?: number; ... 12 more ...; key?: Key | ... 1 more ... | undefined; }' is not assignable to type 'ToasterProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'theme' are incompatible.
+    Type '"system" | "dark" | "light" | undefined' is not assignable to type '"system" | "dark" | "light"'.
+      Type 'undefined' is not assignable to type '"system" | "dark" | "light"'.
+
+12     <Sonner
+        ~~~~~~
+
+client/src/components/ui/stats-card.tsx:32:18 - error TS2430: Interface 'StatsCardProps' incorrectly extends interface 'VariantProps<(props?: (ConfigVariants<{ variant: { default: string; gradient: string; highlighted: string; }; trend: { up: string; down: string; neutral: string; none: string; }; }> & ClassProp) | undefined) => string>'.
+  Types of property 'trend' are incompatible.
+    Type '{ value: number; label?: string; isPercentage?: boolean; }' is not assignable to type '"none" | "neutral" | "up" | "down" | null | undefined'.
+
+32 export interface StatsCardProps
+                    ~~~~~~~~~~~~~~
+
+client/src/components/ui/stats-card.tsx:92:13 - error TS2322: Type '"none" | "neutral" | "up" | "down" | { value: number; label?: string; isPercentage?: boolean; }' is not assignable to type '"none" | "neutral" | "up" | "down" | null | undefined'.
+  Type '{ value: number; label?: string; isPercentage?: boolean; }' is not assignable to type '"none" | "neutral" | "up" | "down" | null | undefined'.
+
+92             trend: trendVariant || determineTrendVariant()
+               ~~~~~
+
+client/src/components/ui/theme-provider.tsx:67:13 - error TS7030: Not all code paths return a value.
+
+67   useEffect(() => {
+               ~~~~~~~
+
+client/src/components/ui/time-picker.tsx:106:28 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'SetStateAction<string>'.
+  Type 'undefined' is not assignable to type 'SetStateAction<string>'.
+
+106                   setHours(h);
+                               ~
+
+client/src/components/ui/time-picker.tsx:107:30 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'SetStateAction<string>'.
+  Type 'undefined' is not assignable to type 'SetStateAction<string>'.
+
+107                   setMinutes(m);
+                                 ~
+
+client/src/components/ui/time-picker.tsx:108:36 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+108                   handleTimeChange(h, m);
+                                       ~
+
+client/src/components/ui/types.ts:172:12 - error TS2304: Cannot find name 'Locale'.
+
+172   locale?: Locale
+               ~~~~~~
+
+client/src/components/ui/ui-utils.ts:26:29 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+26   const [state, setState] = React.useState<T>(initialValue)
+                               ~~~~~
+
+client/src/components/ui/ui-utils.ts:28:24 - error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+28   const setSafeState = React.useCallback((value: T) => {
+                          ~~~~~
+
+client/src/components/user-profile.tsx:210:95 - error TS2345: Argument of type 'UserProfile' is not assignable to parameter of type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'UserProfile'.
+
+210               <form onSubmit={profileForm.handleSubmit((data) => updateProfileMutation.mutate(data))} className="space-y-4">
+                                                                                                  ~~~~
+
+client/src/constants/permissions.ts:51:5 - error TS2322: Type 'undefined[]' is not assignable to type 'PermissionAction[]'.
+  Type 'undefined' is not assignable to type 'PermissionAction'.
+
+51     permissions: [,],
+       ~~~~~~~~~~~
+
+client/src/constants/permissions.ts:53:5 - error TS2322: Type 'undefined[]' is not assignable to type 'PermissionAction[]'.
+  Type 'undefined' is not assignable to type 'PermissionAction'.
+
+53     backups: [,],
+       ~~~~~~~
+
+client/src/constants/permissions.ts:54:5 - error TS2322: Type 'undefined[]' is not assignable to type 'PermissionAction[]'.
+  Type 'undefined' is not assignable to type 'PermissionAction'.
+
+54     accounting: [,],
+       ~~~~~~~~~~
+
+client/src/contexts/ThemeContext.tsx:43:3 - error TS2739: Type 'ThemeContextType' is missing the following properties from type 'ReactElement<any, any>': type, props, key
+
+43   return context;
+     ~~~~~~
+
+client/src/hooks/index.ts:26:10 - error TS2724: '"./use-mobile"' has no exported member named 'useMobile'. Did you mean 'useIsMobile'?
+
+26 export { useMobile } from './use-mobile';
+            ~~~~~~~~~
+
+  client/src/hooks/use-mobile.tsx:5:17
+    5 export function useIsMobile() {
+                      ~~~~~~~~~~~
+    'useIsMobile' is declared here.
+
+client/src/hooks/use-toast.ts:95:23 - error TS2379: Argument of type '{ title: string; description: string | undefined; variant: "warning"; action: { label: string; onClick: () => void; }; }' is not assignable to parameter of type 'ToastProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'description' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+ 95     return this.toast({
+                          ~
+ 96       title,
+    ~~~~~~~~~~~~
+... 
+105       }
+    ~~~~~~~
+106     });
+    ~~~~~
+
+client/src/hooks/use-toast.ts:113:7 - error TS2322: Type '"info"' is not assignable to type '"destructive" | "success" | "default" | "warning"'.
+
+113       variant: 'info', // Assuming 'info' is the closest for loading, or create a new variant if needed
+          ~~~~~~~
+
+  client/src/hooks/use-toast.ts:13:3
+    13   variant?: 'default' | 'destructive' | 'success' | 'warning';
+         ~~~~~~~
+    The expected type comes from property 'variant' which is declared here on type 'ToastProps'
+
+client/src/hooks/use-toast.ts:165:10 - error TS2352: Conversion of type '(props: ToastProps) => string | number' to type 'ToastManager' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '(props: ToastProps) => string | number' is missing the following properties from type 'ToastManager': toast, success, error, warning, and 6 more.
+
+165   return callable as ToastManager;
+             ~~~~~~~~~~~~~~~~~~~~~~~~

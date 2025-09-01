@@ -1,0 +1,241 @@
+
+              ~~~~~
+
+client/src/components/ui/form.tsx:216:18 - error TS7031: Binding element 'fieldState' implicitly has an 'any' type.
+
+216       {({ field, fieldState, formState }) => (
+                     ~~~~~~~~~~
+
+client/src/components/ui/form.tsx:216:30 - error TS7031: Binding element 'formState' implicitly has an 'any' type.
+
+216       {({ field, fieldState, formState }) => (
+                                 ~~~~~~~~~
+
+client/src/components/ui/form.tsx:222:27 - error TS2345: Argument of type '{ field: any; }' is not assignable to parameter of type '{ field: ControllerRenderProps<TFieldValues, TName>; fieldState: ControllerFieldState; formState: UseFormStateReturn<TFieldValues>; }'.
+  Type '{ field: any; }' is missing the following properties from type '{ field: ControllerRenderProps<TFieldValues, TName>; fieldState: ControllerFieldState; formState: UseFormStateReturn<TFieldValues>; }': fieldState, formState
+
+222             {props.render({ field })}
+                              ~~~~~~~~~
+
+client/src/components/ui/index.ts:75:1 - error TS2308: Module "./toaster" has already exported a member named 'Toaster'. Consider explicitly re-exporting to resolve the ambiguity.
+
+75 export * from "./sonner"
+   ~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:94:1 - error TS2308: Module "./date-picker" has already exported a member named 'DateRangePickerProps'. Consider explicitly re-exporting to resolve the ambiguity.
+
+94 export * from "./types"
+   ~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:94:1 - error TS2308: Module "./radio-group" has already exported a member named 'RadioGroupItemProps'. Consider explicitly re-exporting to resolve the ambiguity.
+
+94 export * from "./types"
+   ~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:95:1 - error TS2308: Module "./types" has already exported a member named 'ToastVariant'. Consider explicitly re-exporting to resolve the ambiguity.
+
+95 export * from './use-toast'
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:98:27 - error TS2300: Duplicate identifier 'ComponentSize'.
+
+98 export type { SafeObject, ComponentSize, ComponentVariant, BaseUIComponentProps } from './ui-utils'
+                             ~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:98:42 - error TS2300: Duplicate identifier 'ComponentVariant'.
+
+98 export type { SafeObject, ComponentSize, ComponentVariant, BaseUIComponentProps } from './ui-utils'
+                                            ~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:105:3 - error TS2724: '"./types"' has no exported member named 'LabelProps'. Did you mean 'TableProps'?
+
+105   LabelProps,
+      ~~~~~~~~~~
+
+client/src/components/ui/index.ts:106:3 - error TS2305: Module '"./types"' has no exported member 'TextareaProps'.
+
+106   TextareaProps,
+      ~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:119:3 - error TS2724: '"./types"' has no exported member named 'DataTableProps'. Did you mean 'TableProps'?
+
+119   DataTableProps,
+      ~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:130:3 - error TS2724: '"./types"' has no exported member named 'AlertProps'. Did you mean 'TableProps'?
+
+130   AlertProps,
+      ~~~~~~~~~~
+
+client/src/components/ui/index.ts:133:3 - error TS2300: Duplicate identifier 'ComponentVariant'.
+
+133   ComponentVariant,
+      ~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:133:3 - error TS2305: Module '"./types"' has no exported member 'ComponentVariant'.
+
+133   ComponentVariant,
+      ~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:134:3 - error TS2300: Duplicate identifier 'ComponentSize'.
+
+134   ComponentSize,
+      ~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:139:3 - error TS2305: Module '"./types"' has no exported member 'Country'.
+
+139   Country,
+      ~~~~~~~
+
+client/src/components/ui/index.ts:140:3 - error TS2305: Module '"./types"' has no exported member 'InternationalPhoneInputProps'.
+
+140   InternationalPhoneInputProps,
+      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:143:3 - error TS2305: Module '"./types"' has no exported member 'LoadingSpinnerProps'.
+
+143   LoadingSpinnerProps,
+      ~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:144:3 - error TS2305: Module '"./types"' has no exported member 'LoadingPageProps'.
+
+144   LoadingPageProps,
+      ~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:145:3 - error TS2724: '"./types"' has no exported member named 'SkeletonLoaderProps'. Did you mean 'SkeletonProps'?
+
+145   SkeletonLoaderProps,
+      ~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:148:3 - error TS2305: Module '"./types"' has no exported member 'ChartConfig'.
+
+148   ChartConfig,
+      ~~~~~~~~~~~
+
+client/src/components/ui/index.ts:149:3 - error TS2305: Module '"./types"' has no exported member 'StatsCardProps'.
+
+149   StatsCardProps,
+      ~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:152:3 - error TS2305: Module '"./types"' has no exported member 'BreadcrumbProps'.
+
+152   BreadcrumbProps,
+      ~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:153:3 - error TS2305: Module '"./types"' has no exported member 'PaginationProps'.
+
+153   PaginationProps,
+      ~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:156:3 - error TS2305: Module '"./types"' has no exported member 'ConfirmationDialogProps'.
+
+156   ConfirmationDialogProps,
+      ~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:159:3 - error TS2305: Module '"./types"' has no exported member 'ResizableLayoutProps'.
+
+159   ResizableLayoutProps,
+      ~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:160:3 - error TS2305: Module '"./types"' has no exported member 'ResizablePanelGroupProps'.
+
+160   ResizablePanelGroupProps,
+      ~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:161:3 - error TS2305: Module '"./types"' has no exported member 'ResizableHandleProps'.
+
+161   ResizableHandleProps,
+      ~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:164:3 - error TS2305: Module '"./types"' has no exported member 'AspectRatioProps'.
+
+164   AspectRatioProps,
+      ~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:167:3 - error TS2305: Module '"./types"' has no exported member 'CollapsibleTriggerButtonProps'.
+
+167   CollapsibleTriggerButtonProps,
+      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/index.ts:168:3 - error TS2305: Module '"./types"' has no exported member 'CollapsibleContentWrapperProps'.
+
+168   CollapsibleContentWrapperProps,
+      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/input-otp.tsx:9:33 - error TS2312: An interface can only extend an object type or intersection of object types with statically known members.
+
+9 interface InputOTPProps extends React.ComponentPropsWithoutRef<typeof OTPInput> {
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/input-otp.tsx:22:17 - error TS2339: Property 'containerClassName' does not exist on type 'InputOTPProps'.
+
+22 >(({ className, containerClassName, ...props }, ref) => (
+                   ~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/input-otp.tsx:23:4 - error TS2322: Type '{ ref: ForwardedRef<HTMLInputElement>; containerClassName: string; className: string; }' is not assignable to type 'IntrinsicAttributes & (OTPInputProps & RefAttributes<HTMLInputElement>)'.
+  Property 'maxLength' is missing in type '{ ref: ForwardedRef<HTMLInputElement>; containerClassName: string; className: string; }' but required in type '{ value?: string; onChange?: (newValue: string) => unknown; maxLength: number; textAlign?: "center" | "right" | "left"; onComplete?: (...args: any[]) => unknown; pushPasswordManagerStrategy?: "none" | "increase-width"; pasteTransformer?: (pasted: string) => string; containerClassName?: string; noScriptCSSFallback?: ...'.
+
+23   <OTPInput
+      ~~~~~~~~
+
+  node_modules/input-otp/dist/index.d.ts:18:5
+    18     maxLength: number;
+           ~~~~~~~~~
+    'maxLength' is declared here.
+
+client/src/components/ui/input-otp.tsx:48:11 - error TS2339: Property 'char' does not exist on type 'SlotProps | undefined'.
+
+48   const { char, hasFakeCaret, isActive } = inputOTPContext.slots[index]
+             ~~~~
+
+client/src/components/ui/input-otp.tsx:48:17 - error TS2339: Property 'hasFakeCaret' does not exist on type 'SlotProps | undefined'.
+
+48   const { char, hasFakeCaret, isActive } = inputOTPContext.slots[index]
+                   ~~~~~~~~~~~~
+
+client/src/components/ui/input-otp.tsx:48:31 - error TS2339: Property 'isActive' does not exist on type 'SlotProps | undefined'.
+
+48   const { char, hasFakeCaret, isActive } = inputOTPContext.slots[index]
+                                 ~~~~~~~~
+
+client/src/components/ui/international-phone-input.tsx:63:18 - error TS2320: Interface 'InternationalPhoneInputProps' cannot simultaneously extend types 'Omit<InputHTMLAttributes<HTMLInputElement>, "value" | "onChange">' and 'VariantProps<(props?: (ConfigVariants<{ variant: { default: string; compact: string; separated: string; }; size: { sm: string; default: string; lg: string; }; }> & ClassProp) | undefined) => string>'.
+  Named property 'size' of types 'Omit<InputHTMLAttributes<HTMLInputElement>, "value" | "onChange">' and 'VariantProps<(props?: (ConfigVariants<{ variant: { default: string; compact: string; separated: string; }; size: { sm: string; default: string; lg: string; }; }> & ClassProp) | undefined) => string>' are not identical.
+
+63 export interface InternationalPhoneInputProps
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/international-phone-input.tsx:103:7 - error TS2322: Type 'Country | undefined' is not assignable to type 'Country'.
+  Type 'undefined' is not assignable to type 'Country'.
+
+103       return countries.find(c => c.code === defaultCountry) || countries[0]
+          ~~~~~~
+
+client/src/components/ui/international-phone-input.tsx:108:5 - error TS2322: Type 'Country | undefined' is not assignable to type 'Country'.
+  Type 'undefined' is not assignable to type 'Country'.
+
+108     return country || countries.find(c => c.code === defaultCountry) || countries[0]
+        ~~~~~~
+
+client/src/components/ui/international-phone-input.tsx:213:56 - error TS2322: Type 'number | undefined' is not assignable to type '"default" | "sm" | "lg" | null | undefined'.
+  Type 'number' is not assignable to type '"default" | "sm" | "lg" | null | undefined'.
+
+213       <div className={cn(phoneInputVariants({ variant, size }), className)}>
+                                                           ~~~~
+
+client/src/components/ui/international-phone-input.tsx:269:13 - error TS2322: Type 'HTMLInputTypeAttribute | undefined' is not assignable to type '"number" | "search" | "time" | "text" | "password" | "email" | "url" | "tel" | "date" | "datetime-local"'.
+  Type 'undefined' is not assignable to type '"number" | "search" | "time" | "text" | "password" | "email" | "url" | "tel" | "date" | "datetime-local"'.
+
+269             type="tel"
+                ~~~~
+
+  client/src/components/ui/input.tsx:42:3
+    42   type?: AllowedInputType
+         ~~~~
+    The expected type comes from property 'type' which is declared here on type 'IntrinsicAttributes & InputProps & RefAttributes<HTMLInputElement>'
+
+client/src/components/ui/international-phone-input.tsx:392:6 - error TS2375: Type '{ placeholder?: string; required?: boolean; disabled?: boolean; className?: string; value: string | undefined; onChange: (newValue: string, isValid: boolean) => void; }' is not assignable to type 'InternationalPhoneInputProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'value' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+392     <InternationalPhoneInput

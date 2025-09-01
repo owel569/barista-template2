@@ -1,0 +1,154 @@
+                              ~~~~~~~~~~~~~~~~~
+
+client/src/components/interactive-reservation.tsx:166:48 - error TS2559: Type 'string' has no properties in common with type 'RequestInit'.
+
+166       const response = await apiRequest('GET', `/api/reservations/timeslots?date=${selectedDate}`);
+                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/interactive-reservation.tsx:196:70 - error TS2554: Expected 1-2 arguments, but got 3.
+
+196       const response = await apiRequest('POST', '/api/reservations', reservationData);
+                                                                         ~~~~~~~~~~~~~~~
+
+client/src/components/interactive-reservation.tsx:462:12 - error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ café: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; ... 17 more ...; glaces: ForwardRefExoticComponent<...>; }'.
+  No index signature with a parameter of type 'string' was found on type '{ café: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; ... 17 more ...; glaces: ForwardRefExoticComponent<...>; }'.
+
+462     return icons[name] || Sandwich;
+               ~~~~~~~~~~~
+
+client/src/components/interactive-reservation.tsx:1007:26 - error TS2375: Type '{ children: Element[]; value: "none" | "bar" | "window" | "indoor" | "outdoor" | "private" | undefined; onValueChange: (value: "none" | "bar" | "window" | "indoor" | "outdoor" | "private") => void; }' is not assignable to type '{ value?: string; defaultValue?: string; onValueChange?(value: string): void; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'value' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+1007                         <Select
+                              ~~~~~~
+
+client/src/components/interactive-reservation.tsx:1029:26 - error TS2375: Type '{ children: Element[]; value: "date" | "none" | "celebration" | "birthday" | "anniversary" | "business" | undefined; onValueChange: (value: "date" | "none" | "celebration" | "birthday" | "anniversary" | "business") => void; }' is not assignable to type '{ value?: string; defaultValue?: string; onValueChange?(value: string): void; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'value' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+1029                         <Select
+                              ~~~~~~
+
+client/src/components/online-ordering.tsx:131:7 - error TS2532: Object is possibly 'undefined'.
+
+131       newCart[existingItemIndex].quantity += 1;
+          ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/online-ordering.tsx:134:13 - error TS2375: Type '{ id: number; menuItem: MenuItem; quantity: number; customizations: Record<string, string>; notes: string | undefined; }' is not assignable to type 'CartItem' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'notes' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+134       const newItem: CartItem = {
+                ~~~~~~~
+
+client/src/components/reservation-notifications.tsx:89:27 - error TS2559: Type 'string' has no properties in common with type 'RequestInit'.
+
+89       apiRequest("PATCH", `/api/admin/reservations/${reservationId}/notification-sent`),
+                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/table-management.tsx:372:40 - error TS2345: Argument of type '{ number: string; capacity: number; location: string; shape: string; features: string[]; status: string; x: number; y: number; }' is not assignable to parameter of type 'Partial<Table>'.
+  Types of property 'status' are incompatible.
+    Type 'string' is not assignable to type '"available" | "occupied" | "reserved" | "maintenance"'.
+
+372             createTableMutation.mutate(tableData);
+                                           ~~~~~~~~~
+
+client/src/components/table-management.tsx:443:42 - error TS2345: Argument of type '{ id: number; number: string; capacity: number; location: string; shape: string; features: string[]; }' is not assignable to parameter of type 'Partial<Table> & { id: number; }'.
+  Type '{ id: number; number: string; capacity: number; location: string; shape: string; features: string[]; }' is not assignable to type 'Partial<Table>'.
+    Types of property 'shape' are incompatible.
+      Type 'string' is not assignable to type '"round" | "square" | "rectangular"'.
+
+443               updateTableMutation.mutate(tableData);
+                                             ~~~~~~~~~
+
+client/src/components/ui/accordion.tsx:181:12 - error TS2375: Type '{ children: Element[]; key: string; value: string; variant: "default" | "ghost" | "filled" | "bordered" | null | undefined; disabled: boolean | undefined; }' is not assignable to type 'Omit<AccordionItemProps & RefAttributes<HTMLDivElement>, "ref">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'disabled' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+
+181           <AccordionItem
+               ~~~~~~~~~~~~~
+
+client/src/components/ui/accordion.tsx:187:14 - error TS2375: Type '{ children: string; size: "default" | "sm" | "lg" | null | undefined; iconType: "chevron" | "plus-minus" | undefined; }' is not assignable to type '{ iconType?: "chevron" | "plus-minus"; hideIcon?: boolean; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'iconType' are incompatible.
+    Type '"chevron" | "plus-minus" | undefined' is not assignable to type '"chevron" | "plus-minus"'.
+      Type 'undefined' is not assignable to type '"chevron" | "plus-minus"'.
+
+187             <AccordionTrigger size={size} iconType={iconType}>
+                 ~~~~~~~~~~~~~~~~
+
+client/src/components/ui/accordion.tsx:207:10 - error TS2375: Type '{ children: Element[]; key: string; value: string; variant: "default" | "ghost" | "filled" | "bordered" | null | undefined; disabled: boolean | undefined; }' is not assignable to type 'Omit<AccordionItemProps & RefAttributes<HTMLDivElement>, "ref">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'disabled' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+
+207         <AccordionItem
+             ~~~~~~~~~~~~~
+
+client/src/components/ui/accordion.tsx:213:12 - error TS2375: Type '{ children: string; size: "default" | "sm" | "lg" | null | undefined; iconType: "chevron" | "plus-minus" | undefined; }' is not assignable to type '{ iconType?: "chevron" | "plus-minus"; hideIcon?: boolean; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'iconType' are incompatible.
+    Type '"chevron" | "plus-minus" | undefined' is not assignable to type '"chevron" | "plus-minus"'.
+      Type 'undefined' is not assignable to type '"chevron" | "plus-minus"'.
+
+213           <AccordionTrigger size={size} iconType={iconType}>
+               ~~~~~~~~~~~~~~~~
+
+client/src/components/ui/alert-dialog.tsx:248:6 - error TS2375: Type '{ children: Element; open: boolean | undefined; onOpenChange: ((open: boolean) => void) | undefined; }' is not assignable to type 'AlertDialogProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'open' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+
+248     <AlertDialog open={open} onOpenChange={onOpenChange}>
+         ~~~~~~~~~~~
+
+client/src/components/ui/chart.tsx:277:62 - error TS2345: Argument of type 'TooltipPayloadItem | undefined' is not assignable to parameter of type 'PayloadData'.
+  Type 'undefined' is not assignable to type 'PayloadData'.
+
+277       const itemConfig = getPayloadConfigFromPayload(config, item, key)
+                                                                 ~~~~
+
+client/src/components/ui/chart.tsx:339:17 - error TS2322: Type '{}' is not assignable to type 'string'.
+
+339                 indicatorColor={indicatorColor}
+                    ~~~~~~~~~~~~~~
+
+  client/src/components/ui/chart.tsx:373:3
+    373   indicatorColor: string
+          ~~~~~~~~~~~~~~
+    The expected type comes from property 'indicatorColor' which is declared here on type 'IntrinsicAttributes & { item: TooltipPayloadItem; index: number; itemConfig: ItemConfig | undefined; indicatorColor: string; ... 4 more ...; tooltipLabel: ReactNode; }'
+
+client/src/components/ui/checkbox.tsx:49:6 - error TS2375: Type '{ children: Element; checked: CheckedState | undefined; form?: string | undefined; slot?: string | undefined; style?: CSSProperties | undefined; ... 274 more ...; className: string; }' is not assignable to type 'CheckboxProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'checked' are incompatible.
+    Type 'CheckedState | undefined' is not assignable to type 'CheckedState'.
+      Type 'undefined' is not assignable to type 'CheckedState'.
+
+49     <CheckboxPrimitive.Root
+        ~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/checkbox.tsx:163:10 - error TS2375: Type '{ key: string; variant: "default" | "success" | "destructive" | "outline" | "secondary" | null | undefined; size: "default" | "sm" | "lg" | null | undefined; label: string; description: string | undefined; disabled: boolean | undefined; checked: boolean; onCheckedChange: (checked: CheckedState) => void; }' is not assignable to type 'CheckboxProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'description' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+163         <Checkbox
+             ~~~~~~~~
+
+client/src/components/ui/combobox.tsx:141:18 - error TS2375: Type '{ children: (Element | undefined)[]; key: string; value: string; disabled: boolean | undefined; onSelect: (selectedValue: string) => void; className: string; }' is not assignable to type 'Omit<Children & Omit<Pick<Pick<DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, "key" | keyof HTMLAttributes<...>> & { ...; } & { ...; }, "key" | ... 1 more ... | keyof HTMLAttributes<...>>, "value" | ... 1 more ... | "onSelect"> & { ...; } & RefAttributes<...>, "ref">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'disabled' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+
+141                 <CommandItem
+                     ~~~~~~~~~~~
+
+client/src/components/ui/context-menu.tsx:108:4 - error TS2375: Type '{ children: (Element | ReactNode)[]; slot?: string | undefined; style?: CSSProperties | undefined; title?: string | undefined; role?: AriaRole | undefined; ... 265 more ...; checked: CheckedState | undefined; }' is not assignable to type 'ContextMenuCheckboxItemProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'checked' are incompatible.
+    Type 'CheckedState | undefined' is not assignable to type 'CheckedState'.
+      Type 'undefined' is not assignable to type 'CheckedState'.
+
+108   <ContextMenuPrimitive.CheckboxItem
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

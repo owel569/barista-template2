@@ -1,0 +1,377 @@
+
+              ~~~~~~
+
+  client/src/components/admin/work-schedule/types/schedule.types.ts:335:3
+    335   shifts: Shift[];
+          ~~~~~~
+    The expected type comes from property 'shifts' which is declared here on type 'IntrinsicAttributes & EmployeeOverviewProps'
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:41:23 - error TS7053: Element implicitly has an 'any' type because expression of type 'ShiftStatus' can't be used to index type '{ readonly scheduled: "bg-blue-100 text-blue-800 border-blue-200"; readonly confirmed: "bg-green-100 text-green-800 border-green-200"; readonly in_progress: "bg-yellow-100 text-yellow-800 border-yellow-200"; readonly completed: "bg-gray-100 text-gray-800 border-gray-200"; readonly cancelled: "bg-red-100 text-red-800...'.
+  Property 'no_show' does not exist on type '{ readonly scheduled: "bg-blue-100 text-blue-800 border-blue-200"; readonly confirmed: "bg-green-100 text-green-800 border-green-200"; readonly in_progress: "bg-yellow-100 text-yellow-800 border-yellow-200"; readonly completed: "bg-gray-100 text-gray-800 border-gray-200"; readonly cancelled: "bg-red-100 text-red-800...'.
+
+41   const statusColor = SHIFT_STATUS_COLORS[shift.status];
+                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:165:15 - error TS2322: Type '(e: any) => void' is not assignable to type '() => void'.
+  Target signature provides too few arguments. Expected 1 or more, but got 0.
+
+165               onClick={(e) => {
+                  ~~~~~~~
+
+  client/src/components/admin/work-schedule/components/CalendarView.tsx:32:3
+    32   onClick: () => void;
+         ~~~~~~~
+    The expected type comes from property 'onClick' which is declared here on type 'IntrinsicAttributes & ShiftItemProps'
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:165:25 - error TS7006: Parameter 'e' implicitly has an 'any' type.
+
+165               onClick={(e) => {
+                            ~
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:196:30 - error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string | number | Date'.
+      Type 'undefined' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string | number'.
+      Type 'undefined' is not assignable to type 'string | number'.
+
+196     const dateObj = new Date(currentDate);
+                                 ~~~~~~~~~~~
+
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:218:30 - error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string | number | Date'.
+      Type 'undefined' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string | number'.
+      Type 'undefined' is not assignable to type 'string | number'.
+
+218     const current = new Date(currentDate);
+                                 ~~~~~~~~~~~
+
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:232:27 - error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string | number | Date'.
+      Type 'undefined' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string | number'.
+      Type 'undefined' is not assignable to type 'string | number'.
+
+232     const date = new Date(currentDate);
+                              ~~~~~~~~~~~
+
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:246:19 - error TS18048: 'start' is possibly 'undefined'.
+
+246         return `${start.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} - ${end.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+                      ~~~~~
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:246:94 - error TS18048: 'end' is possibly 'undefined'.
+
+246         return `${start.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} - ${end.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+                                                                                                 ~~~
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:325:13 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+325             date={currentDate}
+                ~~~~
+
+  client/src/components/admin/work-schedule/components/CalendarView.tsx:18:3
+    18   date: string;
+         ~~~~
+    The expected type comes from property 'date' which is declared here on type 'IntrinsicAttributes & DayColumnProps'
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:326:34 - error TS2538: Type 'undefined' cannot be used as an index type.
+
+326             shifts={shiftsByDate[currentDate] || []}
+                                     ~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:330:13 - error TS2322: Type '(shift: Omit<Shift, "id">) => void' is not assignable to type '(newShift: Partial<Shift>) => void'.
+  Types of parameters 'shift' and 'newShift' are incompatible.
+    Type 'Partial<Shift>' is not assignable to type 'Omit<Shift, "id">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+      Property 'position' is optional in type 'Partial<Shift>' but required in type 'Omit<Shift, "id">'.
+
+330             onShiftCreate={onShiftCreate}
+                ~~~~~~~~~~~~~
+
+  client/src/components/admin/work-schedule/components/CalendarView.tsx:23:3
+    23   onShiftCreate: (newShift: Partial<Shift>) => void;
+         ~~~~~~~~~~~~~
+    The expected type comes from property 'onShiftCreate' which is declared here on type 'IntrinsicAttributes & DayColumnProps'
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:342:17 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+342                 date={date.toISOString().split('T')[0]}
+                    ~~~~
+
+  client/src/components/admin/work-schedule/components/CalendarView.tsx:18:3
+    18   date: string;
+         ~~~~
+    The expected type comes from property 'date' which is declared here on type 'IntrinsicAttributes & DayColumnProps'
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:343:38 - error TS2538: Type 'undefined' cannot be used as an index type.
+
+343                 shifts={shiftsByDate[date.toISOString().split('T')[0]] || []}
+                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:347:17 - error TS2322: Type '(shift: Omit<Shift, "id">) => void' is not assignable to type '(newShift: Partial<Shift>) => void'.
+  Types of parameters 'shift' and 'newShift' are incompatible.
+    Type 'Partial<Shift>' is not assignable to type 'Omit<Shift, "id">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+      Property 'position' is optional in type 'Partial<Shift>' but required in type 'Omit<Shift, "id">'.
+
+347                 onShiftCreate={onShiftCreate}
+                    ~~~~~~~~~~~~~
+
+  client/src/components/admin/work-schedule/components/CalendarView.tsx:23:3
+    23   onShiftCreate: (newShift: Partial<Shift>) => void;
+         ~~~~~~~~~~~~~
+    The expected type comes from property 'onShiftCreate' which is declared here on type 'IntrinsicAttributes & DayColumnProps'
+
+client/src/components/admin/work-schedule/components/EmployeeOverview.tsx:153:52 - error TS2551: Property 'departmentColor' does not exist on type 'Employee'. Did you mean 'department'?
+
+153                 style={{ backgroundColor: employee.departmentColor }}
+                                                       ~~~~~~~~~~~~~~~
+
+  client/src/components/admin/work-schedule/types/schedule.types.ts:10:3
+    10   department: Department;
+         ~~~~~~~~~~
+    'department' is declared here.
+
+client/src/components/admin/work-schedule/components/StatCard.tsx:185:4 - error TS2375: Type '{ title: string; value: string; icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; color: "blue"; loading: boolean | undefined; }' is not assignable to type 'StatCardProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'loading' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+
+185   <StatCard
+       ~~~~~~~~
+
+client/src/components/admin/work-schedule/components/StatCard.tsx:199:4 - error TS2375: Type '{ title: string; value: number; change: number | undefined; changeType: "increase" | "neutral"; icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; color: "green"; loading: boolean | undefined; }' is not assignable to type 'StatCardProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'change' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+
+199   <StatCard
+       ~~~~~~~~
+
+client/src/components/admin/work-schedule/components/StatCard.tsx:215:4 - error TS2375: Type '{ title: string; value: number; change: number | undefined; icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; color: "yellow"; loading: boolean | undefined; }' is not assignable to type 'StatCardProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'change' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+
+215   <StatCard
+       ~~~~~~~~
+
+client/src/components/admin/work-schedule/components/StatCard.tsx:230:4 - error TS2375: Type '{ title: string; value: number; change: number | undefined; icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; color: "purple"; loading: boolean | undefined; }' is not assignable to type 'StatCardProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'change' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+
+230   <StatCard
+       ~~~~~~~~
+
+client/src/components/admin/work-schedule/components/StatCard.tsx:244:4 - error TS2375: Type '{ title: string; value: number; icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; color: "green" | "red"; loading: boolean | undefined; }' is not assignable to type 'StatCardProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'loading' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+
+244   <StatCard
+       ~~~~~~~~
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:36:60 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string | (() => string)'.
+  Type 'undefined' is not assignable to type 'string | (() => string)'.
+
+36   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
+                                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:47:5 - error TS2322: Type '{ start: string | undefined; end: string | undefined; }' is not assignable to type '{ start: string; end: string; }'.
+  Types of property 'start' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+47     dateRange: initialFilters?.dateRange || {
+       ~~~~~~~~~
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:67:33 - error TS2345: Argument of type 'import("/home/runner/workspace/client/src/components/admin/work-schedule/types/schedule.types").Shift[]' is not assignable to parameter of type 'import("/home/runner/workspace/client/src/components/admin/work-schedule/utils/schedule.utils").Shift[]'.
+  Type 'Shift' is missing the following properties from type 'Shift': employeeName, createdAt, updatedAt
+
+67     let filtered = filterShifts(shifts, {
+                                   ~~~~~~
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:81:57 - error TS2554: Expected 1-2 arguments, but got 3.
+
+81         const validation = validateShift(shift, shifts, employee);
+                                                           ~~~~~~~~
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:88:50 - error TS2339: Property 'overtimeHours' does not exist on type 'Shift'.
+
+88       filtered = filtered.filter(shift => (shift.overtimeHours || 0) > 0);
+                                                    ~~~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:91:48 - error TS2554: Expected 1-2 arguments, but got 3.
+
+91     return sortShifts(filtered, sorting.field, sorting.direction);
+                                                  ~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:96:51 - error TS2345: Argument of type 'import("/home/runner/workspace/client/src/components/admin/work-schedule/types/schedule.types").Employee[]' is not assignable to parameter of type 'import("/home/runner/workspace/client/src/components/admin/work-schedule/utils/schedule.utils").Employee[]'.
+  Type 'Employee' is missing the following properties from type 'Employee': status, createdAt, updatedAt
+
+96     return shiftsToCalendarEvents(filteredShifts, employees);
+                                                     ~~~~~~~~~
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:101:35 - error TS2345: Argument of type 'import("/home/runner/workspace/client/src/components/admin/work-schedule/types/schedule.types").Employee[]' is not assignable to parameter of type 'import("/home/runner/workspace/client/src/components/admin/work-schedule/utils/schedule.utils").Employee[]'.
+  Type 'Employee' is missing the following properties from type 'Employee': status, createdAt, updatedAt
+
+101     return generateEmployeeColors(employees);
+                                      ~~~~~~~~~
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:108:29 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'Date'.
+
+108         return getWeekDates(selectedDate);
+                                ~~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:110:30 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'Date'.
+
+110         return getMonthDates(selectedDate);
+                                 ~~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:126:55 - error TS2554: Expected 1-2 arguments, but got 3.
+
+126       const validation = validateShift(shift, shifts, employee);
+                                                          ~~~~~~~~
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:128:41 - error TS2339: Property 'conflicts' does not exist on type '{ isValid: boolean; errors: string[]; }'.
+
+128         allConflicts.push(...validation.conflicts);
+                                            ~~~~~~~~~
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:157:38 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'Date'.
+
+157       const weekDates = getWeekDates(date);
+                                         ~~~~
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:158:18 - error TS2345: Argument of type '(prev: ScheduleFilter) => { dateRange: { start: Date | undefined; end: Date | undefined; }; departments: string[]; positions: string[]; employees: number[]; status: ShiftStatus[]; showConflicts: boolean; showOvertime: boolean; }' is not assignable to parameter of type 'SetStateAction<ScheduleFilter>'.
+  Type '(prev: ScheduleFilter) => { dateRange: { start: Date | undefined; end: Date | undefined; }; departments: string[]; positions: string[]; employees: number[]; status: ShiftStatus[]; showConflicts: boolean; showOvertime: boolean; }' is not assignable to type '(prevState: ScheduleFilter) => ScheduleFilter'.
+    Call signature return types '{ dateRange: { start: Date | undefined; end: Date | undefined; }; departments: string[]; positions: string[]; employees: number[]; status: ShiftStatus[]; showConflicts: boolean; showOvertime: boolean; }' and 'ScheduleFilter' are incompatible.
+      The types of 'dateRange.start' are incompatible between these types.
+        Type 'Date | undefined' is not assignable to type 'string'.
+          Type 'undefined' is not assignable to type 'string'.
+
+158       setFilters(prev => ({
+                     ~~~~~~~~~~
+159         ...prev,
+    ~~~~~~~~~~~~~~~~
+... 
+163         }
+    ~~~~~~~~~
+164       }));
+    ~~~~~~~~
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:166:40 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'Date'.
+
+166       const monthDates = getMonthDates(date);
+                                           ~~~~
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:167:18 - error TS2345: Argument of type '(prev: ScheduleFilter) => { dateRange: { start: Date | undefined; end: Date | undefined; }; departments: string[]; positions: string[]; employees: number[]; status: ShiftStatus[]; showConflicts: boolean; showOvertime: boolean; }' is not assignable to parameter of type 'SetStateAction<ScheduleFilter>'.
+  Type '(prev: ScheduleFilter) => { dateRange: { start: Date | undefined; end: Date | undefined; }; departments: string[]; positions: string[]; employees: number[]; status: ShiftStatus[]; showConflicts: boolean; showOvertime: boolean; }' is not assignable to type '(prevState: ScheduleFilter) => ScheduleFilter'.
+    Call signature return types '{ dateRange: { start: Date | undefined; end: Date | undefined; }; departments: string[]; positions: string[]; employees: number[]; status: ShiftStatus[]; showConflicts: boolean; showOvertime: boolean; }' and 'ScheduleFilter' are incompatible.
+      The types of 'dateRange.start' are incompatible between these types.
+        Type 'Date | undefined' is not assignable to type 'string'.
+          Type 'undefined' is not assignable to type 'string'.
+
+167       setFilters(prev => ({
+                     ~~~~~~~~~~
+168         ...prev,
+    ~~~~~~~~~~~~~~~~
+... 
+172         }
+    ~~~~~~~~~
+173       }));
+    ~~~~~~~~
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:211:9 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+211         start: new Date().toISOString().split('T')[0],
+            ~~~~~
+
+  client/src/components/admin/work-schedule/types/schedule.types.ts:172:5
+    172     start: string;
+            ~~~~~
+    The expected type comes from property 'start' which is declared here on type '{ start: string; end: string; }'
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:212:9 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+212         end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+            ~~~
+
+  client/src/components/admin/work-schedule/types/schedule.types.ts:173:5
+    173     end: string;
+            ~~~
+    The expected type comes from property 'end' which is declared here on type '{ start: string; end: string; }'
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:237:45 - error TS2554: Expected 1-2 arguments, but got 3.
+
+237     return validateShift(shiftData, shifts, employee);
+                                                ~~~~~~~~
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:256:22 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+256     handleDateSelect(currentDate.toISOString().split('T')[0]);
+                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:262:74 - error TS2339: Property 'totalHours' does not exist on type 'Shift'.
+
+262     const totalHours = filteredShifts.reduce((sum, shift) => sum + shift.totalHours, 0);
+                                                                             ~~~~~~~~~~
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:263:72 - error TS2339: Property 'totalPay' does not exist on type 'Shift'.
+
+263     const totalPay = filteredShifts.reduce((sum, shift) => sum + shift.totalPay, 0);
+                                                                           ~~~~~~~~
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:266:58 - error TS2339: Property 'overtimeHours' does not exist on type 'Shift'.
+
+266     const overtimeShifts = filteredShifts.filter(s => (s.overtimeHours || 0) > 0).length;
+                                                             ~~~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:304:7 - error TS2532: Object is possibly 'undefined'.
+
+304       groups[groupKey].push(shift);
+          ~~~~~~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:304:29 - error TS2379: Argument of type 'import("/home/runner/workspace/client/src/components/admin/work-schedule/utils/schedule.utils").Shift' is not assignable to parameter of type 'import("/home/runner/workspace/client/src/components/admin/work-schedule/types/schedule.types").Shift' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Type 'Shift' is missing the following properties from type 'Shift': hourlyRate, totalHours, totalPay, isRecurring
+
+304       groups[groupKey].push(shift);
+                                ~~~~~
+
+client/src/components/admin/work-schedule/utils/schedule.utils.ts:204:46 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+204     isSameDay(parseISO(shift.date), parseISO(newShift.date))
+                                                 ~~~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/utils/schedule.utils.ts:241:10 - error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ service: string; kitchen: string; management: string; cleaning: string; security: string; }'.
+  No index signature with a parameter of type 'string' was found on type '{ service: string; kitchen: string; management: string; cleaning: string; security: string; }'.
+
+241   return labels[department] || department;
+             ~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/utils/schedule.utils.ts:253:10 - error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ barista: string; server: string; chef: string; manager: string; cashier: string; cleaner: string; }'.
+  No index signature with a parameter of type 'string' was found on type '{ barista: string; server: string; chef: string; manager: string; cashier: string; cleaner: string; }'.
+
+253   return labels[position] || position;
+             ~~~~~~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/utils/schedule.utils.ts:341:5 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+341     employeeColors[employee.id] = colors[index % colors.length];
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~

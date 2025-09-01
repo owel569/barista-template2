@@ -1,0 +1,92 @@
+                 ~~~~~~
+
+client/src/components/admin/notifications-system.tsx:829:20 - error TS2375: Type '{ children: Element[]; value: "high" | "low" | "medium" | "urgent" | undefined; onValueChange: (value: string) => void; }' is not assignable to type '{ value?: string; defaultValue?: string; onValueChange?(value: string): void; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'value' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+829                   <Select
+                       ~~~~~~
+
+client/src/components/admin/notifications-system.tsx:847:20 - error TS2375: Type '{ children: Element[]; value: "maintenance" | "order" | "reservation" | "payment" | "user" | "system" | "inventory" | undefined; onValueChange: (value: string) => void; }' is not assignable to type '{ value?: string; defaultValue?: string; onValueChange?(value: string): void; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'value' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+847                   <Select
+                       ~~~~~~
+
+client/src/components/admin/online-ordering.tsx:175:5 - error TS2353: Object literal may only specify known properties, and 'onMessage' does not exist in type 'WebSocketConfig'.
+
+175     onMessage: (data: any) => {
+        ~~~~~~~~~
+
+client/src/components/admin/online-ordering.tsx:945:19 - error TS2322: Type 'Dispatch<SetStateAction<OnlineOrder | null>>' is not assignable to type '(order: OnlineOrder) => void'.
+  Types of parameters 'value' and 'order' are incompatible.
+    Type 'OnlineOrder' is not assignable to type 'SetStateAction<OnlineOrder | null>'.
+      Type 'OnlineOrder' is missing the following properties from type 'OnlineOrder': items, paymentStatus, paymentMethod, updatedAt
+
+945                   onSelect={setSelectedOrder}
+                      ~~~~~~~~
+
+  client/src/components/order-card.tsx:26:3
+    26   onSelect: (order: OnlineOrder) => void;
+         ~~~~~~~~
+    The expected type comes from property 'onSelect' which is declared here on type 'IntrinsicAttributes & OrderCardProps'
+
+client/src/components/admin/online-ordering.tsx:946:19 - error TS2322: Type '(id: number, status: OnlineOrder["status"]) => void' is not assignable to type '(id: number, status: string) => void'.
+  Types of parameters 'status' and 'status' are incompatible.
+    Type 'string' is not assignable to type '"pending" | "confirmed" | "cancelled" | "completed" | "preparing" | "ready"'.
+
+946                   onUpdateStatus={updateOrderStatus}
+                      ~~~~~~~~~~~~~~
+
+  client/src/components/order-card.tsx:27:3
+    27   onUpdateStatus: (id: number, status: string) => void;
+         ~~~~~~~~~~~~~~
+    The expected type comes from property 'onUpdateStatus' which is declared here on type 'IntrinsicAttributes & OrderCardProps'
+
+client/src/components/admin/permissions-management-improved.tsx:621:59 - error TS2367: This comparison appears to be unintentional because the types 'number' and 'string | undefined' have no overlap.
+
+621                             disabled={isTogglingStatus || user.id === currentUser?.id}
+                                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:629:37 - error TS2345: Argument of type 'Date | null | undefined' is not assignable to parameter of type 'string | undefined'.
+  Type 'null' is not assignable to type 'string | undefined'.
+
+629                         {formatDate(user.lastLogin)}
+                                        ~~~~~~~~~~~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:648:61 - error TS2345: Argument of type 'User' is not assignable to parameter of type 'SetStateAction<User | null>'.
+  Type 'import("/home/runner/workspace/client/src/hooks/useUsers").User' is not assignable to type 'User' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Property 'firstName' is optional in type 'User' but required in type 'User'.
+
+648                               onClick={() => setEditingUser(user)}
+                                                                ~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:653:52 - error TS2367: This comparison appears to be unintentional because the types 'number' and 'string | undefined' have no overlap.
+
+653                           {canPerform('delete') && user.id !== currentUser?.id && (
+                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:657:62 - error TS2345: Argument of type 'User' is not assignable to parameter of type 'SetStateAction<User | null>'.
+  Type 'import("/home/runner/workspace/client/src/hooks/useUsers").User' is not assignable to type 'User' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Property 'firstName' is optional in type 'User' but required in type 'User'.
+
+657                               onClick={() => setUserToDelete(user)}
+                                                                 ~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:683:69 - error TS7015: Element implicitly has an 'any' type because index expression is not of type 'number'.
+
+683                                         checked={user.permissions?.[module as ModuleName]?.view ?? false}
+                                                                        ~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:694:69 - error TS7015: Element implicitly has an 'any' type because index expression is not of type 'number'.
+
+694                                         checked={user.permissions?.[module as ModuleName]?.edit ?? false}
+                                                                        ~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:706:71 - error TS7015: Element implicitly has an 'any' type because index expression is not of type 'number'.
+
+706                                           checked={user.permissions?.[module as ModuleName]?.admin ?? false}
+           
