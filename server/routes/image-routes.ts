@@ -42,6 +42,7 @@ router.param('menuItemId', (req, res, next, value) => {
     return res.status(400).json({ error: "ID d'élément de menu invalide" });
   }
   next();
+  return;
 });
 
 router.param('imageId', (req, res, next, value) => {
@@ -50,6 +51,7 @@ router.param('imageId', (req, res, next, value) => {
     return res.status(400).json({ error: "ID d'image invalide" });
   }
   next();
+  return;
 });
 
 /**
@@ -78,9 +80,9 @@ router.param('imageId', (req, res, next, value) => {
 router.get("/:menuItemId", async (req, res) => {
   try {
     const { menuItemId } = req.params;
-    const images = await imageManager.getMenuItemImages(menuItemId);
+    const images = await imageManager.getMenuItemImages(Number(menuItemId));
 
-    res.json({
+    return res.json({
       success: true,
       data: images,
       count: images.length
@@ -91,7 +93,7 @@ router.get("/:menuItemId", async (req, res) => {
       menuItemId: req.params.menuItemId
     });
 
-    res.status(500).json({ 
+    return res.status(500).json({ 
       success: false,
       error: "Erreur lors de la récupération des images"
     });
@@ -118,9 +120,14 @@ router.post("/",
   validateRequest({ body: ImageSchemas.addImage }), 
   async (req, res) => {
     try {
-      const newImage = await imageManager.addImage(req.body);
+      const newImage = await imageManager.addImage({
+        ...req.body,
+        altText: req.body.altText || null,
+        isPrimary: req.body.isPrimary ?? false,
+        uploadMethod: req.body.uploadMethod || 'url'
+      });
 
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
         data: newImage,
         message: "Image ajoutée avec succès"
@@ -131,7 +138,7 @@ router.post("/",
         body: req.body
       });
 
-      res.status(500).json({ 
+      return res.status(500).json({ 
         success: false,
         error: "Erreur lors de l'ajout de l'image"
       });
@@ -166,7 +173,12 @@ router.put("/:imageId",
   async (req, res) => {
     try {
       const { imageId } = req.params;
-      const updatedImage = await imageManager.updateImage(imageId, req.body);
+      const updates: any = {};
+      if (req.body.altText !== undefined) updates.altText = req.body.altText || null;
+      if (req.body.isPrimary !== undefined) updates.isPrimary = req.body.isPrimary;
+      if (req.body.metadata !== undefined) updates.metadata = req.body.metadata;
+      
+      const updatedImage = await imageManager.updateImage(Number(imageId), updates);
 
       if (!updatedImage) {
         return res.status(404).json({ 
@@ -175,7 +187,7 @@ router.put("/:imageId",
         });
       }
 
-      res.json({
+      return res.json({
         success: true,
         data: updatedImage,
         message: "Image mise à jour avec succès"
@@ -187,7 +199,7 @@ router.put("/:imageId",
         updates: req.body
       });
 
-      res.status(500).json({ 
+      return res.status(500).json({ 
         success: false,
         error: "Erreur lors de la mise à jour de l'image"
       });
@@ -214,7 +226,7 @@ router.put("/:imageId",
 router.delete("/:imageId", async (req, res) => {
   try {
     const { imageId } = req.params;
-    const deleted = await imageManager.deleteImage(imageId);
+    const deleted = await imageManager.deleteImage(Number(imageId));
 
     if (!deleted) {
       return res.status(404).json({ 
@@ -223,7 +235,7 @@ router.delete("/:imageId", async (req, res) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: { imageId },
       message: "Image supprimée avec succès"
@@ -234,7 +246,7 @@ router.delete("/:imageId", async (req, res) => {
       imageId: req.params.imageId
     });
 
-    res.status(500).json({ 
+    return res.status(500).json({ 
       success: false,
       error: "Erreur lors de la suppression de l'image"
     });
@@ -265,15 +277,13 @@ router.get("/optimal/:menuItemId", async (req, res) => {
   try {
     const { menuItemId } = req.params;
     const categorySlug = req.query.category as string;
-    const image = await imageManager.getOptimalImage(menuItemId, categorySlug);
+    const image = await imageManager.getOptimalImage(Number(menuItemId), categorySlug);
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         imageUrl: image.url,
-        altText: image.alt,
-        isPrimary: image.isPrimary,
-        dimensions: image.dimensions
+        altText: image.alt
       }
     });
   } catch (error) {
@@ -283,7 +293,7 @@ router.get("/optimal/:menuItemId", async (req, res) => {
       category: req.query.category
     });
 
-    res.status(500).json({ 
+    return res.status(500).json({ 
       success: false,
       error: "Erreur lors de la récupération de l'image optimale"
     });

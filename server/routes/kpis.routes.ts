@@ -133,7 +133,7 @@ router.get('/period/:period', authenticateUser, async (req, res) => {
 
     // Génération de données historiques selon la période
     const historicalData = generateHistoricalKPIs(period as string);
-    res.json({
+    return res.json({
         success: true,
         data: historicalData
       });
@@ -165,12 +165,12 @@ router.get('/comparison', authenticateUser, async (req, res) => {
       }
     };
 
-    res.json({
+    return res.json({
         success: true,
         data: comparison
       });
   } catch (error) {
-    res.status(500).json({ error: 'Erreur lors de la récupération des comparaisons' });
+    return res.status(500).json({ error: 'Erreur lors de la récupération des comparaisons' });
   }
 });
 
@@ -201,12 +201,12 @@ router.get('/alerts', authenticateUser, async (req, res) => {
       }
     ];
 
-    res.json({
+    return res.json({
         success: true,
         data: alerts
       });
   } catch (error) {
-    res.status(500).json({ error: 'Erreur lors de la récupération des alertes' });
+    return res.status(500).json({ error: 'Erreur lors de la récupération des alertes' });
   }
 });
 
@@ -231,12 +231,12 @@ router.get('/predictions', authenticateUser, requireRoles(['manager']), async (r
       }
     };
 
-    res.json({
+    return res.json({
         success: true,
         data: predictions
       });
   } catch (error) {
-    res.status(500).json({ error: 'Erreur lors de la génération des prédictions' });
+    return res.status(500).json({ error: 'Erreur lors de la génération des prédictions' });
   }
 });
 

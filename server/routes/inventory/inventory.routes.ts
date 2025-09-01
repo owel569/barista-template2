@@ -167,8 +167,8 @@ router.get('/',
       conditions.push(sql`${inventory.expiryDate} < NOW()`);
     }
 
-    if (supplierId !== undefined) {
-      conditions.push(eq(inventory.supplierId, supplierId));
+    if (supplierId !== undefined && typeof supplierId === 'string') {
+      conditions.push(eq(inventory.supplierId, Number(supplierId)));
     }
 
     if (search) {
@@ -181,7 +181,7 @@ router.get('/',
       );
     }
 
-    let query = baseQuery;
+    let query = baseQuery as any;
     if (conditions.length > 0) {
       query = query.where(and(...conditions));
     }
@@ -208,7 +208,7 @@ router.get('/',
     let countQuery = db
       .select({ count: sql<number>`count(*)` })
       .from(inventory)
-      .leftJoin(menuItems, eq(inventory.menuItemId, menuItems.id));
+      .leftJoin(menuItems, eq(inventory.menuItemId, menuItems.id)) as any;
     
     if (conditions.length > 0) {
       countQuery = countQuery.where(and(...conditions));
@@ -317,7 +317,7 @@ router.get('/alerts',
       high: highAlerts
     });
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         alerts,
@@ -402,7 +402,7 @@ router.post('/',
       createdBy: currentUser.id
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       data: newItem,
       message: 'Article d\'inventaire créé avec succès'
@@ -442,7 +442,7 @@ router.put('/:id',
         ...req.body,
         updatedAt: new Date()
       })
-      .where(eq(inventory.id, parseInt(id)))
+      .where(eq(inventory.id, parseInt(id || '0')))
       .returning();
 
     // Enregistrer l'activité
@@ -460,7 +460,7 @@ router.put('/:id',
       updatedBy: currentUser.id
     });
 
-    res.json({
+    return res.json({
       success: true,
       data: updatedItem,
       message: 'Article d\'inventaire mis à jour avec succès'
@@ -532,7 +532,7 @@ router.post('/movement',
 
     await logInventoryActivity(
       currentUser.id,
-      actionMap[type],
+      actionMap[type as MovementType],
       `${reason} - Quantité: ${quantity} ${item.unit} - Nouveau stock: ${newStock}`,
       req,
       inventoryId
@@ -548,7 +548,7 @@ router.post('/movement',
       userId: currentUser.id
     });
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         inventoryId,
@@ -596,7 +596,7 @@ router.get('/stats',
 
     logger.info('Statistiques inventaire récupérées', stats);
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         overview: stats,

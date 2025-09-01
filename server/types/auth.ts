@@ -139,6 +139,12 @@ export const ROLE_PERMISSIONS: Record<AppRole, string[]> = {
     'inventory:read',
     'basic:operations'
   ],
+  staff: [
+    'orders:read',
+    'customers:read',
+    'inventory:read',
+    'basic:operations'
+  ],
   manager: [
     'users:read',
     'users:update',
@@ -176,6 +182,7 @@ export const ROLE_HIERARCHY: Record<AppRole, number> = {
   cuisinier: 3,
   employe: 3,
   employee: 3,
+  staff: 3,
   manager: 4,
   directeur: 4,
   admin: 5

@@ -27,6 +27,7 @@ export const users = pgTable('users', {
   role: varchar('role', { length: 50 }).default('customer').notNull(),
   isActive: boolean('is_active').default(true).notNull(),
   permissions: text('permissions').array(),
+  avatarUrl: varchar('avatar_url', { length: 255 }),
   lastLoginAt: timestamp('last_login_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()
@@ -54,6 +55,7 @@ export const menuItems = pgTable('menu_items', {
   isVegetarian: boolean('is_vegetarian').notNull().default(false),
   isVegan: boolean('is_vegan').notNull().default(false),
   isGlutenFree: boolean('is_gluten_free').notNull().default(false),
+  stock: integer('stock').notNull().default(0),
   allergens: text('allergens').array(),
   ingredients: text('ingredients').array(),
   nutritionalInfo: json('nutritional_info'),
@@ -83,6 +85,7 @@ export const tables = pgTable("tables", {
   section: varchar('section', { length: 50 }),
   features: json('features').default([]),
   description: text('description'),
+  notes: text('notes'),
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow()
@@ -90,6 +93,7 @@ export const tables = pgTable("tables", {
 
 export const customers = pgTable("customers", {
   id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => users.id),
   firstName: varchar('first_name', { length: 50 }).notNull(),
   lastName: varchar('last_name', { length: 50 }).notNull(),
   email: varchar('email', { length: 100 }).notNull().unique(),
@@ -109,6 +113,8 @@ export const reservations = pgTable("reservations", {
   tableId: integer('table_id').references(() => tables.id),
   date: timestamp('date').notNull(),
   time: varchar('time', { length: 10 }).notNull(),
+  reservationTime: timestamp('reservation_time').notNull(),
+  guestName: varchar('guest_name', { length: 100 }),
   partySize: integer('party_size').notNull(),
   status: reservationStatusEnum('status').notNull().default('pending'),
   specialRequests: text('special_requests'),
@@ -122,6 +128,7 @@ export const orders = pgTable('orders', {
   orderNumber: varchar('order_number', { length: 20 }).notNull().unique(),
   customerId: integer('customer_id').references(() => customers.id),
   tableId: integer('table_id').references(() => tables.id),
+  itemId: integer('item_id').references(() => menuItems.id),
   status: orderStatusEnum('status').notNull().default('pending'),
   orderType: varchar('order_type', { length: 50 }).notNull().default('dine-in'),
   total: decimal('total', { precision: 10, scale: 2 }).notNull().default('0.00'),
@@ -154,6 +161,26 @@ export const contactMessages = pgTable("contact_messages", {
   message: text('message').notNull(),
   isRead: boolean('is_read').notNull().default(false),
   createdAt: timestamp('created_at').notNull().defaultNow()
+});
+
+export const feedback = pgTable("feedback", {
+  id: serial('id').primaryKey(),
+  customerId: integer('customer_id').references(() => customers.id),
+  orderId: integer('order_id').references(() => orders.id),
+  rating: integer('rating').notNull(),
+  category: varchar('category', { length: 100 }).notNull(),
+  title: varchar('title', { length: 255 }),
+  comment: text('comment'),
+  suggestions: text('suggestions'),
+  status: varchar('status', { length: 50 }).notNull().default('pending'),
+  response: text('response'),
+  responseBy: integer('response_by').references(() => users.id),
+  respondedAt: timestamp('responded_at'),
+  internalNotes: text('internal_notes'),
+  isAnonymous: boolean('is_anonymous').notNull().default(false),
+  contactEmail: varchar('contact_email', { length: 255 }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
 });
 
 export const menuItemImages = pgTable('menu_item_images', {
@@ -240,26 +267,6 @@ export const permissions = pgTable("permissions", {
   canCreate: boolean('can_create').notNull().default(false),
   canUpdate: boolean('can_update').notNull().default(false),
   canDelete: boolean('can_delete').notNull().default(false),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow()
-});
-
-export const feedback = pgTable('feedback', {
-  id: serial('id').primaryKey(),
-  customerId: integer('customer_id').references(() => customers.id),
-  orderId: integer('order_id').references(() => orders.id),
-  rating: integer('rating').notNull(),
-  category: varchar('category', { length: 100 }).notNull(),
-  title: varchar('title', { length: 255 }),
-  comment: text('comment'),
-  suggestions: text('suggestions'),
-  status: varchar('status', { length: 50 }).notNull().default('pending'),
-  response: text('response'),
-  responseBy: integer('response_by').references(() => users.id),
-  respondedAt: timestamp('responded_at'),
-  internalNotes: text('internal_notes'),
-  isAnonymous: boolean('is_anonymous').notNull().default(false),
-  contactEmail: varchar('contact_email', { length: 255 }),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 });
@@ -423,6 +430,7 @@ export const insertReservationSchema = createInsertSchema(reservations);
 export const insertOrderSchema = createInsertSchema(orders);
 export const insertOrderItemSchema = createInsertSchema(orderItems);
 export const insertContactMessageSchema = createInsertSchema(contactMessages);
+export const insertFeedbackSchema = createInsertSchema(feedback);
 export const insertMenuItemImageSchema = createInsertSchema(menuItemImages);
 export const insertActivityLogSchema = createInsertSchema(activityLogs);
 export const insertEmployeeSchema = createInsertSchema(employees);
@@ -430,8 +438,6 @@ export const insertSupplierSchema = createInsertSchema(suppliers);
 export const insertInventorySchema = createInsertSchema(inventory);
 export const insertLoyaltyTransactionSchema = createInsertSchema(loyaltyTransactions);
 export const insertPermissionSchema = createInsertSchema(permissions);
-export const insertFeedbackSchema = createInsertSchema(feedback);
-
 
 export const selectUserSchema = createSelectSchema(users);
 export const selectMenuCategorySchema = createSelectSchema(menuCategories);
@@ -443,6 +449,7 @@ export const selectReservationSchema = createSelectSchema(reservations);
 export const selectOrderSchema = createSelectSchema(orders);
 export const selectOrderItemSchema = createSelectSchema(orderItems);
 export const selectContactMessageSchema = createSelectSchema(contactMessages);
+export const selectFeedbackSchema = createSelectSchema(feedback);
 export const selectMenuItemImageSchema = createSelectSchema(menuItemImages);
 export const selectActivityLogSchema = createSelectSchema(activityLogs);
 export const selectEmployeeSchema = createSelectSchema(employees);
@@ -450,4 +457,3 @@ export const selectSupplierSchema = createSelectSchema(suppliers);
 export const selectInventorySchema = createSelectSchema(inventory);
 export const selectLoyaltyTransactionSchema = createSelectSchema(loyaltyTransactions);
 export const selectPermissionSchema = createSelectSchema(permissions);
-export const selectFeedbackSchema = createSelectSchema(feedback);

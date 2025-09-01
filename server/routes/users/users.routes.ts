@@ -85,7 +85,7 @@ router.get('/',
     sortOrder: z.enum(['asc', 'desc']).default('asc')
   })),
   cacheMiddleware({ ttl: 2 * 60 * 1000, tags: ['users', 'employees'] }),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req, res) => {
     const db = getDb();
     const {
       role: rawRole,
@@ -137,7 +137,7 @@ router.get('/',
     }
 
     if (conditions.length > 0) {
-      query = query.where(and(...conditions));
+      query = query.where(and(...conditions)) as typeof query;
     }
 
     // Tri
@@ -148,9 +148,9 @@ router.get('/',
                        sortBy === 'lastLoginAt' ? users.lastLoginAt :
                        users.createdAt;
 
-    query = sortOrder === 'desc' ?
+    query = (sortOrder === 'desc' ?
       query.orderBy(desc(orderColumn)) :
-      query.orderBy(orderColumn);
+      query.orderBy(orderColumn)) as typeof query;
 
     // Pagination
     const pageNum = parseInt(String(page));
@@ -191,7 +191,7 @@ router.get('/:id',
   requireRoles(['admin', 'manager']),
   validateParams(commonSchemas.idSchema),
   cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['users'] }),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req, res) => {
     const db = getDb();
     const userIdParam = req.params.id;
     const id = userIdParam ? parseInt(userIdParam, 10) : 0;
@@ -271,7 +271,7 @@ router.post('/',
   requireRoles(['admin']),
   validateBody(CreateUserSchema),
   invalidateCache(['users', 'employees']),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req, res) => {
     const db = getDb();
     const currentUser = (req as any).user;
     const { password, ...userData } = req.body;
@@ -317,7 +317,6 @@ router.post('/',
     // Si c'est un client, créer aussi l'entrée customer
     if (userData.role === 'customer') {
       await db.insert(customers).values({
-        id: crypto.randomUUID(),
         userId: userIdNumber, // Utilisez userIdNumber ici
         firstName: userData.firstName,
         lastName: userData.lastName,
@@ -361,7 +360,7 @@ router.put('/:id',
   validateParams(commonSchemas.idSchema),
   validateBody(UpdateUserSchema),
   invalidateCache(['users', 'employees']),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req, res) => {
     const db = getDb();
     const currentUser = (req as any).user;
     const userIdParam = req.params.id;
@@ -410,30 +409,32 @@ router.put('/:id',
     const [updatedUser] = await db
       .update(users)
       .set({
-        ...req.body,
+        firstName: req.body.firstName || null,
+        lastName: req.body.lastName || null,
+        email: req.body.email,
+        phone: req.body.phone || null,
+        role: req.body.role,
         updatedAt: new Date()
       })
       .where(eq(users.id, id))
-      .returning({
-        id: users.id,
-        firstName: users.firstName,
-        lastName: users.lastName,
-        email: users.email,
-        phone: users.phone,
-        role: users.role,
-        isActive: users.isActive,
-        updatedAt: users.updatedAt
-      });
+      .returning();
 
-    // Mettre à jour les données client si applicable
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'Utilisateur non trouvé'
+      });
+    }
+
+    // Si c'est un client, mettre à jour aussi l'entrée customer
     if (updatedUser.role === 'customer') {
       await db
         .update(customers)
         .set({
-          firstName: updatedUser.firstName,
-          lastName: updatedUser.lastName,
-          email: updatedUser.email,
-          phone: updatedUser.phone,
+          firstName: updatedUser.firstName || '',
+          lastName: updatedUser.lastName || '',
+          email: updatedUser.email || '',
+          phone: updatedUser.phone || '',
           updatedAt: new Date()
         })
         .where(eq(customers.userId, id));
@@ -468,7 +469,7 @@ router.patch('/:id/password',
   requireRoles(['admin']),
   validateParams(commonSchemas.idSchema),
   validateBody(UpdatePasswordSchema),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req, res) => {
     const db = getDb();
     const currentUser = (req as any).user;
     const userIdParam = req.params.id;
@@ -496,7 +497,7 @@ router.patch('/:id/password',
     }
 
     // Hasher le nouveau mot de passe
-    const hashedPassword = await hash(password, 12);
+    const hashedPassword = await hash(req.body.password, 12);
 
     // Mettre à jour le mot de passe
     await db
@@ -534,7 +535,7 @@ router.delete('/:id',
   requireRoles(['admin']),
   validateParams(commonSchemas.idSchema),
   invalidateCache(['users', 'employees']),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req, res) => {
     const db = getDb();
     const currentUser = (req as any).user;
     const userIdParam = req.params.id;
@@ -604,7 +605,7 @@ router.get('/stats/overview',
   authenticateUser,
   requireRoles(['admin', 'manager']),
   cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['users', 'stats'] }),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req, res) => {
     const db = getDb();
 
     const stats = await db
@@ -614,7 +615,7 @@ router.get('/stats/overview',
         count: sql<number>`count(*)`
       })
       .from(users)
-      .groupBy(users.role, users.active);
+      .groupBy(users.role, users.isActive);
 
     const result = {
       total: stats.reduce((sum, stat) => sum + stat.count, 0),
@@ -622,11 +623,14 @@ router.get('/stats/overview',
         if (!acc[stat.role]) {
           acc[stat.role] = { total: 0, active: 0, inactive: 0 };
         }
-        acc[stat.role].total += stat.count;
-        if (stat.isActive) { // Utilisation de isActive
-          acc[stat.role].active += stat.count;
-        } else {
-          acc[stat.role].inactive += stat.count;
+        const roleStats = acc[stat.role];
+        if (roleStats) {
+          roleStats.total += stat.count;
+          if (stat.isActive) {
+            roleStats.active += stat.count;
+          } else {
+            roleStats.inactive += stat.count;
+          }
         }
         return acc;
       }, {} as Record<string, { total: number; active: number; inactive: number }>)

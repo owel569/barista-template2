@@ -350,7 +350,7 @@ router.get('/:id',
     const { id } = req.params;
 
     try {
-      const delivery = deliveries.find(d => d.id === parseInt(id));
+      const delivery = deliveries.find(d => d.id === parseInt(id || '0'));
 
       if (!delivery) {
         return res.status(404).json({ 
@@ -360,7 +360,7 @@ router.get('/:id',
         });
       }
 
-      res.json({
+      return res.json({
         success: true,
         data: delivery
       });
@@ -370,7 +370,7 @@ router.get('/:id',
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
       });
 
-      res.status(500).json({ 
+      return res.status(500).json({ 
         success: false,
         error: 'DELIVERY_FETCH_ERROR', 
         message: 'Erreur lors de la récupération de la livraison' 
@@ -420,7 +420,7 @@ router.post('/',
         customerName: newDelivery.customerName
       });
 
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
         data: newDelivery
       });
@@ -429,7 +429,7 @@ router.post('/',
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
       });
 
-      res.status(500).json({ 
+      return res.status(500).json({ 
         success: false,
         error: 'DELIVERY_CREATE_ERROR', 
         message: 'Erreur lors de la création de la livraison' 
@@ -474,7 +474,7 @@ router.patch('/:id/status',
     const { status, driverId, notes } = req.body;
 
     try {
-      const delivery = deliveries.find(d => d.id === parseInt(id));
+      const delivery = deliveries.find(d => d.id === parseInt(id || '0'));
 
       if (!delivery) {
         return res.status(404).json({ 
@@ -509,7 +509,7 @@ router.patch('/:id/status',
         driverId
       });
 
-      res.json({
+      return res.json({
         success: true,
         data: delivery
       });
@@ -520,7 +520,7 @@ router.patch('/:id/status',
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
       });
 
-      res.status(500).json({ 
+      return res.status(500).json({ 
         success: false,
         error: 'DELIVERY_STATUS_UPDATE_ERROR', 
         message: 'Erreur lors de la mise à jour du statut' 
@@ -565,7 +565,7 @@ router.patch('/drivers/:id/location',
     const { lat, lng } = req.body;
 
     try {
-      const driver = drivers.find(d => d.id === parseInt(id));
+      const driver = drivers.find(d => d.id === parseInt(id || '0'));
 
       if (!driver) {
         return res.status(404).json({ 
@@ -582,7 +582,7 @@ router.patch('/drivers/:id/location',
         location: { lat, lng }
       });
 
-      res.json({
+      return res.json({
         success: true,
         data: driver
       });
@@ -592,7 +592,7 @@ router.patch('/drivers/:id/location',
         error: error instanceof Error ? error.message : 'Erreur inconnue' 
       });
 
-      res.status(500).json({ 
+      return res.status(500).json({ 
         success: false,
         error: 'DRIVER_LOCATION_UPDATE_ERROR', 
         message: 'Erreur lors de la mise à jour de la localisation' 
