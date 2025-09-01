@@ -1,0 +1,141 @@
+'validateQuery' is declared but its value is never read.
+(typescript)
+Ln 7, Col 40
+'orders' is declared but its value is never read.
+(typescript)
+Ln 9, Col 21
+Module '"../../shared/schema"' has no exported member 'loyaltyCampaigns'.
+(typescript)
+Ln 9, Col 64
+Module '"../../shared/schema"' has no exported member 'loyaltyRewards'.
+(typescript)
+Ln 9, Col 82
+'sql' is declared but its value is never read.
+(typescript)
+Ln 10, Col 35
+'inArray' is declared but its value is never read.
+(typescript)
+Ln 10, Col 40
+'avg' is declared but its value is never read.
+(typescript)
+Ln 10, Col 61
+Type '{ id: number; name: string; minPoints: number; maxPoints: undefined; pointsRate: number; benefits: string[]; color: string; discountPercentage: number; icon: string; description: string; }' is not assignable to type 'LoyaltyLevel' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties. Types of property 'maxPoints' are incompatible. Type 'undefined' is not assignable to type 'number'.
+(typescript)
+Ln 208, Col 3
+Type 'LoyaltyLevel | undefined' is not assignable to type 'LoyaltyLevel'. Type 'undefined' is not assignable to type 'LoyaltyLevel'.
+(typescript)
+Ln 338, Col 5
+'nextLevel' is possibly 'undefined'.
+(typescript)
+Ln 360, Col 38
+'nextLevel' is possibly 'undefined'.
+(typescript)
+Ln 362, Col 38
+Type '{ nextLevel: LoyaltyLevel | undefined; progress: number; pointsToNext: number; daysToNext: number; estimatedSpendingToNext: number; }' is not assignable to type '{ nextLevel?: LoyaltyLevel; progress: number; pointsToNext: number; daysToNext?: number; estimatedSpendingToNext?: number; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties. Types of property 'nextLevel' are incompatible. Type 'LoyaltyLevel | undefined' is not assignable to type 'LoyaltyLevel'. Type 'undefined' is not assignable to type 'LoyaltyLevel'.
+(typescript)
+Ln 368, Col 5
+Object is possibly 'undefined'.
+(typescript)
+Ln 525, Col 33
+'createAdvancedCampaignSchema' is declared but its value is never read.
+(typescript)
+Ln 620, Col 7
+'loyaltyStatsSchema' is declared but its value is never read.
+(typescript)
+Ln 633, Col 7
+'createAdvancedRewardSchema' is declared but its value is never read.
+(typescript)
+Ln 644, Col 7
+'req' is declared but its value is never read.
+(typescript)
+Ln 665, Col 23
+'await' has no effect on the type of this expression.
+(typescript)
+Ln 667, Col 18
+Argument of type '{ id: number; customerId: number | null; points: number; type: string; description: string | null; orderId: number | null; createdAt: Date; }[]' is not assignable to parameter of type 'LoyaltyTransaction[]'. Property 'balance' is missing in type '{ id: number; customerId: number | null; points: number; type: string; description: string | null; orderId: number | null; createdAt: Date; }' but required in type 'LoyaltyTransaction'.
+(typescript)
+Ln 727, Col 75
+Property 'rewardId' does not exist on type 'PgTableWithColumns<{ name: "loyalty_transactions"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "loyalty_transactions"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; ... 8 more ...; generated: undefined; }, {}, {}>; ... 5 more ...; createdAt: PgColumn<...>; }; ...'.
+(typescript)
+Ln 744, Col 38
+No overload matches this call. Overload 1 of 3, '(left: PgColumn<{ name: "created_at"; tableName: "loyalty_transactions"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>, right: Date | SQLWrapper): SQL<...>', gave the following error. Argument of type 'string' is not assignable to parameter of type 'Date | SQLWrapper'. Overload 2 of 3, '(left: Aliased<string>, right: string | SQLWrapper): SQL<unknown>', gave the following error. Argument of type 'PgColumn<{ name: "created_at"; tableName: "loyalty_transactions"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string>'. Type 'PgColumn<{ name: "created_at"; tableName: "loyalty_transactions"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string>': sql, fieldAlias Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error. Argument of type 'PgColumn<{ name: "created_at"; tableName: "loyalty_transactions"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+(typescript)
+Ln 763, Col 14
+Not all code paths return a value.
+(typescript)
+Ln 806, Col 16
+Argument of type 'string | undefined' is not assignable to parameter of type 'string'. Type 'undefined' is not assignable to type 'string'.
+(typescript)
+Ln 807, Col 33
+'await' has no effect on the type of this expression.
+(typescript)
+Ln 810, Col 18
+'customer' is possibly 'undefined'.
+(typescript)
+Ln 835, Col 22
+Argument of type '{ id: number; customerId: number | null; points: number; type: string; description: string | null; orderId: number | null; createdAt: Date; }[]' is not assignable to parameter of type 'LoyaltyTransaction[]'. Property 'balance' is missing in type '{ id: number; customerId: number | null; points: number; type: string; description: string | null; orderId: number | null; createdAt: Date; }' but required in type 'LoyaltyTransaction'.
+(typescript)
+Ln 846, Col 71
+Property 'rewardId' does not exist on type '{ id: number; customerId: number | null; points: number; type: string; description: string | null; orderId: number | null; createdAt: Date; }'.
+(typescript)
+Ln 865, Col 18
+Property 'rewardId' does not exist on type '{ id: number; customerId: number | null; points: number; type: string; description: string | null; orderId: number | null; createdAt: Date; }'.
+(typescript)
+Ln 866, Col 56
+'customer' is possibly 'undefined'.
+(typescript)
+Ln 895, Col 26
+'customer' is possibly 'undefined'.
+(typescript)
+Ln 896, Col 27
+Object is possibly 'undefined'.
+(typescript)
+Ln 910, Col 30
+'generateCustomerRecommendations' is declared but its value is never read.
+(typescript)
+Ln 928, Col 10
+Not all code paths return a value.
+(typescript)
+Ln 959, Col 16
+'await' has no effect on the type of this expression.
+(typescript)
+Ln 963, Col 18
+'customer' is possibly 'undefined'.
+(typescript)
+Ln 979, Col 29
+Type 'string' is not assignable to type 'Date | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined'.
+(typescript)
+Ln 1030, Col 13
+No overload matches this call. Overload 1 of 2, '(value: { action: string | SQL<unknown> | Placeholder<string, any>; entity: string | SQL<unknown> | Placeholder<string, any>; userId?: number | SQL<unknown> | Placeholder<...> | null | undefined; ... 5 more ...; userAgent?: string | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error. Type 'string' is not assignable to type 'Date | SQL<unknown> | Placeholder<string, any> | undefined'. Overload 2 of 2, '(values: { action: string | SQL<unknown> | Placeholder<string, any>; entity: string | SQL<unknown> | Placeholder<string, any>; userId?: number | SQL<unknown> | Placeholder<...> | null | undefined; ... 5 more ...; userAgent?: string | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error. Object literal may only specify known properties, and 'userId' does not exist in type '{ action: string | SQL<unknown> | Placeholder<string, any>; entity: string | SQL<unknown> | Placeholder<string, any>; userId?: number | SQL<unknown> | Placeholder<...> | null | undefined; ... 5 more ...; userAgent?: string | ... 3 more ... | undefined; }[]'.
+(typescript)
+Ln 1075, Col 39
+'await' has no effect on the type of this expression.
+(typescript)
+Ln 1145, Col 18
+Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+(typescript)
+Ln 1154, Col 9
+'customer' is possibly 'undefined'.
+(typescript)
+Ln 1161, Col 29
+Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+(typescript)
+Ln 1181, Col 9
+Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+(typescript)
+Ln 1196, Col 9
+Type 'string' is not assignable to type 'Date | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined'.
+(typescript)
+Ln 1217, Col 13
+No overload matches this call. Overload 1 of 2, '(value: { type: string | SQL<unknown> | Placeholder<string, any>; points: number | SQL<unknown> | Placeholder<string, any>; id?: number | SQL<unknown> | Placeholder<string, any> | undefined; description?: string | ... 3 more ... | undefined; createdAt?: Date | ... 2 more ... | undefined; customerId?: number | ... 3 more ... | undefined; orderId?: number | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error. Argument of type '{ customerId: any; type: "redeemed"; points: number; rewardId: any; description: any; createdAt: string; balance: number; metadata: string; }' is not assignable to parameter of type '{ type: string | SQL<unknown> | Placeholder<string, any>; points: number | SQL<unknown> | Placeholder<string, any>; id?: number | SQL<unknown> | Placeholder<string, any> | undefined; description?: string | ... 3 more ... | undefined; createdAt?: Date | ... 2 more ... | undefined; customerId?: number | ... 3 more ......'. Types of property 'createdAt' are incompatible. Type 'string' is not assignable to type 'Date | SQL<unknown> | Placeholder<string, any> | undefined'. Overload 2 of 2, '(values: { type: string | SQL<unknown> | Placeholder<string, any>; points: number | SQL<unknown> | Placeholder<string, any>; id?: number | SQL<unknown> | Placeholder<string, any> | undefined; description?: string | ... 3 more ... | undefined; createdAt?: Date | ... 2 more ... | undefined; customerId?: number | ... 3 more ... | undefined; orderId?: number | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error. Argument of type '{ customerId: any; type: "redeemed"; points: number; rewardId: any; description: any; createdAt: string; balance: number; metadata: string; }' is not assignable to parameter of type '{ type: string | SQL<unknown> | Placeholder<string, any>; points: number | SQL<unknown> | Placeholder<string, any>; id?: number | SQL<unknown> | Placeholder<string, any> | undefined; description?: string | ... 3 more ... | undefined; createdAt?: Date | ... 2 more ... | undefined; customerId?: number | ... 3 more ......'. Type '{ customerId: any; type: "redeemed"; points: number; rewardId: any; description: any; createdAt: string; balance: number; metadata: string; }' is missing the following properties from type '{ type: string | SQL<unknown> | Placeholder<string, any>; points: number | SQL<unknown> | Placeholder<string, any>; id?: number | SQL<unknown> | Placeholder<string, any> | undefined; description?: string | ... 3 more ... | undefined; createdAt?: Date | ... 2 more ... | undefined; customerId?: number | ... 3 more ......': length, pop, push, concat, and 29 more.
+(typescript)
+Ln 1249, Col 53
+No overload matches this call. Overload 1 of 2, '(value: { action: string | SQL<unknown> | Placeholder<string, any>; entity: string | SQL<unknown> | Placeholder<string, any>; userId?: number | SQL<unknown> | Placeholder<...> | null | undefined; ... 5 more ...; userAgent?: string | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error. Type 'string' is not assignable to type 'Date | SQL<unknown> | Placeholder<string, any> | undefined'. Overload 2 of 2, '(values: { action: string | SQL<unknown> | Placeholder<string, any>; entity: string | SQL<unknown> | Placeholder<string, any>; userId?: number | SQL<unknown> | Placeholder<...> | null | undefined; ... 5 more ...; userAgent?: string | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error. Object literal may only specify known properties, and 'userId' does not exist in type '{ action: string | SQL<unknown> | Placeholder<string, any>; entity: string | SQL<unknown> | Placeholder<string, any>; userId?: number | SQL<unknown> | Placeholder<...> | null | undefined; ... 5 more ...; userAgent?: string | ... 3 more ... | undefined; }[]'.
+(typescript)
+Ln 1252, Col 39
+Cannot find name 'customerId'. Did you mean 'customers'?
+(typescript)
+Ln 1309, Col 9
+No value exists in scope for the shorthand property 'rewardId'. Either declare one or provide an initializer.
+(typescript)
+Ln 1310, Col 9
