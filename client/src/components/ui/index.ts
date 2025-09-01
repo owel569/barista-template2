@@ -77,7 +77,7 @@ export * from "./sonner"
 // ===== COMPOSANTS AVANCÉS =====
 export { Toggle } from './toggle';
 export { ToggleGroup } from './toggle-group';
-export { Avatar } from './avatar';
+export { Avatar, AvatarImage, AvatarFallback, AvatarGroup } from './avatar';
 export { Drawer } from './drawer';
 
 // Restaurant Specific Components

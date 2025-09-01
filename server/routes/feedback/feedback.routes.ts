@@ -37,7 +37,7 @@ const UpdateFeedbackStatusSchema = z.object({
 
 const FeedbackResponseSchema = z.object({
   response: z.string().min(10, 'Réponse trop courte (min 10 caractères)').max(1000, 'Réponse trop longue (max 1000 caractères)'),
-  isPublic: z.boolean().default(true)
+  // isPublic: z.boolean().default(true) // Supprimé car non présent dans le schéma
 });
 
 // Interface pour les statistiques de feedback
@@ -290,7 +290,7 @@ router.get('/:id',
       const [order] = await db
         .select({
           id: orders.id,
-          totalAmount: orders.totalAmount,
+          total: orders.total,
           status: orders.status,
           createdAt: orders.createdAt
         })
@@ -447,6 +447,7 @@ router.patch('/:id/status',
       message: 'Statut du commentaire mis à jour avec succès'
     });
   })
+);
 
 // Répondre à un commentaire
 router.post('/:id/response',
@@ -459,7 +460,7 @@ router.post('/:id/response',
     const db = getDb();
     const currentUser = (req as any).user;
     const { id } = req.params;
-    const { response, isPublic } = req.body;
+    const { response } = req.body;
 
     // Vérifier que le commentaire existe
     const [existingFeedback] = await db
@@ -482,7 +483,6 @@ router.post('/:id/response',
         responseBy: currentUser.id,
         respondedAt: new Date(),
         status: 'responded',
-        isPublic,
         updatedAt: new Date()
       })
       .where(eq(feedback.id, Number(id)))
@@ -492,14 +492,13 @@ router.post('/:id/response',
     await logFeedbackActivity(
       currentUser.id,
       'RESPOND_TO_FEEDBACK',
-      `Réponse ajoutée au commentaire (${isPublic ? 'publique' : 'privée'})`,
+      `Réponse ajoutée au commentaire`,
       req,
       Number(id)
     );
 
     logger.info('Réponse ajoutée au commentaire', {
       feedbackId: id,
-      isPublic,
       respondedBy: currentUser.id
     });
 
