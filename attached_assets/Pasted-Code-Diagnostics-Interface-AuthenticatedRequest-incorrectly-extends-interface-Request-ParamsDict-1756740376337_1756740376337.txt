@@ -1,0 +1,82 @@
+Code Diagnostics
+Interface 'AuthenticatedRequest' incorrectly extends interface 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'. Types of property 'user' are incompatible. Type '{ id: number; username: string; role: string; }' is missing the following properties from type 'AuthenticatedUser': permissions, isActive, email
+(typescript)
+Ln 5, Col 11
+Not all code paths return a value.
+(typescript)
+Ln 20, Col 26
+'chatbotSchema' is declared but its value is never read.
+(typescript)
+Ln 45, Col 7
+'req' is declared but its value is never read.
+(typescript)
+Ln 68, Col 66
+Not all code paths return a value.
+(typescript)
+Ln 96, Col 54
+'req' is declared but its value is never read.
+(typescript)
+Ln 131, Col 66
+'req' is declared but its value is never read.
+(typescript)
+Ln 149, Col 62
+'req' is declared but its value is never read.
+(typescript)
+Ln 181, Col 68
+'req' is declared but its value is never read.
+(typescript)
+Ln 208, Col 66
+'req' is declared but its value is never read.
+(typescript)
+Ln 230, Col 62
+'req' is declared but its value is never read.
+(typescript)
+Ln 259, Col 65
+'req' is declared but its value is never read.
+(typescript)
+Ln 296, Col 66
+'req' is declared but its value is never read.
+(typescript)
+Ln 317, Col 71
+'req' is declared but its value is never read.
+(typescript)
+Ln 345, Col 60
+'req' is declared but its value is never read.
+(typescript)
+Ln 365, Col 71
+'req' is declared but its value is never read.
+(typescript)
+Ln 396, Col 66
+'req' is declared but its value is never read.
+(typescript)
+Ln 420, Col 61
+'req' is declared but its value is never read.
+(typescript)
+Ln 438, Col 53
+'req' is declared but its value is never read.
+(typescript)
+Ln 475, Col 52
+'req' is declared but its value is never read.
+(typescript)
+Ln 493, Col 49
+Not all code paths return a value.
+(typescript)
+Ln 519, Col 62
+'req' is declared but its value is never read.
+(typescript)
+Ln 547, Col 49
+Not all code paths return a value.
+(typescript)
+Ln 570, Col 62
+Not all code paths return a value.
+(typescript)
+Ln 594, Col 64
+Not all code paths return a value.
+(typescript)
+Ln 619, Col 63
+'req' is declared but its value is never read.
+(typescript)
+Ln 645, Col 46
+'req' is declared but its value is never read.
+(typescript)
+Ln 666, Col 56
