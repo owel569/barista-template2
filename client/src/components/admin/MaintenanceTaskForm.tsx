@@ -32,14 +32,28 @@ export function MaintenanceTaskForm({
   onSubmit,
   onCancel,
 }: MaintenanceTaskFormProps) {
-  const [formData, setFormData] = useState<Omit<MaintenanceTask, 'id'> | Partial<MaintenanceTask>>(
-    initialData || {
+  const [formData, setFormData] = useState<Omit<MaintenanceTask, 'id'>>(
+    initialData ? {
+      title: initialData.title,
+      description: initialData.description,
+      equipment: initialData.equipment,
+      equipmentId: initialData.equipmentId,
+      priority: initialData.priority,
+      status: initialData.status,
+      assignedTo: initialData.assignedTo,
+      assignedToId: initialData.assignedToId,
+      scheduledDate: initialData.scheduledDate,
+      completedDate: initialData.completedDate,
+      estimatedDuration: initialData.estimatedDuration,
+      cost: initialData.cost,
+      notes: initialData.notes || '',
+    } : {
       title: '',
       description: '',
       equipment: '',
       equipmentId: 0,
-      priority: 'medium',
-      status: 'pending',
+      priority: 'medium' as const,
+      status: 'pending' as const,
       assignedTo: '',
       assignedToId: 0,
       scheduledDate: new Date().toISOString(),

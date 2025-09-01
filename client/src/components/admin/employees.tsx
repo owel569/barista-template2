@@ -93,7 +93,7 @@ interface EmployeesProps {
 export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
-  const { toast } = useToast();
+  const toast = useToast();
   const queryClient = useQueryClient();
 
   // Initialiser WebSocket pour les notifications temps réel

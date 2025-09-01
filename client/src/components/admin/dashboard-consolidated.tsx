@@ -97,7 +97,7 @@ const COLORS = ['#f59e0b', '#3b82f6', '#10b981', '#ef4444', '#8b5cf6'];
 export default function DashboardConsolidated(): JSX.Element {
   const { user } = useAuth();
   const { canView, canManage, isAdmin, userRole } = usePermissions();
-  const { toast } = useToast();
+  const toast = useToast();
   const [refreshing, setRefreshing] = useState(false);
 
   // Requête pour les statistiques temps réel
@@ -350,7 +350,7 @@ export default function DashboardConsolidated(): JSX.Element {
 
     const route = routes[actionId];
     if (route) {
-      toast({ title: `Navigation vers ${actionTitle}`, description: `Redirection vers ${route}`, variant: 'info' });
+      toast({ title: `Navigation vers ${actionTitle}`, description: `Redirection vers ${route}`, variant: 'default' });
       // Ici vous pouvez ajouter la vraie navigation avec votre router
       // navigate(route);
     }
@@ -658,7 +658,7 @@ export default function DashboardConsolidated(): JSX.Element {
                   Module d'analytics avancées en cours de développement
                 </p>
                 {canManage('analytics') && (
-                  <Button className="mt-4" onClick={() => toast({ title: 'Configuration', description: 'Module analytics bientôt disponible', variant: 'info' })}>
+                  <Button className="mt-4" onClick={() => toast({ title: 'Configuration', description: 'Module analytics bientôt disponible', variant: 'default' })}>
                     Configurer Analytics
                   </Button>
                 )}

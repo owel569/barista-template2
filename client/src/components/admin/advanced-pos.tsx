@@ -56,7 +56,7 @@ interface PaymentMethod {
 }
 
 export default function AdvancedPOS(): JSX.Element {
-  const { toast } = useToast();
+  const toast = useToast();
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [currentOrder, setCurrentOrder] = useState<Order | null>(null);

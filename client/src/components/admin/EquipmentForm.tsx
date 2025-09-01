@@ -24,21 +24,25 @@ interface EquipmentFormProps {
 }
 
 export function EquipmentForm({ initialData, onSubmit, onCancel }: EquipmentFormProps) {
-  const [formData, setFormData] = useState<Omit<Equipment, 'id'> | Partial<Equipment>>(
-    initialData || {
+  const [formData, setFormData] = useState<Omit<Equipment, 'id'>>(() => {
+    if (initialData) {
+      const { id, ...rest } = initialData;
+      return rest;
+    }
+    return {
       name: '',
       type: '',
       model: '',
       serialNumber: '',
       location: '',
-      status: 'operational',
+      status: 'operational' as const,
       lastMaintenance: new Date().toISOString(),
       nextMaintenance: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
       maintenanceFrequency: 30,
       purchaseDate: new Date().toISOString(),
       vendor: '',
-    }
-  );
+    };
+  });
 
   const [lastMaintenanceDate, setLastMaintenanceDate] = useState<Date>(
     initialData ? new Date(initialData.lastMaintenance) : new Date()

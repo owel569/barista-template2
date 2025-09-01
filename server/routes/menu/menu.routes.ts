@@ -74,9 +74,10 @@ router.get('/',
     isVegetarian: z.coerce.boolean().optional(),
     isGlutenFree: z.coerce.boolean().optional(),
     search: z.string().optional(),
-    ...commonSchemas.pagination.shape,
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20),
     sortBy: z.string().optional(),
-    sortOrder: commonSchemas.sortOrder
+    sortOrder: z.enum(['asc', 'desc']).default('asc')
   })),
   cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['menu', 'categories'] }),
   asyncHandler(async (req, res) => {
@@ -189,9 +190,116 @@ router.get('/',
   })
 );
 
+// === ROUTES SPÉCIFIQUES AVANT LES PARAMÈTRES ===
+
+// Liste des catégories
+router.get('/categories/list',
+  cacheMiddleware({ ttl: 10 * 60 * 1000, tags: ['categories'] }),
+  asyncHandler(async (req, res) => {
+    const db = getDb();
+
+    const categoriesData = await db
+      .select()
+      .from(menuCategories)
+      .where(eq(menuCategories.isActive, true))
+      .orderBy(menuCategories.sortOrder, menuCategories.name);
+
+    logger.info('Catégories récupérées', { count: categoriesData.length });
+
+    return res.json({
+      success: true,
+      data: categoriesData
+    });
+  })
+);
+
+// Créer une catégorie
+router.post('/categories',
+  authenticateUser,
+  requireRoles(['admin', 'manager']),
+  validateBody(CreateCategorySchema),
+  invalidateCache(['categories']),
+  asyncHandler(async (req, res) => {
+    const db = getDb();
+    const currentUser = (req as any).user;
+
+    // Vérifier l'unicité du nom
+    const [existingCategory] = await db
+      .select({ id: menuCategories.id })
+      .from(menuCategories)
+      .where(eq(menuCategories.name, req.body.name));
+
+    if (existingCategory) {
+      return res.status(409).json({
+        success: false,
+        message: 'Une catégorie avec ce nom existe déjà'
+      });
+    }
+
+    // Créer la catégorie
+    const [newCategory] = await db
+      .insert(menuCategories)
+      .values({
+        ...req.body,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning();
+
+    if (!newCategory) {
+      return res.status(500).json({
+        success: false,
+        message: 'Erreur lors de la création de la catégorie'
+      });
+    }
+
+    // Enregistrer l'activité
+    await logMenuActivity(
+      currentUser.id,
+      'CREATE_CATEGORY',
+      `Catégorie créée: ${req.body.name}`,
+      req,
+      newCategory.id
+    );
+
+    logger.info('Catégorie créée', {
+      categoryId: newCategory.id,
+      name: req.body.name,
+      createdBy: currentUser.id
+    });
+
+    return res.status(201).json({
+      success: true,
+      data: newCategory,
+      message: 'Catégorie créée avec succès'
+    });
+  })
+);
+
+// Obtenir toutes les catégories
+router.get('/categories', asyncHandler(async (req, res) => {
+  try {
+    const db = await getDb();
+    const categories = await db
+      .select()
+      .from(menuCategories)
+      .orderBy(menuCategories.displayOrder);
+
+    res.json({ success: true, categories });
+  } catch (error) {
+    logger.error('Erreur récupération catégories:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Erreur serveur lors de la récupération des catégories' 
+    });
+  }
+}));
+
+// === ROUTES AVEC PARAMÈTRES APRÈS ===
+
 // Détails d'un article
 router.get('/:id',
-  validateParams(commonSchemas.idSchema),
+  validateParams(z.object({ id: z.coerce.number().int().positive('ID invalide') })),
   cacheMiddleware({ ttl: 10 * 60 * 1000, tags: ['menu'] }),
   asyncHandler(async (req, res) => {
     const db = getDb();
@@ -299,7 +407,7 @@ router.post('/',
 router.put('/:id',
   authenticateUser,
   requireRoles(['admin', 'manager']),
-  validateParams(commonSchemas.idSchema),
+  validateParams(z.object({ id: z.coerce.number().int().positive('ID invalide') })),
   validateBody(UpdateMenuItemSchema.omit({ id: true })),
   invalidateCache(['menu']),
   asyncHandler(async (req, res) => {
@@ -382,7 +490,7 @@ router.put('/:id',
 router.delete('/:id',
   authenticateUser,
   requireRoles(['admin']),
-  validateParams(commonSchemas.idSchema),
+  validateParams(z.object({ id: z.coerce.number().int().positive('ID invalide') })),
   invalidateCache(['menu']),
   asyncHandler(async (req, res) => {
     const db = getDb();
@@ -429,108 +537,5 @@ router.delete('/:id',
     });
   })
 );
-
-// Liste des catégories
-router.get('/categories/list',
-  cacheMiddleware({ ttl: 10 * 60 * 1000, tags: ['categories'] }),
-  asyncHandler(async (req, res) => {
-    const db = getDb();
-
-    const categoriesData = await db
-      .select()
-      .from(menuCategories)
-      .where(eq(menuCategories.isActive, true))
-      .orderBy(menuCategories.sortOrder, menuCategories.name);
-
-    logger.info('Catégories récupérées', { count: categoriesData.length });
-
-    return res.json({
-      success: true,
-      data: categoriesData
-    });
-  })
-);
-
-// Créer une catégorie
-router.post('/categories',
-  authenticateUser,
-  requireRoles(['admin', 'manager']),
-  validateBody(CreateCategorySchema),
-  invalidateCache(['categories']),
-  asyncHandler(async (req, res) => {
-    const db = getDb();
-    const currentUser = (req as any).user;
-
-    // Vérifier l'unicité du nom
-    const [existingCategory] = await db
-      .select({ id: menuCategories.id })
-      .from(menuCategories)
-      .where(eq(menuCategories.name, req.body.name));
-
-    if (existingCategory) {
-      return res.status(409).json({
-        success: false,
-        message: 'Une catégorie avec ce nom existe déjà'
-      });
-    }
-
-    // Créer la catégorie
-    const [newCategory] = await db
-      .insert(menuCategories)
-      .values({
-        ...req.body,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      })
-      .returning();
-
-    if (!newCategory) {
-      return res.status(500).json({
-        success: false,
-        message: 'Erreur lors de la création de la catégorie'
-      });
-    }
-
-    // Enregistrer l'activité
-    await logMenuActivity(
-      currentUser.id,
-      'CREATE_CATEGORY',
-      `Catégorie créée: ${req.body.name}`,
-      req,
-      newCategory.id
-    );
-
-    logger.info('Catégorie créée', {
-      categoryId: newCategory.id,
-      name: req.body.name,
-      createdBy: currentUser.id
-    });
-
-    return res.status(201).json({
-      success: true,
-      data: newCategory,
-      message: 'Catégorie créée avec succès'
-    });
-  })
-);
-
-// Obtenir toutes les catégories
-router.get('/categories', asyncHandler(async (req, res) => {
-  try {
-    const db = await getDb();
-    const categories = await db
-      .select()
-      .from(menuCategories)
-      .orderBy(menuCategories.displayOrder);
-
-    res.json({ success: true, categories });
-  } catch (error) {
-    logger.error('Erreur récupération catégories:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: 'Erreur serveur lors de la récupération des catégories' 
-    });
-  }
-}));
 
 export default router;

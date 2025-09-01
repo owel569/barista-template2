@@ -147,7 +147,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
   const [reportData, setReportData] = useState<ReportData | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const { toast } = useToast();
+  const toast = useToast();
   const queryClient = useQueryClient();
 
   // Récupérer les rapports existants

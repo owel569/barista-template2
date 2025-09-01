@@ -130,7 +130,7 @@ export default function DeliveryTracking() : JSX.Element {
   const [selectedDelivery, setSelectedDelivery] = useState<Delivery | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { toast } = useToast();
+  const toast = useToast();
   const queryClient = useQueryClient();
   useWebSocket();
 

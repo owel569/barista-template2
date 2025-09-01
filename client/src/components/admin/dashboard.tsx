@@ -97,7 +97,7 @@ export default function Dashboard() : JSX.Element {
   });
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const { toast } = useToast();
+  const toast = useToast();
 
   const fetchStats = async (silent = false) => {
     try {

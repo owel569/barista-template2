@@ -74,7 +74,7 @@ function Customers({ userRole, user }: CustomersProps) {
     preferredContactMethod: 'email' as const,
     notes: ''
   });
-  const { toast } = useToast();
+  const toast = useToast();
 
   // Initialiser WebSocket pour les notifications temps réel
   useWebSocket();

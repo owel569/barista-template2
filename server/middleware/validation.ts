@@ -91,6 +91,11 @@ class AdvancedValidator {
     options: ValidationOptions = {}
   ): ValidationResult<T> {
     try {
+      // Vérification que le schema n'est pas undefined
+      if (!schema) {
+        throw new Error('Schema de validation manquant');
+      }
+
       const parseOptions = {
         errorMap: (issue: any, ctx: any) => {
           switch (issue.code) {
@@ -178,6 +183,16 @@ export const validateRequest = (
 ) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      // Vérification que le schema existe
+      if (!schema) {
+        logger.error('Schema de validation manquant', {
+          part,
+          method: req.method,
+          path: req.path
+        });
+        return next(new Error('Configuration de validation manquante'));
+      }
+
       const dataToValidate = req[part];
 
       logger.debug('Validation en cours', {
@@ -399,9 +414,8 @@ export const crudSchemas = {
   }),
 
   list: z.object({
-    ...commonSchemas.pagination.shape,
-    ...commonSchemas.search.shape,
-    ...commonSchemas.dateRange.shape
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20)
   })
 };
 

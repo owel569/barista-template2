@@ -131,7 +131,7 @@ const INCOME_CATEGORIES = [
 ] as const;
 
 export default function AccountingSystem(): JSX.Element {
-  const { toast } = useToast();
+  const toast = useToast();
   
   // États
   const [transactions, setTransactions] = useState<Transaction[]>([]);

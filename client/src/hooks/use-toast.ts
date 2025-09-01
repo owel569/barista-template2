@@ -13,14 +13,19 @@ export interface ToastProps {
   variant?: 'default' | 'destructive' | 'success' | 'warning';
 }
 
-export interface ToastFunction {
+export interface ToastManager {
   (props: ToastProps): void;
+  toast: (props: ToastProps) => void;
   success: (props: Omit<ToastProps, 'variant'>) => void;
   error: (props: Omit<ToastProps, 'variant'>) => void;
   warning: (props: Omit<ToastProps, 'variant'>) => void;
+  dismiss: (toastId?: string | number) => void;
+  promise: <T>(promise: Promise<T>, messages: { loading: string; success: string | ((data: T) => string); error: string | ((error: any) => string); }) => Promise<T>;
+  confirm: (title: string, description?: string, onConfirm?: () => void, onCancel?: () => void) => void;
+  loading: (title: string, description?: string) => void;
+  operation: <T>(operation: () => Promise<T>, messages: { loading: string; success: string; error: string; }) => Promise<T>;
+  batch: (toasts: ToastProps[]) => void;
 }
-
-export type ToastManager = ToastFunction;
 
 class ToastManagerImpl {
   private defaultDuration = 4000;
@@ -141,7 +146,7 @@ class ToastManagerImpl {
 const toastManager = new ToastManagerImpl();
 
 export const useToast = (): ToastManager => {
-  return {
+  const manager = {
     toast: toastManager.toast.bind(toastManager),
     success: toastManager.success.bind(toastManager),
     error: toastManager.error.bind(toastManager),
@@ -153,6 +158,11 @@ export const useToast = (): ToastManager => {
     operation: toastManager.operation.bind(toastManager),
     batch: toastManager.batch.bind(toastManager)
   };
+  
+  const callable = (props: ToastProps) => toastManager.toast(props);
+  Object.assign(callable, manager);
+  
+  return callable as ToastManager;
 };
 
 export { toastManager as toast };

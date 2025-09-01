@@ -76,7 +76,7 @@ const SEVERITY_CONFIG: Record<ActivityLog['severity'], SeverityConfig> = {
 };
 
 export default function ActivityLogs(): JSX.Element {
-  const { toast } = useToast();
+  const toast = useToast();
 
   // États
   const [logs, setLogs] = useState<ActivityLog[]>([]);

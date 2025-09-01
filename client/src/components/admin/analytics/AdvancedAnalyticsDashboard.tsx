@@ -138,7 +138,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
   const [selectedView, setSelectedView] = useState<string>('overview');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showRealTime, setShowRealTime] = useState<boolean>(true);
-  const { toast } = useToast();
+  const toast = useToast();
 
   // Récupération des données analytics avec gestion d'erreur sécurisée
   const { data: analyticsResponse, refetch } = useQuery({
