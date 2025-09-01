@@ -25,7 +25,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -37,20 +36,14 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { 
-  Globe, 
   ShoppingCart, 
   Clock, 
-  Truck, 
-  CreditCard, 
   Settings, 
-  Eye, 
-  Trash2,
-  Smartphone, 
+  Eye,
   Monitor, 
   Tablet,
   Loader2,
   Search,
-  Download,
   Grid,
   List,
   Bell,
@@ -96,6 +89,22 @@ interface OrderItem {
   unitPrice: number;
   customizations?: string[];
   notes?: string;
+}
+
+interface CartItem {
+  id: number;
+  menuItem: MenuItem;
+  quantity: number;
+  customizations: Record<string, string>;
+  notes?: string;
+}
+
+interface MenuItem {
+  id: number;
+  name: string;
+  price: number;
+  description?: string;
+  category?: string;
 }
 
 interface Driver {
@@ -221,7 +230,7 @@ export default function OnlineOrdering(): JSX.Element {
     queryFn: () => apiRequest('/api/admin/online-orders/stats'),
   });
 
-  const { data: settings, isLoading: settingsLoading } = useQuery<OrderSettings>({
+  const { data: settings } = useQuery<OrderSettings>({
     queryKey: ['onlineOrderSettings'],
     queryFn: () => apiRequest('/api/admin/online-ordering/settings'),
   });
@@ -420,6 +429,32 @@ export default function OnlineOrdering(): JSX.Element {
   const getPlatformIcon = (platform: string) => {
     const IconComponent = platformIcons[platform as keyof typeof platformIcons] || Monitor;
     return <IconComponent className="h-4 w-4" />;
+  };
+
+  // Handle platform stats safely
+  const safelyRenderPlatformStats = () => {
+    if (!platformStats) return null;
+    
+    return Object.entries(platformStats).map(([platform, stats]) => {
+      const IconComponent = platformIcons[platform as keyof typeof platformIcons] || Monitor;
+      return (
+        <Card key={platform}>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <IconComponent className="h-5 w-5 text-blue-500" />
+              <div>
+                <p className="text-sm text-gray-600 capitalize">
+                  {platform === 'website' ? 'Site Web' : 
+                   platform === 'mobile_app' ? 'App Mobile' : 'Téléphone'}
+                </p>
+                <p className="text-2xl font-bold">{stats?.orders || 0}</p>
+                <p className="text-sm text-gray-500">{stats?.revenue?.toFixed(2) || 0}€ de revenus</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    });
   };
 
   // Loading state UI
@@ -681,26 +716,7 @@ export default function OnlineOrdering(): JSX.Element {
 
       {/* Statistiques par plateforme */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {platformStats && Object.entries(platformStats).map(([platform, stats]) => {
-          const IconComponent = platformIcons[platform as keyof typeof platformIcons] || Monitor;
-          return (
-            <Card key={platform}>
-              <CardContent className="p-4">
-                <div className="flex items-center space-x-2">
-                  <IconComponent className="h-5 w-5 text-blue-500" />
-                  <div>
-                    <p className="text-sm text-gray-600 capitalize">
-                      {platform === 'website' ? 'Site Web' : 
-                       platform === 'mobile_app' ? 'App Mobile' : 'Téléphone'}
-                    </p>
-                    <p className="text-2xl font-bold">{stats?.orders || 0}</p>
-                    <p className="text-sm text-gray-500">{stats?.revenue?.toFixed(2) || 0}€ de revenus</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+        {safelyRenderPlatformStats()}
       </div>
 
       {/* Filtres et recherche */}

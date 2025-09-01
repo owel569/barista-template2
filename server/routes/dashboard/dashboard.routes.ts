@@ -484,3 +484,177 @@ router.get('/alerts',
 );
 
 export default router;
+import { Router, Request, Response } from 'express';
+import { getDb } from '../../db';
+import { orders, reservations, users, menuCategories } from '../../../shared/schema';
+import { sql, count } from 'drizzle-orm';
+import { authenticateUser } from '../../middleware/auth';
+import { createLogger } from '../../middleware/logging';
+
+const router = Router();
+const logger = createLogger('DASHBOARD_ROUTES');
+
+interface DashboardStats {
+  reservations: number;
+  revenue: number;
+  orders: number;
+  customers: number;
+}
+
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: number;
+    username: string;
+    role: string;
+    permissions: string[];
+    isActive: boolean;
+    email: string;
+  };
+}
+
+// Helper function to safely handle query parameters
+const getQueryParam = (param: string | string[] | undefined): string => {
+  if (Array.isArray(param)) {
+    return param[0] || '';
+  }
+  return param || '';
+};
+
+// Route pour récupérer les statistiques du dashboard
+router.get('/statistics', authenticateUser, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const db = getDb();
+    
+    // Récupérer les statistiques de base
+    const [reservationCount] = await db.select({ count: count() }).from(reservations);
+    const [orderCount] = await db.select({ count: count() }).from(orders);
+    const [userCount] = await db.select({ count: count() }).from(users);
+    
+    // Calculer le chiffre d'affaires (simulé)
+    const revenueQuery = await db.select({
+      total: sql<number>`COALESCE(SUM(CASE WHEN ${orders.status} = 'completed' THEN CAST(${orders.items} AS DECIMAL) * 15.0 ELSE 0 END), 0)`
+    }).from(orders);
+    
+    const stats: DashboardStats = {
+      reservations: reservationCount.count,
+      orders: orderCount.count,
+      revenue: revenueQuery[0]?.total || 0,
+      customers: userCount.count
+    };
+
+    res.json({
+      success: true,
+      data: stats,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    logger.error('Erreur lors de la récupération des statistiques dashboard', { error });
+    res.status(500).json({
+      success: false,
+      error: 'Erreur lors de la récupération des statistiques',
+      details: process.env.NODE_ENV === 'development' ? error : undefined
+    });
+  }
+});
+
+// Route pour récupérer les données de revenus par période
+router.get('/revenue', authenticateUser, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const period = getQueryParam(req.query.period) || 'week';
+    const db = getDb();
+    
+    // Simuler les données de revenus basées sur les commandes
+    const revenueData = await db.select({
+      date: sql<string>`DATE(${orders.createdAt})`,
+      revenue: sql<number>`COALESCE(SUM(CASE WHEN ${orders.status} = 'completed' THEN 15.0 ELSE 0 END), 0)`
+    })
+    .from(orders)
+    .groupBy(sql`DATE(${orders.createdAt})`)
+    .orderBy(sql`DATE(${orders.createdAt}) DESC`)
+    .limit(period === 'month' ? 30 : 7);
+
+    res.json({
+      success: true,
+      data: revenueData,
+      period
+    });
+
+  } catch (error) {
+    logger.error('Erreur lors de la récupération des données de revenus', { error });
+    res.status(500).json({
+      success: false,
+      error: 'Erreur lors de la récupération des revenus'
+    });
+  }
+});
+
+// Route pour récupérer les commandes récentes
+router.get('/recent-orders', authenticateUser, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const limit = parseInt(getQueryParam(req.query.limit)) || 10;
+    const db = getDb();
+    
+    const recentOrders = await db.select({
+      id: orders.id,
+      customerName: orders.customerName,
+      status: orders.status,
+      items: orders.items,
+      createdAt: orders.createdAt
+    })
+    .from(orders)
+    .orderBy(sql`${orders.createdAt} DESC`)
+    .limit(limit);
+
+    res.json({
+      success: true,
+      data: recentOrders
+    });
+
+  } catch (error) {
+    logger.error('Erreur lors de la récupération des commandes récentes', { error });
+    res.status(500).json({
+      success: false,
+      error: 'Erreur lors de la récupération des commandes récentes'
+    });
+  }
+});
+
+// Route pour récupérer les alertes système
+router.get('/alerts', authenticateUser, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    // Simuler des alertes basées sur les données système
+    const alerts = [
+      {
+        id: 1,
+        type: 'warning',
+        title: 'Stock faible',
+        message: 'Certains articles sont en rupture de stock',
+        timestamp: new Date().toISOString(),
+        severity: 'medium'
+      },
+      {
+        id: 2,
+        type: 'info',
+        title: 'Pic d\'affluence',
+        message: 'Affluence importante prévue ce soir',
+        timestamp: new Date().toISOString(),
+        severity: 'low'
+      }
+    ];
+
+    res.json({
+      success: true,
+      data: alerts
+    });
+
+  } catch (error) {
+    logger.error('Erreur lors de la récupération des alertes', { error });
+    res.status(500).json({
+      success: false,
+      error: 'Erreur lors de la récupération des alertes'
+    });
+  }
+});
+
+export default router;

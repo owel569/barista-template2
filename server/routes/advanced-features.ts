@@ -2,12 +2,17 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { createLogger } from '../middleware/logging';
 import jwt from 'jsonwebtoken';
 
+interface AuthenticatedUser {
+  id: number;
+  username: string;
+  role: string;
+  permissions: string[];
+  isActive: boolean;
+  email: string;
+}
+
 interface AuthenticatedRequest extends Request {
-  user?: {
-    id: number;
-    username: string;
-    role: string;
-  };
+  user?: AuthenticatedUser;
 }
 
 const router = Router();
@@ -17,38 +22,45 @@ const logger = createLogger('ADVANCED_FEATURES_ROUTES');
 const JWT_SECRET = process.env.JWT_SECRET || 'barista-secret-key-ultra-secure-2025';
 
 // Middleware d'authentification
-const authenticateUser = (req: Request, res: Response, next: NextFunction) => {
+const authenticateUser = (req: Request, res: Response, next: NextFunction): void => {
   const authHeader = req.headers['authorization'];
   const token = authHeader?.split(' ')[1];
 
   if (!token) {
-    return res.status(401).json({ 
+    res.status(401).json({ 
       success: false,
       error: 'Token manquant' 
     });
+    return;
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { id: number; username: string; role: string };
-    (req as AuthenticatedRequest).user = decoded;
+    const decoded = jwt.verify(token, JWT_SECRET) as AuthenticatedUser;
+    (req as AuthenticatedRequest).user = {
+      ...decoded,
+      permissions: decoded.permissions || [],
+      isActive: decoded.isActive ?? true,
+      email: decoded.email || `${decoded.username}@example.com`
+    };
     next();
   } catch (error) {
     logger.error('Erreur de vérification du token', { error });
-    return res.status(403).json({ 
+    res.status(403).json({ 
       success: false,
       error: 'Token invalide ou expiré' 
     });
   }
 };
 
-// Schémas de validation
-const chatbotSchema = {
-  respond: {
-    body: {
-      message: 'string|required|min:3|max:500'
-    }
-  }
-};
+// Types pour les réponses
+interface ChatbotResponse {
+  response: string;
+  timestamp: string;
+}
+
+interface ModuleConfig {
+  [key: string]: unknown;
+}
 
 // === UTILITAIRES ===
 const handleError = (res: Response, error: unknown, context: string) => {
@@ -65,7 +77,7 @@ const handleError = (res: Response, error: unknown, context: string) => {
 // === INTELLIGENCE ARTIFICIELLE ===
 
 // Chatbot IA
-router.get('/ai/chatbot/conversations', authenticateUser, async (req, res) => {
+router.get('/ai/chatbot/conversations', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
   try {
     const conversations = [
       { 
@@ -93,15 +105,16 @@ router.get('/ai/chatbot/conversations', authenticateUser, async (req, res) => {
   }
 });
 
-router.post('/ai/chatbot/respond', authenticateUser, async (req, res) => {
+router.post('/ai/chatbot/respond', authenticateUser, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { message } = req.body;
 
     if (!message || typeof message !== 'string') {
-      return res.status(400).json({ 
+      res.status(400).json({ 
         success: false,
         error: 'Message invalide' 
       });
+      return;
     }
 
     // Simulation réponse IA
@@ -115,12 +128,14 @@ router.post('/ai/chatbot/respond', authenticateUser, async (req, res) => {
       response = "Nous sommes ouverts tous les jours de 7h à 22h.";
     }
 
+    const responseData: ChatbotResponse = { 
+      response, 
+      timestamp: new Date().toISOString() 
+    };
+
     res.json({ 
       success: true,
-      data: { 
-        response, 
-        timestamp: new Date().toISOString() 
-      }
+      data: responseData
     });
   } catch (error) {
     handleError(res, error, 'la génération de réponse du chatbot');
@@ -128,7 +143,7 @@ router.post('/ai/chatbot/respond', authenticateUser, async (req, res) => {
 });
 
 // Vision par ordinateur
-router.get('/ai/vision/quality-checks', authenticateUser, async (req, res) => {
+router.get('/ai/vision/quality-checks', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
   try {
     const checks = [
       { id: 1, dish: 'Cappuccino', quality: 'Excellent', score: 95, issues: [] },
@@ -146,7 +161,7 @@ router.get('/ai/vision/quality-checks', authenticateUser, async (req, res) => {
 });
 
 // Prédiction de la demande
-router.get('/ai/prediction/demand', authenticateUser, async (req, res) => {
+router.get('/ai/prediction/demand', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
   try {
     const predictions = {
       tomorrow: {
@@ -178,7 +193,7 @@ router.get('/ai/prediction/demand', authenticateUser, async (req, res) => {
 // === APPLICATIONS MOBILES ===
 
 // App Staff
-router.get('/mobile/staff/notifications', authenticateUser, async (req, res) => {
+router.get('/mobile/staff/notifications', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
   try {
     const notifications = [
       { 
@@ -205,7 +220,7 @@ router.get('/mobile/staff/notifications', authenticateUser, async (req, res) => 
 });
 
 // App Manager
-router.get('/mobile/manager/dashboard', authenticateUser, async (req, res) => {
+router.get('/mobile/manager/dashboard', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
   try {
     const dashboard = {
       todayRevenue: 1250.75,
@@ -227,7 +242,7 @@ router.get('/mobile/manager/dashboard', authenticateUser, async (req, res) => {
 // === PRÉSENCE DIGITALE ===
 
 // Réseaux sociaux
-router.get('/digital/social/posts', authenticateUser, async (req, res) => {
+router.get('/digital/social/posts', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
   try {
     const posts = [
       { 
@@ -256,7 +271,7 @@ router.get('/digital/social/posts', authenticateUser, async (req, res) => {
 });
 
 // E-reputation
-router.get('/digital/reviews/summary', authenticateUser, async (req, res) => {
+router.get('/digital/reviews/summary', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
   try {
     const reviews = {
       average: 4.7,
@@ -293,7 +308,7 @@ router.get('/digital/reviews/summary', authenticateUser, async (req, res) => {
 // === PAIEMENTS & FINTECH ===
 
 // Paiements mobiles
-router.get('/fintech/payments/methods', authenticateUser, async (req, res) => {
+router.get('/fintech/payments/methods', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
   try {
     const methods = [
       { id: 1, name: 'Apple Pay', enabled: true, usage: 45 },
@@ -314,7 +329,7 @@ router.get('/fintech/payments/methods', authenticateUser, async (req, res) => {
 // === DURABILITÉ & RSE ===
 
 // Gestion des déchets
-router.get('/sustainability/waste/tracking', authenticateUser, async (req, res) => {
+router.get('/sustainability/waste/tracking', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
   try {
     const waste = {
       daily: {
@@ -342,7 +357,7 @@ router.get('/sustainability/waste/tracking', authenticateUser, async (req, res) 
 // === TECHNOLOGIES ÉMERGENTES ===
 
 // IoT
-router.get('/iot/sensors/status', authenticateUser, async (req, res) => {
+router.get('/iot/sensors/status', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
   try {
     const sensors = [
       { id: 1, name: 'Température frigo', value: 4.2, unit: '°C', status: 'normal' },
@@ -362,7 +377,7 @@ router.get('/iot/sensors/status', authenticateUser, async (req, res) => {
 // === MARKETING & CRM AVANCÉ ===
 
 // Campagnes automatisées
-router.get('/marketing/campaigns/automated', authenticateUser, async (req, res) => {
+router.get('/marketing/campaigns/automated', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
   try {
     const campaigns = [
       { 
@@ -393,7 +408,7 @@ router.get('/marketing/campaigns/automated', authenticateUser, async (req, res) 
 // === SÉCURITÉ & CONFORMITÉ ===
 
 // Audit RGPD
-router.get('/security/gdpr/compliance', authenticateUser, async (req, res) => {
+router.get('/security/gdpr/compliance', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
   try {
     const compliance = {
       dataProcessing: 'Conforme',
@@ -417,7 +432,7 @@ router.get('/security/gdpr/compliance', authenticateUser, async (req, res) => {
 // === MULTI-ÉTABLISSEMENTS ===
 
 // Gestion centralisée
-router.get('/multi-site/overview', authenticateUser, async (req, res) => {
+router.get('/multi-site/overview', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
   try {
     const sites = [
       { id: 1, name: 'Barista Centre', revenue: 15420.50, customers: 1247, staff: 8 },
@@ -435,7 +450,7 @@ router.get('/multi-site/overview', authenticateUser, async (req, res) => {
 });
 
 // Route pour les insights IA temps réel
-router.get('/ai-insights', authenticateUser, async (req, res) => {
+router.get('/ai-insights', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
   try {
     const insights = [
       {
@@ -472,7 +487,7 @@ router.get('/ai-insights', authenticateUser, async (req, res) => {
 });
 
 // Route pour les métriques de performance IA
-router.get('/ai-metrics', authenticateUser, async (req, res) => {
+router.get('/ai-metrics', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
   try {
     const metrics = {
       chatbotEffectiveness: 0.85,
@@ -490,7 +505,7 @@ router.get('/ai-metrics', authenticateUser, async (req, res) => {
 });
 
 // Route pour les rapports complets
-router.get('/reports', authenticateUser, async (req, res) => {
+router.get('/reports', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
   try {
     const reports = [
       {
@@ -516,7 +531,7 @@ router.get('/reports', authenticateUser, async (req, res) => {
 });
 
 // Route pour générer un rapport
-router.post('/reports/:reportId/generate', authenticateUser, async (req, res) => {
+router.post('/reports/:reportId/generate', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
   try {
     const { reportId } = req.params;
 
@@ -544,7 +559,7 @@ router.post('/reports/:reportId/generate', authenticateUser, async (req, res) =>
 });
 
 // Route pour récupérer les modules avancés
-router.get('/modules', authenticateUser, async (req, res) => {
+router.get('/modules', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
   try {
     const modules = [
       {
@@ -567,7 +582,7 @@ router.get('/modules', authenticateUser, async (req, res) => {
 });
 
 // Routes pour activer/désactiver les modules
-router.post('/modules/:moduleId/activate', authenticateUser, async (req, res) => {
+router.post('/modules/:moduleId/activate', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
   try {
     const { moduleId } = req.params;
 
@@ -591,7 +606,7 @@ router.post('/modules/:moduleId/activate', authenticateUser, async (req, res) =>
   }
 });
 
-router.post('/modules/:moduleId/deactivate', authenticateUser, async (req, res) => {
+router.post('/modules/:moduleId/deactivate', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
   try {
     const { moduleId } = req.params;
 
@@ -616,7 +631,7 @@ router.post('/modules/:moduleId/deactivate', authenticateUser, async (req, res) 
 });
 
 // Route pour configurer un module
-router.post('/modules/:moduleId/configure', authenticateUser, async (req, res) => {
+router.post('/modules/:moduleId/configure', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
   try {
     const { moduleId } = req.params;
     const { config } = req.body;
@@ -642,7 +657,7 @@ router.post('/modules/:moduleId/configure', authenticateUser, async (req, res) =
 });
 
 // Route pour les KPIs temps réel
-router.get('/kpis', authenticateUser, async (req, res) => {
+router.get('/kpis', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
   try {
     const kpis = {
       dailyRevenue: 654.50,
@@ -663,7 +678,7 @@ router.get('/kpis', authenticateUser, async (req, res) => {
 });
 
 // Routes pour les fonctionnalités avancées
-router.get('/modules-status', authenticateUser, async (req, res) => {
+router.get('/modules-status', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
   try {
     const modulesStatus = {
       inventory: { active: true, lastSync: new Date().toISOString() },
