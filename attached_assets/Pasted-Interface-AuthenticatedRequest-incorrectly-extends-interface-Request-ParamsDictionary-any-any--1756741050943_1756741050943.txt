@@ -1,0 +1,402 @@
+Interface 'AuthenticatedRequest' incorrectly extends interface 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'. The types of 'user.role' are incompatible between these types. Type 'string' is not assignable to type 'AppRole'.
+(typescript)
+Ln 14, Col 11
+'ModuleConfig' is declared but never used.
+(typescript)
+Ln 61, Col 11
+'req' is declared but its value is never read.
+(typescript)
+Ln 311, Col 66
+'req' is declared but its value is never read.
+(typescript)
+Ln 332, Col 71
+'req' is declared but its value is never read.
+(typescript)
+Ln 360, Col 60
+'req' is declared but its value is never read.
+(typescript)
+Ln 380, Col 71
+'req' is declared but its value is never read.
+(typescript)
+Ln 411, Col 66
+'req' is declared but its value is never read.
+(typescript)
+Ln 435, Col 61
+'req' is declared but its value is never read.
+(typescript)
+Ln 453, Col 53
+'req' is declared but its value is never read.
+(typescript)
+Ln 490, Col 52
+'req' is declared but its value is never read.
+(typescript)
+Ln 508, Col 49
+Not all code paths return a value.
+(typescript)
+Ln 534, Col 62
+'req' is declared but its value is never read.
+(typescript)
+Ln 562, Col 49
+Not all code paths return a value.
+(typescript)
+Ln 585, Col 62
+Not all code paths return a value.
+(typescript)
+Ln 609, Col 64
+Not all code paths return a value.
+(typescript)
+Ln 634, Col 63
+'req' is declared but its value is never read.
+(typescript)
+Ln 660, Col 46
+'req' is declared but its value is never read.
+(typescript)
+Ln 681, Col 56
+Chats
+Archived
+Correction des erreurs de type npm run type-check
+58 minutes ago
+ce que je viende te partager c'est la sorti de la commande npm run type-check comme tu le voie les erreur sont multiple je veux que tu les corrige. j'ai modifier mes fichier manuelement avec deepseek mais il y'a des probleme d'import ou de declaration de type je ne sais pas si tu as acces au diagostique de code mais je veux que tu corrige, optimise,complete et ajoute ce qu'il manque certains declaration peuvent etre utile pour le code analyse les et trouve une solution adéquat utilise la commande npm run type-check fait le jusqua atteindre 0 eurreur noublie pas quil me faut des type precis
+
+GA
+
+amiekofi54321
+Assistant
+57 minutes ago
+Je vais analyser et corriger toutes ces erreurs TypeScript. Les problèmes principaux sont liés à exactOptionalPropertyTypes: true, les types d'import/export, et les incompatibilités de types. Commençons par les corrections principales :
+
+1. Correction des types manquants et des imports
+client/src/components/ui/index.ts
+2. Correction du hook useToast
+client/src/hooks/use-toast.ts
+3. Correction des types de permissions
+client/src/constants/permissions.ts
+4. Correction du hook usePermissions
+client/src/hooks/usePermissions.ts
+5. Correction des composants UI avec exactOptionalPropertyTypes
+client/src/components/ui/accordion.tsx
+6. Ajout du composant ScrollArea manquant
+client/src/components/admin/reservation-dialog.tsx
+7. Correction des types MaintenanceTask
+client/src/types/maintenance.ts
+8. Correction des types User
+client/src/types/admin.ts
+9. Correction des imports manquants
+client/src/components/admin/MaintenanceTaskForm.tsx
+client/src/components/admin/messages.tsx
+10. Correction des WebSocket types
+client/src/hooks/useWebSocket.ts
+11. Correction du module qrcode
+npm install --save-dev @types/qrcode
+12. Correction des imports React
+client/src/components/ui/ui-utils.ts
+13. Ajout des packages manquants
+npm install react-error-boundary
+14. Correction des types de Progress
+client/src/components/ui/progress.tsx
+15. Vérification et correction continue
+npm run type-check
+Maintenant je vais corriger les erreurs spécifiques aux composants :
+
+client/src/components/admin/settings.tsx
+Cette approche systématique devrait résoudre la majorité des erreurs TypeScript. Continuons avec le type-check pour identifier les erreurs restantes.
+
+Checkpoint made
+Fix TypeScript errors with strict types
+50 minutes ago
+•
+continue
+
+GA
+
+amiekofi54321
+Assistant
+43 minutes ago
+Je vois que vous avez plusieurs erreurs TypeScript à corriger. D'après les logs, il y a un conflit de nom dans useWebSocket.ts avec la variable reconnect qui est déclarée deux fois. Commençons par corriger ce problème principal puis nous lancerons npm run type-check pour voir les autres erreurs.
+
+client/src/hooks/useWebSocket.ts
+Maintenant, je dois aussi corriger l'export manquant AvatarFallback dans le fichier index.ts. Je vois que vous l'exportez mais le composant avatar.tsx n'existe peut-être pas complètement.
+
+Maintenant lançons le type-check pour voir les erreurs restantes :
+
+npm run type-check
+j'ai beaucoup d'eurreur lie a undefinine
+
+GA
+
+amiekofi54321
+Assistant
+27 minutes ago
+Je vois que vous avez plusieurs erreurs TypeScript liées à des valeurs undefined et des types mal définis. D'après les logs de la console, il y a encore un problème avec la variable reconnect dans useWebSocket.ts. Commençons par corriger cela, puis nous lancerons le type-check pour voir toutes les erreurs restantes.
+
+client/src/hooks/useWebSocket.ts
+Fix reconnect variable name conflict by renaming the callback function, Update return object to use the renamed function
+Je dois aussi créer le fichier avatar.tsx qui manque pour corriger l'erreur d'export AvatarFallback :
+
+client/src/components/ui/avatar.tsx
+Create missing avatar component with proper exports
+Maintenant, lançons le type-check pour voir toutes les erreurs TypeScript restantes :
+
+npm run type-check
+Checkpoint made
+Fix WebSocket reconnect conflict and Avatar export
+28 minutes ago
+•
+on continue avec les erreur qui sont dans les fichiers dasboard route , online ordering et server/routes/advanced-features.ts je veux que tu complete corrige et optimise ajoute sce quil manque et trouve une utilie au import qui ne sont pas utiliser je veux des type precis
+
+Code Diagnostics
+'useEffect' is declared but its value is never read.
+(typescript)
+Ln 1, Col 27
+'Input' is declared but its value is never read.
+(typescript)
+Ln 5, Col 1
+'Label' is declared but its value is never read.
+(typescript)
+Ln 6, Col 1
+'Textarea' is declared but its value is never read.
+(typescript)
+Ln 7, Col 1
+'DialogTrigger' is declared but its value is never read.
+(typescript)
+Ln 10, Col 93
+'Smartphone' is declared but its value is never read.
+(typescript)
+Ln 11, Col 64
+'menuLoading' is declared but its value is never read.
+(typescript)
+Ln 74, Col 44
+'ordersLoading' is declared but its value is never read.
+(typescript)
+Ln 82, Col 47
+Object is possibly 'undefined'.
+(typescript)
+Ln 131, Col 7
+Type '{ id: number; menuItem: MenuItem; quantity: number; customizations: Record<string, string>; notes: string | undefined; }' is not assignable to type 'CartItem' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties. Types of property 'notes' are incompatible. Type 'string | undefined' is not assignable to type 'string'. Type 'undefined' is not assignable to type 'string'.
+(typescript)
+Ln 134, Col 13
+'option' is declared but its value is never read.
+(typescript)
+Ln 164, Col 82
+
+GA
+
+amiekofi54321
+Assistant
+12 minutes ago
+Message was stopped
+on continue avec les erreur qui sont dans les fichiers dasboard route , online ordering et server/routes/advanced-features.ts je veux que tu complete corrige et optimise ajoute sce quil manque et trouve une utilie au import qui ne sont pas utiliser je veux des type precis
+
+Code Diagnostics
+'useEffect' is declared but its value is never read.
+(typescript)
+Ln 1, Col 27
+'Input' is declared but its value is never read.
+(typescript)
+Ln 5, Col 1
+'Label' is declared but its value is never read.
+(typescript)
+Ln 6, Col 1
+'Textarea' is declared but its value is never read.
+(typescript)
+Ln 7, Col 1
+'DialogTrigger' is declared but its value is never read.
+(typescript)
+Ln 10, Col 93
+'Smartphone' is declared but its value is never read.
+(typescript)
+Ln 11, Col 64
+'menuLoading' is declared but its value is never read.
+(typescript)
+Ln 74, Col 44
+'ordersLoading' is declared but its value is never read.
+(typescript)
+Ln 82, Col 47
+Object is possibly 'undefined'.
+(typescript)
+Ln 131, Col 7
+Type '{ id: number; menuItem: MenuItem; quantity: number; customizations: Record<string, string>; notes: string | undefined; }' is not assignable to type 'CartItem' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties. Types of property 'notes' are incompatible. Type 'string | undefined' is not assignable to type 'string'. Type 'undefined' is not assignable to type 'string'.
+(typescript)
+Ln 134, Col 13
+'option' is declared but its value is never read.
+(typescript)
+Ln 164, Col 82
+
+server/routes/advanced-features.ts
+
+GA
+
+amiekofi54321
+Assistant
+10 minutes ago
+Je vais corriger les erreurs TypeScript dans les fichiers dashboard.routes.ts, online-ordering.tsx et server/routes/advanced-features.ts. Commençons par les corrections :
+
+1. Correction du fichier online-ordering.tsx
+client/src/components/admin/online-ordering.tsx
+2. Création du fichier dashboard routes manquant
+server/routes/dashboard/dashboard.routes.ts
+3. Correction du fichier advanced-features.ts
+server/routes/advanced-features.ts
+Continuons avec les autres routes de la même manière. Je vais effectuer un remplacement global pour toutes les routes qui n'utilisent pas le paramètre req :
+
+Je vais maintenant corriger toutes les autres routes en une seule opération pour être plus efficace :
+
+Je vais maintenant créer un script pour corriger automatiquement toutes les routes restantes :
+
+sed -i 's/async (req, res)/async (_req: AuthenticatedRequest, res: Response)/g' server/routes/advanced-features.ts
+Checkpoint made
+Fix TypeScript errors in dashboard, online-ordering and advanced-features
+7 minutes ago
+•
+d'accord mais tu as fait une erreur a dasboard route et tu as dupliquer le code
+
+GA
+
+amiekofi54321
+Assistant
+5 minutes ago
+Vous avez raison, j'ai effectivement dupliqué le code dans le fichier dashboard.routes.ts. Je vais corriger cela en gardant seulement la version complète et optimisée.
+
+server/routes/dashboard/dashboard.routes.ts
+Assistant automatically restarted your App after applying file changes. You can disable this behavior in 
+.
+Checkpoint made
+Nettoyage code dupliqué dashboard routes
+just now
+•
+
+Scroll to latest
+Assistant mode
+
+advanced
+Claude 4.0 Sonnet
+toujour dans dasboard route j'ai 
+
+// ===== COMPOSANTS DE BASE =====
+// Types consolidés pour éviter les conflits
+export type { SafeObject, BaseUIComponentProps } from './ui-utils'
+
+// Types spécifiques
+export type {
+  // Basic components
+  LabelProps,
+  TextareaProps,
+
+  // Form components
+  CheckboxProps,
+  RadioGroupProps,
+  SwitchProps,
+  SelectProps,
+  FormFieldProps,
+
+  // Data types
+  ComboboxOption,
+  MultiSelectOption,
+  TableColumn,
+  DataTableProps,
+  DateRangePickerProps,
+  DatePickerProps,
+
+  // Alert components
+  AlertProps,
+  AlertDescriptionProps,
+
+  ComponentVariant,
+  ComponentSize,
+  AccessibilityProps,
+  SafeEventHandler,
+
+  // Country and Phone
+  Country,
+  InternationalPhoneInputProps,
+
+  // Loading states  
+  LoadingSpinnerProps,
+  LoadingPageProps,
+  SkeletonLoaderProps,
+
+  // Chart types
+  ChartConfig,
+  StatsCardProps,
+
+  // Navigation
+  BreadcrumbProps,
+  PaginationProps,
+
+  // Modals
+  ConfirmationDialogProps,
+
+  // Layout
+  ResizableLayoutProps,
+  ResizablePanelGroupProps,
+  ResizableHandleProps,
+
+  // Media
+  AspectRatioProps,
+
+  // Collapsible
+  CollapsibleTriggerButtonProps,
+  CollapsibleContentWrapperProps,
+} from "./types"
+
+// ===== HOOKS UTILITAIRES =====
+export {
+  // Hooks de chargement
+  useLoading,
+  useLoadingButton,
+
+  // Hooks de formulaire
+  useInternationalPhoneInput,
+
+  // Hooks de données
+  useDataTable,
+
+  // Hooks d'interaction
+  useConfirmationDialog,
+  useAccordion,
+  useCollapsible,
+
+  // Hooks de layout
+  useResizablePanels,
+} from "./hooks"
+
+Enable "Accessible Terminal" in Workspace Settings to use a screen reader with the shell.
+
+
+Unified
+
+Split
+⦚ 159 unchanged lines ⦚
+});
+AvatarGroup.displayName = "AvatarGroup";
+
+export { Avatar, AvatarImage, AvatarFallback, AvatarGroup, avatarVariants }
+⦚ 159 unchanged lines ⦚
+});
+AvatarGroup.displayName = "AvatarGroup";
+
+export { Avatar, AvatarImage, AvatarFallback, AvatarGroup, avatarVariants }
+import * as React from "react"
+import * as AvatarPrimitive from "@radix-ui/react-avatar"
+import { cn } from "@/lib/utils"
+
+const Avatar = React.forwardRef<
+  React.ElementRef<typeof AvatarPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>
+>(({ className, ...props }, ref) => (
+  <AvatarPrimitive.Root
+    ref={ref}
+    className={cn(
+      "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
+      className
+    )}
+    {...props}
+  />
+))
+Avatar.displayName = AvatarPrimitive.Root.displayName
+
+const AvatarImage = React.forwardRef<
+  React.ElementRef<typeof AvatarPrimitive.Image>,
+  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>
+>(({ className, ...props }, ref) => (
+  <AvatarPrimitive.Image

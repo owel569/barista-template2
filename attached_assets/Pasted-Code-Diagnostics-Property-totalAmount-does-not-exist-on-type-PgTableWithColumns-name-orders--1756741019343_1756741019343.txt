@@ -1,0 +1,61 @@
+Code Diagnostics
+Property 'totalAmount' does not exist on type 'PgTableWithColumns<{ name: "orders"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 14 more ...; updatedAt: PgColumn<......'.
+(typescript)
+Ln 90, Col 57
+Property 'totalAmount' does not exist on type 'PgTableWithColumns<{ name: "orders"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 14 more ...; updatedAt: PgColumn<......'.
+(typescript)
+Ln 103, Col 57
+Property 'totalAmount' does not exist on type 'PgTableWithColumns<{ name: "orders"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 14 more ...; updatedAt: PgColumn<......'.
+(typescript)
+Ln 104, Col 62
+'req' is declared but its value is never read.
+(typescript)
+Ln 210, Col 65
+Property 'totalAmount' does not exist on type 'PgTableWithColumns<{ name: "orders"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 14 more ...; updatedAt: PgColumn<......'.
+(typescript)
+Ln 220, Col 92
+'reservationCount' is possibly 'undefined'.
+(typescript)
+Ln 224, Col 19
+'orderCount' is possibly 'undefined'.
+(typescript)
+Ln 225, Col 13
+'userCount' is possibly 'undefined'.
+(typescript)
+Ln 227, Col 16
+Argument of type 'string | string[] | ParsedQs | ParsedQs[] | undefined' is not assignable to parameter of type 'string | string[] | undefined'. Type 'ParsedQs' is not assignable to type 'string | string[] | undefined'. Type 'ParsedQs' is missing the following properties from type 'string[]': length, pop, push, concat, and 29 more.
+(typescript)
+Ln 239, Col 32
+Property 'totalAmount' does not exist on type 'PgTableWithColumns<{ name: "orders"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 14 more ...; updatedAt: PgColumn<......'.
+(typescript)
+Ln 245, Col 94
+'req' is declared but its value is never read.
+(typescript)
+Ln 264, Col 23
+Property 'totalAmount' does not exist on type 'PgTableWithColumns<{ name: "orders"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 14 more ...; updatedAt: PgColumn<......'.
+(typescript)
+Ln 276, Col 29
+Property 'contactPhone' does not exist on type 'PgTableWithColumns<{ name: "reservations"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>; ... 11 more ...; updatedAt: PgColumn<...>; }; ...'.
+(typescript)
+Ln 299, Col 115
+Property 'totalAmount' does not exist on type 'PgTableWithColumns<{ name: "orders"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 14 more ...; updatedAt: PgColumn<......'.
+(typescript)
+Ln 327, Col 104
+Argument of type 'string | string[] | ParsedQs | ParsedQs[] | undefined' is not assignable to parameter of type 'string | string[] | undefined'. Type 'ParsedQs' is not assignable to type 'string | string[] | undefined'. Type 'ParsedQs' is missing the following properties from type 'string[]': length, pop, push, concat, and 29 more.
+(typescript)
+Ln 362, Col 40
+Property 'customerName' does not exist on type 'PgTableWithColumns<{ name: "orders"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 14 more ...; updatedAt: PgColumn<......'.
+(typescript)
+Ln 367, Col 26
+Property 'totalAmount' does not exist on type 'PgTableWithColumns<{ name: "orders"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 14 more ...; updatedAt: PgColumn<......'.
+(typescript)
+Ln 369, Col 25
+Property 'totalAmount' does not exist on type 'PgTableWithColumns<{ name: "orders"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 14 more ...; updatedAt: PgColumn<......'.
+(typescript)
+Ln 422, Col 52
+'req' is declared but its value is never read.
+(typescript)
+Ln 465, Col 23
+Property 'totalAmount' does not exist on type 'PgTableWithColumns<{ name: "orders"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 14 more ...; updatedAt: PgColumn<......'.
+(typescript)
+Ln 474, Col 29
