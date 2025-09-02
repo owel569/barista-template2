@@ -134,7 +134,7 @@ const AdvancedLoyalty: React.FC = () => {
       toast({
         title: 'Récompense créée',
         description: 'La nouvelle récompense a été ajoutée avec succès.',
-        variant: 'success',
+        variant: 'default',
       });
       setNewRewardDialogOpen(false);
       setNewRewardData({ available: true, type: 'discount' });
@@ -169,7 +169,7 @@ const AdvancedLoyalty: React.FC = () => {
       toast({
         title: 'Points attribués',
         description: 'Les points ont été ajoutés au compte du client avec succès.',
-        variant: 'success',
+        variant: 'default',
       });
     },
     onError: (error: Error) => {
@@ -197,7 +197,7 @@ const AdvancedLoyalty: React.FC = () => {
       toast({
         title: 'Statut mis à jour',
         description: 'La disponibilité de la récompense a été modifiée.',
-        variant: 'success',
+        variant: 'default',
       });
     },
   });

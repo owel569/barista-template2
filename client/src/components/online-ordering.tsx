@@ -1,14 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { ShoppingCart, Plus, Minus, Clock, MapPin, CreditCard, Smartphone, Truck, Store } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ShoppingCart, Plus, Minus, Clock, MapPin, CreditCard, Truck, Store } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 
@@ -79,7 +76,7 @@ const OnlineOrdering: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
-  const { data: menuItems = [], isLoading: menuLoading } = useQuery<MenuItem[]>({
+  const { data: menuItems = [] } = useQuery<MenuItem[]>({
     queryKey: ['/api/menu/items'],
   });
 
@@ -87,13 +84,12 @@ const OnlineOrdering: React.FC = () => {
     queryKey: ['/api/menu/categories'],
   });
 
-  const { data: onlineOrders = [], isLoading: ordersLoading } = useQuery<OnlineOrder[]>({
+  const { data: onlineOrders = [] } = useQuery<OnlineOrder[]>({
     queryKey: ['/api/orders/online'],
   });
 
-  // Utilisation des états de chargement pour l'UX
-  const isLoadingData = menuLoading || ordersLoading;
-  const hasData = menuItems && categories;
+  // Données de base pour le composant
+  const hasMenuItems = menuItems && menuItems.length > 0;
 
 
   const createOrderMutation = useMutation({
@@ -239,12 +235,7 @@ const OnlineOrdering: React.FC = () => {
           <h2 className="text-2xl font-bold">Commandes en Ligne</h2>
           <p className="text-muted-foreground">Système de commandes et interface client</p>
         </div>
-        {isLoadingData && (
-          <div className="flex items-center space-x-2 text-sm text-gray-500">
-            <Clock className="w-4 h-4 animate-spin" />
-            <span>Chargement du menu...</span>
-          </div>
-        )}
+        
         <div className="flex space-x-2">
           <Button variant="outline" onClick={() => setIsCheckoutOpen(true)}>
             <ShoppingCart className="w-4 h-4 mr-2" />

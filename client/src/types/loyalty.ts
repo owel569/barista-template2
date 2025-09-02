@@ -6,16 +6,23 @@ export interface LoyaltyTier {
   benefits: string[];
   color: string;
   multiplier: number;
+  icon?: string;
+  minPoints: number;
+  maxPoints?: number;
 }
 
 export interface LoyaltyReward {
-  id: string;
+  id: number;
   name: string;
   description: string;
   pointsCost: number;
   type: 'discount' | 'free_item' | 'special_offer';
-  value: number;
-  isActive: boolean;
+  value?: number;
+  available: boolean;
+  category?: string;
+  usageCount?: number;
+  maxUsage?: number;
+  expiryDate?: string;
 }
 
 export interface LoyaltyProgram {
@@ -23,7 +30,7 @@ export interface LoyaltyProgram {
   name: string;
   description: string;
   isActive: boolean;
-  tiers: LoyaltyTier[];
+  levels: LoyaltyTier[];
   rewards: LoyaltyReward[];
   pointsPerEuro: number;
   createdAt: Date;
