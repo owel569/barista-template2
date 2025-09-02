@@ -1,0 +1,19 @@
+Code Diagnostics
+'programLoading' is declared but its value is never read.
+(typescript)
+Ln 110, Col 44
+Type '"success"' is not assignable to type '"default" | "destructive"'.
+(typescript)
+Ln 165, Col 9
+Type '"success"' is not assignable to type '"default" | "destructive"'.
+(typescript)
+Ln 200, Col 9
+Type '"success"' is not assignable to type '"default" | "destructive"'.
+(typescript)
+Ln 228, Col 9
+Argument of type '{ pointsCost: number | undefined; id?: number; name?: string; description?: string; type?: "discount" | "free_item" | "special_offer"; value?: number; category?: string; available?: boolean; expiryDate?: string; usageCount?: number; maxUsage?: number; imageUrl?: string; }' is not assignable to parameter of type 'SetStateAction<Partial<LoyaltyReward>>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties. Type '{ pointsCost: number | undefined; id?: number; name?: string; description?: string; type?: "discount" | "free_item" | "special_offer"; value?: number; category?: string; available?: boolean; expiryDate?: string; usageCount?: number; maxUsage?: number; imageUrl?: string; }' is not assignable to type 'Partial<LoyaltyReward>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties. Types of property 'pointsCost' are incompatible. Type 'number | undefined' is not assignable to type 'number'. Type 'undefined' is not assignable to type 'number'.
+(typescript)
+Ln 348, Col 55
+Type '{ children: Element[]; value: "discount" | "free_item" | "special_offer" | undefined; onValueChange: (value: string) => void; }' is not assignable to type '{ value?: string; defaultValue?: string; onValueChange?(value: string): void; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties. Types of property 'value' are incompatible. Type 'string | undefined' is not assignable to type 'string'. Type 'undefined' is not assignable to type 'string'.
+(typescript)
+Ln 353, Col 20
