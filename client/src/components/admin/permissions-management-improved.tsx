@@ -650,11 +650,11 @@ export function PermissionsManagementImproved(): JSX.Element {
                               <Edit2 className="h-4 w-4" />
                             </Button>
                           )}
-                          {canPerform('delete') && user.id !== currentUser?.id && (
+                          {canPerform('delete') && String(user.id) !== String(currentUser?.id) && (
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => setUserToDelete(user)}
+                              onClick={() => setUserToDelete(user as User)}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>

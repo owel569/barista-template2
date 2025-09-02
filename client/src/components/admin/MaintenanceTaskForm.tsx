@@ -31,13 +31,13 @@ interface MaintenanceTaskFormData {
   description: string;
   priority: 'low' | 'medium' | 'high' | 'urgent';
   assignedTo: string;
-  assignedToId?: number;
+  assignedToId?: number | null; // Changed to allow null
   cost?: number;
   scheduledDate: string;
   completedDate?: string;
   estimatedDuration: number;
   equipment: string;
-  equipmentId?: number;
+  equipmentId?: number | null; // Changed to allow null
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
   notes: string;
 }
@@ -49,20 +49,44 @@ export function MaintenanceTaskForm({
   onSubmit,
   onCancel,
 }: MaintenanceTaskFormProps) {
-  const [formData, setFormData] = useState<MaintenanceTaskFormData>(() => ({
-    title: initialData?.title || '',
-    description: initialData?.description || '',
-    priority: (initialData?.priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium',
-    assignedTo: initialData?.assignedTo || '',
-    assignedToId: initialData?.assignedToId,
-    cost: initialData?.cost,
-    scheduledDate: initialData?.scheduledDate || new Date().toISOString().split('T')[0],
-    estimatedDuration: initialData?.estimatedDuration || 1,
-    equipment: initialData?.equipment || '',
-    equipmentId: initialData?.equipmentId,
-    status: (initialData?.status as 'pending' | 'in_progress' | 'completed' | 'cancelled') || 'pending',
-    notes: initialData?.notes || ''
-  }));
+  const [formData, setFormData] = useState<MaintenanceTask>(() => {
+      if (initialData) {
+        return {
+          id: initialData.id || 0,
+          title: initialData.title || '',
+          description: initialData.description || '',
+          type: initialData.type || '', // Assuming 'type' is a string property
+          priority: (initialData.priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium',
+          status: (initialData.status as 'pending' | 'in_progress' | 'completed' | 'cancelled') || 'pending',
+          scheduledDate: initialData.scheduledDate || new Date().toISOString().split('T')[0],
+          estimatedDuration: initialData.estimatedDuration || 1,
+          cost: initialData.cost || 0, // Default to 0 if not provided
+          assignedToId: initialData.assignedToId || null, // Default to null if not provided
+          notes: initialData.notes || '',
+          equipmentId: initialData.equipmentId || null, // Default to null if not provided
+          createdAt: initialData.createdAt || new Date(),
+          updatedAt: initialData.updatedAt || new Date()
+        };
+      } else {
+        // Provide default values if initialData is not present
+        return {
+          id: 0,
+          title: '',
+          description: '',
+          type: '',
+          priority: 'medium',
+          status: 'pending',
+          scheduledDate: new Date().toISOString().split('T')[0],
+          estimatedDuration: 1,
+          cost: 0,
+          assignedToId: null,
+          notes: '',
+          equipmentId: null,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        };
+      }
+    });
 
   const [date, setDate] = useState<Date>(initialData?.scheduledDate ? new Date(initialData.scheduledDate) : new Date());
 
@@ -99,6 +123,13 @@ export function MaintenanceTaskForm({
         equipmentId: selectedEquipment.id,
         equipment: selectedEquipment.name,
       }));
+    } else {
+      // Handle case where no equipment is selected or found
+      setFormData(prev => ({
+        ...prev,
+        equipmentId: null,
+        equipment: '',
+      }));
     }
   };
 
@@ -108,14 +139,35 @@ export function MaintenanceTaskForm({
       setFormData(prev => ({
         ...prev,
         assignedTo: selectedTechnician.name,
-        assignedToId: selectedTechnician.id,
+        assignedToId: selectedTechnician.id || null, // Ensure it's null if ID is somehow not a number, though parseInt should handle this
+      }));
+    } else {
+      // Handle case where no technician is selected or found
+      setFormData(prev => ({
+        ...prev,
+        assignedTo: '',
+        assignedToId: null,
       }));
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    // Ensure required fields have values before submitting
+    const taskToSubmit: Omit<MaintenanceTask, 'id'> = {
+      title: formData.title,
+      description: formData.description,
+      type: formData.type,
+      priority: formData.priority,
+      status: formData.status,
+      scheduledDate: formData.scheduledDate,
+      estimatedDuration: formData.estimatedDuration,
+      cost: formData.cost,
+      assignedToId: formData.assignedToId,
+      notes: formData.notes,
+      equipmentId: formData.equipmentId,
+    };
+    onSubmit(taskToSubmit);
   };
 
   return (

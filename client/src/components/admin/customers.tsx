@@ -425,7 +425,7 @@ function Customers({ userRole, user }: CustomersProps) {
 
       if (response.ok) {
         setCustomers(prev => prev.filter(customer => customer.id !== id));
-        toast({
+        toast.toast({
           title: "Succès",
           description: "Client supprimé avec succès",
         });

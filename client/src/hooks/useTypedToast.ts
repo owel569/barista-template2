@@ -1,30 +1,35 @@
-
 import { useToast } from './use-toast';
 
-export function useTypedToast() {
+export const useTypedToast = () => {
   const { toast } = useToast();
-  
+
+  const success = (message: string, description?: string) => {
+    toast({
+      title: message,
+      description,
+      variant: "default",
+    });
+  };
+
+  const error = (title: string, description?: string) => {
+    toast({
+      title,
+      description,
+      variant: "destructive",
+    });
+  };
+
+  const info = (title: string, description?: string) => {
+    toast({
+      title,
+      description,
+    });
+  };
+
   return {
-    success: (title: string, description?: string) => {
-      toast({
-        title,
-        description,
-        variant: "default",
-      });
-    },
-    error: (title: string, description?: string) => {
-      toast({
-        title,
-        description,
-        variant: "destructive",
-      });
-    },
-    info: (title: string, description?: string) => {
-      toast({
-        title,
-        description,
-      });
-    },
-    toast: toast,
+    success,
+    error,
+    info,
+    toast,
   };
 }

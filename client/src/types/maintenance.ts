@@ -1,20 +1,18 @@
-
 export interface MaintenanceTask {
-  id: string;
+  id: number;
   title: string;
   description: string;
-  equipment: string;
-  equipmentId: number;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  type: 'preventive' | 'corrective' | 'emergency';
+  priority: 'low' | 'medium' | 'high' | 'critical';
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
-  assignedTo?: string;
-  scheduledDate?: string;
-  completedDate?: string;
-  estimatedDuration?: number;
-  actualDuration?: number;
+  scheduledDate: string;
+  estimatedDuration: number;
+  cost?: number;
+  assignedToId?: number | null;
   notes?: string;
-  createdAt: string;
-  updatedAt: string;
+  equipmentId?: number | null;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface ContactMessage {

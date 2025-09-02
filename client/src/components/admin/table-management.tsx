@@ -169,7 +169,11 @@ export default function TableManagement(): JSX.Element {
   // Mutations
   const createTableMutation = useMutation({
     mutationFn: (data: Omit<RestaurantTable, 'id'>) => 
-      apiRequest('/api/admin/tables', { method: 'POST', data }),
+      apiRequest('/api/admin/tables', { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data) 
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/tables'] });
       toast({ title: "Table créée avec succès", variant: "success" });
