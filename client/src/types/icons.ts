@@ -13,6 +13,6 @@ export function createIconWrapper<T extends React.ComponentType<any>>(
   IconComponent: T
 ): React.ComponentType<{ className?: string }> {
   return function WrappedIcon({ className }: { className?: string }) {
-    return <IconComponent className={className} />;
+    return React.createElement(IconComponent, { className });
   };
 }
