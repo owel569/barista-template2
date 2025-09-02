@@ -166,13 +166,12 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
     }
   };
 
-  const getStatusColor = (status: ContactMessage['status']) => {
+  const getStatusBadgeColor = (status: ContactMessage['status']) => {
     switch (status) {
-      case 'nouveau': return 'bg-blue-100 text-blue-800';
-      case 'non_lu': return 'bg-red-100 text-red-800';
-      case 'lu': return 'bg-yellow-100 text-yellow-800';
-      case 'traite': return 'bg-green-100 text-green-800';
-      case 'archive': return 'bg-gray-100 text-gray-800';
+      case 'unread': return 'bg-blue-100 text-blue-800';
+      case 'read': return 'bg-yellow-100 text-yellow-800';
+      case 'replied': return 'bg-green-100 text-green-800';
+      case 'archived': return 'bg-gray-100 text-gray-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -201,8 +200,8 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
   const stats = useMemo(() => {
     return {
       total: messages.length,
-      unread: messages.filter(msg => msg.status === 'nouveau' || msg.status === 'non_lu').length,
-      treated: messages.filter(msg => msg.status === 'traite').length,
+      unread: messages.filter(msg => msg.status === 'unread').length,
+      treated: messages.filter(msg => msg.status === 'replied').length,
     };
   }, [messages]);
 
@@ -307,11 +306,10 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tous les statuts</SelectItem>
-                <SelectItem value="nouveau">Nouveau</SelectItem>
-                <SelectItem value="non_lu">Non lu</SelectItem>
-                <SelectItem value="lu">Lu</SelectItem>
-                <SelectItem value="traite"> Traité</SelectItem>
-                <SelectItem value="archive">Archivé</SelectItem>
+                <SelectItem value="unread">Nouveau</SelectItem>
+                <SelectItem value="read">Lu</SelectItem>
+                <SelectItem value="replied"> Traité</SelectItem>
+                <SelectItem value="archived">Archivé</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -354,7 +352,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                     ) : 'Pas de date'}
                   </TableCell>
                   <TableCell>
-                    <Badge className={getStatusColor(message.status)}>
+                    <Badge className={getStatusBadgeColor(message.status)}>
                       {message.status.replace('_', ' ')}
                     </Badge>
                   </TableCell>
@@ -367,8 +365,8 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                           setSelectedMessage(message);
                           setResponse(message.response || '');
                           setIsDialogOpen(true);
-                          if (message.status === 'nouveau' || message.status === 'non_lu') {
-                            handleStatusChange(message.id, 'lu');
+                          if (message.status === 'unread') {
+                            handleStatusChange(message.id, 'read');
                           }
                         }}
                       >
@@ -383,11 +381,10 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="nouveau">Nouveau</SelectItem>
-                            <SelectItem value="non_lu">Non lu</SelectItem>
-                            <SelectItem value="lu">Lu</SelectItem>
-                            <SelectItem value="traite"> Traité</SelectItem>
-                            <SelectItem value="archive">Archivé</SelectItem>
+                            <SelectItem value="unread">Nouveau</SelectItem>
+                            <SelectItem value="read">Lu</SelectItem>
+                            <SelectItem value="replied"> Traité</SelectItem>
+                            <SelectItem value="archived">Archivé</SelectItem>
                           </SelectContent>
                         </Select>
                       )}
@@ -473,7 +470,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                 <div>
                   <h3 className="font-semibold">Détails</h3>
                   <p>Date: {format(new Date(selectedMessage.createdAt), 'dd/MM/yyyy HH:mm', { locale: fr })}</p>
-                  <p>Statut: <Badge className={getStatusColor(selectedMessage.status)}>{selectedMessage.status}</Badge></p>
+                  <p>Statut: <Badge className={getStatusBadgeColor(selectedMessage.status)}>{selectedMessage.status}</Badge></p>
                 </div>
               </div>
 

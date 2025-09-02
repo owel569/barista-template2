@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Card, CardContent, CardDescription, CardHeader, CardTitle 
@@ -68,7 +67,7 @@ import {
   Eye,
   RefreshCw
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { useTypedToast } from '@/hooks/use-toast';
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -131,8 +130,8 @@ const INCOME_CATEGORIES = [
 ] as const;
 
 export default function AccountingSystem(): JSX.Element {
-  const toast = useToast();
-  
+  const toast = useTypedToast();
+
   // États
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [budgetCategories, setBudgetCategories] = useState<BudgetCategory[]>([]);
@@ -241,7 +240,7 @@ export default function AccountingSystem(): JSX.Element {
     const totalIncome = transactions
       .filter(t => t.type === 'income' && t.status === 'completed')
       .reduce((sum, t) => sum + t.amount, 0);
-    
+
     const totalExpenses = transactions
       .filter(t => t.type === 'expense' && t.status === 'completed')
       .reduce((sum, t) => sum + t.amount, 0);
@@ -275,7 +274,7 @@ export default function AccountingSystem(): JSX.Element {
       setTransactions(prev => [newTransaction, ...prev]);
       setShowTransactionDialog(false);
       resetForm();
-      
+
       toast({
         title: "Transaction ajoutée",
         description: "La transaction a été enregistrée avec succès",
@@ -293,7 +292,7 @@ export default function AccountingSystem(): JSX.Element {
     try {
       setTransactions(prev => prev.filter(t => t.id !== id));
       setShowDeleteConfirm(null);
-      
+
       toast({
         title: "Transaction supprimée",
         description: "La transaction a été supprimée avec succès",
@@ -546,7 +545,7 @@ export default function AccountingSystem(): JSX.Element {
             {budgetCategories.map((category) => {
               const percentage = (category.spent / category.allocated) * 100;
               const isOverBudget = percentage > 100;
-              
+
               return (
                 <Card key={category.id}>
                   <CardContent className="p-6">

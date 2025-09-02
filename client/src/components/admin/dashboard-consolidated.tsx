@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -51,6 +50,7 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import { usePermissions } from '@/hooks/usePermissions';
 import { useToast } from '@/hooks/use-toast';
+import { useTypedToast } from '@/hooks/use-typed-toast';
 
 // Types consolidés
 interface DashboardStats {
@@ -97,7 +97,7 @@ const COLORS = ['#f59e0b', '#3b82f6', '#10b981', '#ef4444', '#8b5cf6'];
 export default function DashboardConsolidated(): JSX.Element {
   const { user } = useAuth();
   const { canView, canManage, isAdmin, userRole } = usePermissions();
-  const toast = useToast();
+  const toast = useTypedToast();
   const [refreshing, setRefreshing] = useState(false);
 
   // Requête pour les statistiques temps réel
@@ -112,7 +112,7 @@ export default function DashboardConsolidated(): JSX.Element {
             'Content-Type': 'application/json'
           }
         });
-        
+
         if (!response.ok) throw new Error('Erreur stats');
         const data = await response.json();
         return data.success ? data.data : null;
@@ -308,7 +308,7 @@ export default function DashboardConsolidated(): JSX.Element {
         reservationStatus,
         generatedAt: new Date().toISOString()
       };
-      
+
       // Simulation d'export - remplacer par vraie fonction d'export
       const exportStatistics = async (data: any[]) => {
         return new Promise((resolve) => {
@@ -318,14 +318,14 @@ export default function DashboardConsolidated(): JSX.Element {
           }, 1000);
         });
       };
-      
+
       toast({ 
         title: 'Export en cours', 
         description: 'Export du dashboard en cours...' 
       });
-      
+
       await exportStatistics([dashboardData]);
-      
+
       toast({ 
         title: 'Export terminé', 
         description: 'Dashboard exporté avec succès' 

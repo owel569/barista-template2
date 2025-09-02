@@ -182,7 +182,7 @@ export default function ActivityLogs(): JSX.Element {
 
     const activity = activities[Math.floor(Math.random() * activities.length)];
     if (!activity) return;
-    
+
     const newLog: ActivityLog = {
       id: Date.now().toString(),
       timestamp: new Date(),
@@ -217,7 +217,7 @@ export default function ActivityLogs(): JSX.Element {
 
       return () => clearInterval(interval);
     }
-    
+
     return () => {}; // Cleanup function même si pas d'interval
   }, [isRealTimeEnabled, generateMockActivity, loadActivityLogs]);
 

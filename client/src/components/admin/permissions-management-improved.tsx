@@ -680,7 +680,8 @@ export function PermissionsManagementImproved(): JSX.Element {
                                       <Label htmlFor={`${module}-view`}>Voir</Label>
                                       <Switch
                                         id={`${module}-view`}
-                                        checked={user.permissions?.[module as ModuleName]?.view ?? false}
+                                        checked={user.permissions && typeof user.permissions === 'object' && module in user.permissions ? 
+                                          (user.permissions as Record<string, any>)[module]?.view ?? false : false}
                                         onCheckedChange={(checked) => 
                                           handleUpdatePermission(user.id, module as ModuleName, 'view', checked)
                                         }

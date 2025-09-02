@@ -112,6 +112,9 @@ interface NotificationTemplate {
   variables: string[];
 }
 
+// Define NotificationData type alias to match usage in setNewNotification
+type NotificationData = Notification;
+
 export default function NotificationsSystem(): JSX.Element {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [filter, setFilter] = useState<'all' | 'unread' | 'read'>('all');
@@ -808,8 +811,8 @@ export default function NotificationsSystem(): JSX.Element {
                 <div className="space-y-2">
                   <Label htmlFor="type">Type</Label>
                   <Select
-                    value={newNotification.type}
-                    onValueChange={(value) => setNewNotification(prev => ({ ...prev, type: value as Notification['type'] }))}
+                    value={newNotification.type || ''}
+                    onValueChange={(value) => setNewNotification({...newNotification, type: value as NotificationData['type']})}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -827,7 +830,7 @@ export default function NotificationsSystem(): JSX.Element {
                 <div className="space-y-2">
                   <Label htmlFor="priority">Priorité</Label>
                   <Select
-                    value={newNotification.priority}
+                    value={newNotification.priority || ''}
                     onValueChange={(value) => setNewNotification(prev => ({ ...prev, priority: value as Notification['priority'] }))}
                   >
                     <SelectTrigger>
@@ -845,7 +848,7 @@ export default function NotificationsSystem(): JSX.Element {
                 <div className="space-y-2">
                   <Label htmlFor="category">Catégorie</Label>
                   <Select
-                    value={newNotification.category}
+                    value={newNotification.category || ''}
                     onValueChange={(value) => setNewNotification(prev => ({ ...prev, category: value as Notification['category'] }))}
                   >
                     <SelectTrigger>
@@ -997,7 +1000,7 @@ export default function NotificationsSystem(): JSX.Element {
                       onCheckedChange={(checked) => updateSetting('desktop', checked)}
                     />
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <Label>Notifications par email</Label>
