@@ -1,0 +1,43 @@
+Code Diagnostics
+'Clock' is declared but its value is never read.
+(typescript)
+Ln 15, Col 3
+'Progress' is declared but its value is never read.
+(typescript)
+Ln 32, Col 1
+'ReservationExtras' is declared but never used.
+(typescript)
+Ln 82, Col 11
+'viewMode' is declared but its value is never read.
+(typescript)
+Ln 126, Col 10
+'setViewMode' is declared but its value is never read.
+(typescript)
+Ln 126, Col 20
+'isCategoriesLoading' is declared but its value is never read.
+(typescript)
+Ln 132, Col 45
+Type '"/api/menu/categories"' has no properties in common with type 'RequestInit'.
+(typescript)
+Ln 135, Col 48
+Type '"/api/menu/items"' has no properties in common with type 'RequestInit'.
+(typescript)
+Ln 150, Col 48
+Type 'string' has no properties in common with type 'RequestInit'.
+(typescript)
+Ln 166, Col 48
+Expected 1-2 arguments, but got 3.
+(typescript)
+Ln 196, Col 70
+'price' is declared but its value is never read.
+(typescript)
+Ln 400, Col 13
+Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ café: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; ... 17 more ...; glaces: ForwardRefExoticComponent<...>; }'. No index signature with a parameter of type 'string' was found on type '{ café: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; ... 17 more ...; glaces: ForwardRefExoticComponent<...>; }'.
+(typescript)
+Ln 462, Col 12
+Type '{ children: Element[]; value: "none" | "bar" | "indoor" | "outdoor" | "window" | "private" | undefined; onValueChange: (value: "none" | "bar" | "indoor" | "outdoor" | "window" | "private") => void; }' is not assignable to type '{ value?: string; defaultValue?: string; onValueChange?(value: string): void; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties. Types of property 'value' are incompatible. Type 'string | undefined' is not assignable to type 'string'. Type 'undefined' is not assignable to type 'string'.
+(typescript)
+Ln 1007, Col 26
+Type '{ children: Element[]; value: "none" | "date" | "birthday" | "anniversary" | "business" | "celebration" | undefined; onValueChange: (value: "none" | "date" | "birthday" | "anniversary" | "business" | "celebration") => void; }' is not assignable to type '{ value?: string; defaultValue?: string; onValueChange?(value: string): void; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties. Types of property 'value' are incompatible. Type 'string | undefined' is not assignable to type 'string'. Type 'undefined' is not assignable to type 'string'.
+(typescript)
+Ln 1029, Col 26
