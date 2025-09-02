@@ -1,39 +1,30 @@
 
-import { useToast } from '@/hooks/use-toast';
-
-export interface TypedToastConfig {
-  title: string;
-  description?: string;
-  duration?: number;
-}
+import { useToast } from './use-toast';
 
 export function useTypedToast() {
   const { toast } = useToast();
   
   return {
-    success: (config: TypedToastConfig) => 
+    success: (title: string, description?: string) => {
       toast({
-        title: config.title,
-        description: config.description,
-        variant: 'default',
-        duration: config.duration,
-        className: 'bg-green-50 border-green-200 text-green-800'
-      }),
-    
-    error: (config: TypedToastConfig) => 
+        title,
+        description,
+        variant: "default",
+      });
+    },
+    error: (title: string, description?: string) => {
       toast({
-        title: config.title,
-        description: config.description,
-        variant: 'destructive',
-        duration: config.duration
-      }),
-    
-    info: (config: TypedToastConfig) => 
+        title,
+        description,
+        variant: "destructive",
+      });
+    },
+    info: (title: string, description?: string) => {
       toast({
-        title: config.title,
-        description: config.description,
-        variant: 'default',
-        duration: config.duration
-      })
+        title,
+        description,
+      });
+    },
+    toast: toast,
   };
 }

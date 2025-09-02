@@ -38,7 +38,7 @@ import {
   Edit,
   Trash2
 } from 'lucide-react';
-import { useTypedToast } from '@/hooks/use-toast';
+import { useTypedToast } from '@/hooks/useTypedToast';
 
 
 
@@ -178,7 +178,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
     onSuccess: (data) => {
       setReportData(data);
       setIsGenerating(false);
-      toast.success({
+      toast.toast({
         title: "Rapport généré avec succès",
         description: "Le rapport a été créé avec les insights IA",
       });
@@ -186,9 +186,10 @@ export const ComprehensiveReportsManager: React.FC = () => {
     },
     onError: () => {
       setIsGenerating(false);
-      toast.error({
+      toast.toast({
         title: "Erreur",
         description: "Impossible de générer le rapport",
+        variant: "destructive",
       });
     }
   });
@@ -202,7 +203,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
         body: JSON.stringify(scheduleConfig)
       }),
     onSuccess: () => {
-      toast.success({
+      toast.toast({
         title: "Rapport planifié",
         description: "Le rapport sera généré automatiquement",
       });

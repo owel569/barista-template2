@@ -291,9 +291,9 @@ export default function DashboardConsolidated(): JSX.Element {
     setRefreshing(true);
     try {
       await refetchStats();
-      toast({ title: 'Données actualisées', description: 'Les statistiques ont été mises à jour', variant: 'success' });
+      toast.toast({ title: 'Données rafraîchies', description: 'Les statistiques ont été mises à jour', variant: 'success' });
     } catch (error) {
-      toast({ title: 'Erreur', description: 'Impossible d\'actualiser les données', variant: 'destructive' });
+      toast.toast({ title: 'Erreur', description: 'Impossible d\'actualiser les données', variant: 'destructive' });
     } finally {
       setRefreshing(false);
     }
@@ -319,14 +319,14 @@ export default function DashboardConsolidated(): JSX.Element {
         });
       };
 
-      toast({ 
+      toast.toast({ 
         title: 'Export en cours', 
         description: 'Export du dashboard en cours...' 
       });
 
       await exportStatistics([dashboardData]);
 
-      toast({ 
+      toast.toast({ 
         title: 'Export terminé', 
         description: 'Dashboard exporté avec succès' 
       });
@@ -350,7 +350,7 @@ export default function DashboardConsolidated(): JSX.Element {
 
     const route = routes[actionId];
     if (route) {
-      toast({ title: `Navigation vers ${actionTitle}`, description: `Redirection vers ${route}`, variant: 'default' });
+      toast.toast({ title: `Navigation vers ${actionTitle}`, description: `Redirection vers ${route}`, variant: 'default' });
       // Ici vous pouvez ajouter la vraie navigation avec votre router
       // navigate(route);
     }
@@ -658,7 +658,7 @@ export default function DashboardConsolidated(): JSX.Element {
                   Module d'analytics avancées en cours de développement
                 </p>
                 {canManage('analytics') && (
-                  <Button className="mt-4" onClick={() => toast({ title: 'Configuration', description: 'Module analytics bientôt disponible', variant: 'default' })}>
+                  <Button className="mt-4" onClick={() => toast.toast({ title: 'Configuration', description: 'Module analytics bientôt disponible', variant: 'default' })}>
                     Configurer Analytics
                   </Button>
                 )}

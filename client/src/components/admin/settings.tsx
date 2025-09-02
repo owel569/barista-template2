@@ -226,12 +226,16 @@ export default function Settings({ userRole }: SettingsProps) {
   const handleChange = useCallback((path: string, value: any) => {
     setDraftSettings(prev => {
       const keys = path.split('.');
-      let current: any = newSettings; // Initialize with newSettings to avoid modifying prev directly
+      let current: any = prev; // Use prev for the current level being modified
       const newSettings = { ...prev }; // Create a mutable copy
 
       for (let i = 0; i < keys.length - 1; i++) {
         const key = keys[i];
         if (key && current[key]) {
+          current = current[key];
+        } else if (key) {
+          // If the path segment doesn't exist, create it to avoid errors
+          current[key] = {};
           current = current[key];
         }
       }
@@ -239,10 +243,11 @@ export default function Settings({ userRole }: SettingsProps) {
 
       if (path.includes('openingHours') && keys.length > 1) {
         const dayKey = keys[0];
-        if (dayKey && newSettings.openingHours[dayKey]) {
+        if (lastKey && prev.openingHours?.[dayKey]) {
           current[lastKey] = {
-            ...prev.openingHours[dayKey][lastKey], // Ensure previous values are carried over
-            ...value
+            ...current[lastKey],
+            ...prev.openingHours[dayKey][lastKey], // Spread existing properties of the specific day
+            [keys[keys.length - 1]]: value,
           };
         }
       } else if (lastKey) {
