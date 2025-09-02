@@ -344,8 +344,8 @@ const AdvancedLoyalty: React.FC = () => {
                   <Input
                     type="number"
                     placeholder="100"
-                    value={newRewardData.pointsCost || ''}
-                    onChange={(e) => setNewRewardData({...newRewardData, pointsCost: parseInt(e.target.value) || undefined})}
+                    value={newRewardData.pointsCost || 0}
+                    onChange={(e) => setNewRewardData({...newRewardData, pointsCost: parseInt(e.target.value) || 0})}
                   />
                 </div>
                 <div className="space-y-2">
@@ -380,7 +380,7 @@ const AdvancedLoyalty: React.FC = () => {
                   checked={newRewardData.available || false}
                   onChange={(e) => setNewRewardData({...newRewardData, available: e.target.checked})}
                 />
-                <label htmlFor="available">Disponible immédiatement</label>
+                <label htmlFor="available"> Disponible immédiatement</label>
               </div>
               <Button 
                 onClick={handleCreateReward}
