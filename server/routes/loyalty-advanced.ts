@@ -1,4 +1,3 @@
-
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { asyncHandler } from '../middleware/error-handler-enhanced';
@@ -802,8 +801,7 @@ router.get('/customer/:customerId',
         totalRedeemed: redeemedTransactions.reduce((sum, t) => sum + t.points, 0),
         totalExpired: expiredTransactions.reduce((sum, t) => sum + t.points, 0),
         currentPoints: points,
-        ...nextLevelInfo,
-        ...metrics
+        ...nextLevelInfo
       };
 
       const validPreviousRewards = redeemedTransactions.slice(0, 10).map(t => {
@@ -923,7 +921,10 @@ router.post('/earn-points',
           createdAt: new Date()
         };
 
-        await tx.insert(loyaltyTransactions).values(transactionData);
+        await tx.insert(loyaltyTransactions).values({
+          ...transactionData,
+          balance: newTotalPoints
+        });
 
         await tx.insert(activityLogs).values({
           userId: req.user?.id || 0,

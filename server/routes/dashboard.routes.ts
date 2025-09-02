@@ -1,11 +1,9 @@
 
 import { Router } from 'express';
-import { z } from 'zod';
 import { getDb } from '../db';
-import { orders, reservations, users, menuItems } from '../../shared/schema';
+import { orders, reservations } from '../../shared/schema';
 import { eq, sql, and, gte, lte, count, avg, sum } from 'drizzle-orm';
-import { authenticateUser, requireRoles } from '../middleware/auth';
-import { validateQuery } from '../middleware/validation';
+import { authenticateUser } from '../middleware/auth';
 import { logger } from '../utils/logger';
 
 const router = Router();
@@ -24,8 +22,8 @@ router.get('/real-time-stats', authenticateUser, async (req, res) => {
       .select({ count: count() })
       .from(reservations)
       .where(and(
-        gte(reservations.date, startOfDay.toISOString()),
-        lte(reservations.date, endOfDay.toISOString())
+        gte(reservations.date, startOfDay),
+        lte(reservations.date, endOfDay)
       ));
 
     // Commandes actives
@@ -39,7 +37,7 @@ router.get('/real-time-stats', authenticateUser, async (req, res) => {
       .select({ total: sum(orders.totalAmount) })
       .from(orders)
       .where(and(
-        gte(orders.createdAt, startOfMonth.toISOString()),
+        gte(orders.createdAt, startOfMonth),
         eq(orders.status, 'completed')
       ));
 
