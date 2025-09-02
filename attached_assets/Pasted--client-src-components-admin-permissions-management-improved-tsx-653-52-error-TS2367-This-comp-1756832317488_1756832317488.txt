@@ -1,0 +1,109 @@
+
+
+client/src/components/admin/permissions-management-improved.tsx:653:52 - error TS2367: This comparison appears to be unintentional because the types 'number' and 'string | undefined' have no overlap.
+
+653                           {canPerform('delete') && user.id !== currentUser?.id && (
+                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:657:62 - error TS2345: Argument of type 'User' is not assignable to parameter of type 'SetStateAction<User | null>'.
+  Type 'import("/home/runner/workspace/client/src/hooks/useUsers").User' is not assignable to type 'User' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Property 'firstName' is optional in type 'User' but required in type 'User'.
+
+657                               onClick={() => setUserToDelete(user)}
+                                                                 ~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:683:111 - error TS2339: Property 'view' does not exist on type 'number | Permission | (() => ArrayIterator<Permission>) | { [x: number]: boolean | undefined; length?: boolean; toString?: boolean; toLocaleString?: boolean; ... 31 more ...; readonly [Symbol.unscopables]?: boolean; } | ... 31 more ... | { ...; }'.
+  Property 'view' does not exist on type 'number'.
+
+683                                         checked={user.permissions?.[module as keyof typeof user.permissions]?.view ?? false}
+                                                                                                                  ~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:694:111 - error TS2339: Property 'edit' does not exist on type 'number | Permission | (() => ArrayIterator<Permission>) | { [x: number]: boolean | undefined; length?: boolean; toString?: boolean; toLocaleString?: boolean; ... 31 more ...; readonly [Symbol.unscopables]?: boolean; } | ... 31 more ... | { ...; }'.
+  Property 'edit' does not exist on type 'number'.
+
+694                                         checked={user.permissions?.[module as keyof typeof user.permissions]?.edit ?? false}
+                                                                                                                  ~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:706:113 - error TS2339: Property 'admin' does not exist on type 'number | Permission | (() => ArrayIterator<Permission>) | { [x: number]: boolean | undefined; length?: boolean; toString?: boolean; toLocaleString?: boolean; ... 31 more ...; readonly [Symbol.unscopables]?: boolean; } | ... 31 more ... | { ...; }'.
+  Property 'admin' does not exist on type 'number'.
+
+706                                           checked={user.permissions?.[module as keyof typeof user.permissions]?.admin ?? false}
+                                                                                                                    ~~~~~
+
+client/src/components/admin/permissions-management.tsx:435:69 - error TS2322: Type '"directeur" | "employe"' is not assignable to type '"employe"'.
+  Type '"directeur"' is not assignable to type '"employe"'.
+
+435                   onValueChange={(value) => setNewUser({...newUser, role: value as 'directeur' | 'employe'})}
+                                                                        ~~~~
+
+client/src/components/admin/real-time-updates.tsx:249:20 - error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ order: string[]; reservation: string[]; payment: string[]; customer: string[]; system: string[]; }'.
+
+249     const titles = mockEvents[type];
+                       ~~~~~~~~~~~~~~~~
+
+client/src/components/admin/reports-system.tsx:474:56 - error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string | number | Date'.
+      Type 'undefined' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string | number'.
+      Type 'undefined' is not assignable to type 'string | number'.
+
+474                         Dernière génération: {new Date(report.lastGenerated).toLocaleDateString('fr-FR')}
+                                                           ~~~~~~~~~~~~~~~~~~~~
+
+
+client/src/components/admin/settings.tsx:135:44 - error TS2554: Expected 0 arguments, but got 1.
+
+135   const { hasPermission } = usePermissions(user);
+                                               ~~~~
+
+client/src/components/admin/settings.tsx:246:44 - error TS2538: Type 'undefined' cannot be used as an index type.
+
+246         if (lastKey && prev.openingHours?.[dayKey]) {
+                                               ~~~~~~
+
+client/src/components/admin/settings.tsx:249:34 - error TS2538: Type 'undefined' cannot be used as an index type.
+
+249             ...prev.openingHours[dayKey][lastKey], // Spread existing properties of the specific day
+                                     ~~~~~~
+
+client/src/components/admin/settings.tsx:250:13 - error TS2464: A computed property name must be of type 'string', 'number', 'symbol', or 'any'.
+
+250             [keys[keys.length - 1]]: value,
+                ~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/settings.tsx:262:22 - error TS2345: Argument of type '(prev: RestaurantSettings) => { openingHours: { [x: string]: OpeningHours | { open?: string; close?: string; closed?: boolean; }; }; restaurantName: string; ... 8 more ...; specialDates: { ...; }; }' is not assignable to parameter of type 'SetStateAction<RestaurantSettings>'.
+  Type '(prev: RestaurantSettings) => { openingHours: { [x: string]: OpeningHours | { open?: string; close?: string; closed?: boolean; }; }; restaurantName: string; ... 8 more ...; specialDates: { ...; }; }' is not assignable to type '(prevState: RestaurantSettings) => RestaurantSettings'.
+    Call signature return types '{ openingHours: { [x: string]: OpeningHours | { open?: string; close?: string; closed?: boolean; }; }; restaurantName: string; address: string; phone: string; email: string; website: string; ... 4 more ...; specialDates: { ...; }; }' and 'RestaurantSettings' are incompatible.
+      The types of 'openingHours' are incompatible between these types.
+        Type '{ [x: string]: OpeningHours | { open?: string; close?: string; closed?: boolean; }; }' is not assignable to type 'Record<string, OpeningHours>'.
+          'string' index signatures are incompatible.
+            Type 'OpeningHours | { open?: string; close?: string; closed?: boolean; }' is not assignable to type 'OpeningHours'.
+              Type '{ open?: string; close?: string; closed?: boolean; }' is not assignable to type 'OpeningHours'.
+                Property 'open' is optional in type '{ open?: string; close?: string; closed?: boolean; }' but required in type 'OpeningHours'.
+
+262     setDraftSettings(prev => ({
+                         ~~~~~~~~~~
+263       ...prev,
+    ~~~~~~~~~~~~~~
+... 
+270       }
+    ~~~~~~~
+271     }));
+    ~~~~~~
+
+client/src/components/admin/settings.tsx:299:22 - error TS2345: Argument of type '(prev: RestaurantSettings) => { specialDates: { specialHours: { date: string | undefined; openingHours: OpeningHours; note: string; }[]; closedDates: string[]; }; ... 9 more ...; notificationSettings: { ...; }; }' is not assignable to parameter of type 'SetStateAction<RestaurantSettings>'.
+  Type '(prev: RestaurantSettings) => { specialDates: { specialHours: { date: string | undefined; openingHours: OpeningHours; note: string; }[]; closedDates: string[]; }; ... 9 more ...; notificationSettings: { ...; }; }' is not assignable to type '(prevState: RestaurantSettings) => RestaurantSettings'.
+    Call signature return types '{ specialDates: { specialHours: { date: string | undefined; openingHours: OpeningHours; note: string; }[]; closedDates: string[]; }; restaurantName: string; address: string; phone: string; ... 6 more ...; notificationSettings: { ...; }; }' and 'RestaurantSettings' are incompatible.
+      The types of 'specialDates.specialHours' are incompatible between these types.
+        Type '{ date: string | undefined; openingHours: OpeningHours; note: string; }[]' is not assignable to type '{ date: string; openingHours: OpeningHours; note: string; }[]'.
+          Type '{ date: string | undefined; openingHours: OpeningHours; note: string; }' is not assignable to type '{ date: string; openingHours: OpeningHours; note: string; }'.
+            Types of property 'date' are incompatible.
+              Type 'string | undefined' is not assignable to type 'string'.
+                Type 'undefined' is not assignable to type 'string'.
+
+299     setDraftSettings(prev => ({
+                         ~~~~~~~~~~
+300       ...prev,
+    ~~~~~~~~~~~~~~

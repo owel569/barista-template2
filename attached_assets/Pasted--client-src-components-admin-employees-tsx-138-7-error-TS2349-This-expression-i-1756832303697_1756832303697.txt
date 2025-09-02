@@ -1,0 +1,119 @@
+
+        ~~~~~
+
+client/src/components/admin/employees.tsx:138:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+138       toast({
+          ~~~~~
+
+client/src/components/admin/employees.tsx:144:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+144       toast({
+          ~~~~~
+
+client/src/components/admin/employees.tsx:163:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+163       toast({
+          ~~~~~
+
+client/src/components/admin/employees.tsx:169:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+169       toast({
+          ~~~~~
+
+client/src/components/admin/employees.tsx:184:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+184       toast({
+          ~~~~~
+
+client/src/components/admin/employees.tsx:190:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+190       toast({
+          ~~~~~
+
+client/src/components/admin/employees.tsx:223:5 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+223     toast({
+        ~~~~~
+
+client/src/components/admin/messages.tsx:160:28 - error TS2322: Type 'string' is not assignable to type 'number'.
+
+160     replyMutation.mutate({ id: selectedMessage.id, response: response.trim() });
+                               ~~
+
+  client/src/components/admin/messages.tsx:111:38
+    111     mutationFn: ({ id, response }: { id: number; response: string }) =>
+                                             ~~
+    The expected type comes from property 'id' which is declared here on type '{ id: number; response: string; }'
+
+client/src/components/admin/messages.tsx:369:48 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+
+369                             handleStatusChange(message.id, 'read');
+                                                   ~~~~~~~~~~
+
+client/src/components/admin/messages.tsx:378:72 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+
+378                           onValueChange={(value) => handleStatusChange(message.id, value as ContactMessage['status'])}
+                                                                           ~~~~~~~~~~
+
+client/src/components/admin/messages.tsx:395:55 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+
+395                           onClick={() => handleDelete(message.id)}
+                                                          ~~~~~~~~~~
+
+client/src/components/admin/messages.tsx:466:36 - error TS2339: Property 'phone' does not exist on type 'ContactMessage'.
+
+466                   {selectedMessage.phone && (
+                                       ~~~~~
+
+client/src/components/admin/messages.tsx:467:83 - error TS2339: Property 'phone' does not exist on type 'ContactMessage'.
+
+467                     <p className="text-sm text-muted-foreground">{selectedMessage.phone}</p>
+                                                                                      ~~~~~
+
+client/src/components/admin/notifications-system.tsx:350:33 - error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
+
+350         const data = JSON.parse(lastMessage.data);
+                                    ~~~~~~~~~~~~~~~~
+
+client/src/components/admin/online-ordering.tsx:12:10 - error TS2305: Module '"@/lib/auth-utils"' has no exported member 'apiRequest'.
+
+12 import { apiRequest } from '@/lib/auth-utils';
+            ~~~~~~~~~~
+
+client/src/components/admin/online-ordering.tsx:149:16 - error TS2554: Expected 0 arguments, but got 2.
+
+149   useWebSocket('orders', {
+                   ~~~~~~~~~~~
+150     onMessage: (data: any) => {
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... 
+166     },
+    ~~~~~~
+167   });
+    ~~~
+
+client/src/components/admin/permissions-management-improved.tsx:621:59 - error TS2367: This comparison appears to be unintentional because the types 'number' and 'string | undefined' have no overlap.
+
+621                             disabled={isTogglingStatus || user.id === currentUser?.id}
+                                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:629:37 - error TS2345: Argument of type 'Date | null | undefined' is not assignable to parameter of type 'string | undefined'.
+  Type 'null' is not assignable to type 'string | undefined'.
+
+629                         {formatDate(user.lastLogin)}
+                                        ~~~~~~~~~~~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:648:61 - error TS2345: Argument of type 'User' is not assignable to parameter of type 'SetStateAction<User | null>'.
+  Type 'import("/home/runner/workspace/client/src/hooks/useUsers").User' is not assignable to type 'User' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Property 'firstName' is optional in type 'User' but required in type 'User'.
+
+648                               onClick={() => setEditingUser(user)}
+                           

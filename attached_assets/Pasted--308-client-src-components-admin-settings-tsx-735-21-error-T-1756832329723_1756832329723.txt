@@ -1,0 +1,140 @@
+
+    ~~~~~~~
+308     }));
+    ~~~~~~
+
+client/src/components/admin/settings.tsx:735:21 - error TS2322: Type '{ selectedDates: Date[]; onSelectDate: (date: any) => void; onRemoveDate: (date: any) => void; disabled: boolean; }' is not assignable to type 'IntrinsicAttributes & DayPickerComponentProps'.
+  Property 'selectedDates' does not exist on type 'IntrinsicAttributes & DayPickerComponentProps'.
+
+735                     selectedDates={draftSettings.specialDates.closedDates.map(d => new Date(d))}
+                        ~~~~~~~~~~~~~
+
+client/src/components/admin/settings.tsx:736:36 - error TS7006: Parameter 'date' implicitly has an 'any' type.
+
+736                     onSelectDate={(date) => addClosedDate(date)}
+                                       ~~~~
+
+client/src/components/admin/settings.tsx:737:36 - error TS7006: Parameter 'date' implicitly has an 'any' type.
+
+737                     onRemoveDate={(date) => removeClosedDate(date.toISOString().split('T')[0])}
+                                       ~~~~
+
+client/src/components/admin/settings.tsx:789:31 - error TS2322: Type '{ openingHours: { closed: boolean; open: string; close: string; }; date?: string; note?: string; }' is not assignable to type '{ date: string; openingHours: OpeningHours; note: string; }'.
+  Property 'date' is optional in type '{ openingHours: { closed: boolean; open: string; close: string; }; date?: string; note?: string; }' but required in type '{ date: string; openingHours: OpeningHours; note: string; }'.
+
+789                               updatedHours[index] = {
+                                  ~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/settings.tsx:792:38 - error TS2532: Object is possibly 'undefined'.
+
+792                                   ...updatedHours[index].openingHours,
+                                         ~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/settings.tsx:817:33 - error TS2322: Type '{ openingHours: { open: string; close: string; closed: boolean; }; date?: string; note?: string; }' is not assignable to type '{ date: string; openingHours: OpeningHours; note: string; }'.
+  Property 'date' is optional in type '{ openingHours: { open: string; close: string; closed: boolean; }; date?: string; note?: string; }' but required in type '{ date: string; openingHours: OpeningHours; note: string; }'.
+
+817                                 updatedHours[index] = {
+                                    ~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/settings.tsx:820:40 - error TS2532: Object is possibly 'undefined'.
+
+820                                     ...updatedHours[index].openingHours,
+                                           ~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/settings.tsx:842:33 - error TS2322: Type '{ openingHours: { close: string; open: string; closed: boolean; }; date?: string; note?: string; }' is not assignable to type '{ date: string; openingHours: OpeningHours; note: string; }'.
+  Property 'date' is optional in type '{ openingHours: { close: string; open: string; closed: boolean; }; date?: string; note?: string; }' but required in type '{ date: string; openingHours: OpeningHours; note: string; }'.
+
+842                                 updatedHours[index] = {
+                                    ~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/settings.tsx:845:40 - error TS2532: Object is possibly 'undefined'.
+
+845                                     ...updatedHours[index].openingHours,
+                                           ~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/settings.tsx:870:31 - error TS2322: Type '{ note: string; date?: string; openingHours?: OpeningHours; }' is not assignable to type '{ date: string; openingHours: OpeningHours; note: string; }'.
+  Property 'date' is optional in type '{ note: string; date?: string; openingHours?: OpeningHours; }' but required in type '{ date: string; openingHours: OpeningHours; note: string; }'.
+
+870                               updatedHours[index] = {
+                                  ~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/settings.tsx:895:25 - error TS2322: Type '{ onSelectDate: (date: any) => void; disabled: boolean; excludeDates: Date[]; }' is not assignable to type 'IntrinsicAttributes & DayPickerComponentProps'.
+  Property 'onSelectDate' does not exist on type 'IntrinsicAttributes & DayPickerComponentProps'.
+
+895                         onSelectDate={(date) => {
+                            ~~~~~~~~~~~~
+
+client/src/components/admin/settings.tsx:895:40 - error TS7006: Parameter 'date' implicitly has an 'any' type.
+
+895                         onSelectDate={(date) => {
+                                           ~~~~
+
+client/src/components/admin/staff-scheduling.tsx:129:13 - error TS2322: Type '{ id: number; firstName: string | undefined; lastName: string | undefined; email: string; phone: string; position: string | undefined; department: string | undefined; maxHours: number; ... 6 more ...; avatar: string; }[]' is not assignable to type 'Employee[]'.
+  Type '{ id: number; firstName: string | undefined; lastName: string | undefined; email: string; phone: string; position: string | undefined; department: string | undefined; maxHours: number; ... 6 more ...; avatar: string; }' is not assignable to type 'Employee'.
+    Types of property 'firstName' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+
+129       const mockEmployees: Employee[] = Array.from({ length: 12 }, (_, i) => ({
+                ~~~~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:166:13 - error TS2322: Type '{ id: number; employeeId: number; date: string | undefined; startTime: string; endTime: string; position: string | undefined; status: any; notes: string | undefined; createdAt: string; updatedAt: string; }[]' is not assignable to type 'Shift[]'.
+  Type '{ id: number; employeeId: number; date: string | undefined; startTime: string; endTime: string; position: string | undefined; status: any; notes: string | undefined; createdAt: string; updatedAt: string; }' is not assignable to type 'Shift' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'date' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+
+166       const mockShifts: Shift[] = Array.from({ length: 30 }, (_, i) => {
+                ~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:168:31 - error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'Date | undefined' is not assignable to parameter of type 'string | number | Date'.
+      Type 'undefined' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'Date | undefined' is not assignable to parameter of type 'string | number'.
+      Type 'undefined' is not assignable to type 'string | number'.
+
+168         const date = new Date(weekStart);
+                                  ~~~~~~~~~
+
+
+client/src/components/admin/staff-scheduling.tsx:256:13 - error TS18048: 'endHours' is possibly 'undefined'.
+
+256     return (endHours - startHours) + (endMinutes - startMinutes) / 60;
+                ~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:256:24 - error TS18048: 'startHours' is possibly 'undefined'.
+
+256     return (endHours - startHours) + (endMinutes - startMinutes) / 60;
+                           ~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:256:39 - error TS18048: 'endMinutes' is possibly 'undefined'.
+
+256     return (endHours - startHours) + (endMinutes - startMinutes) / 60;
+                                          ~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:256:52 - error TS18048: 'startMinutes' is possibly 'undefined'.
+
+256     return (endHours - startHours) + (endMinutes - startMinutes) / 60;
+                                                       ~~~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:285:7 - error TS2532: Object is possibly 'undefined'.
+
+285       shiftsByEmployee[shift.employeeId].push(shift);
+          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:295:13 - error TS18048: 'prevShift' is possibly 'undefined'.
+
+295         if (prevShift.date === currentShift.date &&
+                ~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:295:32 - error TS18048: 'currentShift' is possibly 'undefined'.
+
+295         if (prevShift.date === currentShift.date &&
+                                   ~~~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:296:13 - error TS18048: 'prevShift' is possibly 'undefined'.
+
+296             prevShift.endTime > currentShift.startTime) {
+                ~~~~~~~~~

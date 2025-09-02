@@ -1,0 +1,191 @@
+
+client/src/components/admin/staff-scheduling.tsx:296:33 - error TS18048: 'currentShift' is possibly 'undefined'.
+
+296             prevShift.endTime > currentShift.startTime) {
+                                    ~~~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:301:22 - error TS18048: 'currentShift' is possibly 'undefined'.
+
+301             shiftId: currentShift.id,
+                         ~~~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:317:20 - error TS2532: Object is possibly 'undefined'.
+
+317           shiftId: empShifts[0].id,
+                       ~~~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:459:13 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+459             date: date.toISOString().split('T')[0],
+                ~~~~
+
+  client/src/components/admin/staff-scheduling.tsx:58:3
+    58   date: string;
+         ~~~~
+    The expected type comes from property 'date' which is declared here on type 'Shift'
+
+client/src/components/admin/staff-scheduling.tsx:459:19 - error TS18048: 'date' is possibly 'undefined'.
+
+459             date: date.toISOString().split('T')[0],
+                      ~~~~
+
+client/src/components/admin/staff-scheduling.tsx:598:18 - error TS2532: Object is possibly 'undefined'.
+
+598                 {shiftConflicts[0].message}
+                     ~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:1190:11 - error TS2532: Object is possibly 'undefined'.
+
+1190     date: weekDates[0].toISOString().split('T')[0],
+               ~~~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:1199:14 - error TS2345: Argument of type '{ employeeId: number; status: "draft"; date: string | undefined; startTime: string; endTime: string; position: string; notes: string; }' is not assignable to parameter of type 'Omit<Shift, "id" | "createdAt" | "updatedAt">'.
+  Types of property 'date' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+1199     onSubmit({
+                  ~
+1200       ...formData,
+     ~~~~~~~~~~~~~~~~~~
+ ... 
+1202       status: 'draft'
+     ~~~~~~~~~~~~~~~~~~~~~
+1203     });
+     ~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:1257:12 - error TS2375: Type '{ children: Element[]; value: string | undefined; onValueChange: (value: string) => void; required: true; }' is not assignable to type '{ value?: string; defaultValue?: string; onValueChange?(value: string): void; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'value' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+1257           <Select
+                ~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:1269:19 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+1269                   value={date.toISOString().split('T')[0]}
+                       ~~~~~
+
+  node_modules/@radix-ui/react-select/dist/index.d.mts:93:5
+    93     value: string;
+           ~~~~~
+    The expected type comes from property 'value' which is declared here on type 'IntrinsicAttributes & Omit<SelectItemProps & RefAttributes<HTMLDivElement>, "ref"> & RefAttributes<...>'
+
+client/src/components/admin/staff-scheduling.tsx:1333:35 - error TS2345: Argument of type '{ employeeId: number; status: "draft"; date: string | undefined; startTime: string; endTime: string; position: string; notes: string; }' is not assignable to parameter of type 'Omit<Shift, "id" | "createdAt" | "updatedAt">'.
+  Types of property 'date' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+1333           onClick={() => onSubmit({
+                                       ~
+1334             ...formData,
+     ~~~~~~~~~~~~~~~~~~~~~~~~
+ ... 
+1336             status: 'draft'
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1337           })}
+     ~~~~~~~~~~~
+
+client/src/components/admin/statistics-enhanced.tsx:193:19 - error TS2339: Property 'operation' does not exist on type '({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }'.
+
+193       await toast.operation(
+                      ~~~~~~~~~
+
+client/src/components/admin/statistics-enhanced.tsx:214:11 - error TS2339: Property 'info' does not exist on type '({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }'.
+
+214     toast.info('Comparaison activée', 'Données comparées avec la période précédente');
+              ~~~~
+
+client/src/components/admin/statistics-enhanced.tsx:229:19 - error TS2339: Property 'operation' does not exist on type '({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }'.
+
+229       await toast.operation(
+                      ~~~~~~~~~
+
+client/src/components/admin/statistics-enhanced.tsx:230:15 - error TS2304: Cannot find name 'exportFinancialReport'.
+
+230         () => exportFinancialReport(reportData),
+                  ~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/statistics/components/CategoryPieChart.tsx:8:3 - error TS2687: All declarations of 'color' must have identical modifiers.
+
+8   color: string;
+    ~~~~~
+
+client/src/components/admin/statistics/components/CategoryPieChart.tsx:20:3 - error TS2687: All declarations of 'color' must have identical modifiers.
+
+20   color?: string; // Make color optional since we have fallback
+     ~~~~~
+
+client/src/components/admin/statistics/components/CategoryPieChart.tsx:20:3 - error TS2717: Subsequent property declarations must have the same type.  Property 'color' must be of type 'string', but here has type 'string | undefined'.
+
+20   color?: string; // Make color optional since we have fallback
+     ~~~~~
+
+  client/src/components/admin/statistics/components/CategoryPieChart.tsx:8:3
+    8   color: string;
+        ~~~~~
+    'color' was also declared here.
+
+client/src/components/admin/statistics/components/ExportToExcelButton.tsx:6:10 - error TS2614: Module '"@/lib/excel-export"' has no exported member 'exportToExcel'. Did you mean to use 'import exportToExcel from "@/lib/excel-export"' instead?
+
+6 import { exportToExcel } from '@/lib/excel-export';
+           ~~~~~~~~~~~~~
+
+client/src/components/admin/statistics/components/ExportToExcelButton.tsx:8:10 - error TS2614: Module '"@/lib/excel-export"' has no exported member 'ExportData'. Did you mean to use 'import ExportData from "@/lib/excel-export"' instead?
+
+8 import { ExportData } from '@/lib/excel-export';
+           ~~~~~~~~~~
+
+client/src/components/admin/statistics/components/RevenueChart.tsx:17:38 - error TS2339: Property 'loading' does not exist on type 'RevenueChartProps'.
+
+17 export function RevenueChart({ data, loading = false, period }: RevenueChartProps) {
+                                        ~~~~~~~
+
+client/src/components/admin/statistics/components/RevenueChart.tsx:17:55 - error TS2339: Property 'period' does not exist on type 'RevenueChartProps'.
+
+17 export function RevenueChart({ data, loading = false, period }: RevenueChartProps) {
+                                                         ~~~~~~
+
+client/src/components/admin/suppliers-management.tsx:81:13 - error TS2322: Type '{ id: number; name: string; company: string | undefined; email: string; phone: string; address: string; category: string | undefined; rating: number; status: "pending" | "active" | "inactive"; ... 7 more ...; paymentTerms: string | undefined; }[]' is not assignable to type 'Supplier[]'.
+  Type '{ id: number; name: string; company: string | undefined; email: string; phone: string; address: string; category: string | undefined; rating: number; status: "active" | "inactive" | "pending"; ... 7 more ...; paymentTerms: string | undefined; }' is not assignable to type 'Supplier' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'company' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+
+81       const mockSuppliers: Supplier[] = Array.from({ length: 12 }, (_, i) => ({
+               ~~~~~~~~~~~~~
+
+client/src/components/admin/suppliers-management.tsx:122:9 - error TS2322: Type '{ id: string; supplier: string; amount: number; status: string | undefined; date: string; }[]' is not assignable to type '{ id: string; supplier: string; amount: number; status: string; date: string; }[]'.
+  Type '{ id: string; supplier: string; amount: number; status: string | undefined; date: string; }' is not assignable to type '{ id: string; supplier: string; amount: number; status: string; date: string; }'.
+    Types of property 'status' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+
+122         recentOrders: Array.from({ length: 5 }, (_, i) => ({
+            ~~~~~~~~~~~~
+
+  client/src/components/admin/suppliers-management.tsx:56:3
+    56   recentOrders: { id: string; supplier: string; amount: number; status: string; date: string }[];
+         ~~~~~~~~~~~~
+    The expected type comes from property 'recentOrders' which is declared here on type 'SupplierStats'
+
+client/src/components/admin/suppliers-management.tsx:124:21 - error TS2532: Object is possibly 'undefined'.
+
+124           supplier: mockSuppliers[i].company,
+                        ~~~~~~~~~~~~~~~~
+
+client/src/components/admin/suppliers-management.tsx:713:24 - error TS2375: Type '{ value: number; className: string; indicatorClassName: string | undefined; }' is not assignable to type 'ProgressProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'indicatorClassName' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+713                       <Progress
+                           ~~~~~~~~
+
+client/src/components/admin/table-management.tsx:151:33 - error TS2559: Type '() => void' has no properties in common with type 'WebSocketConfig'.
+
+151   useWebSocket('table-updates', () => {
+                                    ~~~~~~~
