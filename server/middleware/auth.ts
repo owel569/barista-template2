@@ -13,9 +13,10 @@ const logger = createLogger('AUTH');
 
 export interface AuthUser {
   id: number;
+  username: string;
   email: string;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
   role: AppRole;
   permissions: string[];
   isActive: boolean;
@@ -30,7 +31,7 @@ export interface JWTPayload {
 }
 
 // Hiérarchie des rôles (plus le chiffre est élevé, plus le rôle est élevé)
-import { ROLE_HIERARCHY } from '../types/auth';
+import { ROLE_HIERARCHY, ROLE_PERMISSIONS } from '../types/auth';
 
 // Configuration JWT sécurisée
 const JWT_SECRET = process.env.JWT_SECRET || 'barista-cafe-secret-key-2024';
@@ -151,8 +152,11 @@ export class AuthService {
       if (result.length === 0) return null;
 
       const user = result[0];
+      if (!user) return null;
+      
       const authUser: AuthUser = {
         id: user.id,
+        username: user.username || user.email?.split('@')[0] || '',
         email: user.email,
         firstName: user.firstName || '',
         lastName: user.lastName || '',
@@ -174,51 +178,7 @@ export class AuthService {
    * Récupère les permissions d'un rôle
    */
   static getRolePermissions(role: AppRole): string[] {
-    const permissions: Record<AppRole, string[]> = {
-      customer: [
-        'orders:create',
-        'orders:read:own',
-        'reservations:create',
-        'reservations:read:own',
-        'profile:read:own',
-        'profile:update:own'
-      ],
-      waiter: [
-        'orders:read',
-        'orders:update',
-        'reservations:read',
-        'reservations:update',
-        'tables:read',
-        'tables:update',
-        'customers:read'
-      ],
-      chef: [
-        'orders:read',
-        'orders:update',
-        'menu:read',
-        'inventory:read',
-        'kitchen:manage'
-      ],
-      manager: [
-        'users:read',
-        'users:update',
-        'analytics:read',
-        'reports:read',
-        'inventory:manage',
-        'menu:manage',
-        'staff:manage'
-      ],
-      admin: [
-        'users:manage',
-        'system:manage',
-        'analytics:full',
-        'reports:full',
-        'settings:manage',
-        'security:manage'
-      ]
-    };
-
-    return permissions[role] || permissions.customer;
+    return ROLE_PERMISSIONS[role] || ROLE_PERMISSIONS.customer;
   }
 
   /**
@@ -378,7 +338,7 @@ export const requireOwnership = (resourceIdParam: string = 'id') => {
         return next();
       }
 
-      const resourceId = parseInt(req.params[resourceIdParam]);
+      const resourceId = parseInt(req.params[resourceIdParam] || '0');
       const customerId = req.user.id;
 
       if (isNaN(resourceId)) {

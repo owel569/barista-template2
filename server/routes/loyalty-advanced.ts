@@ -310,7 +310,7 @@ class AdvancedLoyaltyService {
       return points >= l.minPoints && points <= l.maxPoints;
     });
 
-    return level || LOYALTY_LEVELS[LOYALTY_LEVELS.length - 1];
+    return level || LOYALTY_LEVELS[0];
   }
 
   /**
@@ -648,7 +648,7 @@ router.get('/overview',
             description: loyaltyTransactions.description,
             orderId: loyaltyTransactions.orderId,
             createdAt: loyaltyTransactions.createdAt,
-            balance: customer.loyaltyPoints || 0
+            balance: sql<number>`${loyaltyTransactions.points}`
           })
           .from(loyaltyTransactions)
           .where(eq(loyaltyTransactions.customerId, customer.id))
@@ -656,14 +656,14 @@ router.get('/overview',
           .limit(50);
 
           const typedTransactions: LoyaltyTransaction[] = transactions.map(t => ({
-            id: t.id,
-            customerId: t.customerId || 0,
+            id: t.id as number,
+            customerId: t.customerId as number,
             type: t.type as LoyaltyTransaction['type'],
-            points: t.points,
+            points: t.points as number,
             description: t.description || '',
             orderId: t.orderId || undefined,
-            createdAt: t.createdAt.toISOString(),
-            balance: t.balance
+            createdAt: typeof t.createdAt === 'string' ? t.createdAt : new Date(t.createdAt).toISOString(),
+            balance: t.balance as number
           }));
 
           const level = AdvancedLoyaltyService.getLevelForPoints(customer.loyaltyPoints || 0);
