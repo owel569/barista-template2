@@ -1,0 +1,142 @@
+
+
+client/src/components/admin/messages.tsx:173:12 - error TS2678: Type '"lu"' is not comparable to type '"read" | "unread" | "replied" | "archived"'.
+
+173       case 'lu': return 'bg-yellow-100 text-yellow-800';
+               ~~~~
+
+client/src/components/admin/messages.tsx:174:12 - error TS2678: Type '"traite"' is not comparable to type '"read" | "unread" | "replied" | "archived"'.
+
+174       case 'traite': return 'bg-green-100 text-green-800';
+               ~~~~~~~~
+
+client/src/components/admin/messages.tsx:175:12 - error TS2678: Type '"archive"' is not comparable to type '"read" | "unread" | "replied" | "archived"'.
+
+175       case 'archive': return 'bg-gray-100 text-gray-800';
+               ~~~~~~~~~
+
+client/src/components/admin/messages.tsx:204:38 - error TS2367: This comparison appears to be unintentional because the types '"read" | "unread" | "replied" | "archived"' and '"nouveau"' have no overlap.
+
+204       unread: messages.filter(msg => msg.status === 'nouveau' || msg.status === 'non_lu').length,
+                                         ~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/messages.tsx:204:66 - error TS2367: This comparison appears to be unintentional because the types '"read" | "unread" | "replied" | "archived"' and '"non_lu"' have no overlap.
+
+204       unread: messages.filter(msg => msg.status === 'nouveau' || msg.status === 'non_lu').length,
+                                                                     ~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/messages.tsx:205:39 - error TS2367: This comparison appears to be unintentional because the types '"read" | "unread" | "replied" | "archived"' and '"traite"' have no overlap.
+
+205       treated: messages.filter(msg => msg.status === 'traite').length,
+                                          ~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/messages.tsx:370:31 - error TS2367: This comparison appears to be unintentional because the types '"read" | "unread" | "replied" | "archived"' and '"nouveau"' have no overlap.
+
+370                           if (message.status === 'nouveau' || message.status === 'non_lu') {
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/messages.tsx:370:63 - error TS2367: This comparison appears to be unintentional because the types '"read" | "unread" | "replied" | "archived"' and '"non_lu"' have no overlap.
+
+370                           if (message.status === 'nouveau' || message.status === 'non_lu') {
+                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/messages.tsx:371:48 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+
+371                             handleStatusChange(message.id, 'lu');
+                                                   ~~~~~~~~~~
+
+client/src/components/admin/messages.tsx:380:72 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+
+380                           onValueChange={(value) => handleStatusChange(message.id, value as ContactMessage['status'])}
+                                                                           ~~~~~~~~~~
+
+client/src/components/admin/messages.tsx:398:55 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+
+398                           onClick={() => handleDelete(message.id)}
+                                                          ~~~~~~~~~~
+
+client/src/components/admin/messages.tsx:469:36 - error TS2339: Property 'phone' does not exist on type 'ContactMessage'.
+
+469                   {selectedMessage.phone && (
+                                       ~~~~~
+
+client/src/components/admin/messages.tsx:470:83 - error TS2339: Property 'phone' does not exist on type 'ContactMessage'.
+
+470                     <p className="text-sm text-muted-foreground">{selectedMessage.phone}</p>
+                                                                                      ~~~~~
+
+client/src/components/admin/notifications-system.tsx:347:33 - error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
+
+347         const data = JSON.parse(lastMessage.data);
+                                    ~~~~~~~~~~~~~~~~
+
+client/src/components/admin/notifications-system.tsx:810:20 - error TS2375: Type '{ children: Element[]; value: "error" | "success" | "warning" | "info" | "system" | undefined; onValueChange: (value: string) => void; }' is not assignable to type '{ value?: string; defaultValue?: string; onValueChange?(value: string): void; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'value' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+810                   <Select
+                       ~~~~~~
+
+client/src/components/admin/notifications-system.tsx:829:20 - error TS2375: Type '{ children: Element[]; value: "high" | "low" | "medium" | "urgent" | undefined; onValueChange: (value: string) => void; }' is not assignable to type '{ value?: string; defaultValue?: string; onValueChange?(value: string): void; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'value' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+829                   <Select
+                       ~~~~~~
+
+client/src/components/admin/notifications-system.tsx:847:20 - error TS2375: Type '{ children: Element[]; value: "order" | "user" | "inventory" | "maintenance" | "reservation" | "payment" | "system" | undefined; onValueChange: (value: string) => void; }' is not assignable to type '{ value?: string; defaultValue?: string; onValueChange?(value: string): void; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'value' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+847                   <Select
+                       ~~~~~~
+
+client/src/components/admin/online-ordering.tsx:12:10 - error TS2305: Module '"@/lib/auth-utils"' has no exported member 'apiRequest'.
+
+12 import { apiRequest } from '@/lib/auth-utils';
+            ~~~~~~~~~~
+
+client/src/components/admin/online-ordering.tsx:149:16 - error TS2554: Expected 0 arguments, but got 2.
+
+149   useWebSocket('orders', {
+                   ~~~~~~~~~~~
+150     onMessage: (data: any) => {
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... 
+166     },
+    ~~~~~~
+167   });
+    ~~~
+
+client/src/components/admin/permissions-management-improved.tsx:621:59 - error TS2367: This comparison appears to be unintentional because the types 'number' and 'string | undefined' have no overlap.
+
+621                             disabled={isTogglingStatus || user.id === currentUser?.id}
+                                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:629:37 - error TS2345: Argument of type 'Date | null | undefined' is not assignable to parameter of type 'string | undefined'.
+  Type 'null' is not assignable to type 'string | undefined'.
+
+629                         {formatDate(user.lastLogin)}
+                                        ~~~~~~~~~~~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:648:61 - error TS2345: Argument of type 'User' is not assignable to parameter of type 'SetStateAction<User | null>'.
+  Type 'import("/home/runner/workspace/client/src/hooks/useUsers").User' is not assignable to type 'User' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Property 'firstName' is optional in type 'User' but required in type 'User'.
+
+648                               onClick={() => setEditingUser(user)}
+                                                                ~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:653:52 - error TS2367: This comparison appears to be unintentional because the types 'number' and 'string | undefined' have no overlap.
+
+653                           {canPerform('delete') && user.id !== currentUser?.id && (
+                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/permissions-management-improved.tsx:657:62 - error TS2345: Argument of type 'User' is not assignable to parameter of type 'SetStateAction<User | null>'.
+  Type 'import("/home/runner/workspace/client/src/hooks/useUsers").User' is not assignable to type 'User' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Property 'firstName' is optional in type 'User' but required in type 'User'.
+
+657                               onClick={() => setUserToDelete(user)}
+                                                                 ~~~~
