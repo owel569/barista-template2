@@ -21,9 +21,25 @@ import { MaintenanceTask as MaintenanceTaskType, Equipment, Technician } from '.
 interface MaintenanceTaskFormProps {
   equipmentList: Equipment[];
   technicians: Technician[];
-  initialData?: MaintenanceTaskType | null;
-  onSubmit: (data: Omit<MaintenanceTaskType, 'id'>) => void;
+  initialData?: Partial<MaintenanceTask>;
+  onSubmit: (data: Omit<MaintenanceTask, 'id'>) => void;
   onCancel: () => void;
+}
+
+interface MaintenanceTaskFormData {
+  title: string;
+  description: string;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  assignedTo: string;
+  assignedToId?: number;
+  cost?: number;
+  scheduledDate: string;
+  completedDate?: string;
+  estimatedDuration: number;
+  equipment: string;
+  equipmentId?: number;
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  notes: string;
 }
 
 export function MaintenanceTaskForm({
@@ -33,82 +49,67 @@ export function MaintenanceTaskForm({
   onSubmit,
   onCancel,
 }: MaintenanceTaskFormProps) {
-  const [formData, setFormData] = useState<Omit<MaintenanceTask, 'id'>>(
-    initialData ? {
-      title: initialData.title,
-      description: initialData.description,
-      equipment: initialData.equipment,
-      equipmentId: initialData.equipmentId,
-      priority: initialData.priority,
-      status: initialData.status,
-      assignedTo: initialData.assignedTo,
-      scheduledDate: initialData.scheduledDate,
-      completedDate: initialData.completedDate || undefined,
-      estimatedDuration: initialData.estimatedDuration,
-      cost: initialData.cost,
-      notes: initialData.notes,
-    } : {
-      title: '',
-      description: '',
-      equipment: '',
-      equipmentId: 0,
-      priority: 'medium' as const,
-      status: 'pending' as const,
-      assignedTo: '',
-      scheduledDate: '',
-      completedDate: undefined,
-      estimatedDuration: 0,
-      cost: 0,
-      notes: '',
-    }
-  );
+  const [formData, setFormData] = useState<MaintenanceTaskFormData>(() => ({
+    title: initialData?.title || '',
+    description: initialData?.description || '',
+    priority: (initialData?.priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium',
+    assignedTo: initialData?.assignedTo || '',
+    assignedToId: initialData?.assignedToId,
+    cost: initialData?.cost,
+    scheduledDate: initialData?.scheduledDate || new Date().toISOString().split('T')[0],
+    estimatedDuration: initialData?.estimatedDuration || 1,
+    equipment: initialData?.equipment || '',
+    equipmentId: initialData?.equipmentId,
+    status: (initialData?.status as 'pending' | 'in_progress' | 'completed' | 'cancelled') || 'pending',
+    notes: initialData?.notes || ''
+  }));
 
-  const [date, setDate] = useState<Date>(initialData ? new Date(initialData.scheduledDate) : new Date());
+  const [date, setDate] = useState<Date>(initialData?.scheduledDate ? new Date(initialData.scheduledDate) : new Date());
 
   useEffect(() => {
     if (date) {
-      setFormData({
-        ...formData,
+      setFormData(prev => ({
+        ...prev,
         scheduledDate: date.toISOString(),
-      });
+      }));
     }
   }, [date]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       [name]: value,
-    });
+    }));
   };
 
   const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       [name]: parseFloat(value) || 0,
-    });
+    }));
   };
 
   const handleEquipmentChange = (equipmentId: string) => {
     const selectedEquipment = equipmentList.find(e => e.id.toString() === equipmentId);
     if (selectedEquipment) {
-      setFormData({
-        ...formData,
+      setFormData(prev => ({
+        ...prev,
         equipmentId: selectedEquipment.id,
         equipment: selectedEquipment.name,
-      });
+      }));
     }
   };
 
   const handleTechnicianChange = (technicianId: string) => {
-    const selectedTechnician = technicians.find(t => t.id.toString() === technicianId);
+    const selectedTechnician = technicians.find(t => t.id === parseInt(technicianId));
     if (selectedTechnician) {
-      setFormData({
-        ...formData,
-        assignedToId: selectedTechnician.id,
+      setFormData(prev => ({
+        ...prev,
         assignedTo: selectedTechnician.name,
-      });
+        assignedToId: selectedTechnician.id,
+      }));
     }
   };
 
@@ -156,7 +157,7 @@ export function MaintenanceTaskForm({
           <Label htmlFor="priority">Priorité *</Label>
           <Select
             value={formData.priority || 'medium'}
-            onValueChange={(value) => setFormData({ ...formData, priority: value as any })}
+            onValueChange={(value) => setFormData(prev => ({ ...prev, priority: value as any }))}
             required
           >
             <SelectTrigger>
@@ -175,7 +176,7 @@ export function MaintenanceTaskForm({
           <Label htmlFor="status">Statut *</Label>
           <Select
             value={formData.status || 'pending'}
-            onValueChange={(value) => setFormData({ ...formData, status: value as any })}
+            onValueChange={(value) => setFormData(prev => ({ ...prev, status: value as any }))}
             required
           >
             <SelectTrigger>
@@ -254,7 +255,7 @@ export function MaintenanceTaskForm({
             type="number"
             min="0"
             step="0.01"
-            value={formData.cost}
+            value={formData.cost || ''}
             onChange={handleNumberChange}
           />
         </div>

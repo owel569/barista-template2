@@ -50,7 +50,7 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import { usePermissions } from '@/hooks/usePermissions';
 import { useToast } from '@/hooks/use-toast';
-import { useTypedToast } from '@/hooks/use-typed-toast';
+import { useTypedToast } from '@/hooks/useTypedToast';
 
 // Types consolidés
 interface DashboardStats {

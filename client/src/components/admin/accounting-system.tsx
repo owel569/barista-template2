@@ -67,7 +67,7 @@ import {
   Eye,
   RefreshCw
 } from 'lucide-react';
-import { useTypedToast } from '@/hooks/use-toast';
+import { useTypedToast } from '@/hooks/useTypedToast';
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { fr } from 'date-fns/locale';
 

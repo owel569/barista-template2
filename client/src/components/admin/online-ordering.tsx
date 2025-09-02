@@ -139,6 +139,7 @@ export default function OnlineOrdering(): JSX.Element {
   const [showAnalytics, setShowAnalytics] = useState<boolean>(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [settingsForm, setSettingsForm] = useState<Partial<OrderSettings>>({});
+  const [newOrdersCount, setNewOrdersCount] = useState<number>(0); // Ajout pour suivre les nouvelles commandes
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -146,24 +147,20 @@ export default function OnlineOrdering(): JSX.Element {
   // WEBSOCKET ET DONNÉES
   // ==========================================
 
-  useWebSocket('orders', {
-    onMessage: (data: any) => {
-      if (data.type === 'new_order') {
-        setNotifications(prev => [...prev, {
-          id: Date.now(),
-          type: 'new_order',
-          message: `Nouvelle commande #${data.order.orderNumber}`,
-          orderId: data.order.id,
-          read: false,
-          createdAt: new Date().toISOString()
-        }]);
+  useWebSocket('orders', (data: any) => {
+    if (data.type === 'new_order') {
+      setNewOrdersCount(prev => prev + 1);
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/online-orders'] });
 
-        toast({
-          title: "Nouvelle commande!",
-          description: `Commande #${data.order.orderNumber} reçue`,
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('Nouvelle commande reçue', {
+          body: `Commande #${data.order.orderNumber}`,
+          icon: '/favicon.ico'
         });
       }
-    },
+    } else if (data.type === 'order_updated') {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/online-orders'] });
+    }
   });
 
   // Queries avec types précis

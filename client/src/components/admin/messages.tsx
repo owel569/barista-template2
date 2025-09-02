@@ -75,7 +75,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
   });
 
   const updateStatusMutation = useMutation({
-    mutationFn: async ({ id, status }: { id: number; status: ContactMessage['status'] }) => {
+    mutationFn: async ({ id, status }: { id: string; status: ContactMessage['status'] }) => {
       const token = localStorage.getItem('token');
       const response = await fetch(`/api/admin/messages/${id}/status`, {
         method: 'PUT',
@@ -108,7 +108,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
   });
 
   const replyMutation = useMutation({
-    mutationFn: ({ id, response }: { id: number; response: string }) =>
+    mutationFn: ({ id, response }: { id: string; response: string }) =>
       apiRequest(`/api/admin/messages/${id}/reply`, {
         method: 'POST',
         body: JSON.stringify({ response }),
@@ -132,7 +132,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => apiRequest(`/api/admin/messages/${id}`, {
+    mutationFn: (id: string) => apiRequest(`/api/admin/messages/${id}`, {
       method: 'DELETE',
     }),
     onSuccess: () => {
@@ -151,8 +151,8 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
     },
   });
 
-  const handleStatusChange = (messageId: number, newStatus: ContactMessage['status']) => {
-    updateStatusMutation.mutate({ id: messageId, status: newStatus });
+  const handleStatusChange = (id: string, status: ContactMessage['status']) => {
+    updateStatusMutation.mutate({ id, status });
   };
 
   const handleReply = () => {
@@ -160,7 +160,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
     replyMutation.mutate({ id: selectedMessage.id, response: response.trim() });
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     if (confirm('Êtes-vous sûr de vouloir supprimer ce message ?')) {
       deleteMutation.mutate(id);
     }
@@ -178,9 +178,9 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
 
   const filteredMessages = useMemo(() => {
     return messages.filter((message) => {
-      const matchesSearch = !searchTerm || 
-        message.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        message.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      const matchesSearch = !searchTerm ||
+        message.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        message.customerEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
         message.subject.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesStatus = statusFilter === 'all' || message.status === statusFilter;
@@ -337,8 +337,11 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                 <TableRow key={message.id}>
                   <TableCell>
                     <div>
-                      <div className="font-medium">{message.name || 'Anonyme'}</div>
-                      <div className="text-sm text-muted-foreground">{message.email}</div>
+                      <div className="font-medium">{message.customerName || 'Anonyme'}</div>
+                      <div className="text-sm text-muted-foreground">{message.customerEmail}</div>
+                      {message.phone && (
+                        <div className="text-sm text-muted-foreground">{message.phone}</div>
+                      )}
                     </div>
                   </TableCell>
                   <TableCell className="max-w-xs truncate">
@@ -346,8 +349,8 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                   </TableCell>
                   <TableCell>
                     {message.createdAt ? (
-                      isNaN(new Date(message.createdAt).getTime()) ? 
-                        'Date invalide' : 
+                      isNaN(new Date(message.createdAt).getTime()) ?
+                        'Date invalide' :
                         format(new Date(message.createdAt), 'dd/MM/yyyy HH:mm', { locale: fr })
                     ) : 'Pas de date'}
                   </TableCell>
@@ -451,7 +454,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Message de {selectedMessage?.name || 'Anonyme'}</DialogTitle>
+            <DialogTitle>Message de {selectedMessage?.customerName || 'Anonyme'}</DialogTitle>
             <DialogDescription>
               Consulter et répondre au message
             </DialogDescription>
@@ -461,8 +464,8 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <h3 className="font-semibold">Expéditeur</h3>
-                  <p>{selectedMessage.name || 'Anonyme'}</p>
-                  <p className="text-sm text-muted-foreground">{selectedMessage.email}</p>
+                  <p>{selectedMessage.customerName || 'Anonyme'}</p>
+                  <p className="text-sm text-muted-foreground">{selectedMessage.customerEmail}</p>
                   {selectedMessage.phone && (
                     <p className="text-sm text-muted-foreground">{selectedMessage.phone}</p>
                   )}
