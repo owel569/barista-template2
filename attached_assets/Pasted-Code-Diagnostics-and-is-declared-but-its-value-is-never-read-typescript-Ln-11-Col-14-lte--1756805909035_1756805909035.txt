@@ -1,0 +1,88 @@
+Code Diagnostics
+'and' is declared but its value is never read.
+(typescript)
+Ln 11, Col 14
+'lte' is declared but its value is never read.
+(typescript)
+Ln 11, Col 24
+Type 'LoyaltyLevel | undefined' is not assignable to type 'LoyaltyLevel'. Type 'undefined' is not assignable to type 'LoyaltyLevel'.
+(typescript)
+Ln 314, Col 5
+'nextLevel' is possibly 'undefined'.
+(typescript)
+Ln 336, Col 38
+'nextLevel' is possibly 'undefined'.
+(typescript)
+Ln 338, Col 38
+Type '{ nextLevel: LoyaltyLevel | undefined; progress: number; pointsToNext: number; daysToNext: number; estimatedSpendingToNext: number; }' is not assignable to type '{ nextLevel?: LoyaltyLevel; progress: number; pointsToNext: number; daysToNext?: number; estimatedSpendingToNext?: number; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties. Types of property 'nextLevel' are incompatible. Type 'LoyaltyLevel | undefined' is not assignable to type 'LoyaltyLevel'. Type 'undefined' is not assignable to type 'LoyaltyLevel'.
+(typescript)
+Ln 343, Col 5
+Object is possibly 'undefined'.
+(typescript)
+Ln 492, Col 33
+'await' has no effect on the type of this expression.
+(typescript)
+Ln 593, Col 18
+Type 'number' is not assignable to type 'SQL<unknown> | Aliased<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | PgTable<TableConfig> | SelectedFieldsFlat<...>'.
+(typescript)
+Ln 652, Col 13
+Type '{ id: unknown; customerId: {}; type: "expired" | "earned" | "redeemed" | "adjusted" | "bonus" | "penalty" | "transferred"; points: unknown; description: {}; orderId: {} | undefined; createdAt: any; balance: unknown; }[]' is not assignable to type 'LoyaltyTransaction[]'. Type '{ id: unknown; customerId: {}; type: LoyaltyTransaction["type"]; points: unknown; description: {}; orderId: {} | undefined; createdAt: any; balance: unknown; }' is not assignable to type 'LoyaltyTransaction' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties. Types of property 'id' are incompatible. Type 'unknown' is not assignable to type 'number'.
+(typescript)
+Ln 659, Col 17
+'t.createdAt' is of type 'unknown'.
+(typescript)
+Ln 666, Col 24
+Argument of type 'string | undefined' is not assignable to parameter of type 'string'. Type 'undefined' is not assignable to type 'string'.
+(typescript)
+Ln 739, Col 35
+'await' has no effect on the type of this expression.
+(typescript)
+Ln 740, Col 18
+'customer' is possibly 'undefined'.
+(typescript)
+Ln 765, Col 22
+Type 'number' is not assignable to type 'SQL<unknown> | Aliased<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | PgTable<TableConfig> | SelectedFieldsFlat<...>'.
+(typescript)
+Ln 777, Col 9
+Type '{ id: unknown; customerId: {}; type: "expired" | "earned" | "redeemed" | "adjusted" | "bonus" | "penalty" | "transferred"; points: unknown; description: {}; orderId: {} | undefined; createdAt: any; balance: unknown; }[]' is not assignable to type 'LoyaltyTransaction[]'. Type '{ id: unknown; customerId: {}; type: LoyaltyTransaction["type"]; points: unknown; description: {}; orderId: {} | undefined; createdAt: any; balance: unknown; }' is not assignable to type 'LoyaltyTransaction' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties. Types of property 'id' are incompatible. Type 'unknown' is not assignable to type 'number'.
+(typescript)
+Ln 783, Col 13
+'t.createdAt' is of type 'unknown'.
+(typescript)
+Ln 790, Col 20
+Type '{ customerId: number; currentPoints: number; totalPointsEarned: number; totalPointsRedeemed: number; currentLevel: LoyaltyLevel; nextLevel: LoyaltyLevel | undefined; ... 7 more ...; visitFrequency: number; }' is not assignable to type 'CustomerLoyaltyData' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties. Types of property 'nextLevel' are incompatible. Type 'LoyaltyLevel | undefined' is not assignable to type 'LoyaltyLevel'. Type 'undefined' is not assignable to type 'LoyaltyLevel'.
+(typescript)
+Ln 820, Col 13
+'customer' is possibly 'undefined'.
+(typescript)
+Ln 821, Col 21
+'customer' is possibly 'undefined'.
+(typescript)
+Ln 829, Col 19
+'customer' is possibly 'undefined'.
+(typescript)
+Ln 830, Col 23
+Not all code paths return a value.
+(typescript)
+Ln 873, Col 16
+'expiresAt' is declared but its value is never read.
+(typescript)
+Ln 874, Col 84
+'metadata' is declared but its value is never read.
+(typescript)
+Ln 874, Col 95
+'await' has no effect on the type of this expression.
+(typescript)
+Ln 877, Col 18
+'customer' is possibly 'undefined'.
+(typescript)
+Ln 892, Col 29
+'notes' is declared but its value is never read.
+(typescript)
+Ln 988, Col 77
+'await' has no effect on the type of this expression.
+(typescript)
+Ln 989, Col 18
+'customer' is possibly 'undefined'.
+(typescript)
+Ln 1005, Col 29

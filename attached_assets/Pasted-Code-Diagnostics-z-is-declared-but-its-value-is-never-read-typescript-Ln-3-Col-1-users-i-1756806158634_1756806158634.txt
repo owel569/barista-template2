@@ -1,0 +1,29 @@
+Code Diagnostics
+'z' is declared but its value is never read.
+(typescript)
+Ln 3, Col 1
+'users' is declared but its value is never read.
+(typescript)
+Ln 5, Col 32
+'menuItems' is declared but its value is never read.
+(typescript)
+Ln 5, Col 39
+'requireRoles' is declared but its value is never read.
+(typescript)
+Ln 7, Col 28
+'validateQuery' is declared but its value is never read.
+(typescript)
+Ln 8, Col 1
+'req' is declared but its value is never read.
+(typescript)
+Ln 14, Col 57
+'await' has no effect on the type of this expression.
+(typescript)
+Ln 16, Col 16
+No overload matches this call. Overload 1 of 3, '(left: PgColumn<{ name: "date"; tableName: "reservations"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>, right: Date | SQLWrapper): SQL<...>', gave the following error. Argument of type 'string' is not assignable to parameter of type 'Date | SQLWrapper'. Overload 2 of 3, '(left: Aliased<string>, right: string | SQLWrapper): SQL<unknown>', gave the following error. Argument of type 'PgColumn<{ name: "date"; tableName: "reservations"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string>'. Type 'PgColumn<{ name: "date"; tableName: "reservations"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string>': sql, fieldAlias Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error. Argument of type 'PgColumn<{ name: "date"; tableName: "reservations"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+(typescript)
+Ln 27, Col 9
+No overload matches this call. Overload 1 of 3, '(left: PgColumn<{ name: "date"; tableName: "reservations"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>, right: Date | SQLWrapper): SQL<...>', gave the following error. Argument of type 'string' is not assignable to parameter of type 'Date | SQLWrapper'. Overload 2 of 3, '(left: Aliased<string>, right: string | SQLWrapper): SQL<unknown>', gave the following error. Argument of type 'PgColumn<{ name: "date"; tableName: "reservations"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string>'. Type 'PgColumn<{ name: "date"; tableName: "reservations"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string>': sql, fieldAlias Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error. Argument of type 'PgColumn<{ name: "date"; tableName: "reservations"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+(typescript)
+Ln 28, Col 9
+No overload matches this call. Overload 1 of 3, '(left: PgColumn<{ name: "created_at"; tableName: "orders"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: true; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>, right: Date | SQLWrapper): SQL<...>', gave the following error. Argument of type 'string' is not assignable to parameter of type 'Date | SQLWrapper'. Overload 2 of 3, '(left: Aliased<string>, right: string | SQLWrapper): SQL<unknown>', gave the following error. Argument of type 'PgColumn<{ name: "created_at"; tableName: "orders"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: true; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string>'. Type 'PgColumn<{ name: "created_at"; tableName: "orders"; dataType: "date"; columnType: "PgTimestamp"; d...
