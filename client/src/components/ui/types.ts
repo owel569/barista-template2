@@ -261,29 +261,4 @@ export interface CollapsibleContentWrapperProps extends BaseUIComponentProps {
 export type IconComponent = React.ComponentType<{ className?: string }>;
 
 // Export par défaut pour compatibilité
-export default {
-  BaseUIComponentProps,
-  SafeObject,
-  LabelProps,
-  TextareaProps,
-  DataTableProps,
-  AlertProps,
-  AlertDescriptionProps,
-  ComponentVariant,
-  Country,
-  InternationalPhoneInputProps,
-  LoadingSpinnerProps,
-  LoadingPageProps,
-  SkeletonLoaderProps,
-  ChartConfig,
-  StatsCardProps,
-  BreadcrumbProps,
-  PaginationProps,
-  ConfirmationDialogProps,
-  ResizableLayoutProps,
-  ResizablePanelGroupProps,
-  ResizableHandleProps,
-  AspectRatioProps,
-  CollapsibleTriggerButtonProps,
-  CollapsibleContentWrapperProps,
-};
+// No default export: types are type-only and should be imported by name
