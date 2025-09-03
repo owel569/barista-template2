@@ -310,7 +310,7 @@ class AdvancedLoyaltyService {
       return points >= l.minPoints && points <= l.maxPoints;
     });
 
-    return level || LOYALTY_LEVELS[0];
+    return level ?? LOYALTY_LEVELS[0];
   }
 
   /**
@@ -331,6 +331,9 @@ class AdvancedLoyaltyService {
     }
 
     const nextLevel = LOYALTY_LEVELS[currentLevelIndex + 1];
+    if (!nextLevel) {
+      return { progress: 100, pointsToNext: 0 };
+    }
     const pointsInCurrentLevel = currentPoints - currentLevel.minPoints;
     const pointsNeededForNextLevel = nextLevel.minPoints - currentLevel.minPoints;
     const progress = Math.min(100, (pointsInCurrentLevel / pointsNeededForNextLevel) * 100);
@@ -648,7 +651,7 @@ router.get('/overview',
             description: loyaltyTransactions.description,
             orderId: loyaltyTransactions.orderId,
             createdAt: loyaltyTransactions.createdAt,
-            balance: sql<number>`${loyaltyTransactions.points}`
+            balance: loyaltyTransactions.points
           })
           .from(loyaltyTransactions)
           .where(eq(loyaltyTransactions.customerId, customer.id))
@@ -661,7 +664,7 @@ router.get('/overview',
             type: t.type as LoyaltyTransaction['type'],
             points: t.points as number,
             description: t.description || '',
-            orderId: t.orderId || undefined,
+            orderId: t.orderId ?? undefined,
             createdAt: typeof t.createdAt === 'string' ? t.createdAt : new Date(t.createdAt).toISOString(),
             balance: t.balance as number
           }));
@@ -821,11 +824,11 @@ router.get('/customer/:customerId',
         totalPointsEarned: stats.totalEarned,
         totalPointsRedeemed: stats.totalRedeemed,
         currentLevel: level,
-        nextLevel: nextLevelInfo.nextLevel,
+        nextLevel: nextLevelInfo.nextLevel ?? null,
         progressToNextLevel: nextLevelInfo.progress,
         pointsToNextLevel: nextLevelInfo.pointsToNext,
-        joinDate: customer.createdAt.toISOString(),
-        lastActivity: customer.updatedAt.toISOString(),
+        joinDate: customer?.createdAt?.toISOString() ?? new Date().toISOString(),
+        lastActivity: customer?.updatedAt?.toISOString() ?? new Date().toISOString(),
         tier: level.name.toLowerCase() as CustomerLoyaltyData['tier'],
         lifetimeValue: metrics.lifetimeValue,
         averageOrderValue: metrics.averageTransactionValue * 0.05,
@@ -1126,11 +1129,24 @@ router.post('/redeem-reward',
   })
 );
 
+// Types pour les recommandations
+interface CustomerStats {
+  currentPoints: number;
+  totalRedeemed: number;
+  [key: string]: unknown;
+}
+
+interface CustomerMetrics {
+  predictedChurn: number;
+  frequencyScore: number;
+  [key: string]: unknown;
+}
+
 // Fonction helper pour les recommandations
 function generateCustomerRecommendations(
-  stats: any,
+  stats: CustomerStats,
   level: LoyaltyLevel,
-  metrics: any
+  metrics: CustomerMetrics
 ): string[] {
   const recommendations: string[] = [];
 

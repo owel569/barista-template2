@@ -66,7 +66,7 @@ function App() {
                     <Route path="/orders" component={Orders} />
                     <Route path="/reservations" component={Reservations} />
                     <Route path="/customers">
-                      {(user: any) => <Customers userRole="directeur" user={user} />}
+                      <Customers userRole="directeur" user={null} />  
                     </Route>
                     <Route path="/statistics">
                       <Statistics userRole="directeur" />

@@ -74,7 +74,7 @@ function Customers({ userRole, user }: CustomersProps) {
     preferredContactMethod: 'email' as const,
     notes: ''
   });
-  const toast = useToast();
+  const { toast } = useToast();
 
   // Initialiser WebSocket pour les notifications temps réel
   useWebSocket();
@@ -425,7 +425,7 @@ function Customers({ userRole, user }: CustomersProps) {
 
       if (response.ok) {
         setCustomers(prev => prev.filter(customer => customer.id !== id));
-        toast.toast({
+        toast({
           title: "Succès",
           description: "Client supprimé avec succès",
         });
