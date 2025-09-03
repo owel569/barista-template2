@@ -29,11 +29,10 @@ export interface ResizablePanelGroupProps extends Omit<PanelGroupBaseProps, 'dir
 }
 
 const ResizablePanelGroup = React.forwardRef<
-  React.ElementRef<typeof ResizablePrimitive.PanelGroup>,
+  any,
   ResizablePanelGroupProps
 >(({ className, direction, ...props }, ref) => (
   <ResizablePrimitive.PanelGroup
-    ref={ref as any}
     direction={direction as PanelGroupBaseProps["direction"]}
     className={cn(
       resizablePanelGroupVariants({ direction }),
