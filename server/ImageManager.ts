@@ -28,7 +28,7 @@ export class ImageManager {
             ))
             .limit(1);
 
-        return result.length > 0 ? result[0] : null;
+        return result.length > 0 ? (result[0] as unknown as MenuItemImage) : null;
     }
 
     /**
@@ -36,11 +36,12 @@ export class ImageManager {
      */
     async getMenuItemImages(menuItemId: number): Promise<MenuItemImage[]> {
         const db = await this.db;
-        return await db
+        const rows = await db
             .select()
             .from(menuItemImages)
             .where(eq(menuItemImages.menuItemId, menuItemId))
             .orderBy(desc(menuItemImages.isPrimary), desc(menuItemImages.createdAt));
+        return rows as unknown as MenuItemImage[];
     }
 
     /**
@@ -78,8 +79,7 @@ export class ImageManager {
                 sortOrder: 0
             })
             .returning();
-
-        return newImage;
+        return newImage as unknown as MenuItemImage;
     }
 
     /**
@@ -113,8 +113,7 @@ export class ImageManager {
             })
             .where(eq(menuItemImages.id, imageId))
             .returning();
-
-        return result[0] || null;
+        return (result[0] as unknown as MenuItemImage) || null;
     }
 
     /**

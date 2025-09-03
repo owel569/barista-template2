@@ -2,7 +2,7 @@ import { ImageManager } from "./ImageManager";
 
 export interface MenuItemImage {
   id: number;
-  menuItemId: number;
+  menuItemId: number | null;
   imageUrl: string;
   altText?: string | null;
   isPrimary: boolean;
