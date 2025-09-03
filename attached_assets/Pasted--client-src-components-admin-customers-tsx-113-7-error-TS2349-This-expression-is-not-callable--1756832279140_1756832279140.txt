@@ -1,0 +1,126 @@
+
+
+client/src/components/admin/customers.tsx:113:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+113       toast({
+          ~~~~~
+
+client/src/components/admin/customers.tsx:203:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+203       toast({
+          ~~~~~
+
+client/src/components/admin/customers.tsx:208:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+208       toast({
+          ~~~~~
+
+client/src/components/admin/customers.tsx:311:9 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+311         toast({
+            ~~~~~
+
+client/src/components/admin/customers.tsx:317:9 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+317         toast({
+            ~~~~~
+
+client/src/components/admin/customers.tsx:325:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+325       toast({
+          ~~~~~
+
+client/src/components/admin/customers.tsx:339:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+339       toast({
+          ~~~~~
+
+client/src/components/admin/customers.tsx:383:9 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+383         toast({
+            ~~~~~
+
+client/src/components/admin/customers.tsx:389:9 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+389         toast({
+            ~~~~~
+
+client/src/components/admin/customers.tsx:397:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+397       toast({
+          ~~~~~
+
+client/src/components/admin/customers.tsx:407:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+407       toast({
+          ~~~~~
+
+client/src/components/admin/customers.tsx:428:9 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+428         toast({
+            ~~~~~
+
+client/src/components/admin/customers.tsx:434:9 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+434         toast({
+            ~~~~~
+
+client/src/components/admin/customers.tsx:442:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+442       toast({
+          ~~~~~
+
+client/src/components/admin/dashboard-consolidated.tsx:53:31 - error TS2307: Cannot find module '@/hooks/use-typed-toast' or its corresponding type declarations.
+
+53 import { useTypedToast } from '@/hooks/use-typed-toast';
+                                 ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/dashboard.tsx:201:9 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+201         toast({
+            ~~~~~
+
+client/src/components/admin/delivery-tracking.tsx:157:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+157       toast({
+          ~~~~~
+
+client/src/components/admin/delivery-tracking.tsx:164:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+164       toast({
+          ~~~~~
+
+client/src/components/admin/delivery-tracking.tsx:177:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+177       toast({
+          ~~~~~
+
+client/src/components/admin/delivery-tracking.tsx:183:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+183       toast({
+          ~~~~~
+
+client/src/components/admin/delivery-tracking.tsx:227:5 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+227     toast({
+        ~~~~~

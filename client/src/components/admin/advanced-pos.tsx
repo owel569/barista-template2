@@ -18,6 +18,7 @@ import {
   Search,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useTypedToast } from '@/hooks/useTypedToast';
 
 interface MenuItem {
   id: number;

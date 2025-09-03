@@ -8,15 +8,17 @@ import {
   Loader2, ChevronDown, Plus, Clock, AlertCircle, CheckCircle
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { createIconWrapper } from '@/types/icons';
 
 interface Report {
   id: string;
   name: string;
-  type: 'sales' | 'customers' | 'inventory' | 'financial' | 'performance';
   description: string;
-  lastGenerated: string;
+  icon: React.ElementType;
+  type: 'sales' | 'customers' | 'inventory' | 'financial' | 'performance';
   format: 'PDF' | 'Excel' | 'CSV';
-  icon: React.ComponentType<{ className?: string }>;
+  schedule?: 'daily' | 'weekly' | 'monthly' | 'quarterly';
+  lastGenerated?: string;
 }
 
 interface ReportData {
@@ -57,7 +59,7 @@ export default function ReportsSystem() {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      
+
       const response = await fetch('/api/admin/reports/data', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -148,7 +150,7 @@ export default function ReportsSystem() {
     setGeneratingReport(reportId);
     try {
       const token = localStorage.getItem('token');
-      
+
       const response = await fetch(`/api/admin/reports/generate/${reportId}`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
@@ -159,11 +161,11 @@ export default function ReportsSystem() {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        
+
         const report = reports.find(r => r.id === reportId);
         const extension = report?.format.toLowerCase() || 'pdf';
         a.download = `${reportId}_${new Date().toISOString().split('T')[0]}.${extension}`;
-        
+
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
@@ -442,7 +444,7 @@ export default function ReportsSystem() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {reports.map((report) => {
               const IconComponent = report.icon;
-              
+
               return (
                 <Card key={report.id} className="hover:shadow-md transition-shadow">
                   <CardContent className="p-6">
@@ -462,11 +464,11 @@ export default function ReportsSystem() {
                       </div>
                       <Badge variant="outline">{report.format}</Badge>
                     </div>
-                    
+
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                       {report.description}
                     </p>
-                    
+
                     <div className="flex items-center justify-between">
                       <div className="text-xs text-gray-500 dark:text-gray-500">
                         Dernière génération: {new Date(report.lastGenerated).toLocaleDateString('fr-FR')}
@@ -516,7 +518,7 @@ export default function ReportsSystem() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="space-y-4">
                   <div>
                     <h4 className="font-semibold mb-2">Options de Format</h4>
@@ -535,7 +537,7 @@ export default function ReportsSystem() {
                       ))}
                     </div>
                   </div>
-                  
+
                   <Button 
                     className="w-full"
                     onClick={createCustomReport}
@@ -600,7 +602,7 @@ export default function ReportsSystem() {
                       onChange={(e) => setNewSchedule({...newSchedule, name: e.target.value})}
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium mb-1">Type de rapport</label>
                     <select 
@@ -615,7 +617,7 @@ export default function ReportsSystem() {
                       <option value="performance">Performance</option>
                     </select>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium mb-1">Fréquence</label>
                     <select 
@@ -629,7 +631,7 @@ export default function ReportsSystem() {
                       <option value="quarterly">Trimestriel</option>
                     </select>
                   </div>
-                  
+
                   <Button 
                     className="w-full"
                     onClick={scheduleReport}

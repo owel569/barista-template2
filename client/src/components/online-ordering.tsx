@@ -1,17 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { ShoppingCart, Plus, Minus, Clock, MapPin, CreditCard, Smartphone, Truck, Store } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ShoppingCart, Plus, Minus, Clock, MapPin, CreditCard, Truck, Store } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 
+// Types précis pour éviter les erreurs
+interface MenuItemWithDetails extends MenuItem {
+  allergens?: string[];
+  preparationTime?: number;
+}
+
+interface CartItemTyped {
+  id: number;
+  menuItem: MenuItemWithDetails;
+  quantity: number;
+  customizations: Record<string, string>;
+  notes: string;
+}
+
+// Placeholder for the actual MenuItem interface if it's defined elsewhere
 interface MenuItem {
   id: number;
   name: string;
@@ -31,14 +43,6 @@ interface MenuItem {
   }>;
 }
 
-interface CartItem {
-  id: number;
-  menuItem: MenuItem;
-  quantity: number;
-  customizations: Record<string, string>;
-  notes: string;
-}
-
 interface OnlineOrder {
   id: number;
   orderNumber: string;
@@ -47,7 +51,7 @@ interface OnlineOrder {
     email: string;
     phone: string;
   };
-  items: CartItem[];
+  items: CartItemTyped[];
   orderType: 'pickup' | 'delivery' | 'dine_in';
   status: 'pending' | 'confirmed' | 'preparing' | 'ready' | 'completed' | 'cancelled';
   scheduledTime?: string;
@@ -66,12 +70,12 @@ interface OnlineOrder {
 const OnlineOrdering: React.FC = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<CartItemTyped[]>([]);
   const [orderType, setOrderType] = useState<'pickup' | 'delivery' | 'dine_in'>('pickup');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
-  const { data: menuItems = [], isLoading: menuLoading } = useQuery<MenuItem[]>({
+  const { data: menuItems = [] } = useQuery<MenuItem[]>({
     queryKey: ['/api/menu/items'],
   });
 
@@ -79,9 +83,12 @@ const OnlineOrdering: React.FC = () => {
     queryKey: ['/api/menu/categories'],
   });
 
-  const { data: onlineOrders = [], isLoading: ordersLoading } = useQuery<OnlineOrder[]>({
+  const { data: onlineOrders = [] } = useQuery<OnlineOrder[]>({
     queryKey: ['/api/orders/online'],
   });
+
+  // Données de base pour le composant
+  const hasMenuItems = menuItems && menuItems.length > 0;
 
   const createOrderMutation = useMutation({
     mutationFn: async (orderData: Partial<OnlineOrder>) => {
@@ -97,9 +104,9 @@ const OnlineOrdering: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['/api/orders/online'] });
       setCart([]);
       setIsCheckoutOpen(false);
-      toast({ 
-        title: 'Commande créée', 
-        description: 'Votre commande a été enregistrée avec succès.' 
+      toast({
+        title: 'Commande créée',
+        description: 'Votre commande a été enregistrée avec succès.'
       });
     },
   });
@@ -120,26 +127,26 @@ const OnlineOrdering: React.FC = () => {
     },
   });
 
-  const addToCart = (menuItem: MenuItem, customizations: Record<string, string> = {}, notes?: string) => {
+  const addToCart = (menuItem: MenuItemWithDetails) => {
     const existingItemIndex = cart.findIndex(
-      item => item.menuItem.id === menuItem.id && 
-              JSON.stringify(item.customizations) === JSON.stringify(customizations)
+      item => item.menuItem.id === menuItem.id &&
+              JSON.stringify(item.customizations) === JSON.stringify({})
     );
 
     if (existingItemIndex > -1) {
       const newCart = cart.map((ci, idx) => idx === existingItemIndex ? { ...ci, quantity: ci.quantity + 1 } : ci);
       setCart(newCart);
     } else {
-      const newItem: CartItem = {
+      const newItem: CartItemTyped = {
         id: Date.now(),
         menuItem,
         quantity: 1,
-        customizations,
-        notes: notes ?? '',
+        customizations: {},
+        notes: ''
       };
       setCart([...cart, newItem]);
     }
-    
+
     toast({ title: 'Ajouté au panier', description: `${menuItem.name} ajouté à votre commande.` });
   };
 
@@ -152,8 +159,8 @@ const OnlineOrdering: React.FC = () => {
       removeFromCart(itemId);
       return;
     }
-    
-    setCart(cart.map(item => 
+
+    setCart(cart.map(item =>
       item.id === itemId ? { ...item, quantity } : item
     ));
   };
@@ -169,7 +176,7 @@ const OnlineOrdering: React.FC = () => {
 
     const tax = subtotal * 0.2; // 20% TVA
     const deliveryFee = orderType === 'delivery' ? 2.50 : 0;
-    
+
     return {
       subtotal,
       tax,
@@ -178,7 +185,7 @@ const OnlineOrdering: React.FC = () => {
     };
   };
 
-  const filteredMenuItems = menuItems.filter(item => 
+  const filteredMenuItems = menuItems.filter(item =>
     item.available && (selectedCategory === 'all' || item.category === selectedCategory)
   );
 
@@ -224,6 +231,7 @@ const OnlineOrdering: React.FC = () => {
           <h2 className="text-2xl font-bold">Commandes en Ligne</h2>
           <p className="text-muted-foreground">Système de commandes et interface client</p>
         </div>
+        
         <div className="flex space-x-2">
           <Button variant="outline" onClick={() => setIsCheckoutOpen(true)}>
             <ShoppingCart className="w-4 h-4 mr-2" />
@@ -253,21 +261,21 @@ const OnlineOrdering: React.FC = () => {
             </Select>
 
             <div className="flex space-x-2">
-              <Button 
+              <Button
                 variant={orderType === 'pickup' ? 'default' : 'outline'}
                 onClick={() => setOrderType('pickup')}
               >
                 <Store className="w-4 h-4 mr-2" />
                 À emporter
               </Button>
-              <Button 
+              <Button
                 variant={orderType === 'delivery' ? 'default' : 'outline'}
                 onClick={() => setOrderType('delivery')}
               >
                 <Truck className="w-4 h-4 mr-2" />
                 Livraison
               </Button>
-              <Button 
+              <Button
                 variant={orderType === 'dine_in' ? 'default' : 'outline'}
                 onClick={() => setOrderType('dine_in')}
               >
@@ -281,8 +289,8 @@ const OnlineOrdering: React.FC = () => {
             {filteredMenuItems.map((item) => (
               <Card key={item.id} className="overflow-hidden">
                 <div className="aspect-video overflow-hidden">
-                  <img 
-                    src={item.imageUrl} 
+                  <img
+                    src={item.imageUrl}
                     alt={item.name}
                     className="w-full h-full object-cover"
                   />
@@ -313,7 +321,7 @@ const OnlineOrdering: React.FC = () => {
                     </div>
                   )}
 
-                  <Button 
+                  <Button
                     className="w-full"
                     onClick={() => addToCart(item)}
                   >
@@ -355,7 +363,7 @@ const OnlineOrdering: React.FC = () => {
                     <div className="flex items-center text-sm">
                       <CreditCard className="w-4 h-4 mr-2 text-gray-500" />
                       <span className="capitalize">{order.paymentMethod}</span>
-                      <Badge 
+                      <Badge
                         variant={order.paymentStatus === 'paid' ? 'default' : 'secondary'}
                         className="ml-2"
                       >
@@ -387,24 +395,24 @@ const OnlineOrdering: React.FC = () => {
 
                   <div className="flex space-x-2">
                     {order.status === 'pending' && (
-                      <Button 
-                        size="sm" 
+                      <Button
+                        size="sm"
                         onClick={() => updateOrderStatusMutation.mutate({ id: order.id, status: 'confirmed' })}
                       >
                         Confirmer
                       </Button>
                     )}
                     {order.status === 'confirmed' && (
-                      <Button 
-                        size="sm" 
+                      <Button
+                        size="sm"
                         onClick={() => updateOrderStatusMutation.mutate({ id: order.id, status: 'preparing' })}
                       >
                         Préparer
                       </Button>
                     )}
                     {order.status === 'preparing' && (
-                      <Button 
-                        size="sm" 
+                      <Button
+                        size="sm"
                         className="bg-green-500 hover:bg-green-600"
                         onClick={() => updateOrderStatusMutation.mutate({ id: order.id, status: 'ready' })}
                       >
@@ -412,8 +420,8 @@ const OnlineOrdering: React.FC = () => {
                       </Button>
                     )}
                     {order.status === 'ready' && (
-                      <Button 
-                        size="sm" 
+                      <Button
+                        size="sm"
                         variant="outline"
                         onClick={() => updateOrderStatusMutation.mutate({ id: order.id, status: 'completed' })}
                       >
@@ -441,8 +449,8 @@ const OnlineOrdering: React.FC = () => {
           <div className="space-y-4 max-h-96 overflow-y-auto">
             {cart.map((item) => (
               <div key={item.id} className="flex items-center space-x-4 p-3 border rounded-lg">
-                <img 
-                  src={item.menuItem.imageUrl} 
+                <img
+                  src={item.menuItem.imageUrl}
                   alt={item.menuItem.name}
                   className="w-16 h-16 object-cover rounded"
                 />
@@ -454,16 +462,16 @@ const OnlineOrdering: React.FC = () => {
                   )}
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     variant="outline"
                     onClick={() => updateCartItemQuantity(item.id, item.quantity - 1)}
                   >
                     <Minus className="w-3 h-3" />
                   </Button>
                   <span className="w-8 text-center">{item.quantity}</span>
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     variant="outline"
                     onClick={() => updateCartItemQuantity(item.id, item.quantity + 1)}
                   >
@@ -499,7 +507,7 @@ const OnlineOrdering: React.FC = () => {
             <Button variant="outline" onClick={() => setIsCheckoutOpen(false)}>
               Continuer mes achats
             </Button>
-            <Button 
+            <Button
               onClick={() => {
                 const orderData: Partial<OnlineOrder> = {
                   items: cart,

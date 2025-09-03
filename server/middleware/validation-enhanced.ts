@@ -34,7 +34,7 @@ export function validateBodyStrict<T>(schema: z.ZodSchema<T>) {
           field: err.path.join('.'),
           message: err.message,
           code: err.code,
-          received: err.code === 'invalid_type' ? (err as any).received : undefined
+          received: err.code === 'invalid_type' ? (err as { received?: unknown }).received : undefined
         }));
 
         logger.warn('Validation failed', {
@@ -69,7 +69,7 @@ export function validateQueryStrict<T>(schema: z.ZodSchema<T>) {
           field: err.path.join('.'),
           message: err.message,
           code: err.code,
-          received: err.code === 'invalid_type' ? (err as any).received : undefined
+          received: err.code === 'invalid_type' ? (err as { received?: unknown }).received : undefined
         }));
 
         const error = new ValidationError('Query validation failed', details);
@@ -94,7 +94,7 @@ export function validateParamsStrict<T>(schema: z.ZodSchema<T>) {
           field: err.path.join('.'),
           message: err.message,
           code: err.code,
-          received: err.code === 'invalid_type' ? (err as any).received : undefined
+          received: err.code === 'invalid_type' ? (err as { received?: unknown }).received : undefined
         }));
 
         const error = new ValidationError('Parameters validation failed', details);

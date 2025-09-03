@@ -1,0 +1,129 @@
+
+client/src/components/admin/table-management.tsx:172:57 - error TS2353: Object literal may only specify known properties, and 'data' does not exist in type 'RequestInit'.
+
+172       apiRequest('/api/admin/tables', { method: 'POST', data }),
+                                                            ~~~~
+
+client/src/components/admin/table-management.tsx:175:49 - error TS2322: Type '"success"' is not assignable to type '"default" | "destructive"'.
+
+175       toast({ title: "Table créée avec succès", variant: "success" });
+                                                    ~~~~~~~
+
+  client/src/hooks/use-toast.ts:12:3
+    12   variant?: "default" | "destructive"
+         ~~~~~~~
+    The expected type comes from property 'variant' which is declared here on type 'Toast'
+
+client/src/components/admin/table-management.tsx:184:62 - error TS2353: Object literal may only specify known properties, and 'data' does not exist in type 'RequestInit'.
+
+184       apiRequest(`/api/admin/tables/${id}`, { method: 'PUT', data }),
+                                                                 ~~~~
+
+client/src/components/admin/table-management.tsx:187:43 - error TS2322: Type '"success"' is not assignable to type '"default" | "destructive"'.
+
+187       toast({ title: "Table mise à jour", variant: "success" });
+                                              ~~~~~~~
+
+  client/src/hooks/use-toast.ts:12:3
+    12   variant?: "default" | "destructive"
+         ~~~~~~~
+    The expected type comes from property 'variant' which is declared here on type 'Toast'
+
+client/src/components/admin/table-management.tsx:193:69 - error TS2353: Object literal may only specify known properties, and 'data' does not exist in type 'RequestInit'.
+
+193       apiRequest(`/api/admin/tables/${id}/status`, { method: 'PUT', data: { status } }),
+                                                                        ~~~~
+
+client/src/components/admin/table-management.tsx:196:43 - error TS2322: Type '"success"' is not assignable to type '"default" | "destructive"'.
+
+196       toast({ title: "Statut mis à jour", variant: "success" });
+                                              ~~~~~~~
+
+  client/src/hooks/use-toast.ts:12:3
+    12   variant?: "default" | "destructive"
+         ~~~~~~~
+    The expected type comes from property 'variant' which is declared here on type 'Toast'
+
+client/src/components/admin/table-management.tsx:233:32 - error TS2379: Argument of type '{ number: number; shape: "round" | "square" | "rectangle"; location: "bar" | "main_floor" | "terrace" | "private_room"; capacity: number; notes?: string | undefined; isVip?: boolean | undefined; }' is not assignable to parameter of type 'Omit<RestaurantTable, "id">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Type '{ number: number; shape: "round" | "square" | "rectangle"; location: "bar" | "main_floor" | "terrace" | "private_room"; capacity: number; notes?: string | undefined; isVip?: boolean | undefined; }' is missing the following properties from type 'Omit<RestaurantTable, "id">': status, position
+
+233     createTableMutation.mutate(data);
+                                   ~~~~
+
+client/src/components/admin/table-management.tsx:390:28 - error TS2375: Type '{ checked: boolean | undefined; onCheckedChange: (...event: any[]) => void; }' is not assignable to type 'SwitchProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'checked' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+
+390                           <Switch checked={field.value} onCheckedChange={field.onChange} />
+                               ~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:210:34 - error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
+
+210       const message = JSON.parse(lastMessage.data);
+                                     ~~~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:244:15 - error TS2339: Property 'error' does not exist on type '({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }'.
+
+244         toast.error('Échec du chargement des profils');
+                  ~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:313:13 - error TS2339: Property 'success' does not exist on type '({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }'.
+
+313       toast.success('Profil mis à jour avec succès');
+                ~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:317:13 - error TS2339: Property 'error' does not exist on type '({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }'.
+
+317       toast.error('Échec de la mise à jour du profil');
+                ~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:332:13 - error TS2339: Property 'success' does not exist on type '({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }'.
+
+332       toast.success('Adresse ajoutée avec succès');
+                ~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:348:13 - error TS2339: Property 'success' does not exist on type '({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }'.
+
+348       toast.success('Adresse mise à jour avec succès');
+                ~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:363:13 - error TS2339: Property 'success' does not exist on type '({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }'.
+
+363       toast.success('Adresse supprimée avec succès');
+                ~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:378:13 - error TS2339: Property 'success' does not exist on type '({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }'.
+
+378       toast.success('Mise à jour groupée réussie');
+                ~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:404:13 - error TS2339: Property 'success' does not exist on type '({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }'.
+
+404       toast.success('Export Excel généré avec succès');
+                ~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:407:13 - error TS2339: Property 'error' does not exist on type '({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }'.
+
+407       toast.error('Échec de l\'export Excel');
+                ~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:419:13 - error TS2339: Property 'success' does not exist on type '({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }'.
+
+419       toast.success('Importation des profils réussie');
+                ~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:421:13 - error TS2339: Property 'error' does not exist on type '({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }'.
+
+421       toast.error('Échec de l\'importation');
+                ~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:443:7 - error TS2448: Block-scoped variable 'paginatedUsers' used before its declaration.
+
+443   }, [paginatedUsers, selectedUsers.length]);
+          ~~~~~~~~~~~~~~
+
+  client/src/components/admin/user-profile-enhanced-optimized.tsx:490:9
+    490   const paginatedUsers = sortedUsers.slice(
+                ~~~~~~~~~~~~~~
+    'paginatedUsers' is declared here.

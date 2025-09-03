@@ -1,0 +1,90 @@
+    ~~~~~~~
+
+client/src/components/admin/settings.tsx:238:17 - error TS2538: Type 'undefined' cannot be used as an index type.
+
+238         current[lastKey] = {
+                    ~~~~~~~
+
+client/src/components/admin/settings.tsx:240:14 - error TS2532: Object is possibly 'undefined'.
+
+240           ...prev.openingHours[keys[0]][lastKey], // Spread existing properties of the specific day
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/settings.tsx:240:41 - error TS2538: Type 'undefined' cannot be used as an index type.
+
+240           ...prev.openingHours[keys[0]][lastKey], // Spread existing properties of the specific day
+                                            ~~~~~~~
+
+client/src/components/admin/settings.tsx:244:17 - error TS2538: Type 'undefined' cannot be used as an index type.
+
+244         current[lastKey] = value;
+                    ~~~~~~~
+
+client/src/components/admin/settings.tsx:252:22 - error TS2345: Argument of type '(prev: RestaurantSettings) => { openingHours: { [x: string]: OpeningHours | { open?: string; close?: string; closed?: boolean; }; }; restaurantName: string; ... 8 more ...; specialDates: { ...; }; }' is not assignable to parameter of type 'SetStateAction<RestaurantSettings>'.
+  Type '(prev: RestaurantSettings) => { openingHours: { [x: string]: OpeningHours | { open?: string; close?: string; closed?: boolean; }; }; restaurantName: string; ... 8 more ...; specialDates: { ...; }; }' is not assignable to type '(prevState: RestaurantSettings) => RestaurantSettings'.
+    Call signature return types '{ openingHours: { [x: string]: OpeningHours | { open?: string; close?: string; closed?: boolean; }; }; restaurantName: string; address: string; phone: string; email: string; website: string; ... 4 more ...; specialDates: { ...; }; }' and 'RestaurantSettings' are incompatible.
+      The types of 'openingHours' are incompatible between these types.
+        Type '{ [x: string]: OpeningHours | { open?: string; close?: string; closed?: boolean; }; }' is not assignable to type 'Record<string, OpeningHours>'.
+          'string' index signatures are incompatible.
+            Type 'OpeningHours | { open?: string; close?: string; closed?: boolean; }' is not assignable to type 'OpeningHours'.
+              Type '{ open?: string; close?: string; closed?: boolean; }' is not assignable to type 'OpeningHours'.
+                Property 'open' is optional in type '{ open?: string; close?: string; closed?: boolean; }' but required in type 'OpeningHours'.
+
+252     setDraftSettings(prev => ({
+                         ~~~~~~~~~~
+253       ...prev,
+    ~~~~~~~~~~~~~~
+... 
+260       }
+    ~~~~~~~
+261     }));
+    ~~~~~~
+
+client/src/components/admin/settings.tsx:266:22 - error TS2345: Argument of type '(prev: RestaurantSettings) => { specialDates: { closedDates: (string | undefined)[]; specialHours: { date: string; openingHours: OpeningHours; note: string; }[]; }; ... 9 more ...; notificationSettings: { ...; }; }' is not assignable to parameter of type 'SetStateAction<RestaurantSettings>'.
+  Type '(prev: RestaurantSettings) => { specialDates: { closedDates: (string | undefined)[]; specialHours: { date: string; openingHours: OpeningHours; note: string; }[]; }; ... 9 more ...; notificationSettings: { ...; }; }' is not assignable to type '(prevState: RestaurantSettings) => RestaurantSettings'.
+    Call signature return types '{ specialDates: { closedDates: (string | undefined)[]; specialHours: { date: string; openingHours: OpeningHours; note: string; }[]; }; restaurantName: string; address: string; phone: string; ... 6 more ...; notificationSettings: { ...; }; }' and 'RestaurantSettings' are incompatible.
+      The types of 'specialDates.closedDates' are incompatible between these types.
+        Type '(string | undefined)[]' is not assignable to type 'string[]'.
+          Type 'string | undefined' is not assignable to type 'string'.
+            Type 'undefined' is not assignable to type 'string'.
+
+266     setDraftSettings(prev => ({
+                         ~~~~~~~~~~
+267       ...prev,
+    ~~~~~~~~~~~~~~
+... 
+271       }
+    ~~~~~~~
+272     }));
+    ~~~~~~
+
+client/src/components/admin/settings.tsx:287:22 - error TS2345: Argument of type '(prev: RestaurantSettings) => { specialDates: { specialHours: { date: string | undefined; openingHours: OpeningHours; note: string; }[]; closedDates: string[]; }; ... 9 more ...; notificationSettings: { ...; }; }' is not assignable to parameter of type 'SetStateAction<RestaurantSettings>'.
+  Type '(prev: RestaurantSettings) => { specialDates: { specialHours: { date: string | undefined; openingHours: OpeningHours; note: string; }[]; closedDates: string[]; }; ... 9 more ...; notificationSettings: { ...; }; }' is not assignable to type '(prevState: RestaurantSettings) => RestaurantSettings'.
+    Call signature return types '{ specialDates: { specialHours: { date: string | undefined; openingHours: OpeningHours; note: string; }[]; closedDates: string[]; }; restaurantName: string; address: string; phone: string; ... 6 more ...; notificationSettings: { ...; }; }' and 'RestaurantSettings' are incompatible.
+      The types of 'specialDates.specialHours' are incompatible between these types.
+        Type '{ date: string | undefined; openingHours: OpeningHours; note: string; }[]' is not assignable to type '{ date: string; openingHours: OpeningHours; note: string; }[]'.
+          Type '{ date: string | undefined; openingHours: OpeningHours; note: string; }' is not assignable to type '{ date: string; openingHours: OpeningHours; note: string; }'.
+            Types of property 'date' are incompatible.
+              Type 'string | undefined' is not assignable to type 'string'.
+                Type 'undefined' is not assignable to type 'string'.
+
+287     setDraftSettings(prev => ({
+                         ~~~~~~~~~~
+288       ...prev,
+    ~~~~~~~~~~~~~~
+... 
+295       }
+    ~~~~~~~
+296     }));
+    ~~~~~~
+
+client/src/components/admin/settings.tsx:701:21 - error TS2322: Type '{ selectedDates: Date[]; onSelectDate: (date: any) => void; onRemoveDate: (date: any) => void; disabled: boolean; }' is not assignable to type 'IntrinsicAttributes & DayPickerComponentProps'.
+  Property 'selectedDates' does not exist on type 'IntrinsicAttributes & DayPickerComponentProps'.
+
+701                     selectedDates={draftSettings.specialDates.closedDates.map(d => new Date(d))}
+                        ~~~~~~~~~~~~~
+
+client/src/components/admin/settings.tsx:702:36 - error TS7006: Parameter 'date' implicitly has an 'any' type.
+
+702                     onSelectDate={(date) => addClosedDate(date)}
+                                       ~~~~

@@ -21,9 +21,27 @@ export const usePermissions = (userParam?: unknown) => {
   const [error] = useState<string | null>(null);
 
   const hasPermission = useCallback((permission: string): boolean => {
-    // Logique simplifiée pour éviter les plantages
-    return true; // Temporairement permissif pour que l'app fonctionne
-  }, []);
+    // Logique de permissions basée sur les rôles
+    const user = userParam as MockUser | undefined;
+    if (!user || !user.role) return false;
+    
+    // Admin a toutes les permissions
+    if (user.role === 'admin') return true;
+    
+    // Directeur a la plupart des permissions
+    if (user.role === 'directeur') {
+      const restrictedPermissions = ['system:delete', 'security:critical'];
+      return !restrictedPermissions.includes(permission);
+    }
+    
+    // Employé a des permissions limitées
+    if (user.role === 'employe') {
+      const allowedPermissions = ['orders:read', 'customers:read', 'inventory:read'];
+      return allowedPermissions.some(allowed => permission.startsWith(allowed));
+    }
+    
+    return false;
+  }, [userParam]);
 
   const hasWritePermission = useCallback((resource: string): boolean => {
     return hasPermission(`${resource}:write`);

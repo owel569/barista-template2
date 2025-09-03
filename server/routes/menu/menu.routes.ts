@@ -43,7 +43,7 @@ async function logMenuActivity(
   userId: number,
   action: string,
   details: string,
-  req: { ip?: string; connection?: { remoteAddress?: string }; get?: (header: string) => string | undefined },
+  req: { ip?: string | undefined; connection?: { remoteAddress?: string | undefined } | undefined; get?: (header: string) => string | undefined },
   itemId?: number
 ): Promise<void> {
   try {
@@ -53,8 +53,8 @@ async function logMenuActivity(
       action,
       entity: 'menu_item',
       details: itemId ? `${details} (Article: ${itemId})` : details,
-      ipAddress: req.ip || req.connection.remoteAddress,
-      userAgent: req.get('User-Agent'),
+      ipAddress: req.ip || req.connection?.remoteAddress || '',
+      userAgent: req.get?.('User-Agent') || '',
       createdAt: new Date()
     });
   } catch (error) {

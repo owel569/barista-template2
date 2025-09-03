@@ -75,7 +75,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
   });
 
   const updateStatusMutation = useMutation({
-    mutationFn: async ({ id, status }: { id: number; status: ContactMessage['status'] }) => {
+    mutationFn: async ({ id, status }: { id: string; status: ContactMessage['status'] }) => {
       const token = localStorage.getItem('token');
       const response = await fetch(`/api/admin/messages/${id}/status`, {
         method: 'PUT',
@@ -108,7 +108,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
   });
 
   const replyMutation = useMutation({
-    mutationFn: ({ id, response }: { id: number; response: string }) =>
+    mutationFn: ({ id, response }: { id: string; response: string }) =>
       apiRequest(`/api/admin/messages/${id}/reply`, {
         method: 'POST',
         body: JSON.stringify({ response }),
@@ -132,7 +132,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => apiRequest(`/api/admin/messages/${id}`, {
+    mutationFn: (id: string) => apiRequest(`/api/admin/messages/${id}`, {
       method: 'DELETE',
     }),
     onSuccess: () => {
@@ -151,8 +151,8 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
     },
   });
 
-  const handleStatusChange = (messageId: number, newStatus: ContactMessage['status']) => {
-    updateStatusMutation.mutate({ id: messageId, status: newStatus });
+  const handleStatusChange = (id: string, status: ContactMessage['status']) => {
+    updateStatusMutation.mutate({ id, status });
   };
 
   const handleReply = () => {
@@ -160,28 +160,27 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
     replyMutation.mutate({ id: selectedMessage.id, response: response.trim() });
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     if (confirm('Êtes-vous sûr de vouloir supprimer ce message ?')) {
       deleteMutation.mutate(id);
     }
   };
 
-  const getStatusColor = (status: ContactMessage['status']) => {
+  const getStatusBadgeColor = (status: ContactMessage['status']) => {
     switch (status) {
-      case 'nouveau': return 'bg-blue-100 text-blue-800';
-      case 'non_lu': return 'bg-red-100 text-red-800';
-      case 'lu': return 'bg-yellow-100 text-yellow-800';
-      case 'traite': return 'bg-green-100 text-green-800';
-      case 'archive': return 'bg-gray-100 text-gray-800';
+      case 'unread': return 'bg-blue-100 text-blue-800';
+      case 'read': return 'bg-yellow-100 text-yellow-800';
+      case 'replied': return 'bg-green-100 text-green-800';
+      case 'archived': return 'bg-gray-100 text-gray-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
 
   const filteredMessages = useMemo(() => {
     return messages.filter((message) => {
-      const matchesSearch = !searchTerm || 
-        message.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        message.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      const matchesSearch = !searchTerm ||
+        message.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        message.customerEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
         message.subject.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesStatus = statusFilter === 'all' || message.status === statusFilter;
@@ -201,8 +200,8 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
   const stats = useMemo(() => {
     return {
       total: messages.length,
-      unread: messages.filter(msg => msg.status === 'nouveau' || msg.status === 'non_lu').length,
-      treated: messages.filter(msg => msg.status === 'traite').length,
+      unread: messages.filter(msg => msg.status === 'unread').length,
+      treated: messages.filter(msg => msg.status === 'replied').length,
     };
   }, [messages]);
 
@@ -307,11 +306,10 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tous les statuts</SelectItem>
-                <SelectItem value="nouveau">Nouveau</SelectItem>
-                <SelectItem value="non_lu">Non lu</SelectItem>
-                <SelectItem value="lu">Lu</SelectItem>
-                <SelectItem value="traite"> Traité</SelectItem>
-                <SelectItem value="archive">Archivé</SelectItem>
+                <SelectItem value="unread">Nouveau</SelectItem>
+                <SelectItem value="read">Lu</SelectItem>
+                <SelectItem value="replied"> Traité</SelectItem>
+                <SelectItem value="archived">Archivé</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -339,8 +337,11 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                 <TableRow key={message.id}>
                   <TableCell>
                     <div>
-                      <div className="font-medium">{message.name || 'Anonyme'}</div>
-                      <div className="text-sm text-muted-foreground">{message.email}</div>
+                      <div className="font-medium">{message.customerName || 'Anonyme'}</div>
+                      <div className="text-sm text-muted-foreground">{message.customerEmail}</div>
+                      {message.phone && (
+                        <div className="text-sm text-muted-foreground">{message.phone}</div>
+                      )}
                     </div>
                   </TableCell>
                   <TableCell className="max-w-xs truncate">
@@ -348,13 +349,13 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                   </TableCell>
                   <TableCell>
                     {message.createdAt ? (
-                      isNaN(new Date(message.createdAt).getTime()) ? 
-                        'Date invalide' : 
+                      isNaN(new Date(message.createdAt).getTime()) ?
+                        'Date invalide' :
                         format(new Date(message.createdAt), 'dd/MM/yyyy HH:mm', { locale: fr })
                     ) : 'Pas de date'}
                   </TableCell>
                   <TableCell>
-                    <Badge className={getStatusColor(message.status)}>
+                    <Badge className={getStatusBadgeColor(message.status)}>
                       {message.status.replace('_', ' ')}
                     </Badge>
                   </TableCell>
@@ -367,8 +368,8 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                           setSelectedMessage(message);
                           setResponse(message.response || '');
                           setIsDialogOpen(true);
-                          if (message.status === 'nouveau' || message.status === 'non_lu') {
-                            handleStatusChange(message.id, 'lu');
+                          if (message.status === 'unread') {
+                            handleStatusChange(message.id, 'read');
                           }
                         }}
                       >
@@ -383,11 +384,10 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="nouveau">Nouveau</SelectItem>
-                            <SelectItem value="non_lu">Non lu</SelectItem>
-                            <SelectItem value="lu">Lu</SelectItem>
-                            <SelectItem value="traite"> Traité</SelectItem>
-                            <SelectItem value="archive">Archivé</SelectItem>
+                            <SelectItem value="unread">Nouveau</SelectItem>
+                            <SelectItem value="read">Lu</SelectItem>
+                            <SelectItem value="replied"> Traité</SelectItem>
+                            <SelectItem value="archived">Archivé</SelectItem>
                           </SelectContent>
                         </Select>
                       )}
@@ -454,7 +454,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Message de {selectedMessage?.name || 'Anonyme'}</DialogTitle>
+            <DialogTitle>Message de {selectedMessage?.customerName || 'Anonyme'}</DialogTitle>
             <DialogDescription>
               Consulter et répondre au message
             </DialogDescription>
@@ -464,8 +464,8 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <h3 className="font-semibold">Expéditeur</h3>
-                  <p>{selectedMessage.name || 'Anonyme'}</p>
-                  <p className="text-sm text-muted-foreground">{selectedMessage.email}</p>
+                  <p>{selectedMessage.customerName || 'Anonyme'}</p>
+                  <p className="text-sm text-muted-foreground">{selectedMessage.customerEmail}</p>
                   {selectedMessage.phone && (
                     <p className="text-sm text-muted-foreground">{selectedMessage.phone}</p>
                   )}
@@ -473,7 +473,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                 <div>
                   <h3 className="font-semibold">Détails</h3>
                   <p>Date: {format(new Date(selectedMessage.createdAt), 'dd/MM/yyyy HH:mm', { locale: fr })}</p>
-                  <p>Statut: <Badge className={getStatusColor(selectedMessage.status)}>{selectedMessage.status}</Badge></p>
+                  <p>Statut: <Badge className={getStatusBadgeColor(selectedMessage.status)}>{selectedMessage.status}</Badge></p>
                 </div>
               </div>
 

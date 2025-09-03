@@ -293,7 +293,7 @@ export default function StaffScheduling() {
         const currentShift = empShifts[i];
 
         if (prevShift.date === currentShift.date && 
-            prevShift.endTime > currentShift.startTime) {
+            currentShift && currentShift && prevShift.endTime > currentShift.startTime) {
           detectedConflicts.push({
             type: 'overlap',
             message: `Chevauchement de shifts pour l'employé ${employeeId}`,

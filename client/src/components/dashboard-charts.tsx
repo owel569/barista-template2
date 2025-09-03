@@ -58,8 +58,7 @@ export default function DashboardCharts(): JSX.Element {
   // Fetch all data in parallel with proper error handling
   const { 
     data: dailyReservations = [], 
-    isLoading: reservationsLoading,
-    error: reservationsError
+    isLoading: reservationsLoading
   } = useQuery<ReservationData[]>({
     queryKey: ["daily-reservations"],
     queryFn: async () => {
@@ -380,8 +379,9 @@ export default function DashboardCharts(): JSX.Element {
                   ))}
                 </Pie>
                 <Legend 
-                  formatter={(value, entry, index) => {
+                  formatter={(value: string, entry: unknown, index: number) => {
                     const data = formattedReservationsStatusData[index];
+                    if (!data) return value;
                     return (
                       <span className="flex items-center">
                         {data.icon}
@@ -469,8 +469,9 @@ export default function DashboardCharts(): JSX.Element {
                   ))}
                 </Pie>
                 <Legend 
-                  formatter={(value, entry, index) => {
+                  formatter={(value: string, entry: unknown, index: number) => {
                     const data = formattedOrdersData[index];
+                    if (!data) return value;
                     return (
                       <span className="flex items-center">
                         {data.icon}

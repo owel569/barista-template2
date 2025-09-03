@@ -8,26 +8,26 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { 
-  LineChart, 
-  Line, 
-  PieChart, 
-  Pie, 
-  Cell, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer 
+import {
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
 } from 'recharts';
-import { 
-  FileText, 
-  Download, 
-  TrendingUp, 
-  Users, 
-  DollarSign, 
-  Package, 
+import {
+  FileText,
+  Download,
+  TrendingUp,
+  Users,
+  DollarSign,
+  Package,
   Brain,
   Filter,
   Mail,
@@ -38,7 +38,7 @@ import {
   Edit,
   Trash2
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { useTypedToast } from '@/hooks/useTypedToast';
 
 
 
@@ -147,7 +147,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
   const [reportData, setReportData] = useState<ReportData | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const toast = useToast();
+  const toast = useTypedToast();
   const queryClient = useQueryClient();
 
   // Récupérer les rapports existants
@@ -178,7 +178,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
     onSuccess: (data) => {
       setReportData(data);
       setIsGenerating(false);
-      toast({
+      toast.toast({
         title: "Rapport généré avec succès",
         description: "Le rapport a été créé avec les insights IA",
       });
@@ -186,7 +186,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
     },
     onError: () => {
       setIsGenerating(false);
-      toast({
+      toast.toast({
         title: "Erreur",
         description: "Impossible de générer le rapport",
         variant: "destructive",
@@ -196,14 +196,14 @@ export const ComprehensiveReportsManager: React.FC = () => {
 
   // Planification automatique
   const scheduleReportMutation = useMutation({
-    mutationFn: (scheduleConfig: unknown) => 
+    mutationFn: (scheduleConfig: unknown) =>
       apiRequest('/api/admin/reports/schedule', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(scheduleConfig)
       }),
     onSuccess: () => {
-      toast({
+      toast.toast({
         title: "Rapport planifié",
         description: "Le rapport sera généré automatiquement",
       });
@@ -261,8 +261,8 @@ export const ComprehensiveReportsManager: React.FC = () => {
                 <Badge variant="outline">{template.charts.length} graphiques</Badge>
               </div>
               <div className="flex gap-2">
-                <Button 
-                  size="sm" 
+                <Button
+                  size="sm"
                   onClick={() => {
                     setSelectedTemplate(template.id);
                     setActiveTab('generate');

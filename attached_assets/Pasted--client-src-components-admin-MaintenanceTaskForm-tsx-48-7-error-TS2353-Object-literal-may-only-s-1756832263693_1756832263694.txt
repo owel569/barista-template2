@@ -1,0 +1,125 @@
+
+client/src/components/admin/MaintenanceTaskForm.tsx:48:7 - error TS2353: Object literal may only specify known properties, and 'cost' does not exist in type 'Omit<MaintenanceTask, "id"> | (() => Omit<MaintenanceTask, "id">)'.
+
+48       cost: initialData.cost,
+         ~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:109:9 - error TS2353: Object literal may only specify known properties, and 'assignedToId' does not exist in type 'SetStateAction<Omit<MaintenanceTask, "id">>'.
+
+109         assignedToId: selectedTechnician.id,
+            ~~~~~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:117:14 - error TS2379: Argument of type 'Omit<import("/home/runner/workspace/client/src/types/maintenance").MaintenanceTask, "id">' is not assignable to parameter of type 'Omit<import("/home/runner/workspace/client/src/components/admin/maintenance-management").MaintenanceTask, "id">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Type 'Omit<MaintenanceTask, "id">' is missing the following properties from type 'Omit<MaintenanceTask, "id">': assignedToId, cost
+
+117     onSubmit(formData);
+                 ~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:196:29 - error TS2551: Property 'assignedToId' does not exist on type 'Omit<MaintenanceTask, "id">'. Did you mean 'assignedTo'?
+
+196             value={formData.assignedToId?.toString() || ''}
+                                ~~~~~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:257:29 - error TS2339: Property 'cost' does not exist on type 'Omit<MaintenanceTask, "id">'.
+
+257             value={formData.cost}
+                                ~~~~
+
+client/src/components/admin/accounting-system.tsx:70:10 - error TS2305: Module '"@/hooks/use-toast"' has no exported member 'useTypedToast'.
+
+70 import { useTypedToast } from '@/hooks/use-toast';
+            ~~~~~~~~~~~~~
+
+client/src/components/admin/activity-logs.tsx:248:9 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+248         toast({
+            ~~~~~
+
+client/src/components/admin/activity-logs.tsx:268:9 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+268         toast({
+            ~~~~~
+
+client/src/components/admin/activity-logs.tsx:291:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+291       toast({
+          ~~~~~
+
+client/src/components/admin/activity-logs.tsx:296:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+296       toast({
+          ~~~~~
+
+client/src/components/admin/activity-logs.tsx:310:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+310       toast({
+          ~~~~~
+
+client/src/components/admin/activity-logs.tsx:315:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+315       toast({
+          ~~~~~
+
+client/src/components/admin/advanced-pos.tsx:21:10 - error TS2305: Module '"@/hooks/use-toast"' has no exported member 'useTypedToast'.
+
+21 import { useTypedToast } from '@/hooks/use-toast'; // Assuming useTypedToast is imported from the same place
+            ~~~~~~~~~~~~~
+
+client/src/components/admin/advanced-pos.tsx:99:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+99       toast({
+         ~~~~~
+
+client/src/components/admin/advanced-pos.tsx:130:5 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+130     toast({
+        ~~~~~
+
+client/src/components/admin/advanced-pos.tsx:189:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+189       toast({
+          ~~~~~
+
+client/src/components/admin/advanced-pos.tsx:197:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+197       toast({
+          ~~~~~
+
+client/src/components/admin/advanced-pos.tsx:210:5 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+210     toast({
+        ~~~~~
+
+client/src/components/admin/analytics/AdvancedAnalyticsDashboard.tsx:219:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+219       toast({
+          ~~~~~
+
+client/src/components/admin/analytics/AdvancedAnalyticsDashboard.tsx:224:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+224       toast({
+          ~~~~~
+
+client/src/components/admin/analytics/AdvancedAnalyticsDashboard.tsx:246:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+246       toast({
+          ~~~~~
+
+client/src/components/admin/analytics/AdvancedAnalyticsDashboard.tsx:251:7 - error TS2349: This expression is not callable.
+  Type '{ toast: ({ ...props }: Toast) => { id: string; dismiss: () => void; update: (props: ToasterToast) => void; }; dismiss: (toastId?: string | undefined) => void; toasts: ToasterToast[]; }' has no call signatures.
+
+251       toast({

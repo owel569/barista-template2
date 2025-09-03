@@ -46,7 +46,7 @@ import {
   Calendar
 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
+import { useTypedToast } from '@/hooks/use-typed-toast'; // Assuming this is the correct import for the typed toast hook
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { 
@@ -76,7 +76,7 @@ const SEVERITY_CONFIG: Record<ActivityLog['severity'], SeverityConfig> = {
 };
 
 export default function ActivityLogs(): JSX.Element {
-  const toast = useToast();
+  const toast = useTypedToast();
 
   // États
   const [logs, setLogs] = useState<ActivityLog[]>([]);
@@ -182,7 +182,7 @@ export default function ActivityLogs(): JSX.Element {
 
     const activity = activities[Math.floor(Math.random() * activities.length)];
     if (!activity) return;
-    
+
     const newLog: ActivityLog = {
       id: Date.now().toString(),
       timestamp: new Date(),
@@ -217,7 +217,7 @@ export default function ActivityLogs(): JSX.Element {
 
       return () => clearInterval(interval);
     }
-    
+
     return () => {}; // Cleanup function même si pas d'interval
   }, [isRealTimeEnabled, generateMockActivity, loadActivityLogs]);
 
@@ -245,11 +245,7 @@ export default function ActivityLogs(): JSX.Element {
   const exportLogs = useCallback((): void => {
     try {
       if (filteredLogs.length === 0) {
-        toast({
-          title: "Aucune donnée",
-          description: "Aucun journal à exporter",
-          variant: "warning",
-        });
+        toast.success("Aucune donnée", "Aucun journal à exporter");
         return;
       }
 
@@ -265,11 +261,7 @@ export default function ActivityLogs(): JSX.Element {
       }));
 
       if (dataToExport.length === 0) {
-        toast({
-          title: "Aucune donnée",
-          description: "Aucun journal à exporter",
-          variant: "warning",
-        });
+        toast.success("Aucune donnée", "Aucun journal à exporter");
         return;
       }
 
@@ -288,16 +280,9 @@ export default function ActivityLogs(): JSX.Element {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      toast({
-        title: "Export réussi",
-        description: "Les journaux ont été exportés avec succès",
-      });
+      toast.success("Export réussi", "Les journaux ont été exportés avec succès");
     } catch (error) {
-      toast({
-        title: "Erreur d'export",
-        description: "Impossible d'exporter les journaux",
-        variant: "destructive",
-      });
+      toast.error("Erreur d'export", "Impossible d'exporter les journaux");
     }
   }, [filteredLogs, toast]);
 
@@ -307,16 +292,9 @@ export default function ActivityLogs(): JSX.Element {
       const filteredLogs = logs.filter(log => log.timestamp >= thirtyDaysAgo);
       setLogs(filteredLogs);
 
-      toast({
-        title: "Nettoyage effectué",
-        description: `${logs.length - filteredLogs.length} anciens journaux supprimés`,
-      });
+      toast.success("Nettoyage effectué", `${logs.length - filteredLogs.length} anciens journaux supprimés`);
     } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de nettoyer les journaux",
-        variant: "destructive",
-      });
+      toast.error("Erreur", "Impossible de nettoyer les journaux");
     }
   }, [logs, toast]);
 
@@ -591,9 +569,9 @@ export default function ActivityLogs(): JSX.Element {
       <Dialog open={!!selectedLog} onOpenChange={() => setSelectedLog(null)}>
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Détails de l\'Activité</DialogTitle>
+            <DialogTitle>Détails de l'Activité</DialogTitle>
             <DialogDescription>
-              Informations complètes sur l\'événement sélectionné
+              Informations complètes sur l'événement sélectionné
             </DialogDescription>
           </DialogHeader>
           {selectedLog && (

@@ -37,7 +37,8 @@ router.get('/kpis',
   requireRoles(['admin', 'manager']),
   validateRequest(kpiQuerySchema, 'query'),
   asyncHandler(async (req, res) => {
-    const { period, compare } = req.query as z.infer<typeof kpiQuerySchema>;
+    const validatedQuery = kpiQuerySchema.parse(req.query);
+    const { period, compare } = validatedQuery;
     const db = await getDb();
 
     // Calcul des dates selon la période
@@ -66,7 +67,7 @@ router.get('/kpis',
         // Nombre de commandes
         db.select({
           count: sql<number>`COUNT(*)`,
-          completed: sql<number>`COUNT(CASE WHEN ${orders.status} = 'completed' THEN 1 END)`,
+          delivered: sql<number>`COUNT(CASE WHEN ${orders.status} = 'delivered' THEN 1 END)`,
           pending: sql<number>`COUNT(CASE WHEN ${orders.status} = 'pending' THEN 1 END)`,
           cancelled: sql<number>`COUNT(CASE WHEN ${orders.status} = 'cancelled' THEN 1 END)`
         })
@@ -94,7 +95,7 @@ router.get('/kpis',
         .where(and(
           gte(orders.createdAt, periods.start),
           lte(orders.createdAt, periods.end),
-          eq(orders.status, 'completed')
+          eq(orders.status, 'delivered')
         ))
       ]);
 
@@ -113,7 +114,7 @@ router.get('/kpis',
         },
         orders: {
           total: ordersData[0]?.count || 0,
-          completed: ordersData[0]?.completed || 0,
+          delivered: ordersData[0]?.delivered || 0,
           pending: ordersData[0]?.pending || 0,
           cancelled: ordersData[0]?.cancelled || 0,
           completionRate: calculateCompletionRate(ordersData[0])
@@ -171,7 +172,8 @@ router.get('/revenue',
   requireRoles(['admin', 'manager']),
   validateRequest(analyticsQuerySchema, 'query'),
   asyncHandler(async (req, res) => {
-    const { startDate, endDate, period } = req.query as z.infer<typeof analyticsQuerySchema>;
+    const validatedQuery = analyticsQuerySchema.parse(req.query);
+    const { startDate, endDate, period } = validatedQuery;
     const db = await getDb();
 
     const dates = getDateRange(startDate, endDate, period);
@@ -186,7 +188,7 @@ router.get('/revenue',
       .where(and(
         gte(orders.createdAt, dates.start),
         lte(orders.createdAt, dates.end),
-        eq(orders.status, 'completed')
+        eq(orders.status, 'delivered')
       ))
       .groupBy(sql`DATE(${orders.createdAt})`)
       .orderBy(sql`DATE(${orders.createdAt})`);
@@ -230,7 +232,8 @@ router.get('/top-products',
   requireRoles(['admin', 'manager']),
   validateRequest(analyticsQuerySchema, 'query'),
   asyncHandler(async (req, res) => {
-    const { startDate, endDate, limit } = req.query as z.infer<typeof analyticsQuerySchema>;
+    const validatedQuery = analyticsQuerySchema.parse(req.query);
+    const { startDate, endDate, limit } = validatedQuery;
     const db = await getDb();
 
     const dates = getDateRange(startDate, endDate);
@@ -241,7 +244,7 @@ router.get('/top-products',
       const topProducts = await db.select({
         itemId: menuItems.id,
         name: menuItems.name,
-        category: menuItems.category,
+        categoryId: menuItems.categoryId,
         price: menuItems.price,
         // Ces champs nécessiteraient une table orderItems
         totalSold: sql<number>`COALESCE(COUNT(*), 0)`,
@@ -351,8 +354,8 @@ function calculateGrowth(current: number, previous: number): number {
 
 function calculateCompletionRate(ordersData: any): number {
   const total = ordersData?.count || 0;
-  const completed = ordersData?.completed || 0;
-  return total > 0 ? Math.round((completed / total) * 100) : 0;
+  const delivered = ordersData?.delivered || 0;
+  return total > 0 ? Math.round((delivered / total) * 100) : 0;
 }
 
 export default router;

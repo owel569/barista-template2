@@ -225,22 +225,31 @@ export default function Settings({ userRole }: SettingsProps) {
 
   const handleChange = useCallback((path: string, value: any) => {
     setDraftSettings(prev => {
-      const newSettings = { ...prev };
       const keys = path.split('.');
-      let current: any = newSettings;
+      let current: any = prev;
+      const newSettings = { ...prev };
 
       for (let i = 0; i < keys.length - 1; i++) {
-        current = current[keys[i]];
+        const key = keys[i];
+        if (key && current[key]) {
+          current = current[key];
+        } else if (key) {
+          current[key] = {};
+          current = current[key];
+        }
       }
       const lastKey = keys[keys.length - 1];
 
-      if (keys.length === 2 && keys[0] === 'openingHours') {
-        current[lastKey] = {
-          ...prev.openingHours[keys[0]], // Ensure previous values are carried over
-          ...prev.openingHours[keys[0]][lastKey], // Spread existing properties of the specific day
-          [path.split('.').pop()!]: value
-        };
-      } else {
+      if (path.includes('openingHours') && keys.length > 1) {
+        const dayKey = keys[0];
+        if (lastKey && prev.openingHours?.[dayKey]) {
+          current[lastKey] = {
+            ...current[lastKey],
+            ...prev.openingHours[dayKey][lastKey],
+            [keys[keys.length - 1]]: value,
+          };
+        }
+      } else if (lastKey) {
         current[lastKey] = value;
       }
       return newSettings;
@@ -261,16 +270,18 @@ export default function Settings({ userRole }: SettingsProps) {
     }));
   }, []);
 
-  const addClosedDate = useCallback((date: Date) => {
-    const dateStr = date.toISOString().split('T')[0];
+  const addClosedDate = (date: Date) => {
+    const dateString = date?.toISOString().split('T')[0];
+    if (!dateString) return;
+
     setDraftSettings(prev => ({
       ...prev,
       specialDates: {
         ...prev.specialDates,
-        closedDates: [...prev.specialDates.closedDates, dateStr]
+        closedDates: [...prev.specialDates.closedDates, dateString]
       }
     }));
-  }, []);
+  };
 
   const removeClosedDate = useCallback((dateStr: string) => {
     setDraftSettings(prev => ({
@@ -305,6 +316,28 @@ export default function Settings({ userRole }: SettingsProps) {
       }
     }));
   }, []);
+
+  // State for new special date input
+  const [newSpecialDate, setNewSpecialDate] = useState<Date | undefined>(undefined);
+
+  // Handler to add a new special hour entry
+  const addSpecialHour = () => {
+    const dateString = newSpecialDate?.toISOString().split('T')[0];
+    if (!dateString) return;
+
+    setDraftSettings(prev => ({
+      ...prev,
+      specialDates: {
+        ...prev.specialDates,
+        specialHours: [...prev.specialDates.specialHours, {
+          date: dateString,
+          openingHours: { open: '09:00', close: '18:00', closed: false },
+          note: ''
+        }]
+      }
+    }));
+  };
+
 
   if (!hasPermission('settings', 'view')) {
     return (
@@ -673,7 +706,7 @@ export default function Settings({ userRole }: SettingsProps) {
               </div>
 
               <div className="space-y-2">
-                <Label>Modèle de notification d\'annulation</Label>
+                <Label>Modèle de notification d'annulation</Label>
                 <Textarea
                   value={draftSettings.notificationSettings.cancellationTemplate}
                   onChange={(e) => handleChange('notificationSettings.cancellationTemplate', e.target.value)}
@@ -753,10 +786,9 @@ export default function Settings({ userRole }: SettingsProps) {
                             const index = updatedHours.findIndex(sh => sh.date === date);
                             if (index >= 0) {
                               updatedHours[index] = {
-                                date: updatedHours[index]?.date || '',
-                                note: updatedHours[index]?.note || '',
+                                ...updatedHours[index],
                                 openingHours: {
-                                  ...updatedHours[index]?.openingHours,
+                                  ...updatedHours[index].openingHours,
                                   closed: !checked
                                 }
                               };
@@ -782,10 +814,9 @@ export default function Settings({ userRole }: SettingsProps) {
                               const index = updatedHours.findIndex(sh => sh.date === date);
                               if (index >= 0) {
                                 updatedHours[index] = {
-                                  date: updatedHours[index]?.date || '',
-                                  note: updatedHours[index]?.note || '',
+                                  ...updatedHours[index],
                                   openingHours: {
-                                    ...updatedHours[index]?.openingHours,
+                                    ...updatedHours[index].openingHours,
                                     open: value
                                   }
                                 };
@@ -808,10 +839,9 @@ export default function Settings({ userRole }: SettingsProps) {
                               const index = updatedHours.findIndex(sh => sh.date === date);
                               if (index >= 0) {
                                 updatedHours[index] = {
-                                  date: updatedHours[index]?.date || '',
-                                  note: updatedHours[index]?.note || '',
+                                  ...updatedHours[index],
                                   openingHours: {
-                                    ...updatedHours[index]?.openingHours,
+                                    ...updatedHours[index].openingHours,
                                     close: value
                                   }
                                 };
@@ -837,9 +867,8 @@ export default function Settings({ userRole }: SettingsProps) {
                             const index = updatedHours.findIndex(sh => sh.date === date);
                             if (index >= 0) {
                               updatedHours[index] = {
-                                date: updatedHours[index]?.date || '',
-                                note: e.target.value, // Directly use the new value for the note
-                                openingHours: updatedHours[index]?.openingHours || { open: '09:00', close: '18:00', closed: false }
+                                ...updatedHours[index],
+                                note: e.target.value,
                               };
                               setDraftSettings(prev => ({
                                 ...prev,
@@ -864,8 +893,9 @@ export default function Settings({ userRole }: SettingsProps) {
                       <DayPicker
                         onSelectDate={(date) => {
                           const dateStr = date.toISOString().split('T')[0];
-                          if (!draftSettings.specialDates.specialHours.some(sh => sh.date === dateStr)) {
-                            addSpecialHours(date, { open: '09:00', close: '18:00', closed: false }, '');
+                          if (!draftSettings.specialDates.specialHours.some(sh => sh.date === dateStr) &&
+                              !draftSettings.specialDates.closedDates.some(d => d === dateStr)) {
+                             setNewSpecialDate(date);
                           }
                         }}
                         disabled={!hasPermission('settings', 'edit')}
@@ -875,6 +905,13 @@ export default function Settings({ userRole }: SettingsProps) {
                         ]}
                       />
                     </div>
+                    {newSpecialDate && (
+                      <div className="col-span-1 md:col-span-2 flex items-end">
+                        <Button onClick={addSpecialHour} disabled={!hasPermission('settings', 'edit')}>
+                          Ajouter Horaires Spéciaux
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

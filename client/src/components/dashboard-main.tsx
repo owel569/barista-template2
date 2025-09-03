@@ -1,4 +1,3 @@
-import React from 'react';
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -18,30 +17,47 @@ interface DashboardMainProps {
   userRole?: UserRole;
 }
 
+interface StatsResponse {
+  count: number;
+  revenue?: number;
+  rate?: number;
+}
+
+interface DailyReservation {
+  date: string;
+  count: number;
+}
+
+interface StatusData {
+  name: string;
+  value: number;
+  color: string;
+}
+
 export default function DashboardMain({ userRole = 'directeur' }: DashboardMainProps) {
   // Requêtes pour les statistiques
-  const { data: todayReservations } = useQuery({
-    queryKey: ["/api/admin/stats/today-reservations",],
+  const { data: todayReservations } = useQuery<StatsResponse>({
+    queryKey: ["/api/admin/stats/today-reservations"],
   });
 
-  const { data: monthlyRevenue } = useQuery({
-    queryKey: ["/api/admin/stats/monthly-revenue",],
+  const { data: monthlyRevenue } = useQuery<StatsResponse>({
+    queryKey: ["/api/admin/stats/monthly-revenue"],
   });
 
-  const { data: activeOrders } = useQuery({
-    queryKey: ["/api/admin/stats/active-orders",],
+  const { data: activeOrders } = useQuery<StatsResponse>({
+    queryKey: ["/api/admin/stats/active-orders"],
   });
 
-  const { data: occupancyRate } = useQuery({
-    queryKey: ["/api/admin/stats/occupancy-rate",],
+  const { data: occupancyRate } = useQuery<StatsResponse>({
+    queryKey: ["/api/admin/stats/occupancy-rate"],
   });
 
-  const { data: dailyReservations } = useQuery({
-    queryKey: ["/api/admin/stats/daily-reservations",],
+  const { data: dailyReservations } = useQuery<DailyReservation[]>({
+    queryKey: ["/api/admin/stats/daily-reservations"],
   });
 
-  const { data: reservationStatus } = useQuery({
-    queryKey: ["/api/admin/stats/reservation-status",],
+  const { data: reservationStatus } = useQuery<StatusData[]>({
+    queryKey: ["/api/admin/stats/reservation-status"],
   });
 
   // Données pour les graphiques avec fallback
@@ -103,7 +119,7 @@ export default function DashboardMain({ userRole = 'directeur' }: DashboardMainP
             <Calendar className="h-4 w-4 text-blue-200" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{todayReservations?.count || 12}</div>
+            <div className="text-2xl font-bold">{todayReservations?.count || 0}</div>
             <p className="text-xs text-blue-200">
               +2 par rapport à hier
             </p>
@@ -118,7 +134,7 @@ export default function DashboardMain({ userRole = 'directeur' }: DashboardMainP
             <ShoppingCart className="h-4 w-4 text-amber-200" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{activeOrders?.count || 8}</div>
+            <div className="text-2xl font-bold">{activeOrders?.count || 0}</div>
             <p className="text-xs text-amber-200">
               En préparation
             </p>
@@ -133,7 +149,7 @@ export default function DashboardMain({ userRole = 'directeur' }: DashboardMainP
             <DollarSign className="h-4 w-4 text-green-200" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{monthlyRevenue?.revenue || "0"}€</div>
+            <div className="text-2xl font-bold">{monthlyRevenue?.revenue || 0}€</div>
             <p className="text-xs text-green-200">
               +15% ce mois
             </p>
@@ -148,7 +164,7 @@ export default function DashboardMain({ userRole = 'directeur' }: DashboardMainP
             <Activity className="h-4 w-4 text-purple-200" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{occupancyRate?.rate || "78"}%</div>
+            <div className="text-2xl font-bold">{occupancyRate?.rate || 0}%</div>
             <p className="text-xs text-purple-200">
               Moyenne journalière
             </p>
@@ -215,8 +231,8 @@ export default function DashboardMain({ userRole = 'directeur' }: DashboardMainP
               </PieChart>
             </ResponsiveContainer>
             <div className="mt-4 flex flex-wrap gap-4">
-              {statusData.length > 0 ? statusData.map((item, index: unknown) => (
-                <div key={index} className="flex items-center gap-2">
+              {statusData.length > 0 ? statusData.map((item, index) => (
+                <div key={`status-${index}`} className="flex items-center gap-2">
                   <div 
                     className="w-3 h-3 rounded-full" 
                     style={{ backgroundColor: item.color }}

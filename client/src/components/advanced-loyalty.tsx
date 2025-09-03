@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -23,22 +23,15 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import type {
+  LoyaltyProgram,
+  LoyaltyReward,
+  LoyaltyTier,
+  BadgeVariant,
+  ToastMessage
+} from '@/types/loyalty';
 
-interface LoyaltyReward {
-  id: number;
-  name: string;
-  description: string;
-  pointsCost: number;
-  type: 'discount' | 'free_item' | 'special_offer';
-  value: number;
-  category: string;
-  available: boolean;
-  expiryDate?: string;
-  usageCount: number;
-  maxUsage?: number;
-  imageUrl?: string;
-}
-
+// Interfaces are kept as they are good for type safety
 interface LoyaltyMember {
   id: number;
   customerName: string;
@@ -55,27 +48,6 @@ interface LoyaltyMember {
   rewardsUsed: number;
   referrals: number;
   favoriteCategory?: string;
-}
-
-interface LoyaltyProgram {
-  id: number;
-  name: string;
-  description: string;
-  pointsPerEuro: number;
-  levels: Array<{
-    name: string;
-    minPoints: number;
-    benefits: string[];
-    color: string;
-    icon: string;
-  }>;
-  specialOffers: Array<{
-    id: number;
-    title: string;
-    description: string;
-    validUntil: string;
-    pointsRequired: number;
-  }>;
 }
 
 interface LoyaltyStats {
@@ -162,7 +134,7 @@ const AdvancedLoyalty: React.FC = () => {
       toast({
         title: 'Récompense créée',
         description: 'La nouvelle récompense a été ajoutée avec succès.',
-        variant: 'success',
+        variant: 'default',
       });
       setNewRewardDialogOpen(false);
       setNewRewardData({ available: true, type: 'discount' });
@@ -197,7 +169,7 @@ const AdvancedLoyalty: React.FC = () => {
       toast({
         title: 'Points attribués',
         description: 'Les points ont été ajoutés au compte du client avec succès.',
-        variant: 'success',
+        variant: 'default',
       });
     },
     onError: (error: Error) => {
@@ -225,7 +197,7 @@ const AdvancedLoyalty: React.FC = () => {
       toast({
         title: 'Statut mis à jour',
         description: 'La disponibilité de la récompense a été modifiée.',
-        variant: 'success',
+        variant: 'default',
       });
     },
   });
@@ -276,10 +248,10 @@ const AdvancedLoyalty: React.FC = () => {
       return;
     }
     const reason = prompt('Raison (facultatif):') || 'Points bonus';
-    awardPointsMutation.mutate({ 
-      memberId, 
-      points: parseInt(points), 
-      reason 
+    awardPointsMutation.mutate({
+      memberId,
+      points: parseInt(points),
+      reason
     });
   };
 
@@ -344,15 +316,15 @@ const AdvancedLoyalty: React.FC = () => {
                   <Input
                     type="number"
                     placeholder="100"
-                    value={newRewardData.pointsCost || ''}
-                    onChange={(e) => setNewRewardData({...newRewardData, pointsCost: parseInt(e.target.value) || undefined})}
+                    value={newRewardData.pointsCost || 0}
+                    onChange={(e) => setNewRewardData({...newRewardData, pointsCost: parseInt(e.target.value) || 0})}
                   />
                 </div>
                 <div className="space-y-2">
                   <label>Type</label>
                   <Select
-                    value={newRewardData.type}
-                    onValueChange={(value) => setNewRewardData({...newRewardData, type: value as any})}
+                    value={newRewardData.type || undefined}
+                    onValueChange={(value: string) => setNewRewardData({...newRewardData, type: value as 'discount' | 'free_item' | 'special_offer'})}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Sélectionner un type" />
@@ -380,9 +352,9 @@ const AdvancedLoyalty: React.FC = () => {
                   checked={newRewardData.available || false}
                   onChange={(e) => setNewRewardData({...newRewardData, available: e.target.checked})}
                 />
-                <label htmlFor="available">Disponible immédiatement</label>
+                <label htmlFor="available"> Disponible immédiatement</label>
               </div>
-              <Button 
+              <Button
                 onClick={handleCreateReward}
                 disabled={createRewardMutation.isPending}
                 className="w-full"
@@ -491,7 +463,7 @@ const AdvancedLoyalty: React.FC = () => {
                     <CardHeader className="pb-3">
                       <div className="flex items-center justify-between">
                         <CardTitle className="text-lg">{member.customerName}</CardTitle>
-                        <Badge className={`${levelInfo.color} text-white`}>
+                        <Badge variant="default" className="text-xs bg-green-100 text-green-800">
                           {levelInfo.icon}
                           <span className="ml-1">{member.currentLevel}</span>
                         </Badge>
@@ -513,9 +485,9 @@ const AdvancedLoyalty: React.FC = () => {
                           <span>Vers {member.nextLevel}</span>
                           <span>{member.pointsToNextLevel} pts</span>
                         </div>
-                        <Progress 
-                          value={(member.currentPoints / (member.currentPoints + member.pointsToNextLevel)) * 100} 
-                          className="h-2" 
+                        <Progress
+                          value={(member.currentPoints / (member.currentPoints + member.pointsToNextLevel)) * 100}
+                          className="h-2"
                         />
                       </div>
 
@@ -531,9 +503,9 @@ const AdvancedLoyalty: React.FC = () => {
                       </div>
 
                       <div className="flex space-x-2">
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
+                        <Button
+                          size="sm"
+                          variant="outline"
                           className="flex-1"
                           onClick={() => handleAwardPoints(member.id)}
                           disabled={awardPointsMutation.isPending}
@@ -569,8 +541,8 @@ const AdvancedLoyalty: React.FC = () => {
             <Card>
               <CardContent className="p-8 text-center">
                 <p className="text-muted-foreground">Aucune récompense disponible</p>
-                <Button 
-                  className="mt-4" 
+                <Button
+                  className="mt-4"
                   onClick={() => setNewRewardDialogOpen(true)}
                 >
                   Créer une récompense
@@ -585,8 +557,8 @@ const AdvancedLoyalty: React.FC = () => {
                     <CardHeader>
                       <div className="flex items-center justify-between">
                         <CardTitle className="text-lg">{reward.name}</CardTitle>
-                        <Badge variant={reward.available ? 'default' : 'secondary'}>
-                          {reward.pointsCost} pts
+                        <Badge variant="default" className="ml-2 bg-blue-100 text-blue-800">
+                          {reward.pointsCost} points
                         </Badge>
                       </div>
                       <CardDescription>{reward.description}</CardDescription>
@@ -621,13 +593,13 @@ const AdvancedLoyalty: React.FC = () => {
                           <Edit className="w-4 h-4 mr-2" />
                           Modifier
                         </Button>
-                        <Button 
-                          size="sm" 
-                          variant={reward.available ? 'destructive' : 'default'} 
+                        <Button
+                          size="sm"
+                          variant={reward.available ? 'destructive' : 'default'}
                           className="flex-1"
-                          onClick={() => toggleRewardMutation.mutate({ 
-                            rewardId: reward.id, 
-                            available: !reward.available 
+                          onClick={() => toggleRewardMutation.mutate({
+                            rewardId: reward.id,
+                            available: !reward.available
                           })}
                           disabled={toggleRewardMutation.isPending}
                         >
@@ -645,8 +617,12 @@ const AdvancedLoyalty: React.FC = () => {
         <TabsContent value="campaigns" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Campagnes de Fidélité</CardTitle>
-              <CardDescription>Créez et gérez vos campagnes promotionnelles</CardDescription>
+              <CardTitle className="flex items-center justify-between">
+                Programme de Fidélité
+                {programLoading && !loyaltyProgram && (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                )}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -811,8 +787,8 @@ const AdvancedLoyalty: React.FC = () => {
                         <TableCell>{reward.rewardName}</TableCell>
                         <TableCell>{reward.redemptionCount}</TableCell>
                         <TableCell>
-                          {members.length > 0 
-                            ? `${((reward.redemptionCount / members.length) * 100).toFixed(1)}%` 
+                          {members.length > 0
+                            ? `${((reward.redemptionCount / members.length) * 100).toFixed(1)}%`
                             : '0%'}
                         </TableCell>
                       </TableRow>

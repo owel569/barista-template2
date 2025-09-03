@@ -181,9 +181,9 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['employees'] });
-      toast({
-        title: 'Succès',
-        description: 'Employé supprimé avec succès',
+      toast.toast({
+        title: "Succès",
+        description: "Employé supprimé avec succès",
       });
     },
     onError: (error: Error) => {
