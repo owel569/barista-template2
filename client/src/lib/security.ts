@@ -252,7 +252,7 @@ export function validateCSRFToken(token: string, expectedToken: string): boolean
   // Comparaison en temps constant pour éviter les attaques de timing
   let result = 0
   for (let i = 0; i < token.length; i++) {
-    result |= token.charCodeAt(i) ^ expectedToken.charCodeAt(i)
+    result |= token.charCodeAt(i) ^ (expectedToken.charCodeAt(i) ?? 0)
   }
   
   return result === 0

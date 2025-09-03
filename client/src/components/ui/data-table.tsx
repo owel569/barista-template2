@@ -156,7 +156,7 @@ export function DataTable<TData, TValue>({
       globalFilter: filtering.globalFilter ? globalFilter : undefined,
       pagination: paginationState,
     },
-    enableRowSelection: selection.enabled,
+    enableRowSelection: selection.enabled ?? false,
     enableSorting: sorting.enabled ?? true,
     enableColumnFilters: filtering.enabled ?? false,
     enableGlobalFilter: filtering.globalFilter ?? false,

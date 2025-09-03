@@ -245,7 +245,7 @@ const AlertDialogComponent: React.FC<AlertDialogProps> = ({
                        variant === 'warning' ? 'warning' : 'default'
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog open={open ?? false} onOpenChange={(v) => onOpenChange?.(v)}>
       <AlertDialogContent size={size}>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>

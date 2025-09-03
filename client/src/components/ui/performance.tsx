@@ -131,7 +131,7 @@ export function useOptimizedDebounce<T>(
       setDebouncedValue(value);
       if (maxTimeoutRef.current) {
         clearTimeout(maxTimeoutRef.current);
-        maxTimeoutRef.current = undefined;
+        maxTimeoutRef.current = undefined as unknown as NodeJS.Timeout | undefined;
       }
     }, delay);
 

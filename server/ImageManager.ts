@@ -96,11 +96,11 @@ export class ImageManager {
                 .where(eq(menuItemImages.id, imageId))
                 .limit(1);
 
-            if (existingImage && existingImage.length > 0) {
+            if (existingImage && existingImage.length > 0 && existingImage[0].menuItemId != null) {
                 await db
                     .update(menuItemImages)
                     .set({ isPrimary: false })
-                    .where(eq(menuItemImages.menuItemId, existingImage[0].menuItemId));
+                    .where(eq(menuItemImages.menuItemId, existingImage[0].menuItemId as number));
             }
         }
 

@@ -199,7 +199,7 @@ class ErrorBoundaryClass extends Component<ErrorBoundaryProps, ErrorBoundaryStat
       );
     }
 
-    return this.props.children;
+    return this.props.children as React.ReactNode;
   }
 }
 
