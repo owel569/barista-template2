@@ -236,7 +236,7 @@ export default function ReservationWithCart() : JSX.Element {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
-                <Tabs value={selectedCategory?.toString()} onValueChange={(value) => setSelectedCategory(parseInt(value))}>
+                <Tabs value={(selectedCategory ?? 0).toString()} onValueChange={(value) => setSelectedCategory(parseInt(value))}>
                   <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 mb-6">
                     {categories.map((category: MenuCategory) => (
                       <TabsTrigger key={category.id} value={category.id.toString()}>

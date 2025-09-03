@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { fetchJson } from '@/lib/fetch';
 import { useAuth } from './useAuth';
 
 export type UserRole = 'directeur' | 'admin' | 'manager' | 'barista' | 'employee' | 'staff';
@@ -149,19 +150,13 @@ export const usePermissions = () => {
         throw new Error('Token d\'authentification manquant');
       }
 
-      const response = await fetch('/api/permissions/user', {
+      const data = await fetchJson<PermissionResponse>('/api/permissions/user', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        // fetch RequestInit has no timeout; rely on AbortController if needed
+        timeoutMs: 10000
       });
-
-      if (!response.ok) {
-        throw new Error(`Erreur API: ${response.status}`);
-      }
-
-      const data: PermissionResponse = await response.json();
 
       if (data.success && Array.isArray(data.permissions)) {
         setCachedPermissions(data.permissions);
