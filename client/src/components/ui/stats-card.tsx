@@ -31,7 +31,7 @@ const statsCardVariants = cva(
 
 export interface StatsCardProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof statsCardVariants> {
+    Omit<VariantProps<typeof statsCardVariants>, 'trend'> {
   title: string;
   value: string | number;
   description?: string;

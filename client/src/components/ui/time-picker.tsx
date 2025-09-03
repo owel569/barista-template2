@@ -22,8 +22,8 @@ export function TimePicker({
   placeholder = 'Sélectionner une heure'
 }: TimePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [hours, setHours] = useState('00');
-  const [minutes, setMinutes] = useState('00');
+  const [hours, setHours] = useState<string>('00');
+  const [minutes, setMinutes] = useState<string>('00');
 
   useEffect(() => {
     if (value) {
@@ -52,7 +52,7 @@ export function TimePicker({
   };
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
+    <Popover open={isOpen} onOpenChange={(open: boolean) => setIsOpen(open)}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -102,7 +102,9 @@ export function TimePicker({
                 variant={value === time ? "default" : "ghost"}
                 size="sm"
                 onClick={() => {
-                  const [h, m] = time.split(':');
+                  const parts = time.split(':');
+                  const h = parts[0] ?? '00';
+                  const m = parts[1] ?? '00';
                   setHours(h);
                   setMinutes(m);
                   handleTimeChange(h, m);

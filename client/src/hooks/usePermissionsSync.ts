@@ -66,7 +66,7 @@ export function usePermissionsSync() {
 
   // Écouter les événements custom du DOM
   useEffect(() => {
-    if (!isAuthenticated || !user || isAdmin) return;
+    if (!isAuthenticated || !user || isAdmin()) return;
 
     const handleCustomEvent = (event: Event) => {
       handlePermissionsUpdate(event as CustomEvent<PermissionUpdateEvent>);
@@ -81,7 +81,7 @@ export function usePermissionsSync() {
 
   // Synchronisation périodique pour les utilisateurs non-admin
   useEffect(() => {
-    if (!isAuthenticated || !user || isAdmin) return;
+    if (!isAuthenticated || !user || isAdmin()) return;
 
     const syncInterval = setInterval(() => {
       refreshPermissions();

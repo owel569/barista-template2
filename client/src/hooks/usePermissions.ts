@@ -20,7 +20,7 @@ interface PermissionsCache {
   permissions: Permission[];
   timestamp: number;
   ttl: number;
-  userId?: number;
+  userId?: number | string;
 }
 
 interface PermissionResponse {
@@ -122,7 +122,7 @@ export const usePermissions = () => {
       permissions,
       timestamp: Date.now(),
       ttl: PERMISSIONS_CACHE_TTL,
-      userId: user?.id
+      userId: user?.id as unknown as number | string
     };
 
     try {

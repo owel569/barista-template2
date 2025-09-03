@@ -48,10 +48,11 @@ export function useReservations() {
     queryKey: ["reservations"],
     queryFn: async () => {
       const response = await apiRequest("/api/reservations");
-      if (!response.ok) {
-        throw new Error("Erreur lors du chargement des réservations");
+      if (typeof response.json === 'function') {
+        if (!response.ok) throw new Error("Erreur lors du chargement des réservations");
+        return response.json();
       }
-      return response.json();
+      return response;
     },
     staleTime: 1000 * 60 * 2, // 2 minutes
     refetchOnWindowFocus: false,
@@ -63,11 +64,14 @@ export function useReservations() {
         method: "POST",
         body: JSON.stringify(data),
       });
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Erreur lors de l'ajout de la réservation");
+      if (typeof response.json === 'function') {
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || "Erreur lors de l'ajout de la réservation");
+        }
+        return response.json();
       }
-      return response.json();
+      return response;
     },
     onSuccess: (newReservation) => {
       queryClient.invalidateQueries({ queryKey: ["reservations"] });
@@ -86,11 +90,14 @@ export function useReservations() {
         method: "PUT",
         body: JSON.stringify(data),
       });
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Erreur lors de la mise à jour de la réservation");
+      if (typeof response.json === 'function') {
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || "Erreur lors de la mise à jour de la réservation");
+        }
+        return response.json();
       }
-      return response.json();
+      return response as any;
     },
     onSuccess: (updatedReservation) => {
       queryClient.invalidateQueries({ queryKey: ["reservations"] });
@@ -110,7 +117,7 @@ export function useReservations() {
       const response = await apiRequest(`/api/reservations/${id}`, {
         method: "DELETE",
       });
-      if (!response.ok) {
+      if (typeof response.json === 'function' && !response.ok) {
         const error = await response.json();
         throw new Error(error.message || "Erreur lors de la suppression de la réservation");
       }
@@ -131,11 +138,14 @@ export function useReservations() {
       const response = await apiRequest(`/api/reservations/${id}/confirm`, {
         method: "POST",
       });
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Erreur lors de la confirmation de la réservation");
+      if (typeof response.json === 'function') {
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || "Erreur lors de la confirmation de la réservation");
+        }
+        return response.json();
       }
-      return response.json();
+      return response as any;
     },
     onSuccess: (updatedReservation) => {
       queryClient.invalidateQueries({ queryKey: ["reservations"] });
@@ -155,11 +165,14 @@ export function useReservations() {
       const response = await apiRequest(`/api/reservations/${id}/cancel`, {
         method: "POST",
       });
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Erreur lors de l'annulation de la réservation");
+      if (typeof response.json === 'function') {
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || "Erreur lors de l'annulation de la réservation");
+        }
+        return response.json();
       }
-      return response.json();
+      return response as any;
     },
     onSuccess: (updatedReservation) => {
       queryClient.invalidateQueries({ queryKey: ["reservations"] });

@@ -4,7 +4,7 @@ import { useAuth } from './useAuth';
 
 interface User {
   id: number | string;
-  username: string;
+  username?: string;
   firstName?: string;
   lastName?: string;
   email?: string;
