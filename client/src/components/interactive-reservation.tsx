@@ -441,7 +441,7 @@ export default function InteractiveReservation() {
   // Icônes par catégorie optimisées
   const getCategoryIcon = (categoryName: string) => {
     const name = categoryName.toLowerCase();
-    const icons: Record<string, React.ComponentType<{ className?: string }>> = {
+    const icons: Record<string, React.ComponentType<any>> = {
       'café': Coffee,
       'cafés': Coffee,
       'boisson': Coffee,
@@ -463,7 +463,7 @@ export default function InteractiveReservation() {
       'glaces': IceCream
     };
     
-    return (icons[name] ?? Sandwich) as React.ComponentType<{ className?: string }>;
+    return (icons[name] ?? Sandwich) as React.ComponentType<any>;
   };
 
   // Tags alimentaires
