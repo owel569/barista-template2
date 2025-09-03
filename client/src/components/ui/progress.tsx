@@ -4,8 +4,7 @@ import { cn } from "@/lib/utils"
 
 const progressVariants = ({
   className,
-  ...props
-}) => {
+}: { className?: string }) => {
   return {
     base: cn(
       "relative h-4 w-full overflow-hidden rounded-full bg-secondary",

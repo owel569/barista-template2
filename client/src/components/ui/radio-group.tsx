@@ -159,7 +159,7 @@ const RadioGroupWithOptions = React.forwardRef<
           variant={variant}
           size={size}
           label={option.label}
-          description={option.description}
+          description={option.description ?? ''}
           disabled={option.disabled}
         />
       ))}
