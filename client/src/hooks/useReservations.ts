@@ -201,7 +201,7 @@ export function useReservations() {
   };
 
   const getTodayReservations = (): Reservation[] => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split('T')[0] as string;
     return getReservationsByDate(today);
   };
 

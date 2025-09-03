@@ -9,6 +9,7 @@ import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search, Filter,
 
 export interface DataGridColumn<T = Record<string, unknown>> {
   key: keyof T;
+  id?: string;
   title: string;
   sortable?: boolean;
   filterable?: boolean;
@@ -16,6 +17,9 @@ export interface DataGridColumn<T = Record<string, unknown>> {
   minWidth?: number;
   maxWidth?: number;
   align?: 'left' | 'center' | 'right';
+  accessorKey?: keyof T extends string | number | symbol ? keyof T : never;
+  accessor?: (row: T) => unknown;
+  type?: 'string' | 'number' | 'date' | 'boolean';
   cell?: (props: { value: T[keyof T]; row: T; column: DataGridColumn<T> }) => React.ReactNode;
   header?: React.ComponentType<{ column: DataGridColumn<T> }>;
   footer?: React.ComponentType<{ column: DataGridColumn<T> }>;

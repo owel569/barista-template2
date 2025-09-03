@@ -6,7 +6,8 @@ import { Dot } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
-interface InputOTPProps extends React.ComponentPropsWithoutRef<typeof OTPInput> {
+type OTPBaseProps = React.ComponentPropsWithoutRef<typeof OTPInput> & { containerClassName?: string }
+interface InputOTPProps extends Omit<OTPBaseProps, 'maxLength'> {
   className?: string;
 }
 interface InputOTPGroupProps extends React.ComponentPropsWithoutRef<"div"> {
@@ -27,7 +28,8 @@ const InputOTP = React.forwardRef<
       containerClassName
     )}
     className={cn("disabled:cursor-not-allowed", className)}
-    {...props}
+    maxLength={(props as any).maxLength ?? 6}
+    {...props as any}
   />
 ))
 InputOTP.displayName = "InputOTP"
@@ -45,7 +47,10 @@ const InputOTPSlot = React.forwardRef<
   InputOTPSlotProps
 >(({ index, className, ...props }, ref) => {
   const inputOTPContext = React.useContext(OTPInputContext)
-  const { char, hasFakeCaret, isActive } = inputOTPContext.slots[index]
+  const slot = inputOTPContext?.slots?.[index]
+  const char = slot?.char
+  const hasFakeCaret = slot?.hasFakeCaret
+  const isActive = slot?.isActive
 
   return (
     <div

@@ -61,9 +61,9 @@ const phoneInputVariants = cva(
 )
 
 export interface InternationalPhoneInputProps 
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange' | 'type'>,
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange' | 'type' | 'size' | 'maxLength' | 'pattern' | 'required'>,
     VariantProps<typeof phoneInputVariants> {
-  value?: string
+  value?: string | undefined
   onChange?: (value: string, isValid: boolean) => void
   onCountryChange?: (country: Country) => void
   defaultCountry?: string
@@ -284,7 +284,10 @@ export const InternationalPhoneInput = React.forwardRef<
               error && errorId,
               helperText && helperId
             )}
-            {...props}
+            {...(() => {
+              const { maxLength: _ml, pattern: _pt, size: _sz, required: _rq, ...rest } = props as Record<string, unknown>;
+              return rest;
+            })()}
           />
           
           {/* Indicateur de validation */}
@@ -380,7 +383,7 @@ export interface SimplePhoneInputProps {
 }
 
 export const SimplePhoneInput: React.FC<SimplePhoneInputProps> = ({
-  value,
+  value = '',
   onChange,
   ...props
 }) => {

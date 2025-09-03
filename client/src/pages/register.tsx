@@ -23,7 +23,7 @@ export default function Register() : JSX.Element {
   // Redirect if already authenticated
   if (isAuthenticated) {
     navigate("/admin");
-    return null;
+    return <></> as unknown as JSX.Element;
   }
 
   const handleRegister = async (e: React.FormEvent) => {

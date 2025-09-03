@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 
 const progressVariants = ({
   className,
-}: { className?: string }) => {
+}: { className: string | undefined }) => {
   return {
     base: cn(
       "relative h-4 w-full overflow-hidden rounded-full bg-secondary",

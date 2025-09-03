@@ -213,13 +213,13 @@ const FormFieldWithLabel = <
 }: FormFieldProps<TFieldValues, TName>) => {
   return (
     <FormField {...props}>
-      {({ field, fieldState, formState }) => (
+      {({ field, fieldState, formState }: { field: unknown; fieldState: { error?: { message?: string } }; formState: unknown }) => (
         <FormItem className={className}>
           <FormLabel className={cn(fieldState.error && "text-destructive")}>
             {label}
           </FormLabel>
           <FormControl>
-            {props.render({ field })}
+            {props.render({ field } as any)}
           </FormControl>
           <FormDescription>
             {description}
