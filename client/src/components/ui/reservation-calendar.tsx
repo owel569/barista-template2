@@ -50,7 +50,7 @@ export function ReservationCalendar({
     
     const slots: TimeSlot[] = [];
     const startHour = parseInt(restaurantHours.open.split(':')[0]);
-    const endHour = parseInt(restaurantHours.close.split(':')[0]);
+    const endHour = parseInt(restaurantHours.close?.split(':')[0] ?? '23');
     
     for (let hour = startHour; hour < endHour; hour++) {
       for (let minute of ['00', '30']) {
