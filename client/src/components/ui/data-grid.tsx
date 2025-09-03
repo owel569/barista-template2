@@ -339,7 +339,7 @@ export function DataGrid<T = Record<string, unknown>>({
                     onClick={() => column.sortable && handleSort(column.id)}
                   >
                     <div className="flex items-center gap-2">
-                      {column.header}
+                      {typeof column.header === 'function' ? React.createElement(column.header, { column }) : column.title}
                       {column.sortable && sortState.columnId === column.id && (
                         <span className="text-xs">
                           {sortState.direction === 'asc' ? '↑' : '↓'}

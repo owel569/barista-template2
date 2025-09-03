@@ -141,7 +141,7 @@ export function Combobox({
                 <CommandItem
                   key={option.value}
                   value={option.value}
-                  disabled={option.disabled}
+                  disabled={option.disabled ?? false}
                   onSelect={handleSelect}
                   className="flex items-center gap-2"
                 >

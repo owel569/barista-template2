@@ -33,7 +33,7 @@ const ResizablePanelGroup = React.forwardRef<
   ResizablePanelGroupProps
 >(({ className, direction, ...props }, ref) => (
   <ResizablePrimitive.PanelGroup
-    ref={ref}
+    ref={ref as any}
     direction={direction as PanelGroupBaseProps["direction"]}
     className={cn(
       resizablePanelGroupVariants({ direction }),

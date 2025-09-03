@@ -34,7 +34,7 @@ export interface CheckboxProps
   extends React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>,
     VariantProps<typeof checkboxVariants> {
   label?: string
-  description?: string
+  description?: string | undefined
   error?: string
   indeterminate?: boolean
 }
@@ -87,14 +87,14 @@ const Checkbox = React.forwardRef<
               {label}
             </label>
           )}
-          {description && (
+          {typeof description === 'string' ? (
             <p className={cn(
               "text-xs text-muted-foreground",
               error && "text-destructive"
             )}>
               {description}
             </p>
-          )}
+          ) : null}
           {error && (
             <p className="text-xs text-destructive">{error}</p>
           )}

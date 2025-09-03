@@ -158,8 +158,8 @@ export function DataTable<TData, TValue>({
     },
     enableRowSelection: selection.enabled,
     enableSorting: sorting.enabled,
-    enableColumnFilters: filtering.enabled,
-    enableGlobalFilter: filtering.globalFilter,
+    enableColumnFilters: filtering.enabled ?? false,
+    enableGlobalFilter: filtering.globalFilter ?? false,
   })
 
   // Callback sécurisé pour la sélection
