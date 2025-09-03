@@ -106,7 +106,7 @@ export function ReservationCalendar({
           <Calendar
             mode="single"
             selected={selectedDate}
-            onSelect={onDateSelect}
+            onSelect={(d: Date | undefined) => d && onDateSelect?.(d)}
             disabled={isDateDisabled}
             initialFocus
             className="rounded-md border"

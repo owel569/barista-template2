@@ -104,11 +104,11 @@ const RadioGroupItem = React.forwardRef<
               {label}
             </label>
           )}
-          {description && (
+          {typeof description === 'string' ? (
             <p className="text-xs text-muted-foreground">
               {description}
             </p>
-          )}
+          ) : null}
           {children}
         </div>
       </div>

@@ -14,9 +14,7 @@ const progressVariants = ({
   };
 };
 
-export interface ProgressProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof progressVariants> {
+export interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
   value?: number
   max?: number
   indicatorClassName?: string

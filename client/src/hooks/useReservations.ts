@@ -206,8 +206,8 @@ export function useReservations() {
   };
 
   const getUpcomingReservations = (): Reservation[] => {
-    const today = new Date().toISOString().split('T')[0];
-    return reservations.filter(reservation => reservation.date >= today);
+    const todayStr = new Date().toISOString().split('T')[0];
+    return reservations.filter(reservation => reservation.date >= todayStr);
   };
 
   return { 

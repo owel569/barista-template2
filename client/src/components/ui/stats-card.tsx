@@ -87,9 +87,9 @@ const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
       <Card
         ref={ref}
         className={cn(
-          statsCardVariants({ 
-            variant, 
-            trend: trendVariant || determineTrendVariant() 
+          statsCardVariants({
+            variant,
+            trend: (trendVariant as any) || determineTrendVariant()
           }),
           className
         )}

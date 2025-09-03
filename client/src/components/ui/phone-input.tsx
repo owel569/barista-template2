@@ -220,7 +220,7 @@ export function PhoneInput({
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => handleCountryChange(detectedCountry.code)}
+            onClick={() => handleCountryChange(detectedCountry?.code || selectedCountry.code)}
             className="text-xs"
           >
             Utiliser
