@@ -72,7 +72,7 @@ export function PhoneInput({
   label = 'Téléphone',
   id = 'phone'
 }: PhoneInputProps) {
-  const [selectedCountry, setSelectedCountry] = useState<Country>(countries[0]); // Maroc par défaut
+  const [selectedCountry, setSelectedCountry] = useState<Country>(() => countries[0] ?? { code: 'MA', name: 'Maroc', dialCode: '+212', flag: '🇲🇦' }); // Maroc par défaut
   const [phoneNumber, setPhoneNumber] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);

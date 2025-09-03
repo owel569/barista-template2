@@ -111,7 +111,7 @@ export function ReservationCalendar({
             initialFocus
             className="rounded-md border"
             fromDate={minDate}
-            toDate={maxDate}
+            toDate={maxDate ?? new Date(new Date().setMonth(new Date().getMonth() + 6))}
           />
           
           {selectedDate && (

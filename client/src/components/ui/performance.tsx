@@ -75,7 +75,7 @@ export const InView = memo(function InView({
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        const isIntersecting = entry.isIntersecting;
+        const isIntersecting = !!entry?.isIntersecting;
 
         if (isIntersecting && (!triggerOnce || !hasTriggered)) {
           setInView(true);
@@ -282,7 +282,7 @@ export const OptimizedImage = memo(forwardRef<HTMLImageElement, OptimizedImagePr
 
       const observer = new IntersectionObserver(
         ([entry]) => {
-          if (entry.isIntersecting) {
+          if (entry && entry.isIntersecting) {
             setInView(true);
             observer.unobserve(element);
           }
