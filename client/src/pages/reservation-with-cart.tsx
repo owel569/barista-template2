@@ -56,7 +56,16 @@ interface CartItem {
   notes?: string;
 }
 
-type ReservationFormData = z.infer<typeof insertReservationSchema>;
+// Extend server schema with client-only fields; will be mapped before submit
+const reservationFormSchema = insertReservationSchema.extend({
+  customerName: z.string().optional(),
+  customerEmail: z.string().email().optional(),
+  customerPhone: z.string().optional(),
+  date: z.string(),
+  time: z.string(),
+  guests: z.number().optional(),
+});
+type ReservationFormData = z.infer<typeof reservationFormSchema>;
 
 export default function ReservationWithCart() : JSX.Element {
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -73,7 +82,7 @@ export default function ReservationWithCart() : JSX.Element {
     watch,
     reset,
   } = useForm<ReservationFormData>({
-    resolver: zodResolver(insertReservationSchema),
+    resolver: zodResolver(reservationFormSchema),
     defaultValues: {
       customerName: "",
       customerEmail: "",
@@ -89,13 +98,13 @@ export default function ReservationWithCart() : JSX.Element {
   // Récupération des catégories de menu
   const { data: categories = [] } = useQuery({
     queryKey: ["/api/menu/categories"],
-    queryFn: () => apiRequest("GET", "/api/menu/categories").then(res => res.json()),
+    queryFn: () => apiRequest("GET", "/menu/categories"),
   });
 
   // Récupération des articles du menu
   const { data: menuItems = [] } = useQuery({
     queryKey: ["/api/menu/items"],
-    queryFn: () => apiRequest("GET", "/api/menu/items").then(res => res.json()),
+    queryFn: () => apiRequest("GET", "/menu/items"),
   });
 
   // Sélectionner la première catégorie par défaut
@@ -179,11 +188,18 @@ export default function ReservationWithCart() : JSX.Element {
   };
 
   const onSubmit = (data: ReservationFormData) => {
+    // Map client extras to server schema: date (string) -> Date, guests -> partySize
     const reservationData = {
-      ...data,
+      time: data.time,
+      date: new Date(data.date),
+      reservationTime: new Date(`${data.date}T${data.time}:00`),
+      partySize: typeof data.guests === 'number' ? data.guests : 2,
+      guestName: data.customerName ?? null,
+      specialRequests: data.specialRequests ?? null,
+      status: 'pending' as const,
       cartItems: cart,
     };
-    createReservationMutation.mutate(reservationData);
+    createReservationMutation.mutate(reservationData as any);
   };
 
   const filteredMenuItems = selectedCategory
@@ -220,7 +236,7 @@ export default function ReservationWithCart() : JSX.Element {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
-                <Tabs value={selectedCategory?.toString()} onValueChange={(value) => setSelectedCategory(parseInt(value))}>
+                <Tabs value={(selectedCategory ?? 0).toString()} onValueChange={(value) => setSelectedCategory(parseInt(value))}>
                   <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 mb-6">
                     {categories.map((category: MenuCategory) => (
                       <TabsTrigger key={category.id} value={category.id.toString()}>

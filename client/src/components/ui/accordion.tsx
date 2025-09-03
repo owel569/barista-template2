@@ -181,9 +181,9 @@ const AccordionWithDefaults: React.FC<AccordionWithDefaultsProps> = ({
             key={item.id}
             value={item.id}
             variant={variant}
-            disabled={item.disabled}
+            disabled={!!item.disabled}
           >
-            <AccordionTrigger size={size} iconType={iconType}>
+            <AccordionTrigger size={size ?? 'default'} iconType={iconType ?? 'chevron'}>
               {item.trigger}
             </AccordionTrigger>
             <AccordionContent>
@@ -207,9 +207,9 @@ const AccordionWithDefaults: React.FC<AccordionWithDefaultsProps> = ({
           key={item.id}
           value={item.id}
           variant={variant}
-          disabled={item.disabled}
+          disabled={!!item.disabled}
         >
-          <AccordionTrigger size={size} iconType={iconType}>
+          <AccordionTrigger size={size ?? 'default'} iconType={iconType ?? 'chevron'}>
             {item.trigger}
           </AccordionTrigger>
           <AccordionContent>

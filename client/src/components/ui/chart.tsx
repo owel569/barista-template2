@@ -264,7 +264,7 @@ const ChartTooltipContent = React.forwardRef<
     const { config } = useChart()
 
     // Cast sécurisé du payload
-    const safePayload = (payload as TooltipPayloadItem[]) || []
+    const safePayload = Array.isArray(payload) ? (payload as TooltipPayloadItem[]) : []
 
     // Mémorisation du label du tooltip pour optimiser les performances
     const tooltipLabel = React.useMemo(() => {
@@ -274,7 +274,7 @@ const ChartTooltipContent = React.forwardRef<
 
       const [item] = safePayload
       const key = `${labelKey || item?.dataKey || item?.name || "value"}`
-      const itemConfig = getPayloadConfigFromPayload(config, item, key)
+      const itemConfig = item ? getPayloadConfigFromPayload(config, item, key) : undefined
       const value =
         !labelKey && typeof label === "string"
           ? config[label as keyof typeof config]?.label || label
@@ -292,7 +292,7 @@ const ChartTooltipContent = React.forwardRef<
         return null
       }
 
-      return <div className={cn("font-medium", labelClassName)}>{value}</div>
+      return <div className={cn("font-medium", labelClassName)}>{String(value)}</div>
     }, [
       label,
       labelFormatter,
@@ -326,14 +326,14 @@ const ChartTooltipContent = React.forwardRef<
         {!nestLabel ? tooltipLabel : null}
         <div className="grid gap-1.5">
           {safePayload.map((item, index) => {
-            const key = `${nameKey || item.name || item.dataKey || "value"}`
+            const key = `${nameKey || item.name || item.dataKey || 'value'}`
             const itemConfig = getPayloadConfigFromPayload(config, item, key)
             const indicatorColor = color || item.payload?.fill || item.color || "#000"
 
             return (
               <TooltipItem
                 key={`${item.dataKey}-${index}`}
-                item={item}
+                item={item as TooltipPayloadItem}
                 index={index}
                 itemConfig={itemConfig}
                 indicatorColor={indicatorColor}

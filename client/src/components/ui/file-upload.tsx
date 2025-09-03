@@ -79,16 +79,19 @@ export const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
       }
 
       for (const file of fileArray) {
-        const error = validateFile(file);
+        const fileError = validateFile(file);
         const preview = await createFilePreview(file);
-        
-        newFiles.push({
+        const base: UploadedFile = {
           file,
           id: Math.random().toString(36).substr(2, 9),
           progress: 0,
-          error,
-          preview,
-        });
+        };
+        const enriched = {
+          ...base,
+          ...(fileError !== undefined ? { error: fileError } : {}),
+          ...(preview !== undefined ? { preview } : {}),
+        } as UploadedFile;
+        newFiles.push(enriched);
       }
 
       setFiles(prev => [...prev, ...newFiles]);

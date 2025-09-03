@@ -23,7 +23,7 @@ export { useReservations } from './useReservations';
 
 // ===== HOOKS D'INTERFACE UTILISATEUR =====
 export { useToast } from './use-toast';
-export { useMobile } from './use-mobile';
+export { useIsMobile } from './use-mobile';
 
 // ===== HOOKS DE COMMUNICATION =====
 export { useWebSocket } from './useWebSocket';

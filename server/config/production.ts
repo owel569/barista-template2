@@ -2,7 +2,36 @@
 import helmet from 'helmet';
 import compression from 'compression';
 import { Request as ExpressRequest, Response as ExpressResponse } from 'express';
-import rateLimit from 'express-rate-limit';
+// Lightweight internal rate limiter fallback to avoid external dependency issues
+type RateLimitOptions = {
+  windowMs: number;
+  max: number;
+  message?: unknown;
+  standardHeaders?: boolean;
+  legacyHeaders?: boolean;
+  handler?: (req: any, res: any) => void;
+  skipSuccessfulRequests?: boolean;
+};
+function simpleRateLimit(opts: RateLimitOptions) {
+  const hits = new Map<string, number[]>();
+  const windowMs = opts.windowMs;
+  const max = opts.max;
+  return function rateLimiter(req: any, res: any, next: any) {
+    const key = req.ip || req.headers['x-forwarded-for'] || 'global';
+    const now = Date.now();
+    const arr = hits.get(key) || [];
+    const filtered = arr.filter((t) => t > now - windowMs);
+    filtered.push(now);
+    hits.set(key, filtered);
+    if (filtered.length > max) {
+      if (opts.handler) return opts.handler(req, res);
+      res.status(429).json(opts.message ?? { success: false, message: 'Too many requests' });
+      return;
+    }
+    next();
+  };
+}
+const rateLimit = simpleRateLimit;
 
 export const productionConfig = {
   // Sécurité avec Helmet

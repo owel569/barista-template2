@@ -156,10 +156,10 @@ export function DataTable<TData, TValue>({
       globalFilter: filtering.globalFilter ? globalFilter : undefined,
       pagination: paginationState,
     },
-    enableRowSelection: selection.enabled,
-    enableSorting: sorting.enabled,
-    enableColumnFilters: filtering.enabled,
-    enableGlobalFilter: filtering.globalFilter,
+    enableRowSelection: selection.enabled ?? false,
+    enableSorting: sorting.enabled ?? true,
+    enableColumnFilters: filtering.enabled ?? false,
+    enableGlobalFilter: filtering.globalFilter ?? false,
   })
 
   // Callback sécurisé pour la sélection

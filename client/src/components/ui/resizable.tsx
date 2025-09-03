@@ -21,19 +21,19 @@ const resizablePanelGroupVariants = cva(
   }
 )
 
-export interface ResizablePanelGroupProps
-  extends React.ComponentPropsWithoutRef<typeof ResizablePrimitive.PanelGroup>,
-    VariantProps<typeof resizablePanelGroupVariants> {
-  className?: string;
+type PanelGroupBaseProps = React.ComponentPropsWithoutRef<typeof ResizablePrimitive.PanelGroup>;
+export interface ResizablePanelGroupProps extends Omit<PanelGroupBaseProps, 'direction' | 'ref' | 'onLayout'>, VariantProps<typeof resizablePanelGroupVariants> {
+  direction?: "horizontal" | "vertical";
+  className?: string | undefined;
+  onLayout?: (sizes: number[]) => void;
 }
 
 const ResizablePanelGroup = React.forwardRef<
-  React.ElementRef<typeof ResizablePrimitive.PanelGroup>,
+  any,
   ResizablePanelGroupProps
->(({ className, direction, ...props }, ref) => (
+>(({ className, direction, ...props }, _ref) => (
   <ResizablePrimitive.PanelGroup
-    ref={ref}
-    direction={direction}
+    direction={direction as PanelGroupBaseProps["direction"]}
     className={cn(
       resizablePanelGroupVariants({ direction }),
       "data-[panel-group-direction=vertical]:flex-col",

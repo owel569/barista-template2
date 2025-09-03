@@ -99,7 +99,7 @@ export function ThemeProvider({
     }
   };
 
-  const value = {
+  const value: ThemeProviderState = {
     theme,
     systemTheme,
     actualTheme,

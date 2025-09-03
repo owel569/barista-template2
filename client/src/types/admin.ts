@@ -1,11 +1,14 @@
-
 import { LucideIconComponent } from './icons';
 
 export interface User {
   id: string;
   role: 'directeur' | 'employe' | 'admin' | 'manager' | 'staff' | 'customer' | 'employee';
-  permissions?: UserPermissions;
-  profile?: UserProfile;
+  permissions?: Permission[];
+  profile?: {
+    address?: string;
+    avatarUrl?: string;
+    bio?: string;
+  };
   firstName: string;
   lastName: string;
   email: string;
@@ -179,24 +182,6 @@ export interface MenuCategory {
   createdAt: Date;
 }
 
-export interface Customer {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone?: string;
-  dateOfBirth?: Date;
-  address?: CustomerAddress;
-  loyaltyPoints: number;
-  totalOrders: number;
-  totalSpent: number;
-  averageOrderValue: number;
-  lastOrderDate?: Date;
-  preferences: CustomerPreferences;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
 export interface CustomerAddress {
   street: string;
   city: string;
@@ -218,6 +203,24 @@ export interface CustomerPreferences {
     preferredPaymentMethod?: string;
     specialInstructions?: string;
   };
+}
+
+export interface Customer {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  dateOfBirth?: Date;
+  address?: CustomerAddress;
+  loyaltyPoints: number;
+  totalOrders: number;
+  totalSpent: number;
+  averageOrderValue: number;
+  lastOrderDate?: Date;
+  preferences: CustomerPreferences;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Employee {

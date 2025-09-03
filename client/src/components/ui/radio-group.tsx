@@ -104,11 +104,11 @@ const RadioGroupItem = React.forwardRef<
               {label}
             </label>
           )}
-          {description && (
+          {typeof description === 'string' ? (
             <p className="text-xs text-muted-foreground">
               {description}
             </p>
-          )}
+          ) : null}
           {children}
         </div>
       </div>
@@ -159,7 +159,7 @@ const RadioGroupWithOptions = React.forwardRef<
           variant={variant}
           size={size}
           label={option.label}
-          description={option.description}
+          description={option.description ?? ''}
           disabled={option.disabled}
         />
       ))}

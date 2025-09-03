@@ -5,8 +5,10 @@ import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from './button';
 
-export interface DayPickerComponentProps extends DayPickerProps {
+export type DayPickerComponentProps = DayPickerProps & {
   className?: string;
+  classNames?: Record<string, string>;
+  showOutsideDays?: boolean;
 }
 
 export function DayPicker({

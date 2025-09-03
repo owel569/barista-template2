@@ -78,7 +78,7 @@ export function useWebSocket(
         startHeartbeat(); // Schedule the next heartbeat
       }
     }, 30000); // Assuming a default heartbeat interval of 30 seconds
-  }, [sendMessage]); // Depend on sendMessage
+  }, []);
 
   const processMessageQueue = useCallback(() => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN && messageQueue.current.length > 0) {

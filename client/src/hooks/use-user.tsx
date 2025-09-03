@@ -1,5 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import type { User } from "@shared/schema";
+export interface User {
+  id: number;
+  username: string;
+  email?: string;
+  role: string;
+}
 
 interface UserContextType {
   user: User | null;

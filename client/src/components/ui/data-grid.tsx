@@ -9,6 +9,7 @@ import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search, Filter,
 
 export interface DataGridColumn<T = Record<string, unknown>> {
   key: keyof T;
+  id?: string;
   title: string;
   sortable?: boolean;
   filterable?: boolean;
@@ -16,6 +17,9 @@ export interface DataGridColumn<T = Record<string, unknown>> {
   minWidth?: number;
   maxWidth?: number;
   align?: 'left' | 'center' | 'right';
+  accessorKey?: keyof T extends string | number | symbol ? keyof T : never;
+  accessor?: (row: T) => unknown;
+  type?: 'string' | 'number' | 'date' | 'boolean';
   cell?: (props: { value: T[keyof T]; row: T; column: DataGridColumn<T> }) => React.ReactNode;
   header?: React.ComponentType<{ column: DataGridColumn<T> }>;
   footer?: React.ComponentType<{ column: DataGridColumn<T> }>;
@@ -317,9 +321,9 @@ export function DataGrid<T = Record<string, unknown>>({
                     />
                   </th>
                 )}
-                {columns.map((column) => (
+                {columns.map((column, idx) => (
                   <th
-                    key={column.id}
+                    key={column.id ?? String(column.key ?? idx)}
                     className={cn(
                       "p-3 text-left text-sm font-medium text-muted-foreground",
                       column.align === 'center' && "text-center",
@@ -332,11 +336,11 @@ export function DataGrid<T = Record<string, unknown>>({
                       minWidth: column.minWidth,
                       maxWidth: column.maxWidth,
                     }}
-                    onClick={() => column.sortable && handleSort(column.id)}
+                    onClick={() => column.sortable && handleSort(column.id ?? String(column.key ?? idx))}
                   >
                     <div className="flex items-center gap-2">
-                      {column.header}
-                      {column.sortable && sortState.columnId === column.id && (
+                      {typeof column.header === 'function' ? React.createElement(column.header, { column }) : column.title}
+                      {column.sortable && sortState.columnId === (column.id ?? String(column.key ?? idx)) && (
                         <span className="text-xs">
                           {sortState.direction === 'asc' ? '↑' : '↓'}
                         </span>

@@ -32,6 +32,7 @@ export const LazyComponent = memo(function LazyComponent({
       const timer = setTimeout(() => setShouldRender(true), delay);
       return () => clearTimeout(timer);
     }
+    return;
   }, [delay]);
 
   if (!shouldRender) {
@@ -75,7 +76,7 @@ export const InView = memo(function InView({
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        const isIntersecting = entry.isIntersecting;
+        const isIntersecting = !!entry?.isIntersecting;
 
         if (isIntersecting && (!triggerOnce || !hasTriggered)) {
           setInView(true);
@@ -131,7 +132,7 @@ export function useOptimizedDebounce<T>(
       setDebouncedValue(value);
       if (maxTimeoutRef.current) {
         clearTimeout(maxTimeoutRef.current);
-        maxTimeoutRef.current = undefined;
+        maxTimeoutRef.current = undefined as unknown as NodeJS.Timeout | undefined;
       }
     }, delay);
 
@@ -282,7 +283,7 @@ export const OptimizedImage = memo(forwardRef<HTMLImageElement, OptimizedImagePr
 
       const observer = new IntersectionObserver(
         ([entry]) => {
-          if (entry.isIntersecting) {
+          if (entry && entry.isIntersecting) {
             setInView(true);
             observer.unobserve(element);
           }

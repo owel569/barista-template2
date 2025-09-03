@@ -41,7 +41,7 @@ class ErrorBoundaryClass extends Component<ErrorBoundaryProps, ErrorBoundaryStat
     };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     this.setState({
       error,
       errorInfo,
@@ -79,7 +79,7 @@ class ErrorBoundaryClass extends Component<ErrorBoundaryProps, ErrorBoundaryStat
     window.location.href = '/';
   };
 
-  render() {
+  override render() {
     if (this.state.hasError) {
       // Fallback personnalisé
       if (this.props.fallback) {
@@ -199,7 +199,7 @@ class ErrorBoundaryClass extends Component<ErrorBoundaryProps, ErrorBoundaryStat
       );
     }
 
-    return this.props.children;
+    return this.props.children as React.ReactNode;
   }
 }
 

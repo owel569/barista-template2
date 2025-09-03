@@ -49,8 +49,8 @@ export function ReservationCalendar({
     if (timeSlots.length > 0) return timeSlots;
     
     const slots: TimeSlot[] = [];
-    const startHour = parseInt(restaurantHours.open.split(':')[0]);
-    const endHour = parseInt(restaurantHours.close.split(':')[0]);
+    const startHour = parseInt(restaurantHours.open.split(':')[0] ?? '9');
+    const endHour = parseInt(restaurantHours.close?.split(':')[0] ?? '23');
     
     for (let hour = startHour; hour < endHour; hour++) {
       for (let minute of ['00', '30']) {
@@ -106,12 +106,12 @@ export function ReservationCalendar({
           <Calendar
             mode="single"
             selected={selectedDate}
-            onSelect={onDateSelect}
+            onSelect={(d: Date | undefined) => d && onDateSelect?.(d)}
             disabled={isDateDisabled}
             initialFocus
             className="rounded-md border"
             fromDate={minDate}
-            toDate={maxDate}
+            toDate={maxDate ?? new Date(new Date().setMonth(new Date().getMonth() + 6))}
           />
           
           {selectedDate && (

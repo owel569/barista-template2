@@ -14,7 +14,7 @@ type Reservation = {
 };
 
 export default function ReservationsPage() : JSX.Element {
-  const { reservations, addReservation, isLoading } = useReservations();
+  const { reservations, addReservation, isLoading, isAdding } = useReservations();
   const [form, setForm] = useState<ReservationForm>({
     name: "",
     email: "",
@@ -36,7 +36,7 @@ export default function ReservationsPage() : JSX.Element {
   // Typage de l'event pour le submit
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    addReservation.mutate(form, {
+    addReservation(form as any, {
       onSuccess: () =>
         setForm({
           name: "",
@@ -99,8 +99,8 @@ export default function ReservationsPage() : JSX.Element {
           placeholder="Numéro de table (optionnel)"
           onChange={handleChange}
         />
-        <button type="submit" disabled={addReservation.isPending}>
-          {addReservation.isPending ? "Envoi..." : "Réserver"}
+        <button type="submit" disabled={isAdding}>
+          {isAdding ? "Envoi..." : "Réserver"}
         </button>
       </form>
       {isLoading ? (

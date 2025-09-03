@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { fetchJson } from '@/lib/fetch';
 import { useAuth } from './useAuth';
 
 export type UserRole = 'directeur' | 'admin' | 'manager' | 'barista' | 'employee' | 'staff';
@@ -19,7 +20,7 @@ interface PermissionsCache {
   permissions: Permission[];
   timestamp: number;
   ttl: number;
-  userId?: number;
+  userId?: number | string;
 }
 
 interface PermissionResponse {
@@ -102,7 +103,7 @@ export const usePermissions = () => {
       const parsedCache: PermissionsCache = JSON.parse(cached);
       const now = Date.now();
       const isExpired = (now - parsedCache.timestamp) > parsedCache.ttl;
-      const isWrongUser = parsedCache.userId !== user?.id;
+      const isWrongUser = parsedCache.userId !== (user?.id ?? undefined);
 
       if (isExpired || isWrongUser) {
         localStorage.removeItem(CACHE_KEY);
@@ -121,7 +122,7 @@ export const usePermissions = () => {
       permissions,
       timestamp: Date.now(),
       ttl: PERMISSIONS_CACHE_TTL,
-      userId: user?.id
+      userId: user?.id as unknown as number | string
     };
 
     try {
@@ -149,19 +150,13 @@ export const usePermissions = () => {
         throw new Error('Token d\'authentification manquant');
       }
 
-      const response = await fetch('/api/permissions/user', {
+      const data = await fetchJson<PermissionResponse>('/api/permissions/user', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        timeout: 10000 // 10 secondes
+        timeoutMs: 10000
       });
-
-      if (!response.ok) {
-        throw new Error(`Erreur API: ${response.status}`);
-      }
-
-      const data: PermissionResponse = await response.json();
 
       if (data.success && Array.isArray(data.permissions)) {
         setCachedPermissions(data.permissions);

@@ -43,7 +43,6 @@ interface MenuItem {
   }>;
 }
 
-
 interface OnlineOrder {
   id: number;
   orderNumber: string;
@@ -91,7 +90,6 @@ const OnlineOrdering: React.FC = () => {
   // Données de base pour le composant
   const hasMenuItems = menuItems && menuItems.length > 0;
 
-
   const createOrderMutation = useMutation({
     mutationFn: async (orderData: Partial<OnlineOrder>) => {
       const response = await fetch('/api/orders/online', {
@@ -136,8 +134,7 @@ const OnlineOrdering: React.FC = () => {
     );
 
     if (existingItemIndex > -1) {
-      const newCart = [...cart];
-      newCart[existingItemIndex].quantity += 1;
+      const newCart = cart.map((ci, idx) => idx === existingItemIndex ? { ...ci, quantity: ci.quantity + 1 } : ci);
       setCart(newCart);
     } else {
       const newItem: CartItemTyped = {
@@ -152,7 +149,6 @@ const OnlineOrdering: React.FC = () => {
 
     toast({ title: 'Ajouté au panier', description: `${menuItem.name} ajouté à votre commande.` });
   };
-
 
   const removeFromCart = (itemId: number) => {
     setCart(cart.filter(item => item.id !== itemId));

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,15 +15,32 @@ import { fr } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
+type TablePreference =
+  | 'none'
+  | 'indoor'
+  | 'outdoor'
+  | 'window'
+  | 'bar'
+  | 'private';
+
+type Occasion =
+  | 'none'
+  | 'birthday'
+  | 'anniversary'
+  | 'business'
+  | 'date'
+  | 'celebration';
+
 interface ReservationData {
   customerName: string;
   email: string;
   phone: string;
-  date: Date | undefined;
+  date?: Date;
   time: string;
   guests: number;
+  tablePreference: TablePreference;
+  occasion: Occasion;
   specialRequests: string;
-  tablePreference: string;
 }
 
 interface TimeSlot {
@@ -52,8 +68,9 @@ export const InteractiveReservation: React.FC = () => {
     date: undefined,
     time: '',
     guests: 2,
-    specialRequests: '',
-    tablePreference: 'any'
+    tablePreference: 'none',
+    occasion: 'none',
+    specialRequests: ''
   });
 
   // Créneaux horaires disponibles
@@ -84,7 +101,7 @@ export const InteractiveReservation: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...data,
-          date: data.date?.toISOString()
+          date: data.date?.toISOString() ?? undefined
         }),
       });
       if (!response.ok) throw new Error('Erreur lors de la création de la réservation');
@@ -97,7 +114,7 @@ export const InteractiveReservation: React.FC = () => {
         description: 'Votre réservation a été enregistrée avec succès.',
         variant: 'default'
       });
-      setCurrentStep(4); // Étape de confirmation
+      setCurrentStep(5); // Étape de confirmation
     },
     onError: (error: Error) => {
       toast({
@@ -108,7 +125,10 @@ export const InteractiveReservation: React.FC = () => {
     }
   });
 
-  const handleInputChange = (field: keyof ReservationData, value: any) => {
+  const handleInputChange = <K extends keyof ReservationData>(
+    field: K,
+    value: ReservationData[K]
+  ) => {
     setReservationData(prev => ({
       ...prev,
       [field]: value
@@ -122,6 +142,8 @@ export const InteractiveReservation: React.FC = () => {
       case 2:
         return !!(reservationData.date && reservationData.time && reservationData.guests > 0);
       case 3:
+        return !!reservationData.tablePreference;
+      case 4:
         return true; // Étape de révision
       default:
         return false;
@@ -130,7 +152,7 @@ export const InteractiveReservation: React.FC = () => {
 
   const nextStep = () => {
     if (validateStep(currentStep)) {
-      if (currentStep === 3) {
+      if (currentStep === 4) {
         createReservationMutation.mutate(reservationData);
       } else {
         setCurrentStep(prev => prev + 1);
@@ -150,7 +172,7 @@ export const InteractiveReservation: React.FC = () => {
 
   const renderStepIndicator = () => (
     <div className="flex items-center justify-center space-x-4 mb-8">
-      {[1, 2, 3, 4].map((step) => (
+      {[1, 2, 3, 4, 5].map((step) => (
         <div key={step} className="flex items-center">
           <div className={`
             w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium
@@ -161,7 +183,7 @@ export const InteractiveReservation: React.FC = () => {
           `}>
             {currentStep > step ? <CheckCircle className="w-5 h-5" /> : step}
           </div>
-          {step < 4 && (
+          {step < 5 && (
             <div className={`
               w-12 h-1 mx-2
               ${currentStep > step ? 'bg-green-600' : 'bg-gray-300'}
@@ -172,6 +194,7 @@ export const InteractiveReservation: React.FC = () => {
     </div>
   );
 
+  // Etape 1 : Infos client
   const renderStep1 = () => (
     <Card className="max-w-md mx-auto">
       <CardHeader>
@@ -213,6 +236,7 @@ export const InteractiveReservation: React.FC = () => {
     </Card>
   );
 
+  // Etape 2 : Date/heure et nombre de convives
   const renderStep2 = () => (
     <Card className="max-w-md mx-auto">
       <CardHeader>
@@ -228,7 +252,7 @@ export const InteractiveReservation: React.FC = () => {
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-full justify-start text-left">
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {reservationData.date 
+                {reservationData.date
                   ? format(reservationData.date, "dd/MM/yyyy", { locale: fr })
                   : "Sélectionner une date"
                 }
@@ -288,7 +312,60 @@ export const InteractiveReservation: React.FC = () => {
     </Card>
   );
 
+  // Etape 3 : Préférences de table et occasion
   const renderStep3 = () => (
+    <Card className="max-w-md mx-auto">
+      <CardHeader>
+        <CardTitle className="flex items-center">
+          <Users className="w-5 h-5 mr-2 text-green-600" />
+          Préférences
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div>
+          <Label htmlFor="tablePreference">Préférence de table</Label>
+          <Select
+            value={reservationData.tablePreference}
+            onValueChange={(value) => handleInputChange('tablePreference', value as TablePreference)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue placeholder="Aucune préférence" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Aucune préférence</SelectItem>
+              <SelectItem value="indoor">À l'intérieur</SelectItem>
+              <SelectItem value="outdoor">En terrasse</SelectItem>
+              <SelectItem value="window">Près d'une fenêtre</SelectItem>
+              <SelectItem value="bar">Au comptoir</SelectItem>
+              <SelectItem value="private">Salon privé</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label htmlFor="occasion">Occasion spéciale</Label>
+          <Select
+            value={reservationData.occasion}
+            onValueChange={(value) => handleInputChange('occasion', value as Occasion)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue placeholder="Aucune occasion spéciale" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Aucune occasion spéciale</SelectItem>
+              <SelectItem value="birthday">🎂 Anniversaire</SelectItem>
+              <SelectItem value="anniversary">💕 Anniversaire de couple</SelectItem>
+              <SelectItem value="business">💼 Repas d'affaires</SelectItem>
+              <SelectItem value="date">❤️ Rendez-vous romantique</SelectItem>
+              <SelectItem value="celebration">🎉 Célébration</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  // Etape 4 : Confirmation
+  const renderStep4 = () => (
     <Card className="max-w-md mx-auto">
       <CardHeader>
         <CardTitle className="flex items-center">
@@ -313,7 +390,7 @@ export const InteractiveReservation: React.FC = () => {
           <div className="flex justify-between">
             <span className="text-sm text-gray-600">Date:</span>
             <span className="font-medium">
-              {reservationData.date 
+              {reservationData.date
                 ? format(reservationData.date, "dd/MM/yyyy", { locale: fr })
                 : 'Non sélectionnée'
               }
@@ -326,6 +403,22 @@ export const InteractiveReservation: React.FC = () => {
           <div className="flex justify-between">
             <span className="text-sm text-gray-600">Convives:</span>
             <span className="font-medium">{reservationData.guests} personnes</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-sm text-gray-600">Table:</span>
+            <span className="font-medium">
+              {reservationData.tablePreference !== 'none'
+                ? reservationData.tablePreference
+                : 'Aucune préférence'}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-sm text-gray-600">Occasion:</span>
+            <span className="font-medium">
+              {reservationData.occasion !== 'none'
+                ? reservationData.occasion
+                : 'Aucune'}
+            </span>
           </div>
         </div>
 
@@ -343,7 +436,8 @@ export const InteractiveReservation: React.FC = () => {
     </Card>
   );
 
-  const renderStep4 = () => (
+  // Etape 5 : Confirmation finale
+  const renderStep5 = () => (
     <Card className="max-w-md mx-auto text-center">
       <CardContent className="p-8">
         <CheckCircle className="w-16 h-16 mx-auto text-green-600 mb-4" />
@@ -364,8 +458,9 @@ export const InteractiveReservation: React.FC = () => {
               date: undefined,
               time: '',
               guests: 2,
-              specialRequests: '',
-              tablePreference: 'any'
+              tablePreference: 'none',
+              occasion: 'none',
+              specialRequests: ''
             });
           }}
           className="w-full"
@@ -390,9 +485,10 @@ export const InteractiveReservation: React.FC = () => {
         {currentStep === 2 && renderStep2()}
         {currentStep === 3 && renderStep3()}
         {currentStep === 4 && renderStep4()}
+        {currentStep === 5 && renderStep5()}
       </div>
 
-      {currentStep < 4 && (
+      {currentStep < 5 && (
         <div className="flex justify-between max-w-md mx-auto">
           <Button
             variant="outline"
@@ -406,7 +502,7 @@ export const InteractiveReservation: React.FC = () => {
             disabled={createReservationMutation.isPending}
             className="bg-green-600 hover:bg-green-700"
           >
-            {currentStep === 3 
+            {currentStep === 4 
               ? (createReservationMutation.isPending ? 'Confirmation...' : 'Confirmer')
               : 'Suivant'
             }

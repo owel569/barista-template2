@@ -4,7 +4,7 @@ import { useAuth } from './useAuth';
 
 interface User {
   id: number | string;
-  username: string;
+  username?: string;
   firstName?: string;
   lastName?: string;
   email?: string;
@@ -52,7 +52,7 @@ export function useUser(): UseUserReturn {
   const auth = useAuth();
 
   // Utiliser l'utilisateur du contexte d'auth si disponible
-  const contextUser = auth?.user;
+  const contextUser = auth?.user as unknown as User | null;
   const isAuthenticated = useMemo(() => !!user || !!contextUser, [user, contextUser]);
 
   const clearError = useCallback(() => {
@@ -102,7 +102,7 @@ export function useUser(): UseUserReturn {
       const response = await apiRequest('/api/auth/verify');
       const userData = await response.json();
       
-      setUser(userData);
+      setUser(userData as unknown as User);
       localStorage.setItem('user_data', JSON.stringify(userData));
     } catch (error) {
       console.error('Erreur vérification token:', error);
@@ -147,7 +147,7 @@ export function useUser(): UseUserReturn {
       });
 
       const updatedUser = await response.json();
-      setUser(updatedUser);
+      setUser(updatedUser as unknown as User);
       localStorage.setItem('user_data', JSON.stringify(updatedUser));
       
       // Synchroniser avec le contexte d'auth
@@ -168,7 +168,7 @@ export function useUser(): UseUserReturn {
       const response = await apiRequest('/api/auth/me');
       const userData = await response.json();
       
-      setUser(userData);
+      setUser(userData as unknown as User);
       localStorage.setItem('user_data', JSON.stringify(userData));
     } catch (error) {
       console.error('Erreur rafraîchissement utilisateur:', error);

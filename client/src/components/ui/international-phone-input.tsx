@@ -61,9 +61,9 @@ const phoneInputVariants = cva(
 )
 
 export interface InternationalPhoneInputProps 
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'>,
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange' | 'type' | 'size' | 'maxLength' | 'pattern' | 'required'>,
     VariantProps<typeof phoneInputVariants> {
-  value?: string
+  value?: string | undefined
   onChange?: (value: string, isValid: boolean) => void
   onCountryChange?: (country: Country) => void
   defaultCountry?: string
@@ -100,12 +100,12 @@ export const InternationalPhoneInput = React.forwardRef<
   // Fonction sécurisée pour extraire le pays à partir de la valeur
   const getCountryFromValue = React.useCallback((phoneValue: string): Country => {
     if (!phoneValue) {
-      return countries.find(c => c.code === defaultCountry) || countries[0]
+      return countries.find(c => c.code === defaultCountry) || (COUNTRIES[0] as Country)
     }
 
     const sanitizedValue = sanitizeString(phoneValue, { maxLength: 20 })
     const country = countries.find(c => sanitizedValue.startsWith(c.dialCode))
-    return country || countries.find(c => c.code === defaultCountry) || countries[0]
+    return country || countries.find(c => c.code === defaultCountry) || (COUNTRIES[0] as Country)
   }, [countries, defaultCountry])
 
   // Fonction sécurisée pour extraire le numéro de téléphone
@@ -210,7 +210,7 @@ export const InternationalPhoneInput = React.forwardRef<
 
   return (
     <div className="space-y-2">
-      <div className={cn(phoneInputVariants({ variant, size }), className)}>
+      <div className={cn(phoneInputVariants({ variant, size: (size as 'sm' | 'default' | 'lg' | undefined) }), className)}>
         {/* Sélecteur de pays */}
         <Select
           value={selectedCountry.code}
@@ -284,7 +284,10 @@ export const InternationalPhoneInput = React.forwardRef<
               error && errorId,
               helperText && helperId
             )}
-            {...props}
+            {...(() => {
+              const { maxLength: _ml, pattern: _pt, size: _sz, required: _rq, ...rest } = props as Record<string, unknown>;
+              return rest;
+            })()}
           />
           
           {/* Indicateur de validation */}
@@ -380,7 +383,7 @@ export interface SimplePhoneInputProps {
 }
 
 export const SimplePhoneInput: React.FC<SimplePhoneInputProps> = ({
-  value,
+  value = '',
   onChange,
   ...props
 }) => {

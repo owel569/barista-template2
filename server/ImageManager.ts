@@ -28,7 +28,7 @@ export class ImageManager {
             ))
             .limit(1);
 
-        return result.length > 0 ? result[0] : null;
+        return result.length > 0 ? (result[0] as unknown as MenuItemImage) : null;
     }
 
     /**
@@ -36,11 +36,12 @@ export class ImageManager {
      */
     async getMenuItemImages(menuItemId: number): Promise<MenuItemImage[]> {
         const db = await this.db;
-        return await db
+        const rows = await db
             .select()
             .from(menuItemImages)
             .where(eq(menuItemImages.menuItemId, menuItemId))
             .orderBy(desc(menuItemImages.isPrimary), desc(menuItemImages.createdAt));
+        return rows as unknown as MenuItemImage[];
     }
 
     /**
@@ -57,7 +58,7 @@ export class ImageManager {
                 .from(menuItems)
                 .where(eq(menuItems.id, imageData.menuItemId))
                 .limit(1);
-            altText = menuItem.length > 0 ? `Image de ${menuItem[0].name}` : 'Image du menu';
+            altText = menuItem && menuItem.length > 0 ? `Image de ${menuItem[0].name}` : 'Image du menu';
         }
 
         // Si cette image doit être principale, désactiver les autres
@@ -71,13 +72,14 @@ export class ImageManager {
         const [newImage] = await db
             .insert(menuItemImages)
             .values({
-                ...imageData,
+                menuItemId: imageData.menuItemId,
+                imageUrl: imageData.imageUrl,
                 altText,
-                uploadMethod: imageData.uploadMethod || 'url'
+                isPrimary: imageData.isPrimary ?? false,
+                sortOrder: 0
             })
             .returning();
-
-        return newImage;
+        return newImage as unknown as MenuItemImage;
     }
 
     /**
@@ -94,21 +96,24 @@ export class ImageManager {
                 .where(eq(menuItemImages.id, imageId))
                 .limit(1);
 
-            if (existingImage.length > 0) {
+            if (existingImage && existingImage.length > 0 && existingImage[0].menuItemId != null) {
                 await db
                     .update(menuItemImages)
                     .set({ isPrimary: false })
-                    .where(eq(menuItemImages.menuItemId, existingImage[0].menuItemId));
+                    .where(eq(menuItemImages.menuItemId, existingImage[0].menuItemId as number));
             }
         }
 
         const result = await db
             .update(menuItemImages)
-            .set({ ...updates, updatedAt: new Date() })
+            .set({
+                ...(updates.imageUrl !== undefined ? { imageUrl: updates.imageUrl } : {}),
+                ...(updates.altText !== undefined ? { altText: updates.altText ?? null } : {}),
+                ...(updates.isPrimary !== undefined ? { isPrimary: updates.isPrimary } : {}),
+            })
             .where(eq(menuItemImages.id, imageId))
             .returning();
-
-        return result[0] || null;
+        return (result[0] as unknown as MenuItemImage) || null;
     }
 
     /**
@@ -202,7 +207,7 @@ export class ImageManager {
                 }
             } catch (error) {
                 errorCount++;
-                logger.error(`❌ Erreur migration image pour ${menuItem.name}:`, { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+                console.error(`❌ Erreur migration image pour ${menuItem.name}:`, error);
             }
         }
 

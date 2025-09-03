@@ -95,7 +95,7 @@ class ExcelExporter {
     }
 
     // Déterminer les colonnes
-    const columns = headers || Object.keys(data[0]);
+    const columns = headers || Object.keys((data[0] ?? {}) as Record<string, unknown>);
     
     // Ajouter les en-têtes
     columns.forEach((header, index) => {

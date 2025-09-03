@@ -94,7 +94,7 @@ const TableManagement: React.FC = () => {
   });
 
   const updateTableStatusMutation = useMutation({
-    mutationFn: async ({ id, status }: { id: number; status: string }) => {
+    mutationFn: async ({ id, status }: { id: number; status: Table['status'] }) => {
       const response = await fetch(`/api/tables/${id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -285,7 +285,7 @@ const TableManagement: React.FC = () => {
                   </Button>
                   
                   <Select onValueChange={(status) => 
-                    updateTableStatusMutation.mutate({ id: table.id, status })
+                    updateTableStatusMutation.mutate({ id: table.id, status: status as Table['status'] })
                   }>
                     <SelectTrigger className="flex-1">
                       <SelectValue placeholder="Statut" />
@@ -359,11 +359,11 @@ const TableManagement: React.FC = () => {
           <form onSubmit={(e) => {
             e.preventDefault();
             const formData = new FormData(e.currentTarget);
-            const tableData = {
+            const tableData: Partial<Table> = {
               number: formData.get('number') as string,
               capacity: parseInt(formData.get('capacity') as string),
               location: formData.get('location') as string,
-              shape: formData.get('shape') as string,
+              shape: (formData.get('shape') as string) as Table['shape'],
               features: (formData.get('features') as string).split(',').map(f => f.trim()).filter(f => f),
               status: 'available',
               x: Math.random() * 80,
@@ -432,12 +432,12 @@ const TableManagement: React.FC = () => {
             <form onSubmit={(e) => {
               e.preventDefault();
               const formData = new FormData(e.currentTarget);
-              const tableData = {
+              const tableData: Partial<Table> & { id: number } = {
                 id: selectedTable.id,
                 number: formData.get('number') as string,
                 capacity: parseInt(formData.get('capacity') as string),
                 location: formData.get('location') as string,
-                shape: formData.get('shape') as string,
+                shape: (formData.get('shape') as string) as Table['shape'],
                 features: (formData.get('features') as string).split(',').map(f => f.trim()).filter(f => f),
               };
               updateTableMutation.mutate(tableData);

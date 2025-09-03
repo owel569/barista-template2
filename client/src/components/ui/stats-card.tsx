@@ -31,7 +31,7 @@ const statsCardVariants = cva(
 
 export interface StatsCardProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof statsCardVariants> {
+    Omit<VariantProps<typeof statsCardVariants>, 'trend'> {
   title: string;
   value: string | number;
   description?: string;
@@ -87,9 +87,9 @@ const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
       <Card
         ref={ref}
         className={cn(
-          statsCardVariants({ 
-            variant, 
-            trend: trendVariant || determineTrendVariant() 
+          statsCardVariants({
+            variant,
+            trend: (trendVariant as any) || determineTrendVariant()
           }),
           className
         )}
