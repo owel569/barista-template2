@@ -71,9 +71,11 @@ export class ImageManager {
         const [newImage] = await db
             .insert(menuItemImages)
             .values({
-                ...imageData,
+                menuItemId: imageData.menuItemId,
+                imageUrl: imageData.imageUrl,
                 altText,
-                uploadMethod: imageData.uploadMethod || 'url'
+                isPrimary: imageData.isPrimary ?? false,
+                sortOrder: 0
             })
             .returning();
 
@@ -104,7 +106,11 @@ export class ImageManager {
 
         const result = await db
             .update(menuItemImages)
-            .set({ ...updates, updatedAt: new Date() })
+            .set({
+                ...(updates.imageUrl !== undefined ? { imageUrl: updates.imageUrl } : {}),
+                ...(updates.altText !== undefined ? { altText: updates.altText ?? null } : {}),
+                ...(updates.isPrimary !== undefined ? { isPrimary: updates.isPrimary } : {}),
+            })
             .where(eq(menuItemImages.id, imageId))
             .returning();
 

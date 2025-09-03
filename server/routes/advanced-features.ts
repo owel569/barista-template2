@@ -2,7 +2,9 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { createLogger } from '../middleware/logging';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
-import { sql } from 'kysely'; // Assuming Kysely is used for DB operations
+// Lightweight mock SQL tag to avoid external dependency in this demo route
+const sql = (strings: TemplateStringsArray, ..._values: unknown[]) => strings.join('');
+import type { AuthenticatedUser, AppRole } from '../types/auth';
 
 // Mock database connection and logger for demonstration purposes
 const getDb = () => ({
@@ -17,21 +19,7 @@ const getDb = () => ({
 
 const logger = createLogger('ADVANCED_FEATURES_ROUTES');
 
-// Define specific role types
-type UserRole = 'admin' | 'manager' | 'staff';
-
-interface AuthenticatedUser {
-  id: number;
-  username: string;
-  role: UserRole;
-  permissions?: string[];
-  isActive?: boolean;
-  email?: string;
-}
-
-interface AuthenticatedRequest extends Request {
-  user?: AuthenticatedUser;
-}
+// Use globally-augmented Express types from server/types/auth
 
 const router = Router();
 
@@ -53,10 +41,10 @@ const authenticateUser = (req: Request, res: Response, next: NextFunction): void
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as AuthenticatedUser;
-    (req as AuthenticatedRequest).user = {
+    req.user = {
       id: decoded.id,
       username: decoded.username,
-      role: decoded.role as UserRole, // Ensure role is one of the defined types
+      role: decoded.role as AppRole,
       permissions: decoded.permissions || [],
       isActive: decoded.isActive ?? true,
       email: decoded.email || `${decoded.username}@example.com`
@@ -128,7 +116,7 @@ async function getSystemHealth(): Promise<{
 // === INTELLIGENCE ARTIFICIELLE ===
 
 // Chatbot IA
-router.get('/ai/chatbot/conversations', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
+router.get('/ai/chatbot/conversations', authenticateUser, async (_req: Request, res: Response) => {
   try {
     const conversations = [
       { 
@@ -156,7 +144,7 @@ router.get('/ai/chatbot/conversations', authenticateUser, async (_req: Authentic
   }
 });
 
-router.post('/ai/chatbot/respond', authenticateUser, async (req: AuthenticatedRequest, res: Response) => {
+router.post('/ai/chatbot/respond', authenticateUser, async (req: Request, res: Response) => {
   try {
     const { message } = req.body;
 
@@ -194,7 +182,7 @@ router.post('/ai/chatbot/respond', authenticateUser, async (req: AuthenticatedRe
 });
 
 // Vision par ordinateur
-router.get('/ai/vision/quality-checks', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
+router.get('/ai/vision/quality-checks', authenticateUser, async (_req: Request, res: Response) => {
   try {
     const checks = [
       { id: 1, dish: 'Cappuccino', quality: 'Excellent', score: 95, issues: [] },
@@ -212,7 +200,7 @@ router.get('/ai/vision/quality-checks', authenticateUser, async (_req: Authentic
 });
 
 // Prédiction de la demande
-router.get('/ai/prediction/demand', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
+router.get('/ai/prediction/demand', authenticateUser, async (_req: Request, res: Response) => {
   try {
     const predictions = {
       tomorrow: {
@@ -244,7 +232,7 @@ router.get('/ai/prediction/demand', authenticateUser, async (_req: Authenticated
 // === APPLICATIONS MOBILES ===
 
 // App Staff
-router.get('/mobile/staff/notifications', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
+router.get('/mobile/staff/notifications', authenticateUser, async (_req: Request, res: Response) => {
   try {
     const notifications = [
       { 
@@ -271,7 +259,7 @@ router.get('/mobile/staff/notifications', authenticateUser, async (_req: Authent
 });
 
 // App Manager
-router.get('/mobile/manager/dashboard', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
+router.get('/mobile/manager/dashboard', authenticateUser, async (_req: Request, res: Response) => {
   try {
     const dashboard = {
       todayRevenue: 1250.75,
@@ -293,7 +281,7 @@ router.get('/mobile/manager/dashboard', authenticateUser, async (_req: Authentic
 // === PRÉSENCE DIGITALE ===
 
 // Réseaux sociaux
-router.get('/digital/social/posts', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
+router.get('/digital/social/posts', authenticateUser, async (_req: Request, res: Response) => {
   try {
     const posts = [
       { 
@@ -322,7 +310,7 @@ router.get('/digital/social/posts', authenticateUser, async (_req: Authenticated
 });
 
 // E-reputation
-router.get('/digital/reviews/summary', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
+router.get('/digital/reviews/summary', authenticateUser, async (_req: Request, res: Response) => {
   try {
     const reviews = {
       average: 4.7,
@@ -359,7 +347,7 @@ router.get('/digital/reviews/summary', authenticateUser, async (_req: Authentica
 // === PAIEMENTS & FINTECH ===
 
 // Paiements mobiles
-router.get('/fintech/payments/methods', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
+router.get('/fintech/payments/methods', authenticateUser, async (_req: Request, res: Response) => {
   try {
     const methods = [
       { id: 1, name: 'Apple Pay', enabled: true, usage: 45 },
@@ -380,7 +368,7 @@ router.get('/fintech/payments/methods', authenticateUser, async (_req: Authentic
 // === DURABILITÉ & RSE ===
 
 // Gestion des déchets
-router.get('/sustainability/waste/tracking', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
+router.get('/sustainability/waste/tracking', authenticateUser, async (_req: Request, res: Response) => {
   try {
     const waste = {
       daily: {
@@ -408,7 +396,7 @@ router.get('/sustainability/waste/tracking', authenticateUser, async (_req: Auth
 // === TECHNOLOGIES ÉMERGENTES ===
 
 // IoT
-router.get('/iot/sensors/status', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
+router.get('/iot/sensors/status', authenticateUser, async (_req: Request, res: Response) => {
   try {
     const sensors = [
       { id: 1, name: 'Température frigo', value: 4.2, unit: '°C', status: 'normal' },
@@ -428,7 +416,7 @@ router.get('/iot/sensors/status', authenticateUser, async (_req: AuthenticatedRe
 // === MARKETING & CRM AVANCÉ ===
 
 // Campagnes automatisées
-router.get('/marketing/campaigns/automated', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
+router.get('/marketing/campaigns/automated', authenticateUser, async (_req: Request, res: Response) => {
   try {
     const campaigns = [
       { 
@@ -459,7 +447,7 @@ router.get('/marketing/campaigns/automated', authenticateUser, async (_req: Auth
 // === SÉCURITÉ & CONFORMITÉ ===
 
 // Audit RGPD
-router.get('/security/gdpr/compliance', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
+router.get('/security/gdpr/compliance', authenticateUser, async (_req: Request, res: Response) => {
   try {
     const compliance = {
       dataProcessing: 'Conforme',
@@ -483,7 +471,7 @@ router.get('/security/gdpr/compliance', authenticateUser, async (_req: Authentic
 // === MULTI-ÉTABLISSEMENTS ===
 
 // Gestion centralisée
-router.get('/multi-site/overview', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
+router.get('/multi-site/overview', authenticateUser, async (_req: Request, res: Response) => {
   try {
     const sites = [
       { id: 1, name: 'Barista Centre', revenue: 15420.50, customers: 1247, staff: 8 },
@@ -501,7 +489,7 @@ router.get('/multi-site/overview', authenticateUser, async (_req: AuthenticatedR
 });
 
 // Route pour les insights IA temps réel
-router.get('/ai-insights', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
+router.get('/ai-insights', authenticateUser, async (_req: Request, res: Response) => {
   try {
     const insights = [
       {
@@ -538,7 +526,7 @@ router.get('/ai-insights', authenticateUser, async (_req: AuthenticatedRequest, 
 });
 
 // Route pour les métriques de performance IA
-router.get('/ai-metrics', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
+router.get('/ai-metrics', authenticateUser, async (_req: Request, res: Response) => {
   try {
     const metrics = {
       chatbotEffectiveness: 0.85,
@@ -556,7 +544,7 @@ router.get('/ai-metrics', authenticateUser, async (_req: AuthenticatedRequest, r
 });
 
 // Route pour les rapports complets
-router.get('/reports', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
+router.get('/reports', authenticateUser, async (_req: Request, res: Response) => {
   try {
     const reports = [
       {
@@ -582,7 +570,7 @@ router.get('/reports', authenticateUser, async (_req: AuthenticatedRequest, res:
 });
 
 // Route pour générer un rapport
-router.post('/reports/:reportId/generate', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
+router.post('/reports/:reportId/generate', authenticateUser, async (_req: Request, res: Response) => {
   try {
     const { reportId } = _req.params;
 
@@ -610,7 +598,7 @@ router.post('/reports/:reportId/generate', authenticateUser, async (_req: Authen
 });
 
 // Route pour récupérer les modules avancés
-router.get('/modules', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
+router.get('/modules', authenticateUser, async (_req: Request, res: Response) => {
   try {
     const modules = [
       {
@@ -633,7 +621,7 @@ router.get('/modules', authenticateUser, async (_req: AuthenticatedRequest, res:
 });
 
 // Routes pour activer/désactiver les modules
-router.post('/modules/:moduleId/activate', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
+router.post('/modules/:moduleId/activate', authenticateUser, async (_req: Request, res: Response) => {
   try {
     const { moduleId } = _req.params;
 
@@ -657,7 +645,7 @@ router.post('/modules/:moduleId/activate', authenticateUser, async (_req: Authen
   }
 });
 
-router.post('/modules/:moduleId/deactivate', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
+router.post('/modules/:moduleId/deactivate', authenticateUser, async (_req: Request, res: Response) => {
   try {
     const { moduleId } = _req.params;
 
@@ -682,7 +670,7 @@ router.post('/modules/:moduleId/deactivate', authenticateUser, async (_req: Auth
 });
 
 // Route pour configurer un module
-router.post('/modules/:moduleId/configure', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
+router.post('/modules/:moduleId/configure', authenticateUser, async (_req: Request, res: Response) => {
   try {
     const { moduleId } = _req.params;
     const { config } = _req.body;
@@ -708,7 +696,7 @@ router.post('/modules/:moduleId/configure', authenticateUser, async (_req: Authe
 });
 
 // Route pour les KPIs temps réel
-router.get('/kpis', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
+router.get('/kpis', authenticateUser, async (_req: Request, res: Response) => {
   try {
     const kpis = {
       dailyRevenue: 654.50,
@@ -729,7 +717,7 @@ router.get('/kpis', authenticateUser, async (_req: AuthenticatedRequest, res: Re
 });
 
 // Routes pour les fonctionnalités avancées
-router.get('/modules-status', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
+router.get('/modules-status', authenticateUser, async (_req: Request, res: Response) => {
   try {
     const modulesStatus = {
       inventory: { active: true, lastSync: new Date().toISOString() },
@@ -749,7 +737,7 @@ router.get('/modules-status', authenticateUser, async (_req: AuthenticatedReques
 });
 
 // Route pour obtenir l'état du système
-router.get('/system/health', authenticateUser, async (_req: AuthenticatedRequest, res: Response) => {
+router.get('/system/health', authenticateUser, async (_req: Request, res: Response) => {
   try {
     const health = await getSystemHealth();
     res.json({

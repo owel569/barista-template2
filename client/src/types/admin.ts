@@ -126,14 +126,14 @@ export interface Customer {
   createdAt: Date;
 }
 
-export interface User {
+// Keep in sync with server/types/auth AuthenticatedUser (client-safe subset)
+export interface AuthenticatedUser {
   id: number;
-  username: string;
-  role: string;
+  username?: string;
+  role: 'customer' | 'waiter' | 'chef' | 'manager' | 'admin' | 'directeur' | 'employe' | 'employee' | 'serveur' | 'cuisinier' | 'staff';
   firstName?: string;
   lastName?: string;
   email?: string;
-  createdAt: Date;
 }
 
 export interface Employee {
