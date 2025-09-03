@@ -8,12 +8,13 @@ export async function fetchJson<T = any>(input: string, init: FetchJsonInit = {}
   const id = timeoutMs ? setTimeout(() => controller.abort(), timeoutMs) : null;
 
   try {
-    const response = await fetch(input, {
+    const reqInit: RequestInit = {
       ...rest,
-      headers,
-      ...(body !== undefined ? { body } : {}),
       signal: signal ?? controller.signal,
-    });
+    };
+    if (headers !== undefined) reqInit.headers = headers;
+    if (body !== undefined) reqInit.body = body;
+    const response = await fetch(input, reqInit);
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);
     }

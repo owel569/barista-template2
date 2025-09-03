@@ -103,7 +103,7 @@ export const usePermissions = () => {
       const parsedCache: PermissionsCache = JSON.parse(cached);
       const now = Date.now();
       const isExpired = (now - parsedCache.timestamp) > parsedCache.ttl;
-      const isWrongUser = parsedCache.userId !== user?.id;
+      const isWrongUser = parsedCache.userId !== (user?.id ?? undefined);
 
       if (isExpired || isWrongUser) {
         localStorage.removeItem(CACHE_KEY);
