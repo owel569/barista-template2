@@ -27,7 +27,7 @@ interface Testimonial {
 interface NavItem {
   id: string;
   label: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<any>;
 }
 
 export default function GreenBlackHome(): JSX.Element {
