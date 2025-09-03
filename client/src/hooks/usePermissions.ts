@@ -154,7 +154,7 @@ export const usePermissions = () => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        timeout: 10000 // 10 secondes
+        // fetch RequestInit has no timeout; rely on AbortController if needed
       });
 
       if (!response.ok) {

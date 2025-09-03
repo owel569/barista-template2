@@ -97,13 +97,15 @@ export class ApiClient {
   static async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const token = AuthTokenManager.getToken();
 
+    const { body, headers: optHeaders, ...rest } = options;
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      ...rest,
       headers: {
         'Content-Type': 'application/json',
         ...(token && { Authorization: `Bearer ${token}` }),
-        ...options.headers,
+        ...(optHeaders || {}),
       },
-      ...options,
+      ...(body !== undefined ? { body } : {}),
     });
 
     if (!response.ok) {
@@ -119,7 +121,7 @@ export class ApiClient {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: data ? JSON.stringify(data) : undefined,
+      ...(data ? { body: JSON.stringify(data) } : {}),
     });
   }
 
@@ -133,7 +135,7 @@ export class ApiClient {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: data ? JSON.stringify(data) : undefined,
+      ...(data ? { body: JSON.stringify(data) } : {}),
     });
   }
 

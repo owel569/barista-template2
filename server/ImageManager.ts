@@ -58,7 +58,7 @@ export class ImageManager {
                 .from(menuItems)
                 .where(eq(menuItems.id, imageData.menuItemId))
                 .limit(1);
-            altText = menuItem.length > 0 ? `Image de ${menuItem[0].name}` : 'Image du menu';
+            altText = menuItem && menuItem.length > 0 ? `Image de ${menuItem[0].name}` : 'Image du menu';
         }
 
         // Si cette image doit être principale, désactiver les autres
@@ -96,7 +96,7 @@ export class ImageManager {
                 .where(eq(menuItemImages.id, imageId))
                 .limit(1);
 
-            if (existingImage.length > 0) {
+            if (existingImage && existingImage.length > 0) {
                 await db
                     .update(menuItemImages)
                     .set({ isPrimary: false })
@@ -207,7 +207,7 @@ export class ImageManager {
                 }
             } catch (error) {
                 errorCount++;
-                logger.error(`❌ Erreur migration image pour ${menuItem.name}:`, { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+                console.error(`❌ Erreur migration image pour ${menuItem.name}:`, error);
             }
         }
 
