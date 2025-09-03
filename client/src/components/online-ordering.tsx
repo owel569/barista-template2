@@ -36,7 +36,7 @@ interface CartItem {
   menuItem: MenuItem;
   quantity: number;
   customizations: Record<string, string>;
-  notes?: string;
+  notes: string;
 }
 
 interface OnlineOrder {
@@ -136,7 +136,7 @@ const OnlineOrdering: React.FC = () => {
         menuItem,
         quantity: 1,
         customizations,
-        notes,
+        notes: notes ?? '',
       };
       setCart([...cart, newItem]);
     }

@@ -292,7 +292,7 @@ const ChartTooltipContent = React.forwardRef<
         return null
       }
 
-      return <div className={cn("font-medium", labelClassName)}>{value as React.ReactNode}</div>
+      return <div className={cn("font-medium", labelClassName)}>{String(value)}</div>
     }, [
       label,
       labelFormatter,

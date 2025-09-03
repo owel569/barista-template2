@@ -193,7 +193,11 @@ export default function InteractiveReservation() {
         source: 'web_reservation'
       };
       
-      const response = await apiRequest('POST', '/api/reservations', reservationData);
+      const response = await apiRequest('POST', '/api/reservations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(reservationData)
+      } as RequestInit);
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message || 'Erreur lors de la réservation');
@@ -437,7 +441,7 @@ export default function InteractiveReservation() {
   // Icônes par catégorie optimisées
   const getCategoryIcon = (categoryName: string) => {
     const name = categoryName.toLowerCase();
-    const icons = {
+    const icons: Record<string, React.ComponentType<{ className?: string }>> = {
       'café': Coffee,
       'cafés': Coffee,
       'boisson': Coffee,
@@ -459,7 +463,7 @@ export default function InteractiveReservation() {
       'glaces': IceCream
     };
     
-    return icons[name] || Sandwich;
+    return (icons[name] ?? Sandwich) as React.ComponentType<{ className?: string }>;
   };
 
   // Tags alimentaires
@@ -1005,9 +1009,9 @@ export default function InteractiveReservation() {
                       <div>
                         <Label htmlFor="tablePreference">Préférence de table</Label>
                         <Select
-                          value={form.watch('tablePreference')}
-                          onValueChange={(value: 'indoor' | 'outdoor' | 'window' | 'bar' | 'private' | 'none') => 
-                            form.setValue('tablePreference', value)
+                          value={form.watch('tablePreference') ?? 'none'}
+                          onValueChange={(value: string) => 
+                            form.setValue('tablePreference', value as 'indoor' | 'outdoor' | 'window' | 'bar' | 'private' | 'none')
                           }
                         >
                           <SelectTrigger className="mt-1">
@@ -1027,9 +1031,9 @@ export default function InteractiveReservation() {
                       <div>
                         <Label htmlFor="occasion">Occasion spéciale</Label>
                         <Select
-                          value={form.watch('occasion')}
-                          onValueChange={(value: 'none' | 'birthday' | 'anniversary' | 'business' | 'date' | 'celebration') => 
-                            form.setValue('occasion', value)
+                          value={form.watch('occasion') ?? 'none'}
+                          onValueChange={(value: string) => 
+                            form.setValue('occasion', value as 'none' | 'birthday' | 'anniversary' | 'business' | 'date' | 'celebration')
                           }
                         >
                           <SelectTrigger className="mt-1">
