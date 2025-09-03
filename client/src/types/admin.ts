@@ -1,8 +1,12 @@
 export interface User {
   id: string;
   role: 'directeur' | 'employe' | 'admin' | 'manager' | 'staff' | 'customer' | 'employee';
-  permissions?: UserPermissions;
-  profile?: UserProfile;
+  permissions?: Permission[];
+  profile?: {
+    address?: string;
+    avatarUrl?: string;
+    bio?: string;
+  };
   firstName: string;
   lastName: string;
   email: string;
