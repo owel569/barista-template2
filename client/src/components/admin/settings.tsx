@@ -226,15 +226,14 @@ export default function Settings({ userRole }: SettingsProps) {
   const handleChange = useCallback((path: string, value: any) => {
     setDraftSettings(prev => {
       const keys = path.split('.');
-      let current: any = prev; // Use prev for the current level being modified
-      const newSettings = { ...prev }; // Create a mutable copy
+      let current: any = prev;
+      const newSettings = { ...prev };
 
       for (let i = 0; i < keys.length - 1; i++) {
         const key = keys[i];
         if (key && current[key]) {
           current = current[key];
         } else if (key) {
-          // If the path segment doesn't exist, create it to avoid errors
           current[key] = {};
           current = current[key];
         }
@@ -246,7 +245,7 @@ export default function Settings({ userRole }: SettingsProps) {
         if (lastKey && prev.openingHours?.[dayKey]) {
           current[lastKey] = {
             ...current[lastKey],
-            ...prev.openingHours[dayKey][lastKey], // Spread existing properties of the specific day
+            ...prev.openingHours[dayKey][lastKey],
             [keys[keys.length - 1]]: value,
           };
         }
@@ -707,7 +706,7 @@ export default function Settings({ userRole }: SettingsProps) {
               </div>
 
               <div className="space-y-2">
-                <Label>Modèle de notification d\'annulation</Label>
+                <Label>Modèle de notification d'annulation</Label>
                 <Textarea
                   value={draftSettings.notificationSettings.cancellationTemplate}
                   onChange={(e) => handleChange('notificationSettings.cancellationTemplate', e.target.value)}
@@ -894,10 +893,9 @@ export default function Settings({ userRole }: SettingsProps) {
                       <DayPicker
                         onSelectDate={(date) => {
                           const dateStr = date.toISOString().split('T')[0];
-                          // Check if date already exists in specialHours or closedDates
                           if (!draftSettings.specialDates.specialHours.some(sh => sh.date === dateStr) &&
                               !draftSettings.specialDates.closedDates.some(d => d === dateStr)) {
-                             setNewSpecialDate(date); // Set the new date for addSpecialHour
+                             setNewSpecialDate(date);
                           }
                         }}
                         disabled={!hasPermission('settings', 'edit')}
@@ -907,7 +905,7 @@ export default function Settings({ userRole }: SettingsProps) {
                         ]}
                       />
                     </div>
-                    {newSpecialDate && ( // Render button only when a new date is selected
+                    {newSpecialDate && (
                       <div className="col-span-1 md:col-span-2 flex items-end">
                         <Button onClick={addSpecialHour} disabled={!hasPermission('settings', 'edit')}>
                           Ajouter Horaires Spéciaux

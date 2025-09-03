@@ -146,7 +146,7 @@ export default function TableManagement(): JSX.Element {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
+
   // WebSocket for real-time updates
   useWebSocket('table-updates', () => {
     queryClient.invalidateQueries({ queryKey: ['/api/admin/tables'] });
@@ -172,7 +172,7 @@ export default function TableManagement(): JSX.Element {
       apiRequest('/api/admin/tables', { 
         method: 'POST', 
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data) 
+        body: JSON.stringify(data)
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/tables'] });
@@ -249,13 +249,13 @@ export default function TableManagement(): JSX.Element {
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-10 w-32" />
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
             <Skeleton key={i} className="h-24 rounded-lg" />
           ))}
         </div>
-        
+
         <Skeleton className="h-96 rounded-lg" />
       </div>
     );
@@ -279,7 +279,7 @@ export default function TableManagement(): JSX.Element {
           >
             Plan
           </Button>
-          
+
           {/* Create Table Dialog */}
           <Dialog>
             <DialogTrigger asChild>
@@ -595,7 +595,7 @@ export default function TableManagement(): JSX.Element {
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
-                          
+
                           {/* Status-specific actions */}
                           {table.status === 'occupied' && (
                             <Button

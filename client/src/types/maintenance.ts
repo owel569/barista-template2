@@ -15,6 +15,22 @@ export interface MaintenanceTask {
   updatedAt?: Date;
 }
 
+export interface MaintenanceTaskFormData {
+  title: string;
+  description: string;
+  type: 'preventive' | 'corrective' | 'emergency';
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  scheduledDate: string;
+  estimatedDuration: number;
+  cost?: number;
+  assignedToId?: number | null;
+  notes?: string;
+  equipmentId?: number | null;
+}
+
+export type MaintenanceTaskCreateInput = Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'>;
+export type MaintenanceTaskUpdateInput = Partial<MaintenanceTaskCreateInput>;
+
 export interface ContactMessage {
   id: string;
   name: string;
