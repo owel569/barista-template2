@@ -56,7 +56,7 @@ interface ActivityItem {
 interface StatsCardProps {
   title: string;
   value: string | number;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<any>;
   trend?: string;
   color: string;
   loading?: boolean;

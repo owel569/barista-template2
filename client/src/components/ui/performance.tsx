@@ -32,6 +32,7 @@ export const LazyComponent = memo(function LazyComponent({
       const timer = setTimeout(() => setShouldRender(true), delay);
       return () => clearTimeout(timer);
     }
+    return;
   }, [delay]);
 
   if (!shouldRender) {

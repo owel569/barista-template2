@@ -127,8 +127,7 @@ const OnlineOrdering: React.FC = () => {
     );
 
     if (existingItemIndex > -1) {
-      const newCart = [...cart];
-      newCart[existingItemIndex].quantity += 1;
+      const newCart = cart.map((ci, idx) => idx === existingItemIndex ? { ...ci, quantity: ci.quantity + 1 } : ci);
       setCart(newCart);
     } else {
       const newItem: CartItem = {

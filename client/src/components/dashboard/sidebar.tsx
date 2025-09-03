@@ -39,12 +39,12 @@ interface SidebarProps {
 interface NavItem {
   id: string;
   label: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<any>;
   href: string;
   roles: ("directeur" | "employe")[];
   badge?: number;
   actionButton?: {
-    icon: React.ComponentType<{ className?: string }>;
+    icon: React.ComponentType<any>;
     onClick: () => void;
     tooltip: string;
   };
