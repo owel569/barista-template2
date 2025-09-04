@@ -220,7 +220,7 @@ export default function DashboardMain(): JSX.Element {
           </h1>
           <div className="flex items-center space-x-4 mt-2">
             <p className="text-gray-600 dark:text-gray-400">
-              Bienvenue {user.firstName || user.username}
+              Bienvenue {(user as any)?.firstName ?? (user as any)?.username ?? 'Utilisateur'}
             </p>
             <Badge variant="outline" className="text-green-600">
               <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>

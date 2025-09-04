@@ -49,7 +49,7 @@ export const useSecureAPI = () => {
       const response = await fetch(endpoint, {
         method,
         headers: secureHeaders,
-        body: sanitizedBody !== undefined ? JSON.stringify(sanitizedBody) : undefined,
+        body: sanitizedBody !== undefined ? JSON.stringify(sanitizedBody) : null,
         credentials: 'include'
       });
 

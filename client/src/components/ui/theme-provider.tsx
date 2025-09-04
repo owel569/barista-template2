@@ -84,6 +84,7 @@ export function ThemeProvider({
       }, 300);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [theme, systemTheme, enableTransitions, isMounted]);
 
   const handleSetTheme = (newTheme: Theme) => {
