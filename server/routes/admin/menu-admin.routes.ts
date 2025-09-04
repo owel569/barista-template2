@@ -50,14 +50,14 @@ router.get('/items',
         isGlutenFree: menuItems.isGlutenFree,
         allergens: menuItems.allergens,
         nutritionalInfo: menuItems.nutritionalInfo,
-        sortOrder: menuItems.sortOrder,
+        // sortOrder absent sur menuItems
         createdAt: menuItems.createdAt,
         updatedAt: menuItems.updatedAt,
         categoryName: menuCategories.name
       })
       .from(menuItems)
       .leftJoin(menuCategories, eq(menuItems.categoryId, menuCategories.id))
-      .orderBy(menuItems.sortOrder, menuItems.name);
+      .orderBy(menuItems.name);
 
     res.json({
       success: true,
