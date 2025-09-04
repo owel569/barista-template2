@@ -15,6 +15,7 @@ import tablesRouter from './tables/tables.routes';
 import feedbackRoutes from './feedback/feedback.routes';
 import eventRoutes from './events.routes';
 import inventoryRoutes from './inventory/inventory.routes';
+import staffRoutes from './staff/staff.routes';
 
 const router = Router();
 
@@ -32,6 +33,7 @@ router.use('/menu', menuRoutes); // Menu public pour consultation
 // router.use('/tables', authenticateUser, tablesRouter);
 // router.use('/events', authenticateUser, eventRoutes);
 router.use('/inventory', authenticateUser, inventoryRoutes);
+router.use('/staff', authenticateUser, staffRoutes);
 
 // Routes avec authentification mixte (certaines publiques, certaines protégées)
 router.use('/reservations', reservationRoutes); // POST public, GET/PUT/DELETE protégées
