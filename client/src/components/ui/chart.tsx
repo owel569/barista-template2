@@ -253,7 +253,7 @@ const ChartTooltipContent = React.forwardRef<
       hideIndicator = false,
       label,
       labelFormatter,
-      labelClassName,
+      labelClassName = "",
       formatter,
       color,
       nameKey,
