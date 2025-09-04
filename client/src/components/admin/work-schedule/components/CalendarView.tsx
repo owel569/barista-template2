@@ -189,7 +189,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   selectedDate,
   viewMode = 'week'
 }) => {
-  const [currentDate, setCurrentDate] = useState<string>(selectedDate || new Date().toISOString().split('T')[0]);
+  const initialDate = selectedDate ?? new Date().toISOString().split('T')[0];
+  const [currentDate, setCurrentDate] = useState<string>(initialDate);
 
   // Générer les dates selon le mode de vue
   const dates = useMemo(() => {
@@ -214,7 +215,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
   // Navigation
   const navigateDate = (direction: 'prev' | 'next') => {
-    const current = new Date(currentDate);
+    const current = new Date(currentDate ?? initialDate);
     const increment = direction === 'next' ? 1 : -1;
     
     switch (viewMode) {
@@ -239,7 +240,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
           day: 'numeric' 
         });
       case 'week':
-        const weekDates = getWeekDates(currentDate);
+        const weekDates = getWeekDates(currentDate ?? initialDate);
         const start = new Date(weekDates[0]);
         const end = new Date(weekDates[weekDates.length - 1]);
         return `${start.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} - ${end.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}`;
