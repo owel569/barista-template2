@@ -17,7 +17,7 @@ import { StatCardProps } from '../types/schedule.types';
 const StatCard: React.FC<StatCardProps> = ({
   title,
   value,
-  change,
+  change = 0,
   changeType,
   icon: Icon,
   color = 'blue',
@@ -90,7 +90,7 @@ const StatCard: React.FC<StatCardProps> = ({
   };
 
   const getChangeIcon = () => {
-    if (!change || change === 0) return <Minus className="h-3 w-3" />;
+    if (change === 0) return <Minus className="h-3 w-3" />;
     
     switch (changeType) {
       case 'increase':
@@ -103,7 +103,7 @@ const StatCard: React.FC<StatCardProps> = ({
   };
 
   const getChangeColor = () => {
-    if (!change || change === 0) return 'text-gray-500';
+    if (change === 0) return 'text-gray-500';
     
     switch (changeType) {
       case 'increase':
@@ -155,7 +155,7 @@ const StatCard: React.FC<StatCardProps> = ({
           {formatValue(value)}
         </div>
         
-        {change !== undefined && (
+        {typeof change === 'number' && (
           <div className="flex items-center space-x-1">
             <Badge 
               variant="secondary" 
@@ -163,7 +163,7 @@ const StatCard: React.FC<StatCardProps> = ({
             >
               {getChangeIcon()}
               <span>
-                {Math.abs(change)}%
+                {Math.abs(change ?? 0)}%
               </span>
             </Badge>
             <span className="text-xs text-gray-500 dark:text-gray-400">

@@ -20,7 +20,7 @@ interface DayColumnProps {
   isSelected: boolean;
   onDateClick: (date: string) => void;
   onShiftClick: (shift: Shift) => void;
-  onShiftCreate: (newShift: Partial<Shift>) => void;
+  onShiftCreate: (newShift: Omit<Shift, 'id'>) => void;
   compact?: boolean;
   employees: { id: number; firstName: string; lastName: string }[];
 }
@@ -134,17 +134,22 @@ const DayColumn: React.FC<DayColumnProps> = ({
           onClick={(e) => {
             e.stopPropagation();
             onShiftCreate({
-              employeeId: employees[0]?.id || 0,
+              employeeId: employees[0]?.id ?? 0,
+              employee: undefined,
               date,
               startTime: '09:00',
               endTime: '17:00',
               position: 'serveur',
               department: 'service',
               status: 'scheduled',
+              notes: undefined,
+              break: undefined,
+              overtimeHours: 0,
               hourlyRate: 15,
               totalHours: 8,
               totalPay: 120,
-              isRecurring: false
+              isRecurring: false,
+              recurringPattern: undefined
             });
           }}
           className="opacity-0 group-hover:opacity-100 transition-opacity"
@@ -193,12 +198,11 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
   // Générer les dates selon le mode de vue
   const dates = useMemo(() => {
-    const dateObj = new Date(currentDate);
     switch (viewMode) {
-      case 'week': return getWeekDates(dateObj);
-      case 'month': return getMonthDates(dateObj);
-      case 'day': return [dateObj];
-      default: return getWeekDates(dateObj);
+      case 'week': return getWeekDates(currentDate);
+      case 'month': return getMonthDates(currentDate);
+      case 'day': return [currentDate];
+      default: return getWeekDates(currentDate);
     }
   }, [currentDate, viewMode]);
 
@@ -240,9 +244,9 @@ const CalendarView: React.FC<CalendarViewProps> = ({
           day: 'numeric' 
         });
       case 'week':
-        const weekDates = getWeekDates(date);
-        const start = weekDates[0];
-        const end = weekDates[weekDates.length - 1];
+        const weekDates = getWeekDates(currentDate);
+        const start = new Date(weekDates[0]);
+        const end = new Date(weekDates[weekDates.length - 1]);
         return `${start.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} - ${end.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}`;
       case 'month':
         return date.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long' });
@@ -254,7 +258,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   // Statistiques pour la période
   const periodStats = useMemo(() => {
     const periodShifts = shifts.filter(shift => 
-      dates.some(d => d.toISOString().split('T')[0] === shift.date)
+      dates.some(d => (typeof d === 'string' ? d : String(d)) === shift.date)
     );
     
     return {
@@ -339,9 +343,9 @@ const CalendarView: React.FC<CalendarViewProps> = ({
             {dates.map((date, index) => (
               <DayColumn
                 key={index}
-                date={date.toISOString().split('T')[0]}
-                shifts={shiftsByDate[date.toISOString().split('T')[0]] || []}
-                isSelected={date.toISOString().split('T')[0] === selectedDate}
+                date={typeof date === 'string' ? date : String(date)}
+                shifts={shiftsByDate[typeof date === 'string' ? date : String(date)] || []}
+                isSelected={(typeof date === 'string' ? date : String(date)) === selectedDate}
                 onDateClick={onDateClick}
                 onShiftClick={onShiftClick}
                 onShiftCreate={onShiftCreate}
