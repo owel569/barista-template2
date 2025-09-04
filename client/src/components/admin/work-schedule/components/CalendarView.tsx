@@ -135,21 +135,17 @@ const DayColumn: React.FC<DayColumnProps> = ({
             e.stopPropagation();
             onShiftCreate({
               employeeId: employees[0]?.id ?? 0,
-              employee: undefined,
               date,
               startTime: '09:00',
               endTime: '17:00',
               position: 'serveur',
               department: 'service',
               status: 'scheduled',
-              notes: undefined,
-              break: undefined,
               overtimeHours: 0,
               hourlyRate: 15,
               totalHours: 8,
               totalPay: 120,
-              isRecurring: false,
-              recurringPattern: undefined
+              isRecurring: false
             });
           }}
           className="opacity-0 group-hover:opacity-100 transition-opacity"
