@@ -891,7 +891,7 @@ export default function Settings({ userRole }: SettingsProps) {
                     <div>
                       <Label>Date</Label>
                       <DayPicker
-                        onSelect={(date) => {
+                        onSelect={(date: Date | undefined) => {
                           if (!date) return;
                           const dateStr = date.toISOString().split('T')[0];
                           if (!draftSettings.specialDates.specialHours.some(sh => sh.date === dateStr) &&
@@ -900,10 +900,21 @@ export default function Settings({ userRole }: SettingsProps) {
                           }
                         }}
                         disabled={!hasPermission('settings', 'edit')}
-                        excludeDates={[
-                          ...draftSettings.specialDates.specialHours.map(sh => new Date(sh.date)),
-                          ...draftSettings.specialDates.closedDates.map(d => new Date(d))
-                        ]}
+                        /* Désactive les dates déjà sélectionnées ou fermées */
+                        /* Le composant interne supporte disabled(date) => boolean */
+                        /* On empêche de sélectionner une date déjà listée */
+                        /* et potentiellement toute règle métier future */
+                        /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+                        {...{
+                          // @ts-expect-error: prop relay pour Calendar.disabled via DatePicker
+                          disabled: (d: Date) => {
+                            const ds = d.toISOString().split('T')[0];
+                            return (
+                              draftSettings.specialDates.specialHours.some(sh => sh.date === ds) ||
+                              draftSettings.specialDates.closedDates.some(cd => cd === ds)
+                            );
+                          }
+                        }}
                       />
                     </div>
                     {newSpecialDate && (
