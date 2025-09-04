@@ -393,42 +393,34 @@ class AnalyticsService {
       ? (repeatCustomers[0]?.repeatCount || 0) / totalCustomers[0].totalCount * 100 
       : 0;
 
-    // Démographiques (exemple simplifié)
-    const demographics = await db.select({
-      ageGroup: sql<string>`CASE
-        WHEN EXTRACT(YEAR FROM AGE(${customers.birthDate})) < 25 THEN '18-25'
-        WHEN EXTRACT(YEAR FROM AGE(${customers.birthDate})) < 35 THEN '26-35'
-        WHEN EXTRACT(YEAR FROM AGE(${customers.birthDate})) < 45 THEN '36-45'
-        ELSE '46+'
-      END`,
-      gender: customers.gender,
-      location: sql<string>`CASE
-        WHEN ${customers.postalCode} LIKE '75%' THEN 'Paris'
-        WHEN ${customers.postalCode} LIKE '92%' THEN 'Hauts-de-Seine'
-        ELSE 'Autre'
-      END`,
-      count: count(customers.id)
-    })
-    .from(customers)
-    .where(
-      sql`${customers.id} IN (
-        SELECT customer_id FROM orders 
-        WHERE ${and(
-          gte(orders.createdAt, period.startDate),
-          lte(orders.createdAt, period.endDate)
-        )}
-      )`
-    )
-    .groupBy(sql`CASE
-      WHEN EXTRACT(YEAR FROM AGE(${customers.birthDate})) < 25 THEN '18-25'
-      WHEN EXTRACT(YEAR FROM AGE(${customers.birthDate})) < 35 THEN '26-35'
-      WHEN EXTRACT(YEAR FROM AGE(${customers.birthDate})) < 45 THEN '36-45'
-      ELSE '46+'
-    END`, customers.gender, sql`CASE
-      WHEN ${customers.postalCode} LIKE '75%' THEN 'Paris'
-      WHEN ${customers.postalCode} LIKE '92%' THEN 'Hauts-de-Seine'
-      ELSE 'Autre'
-    END`);
+    // Démographiques basées sur les métadonnées JSON de orders.customerInfo
+    const demographics = await db
+      .select({
+        ageGroup: sql<string>`coalesce((CASE 
+          WHEN ((${orders.customerInfo} ->> 'age')::int) < 25 THEN '18-25'
+          WHEN ((${orders.customerInfo} ->> 'age')::int) < 35 THEN '26-35'
+          WHEN ((${orders.customerInfo} ->> 'age')::int) < 45 THEN '36-45'
+          WHEN ((${orders.customerInfo} ->> 'age')::int) >= 45 THEN '46+'
+          ELSE 'unknown' END), 'unknown')`,
+        gender: sql<string>`coalesce(${orders.customerInfo} ->> 'gender', 'unknown')`,
+        location: sql<string>`coalesce(${orders.customerInfo} ->> 'postalCode', ${orders.customerInfo} ->> 'city', 'unknown')`,
+        count: count(orders.id)
+      })
+      .from(orders)
+      .where(and(
+        gte(orders.createdAt, period.startDate),
+        lte(orders.createdAt, period.endDate)
+      ))
+      .groupBy(
+        sql`coalesce((CASE 
+          WHEN ((${orders.customerInfo} ->> 'age')::int) < 25 THEN '18-25'
+          WHEN ((${orders.customerInfo} ->> 'age')::int) < 35 THEN '26-35'
+          WHEN ((${orders.customerInfo} ->> 'age')::int) < 45 THEN '36-45'
+          WHEN ((${orders.customerInfo} ->> 'age')::int) >= 45 THEN '46+'
+          ELSE 'unknown' END), 'unknown')`,
+        sql`coalesce(${orders.customerInfo} ->> 'gender', 'unknown')`,
+        sql`coalesce(${orders.customerInfo} ->> 'postalCode', ${orders.customerInfo} ->> 'city', 'unknown')`
+      );
 
     const ageGroups = demographics.reduce((acc, item) => {
       acc[item.ageGroup] = (acc[item.ageGroup] || 0) + item.count;
