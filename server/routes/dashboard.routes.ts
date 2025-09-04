@@ -1,7 +1,7 @@
 
 import { Router } from 'express';
 import { getDb } from '../db';
-import { orders, reservations } from '../../shared/schema';
+import { orders, reservations, customers, tables } from '../../shared/schema';
 import { eq, sql, and, gte, lte, count, avg, sum } from 'drizzle-orm';
 import { authenticateUser } from '../middleware/auth';
 import { logger } from '../utils/logger';
@@ -38,14 +38,14 @@ router.get('/real-time-stats', authenticateUser, async (req, res) => {
       .from(orders)
       .where(and(
         gte(orders.createdAt, startOfMonth),
-        eq(orders.status, 'completed')
+        eq(orders.status, 'delivered')
       ));
 
     // Panier moyen
     const avgOrderResult = await db
       .select({ avg: avg(orders.totalAmount) })
       .from(orders)
-      .where(eq(orders.status, 'completed'));
+      .where(eq(orders.status, 'delivered'));
 
     // Personnel en service (simulation basée sur les heures)
     const currentHour = new Date().getHours();
@@ -101,12 +101,14 @@ router.get('/recent-activities', authenticateUser, async (req, res) => {
     const recentReservations = await db
       .select({
         id: reservations.id,
-        customerName: reservations.customerName,
-        tableNumber: reservations.tableNumber,
+        customerName: sql<string>`coalesce(${customers.firstName} || ' ' || ${customers.lastName}, ${reservations.guestName})`,
+        tableNumber: tables.number,
         createdAt: reservations.createdAt,
         type: sql<string>`'reservation'`
       })
       .from(reservations)
+      .leftJoin(customers, eq(reservations.customerId, customers.id))
+      .leftJoin(tables, eq(reservations.tableId, tables.id))
       .orderBy(sql`${reservations.createdAt} DESC`)
       .limit(5);
 
@@ -134,9 +136,9 @@ router.get('/recent-activities', authenticateUser, async (req, res) => {
       ...recentOrders.map((order, index) => ({
         id: order.id + 1000,
         type: 'order' as const,
-        message: `Commande #${order.id} ${order.status === 'completed' ? 'terminée' : 'en cours'}`,
+        message: `Commande #${order.id} ${order.status === 'delivered' ? 'terminée' : 'en cours'}`,
         time: `Il y a ${index + 5} minutes`,
-        status: order.status === 'completed' ? 'success' as const : 'info' as const,
+        status: order.status === 'delivered' ? 'success' as const : 'info' as const,
         amount: Number(order.totalAmount)
       }))
     ].slice(0, 10);

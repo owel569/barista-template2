@@ -216,7 +216,7 @@ router.get('/statistics', authenticateUser, asyncHandler(async (req, res) => {
 
   // Calculer le chiffre d'affaires
   const revenueQuery = await db.select({
-    total: sql<number>`COALESCE(SUM(CASE WHEN ${orders.status} = 'completed' THEN ${orders.total} ELSE 0 END), 0)`
+    total: sql<number>`COALESCE(SUM(CASE WHEN ${orders.status} = 'delivered' THEN ${orders.total} ELSE 0 END), 0)`
   }).from(orders);
 
   const stats = {
@@ -241,7 +241,7 @@ router.get('/revenue', authenticateUser, asyncHandler(async (req, res) => {
   // Données de revenus basées sur les commandes
   const revenueData = await db.select({
     date: sql<string>`DATE(${orders.createdAt})`,
-    revenue: sql<number>`COALESCE(SUM(CASE WHEN ${orders.status} = 'completed' THEN ${orders.total} ELSE 0 END), 0)`
+    revenue: sql<number>`COALESCE(SUM(CASE WHEN ${orders.status} = 'delivered' THEN ${orders.total} ELSE 0 END), 0)`
   })
   .from(orders)
   .groupBy(sql`DATE(${orders.createdAt})`)
@@ -361,16 +361,18 @@ router.get('/recent-orders', authenticateUser, asyncHandler(async (req, res) => 
   const limit = parseInt(getQueryParam(req.query.limit)) || 10;
   const db = getDb();
 
-  const recentOrders = await db.select({
-    id: orders.id,
-    customerName: orders.customerName,
-    status: orders.status,
-    totalAmount: orders.total,
-    createdAt: orders.createdAt
-  })
-  .from(orders)
-  .orderBy(sql`${orders.createdAt} DESC`)
-  .limit(limit);
+  const recentOrders = await db
+    .select({
+      id: orders.id,
+      status: orders.status,
+      totalAmount: orders.total,
+      createdAt: orders.createdAt,
+      customerName: sql<string>`coalesce(${customers.firstName} || ' ' || ${customers.lastName}, ${orders.customerInfo}->>'name')`
+    })
+    .from(orders)
+    .leftJoin(customers, eq(orders.customerId, customers.id))
+    .orderBy(sql`${orders.createdAt} DESC`)
+    .limit(limit);
 
   res.json({
     success: true,
