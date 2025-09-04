@@ -150,9 +150,9 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({
             <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
               <div 
                 className="w-3 h-3 rounded-full" 
-                style={{ backgroundColor: employee.departmentColor }}
+                style={{ backgroundColor: '#94a3b8' }}
               />
-              <span>{employee.department}</span>
+              <span>{String(employee.department)}</span>
             </div>
           </div>
           
