@@ -327,7 +327,7 @@ class AnalyticsService {
         average: Number(item.average) || 0
       })),
       topProducts: topProducts.map(item => ({
-        id: item.id,
+        id: String(item.id),
         name: item.name,
         revenue: Number(item.revenue) || 0,
         quantity: Number(item.quantity) || 0
@@ -460,9 +460,9 @@ class AnalyticsService {
         winter: 71
       },
       demographics: {
-        ageGroups,
-        genderDistribution,
-        locationData
+        ageGroups: {},
+        genderDistribution: {},
+        locationData: {}
       }
     };
   }
