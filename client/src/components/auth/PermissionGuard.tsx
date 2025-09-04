@@ -59,7 +59,7 @@ export function PermissionGuard({
 // Hook utilitaire pour vérifier les permissions dans les composants
 export function usePermissionCheck(module: string, action: PermissionAction) {
   const { user } = useContext(AuthContext);
-  const { hasPermission } = usePermissions(user);
+  const { hasPermission } = usePermissions();
   
   return hasPermission(module, action);
 }
