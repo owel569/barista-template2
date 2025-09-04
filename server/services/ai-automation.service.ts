@@ -76,7 +76,7 @@ const CAFE_KNOWLEDGE_BASE = {
 };
 
 import { getDb } from '../db';
-import { customers, orders, menuItems, reservations } from '../../shared/schema';
+import { customers, orders, menuItems, reservations, menuCategories } from '../../shared/schema';
 import { eq, sql, desc, and, gte, lte } from 'drizzle-orm';
 import { createLogger } from '../middleware/logging';
 
@@ -584,8 +584,9 @@ export class AIAutomationService {
 
       // Analyse des tendances des ventes par catégorie
       const salesTrends = await db.select({
-        category: menuItems.category,
-        totalSales: sql`COALESCE(SUM(orders.totalAmount), 0)`,
+        categoryId: menuItems.categoryId,
+        categoryName: menuCategories.name,
+        totalSales: sql`COALESCE(SUM(${orders.totalAmount}), 0)`,
         growth: sql`
           CASE 
             WHEN SUM(CASE WHEN orders.created_at >= NOW() - INTERVAL '14 days' AND orders.created_at < NOW() - INTERVAL '7 days' THEN orders.total_amount ELSE 0 END) > 0 
@@ -596,12 +597,13 @@ export class AIAutomationService {
           END`
       }).from(orders)
         .innerJoin(menuItems, eq(orders.itemId, menuItems.id))
-        .groupBy(menuItems.category)
+        .innerJoin(menuCategories, eq(menuItems.categoryId, menuCategories.id))
+        .groupBy(menuItems.categoryId, menuCategories.name)
         .where(gte(orders.createdAt, new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)));
 
       const opportunities: MarketingOpportunity[] = salesTrends.map(trend => ({
         type: 'category_promotion',
-        suggestion: `Promouvoir les ${trend.category} - croissance détectée`,
+        suggestion: `Promouvoir la catégorie ${trend.categoryName} - croissance détectée`,
         expectedImpact: `+${Math.round((Number(trend.growth) || 0) * 15)}% de ventes`,
         confidence: 0.78
       }));

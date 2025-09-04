@@ -6,7 +6,7 @@ import { createLogger } from '../../middleware/logging';
 import { authenticateUser, requireRoles } from '../../middleware/auth';
 import { validateBody, validateParams, validateQuery } from '../../middleware/validation';
 import { getDb } from '../../db';
-import { menuItems, inventory, suppliers, activityLogs } from '../../../shared/schema';
+import { menuItems, inventory, suppliers, activityLogs, menuCategories } from '../../../shared/schema';
 import { eq, and, or, desc, sql, ilike, gte, lte } from 'drizzle-orm';
 import { cacheMiddleware, invalidateCache } from '../../middleware/cache-advanced';
 
@@ -586,13 +586,15 @@ router.get('/stats',
     // Valeur par catégorie
     const categoryValues = await db
       .select({
-        category: menuItems.category,
+        categoryId: menuItems.categoryId,
+        categoryName: menuCategories.name,
         totalValue: sql<number>`sum(${inventory.currentStock} * ${inventory.cost})`,
         itemCount: sql<number>`count(*)`
       })
       .from(inventory)
       .leftJoin(menuItems, eq(inventory.menuItemId, menuItems.id))
-      .groupBy(menuItems.category);
+      .leftJoin(menuCategories, eq(menuItems.categoryId, menuCategories.id))
+      .groupBy(menuItems.categoryId, menuCategories.name);
 
     logger.info('Statistiques inventaire récupérées', stats);
 
