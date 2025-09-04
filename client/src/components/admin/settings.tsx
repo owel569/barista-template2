@@ -731,10 +731,18 @@ export default function Settings({ userRole }: SettingsProps) {
                 <h3 className="font-medium mb-2">Jours de fermeture</h3>
                 <div className="flex flex-col gap-4">
                   <DayPicker
-                    selectedDates={draftSettings.specialDates.closedDates.map(d => new Date(d))}
-                    onSelectDate={(date) => addClosedDate(date)}
-                    onRemoveDate={(date) => removeClosedDate(date.toISOString().split('T')[0])}
-                    disabled={!hasPermission('settings', 'edit')}
+                    onSelect={(date) => {
+                      if (date) {
+                        const dateStr = date.toISOString().split('T')[0];
+                        if (!draftSettings.specialDates.closedDates.includes(dateStr)) {
+                          addClosedDate(date);
+                        }
+                      }
+                    }}
+                    disabled={(date) => {
+                      const dateStr = date.toISOString().split('T')[0];
+                      return draftSettings.specialDates.closedDates.includes(dateStr) || !hasPermission('settings', 'edit');
+                    }}
                   />
                   {draftSettings.specialDates.closedDates.length > 0 && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">

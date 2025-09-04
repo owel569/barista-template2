@@ -90,7 +90,7 @@ const ResizableHandle = React.forwardRef<
   ResizableHandleProps
 >(({ withHandle, className, direction = "horizontal", variant, ...props }, ref) => (
   <ResizablePrimitive.PanelResizeHandle
-    ref={ref}
+    {...props}
     className={cn(
       resizableHandleVariants({ direction, variant }),
       "data-[panel-group-direction=vertical]:h-px data-[panel-group-direction=vertical]:w-full data-[panel-group-direction=vertical]:after:left-0 data-[panel-group-direction=vertical]:after:h-1 data-[panel-group-direction=vertical]:after:w-full data-[panel-group-direction=vertical]:after:-translate-y-1/2 data-[panel-group-direction=vertical]:after:translate-x-0 [&[data-panel-group-direction=vertical]>div]:rotate-90",

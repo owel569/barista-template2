@@ -46,7 +46,7 @@ import {
   Calendar
 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
-import { useTypedToast } from '@/hooks/use-typed-toast'; // Assuming this is the correct import for the typed toast hook
+import { useTypedToast } from '@/hooks/useTypedToast';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import type { 
@@ -245,7 +245,7 @@ export default function ActivityLogs(): JSX.Element {
   const exportLogs = useCallback((): void => {
     try {
       if (filteredLogs.length === 0) {
-        toast.success("Aucune donnée", "Aucun journal à exporter");
+        toast.success({ title: "Aucune donnée", description: "Aucun journal à exporter" });
         return;
       }
 
@@ -261,7 +261,7 @@ export default function ActivityLogs(): JSX.Element {
       }));
 
       if (dataToExport.length === 0) {
-        toast.success("Aucune donnée", "Aucun journal à exporter");
+        toast.success({ title: "Aucune donnée", description: "Aucun journal à exporter" });
         return;
       }
 
@@ -280,9 +280,9 @@ export default function ActivityLogs(): JSX.Element {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      toast.success("Export réussi", "Les journaux ont été exportés avec succès");
+      toast.success({ title: "Export réussi", description: "Les journaux ont été exportés avec succès" });
     } catch (error) {
-      toast.error("Erreur d'export", "Impossible d'exporter les journaux");
+      toast.error({ title: "Erreur d'export", description: "Impossible d'exporter les journaux" });
     }
   }, [filteredLogs, toast]);
 
@@ -292,9 +292,9 @@ export default function ActivityLogs(): JSX.Element {
       const filteredLogs = logs.filter(log => log.timestamp >= thirtyDaysAgo);
       setLogs(filteredLogs);
 
-      toast.success("Nettoyage effectué", `${logs.length - filteredLogs.length} anciens journaux supprimés`);
+      toast.success({ title: "Nettoyage effectué", description: `${logs.length - filteredLogs.length} anciens journaux supprimés` });
     } catch (error) {
-      toast.error("Erreur", "Impossible de nettoyer les journaux");
+      toast.error({ title: "Erreur", description: "Impossible de nettoyer les journaux" });
     }
   }, [logs, toast]);
 

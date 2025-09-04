@@ -197,10 +197,9 @@ export default function AccountingSystem(): JSX.Element {
       ];
       setTransactions(mockTransactions);
     } catch (error) {
-      toast({
+      toast.success({
         title: "Erreur",
         description: "Impossible de charger les transactions",
-        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -217,10 +216,9 @@ export default function AccountingSystem(): JSX.Element {
       ];
       setBudgetCategories(mockBudget);
     } catch (error) {
-      toast({
+      toast.success({
         title: "Erreur",
         description: "Impossible de charger le budget",
-        variant: "destructive",
       });
     }
   };
@@ -275,15 +273,14 @@ export default function AccountingSystem(): JSX.Element {
       setShowTransactionDialog(false);
       resetForm();
 
-      toast({
+      toast.success({
         title: "Transaction ajoutée",
         description: "La transaction a été enregistrée avec succès",
       });
     } catch (error) {
-      toast({
+      toast.success({
         title: "Erreur",
         description: "Impossible d'ajouter la transaction",
-        variant: "destructive",
       });
     }
   }, [transactionForm, toast]);
@@ -293,15 +290,14 @@ export default function AccountingSystem(): JSX.Element {
       setTransactions(prev => prev.filter(t => t.id !== id));
       setShowDeleteConfirm(null);
 
-      toast({
+      toast.success({
         title: "Transaction supprimée",
         description: "La transaction a été supprimée avec succès",
       });
     } catch (error) {
-      toast({
+      toast.success({
         title: "Erreur",
         description: "Impossible de supprimer la transaction",
-        variant: "destructive",
       });
     }
   }, [toast]);
@@ -335,15 +331,14 @@ export default function AccountingSystem(): JSX.Element {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      toast({
+      toast.success({
         title: "Export réussi",
         description: "Les données ont été exportées avec succès",
       });
     } catch (error) {
-      toast({
+      toast.success({
         title: "Erreur d'export",
         description: "Impossible d'exporter les données",
-        variant: "destructive",
       });
     }
   }, [filteredTransactions, financialSummary, toast]);

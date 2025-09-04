@@ -179,8 +179,8 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
   const filteredMessages = useMemo(() => {
     return messages.filter((message) => {
       const matchesSearch = !searchTerm ||
-        message.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        message.customerEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        message.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        message.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         message.subject.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesStatus = statusFilter === 'all' || message.status === statusFilter;
@@ -337,11 +337,8 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
                 <TableRow key={message.id}>
                   <TableCell>
                     <div>
-                      <div className="font-medium">{message.customerName || 'Anonyme'}</div>
-                      <div className="text-sm text-muted-foreground">{message.customerEmail}</div>
-                      {message.phone && (
-                        <div className="text-sm text-muted-foreground">{message.phone}</div>
-                      )}
+                      <div className="font-medium">{message.name || 'Anonyme'}</div>
+                      <div className="text-sm text-muted-foreground">{message.email}</div>
                     </div>
                   </TableCell>
                   <TableCell className="max-w-xs truncate">
@@ -464,11 +461,8 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <h3 className="font-semibold">Expéditeur</h3>
-                  <p>{selectedMessage.customerName || 'Anonyme'}</p>
-                  <p className="text-sm text-muted-foreground">{selectedMessage.customerEmail}</p>
-                  {selectedMessage.phone && (
-                    <p className="text-sm text-muted-foreground">{selectedMessage.phone}</p>
-                  )}
+                  <p>{selectedMessage.name || 'Anonyme'}</p>
+                  <p className="text-sm text-muted-foreground">{selectedMessage.email}</p>
                 </div>
                 <div>
                   <h3 className="font-semibold">Détails</h3>

@@ -154,14 +154,14 @@ export default function DeliveryTracking() : JSX.Element {
       apiRequest('/api/admin/deliveries', { method: 'POST', body: JSON.stringify(data) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['deliveries'] });
-      toast({ 
+      toast.toast({ 
         title: "Livraison créée", 
         description: "La livraison a été créée avec succès",
       });
       setIsDialogOpen(false);
     },
     onError: () => {
-      toast({
+      toast.toast({
         title: "Erreur",
         description: "Impossible de créer la livraison",
         variant: "destructive",
@@ -174,13 +174,13 @@ export default function DeliveryTracking() : JSX.Element {
       apiRequest(`/api/admin/deliveries/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['deliveries'] });
-      toast({ 
+      toast.toast({ 
         title: "Statut mis à jour", 
         description: "Le statut de la livraison a été modifié",
       });
     },
     onError: () => {
-      toast({
+      toast.toast({
         title: "Erreur",
         description: "Impossible de mettre à jour la livraison",
         variant: "destructive",
@@ -224,7 +224,7 @@ export default function DeliveryTracking() : JSX.Element {
 
   const handleRefresh = () => {
     refetch();
-    toast({
+    toast.toast({
       title: "Actualisation",
       description: "Liste des livraisons actualisée",
     });

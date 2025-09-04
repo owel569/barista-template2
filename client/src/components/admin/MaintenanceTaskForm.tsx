@@ -55,8 +55,8 @@ export function MaintenanceTaskForm({
           id: initialData.id || 0,
           title: initialData.title || '',
           description: initialData.description || '',
-          type: initialData.type || '', // Assuming 'type' is a string property
-          priority: (initialData.priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium',
+          type: initialData.type || 'preventive', // Default to 'preventive'
+          priority: (initialData.priority as 'low' | 'medium' | 'high' | 'critical') || 'medium',
           status: (initialData.status as 'pending' | 'in_progress' | 'completed' | 'cancelled') || 'pending',
           scheduledDate: initialData.scheduledDate || new Date().toISOString().split('T')[0],
           estimatedDuration: initialData.estimatedDuration || 1,
@@ -162,10 +162,10 @@ export function MaintenanceTaskForm({
       status: formData.status,
       scheduledDate: formData.scheduledDate,
       estimatedDuration: formData.estimatedDuration,
-      cost: formData.cost,
-      assignedToId: formData.assignedToId,
-      notes: formData.notes,
-      equipmentId: formData.equipmentId,
+      cost: formData.cost || 0,
+      assignedToId: formData.assignedToId || null,
+      notes: formData.notes || '',
+      equipmentId: formData.equipmentId || null,
     };
     onSubmit(taskToSubmit);
   };

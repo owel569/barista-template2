@@ -178,7 +178,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
     onSuccess: (data) => {
       setReportData(data);
       setIsGenerating(false);
-      toast.toast({
+      toast.success({
         title: "Rapport généré avec succès",
         description: "Le rapport a été créé avec les insights IA",
       });
@@ -186,10 +186,9 @@ export const ComprehensiveReportsManager: React.FC = () => {
     },
     onError: () => {
       setIsGenerating(false);
-      toast.toast({
+      toast.error({
         title: "Erreur",
         description: "Impossible de générer le rapport",
-        variant: "destructive",
       });
     }
   });
@@ -203,7 +202,7 @@ export const ComprehensiveReportsManager: React.FC = () => {
         body: JSON.stringify(scheduleConfig)
       }),
     onSuccess: () => {
-      toast.toast({
+      toast.success({
         title: "Rapport planifié",
         description: "Le rapport sera généré automatiquement",
       });

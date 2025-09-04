@@ -96,7 +96,7 @@ export default function AdvancedPOS(): JSX.Element {
       }
     } catch (error) {
       console.error('Erreur lors du chargement du menu:', error);
-      toast({
+      toast.toast({
         title: "Erreur de chargement",
         description: "Utilisation du menu par défaut",
         variant: "destructive",
@@ -127,7 +127,7 @@ export default function AdvancedPOS(): JSX.Element {
       }
       return [...prev, { ...item, quantity: 1 }];
     });
-    toast({
+    toast.toast({
       title: "Ajouté au panier",
       description: `${item.name} ajouté avec succès`,
     });
@@ -186,7 +186,7 @@ export default function AdvancedPOS(): JSX.Element {
       setTableNumber(null);
       setPaymentModalOpen(false);
 
-      toast({
+      toast.toast({
         title: "Paiement réussi",
         description: `Commande ${order.id} traitée avec succès`,
       });
@@ -194,7 +194,7 @@ export default function AdvancedPOS(): JSX.Element {
       // Auto-impression du reçu (simulation)
       setTimeout(() => printReceipt(order), 500);
     } catch (error) {
-      toast({
+      toast.toast({
         title: "Erreur de paiement",
         description: "Une erreur est survenue lors du traitement",
         variant: "destructive",
@@ -207,7 +207,7 @@ export default function AdvancedPOS(): JSX.Element {
   const printReceipt = (order: Order) => {
     // Simulation de l'impression
     console.log('Impression du reçu:', order);
-    toast({
+    toast.toast({
       title: "Reçu imprimé",
       description: `Reçu pour la commande ${order.id}`,
     });
