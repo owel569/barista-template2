@@ -401,10 +401,10 @@ export const shiftsToCalendarEvents = (shifts: Shift[], employees: Employee[] = 
     const employee = employees.find(emp => emp.id === shift.employeeId);
     const start = new Date(`${shift.date}T${shift.startTime}`);
     const end = new Date(`${shift.date}T${shift.endTime}`);
-    
+    const fullName = employee ? `${employee.firstName} ${employee.lastName}` : 'Employé';
     return {
       id: shift.id.toString(),
-      title: `${shift.employeeName || employee?.firstName + ' ' + employee?.lastName || 'Employé'} - ${shift.position}`,
+      title: `${fullName} - ${String(shift.position)}`,
       start: start.toISOString(),
       end: end.toISOString(),
       backgroundColor: getShiftColor(shift),
@@ -412,8 +412,8 @@ export const shiftsToCalendarEvents = (shifts: Shift[], employees: Employee[] = 
       extendedProps: {
         shift,
         employee,
-        department: shift.department,
-        position: shift.position,
+        department: String(shift.department),
+        position: String(shift.position),
         status: shift.status,
         notes: shift.notes,
       },
