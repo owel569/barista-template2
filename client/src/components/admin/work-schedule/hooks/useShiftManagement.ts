@@ -86,9 +86,7 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
     // Filtrage par conflits
     if (filters.showConflicts) {
       filtered = filtered.filter(shift => {
-        const employee = employees.find(e => e.id === shift.employeeId);
-        if (!employee) return false;
-        const validation = validateShift(shift, shifts, employee);
+        const validation = validateShift(shift, shifts);
         return !validation.isValid;
       });
     }
@@ -176,8 +174,8 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
       setFilters(prev => ({
         ...prev,
         dateRange: {
-          start: weekDates[0],
-          end: weekDates[weekDates.length - 1]
+          start: weekDates[0]!,
+          end: weekDates[weekDates.length - 1]!
         }
       }));
     } else if (timePeriod === "month") {
@@ -185,8 +183,8 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
       setFilters(prev => ({
         ...prev,
         dateRange: {
-          start: monthDates[0],
-          end: monthDates[monthDates.length - 1]
+          start: monthDates[0]!,
+          end: monthDates[monthDates.length - 1]!
         }
       }));
     } else {
@@ -249,10 +247,9 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
         conflicts: [],
         warnings: ["Employé non trouvé"],
         suggestions: []
-      };
+      } as ScheduleValidation;
     }
-    
-    return validateShift(shiftData, shifts);
+    return validateShift(shiftData, shifts) as unknown as ScheduleValidation;
   }, [shifts, employees]);
 
   // Navigation dans le temps

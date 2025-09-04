@@ -118,7 +118,7 @@ export const calculateEmployeeHours = (shifts: Shift[], employeeId: number): num
 
 export const calculateScheduleStats = (shifts: Shift[], employees: Employee[]): ScheduleStats => {
   const totalShifts = shifts.length;
-  const activeEmployees = employees.filter(emp => emp.status === 'active').length;
+  const activeEmployees = employees.filter(emp => (emp as any).status === 'active').length;
   const totalHours = calculateTotalHours(shifts);
   const averageHoursPerEmployee = activeEmployees > 0 ? totalHours / activeEmployees : 0;
 
@@ -128,7 +128,7 @@ export const calculateScheduleStats = (shifts: Shift[], employees: Employee[]): 
     const empShifts = filterShiftsByEmployee(shifts, emp.id);
     const hours = calculateTotalHours(empShifts);
     if (hours > 0) {
-      departmentBreakdown[emp.department] = (departmentBreakdown[emp.department] || 0) + hours;
+      departmentBreakdown[String(emp.department)] = (departmentBreakdown[String(emp.department)] || 0) + hours;
     }
   });
 
@@ -138,7 +138,7 @@ export const calculateScheduleStats = (shifts: Shift[], employees: Employee[]): 
     const empShifts = filterShiftsByEmployee(shifts, emp.id);
     const hours = calculateTotalHours(empShifts);
     if (hours > 0) {
-      positionBreakdown[emp.position] = (positionBreakdown[emp.position] || 0) + hours;
+      positionBreakdown[String(emp.position)] = (positionBreakdown[String(emp.position)] || 0) + hours;
     }
   });
 
