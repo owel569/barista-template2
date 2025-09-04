@@ -244,8 +244,12 @@ export default function StaffScheduling() {
   }, []);
 
   const calculateHours = useCallback((startTime: string, endTime: string) => {
-    const [startHours, startMinutes] = startTime.split(':').map(Number);
-    const [endHours, endMinutes] = endTime.split(':').map(Number);
+    const [sh, sm] = String(startTime).split(':');
+    const [eh, em] = String(endTime).split(':');
+    const startHours = Number(sh ?? 0);
+    const startMinutes = Number(sm ?? 0);
+    const endHours = Number(eh ?? 0);
+    const endMinutes = Number(em ?? 0);
     return (endHours - startHours) + (endMinutes - startMinutes) / 60;
   }, []);
 
