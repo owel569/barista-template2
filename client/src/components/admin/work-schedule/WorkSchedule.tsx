@@ -36,7 +36,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
   viewMode = 'calendar'
 }) => {
   // État local pour la période sélectionnée
-  const [dateRange, setDateRange] = useState({
+  const [dateRange, setDateRange] = useState<{ start: string; end: string }>({
     start: new Date().toISOString().split('T')[0],
     end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
   });
@@ -63,8 +63,8 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
   // Hook de gestion des shifts
   const {
     selectedShift,
-    selectedEmployeeData,
-    viewModeState,
+    selectedEmployee,
+    viewMode,
     timePeriod,
     filters,
     filteredShifts,
@@ -94,7 +94,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
     if (validation.isValid) {
       createShift(shiftData);
     } else {
-      console.error('Validation échouée:', validation.conflicts);
+      console.error('Validation échouée:', (validation as any).errors || []);
     }
   };
 
@@ -108,15 +108,8 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
     }
   };
 
-  const handleEmployeeClick = (employee: { 
-    id: number; 
-    firstName: string; 
-    lastName: string; 
-    position: string; 
-    department: string; 
-    isActive: boolean 
-  }) => {
-    handleEmployeeSelect(employee);
+  const handleEmployeeClick = (employee: any) => {
+    handleEmployeeSelect(employee as any);
   };
 
   const handleExportData = () => {
@@ -132,7 +125,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
   // Composant de navigation des vues
   const ViewNavigation = () => (
     <Tabs 
-      value={viewModeState} 
+      value={viewMode} 
       onValueChange={(value) => handleViewModeChange(value as ViewMode)} 
       className="w-full"
     >
@@ -164,7 +157,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
           onShiftClick={handleShiftSelect}
           onDateClick={handleDateSelect}
           onShiftCreate={handleShiftCreate}
-          selectedDate={selectedDate}
+          selectedDate={selectedDate || new Date().toISOString().split('T')[0]}
           viewMode={timePeriod}
         />
       </TabsContent>
