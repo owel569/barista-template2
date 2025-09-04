@@ -891,7 +891,8 @@ export default function Settings({ userRole }: SettingsProps) {
                     <div>
                       <Label>Date</Label>
                       <DayPicker
-                        onSelectDate={(date) => {
+                        onSelect={(date) => {
+                          if (!date) return;
                           const dateStr = date.toISOString().split('T')[0];
                           if (!draftSettings.specialDates.specialHours.some(sh => sh.date === dateStr) &&
                               !draftSettings.specialDates.closedDates.some(d => d === dateStr)) {
