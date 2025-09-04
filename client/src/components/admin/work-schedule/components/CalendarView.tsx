@@ -194,13 +194,14 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
   // Générer les dates selon le mode de vue
   const dates = useMemo(() => {
+    const base = currentDate ?? initialDate;
     switch (viewMode) {
-      case 'week': return getWeekDates(currentDate);
-      case 'month': return getMonthDates(currentDate);
-      case 'day': return [currentDate];
-      default: return getWeekDates(currentDate);
+      case 'week': return getWeekDates(base);
+      case 'month': return getMonthDates(base);
+      case 'day': return [base];
+      default: return getWeekDates(base);
     }
-  }, [currentDate, viewMode]);
+  }, [currentDate, viewMode, initialDate]);
 
   // Grouper les shifts par date
   const shiftsByDate = useMemo(() => {
