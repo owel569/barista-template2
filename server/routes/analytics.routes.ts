@@ -194,7 +194,7 @@ class AnalyticsService {
           periodLabel = `Semaine ${format(date, 'ww')}`;
           break;
         case 'month':
-          periodLabel = format(date, 'MMMM', { locale: { code: 'fr' } });
+          periodLabel = format(date, 'MM');
           break;
         case 'year':
           periodLabel = format(date, 'yyyy');
@@ -309,7 +309,8 @@ class AnalyticsService {
     .groupBy(orders.paymentMethod);
 
     const paymentMethodsSummary = paymentMethods.reduce((acc, item) => {
-      acc[item.method] = {
+      const key = String(item.method ?? 'unknown');
+      (acc as any)[key] = {
         count: item.count,
         percentage: orderCount > 0 ? (item.count / orderCount) * 100 : 0,
         average: item.average
@@ -321,7 +322,7 @@ class AnalyticsService {
       totalRevenue: Number(totalRevenue) || 0,
       averageOrderValue: Number(averageOrderValue) || 0,
       revenueByPeriod: revenueByPeriod.map(item => ({
-        period: format(new Date(item.period), period.period === 'day' ? 'HH:mm' : 'dd/MM'),
+        period: format(new Date(String(item.period)), period.period === 'day' ? 'HH:mm' : 'dd/MM'),
         revenue: Number(item.revenue) || 0,
         orders: item.orderCount,
         average: Number(item.average) || 0
@@ -487,7 +488,7 @@ class AnalyticsService {
       and(
         gte(orders.createdAt, previousPeriodStart),
         lte(orders.createdAt, period.startDate),
-        eq(orders.status, 'completed')
+        eq(orders.status, 'delivered')
       )
     );
 
