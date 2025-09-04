@@ -128,12 +128,12 @@ export default function StaffScheduling() {
       await new Promise(resolve => setTimeout(resolve, 800));
       const mockEmployees: Employee[] = Array.from({ length: 12 }, (_, i) => ({
         id: i + 1,
-        firstName: ['Jean', 'Marie', 'Pierre', 'Sophie', 'Luc', 'Emma', 'Thomas', 'Camille', 'Antoine', 'Julie', 'Nicolas', 'Laura'][i],
-        lastName: ['Dupont', 'Martin', 'Bernard', 'Petit', 'Durand', 'Leroy', 'Moreau', 'Simon', 'Laurent', 'Lefebvre', 'Michel', 'Garcia'][i],
+        firstName: ['Jean', 'Marie', 'Pierre', 'Sophie', 'Luc', 'Emma', 'Thomas', 'Camille', 'Antoine', 'Julie', 'Nicolas', 'Laura'][i]!,
+        lastName: ['Dupont', 'Martin', 'Bernard', 'Petit', 'Durand', 'Leroy', 'Moreau', 'Simon', 'Laurent', 'Lefebvre', 'Michel', 'Garcia'][i]!,
         email: `employee${i+1}@baristacafe.com`,
         phone: `06${Math.floor(10000000 + Math.random() * 90000000)}`,
-        position: ['Serveur', 'Barista', 'Cuisinier', 'Manager', 'Caissier'][Math.floor(Math.random() * 5)],
-        department: ['Salle', 'Bar', 'Cuisine', 'Management'][Math.floor(Math.random() * 4)],
+        position: ['Serveur', 'Barista', 'Cuisinier', 'Manager', 'Caissier'][Math.floor(Math.random() * 5)]!,
+        department: ['Salle', 'Bar', 'Cuisine', 'Management'][Math.floor(Math.random() * 4)]!,
         maxHours: 40,
         minHours: 20,
         hourlyRate: 10 + Math.floor(Math.random() * 6),
@@ -160,8 +160,9 @@ export default function StaffScheduling() {
     try {
       // Simulated API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      const weekStart = getWeekDates(selectedWeek)[0];
-      const weekEnd = getWeekDates(selectedWeek)[6];
+      const week = getWeekDates(selectedWeek);
+      const weekStart = week[0] ?? new Date();
+      const weekEnd = week[6] ?? new Date(weekStart.getTime() + 6 * 86400000);
 
       const mockShifts: Shift[] = Array.from({ length: 30 }, (_, i) => {
         const dayOffset = Math.floor(Math.random() * 7);
@@ -178,7 +179,7 @@ export default function StaffScheduling() {
           startTime: `${startHour.toString().padStart(2, '0')}:00`,
           endTime: `${(startHour + duration).toString().padStart(2, '0')}:00`,
           position: ['Serveur', 'Barista', 'Cuisinier', 'Manager', 'Caissier'][Math.floor(Math.random() * 5)],
-          status: ['draft', 'published', 'confirmed', 'completed'][Math.floor(Math.random() * 4)] as any,
+          status: ['draft', 'published', 'confirmed', 'completed'][Math.floor(Math.random() * 4)] as Shift['status'],
           notes: Math.random() > 0.7 ? 'Note importante pour ce shift' : undefined,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
