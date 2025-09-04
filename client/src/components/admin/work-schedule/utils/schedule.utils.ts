@@ -14,32 +14,33 @@ export interface ScheduleStats {
 }
 
 // Constantes pour les couleurs des statuts
-export const SHIFT_STATUS_COLORS = {
+export const SHIFT_STATUS_COLORS: Record<string, string> = {
   scheduled: 'bg-blue-100 text-blue-800 border-blue-200',
   confirmed: 'bg-green-100 text-green-800 border-green-200',
   in_progress: 'bg-yellow-100 text-yellow-800 border-yellow-200',
   completed: 'bg-gray-100 text-gray-800 border-gray-200',
   cancelled: 'bg-red-100 text-red-800 border-red-200',
-} as const;
+  no_show: 'bg-red-100 text-red-800 border-red-200',
+};
 
 // Couleurs pour les départements
-export const DEPARTMENT_COLORS = {
+export const DEPARTMENT_COLORS: Record<string, string> = {
   service: 'bg-blue-500',
   kitchen: 'bg-green-500',
   management: 'bg-purple-500',
   cleaning: 'bg-orange-500',
   security: 'bg-red-500',
-} as const;
+};
 
 // Couleurs pour les positions
-export const POSITION_COLORS = {
+export const POSITION_COLORS: Record<string, string> = {
   barista: 'bg-amber-500',
   server: 'bg-blue-500',
   chef: 'bg-green-500',
   manager: 'bg-purple-500',
   cashier: 'bg-teal-500',
   cleaner: 'bg-orange-500',
-} as const;
+};
 
 // Modes d'affichage
 export type ViewMode = 'calendar' | 'list' | 'timeline';
@@ -196,8 +197,9 @@ export const getStatusLabel = (status: Shift['status']): string => {
     in_progress: 'En cours',
     completed: 'Terminé',
     cancelled: 'Annulé',
+    no_show: 'Absent',
   };
-  return labels[status] || status;
+  return (labels as Record<string, string>)[status] || (status as unknown as string);
 };
 
 export const getDepartmentLabel = (department: string): string => {
@@ -208,7 +210,7 @@ export const getDepartmentLabel = (department: string): string => {
     cleaning: 'Nettoyage',
     security: 'Sécurité',
   };
-  return labels[department] || department;
+  return (labels as Record<string, string>)[department] || department;
 };
 
 export const getPositionLabel = (position: string): string => {
@@ -220,7 +222,7 @@ export const getPositionLabel = (position: string): string => {
     cashier: 'Caissier',
     cleaner: 'Agent d\'entretien',
   };
-  return labels[position] || position;
+  return (labels as Record<string, string>)[position] || position;
 };
 
 // Constantes manquantes pour les composants

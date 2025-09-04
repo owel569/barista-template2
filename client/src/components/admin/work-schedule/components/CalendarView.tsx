@@ -29,7 +29,7 @@ interface ShiftItemProps {
   shift: Shift;
   employee?: { firstName: string; lastName: string };
   compact?: boolean;
-  onClick: () => void;
+  onClick: (e?: React.MouseEvent) => void;
 }
 
 const ShiftItem: React.FC<ShiftItemProps> = ({ 
@@ -167,8 +167,7 @@ const DayColumn: React.FC<DayColumnProps> = ({
               shift={shift}
               employee={employee}
               compact={compact}
-              onClick={(e) => {
-                e.stopPropagation();
+              onClick={() => {
                 onShiftClick(shift);
               }}
             />
