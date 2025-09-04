@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Coffee, Star, Clock, MapPin, Phone, Mail, Instagram, Facebook } from 'lucide-react';
 
 interface FeatureCardProps {
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<{ className?: string | undefined }>;
   title: string;
   description: string;
 }

@@ -5,13 +5,13 @@ interface LoadingState {
   isLoading: boolean;
   hasData: boolean;
   isEmpty: boolean;
-  error?: string;
+  error?: string | undefined;
 }
 
 interface UseOptimizedLoadingProps {
   loadingStates: boolean[];
   dataStates: unknown[];
-  errorStates?: (string | undefined)[];
+  errorStates?: (string | undefined)[] | undefined;
 }
 
 export function useOptimizedLoading({
@@ -27,7 +27,7 @@ export function useOptimizedLoading({
       state === undefined || 
       (Array.isArray(state) && state.length === 0)
     );
-    const error = errorStates.find(error => error !== undefined);
+    const error = errorStates.find(e => e !== undefined);
 
     return {
       isLoading,
@@ -41,34 +41,10 @@ export function useOptimizedLoading({
 // Hook spécialisé pour les composants avec menu
 export function useMenuLoadingState(menuLoading: boolean, menu: unknown, ordersLoading?: boolean, orders?: unknown) {
   return useOptimizedLoading({
-    loadingStates: [menuLoading, ordersLoading || false],
-    dataStates: [menu, orders].filter(Boolean)
+    loadingStates: [menuLoading, Boolean(ordersLoading)],
+    dataStates: [menu, orders].filter((v) => v !== undefined && v !== null)
   });
 }
 
 // Hook pour les toasts avec types précis
-export function useTypedToast() {
-  const { toast } = useToast();
-  
-  return {
-    success: (message: string, description?: string) => 
-      toast({
-        title: message,
-        description,
-        variant: 'default' as const,
-        className: 'bg-green-50 border-green-200 text-green-800'
-      }),
-    error: (message: string, description?: string) => 
-      toast({
-        title: message,
-        description,
-        variant: 'destructive' as const
-      }),
-    info: (message: string, description?: string) => 
-      toast({
-        title: message,
-        description,
-        variant: 'default' as const
-      })
-  };
-}
+// Deprecated duplicate: use hooks in useTypedToast.ts instead

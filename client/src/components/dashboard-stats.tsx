@@ -20,7 +20,7 @@ const StatCard: React.FC<{
   title: string;
   value: string | number;
   change: number;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<{ className?: string | undefined }>;
   trend: 'up' | 'down' | 'neutral';
 }> = ({ title, value, change, icon: Icon, trend }) => {
   const getTrendColor = () => {
