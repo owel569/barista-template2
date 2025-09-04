@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { Toaster } from '@/components/ui/toaster';
+import { useSecureAPI } from '@/hooks/useSecureAPI';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Progress } from '@/components/ui/progress';
 import { DatePicker } from '@/components/ui/date-picker';
@@ -83,6 +84,7 @@ interface ScheduleAnalytics {
 
 export default function StaffScheduling() {
   const { toast } = useToast();
+  const { secureRequest } = useSecureAPI();
   const [selectedWeek, setSelectedWeek] = useState<Date>(new Date());
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -124,26 +126,26 @@ export default function StaffScheduling() {
   const fetchEmployees = useCallback(async () => {
     setIsLoading(prev => ({ ...prev, employees: true }));
     try {
-      // Simulated API call
-      await new Promise(resolve => setTimeout(resolve, 800));
-      const mockEmployees: Employee[] = Array.from({ length: 12 }, (_, i) => ({
-        id: i + 1,
-        firstName: ['Jean', 'Marie', 'Pierre', 'Sophie', 'Luc', 'Emma', 'Thomas', 'Camille', 'Antoine', 'Julie', 'Nicolas', 'Laura'][i]!,
-        lastName: ['Dupont', 'Martin', 'Bernard', 'Petit', 'Durand', 'Leroy', 'Moreau', 'Simon', 'Laurent', 'Lefebvre', 'Michel', 'Garcia'][i]!,
-        email: `employee${i+1}@baristacafe.com`,
-        phone: `06${Math.floor(10000000 + Math.random() * 90000000)}`,
-        position: ['Serveur', 'Barista', 'Cuisinier', 'Manager', 'Caissier'][Math.floor(Math.random() * 5)]!,
-        department: ['Salle', 'Bar', 'Cuisine', 'Management'][Math.floor(Math.random() * 4)]!,
+      const res = await secureRequest<{ success: boolean; data: any[] }>(`/api/staff/employees`, { method: 'GET' });
+      const data = Array.isArray(res?.data) ? res.data : [];
+      const mapped: Employee[] = data.map((e: any, idx: number) => ({
+        id: e.id,
+        firstName: e.firstName ?? e.user?.firstName ?? `Employe${idx+1}`,
+        lastName: e.lastName ?? e.user?.lastName ?? '',
+        email: e.user?.email ?? `employee${e.id}@example.com`,
+        phone: e.user?.phone ?? '0000000000',
+        position: e.position ?? 'Employe',
+        department: e.department ?? 'Général',
         maxHours: 40,
         minHours: 20,
-        hourlyRate: 10 + Math.floor(Math.random() * 6),
-        availableDays: ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'].filter(() => Math.random() > 0.3),
-        skills: ['service', 'caisse', 'bar', 'cuisine'].filter(() => Math.random() > 0.5),
-        status: 'active',
-        hireDate: new Date(Date.now() - Math.floor(Math.random() * 1000 * 60 * 60 * 24 * 365 * 3)).toISOString(),
-        avatar: `https://i.pravatar.cc/150?img=${i + 10}`
+        hourlyRate: 12,
+        availableDays: [],
+        skills: [],
+        status: e.isActive ? 'active' : 'inactive',
+        hireDate: (e.hireDate ? new Date(e.hireDate).toISOString() : new Date().toISOString()),
+        avatar: e.user?.avatarUrl
       }));
-      setEmployees(mockEmployees);
+      setEmployees(mapped);
     } catch (error) {
       toast({
         title: 'Erreur',
@@ -158,36 +160,26 @@ export default function StaffScheduling() {
   const fetchShifts = useCallback(async () => {
     setIsLoading(prev => ({ ...prev, shifts: true }));
     try {
-      // Simulated API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
       const week = getWeekDates(selectedWeek);
       const weekStart = week[0] ?? new Date();
       const weekEnd = week[6] ?? new Date(weekStart.getTime() + 6 * 86400000);
+      const res = await secureRequest<{ success: boolean; data: any[] }>(`/api/staff/shifts?startDate=${weekStart.toISOString()}&endDate=${weekEnd.toISOString()}`, { method: 'GET' });
+      const data = Array.isArray(res?.data) ? res.data : [];
+      const mapped: Shift[] = data.map((s: any) => ({
+        id: s.id,
+        employeeId: s.employeeId,
+        date: new Date(s.date).toISOString().split('T')[0],
+        startTime: String(s.startTime),
+        endTime: String(s.endTime),
+        position: String(s.position),
+        status: s.status,
+        notes: s.notes ?? undefined,
+        createdAt: new Date(s.createdAt ?? Date.now()).toISOString(),
+        updatedAt: new Date(s.updatedAt ?? Date.now()).toISOString()
+      }));
 
-      const mockShifts: Shift[] = Array.from({ length: 30 }, (_, i) => {
-        const dayOffset = Math.floor(Math.random() * 7);
-        const date = new Date(weekStart);
-        date.setDate(date.getDate() + dayOffset);
-
-        const startHour = 8 + Math.floor(Math.random() * 10);
-        const duration = 4 + Math.floor(Math.random() * 5);
-
-        return {
-          id: i + 1,
-          employeeId: Math.floor(Math.random() * 12) + 1,
-          date: date.toISOString().split('T')[0],
-          startTime: `${startHour.toString().padStart(2, '0')}:00`,
-          endTime: `${(startHour + duration).toString().padStart(2, '0')}:00`,
-          position: ['Serveur', 'Barista', 'Cuisinier', 'Manager', 'Caissier'][Math.floor(Math.random() * 5)],
-          status: ['draft', 'published', 'confirmed', 'completed'][Math.floor(Math.random() * 4)] as Shift['status'],
-          notes: Math.random() > 0.7 ? 'Note importante pour ce shift' : undefined,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        };
-      });
-
-      setShifts(mockShifts);
-      detectConflicts(mockShifts);
+      setShifts(mapped);
+      detectConflicts(mapped);
     } catch (error) {
       toast({
         title: 'Erreur',

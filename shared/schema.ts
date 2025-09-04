@@ -11,6 +11,7 @@ export const orderStatusEnum = pgEnum('order_status', ['pending', 'preparing', '
 export const reservationStatusEnum = pgEnum('reservation_status', ['pending', 'confirmed', 'cancelled', 'completed']);
 export const tableStatusEnum = pgEnum('table_status', ['available', 'occupied', 'reserved', 'maintenance']);
 export const tableLocationEnum = pgEnum('table_location', ['inside', 'outside', 'terrace', 'private_room']);
+export const shiftStatusEnum = pgEnum('shift_status', ['draft', 'published', 'confirmed', 'completed', 'cancelled']);
 
 // ==========================================
 // TABLES
@@ -218,6 +219,19 @@ export const employees = pgTable('employees', {
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 });
 
+export const shifts = pgTable('shifts', {
+  id: serial('id').primaryKey(),
+  employeeId: integer('employee_id').references(() => employees.id).notNull(),
+  date: timestamp('date').notNull(),
+  startTime: varchar('start_time', { length: 10 }).notNull(),
+  endTime: varchar('end_time', { length: 10 }).notNull(),
+  position: varchar('position', { length: 50 }).notNull(),
+  status: shiftStatusEnum('status').notNull().default('draft'),
+  notes: text('notes'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
+});
+
 export const suppliers = pgTable('suppliers', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 100 }).notNull(),
@@ -376,6 +390,13 @@ export const employeesRelations = relations(employees, ({ one }) => ({
   })
 }));
 
+export const shiftsRelations = relations(shifts, ({ one }) => ({
+  employee: one(employees, {
+    fields: [shifts.employeeId],
+    references: [employees.id]
+  })
+}));
+
 export const suppliersRelations = relations(suppliers, ({ many }) => ({
   inventoryItems: many(inventory)
 }));
@@ -454,6 +475,7 @@ export const selectFeedbackSchema = createSelectSchema(feedback);
 export const selectMenuItemImageSchema = createSelectSchema(menuItemImages);
 export const selectActivityLogSchema = createSelectSchema(activityLogs);
 export const selectEmployeeSchema = createSelectSchema(employees);
+export const selectShiftSchema = createSelectSchema(shifts);
 export const selectSupplierSchema = createSelectSchema(suppliers);
 export const selectInventorySchema = createSelectSchema(inventory);
 export const selectLoyaltyTransactionSchema = createSelectSchema(loyaltyTransactions);
