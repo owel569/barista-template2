@@ -32,42 +32,42 @@ export interface TypedToastReturn {
 
 export function useTypedToast(): TypedToastReturn {
   const showSuccess = useCallback((options: ToastOptions) => {
-    toast.success(options.title, {
-      description: options.description,
-      duration: options.duration,
-      action: options.action
-    });
+    const payload: Record<string, unknown> = {};
+    if (options.description !== undefined) payload.description = options.description;
+    if (options.duration !== undefined) payload.duration = options.duration;
+    if (options.action !== undefined) payload.action = options.action;
+    toast.success(options.title, payload);
   }, []);
 
   const showError = useCallback((options: ToastOptions) => {
-    toast.error(options.title, {
-      description: options.description,
-      duration: options.duration,
-      action: options.action
-    });
+    const payload: Record<string, unknown> = {};
+    if (options.description !== undefined) payload.description = options.description;
+    if (options.duration !== undefined) payload.duration = options.duration;
+    if (options.action !== undefined) payload.action = options.action;
+    toast.error(options.title, payload);
   }, []);
 
   const showWarning = useCallback((options: ToastOptions) => {
-    toast.warning(options.title, {
-      description: options.description,
-      duration: options.duration,
-      action: options.action
-    });
+    const payload: Record<string, unknown> = {};
+    if (options.description !== undefined) payload.description = options.description;
+    if (options.duration !== undefined) payload.duration = options.duration;
+    if (options.action !== undefined) payload.action = options.action;
+    toast.warning(options.title, payload);
   }, []);
 
   const showInfo = useCallback((options: ToastOptions) => {
-    toast.info(options.title, {
-      description: options.description,
-      duration: options.duration,
-      action: options.action
-    });
+    const payload: Record<string, unknown> = {};
+    if (options.description !== undefined) payload.description = options.description;
+    if (options.duration !== undefined) payload.duration = options.duration;
+    if (options.action !== undefined) payload.action = options.action;
+    toast.info(options.title, payload);
   }, []);
 
   const showLoading = useCallback((options: ToastOptions) => {
-    toast.loading(options.title, {
-      description: options.description,
-      duration: options.duration
-    });
+    const payload: Record<string, unknown> = {};
+    if (options.description !== undefined) payload.description = options.description;
+    if (options.duration !== undefined) payload.duration = options.duration;
+    toast.loading(options.title, payload);
   }, []);
 
   const promiseToast = useCallback(<T>(
@@ -78,7 +78,7 @@ export function useTypedToast(): TypedToastReturn {
       error: string | ((error: Error) => string);
     }
   ): Promise<T> => {
-    return toast.promise(promise, options);
+    return toast.promise(promise, options) as Promise<T>;
   }, []);
 
   return {
