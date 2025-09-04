@@ -168,7 +168,7 @@ export default function StaffScheduling() {
       const mapped: Shift[] = data.map((s: any) => ({
         id: s.id,
         employeeId: s.employeeId,
-        date: new Date(s.date).toISOString().split('T')[0],
+        date: new Date(s.date ?? Date.now()).toISOString().split('T')[0],
         startTime: String(s.startTime),
         endTime: String(s.endTime),
         position: String(s.position),
