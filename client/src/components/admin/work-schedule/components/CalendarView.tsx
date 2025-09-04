@@ -27,7 +27,7 @@ interface DayColumnProps {
 
 interface ShiftItemProps {
   shift: Shift;
-  employee?: { firstName: string; lastName: string };
+  employee?: { firstName: string; lastName: string } | undefined;
   compact?: boolean;
   onClick: (e?: React.MouseEvent) => void;
 }
@@ -161,7 +161,7 @@ const DayColumn: React.FC<DayColumnProps> = ({
             <ShiftItem 
               key={shift.id} 
               shift={shift}
-              employee={employee}
+              employee={employee ?? undefined}
               compact={compact}
               onClick={() => {
                 onShiftClick(shift);

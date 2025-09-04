@@ -32,13 +32,15 @@ import AnalyticsView from './components/AnalyticsView';
 const WorkSchedule: React.FC<WorkScheduleProps> = ({
   userRole,
   selectedDate,
-  selectedEmployee,
-  viewMode = 'calendar'
+  selectedEmployee: initialSelectedEmployee,
+  viewMode: initialViewMode = 'calendar'
 }) => {
   // État local pour la période sélectionnée
+  const todayISO: string = new Date().toISOString().split('T')[0] as string;
+  const nextWeekISO: string = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] as string;
   const [dateRange, setDateRange] = useState<{ start: string; end: string }>({
-    start: new Date().toISOString().split('T')[0],
-    end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    start: todayISO,
+    end: nextWeekISO
   });
 
   // Hooks de gestion des données
@@ -83,7 +85,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
     shifts,
     employees,
     initialFilters: {
-      employees: selectedEmployee ? [selectedEmployee] : [],
+      employees: initialSelectedEmployee ? [initialSelectedEmployee] : [],
       dateRange
     }
   });
@@ -157,7 +159,7 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
           onShiftClick={handleShiftSelect}
           onDateClick={handleDateSelect}
           onShiftCreate={handleShiftCreate}
-          selectedDate={selectedDate || new Date().toISOString().split('T')[0]}
+          selectedDate={selectedDate ?? todayISO}
           viewMode={timePeriod}
         />
       </TabsContent>
@@ -331,24 +333,24 @@ const WorkSchedule: React.FC<WorkScheduleProps> = ({
         <EmployeeStatCard
           totalEmployees={employees.length}
           activeEmployees={employees.filter(e => e.isActive).length}
-          loading={isLoading}
+          loading={Boolean(isLoading)}
         />
         <HoursStatCard
           scheduledHours={quickStats.totalHours}
           overtimeHours={stats?.overtimeHours || 0}
-          loading={isLoading}
+          loading={Boolean(isLoading)}
         />
         <PayrollStatCard
           totalPayroll={quickStats.totalPay}
-          loading={isLoading}
+          loading={Boolean(isLoading)}
         />
         <ShiftsStatCard
           totalShifts={quickStats.totalShifts}
-          loading={isLoading}
+          loading={Boolean(isLoading)}
         />
         <ConflictsStatCard
           conflictCount={conflicts.length}
-          loading={isLoading}
+          loading={Boolean(isLoading)}
         />
       </div>
 
