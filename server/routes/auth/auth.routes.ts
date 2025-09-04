@@ -81,14 +81,14 @@ function recordLoginAttempt(identifier: string): void {
 // Fonction utilitaire pour générer un token JWT
 function generateToken(user: { id: number; email: string; role: string }): string {
   return jwt.sign(
-    { 
-      userId: user.id, 
-      email: user.email, 
-      role: user.role 
+    {
+      userId: user.id,
+      email: user.email,
+      role: user.role
     },
-    JWT_SECRET,
-    { 
-      expiresIn: JWT_EXPIRES_IN,
+    JWT_SECRET as jwt.Secret,
+    {
+      expiresIn: JWT_EXPIRES_IN as jwt.SignOptions['expiresIn'],
       issuer: 'barista-cafe',
       audience: 'barista-cafe-users'
     }
@@ -161,7 +161,7 @@ router.post('/register',
         lastName: users.lastName,
         email: users.email,
         role: users.role,
-        active: users.active,
+        isActive: users.isActive,
         createdAt: users.createdAt
       });
 
@@ -225,13 +225,13 @@ router.post('/login',
         email: users.email,
         password: users.password,
         role: users.role,
-        active: users.active,
+        isActive: users.isActive,
         createdAt: users.createdAt
       })
       .from(users)
       .where(eq(users.email, email));
 
-    if (!user || !user.isActive) {
+    if (!user || user.isActive === false) {
       recordLoginAttempt(email);
       return res.status(401).json({
         success: false,
