@@ -191,6 +191,16 @@ export default function StaffScheduling() {
     }
   }, [selectedWeek, toast]);
 
+  const handleDeleteShift = useCallback(async (shiftId: number) => {
+    try {
+      await secureRequest(`/api/staff/shifts/${shiftId}`, { method: 'DELETE' });
+      setShifts(prev => prev.filter(s => s.id !== shiftId));
+      toast({ title: 'Shift supprimé', description: `Shift #${shiftId} supprimé`, variant: 'default' });
+    } catch (e) {
+      toast({ title: 'Erreur', description: 'Échec de la suppression du shift', variant: 'destructive' });
+    }
+  }, [secureRequest, toast]);
+
   const fetchAnalytics = useCallback(async () => {
     setIsLoading(prev => ({ ...prev, analytics: true }));
     try {

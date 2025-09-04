@@ -786,11 +786,12 @@ export default function Settings({ userRole }: SettingsProps) {
                             const index = updatedHours.findIndex(sh => sh.date === date);
                             if (index >= 0) {
                               updatedHours[index] = {
-                                ...updatedHours[index],
+                                date: updatedHours[index].date,
                                 openingHours: {
                                   ...updatedHours[index].openingHours,
                                   closed: !checked
-                                }
+                                },
+                                note: updatedHours[index].note ?? ''
                               };
                               setDraftSettings(prev => ({
                                 ...prev,
@@ -814,11 +815,12 @@ export default function Settings({ userRole }: SettingsProps) {
                               const index = updatedHours.findIndex(sh => sh.date === date);
                               if (index >= 0) {
                                 updatedHours[index] = {
-                                  ...updatedHours[index],
+                                  date: updatedHours[index].date,
                                   openingHours: {
                                     ...updatedHours[index].openingHours,
                                     open: value
-                                  }
+                                  },
+                                  note: updatedHours[index].note ?? ''
                                 };
                                 setDraftSettings(prev => ({
                                   ...prev,
@@ -839,11 +841,12 @@ export default function Settings({ userRole }: SettingsProps) {
                               const index = updatedHours.findIndex(sh => sh.date === date);
                               if (index >= 0) {
                                 updatedHours[index] = {
-                                  ...updatedHours[index],
+                                  date: updatedHours[index].date,
                                   openingHours: {
                                     ...updatedHours[index].openingHours,
                                     close: value
-                                  }
+                                  },
+                                  note: updatedHours[index].note ?? ''
                                 };
                                 setDraftSettings(prev => ({
                                   ...prev,
@@ -867,7 +870,8 @@ export default function Settings({ userRole }: SettingsProps) {
                             const index = updatedHours.findIndex(sh => sh.date === date);
                             if (index >= 0) {
                               updatedHours[index] = {
-                                ...updatedHours[index],
+                                date: updatedHours[index].date,
+                                openingHours: updatedHours[index].openingHours,
                                 note: e.target.value,
                               };
                               setDraftSettings(prev => ({
@@ -881,6 +885,24 @@ export default function Settings({ userRole }: SettingsProps) {
                           }}
                           disabled={!hasPermission('settings', 'edit')}
                         />
+                      </div>
+                      <div className="mt-3 flex justify-end">
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => {
+                            setDraftSettings(prev => ({
+                              ...prev,
+                              specialDates: {
+                                ...prev.specialDates,
+                                specialHours: prev.specialDates.specialHours.filter(sh => sh.date !== date)
+                              }
+                            }));
+                          }}
+                          disabled={!hasPermission('settings', 'edit')}
+                        >
+                          Supprimer
+                        </Button>
                       </div>
                     </div>
                   ))}
