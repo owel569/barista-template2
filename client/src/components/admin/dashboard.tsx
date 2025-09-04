@@ -198,7 +198,7 @@ export default function Dashboard() : JSX.Element {
     } catch (error) {
       console.error('Erreur lors du chargement des statistiques:', error);
       if (!silent) {
-        toast({
+        toast.toast({
           title: "Erreur",
           description: "Impossible de charger les données du tableau de bord",
           variant: "destructive",

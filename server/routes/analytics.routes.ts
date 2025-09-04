@@ -519,7 +519,7 @@ class AnalyticsService {
       and(
         gte(orders.createdAt, period.startDate),
         lte(orders.createdAt, period.endDate),
-        eq(orders.status, 'completed')
+        eq(orders.status, 'delivered')
       )
     )
     .groupBy(menuItems.name)

@@ -88,7 +88,7 @@ function generateToken(user: { id: number; email: string; role: string }): strin
     },
     JWT_SECRET as jwt.Secret,
     {
-      expiresIn: JWT_EXPIRES_IN as jwt.SignOptions['expiresIn'],
+      expiresIn: JWT_EXPIRES_IN,
       issuer: 'barista-cafe',
       audience: 'barista-cafe-users'
     }

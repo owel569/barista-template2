@@ -190,14 +190,19 @@ export default function StatisticsEnhanced(): JSX.Element {
         'Croissance': `${stat.growth}%`
       }));
 
-      await toast.operation(
-        () => exportStatistics(exportData),
-        {
-          loading: 'Export des statistiques en cours...',
-          success: 'Statistiques exportées avec succès',
-          error: 'Impossible d\'exporter les statistiques'
-        }
-      );
+      try {
+        await exportStatistics(exportData);
+        toast({
+          title: 'Succès',
+          description: 'Statistiques exportées avec succès'
+        });
+      } catch (error) {
+        toast({
+          title: 'Erreur',
+          description: 'Impossible d\'exporter les statistiques',
+          variant: 'destructive'
+        });
+      }
     } catch (error) {
       console.error('Erreur export:', error);
     }
@@ -226,14 +231,19 @@ export default function StatisticsEnhanced(): JSX.Element {
         generatedAt: new Date().toISOString()
       };
 
-      await toast.operation(
-        () => exportFinancialReport(reportData),
-        {
-          loading: 'Génération du rapport complet...',
-          success: 'Rapport généré avec succès',
-          error: 'Erreur lors de la génération du rapport'
-        }
-      );
+      try {
+        await exportFinancialReport(reportData);
+        toast({
+          title: 'Succès',
+          description: 'Rapport généré avec succès'
+        });
+      } catch (error) {
+        toast({
+          title: 'Erreur',
+          description: 'Erreur lors de la génération du rapport',
+          variant: 'destructive'
+        });
+      }
     } catch (error) {
       console.error('Erreur génération rapport:', error);
     }

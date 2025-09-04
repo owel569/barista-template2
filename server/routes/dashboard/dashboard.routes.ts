@@ -220,10 +220,10 @@ router.get('/statistics', authenticateUser, asyncHandler(async (req, res) => {
   }).from(orders);
 
   const stats = {
-    reservations: reservationCount.count,
-    orders: orderCount.count,
+    reservations: reservationCount?.count || 0,
+    orders: orderCount?.count || 0,
     revenue: revenueQuery[0]?.total || 0,
-    customers: userCount.count
+    customers: userCount?.count || 0
   };
 
   res.json({
@@ -235,7 +235,7 @@ router.get('/statistics', authenticateUser, asyncHandler(async (req, res) => {
 
 // Route pour récupérer les données de revenus par période
 router.get('/revenue', authenticateUser, asyncHandler(async (req, res) => {
-  const period = getQueryParam(req.query.period) || 'week';
+  const period = getQueryParam(req.query.period as string | string[] | undefined) || 'week';
   const db = getDb();
 
   // Données de revenus basées sur les commandes
@@ -358,7 +358,7 @@ router.get('/realtime',
 
 // Route pour récupérer les commandes récentes
 router.get('/recent-orders', authenticateUser, asyncHandler(async (req, res) => {
-  const limit = parseInt(getQueryParam(req.query.limit)) || 10;
+  const limit = parseInt(getQueryParam(req.query.limit as string | string[] | undefined)) || 10;
   const db = getDb();
 
   const recentOrders = await db

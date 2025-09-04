@@ -168,7 +168,7 @@ export default function StaffScheduling() {
       const mapped: Shift[] = data.map((s: any) => ({
         id: s.id,
         employeeId: s.employeeId,
-        date: new Date(s.date ?? Date.now()).toISOString().split('T')[0],
+        date: s.date ? new Date(s.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
         startTime: String(s.startTime),
         endTime: String(s.endTime),
         position: String(s.position),
@@ -300,7 +300,7 @@ export default function StaffScheduling() {
         const currentShift = empShifts[i];
 
         if (prevShift.date === currentShift.date && 
-            currentShift && currentShift && prevShift.endTime > currentShift.startTime) {
+            prevShift && currentShift && prevShift.endTime > currentShift.startTime) {
           detectedConflicts.push({
             type: 'overlap',
             message: `Chevauchement de shifts pour l'employé ${employeeId}`,
@@ -458,6 +458,7 @@ export default function StaffScheduling() {
           if (dayIndex === -1) return;
 
           const date = weekDates[dayIndex];
+          if (!date) continue;
           const startHour = 8 + Math.floor(Math.random() * 4);
 
           newShifts.push({
@@ -602,7 +603,7 @@ export default function StaffScheduling() {
             {shiftConflicts.length > 0 && (
               <div className="flex items-center mt-1 text-xs text-red-500">
                 <AlertTriangle className="h-3 w-3 mr-1" />
-                {shiftConflicts[0].message}
+                {shiftConflicts[0]?.message}
               </div>
             )}
           </div>
@@ -1194,7 +1195,7 @@ const AddShiftForm = ({
 }) => {
   const [formData, setFormData] = useState({
     employeeId: '',
-    date: weekDates[0].toISOString().split('T')[0],
+    date: weekDates[0]?.toISOString().split('T')[0] ?? new Date().toISOString().split('T')[0],
     startTime: '09:00',
     endTime: '17:00',
     position: '',
@@ -1206,6 +1207,7 @@ const AddShiftForm = ({
     onSubmit({
       ...formData,
       employeeId: Number(formData.employeeId),
+      date: formData.date || new Date().toISOString().split('T')[0],
       status: 'draft'
     });
   };
@@ -1340,6 +1342,7 @@ const AddShiftForm = ({
           onClick={() => onSubmit({
             ...formData,
             employeeId: Number(formData.employeeId),
+            date: formData.date || new Date().toISOString().split('T')[0],
             status: 'draft'
           })}
         >

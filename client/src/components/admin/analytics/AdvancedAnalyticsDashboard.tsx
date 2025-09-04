@@ -216,12 +216,12 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
     setIsLoading(true);
     try {
       await refetch();
-      toast({
+      toast.toast({
         title: "Données actualisées",
         description: "Les analytics ont été mis à jour avec succès."
       });
     } catch (error) {
-      toast({
+      toast.toast({
         title: "Erreur",
         description: "Impossible de mettre à jour les données.",
         variant: "destructive" // Changed from "error" to "destructive"
@@ -243,12 +243,12 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
       link.click();
       link.remove();
 
-      toast({
+      toast.toast({
         title: "Export réussi",
         description: "Le rapport a été téléchargé avec succès."
       });
     } catch (error) {
-      toast({
+      toast.toast({
         title: "Erreur d'export",
         description: "Impossible d'exporter les données.",
         variant: "destructive" // Changed from "error" to "destructive"

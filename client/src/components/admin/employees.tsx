@@ -135,13 +135,13 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
       setIsDialogOpen(false);
       setEditingEmployee(null);
       form.reset();
-      toast({
+      toast.toast({
         title: 'Succès',
         description: 'Employé créé avec succès',
       });
     },
     onError: (error: Error) => {
-      toast({
+      toast.toast({
         title: 'Erreur',
         description: error.message || 'Erreur lors de la création de l\'employé',
         variant: 'destructive',
@@ -160,13 +160,13 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
       setIsDialogOpen(false);
       setEditingEmployee(null);
       form.reset();
-      toast({
+      toast.toast({
         title: 'Succès',
         description: 'Employé mis à jour avec succès',
       });
     },
     onError: (error: Error) => {
-      toast({
+      toast.toast({
         title: 'Erreur',
         description: error.message || 'Erreur lors de la mise à jour de l\'employé',
         variant: 'destructive',
@@ -187,7 +187,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
       });
     },
     onError: (error: Error) => {
-      toast({
+      toast.toast({
         title: 'Erreur',
         description: error.message || 'Erreur lors de la suppression de l\'employé',
         variant: 'destructive',
@@ -206,8 +206,15 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
   const handleEdit = (employee: Employee) => {
     setEditingEmployee(employee);
     form.reset({
-      ...employee,
+      firstName: employee.firstName,
+      lastName: employee.lastName,
+      email: employee.email,
+      phone: employee.phone,
+      position: employee.position,
+      department: employee.department,
+      salary: employee.salary,
       hireDate: employee.hireDate ? format(new Date(employee.hireDate), 'yyyy-MM-dd') : '',
+      status: employee.status === 'on_leave' || employee.status === 'terminated' ? 'inactive' : employee.status,
     });
     setIsDialogOpen(true);
   };
@@ -220,7 +227,7 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
 
   const handleRefresh = () => {
     refetch();
-    toast({
+    toast.toast({
       title: "Actualisation",
       description: "Liste des employés actualisée",
     });

@@ -310,7 +310,7 @@ class AdvancedLoyaltyService {
       return points >= l.minPoints && points <= l.maxPoints;
     });
 
-    return level ?? LOYALTY_LEVELS[0];
+    return level || LOYALTY_LEVELS[0];
   }
 
   /**
@@ -491,7 +491,7 @@ class AdvancedLoyaltyService {
     }
 
     const daysSinceLastActivity = transactions.length > 0 ?
-      (now.getTime() - new Date(transactions[0].createdAt).getTime()) / (1000 * 3600 * 24) : 365;
+      (now.getTime() - new Date(transactions[0]?.createdAt || now).getTime()) / (1000 * 3600 * 24) : 365;
     const predictedChurn = Math.min(1, daysSinceLastActivity / 60);
 
     const lifetimeValue = earned.reduce((sum, t) => sum + t.points, 0) * 0.05;
@@ -664,7 +664,7 @@ router.get('/overview',
             type: t.type as LoyaltyTransaction['type'],
             points: t.points as number,
             description: t.description || '',
-            orderId: t.orderId ?? undefined,
+            orderId: t.orderId || 0,
             createdAt: typeof t.createdAt === 'string' ? t.createdAt : new Date(t.createdAt).toISOString(),
             balance: t.balance as number
           }));
@@ -738,7 +738,7 @@ router.get('/customer/:customerId',
   validateParams(customerIdParamSchema),
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     try {
-      const customerId = parseInt(req.params.customerId);
+      const customerId = parseInt(req.params.customerId as string);
       const db = await getDb();
 
       const customerResult = await db.select({
@@ -764,6 +764,9 @@ router.get('/customer/:customerId',
       }
 
       const customer = customerResult[0];
+      if (!customer) {
+        return res.status(404).json({ success: false, message: 'Client non trouvé' });
+      }
       const points = customer.loyaltyPoints || 0;
       const level = AdvancedLoyaltyService.getLevelForPoints(points);
       const nextLevelInfo = AdvancedLoyaltyService.getNextLevelInfo(points);
@@ -776,7 +779,7 @@ router.get('/customer/:customerId',
         description: loyaltyTransactions.description,
         orderId: loyaltyTransactions.orderId,
         createdAt: loyaltyTransactions.createdAt,
-        balance: points
+        balance: points as any
       })
       .from(loyaltyTransactions)
       .where(eq(loyaltyTransactions.customerId, customerId))
@@ -788,7 +791,7 @@ router.get('/customer/:customerId',
         type: t.type as LoyaltyTransaction['type'],
         points: t.points,
         description: t.description || '',
-        orderId: t.orderId || undefined,
+        orderId: t.orderId || 0,
         createdAt: t.createdAt.toISOString(),
         balance: t.balance
       }));
@@ -824,7 +827,7 @@ router.get('/customer/:customerId',
         totalPointsEarned: stats.totalEarned,
         totalPointsRedeemed: stats.totalRedeemed,
         currentLevel: level,
-        nextLevel: nextLevelInfo.nextLevel ?? null,
+        nextLevel: nextLevelInfo.nextLevel || null,
         progressToNextLevel: nextLevelInfo.progress,
         pointsToNextLevel: nextLevelInfo.pointsToNext,
         joinDate: customer?.createdAt?.toISOString() ?? new Date().toISOString(),

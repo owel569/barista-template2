@@ -241,7 +241,11 @@ export default function UserProfileEnhanced(): JSX.Element {
           }
         }));
       } catch (error) {
-        toast.error('Échec du chargement des profils');
+        toast({
+          title: 'Erreur',
+          description: 'Échec du chargement des profils',
+          variant: 'destructive'
+        });
         console.error(error);
         return [];
       }
@@ -310,11 +314,18 @@ export default function UserProfileEnhanced(): JSX.Element {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-profiles'] });
-      toast.success('Profil mis à jour avec succès');
+      toast({
+        title: 'Succès',
+        description: 'Profil mis à jour avec succès'
+      });
       setIsEditDialogOpen(false);
     },
     onError: (error) => {
-      toast.error('Échec de la mise à jour du profil');
+      toast({
+        title: 'Erreur',
+        description: 'Échec de la mise à jour du profil',
+        variant: 'destructive'
+      });
       console.error(error);
     }
   });
@@ -329,7 +340,10 @@ export default function UserProfileEnhanced(): JSX.Element {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-profiles'] });
-      toast.success('Adresse ajoutée avec succès');
+      toast({
+        title: 'Succès',
+        description: 'Adresse ajoutée avec succès'
+      });
       setIsAddressDialogOpen(false);
       addressForm.reset();
     },
@@ -345,7 +359,10 @@ export default function UserProfileEnhanced(): JSX.Element {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-profiles'] });
-      toast.success('Adresse mise à jour avec succès');
+      toast({
+        title: 'Succès',
+        description: 'Adresse mise à jour avec succès'
+      });
       setIsAddressDialogOpen(false);
       setEditingAddress(null);
     },
@@ -360,7 +377,10 @@ export default function UserProfileEnhanced(): JSX.Element {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-profiles'] });
-      toast.success('Adresse supprimée avec succès');
+      toast({
+        title: 'Succès',
+        description: 'Adresse supprimée avec succès'
+      });
       setAddressToDelete(null);
     },
   });
@@ -375,7 +395,10 @@ export default function UserProfileEnhanced(): JSX.Element {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-profiles'] });
-      toast.success('Mise à jour groupée réussie');
+      toast({
+        title: 'Succès',
+        description: 'Mise à jour groupée réussie'
+      });
       setSelectedUsers([]);
       setIsBulkAction(false);
     },
@@ -401,10 +424,17 @@ export default function UserProfileEnhanced(): JSX.Element {
       }));
 
       await exportCustomerProfiles(exportData);
-      toast.success('Export Excel généré avec succès');
+      toast({
+        title: 'Succès',
+        description: 'Export Excel généré avec succès'
+      });
     } catch (error) {
       console.error('Erreur lors de l\'export Excel:', error);
-      toast.error('Échec de l\'export Excel');
+      toast({
+        title: 'Erreur',
+        description: 'Échec de l\'export Excel',
+        variant: 'destructive'
+      });
     } finally {
       setExporting(false);
     }
@@ -416,9 +446,16 @@ export default function UserProfileEnhanced(): JSX.Element {
       setIsImporting(true);
       // Simuler un import avec un délai
       await new Promise(resolve => setTimeout(resolve, 2000));
-      toast.success('Importation des profils réussie');
+      toast({
+        title: 'Succès',
+        description: 'Importation des profils réussie'
+      });
     } catch (error) {
-      toast.error('Échec de l\'importation');
+      toast({
+        title: 'Erreur',
+        description: 'Échec de l\'importation',
+        variant: 'destructive'
+      });
     } finally {
       setIsImporting(false);
     }
