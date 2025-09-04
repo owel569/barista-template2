@@ -35,7 +35,7 @@ interface ReservationData {
   customerName: string;
   email: string;
   phone: string;
-  date?: Date;
+  date?: Date | undefined;
   time: string;
   guests: number;
   tablePreference: TablePreference;

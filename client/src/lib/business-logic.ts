@@ -1,5 +1,15 @@
 
-import { LoyaltyMember, LoyaltyReward } from '@/types/loyalty';
+import type { LoyaltyReward } from '@/types/loyalty';
+// Définition minimale de LoyaltyMember si absente
+interface LoyaltyMember {
+  currentLevel: string;
+  currentPoints: number;
+  favoriteCategory?: string | undefined;
+  totalPointsEarned: number;
+  rewardsUsed: number;
+  totalSpent: number;
+  referrals: number;
+}
 
 // Calcul intelligent des niveaux de fidélité
 export const calculateLoyaltyLevel = (totalPoints: number, totalSpent: number): string => {
@@ -94,11 +104,11 @@ export const optimizeRewardInventory = (rewards: LoyaltyReward[]): {
   optimal: LoyaltyReward[];
 } => {
   const overstocked = rewards.filter(r => 
-    r.usageCount < 5 && r.available
+    (r.usageCount ?? 0) < 5 && r.available
   );
   
   const understocked = rewards.filter(r => 
-    r.maxUsage && r.usageCount >= r.maxUsage * 0.9
+    r.maxUsage !== undefined && (r.usageCount ?? 0) >= r.maxUsage * 0.9
   );
   
   const optimal = rewards.filter(r => 

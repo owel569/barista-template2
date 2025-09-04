@@ -561,20 +561,5 @@ export interface ChartData {
 }
 
 // Export des types principaux pour faciliter l'importation
-export type {
-  User as AdminUser,
-  Employee,
-  Customer,
-  MenuItem,
-  MenuCategory,
-  OnlineOrder,
-  OrderItem,
-  MaintenanceTask,
-  Equipment,
-  QualityCheck,
-  ContactMessage,
-  NotificationData,
-  DashboardStats,
-  ModulePermissions,
-  ActivityLog
-};
+// Réexports désactivés pour éviter les conflits TS2484
+// import et re-export nommés si nécessaire depuis leurs modules d'origine plutôt que via ce fichier

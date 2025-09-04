@@ -1,38 +1,8 @@
 import { format, parseISO, addDays, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, isToday, isPast, isFuture } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import type { Shift, Employee } from "../types/schedule.types";
 
-// Types pour les horaires
-export interface Shift {
-  id: number;
-  employeeId: number;
-  employeeName: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  position: string;
-  department: string;
-  status: 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
-  notes?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Employee {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  position: string;
-  department: string;
-  salary: number;
-  hireDate: string;
-  status: 'active' | 'inactive' | 'on_leave';
-  emergencyContact?: string;
-  emergencyPhone?: string;
-  createdAt: string;
-  updatedAt: string;
-}
+// Types importés depuis ../types/schedule.types pour éviter les duplications
 
 export interface ScheduleStats {
   totalShifts: number;
@@ -92,8 +62,8 @@ export const formatDateTime = (date: string, time: string): string => {
 
 // Génération des dates pour le calendrier
 export const generateWeekDates = (startDate: Date = new Date()): Date[] => {
-  const weekStart = startOfWeek(startDate, { weekStartsOn: 1 }); // Lundi
-  const weekEnd = endOfWeek(startDate, { weekStartsOn: 1 }); // Dimanche
+  const weekStart = startOfWeek(startDate, { weekStartsOn: 1 });
+  const weekEnd = endOfWeek(startDate, { weekStartsOn: 1 });
   return eachDayOfInterval({ start: weekStart, end: weekEnd });
 };
 
@@ -326,8 +296,14 @@ export const getShiftTimeStatus = (shift: Shift): 'past' | 'current' | 'future' 
 };
 
 // Fonctions pour les composants
-export const getWeekDates = generateWeekDates;
-export const getMonthDates = generateMonthDates;
+export const getWeekDates = (dateISO: string): string[] => {
+  const dates = generateWeekDates(parseISO(dateISO));
+  return dates.map(d => d.toISOString().split('T')[0]);
+};
+export const getMonthDates = (dateISO: string): string[] => {
+  const dates = generateMonthDates(parseISO(dateISO));
+  return dates.map(d => d.toISOString().split('T')[0]);
+};
 
 export const generateEmployeeColors = (employees: Employee[]): Record<number, string> => {
   const colors = [
@@ -381,7 +357,7 @@ export const filterShifts = (shifts: Shift[], filters: {
   department?: string;
   position?: string;
   status?: string;
-  dateRange?: { start: Date; end: Date };
+  dateRange?: { start: string; end: string };
 }): Shift[] => {
   return shifts.filter(shift => {
     if (filters.employeeId && shift.employeeId !== filters.employeeId) return false;
@@ -391,29 +367,31 @@ export const filterShifts = (shifts: Shift[], filters: {
     
     if (filters.dateRange) {
       const shiftDate = parseISO(shift.date);
-      if (shiftDate < filters.dateRange.start || shiftDate > filters.dateRange.end) return false;
+      const rangeStart = parseISO(filters.dateRange.start);
+      const rangeEnd = parseISO(filters.dateRange.end);
+      if (shiftDate < rangeStart || shiftDate > rangeEnd) return false;
     }
     
     return true;
   });
 };
 
-export const sortShifts = (shifts: Shift[], sortBy: 'date' | 'employee' | 'department' | 'position' = 'date'): Shift[] => {
+export const sortShifts = (
+  shifts: Shift[],
+  field: keyof Shift = 'date',
+  direction: 'asc' | 'desc' = 'asc'
+): Shift[] => {
+  const factor = direction === 'asc' ? 1 : -1;
   return [...shifts].sort((a, b) => {
-    switch (sortBy) {
-      case 'date':
-        const dateA = new Date(`${a.date}T${a.startTime}`);
-        const dateB = new Date(`${b.date}T${b.startTime}`);
-        return dateA.getTime() - dateB.getTime();
-      case 'employee':
-        return a.employeeName.localeCompare(b.employeeName);
-      case 'department':
-        return a.department.localeCompare(b.department);
-      case 'position':
-        return a.position.localeCompare(b.position);
-      default:
-        return 0;
+    if (field === 'date') {
+      const dateA = new Date(`${a.date}T${a.startTime}`);
+      const dateB = new Date(`${b.date}T${b.startTime}`);
+      return (dateA.getTime() - dateB.getTime()) * factor;
     }
+    const va = (a as any)[field];
+    const vb = (b as any)[field];
+    if (typeof va === 'number' && typeof vb === 'number') return (va - vb) * factor;
+    return String(va ?? '').localeCompare(String(vb ?? '')) * factor;
   });
 };
 
