@@ -181,7 +181,7 @@ export const EmployeeStatCard: React.FC<{
   totalEmployees: number;
   activeEmployees: number;
   loading?: boolean;
-}> = ({ totalEmployees, activeEmployees, loading }) => (
+}> = ({ totalEmployees, activeEmployees, loading = false }) => (
   <StatCard
     title="Employés actifs"
     value={`${activeEmployees}/${totalEmployees}`}
@@ -195,11 +195,11 @@ export const HoursStatCard: React.FC<{
   scheduledHours: number;
   overtimeHours?: number;
   loading?: boolean;
-}> = ({ scheduledHours, overtimeHours = 0, loading }) => (
+}> = ({ scheduledHours, overtimeHours = 0, loading = false }) => (
   <StatCard
     title="Heures programmées"
     value={scheduledHours}
-    change={overtimeHours > 0 ? (overtimeHours / scheduledHours) * 100 : undefined}
+    change={overtimeHours > 0 && scheduledHours > 0 ? (overtimeHours / scheduledHours) * 100 : 0}
     changeType={overtimeHours > 0 ? 'increase' : 'neutral'}
     icon={Clock}
     color="green"
@@ -211,7 +211,7 @@ export const PayrollStatCard: React.FC<{
   totalPayroll: number;
   change?: number;
   loading?: boolean;
-}> = ({ totalPayroll, change, loading }) => (
+}> = ({ totalPayroll, change = 0, loading = false }) => (
   <StatCard
     title="Masse salariale"
     value={totalPayroll}
@@ -226,7 +226,7 @@ export const ShiftsStatCard: React.FC<{
   totalShifts: number;
   change?: number;
   loading?: boolean;
-}> = ({ totalShifts, change, loading }) => (
+}> = ({ totalShifts, change = 0, loading = false }) => (
   <StatCard
     title="Total des shifts"
     value={totalShifts}
@@ -240,7 +240,7 @@ export const ShiftsStatCard: React.FC<{
 export const ConflictsStatCard: React.FC<{
   conflictCount: number;
   loading?: boolean;
-}> = ({ conflictCount, loading }) => (
+}> = ({ conflictCount, loading = false }) => (
   <StatCard
     title="Conflits détectés"
     value={conflictCount}
