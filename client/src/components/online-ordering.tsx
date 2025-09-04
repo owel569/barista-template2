@@ -11,8 +11,8 @@ import { useToast } from '@/hooks/use-toast';
 
 // Types précis pour éviter les erreurs
 interface MenuItemWithDetails extends MenuItem {
-  allergens?: string[];
-  preparationTime?: number;
+  allergens?: string[] | undefined;
+  preparationTime: number;
 }
 
 interface CartItemTyped {
@@ -33,7 +33,7 @@ interface MenuItem {
   imageUrl: string;
   available: boolean;
   preparationTime: number;
-  allergens?: string[];
+  allergens?: string[] | undefined;
   customizations?: Array<{
     name: string;
     options: Array<{

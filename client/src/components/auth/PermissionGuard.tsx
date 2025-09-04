@@ -1,5 +1,6 @@
 
 import React, { type ReactNode } from 'react';
+// usePermissions sans argument; le contexte utilisateur est interne
 import { usePermissions } from '@/hooks/usePermissions';
 import { useContext } from 'react';
 import { AuthContext } from '@/contexts/auth-context';
@@ -23,9 +24,9 @@ export function PermissionGuard({
   showMessage = true 
 }: PermissionGuardProps) {
   const { user } = useContext(AuthContext);
-  const { hasPermission, isLoading } = usePermissions(user);
+  const { hasPermission, loading } = usePermissions();
 
-  if (isLoading) {
+  if (loading) {
     return <div>Vérification des permissions...</div>;
   }
 

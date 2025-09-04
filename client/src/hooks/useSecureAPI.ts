@@ -39,15 +39,17 @@ export const useSecureAPI = () => {
       ...headers
     };
 
-    if (user?.token) {
-      secureHeaders.Authorization = `Bearer ${user.token}`;
+    // Ajoute le header d'auth si présent
+    const token = (user as any)?.token as string | undefined;
+    if (token !== undefined) {
+      (secureHeaders as Record<string, string>).Authorization = `Bearer ${token}`;
     }
 
     try {
       const response = await fetch(endpoint, {
         method,
         headers: secureHeaders,
-        body: sanitizedBody ? JSON.stringify(sanitizedBody) : undefined,
+        body: sanitizedBody !== undefined ? JSON.stringify(sanitizedBody) : undefined,
         credentials: 'include'
       });
 
