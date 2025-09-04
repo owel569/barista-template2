@@ -5,7 +5,7 @@ import { createLogger } from '../middleware/logging';
 import { authenticateUser, requireRoles } from '../middleware/auth';
 import { validateBody, validateParams, validateQuery } from '../middleware/validation';
 import { getDb } from '../db';
-import { orders, customers, menuItems, orderItems } from '../db';
+import { orders, customers, menuItems, orderItems } from '../../shared/schema';
 import { and, between, count, desc, eq, gte, lte, sql, sum } from 'drizzle-orm';
 import { format, startOfDay, startOfMonth, startOfWeek, startOfYear, subDays, addMonths, addYears } from 'date-fns';
 
@@ -228,7 +228,7 @@ class AnalyticsService {
       and(
         gte(orders.createdAt, period.startDate),
         lte(orders.createdAt, period.endDate),
-        eq(orders.status, 'completed')
+        eq(orders.status, 'delivered')
       )
     );
 
@@ -264,7 +264,7 @@ class AnalyticsService {
       and(
         gte(orders.createdAt, period.startDate),
         lte(orders.createdAt, period.endDate),
-        eq(orders.status, 'completed')
+        eq(orders.status, 'delivered')
       )
     )
     .groupBy(groupByClause)
@@ -274,7 +274,7 @@ class AnalyticsService {
     const topProducts = await db.select({
       id: menuItems.id,
       name: menuItems.name,
-      revenue: sum(sql<number>`${orderItems.quantity} * ${orderItems.price}`),
+      revenue: sum(orderItems.totalPrice),
       quantity: sum(orderItems.quantity)
     })
     .from(orderItems)
@@ -284,11 +284,11 @@ class AnalyticsService {
       and(
         gte(orders.createdAt, period.startDate),
         lte(orders.createdAt, period.endDate),
-        eq(orders.status, 'completed')
+        eq(orders.status, 'delivered')
       )
     )
     .groupBy(menuItems.id, menuItems.name)
-    .orderBy(desc(sum(sql<number>`${orderItems.quantity} * ${orderItems.price}`)))
+    .orderBy(desc(sum(orderItems.totalPrice)))
     .limit(5);
 
     // Requête pour les méthodes de paiement
@@ -303,7 +303,7 @@ class AnalyticsService {
       and(
         gte(orders.createdAt, period.startDate),
         lte(orders.createdAt, period.endDate),
-        eq(orders.status, 'completed')
+        eq(orders.status, 'delivered')
       )
     )
     .groupBy(orders.paymentMethod);
@@ -482,7 +482,7 @@ class AnalyticsService {
       and(
         gte(orders.createdAt, period.startDate),
         lte(orders.createdAt, period.endDate),
-        eq(orders.status, 'completed')
+        eq(orders.status, 'delivered')
       )
     );
 

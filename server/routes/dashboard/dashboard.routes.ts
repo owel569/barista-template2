@@ -295,7 +295,7 @@ router.get('/realtime',
         partySize: reservations.partySize,
         status: reservations.status,
         tableNumber: tables.number,
-        customerName: sql<string>`coalesce(${customers.firstName} || ' ' || ${customers.lastName}, ${reservations.contactPhone})`
+        customerName: sql<string>`coalesce(${customers.firstName} || ' ' || ${customers.lastName}, ${reservations.guestName})`
       })
       .from(reservations)
       .leftJoin(customers, eq(reservations.customerId, customers.id))
