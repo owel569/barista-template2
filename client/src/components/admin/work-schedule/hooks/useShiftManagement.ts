@@ -40,17 +40,19 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
   const [isEditingShift, setIsEditingShift] = useState(false);
 
   // Filtres
+  const defaultStart = new Date().toISOString().split('T')[0];
+  const defaultEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
   const [filters, setFilters] = useState<ScheduleFilter>({
-    departments: initialFilters?.departments || [],
-    positions: initialFilters?.positions || [],
-    employees: initialFilters?.employees || [],
-    dateRange: initialFilters?.dateRange || {
-      start: new Date().toISOString().split('T')[0],
-      end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    departments: initialFilters?.departments ?? [],
+    positions: initialFilters?.positions ?? [],
+    employees: initialFilters?.employees ?? [],
+    dateRange: {
+      start: initialFilters?.dateRange?.start ?? defaultStart,
+      end: initialFilters?.dateRange?.end ?? defaultEnd
     },
-    status: initialFilters?.status || [],
-    showConflicts: initialFilters?.showConflicts || false,
-    showOvertime: initialFilters?.showOvertime || false,
+    status: initialFilters?.status ?? [],
+    showConflicts: initialFilters?.showConflicts ?? false,
+    showOvertime: initialFilters?.showOvertime ?? false,
   });
 
   // Tri
