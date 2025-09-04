@@ -131,7 +131,7 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
       const employee = employees.find(e => e.id === shift.employeeId);
       if (!employee) return;
       
-      const validation = validateShift(shift, shifts, employee);
+      const validation = validateShift(shift, shifts);
       if (!validation.isValid) {
         // schedule.utils.validateShift retourne { isValid, errors }
         // ici, conserver simple: si non valide, ajouter un conflit générique
