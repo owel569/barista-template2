@@ -127,7 +127,7 @@ async function logActivity(
 // Route d'inscription
 router.post('/register',
   validateBody(RegisterSchema),
-  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  asyncHandler(async (req: Request, res: Response) => {
     const db = getDb();
     const { firstName, lastName, email, password, phone, role } = req.body;
 

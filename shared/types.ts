@@ -197,6 +197,29 @@ export type TableStatus =
   | 'reserved' 
   | 'maintenance';
 
+export interface TableStatusInfo {
+  id: number;
+  number: number;
+  capacity: number;
+  location: string | null;
+  section: string | null;
+  status: TableStatus;
+  currentReservation?: {
+    id: number;
+    customerName: string;
+    startTime: Date;
+    endTime: Date;
+    partySize: number;
+  };
+  nextReservation?: {
+    id: number;
+    customerName: string;
+    startTime: Date;
+    endTime: Date;
+    partySize: number;
+  };
+}
+
 // Types pour l'inventaire
 export interface InventoryItem {
   id: string;

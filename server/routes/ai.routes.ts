@@ -731,7 +731,9 @@ router.get('/voice-analysis', authenticateUser, async (req: Request, res: Respon
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    logger.error('Erreur lors de l\'analyse vocale:', error);
+    logger.error('Erreur lors de l\'analyse vocale:', { 
+      error: error instanceof Error ? error.message : String(error) 
+    });
     res.status(500).json({
       success: false,
       message: 'Erreur lors de l\'analyse vocale'

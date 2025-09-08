@@ -43,7 +43,7 @@ function LoadingSkeleton() {
 }
 
 export default function WorkScheduleWrapper(): JSX.Element {
-  const { userRole, isLoading: isPermissionsLoading } = usePermissions();
+  const { userRole, loading: isPermissionsLoading } = usePermissions();
 
   // Options de configuration selon le rôle
   const viewOptions = {
@@ -82,8 +82,8 @@ export default function WorkScheduleWrapper(): JSX.Element {
             <LoadingSkeleton />
           ) : (
             <LazyWorkSchedule 
-              userRole={userRole || 'employe'}
-              viewMode={viewMode}
+              userRole={userRole === 'admin' ? 'directeur' : 'employe'}
+              viewMode={viewMode as 'calendar' | 'list' | 'stats'}
               editable={editable}
               exportable={exportable}
               key={`${userRole}-${viewMode}`} // Force le re-render si le rôle change

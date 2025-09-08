@@ -749,10 +749,11 @@ router.get('/customer/:customerId',
         .where(eq(customers.id, customerId));
 
       if (!customer) {
-        return res.status(404).json({
+        res.status(404).json({
           success: false,
           message: 'Client non trouvé'
         });
+        return;
       }
 
       const points = customer.loyaltyPoints || 0;
@@ -816,7 +817,7 @@ router.get('/customer/:customerId',
         customerId: customer.id,
         currentPoints: customer.loyaltyPoints || 0,
         totalPointsEarned: stats.totalEarned,
-        totalPointsRedeemed: stats.totalRedeemed,
+        totalPointsRedeemed: stats.totalPointsRedeemed,
         currentLevel,
         nextLevel: nextLevelInfoData.nextLevel || currentLevel,
         progressToNextLevel: nextLevelInfoData.progress,
@@ -876,12 +877,13 @@ router.post('/earn-points',
         .where(eq(customers.id, customerId));
 
       if (customerResult.length === 0) {
-        return res.status(404).json({
+        res.status(404).json({
           success: false,
           message: 'Client non trouvé'
         });
+        return;
       }
-      
+
       const customer = customerResult[0];
       const currentPoints = customer?.loyaltyPoints || 0;
       const currentLevel = AdvancedLoyaltyService.getLevelForPoints(currentPoints);

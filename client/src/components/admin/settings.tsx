@@ -706,7 +706,7 @@ export default function Settings({ userRole }: SettingsProps) {
               </div>
 
               <div className="space-y-2">
-                <Label>Modèle de notification d\'annulation</Label>
+                <Label>Modèle de notification d'annulation</Label>
                 <Textarea
                   value={draftSettings.notificationSettings.cancellationTemplate}
                   onChange={(e) => handleChange('notificationSettings.cancellationTemplate', e.target.value)}
@@ -794,7 +794,7 @@ export default function Settings({ userRole }: SettingsProps) {
                             const index = updatedHours.findIndex(sh => sh.date === date);
                             if (index >= 0) {
                               updatedHours[index] = {
-                                date: updatedHours[index].date,
+                                date: updatedHours[index]?.date || '',
                                 openingHours: {
                                   ...updatedHours[index].openingHours,
                                   closed: !checked
@@ -823,7 +823,7 @@ export default function Settings({ userRole }: SettingsProps) {
                               const index = updatedHours.findIndex(sh => sh.date === date);
                               if (index >= 0) {
                                 updatedHours[index] = {
-                                  date: updatedHours[index].date,
+                                  date: updatedHours[index]?.date || '',
                                   openingHours: {
                                     ...updatedHours[index].openingHours,
                                     open: value
@@ -849,7 +849,7 @@ export default function Settings({ userRole }: SettingsProps) {
                               const index = updatedHours.findIndex(sh => sh.date === date);
                               if (index >= 0) {
                                 updatedHours[index] = {
-                                  date: updatedHours[index].date,
+                                  date: updatedHours[index]?.date || '',
                                   openingHours: {
                                     ...updatedHours[index].openingHours,
                                     close: value
@@ -878,7 +878,7 @@ export default function Settings({ userRole }: SettingsProps) {
                             const index = updatedHours.findIndex(sh => sh.date === date);
                             if (index >= 0) {
                               updatedHours[index] = {
-                                date: updatedHours[index].date,
+                                date: updatedHours[index]?.date || '',
                                 openingHours: updatedHours[index].openingHours,
                                 note: e.target.value,
                               };

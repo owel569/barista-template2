@@ -390,10 +390,11 @@ router.put('/:id',
       .where(eq(tables.id, Number(id)));
 
     if (!existingTable) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Table non trouvée'
       });
+      return;
     }
 
     if (req.body.number && req.body.number !== existingTable.number) {
@@ -424,10 +425,11 @@ router.put('/:id',
       .returning();
 
     if (!updatedTable) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Table non trouvée'
       });
+      return;
     }
 
     await logTableActivity(
@@ -471,10 +473,11 @@ router.patch('/:id/status',
       .where(eq(tables.id, Number(id)));
 
     if (!existingTable) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Table non trouvée'
       });
+      return;
     }
 
     const [updatedTable] = await db
@@ -488,10 +491,11 @@ router.patch('/:id/status',
       .returning();
 
     if (!updatedTable) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Table non trouvée'
       });
+      return;
     }
 
     await logTableActivity(
@@ -531,10 +535,11 @@ router.delete('/:id',
     const id = parseInt(req.params.id || '0', 10);
 
     if (!id) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'ID de table invalide'
       });
+      return;
     }
 
     const futureReservations = await db
@@ -550,10 +555,11 @@ router.delete('/:id',
 
     const reservationCount = futureReservations[0]?.count || 0;
     if (reservationCount > 0) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: `Impossible de supprimer la table: ${reservationCount} réservation(s) future(s)`
       });
+      return;
     }
 
     const [deactivatedTable] = await db
@@ -566,10 +572,11 @@ router.delete('/:id',
       .returning();
 
     if (!deactivatedTable) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Table non trouvée'
       });
+      return;
     }
 
     await logTableActivity(

@@ -243,7 +243,10 @@ export default function TableManagement(): JSX.Element {
       position: { x: 0, y: 0 },
       status: 'available' as const
     };
-    createTableMutation.mutate(tableData);
+    createTableMutation.mutate({
+      ...tableData,
+      notes: tableData.notes || ''
+    });
   };
 
   const handleStatusChange = (id: number, status: RestaurantTable['status']) => {

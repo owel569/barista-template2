@@ -226,8 +226,8 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
       positions: [],
       employees: [],
       dateRange: {
-        start: new Date().toISOString().split('T')[0],
-        end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        start: new Date().toISOString().split('T')[0]!,
+        end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]!
       },
       status: [],
       showConflicts: false,
@@ -270,7 +270,10 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
         break;
     }
     
-    handleDateSelect(currentDate.toISOString().split('T')[0]);
+    const dateStr = currentDate.toISOString().split('T')[0];
+    if (dateStr) {
+      handleDateSelect(dateStr);
+    }
   }, [selectedDate, timePeriod, handleDateSelect]);
 
   // Statistiques rapides
@@ -318,7 +321,9 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
       if (!groups[groupKey]) {
         groups[groupKey] = [];
       }
-      groups[groupKey].push(shift);
+      if (groups[groupKey]) {
+        groups[groupKey].push(shift);
+      }
     });
     
     return groups;

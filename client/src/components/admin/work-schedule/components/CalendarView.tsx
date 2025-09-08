@@ -190,7 +190,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   viewMode = 'week'
 }) => {
   const initialDate = selectedDate ?? new Date().toISOString().split('T')[0];
-  const [currentDate, setCurrentDate] = useState<string>(initialDate);
+  const [currentDate, setCurrentDate] = useState<string>(initialDate || new Date().toISOString().split('T')[0]);
 
   // Générer les dates selon le mode de vue
   const dates = useMemo(() => {
@@ -225,7 +225,10 @@ const CalendarView: React.FC<CalendarViewProps> = ({
       case 'month': current.setMonth(current.getMonth() + increment); break;
     }
 
-    setCurrentDate(current.toISOString().split('T')[0]);
+    const dateString = current.toISOString().split('T')[0];
+    if (dateString) {
+      setCurrentDate(dateString);
+    }
   };
 
   // Formatage des titres
@@ -242,8 +245,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({
         });
       case 'week':
         const weekDates = getWeekDates(currentDate ?? initialDate);
-        const start = new Date(weekDates[0]);
-        const end = new Date(weekDates[weekDates.length - 1]);
+        const start = new Date(weekDates[0] || new Date());
+        const end = new Date(weekDates[weekDates.length - 1] || new Date());
         return `${start.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} - ${end.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}`;
       case 'month':
         return date.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long' });

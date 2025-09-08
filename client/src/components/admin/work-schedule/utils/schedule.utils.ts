@@ -172,7 +172,7 @@ export const checkShiftConflict = (newShift: Partial<Shift>, existingShifts: Shi
 
   const employeeShifts = filterShiftsByEmployee(existingShifts, newShift.employeeId);
   const sameDayShifts = employeeShifts.filter(shift =>
-    isSameDay(parseISO(shift.date), parseISO(newShift.date))
+    isSameDay(parseISO(shift.date), parseISO(newShift.date || new Date().toISOString()))
   );
 
   return sameDayShifts.some(shift => {
@@ -261,7 +261,7 @@ export const formatCurrency = (amount: number): string => {
 
 // Utilitaires pour la couleur
 export const getShiftColor = (shift: Shift): string => {
-  return SHIFT_STATUS_COLORS[shift.status] || SHIFT_STATUS_COLORS.scheduled;
+  return SHIFT_STATUS_COLORS[shift.status] || SHIFT_STATUS_COLORS.scheduled || '#gray';
 };
 
 export const getDepartmentColor = (department: string): string => {
@@ -316,7 +316,10 @@ export const generateEmployeeColors = (employees: Employee[]): Record<number, st
 
   const employeeColors: Record<number, string> = {};
   employees.forEach((employee, index) => {
-    employeeColors[employee.id] = colors[index % colors.length];
+    const color = colors[index % colors.length];
+    if (color) {
+      employeeColors[employee.id] = color;
+    }
   });
 
   return employeeColors;

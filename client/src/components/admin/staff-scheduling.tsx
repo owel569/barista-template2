@@ -1207,7 +1207,7 @@ const AddShiftForm = ({
     onSubmit({
       ...formData,
       employeeId: Number(formData.employeeId),
-      date: formData.date || new Date().toISOString().split('T')[0],
+      date: formData.date || new Date().toISOString().split('T')[0]!,
       status: 'draft'
     });
   };
@@ -1342,7 +1342,7 @@ const AddShiftForm = ({
           onClick={() => onSubmit({
             ...formData,
             employeeId: Number(formData.employeeId),
-            date: formData.date || new Date().toISOString().split('T')[0],
+            date: formData.date || new Date().toISOString().split('T')[0]!,
             status: 'draft'
           })}
         >

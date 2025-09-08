@@ -58,7 +58,7 @@ export class ImageManager {
                 .from(menuItems)
                 .where(eq(menuItems.id, imageData.menuItemId))
                 .limit(1);
-            altText = menuItem && menuItem.length > 0 ? `Image de ${menuItem[0].name}` : 'Image du menu';
+            altText = menuItem && menuItem.length > 0 ? `Image de ${menuItem[0]?.name || 'article'}` : 'Image du menu';
         }
 
         // Si cette image doit être principale, désactiver les autres
@@ -96,7 +96,7 @@ export class ImageManager {
                 .where(eq(menuItemImages.id, imageId))
                 .limit(1);
 
-            if (existingImage && existingImage.length > 0 && existingImage[0].menuItemId != null) {
+            if (existingImage && existingImage.length > 0 && existingImage[0]?.menuItemId != null) {
                 await db
                     .update(menuItemImages)
                     .set({ isPrimary: false })

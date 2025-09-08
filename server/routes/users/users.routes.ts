@@ -387,10 +387,11 @@ router.put('/:id',
       .where(eq(users.id, id));
 
     if (!existingUser) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Utilisateur non trouvé'
       });
+      return;
     }
 
     // Vérifier l'email en cas de modification
@@ -404,10 +405,11 @@ router.put('/:id',
         ));
 
       if (emailExists) {
-        return res.status(409).json({
+        res.status(409).json({
           success: false,
           message: 'Un utilisateur avec cet email existe déjà'
         });
+        return;
       }
     }
 
@@ -426,10 +428,11 @@ router.put('/:id',
       .returning();
 
     if (!updatedUser) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Utilisateur non trouvé'
       });
+      return;
     }
 
     // Si c'est un client, mettre à jour aussi l'entrée customer
@@ -496,10 +499,11 @@ router.patch('/:id/password',
       .where(eq(users.id, id));
 
     if (!existingUser) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Utilisateur non trouvé'
       });
+      return;
     }
 
     // Hasher le nouveau mot de passe
@@ -557,10 +561,11 @@ router.delete('/:id',
 
     // Empêcher la suppression de son propre compte
     if (id === currentUser.id) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'Vous ne pouvez pas supprimer votre propre compte'
       });
+      return;
     }
 
     // Désactiver l'utilisateur au lieu de le supprimer
@@ -578,10 +583,11 @@ router.delete('/:id',
       });
 
     if (!deactivatedUser) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Utilisateur non trouvé'
       });
+      return;
     }
 
     // Enregistrer l'activité

@@ -337,6 +337,7 @@ const ChartTooltipContent = React.forwardRef<
 
             return (
               <TooltipItem
+                formatter={tooltipLabel?.length ? tooltipLabel[0]?.formatter : undefined}
                 key={`${item.dataKey}-${index}`}
                 item={item as TooltipPayloadItem}
                 index={index}

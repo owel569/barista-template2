@@ -49,7 +49,25 @@ export function MaintenanceTaskForm({
   onSubmit,
   onCancel,
 }: MaintenanceTaskFormProps) {
-  const [formData, setFormData] = useState<MaintenanceTask>(() => {
+  const [formData, setFormData] = useState<MaintenanceTask>(() => ({
+    id: 0,
+    title: '',
+    description: '',
+    type: 'preventive' as const,
+    priority: 'medium' as const,
+    status: 'pending' as const,
+    scheduledDate: new Date().toISOString().split('T')[0]!,
+    completedDate: null,
+    assignedTo: null,
+    equipment: null,
+    estimatedDuration: 0,
+    actualDuration: null,
+    cost: null,
+    notes: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    ...initialData
+  }));
       if (initialData) {
         return {
           id: initialData.id || 0,

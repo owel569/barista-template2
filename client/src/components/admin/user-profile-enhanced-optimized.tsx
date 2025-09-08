@@ -308,7 +308,10 @@ export default function UserProfileEnhanced(): JSX.Element {
     mutationFn: async (data: { id: number; updates: Partial<UserProfile> }) => {
       const response = await apiRequest(`/api/admin/user-profiles/${data.id}`, {
         method: 'PUT',
-        body: JSON.stringify(data.updates),
+        body: JSON.stringify({
+        ...data.updates,
+        email: data.updates.email || ''
+      }),
       });
       return response.json();
     },
@@ -592,7 +595,10 @@ export default function UserProfileEnhanced(): JSX.Element {
 
     await updateUserMutation.mutateAsync({
       id: selectedUser.id,
-      updates: values
+      updates: {
+        ...values,
+        email: values.email || ''
+      }
     });
   };
 
