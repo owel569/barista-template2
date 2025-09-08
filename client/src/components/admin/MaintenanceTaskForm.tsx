@@ -58,7 +58,7 @@ export function MaintenanceTaskForm({
           type: initialData.type || 'preventive', // Default to 'preventive'
           priority: (initialData.priority as 'low' | 'medium' | 'high' | 'critical') || 'medium',
           status: (initialData.status as 'pending' | 'in_progress' | 'completed' | 'cancelled') || 'pending',
-          scheduledDate: initialData.scheduledDate ?? new Date().toISOString().split('T')[0],
+          scheduledDate: initialData.scheduledDate || new Date().toISOString().split('T')[0],
           estimatedDuration: initialData.estimatedDuration || 1,
           cost: initialData.cost || 0, // Default to 0 if not provided
           assignedToId: initialData.assignedToId || null, // Default to null if not provided

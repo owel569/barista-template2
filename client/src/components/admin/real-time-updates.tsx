@@ -247,13 +247,13 @@ export default function RealTimeUpdates() {
     };
 
     const titles = mockEvents[type as keyof typeof mockEvents];
-    const title = titles[Math.floor(Math.random() * titles.length)];
+    const title = titles ? titles[Math.floor(Math.random() * titles.length)] : 'Notification';
 
     const event: RealTimeEvent = {
       id: `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       type,
-      title,
-      description: `Description pour ${title.toLowerCase()}`,
+      title: title || 'Notification',
+      description: `Description pour ${title ? title.toLowerCase() : 'notification'}`,
       timestamp: new Date(),
       priority,
       data: {

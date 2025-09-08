@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -147,23 +147,26 @@ export default function OnlineOrdering(): JSX.Element {
   // WEBSOCKET ET DONNÉES
   // ==========================================
 
-  useWebSocket('/api/ws', {
-    onMessage: (data: any) => {
-      if (data.type === 'new_order') {
+  const { lastMessage } = useWebSocket('/api/ws');
+  
+  useEffect(() => {
+    if (lastMessage) {
+      const data = lastMessage.data as any;
+      if (data?.type === 'new_order') {
         setNewOrdersCount(prev => prev + 1);
         queryClient.invalidateQueries({ queryKey: ['/api/admin/online-orders'] });
 
         if ('Notification' in window && Notification.permission === 'granted') {
           new Notification('Nouvelle commande reçue', {
-            body: `Commande #${data.order.orderNumber}`,
+            body: `Commande #${data.order?.orderNumber || 'N/A'}`,
             icon: '/favicon.ico'
           });
         }
-      } else if (data.type === 'order_updated') {
+      } else if (data?.type === 'order_updated') {
         queryClient.invalidateQueries({ queryKey: ['/api/admin/online-orders'] });
       }
     }
-  });
+  }, [lastMessage, queryClient]);
 
   // Queries avec types précis
   const { data: onlineOrders = [], isLoading } = useQuery<OnlineOrder[]>({

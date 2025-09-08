@@ -245,8 +245,8 @@ export default function Settings({ userRole }: SettingsProps) {
         if (lastKey && dayKey && prev.openingHours?.[dayKey]) {
           current[lastKey] = {
             ...current[lastKey],
-            ...(dayKey ? prev.openingHours[dayKey] : {})[lastKey],
-            [keys[keys.length - 1]]: value,
+            ...(dayKey && prev.openingHours[dayKey] ? (prev.openingHours[dayKey] as any)[lastKey] : {}),
+            [lastKey || 'default']: value,
           };
         }
       } else if (lastKey) {
