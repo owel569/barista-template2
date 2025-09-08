@@ -12,7 +12,7 @@ router.get('/dashboard', authenticateUser, requireRoleHierarchy('staff'), async 
   try {
     const today = new Date();
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    
+
     const [
       totalCustomers,
       totalMenuItems,
@@ -23,21 +23,21 @@ router.get('/dashboard', authenticateUser, requireRoleHierarchy('staff'), async 
     ] = await Promise.all([
       // Total des clients
       db.select({ count: sql<number>`count(*)::integer` }).from(customers),
-      
+
       // Total des éléments du menu
       db.select({ count: sql<number>`count(*)::integer` }).from(menuItems),
-      
+
       // Éléments du menu disponibles
-      db.select({ count: sql<number>`count(*)::integer` }).from(menuItems).where(eq(menuItems.isAvailable, true)),
-      
+      db.select({ count: sql<number>`count(*)::integer` }).from(menuItems).where(eq(menuItems.available, true)),
+
       // Total des catégories
       db.select({ count: sql<number>`count(*)::integer` }).from(menuCategories),
-      
+
       // Nouveaux clients ce mois
       db.select({ count: sql<number>`count(*)::integer` })
         .from(customers)
         .where(gte(customers.createdAt, startOfMonth)),
-      
+
       // Top 5 clients par points de fidélité
       db.select()
         .from(customers)
@@ -146,7 +146,7 @@ router.get('/popular-items', authenticateUser, requireRoleHierarchy('staff'), as
       })
       .from(menuItems)
       .leftJoin(menuCategories, eq(menuItems.categoryId, menuCategories.id))
-      .where(eq(menuItems.isAvailable, true))
+      .where(eq(menuItems.available, true))
       .limit(10);
 
     // Ajouter des données simulées de popularité

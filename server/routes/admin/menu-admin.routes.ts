@@ -45,7 +45,7 @@ router.get('/items',
         price: menuItems.price,
         categoryId: menuItems.categoryId,
         imageUrl: menuItems.imageUrl,
-        isAvailable: menuItems.isAvailable,
+        isAvailable: menuItems.available,
         isVegetarian: menuItems.isVegetarian,
         isGlutenFree: menuItems.isGlutenFree,
         allergens: menuItems.allergens,
@@ -214,7 +214,7 @@ router.get('/stats',
       topCategories
     ] = await Promise.all([
       db.select({ count: sql<number>`count(*)` }).from(menuItems),
-      db.select({ count: sql<number>`count(*)` }).from(menuItems).where(eq(menuItems.isAvailable, true)),
+      db.select({ count: sql<number>`count(*)` }).from(menuItems).where(eq(menuItems.available, true)),
       db.select({ count: sql<number>`count(*)` }).from(menuCategories),
       db.select({
         categoryId: menuItems.categoryId,

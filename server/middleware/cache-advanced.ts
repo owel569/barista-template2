@@ -473,7 +473,7 @@ export const getCacheStats = (req: Request, res: Response): void => {
   }
 };
 
-export const clearCache = (req: Request, res: Response): void => {
+export const clearCache = (req: Request, res: Response): Response<any> | void => {
   try {
     const statsBefore = cache.getStats();
     cache.clear();

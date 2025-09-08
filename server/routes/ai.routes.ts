@@ -721,7 +721,7 @@ router.get('/voice-analysis', authenticateUser, async (req: Request, res: Respon
     }
 
     const analysisResult = {
-      transcript: randomTranscript,
+      transcript: randomTranscript || '',
       confidence: Math.random() * 0.3 + 0.7, // Entre 70% et 100%
     };
 

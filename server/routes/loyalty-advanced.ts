@@ -8,7 +8,7 @@ import { validateBody, validateParams } from '../middleware/validation';
 import { getDb } from '../db';
 import { customers, loyaltyTransactions, activityLogs } from '../../shared/schema';
 import { eq, and, gte, lte, desc, count, sum } from 'drizzle-orm';
-import type { LoyaltyLevel, CustomerLoyaltyData } from '../../shared/types-enhanced';
+// Types définis localement pour éviter les conflits
 
 const router = Router();
 const logger = createLogger('LOYALTY_ADVANCED');
@@ -311,7 +311,7 @@ class AdvancedLoyaltyService {
       return points >= l.minPoints && points <= l.maxPoints;
     });
 
-    return level ?? LOYALTY_LEVELS[0];
+    return level || LOYALTY_LEVELS[0];
   }
 
   /**

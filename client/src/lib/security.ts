@@ -270,7 +270,7 @@ export function createRateLimiter(maxCalls: number, windowMs: number) {
     const now = Date.now()
     
     // Supprime les appels anciens
-    while (calls.length > 0 && calls[0] <= now - windowMs) {
+    while (calls.length > 0 && calls[0] !== undefined && calls[0] <= now - windowMs) {
       calls.shift()
     }
     

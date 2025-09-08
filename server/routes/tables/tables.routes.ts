@@ -8,6 +8,7 @@ import { getDb } from '../../db';
 import { tables, reservations, customers, activityLogs } from '../../../shared/schema';
 import { eq, and, or, desc, sql, ne } from 'drizzle-orm';
 import { cacheMiddleware, invalidateCache } from '../../middleware/cache-advanced';
+import { Request, Response } from 'express'; // Import Request and Response types
 
 const router = Router();
 const logger = createLogger('TABLES_ROUTES');
@@ -100,7 +101,7 @@ router.get('/',
     sortOrder: z.enum(['asc', 'desc']).default('asc')
   })),
   cacheMiddleware({ ttl: 1 * 60 * 1000, tags: ['tables'] }),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
     const {
       location,
@@ -186,7 +187,7 @@ router.get('/status',
   authenticateUser,
   requireRoles(['admin', 'manager', 'waiter']),
   cacheMiddleware({ ttl: 30 * 1000, tags: ['tables', 'reservations'] }),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
     const now = new Date();
 
@@ -314,7 +315,7 @@ router.post('/',
   requireRoles(['admin', 'manager']),
   validateBody(CreateTableSchema),
   invalidateCache(['tables']),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
     const currentUser = (req as any).user;
 
@@ -377,7 +378,7 @@ router.put('/:id',
   validateParams(z.object({ id: z.coerce.number().int().positive() })),
   validateBody(UpdateTableSchema.omit({ id: true })),
   invalidateCache(['tables']),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
     const currentUser = (req as any).user;
     const id = parseInt(req.params.id || '0', 10);
@@ -456,7 +457,7 @@ router.patch('/:id/status',
   validateParams(z.object({ id: z.coerce.number().int().positive() })),
   validateBody(TableStatusSchema),
   invalidateCache(['tables']),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
     const currentUser = (req as any).user;
     const id = parseInt(req.params.id || '0', 10);
@@ -522,7 +523,7 @@ router.delete('/:id',
   requireRoles(['admin']),
   validateParams(z.object({ id: z.coerce.number().int().positive() })),
   invalidateCache(['tables']),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
     const currentUser = (req as any).user;
     const id = parseInt(req.params.id || '0', 10);
@@ -595,7 +596,7 @@ router.get('/stats',
   authenticateUser,
   requireRoles(['admin', 'manager']),
   cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['tables', 'stats'] }),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
 
     const [stats] = await db

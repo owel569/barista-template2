@@ -362,9 +362,13 @@ export interface LoyaltyLevel {
   id: number;
   name: string;
   minPoints: number;
-  maxPoints: number;
+  maxPoints?: number;
+  pointsRate: number;
   benefits: string[];
   color: string;
+  discountPercentage?: number;
+  icon: string;
+  description: string;
 }
 
 // Interface pour les données de loyauté client
@@ -399,14 +403,14 @@ export interface TableStatus {
     startTime: Date;
     endTime: Date;
     partySize: number;
-  };
+  } | undefined;
   nextReservation?: {
     id: number;
     customerName: string;
     startTime: Date;
     endTime: Date;
     partySize: number;
-  };
+  } | undefined;
 }
 
 // Interface pour les métriques de cache

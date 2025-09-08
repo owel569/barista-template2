@@ -105,7 +105,7 @@ router.get('/items',
         categoryId: menuItems.categoryId,
         categoryName: menuCategories.name,
         imageUrl: menuItems.imageUrl,
-        isAvailable: menuItems.isAvailable,
+        isAvailable: menuItems.available,
         isVegetarian: menuItems.isVegetarian,
         isGlutenFree: menuItems.isGlutenFree,
         stock: menuItems.stock,
@@ -123,7 +123,7 @@ router.get('/items',
     }
 
     if (isAvailable !== undefined && typeof isAvailable === 'boolean') {
-      conditions.push(eq(menuItems.isAvailable, isAvailable));
+      conditions.push(eq(menuItems.available, isAvailable));
     }
 
     if (isVegetarian !== undefined && typeof isVegetarian === 'boolean') {
@@ -317,7 +317,7 @@ router.get('/items/:id',
         price: menuItems.price,
         categoryId: menuItems.categoryId,
         imageUrl: menuItems.imageUrl,
-        isAvailable: menuItems.isAvailable,
+        isAvailable: menuItems.available,
         isVegetarian: menuItems.isVegetarian,
         isGlutenFree: menuItems.isGlutenFree,
         stock: menuItems.stock,

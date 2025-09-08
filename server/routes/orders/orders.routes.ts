@@ -268,7 +268,7 @@ router.post('/',
       .from(menuItems)
       .where(and(
         inArray(menuItems.id, menuItemIds),
-        eq(menuItems.isAvailable, true)
+        eq(menuItems.available, true)
       ));
 
     if (menuItemsFromDb.length !== menuItemIds.length) {

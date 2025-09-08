@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { hash, compare } from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -103,7 +103,7 @@ async function logActivity(
   userId: number,
   action: string,
   details: string,
-  req: any
+  req: Request
 ): Promise<void> {
   try {
     const db = getDb();
@@ -127,7 +127,7 @@ async function logActivity(
 // Route d'inscription
 router.post('/register',
   validateBody(RegisterSchema),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
     const { firstName, lastName, email, password, phone, role } = req.body;
 
@@ -212,7 +212,7 @@ router.post('/register',
 // Route de connexion
 router.post('/login',
   validateBody(LoginSchema),
-  asyncHandler(async (req, res): Promise<void> => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
     const { email, password } = req.body;
 
