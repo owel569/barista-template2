@@ -22,7 +22,7 @@ interface MaintenanceTaskFormProps {
   equipmentList: Equipment[];
   technicians: Technician[];
   initialData?: Partial<MaintenanceTask & { equipmentId?: string | null }>;
-  onSubmit: (data: Omit<MaintenanceTask, 'id'> & { equipmentId?: string | null }) => void;
+  onSubmit: (data: Omit<MaintenanceTask, 'id'> & { equipmentId?: number | null }) => void;
   onCancel: () => void;
 }
 
@@ -52,7 +52,7 @@ export function MaintenanceTaskForm({
   const [formData, setFormData] = useState<Partial<MaintenanceTask>>(() => {
       if (initialData) {
         return {
-          id: initialData.id || 0,
+          id: initialData.id || '',  // Use string for ID
           title: initialData.title || '',
           description: initialData.description || '',
           type: initialData.type || 'preventive', // Default to 'preventive'
@@ -64,13 +64,13 @@ export function MaintenanceTaskForm({
           assignedToId: initialData.assignedToId || null, // Default to null if not provided
           notes: initialData.notes || '',
           equipmentId: initialData.equipmentId || null, // Default to null if not provided
-          createdAt: initialData.createdAt || new Date(),
-          updatedAt: initialData.updatedAt || new Date()
+          createdAt: initialData.createdAt || new Date().toISOString(),
+          updatedAt: initialData.updatedAt || new Date().toISOString()
         };
       } else {
         // Provide default values if initialData is not present
         return {
-          id: 0,
+          id: '',  // Use string for ID
           title: '',
           description: '',
           type: 'preventive' as const,
@@ -82,8 +82,8 @@ export function MaintenanceTaskForm({
           assignedToId: null,
           notes: '',
           equipmentId: null,
-          createdAt: new Date(),
-          updatedAt: new Date()
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         };
       }
     });
@@ -166,8 +166,8 @@ export function MaintenanceTaskForm({
       assignedToId: formData.assignedToId || null,
       notes: formData.notes || '',
       equipmentId: formData.equipmentId || null,
-      createdAt: formData.createdAt || new Date(), // Ensure createdAt is set
-      updatedAt: formData.updatedAt || new Date() // Ensure updatedAt is set
+      createdAt: formData.createdAt || new Date().toISOString(), // Ensure createdAt is set
+      updatedAt: formData.updatedAt || new Date().toISOString() // Ensure updatedAt is set
     };
     onSubmit(taskToSubmit);
   };
