@@ -622,7 +622,7 @@ router.get('/automation/suggestions',
 
     try {
       const categoryStr = Array.isArray(category) ? category[0] : category as string;
-      const priorityStr = Array.isArray(priority) ? priority[0] : priority as string;
+      const priorityStr = Array.isArray(priority) ? priority[0] : (priority as string || 'medium');
       const suggestions = AIService.generateAutomationSuggestions(categoryStr, priorityStr as 'low' | 'medium' | 'high');
 
       res.json({

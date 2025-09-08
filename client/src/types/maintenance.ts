@@ -4,7 +4,7 @@ export interface MaintenanceTask {
   description: string;
   type: 'preventive' | 'corrective' | 'emergency';
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  priority: 'low' | 'medium' | 'high' | 'critical';
   assignedTo?: string;
   assignedToId?: number | null;
   scheduledDate: string;

@@ -131,7 +131,7 @@ export const productionConfig = {
 
   // CORS optimisé
   cors: {
-    origin: (origin: string, callback: Function) => {
+    origin: (origin: string | undefined, callback: Function) => {
       const allowedOrigins = [
         process.env.FRONTEND_URL,
         'https://replit.com',

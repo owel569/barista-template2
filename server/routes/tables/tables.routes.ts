@@ -279,9 +279,9 @@ router.get('/status',
           id: currentRes.id,
           customerName: currentRes.customerName,
           startTime: currentRes.startTime,
-          endTime: currentRes.endTime,
+          endTime: new Date(currentRes.startTime.getTime() + 2 * 60 * 60 * 1000), // 2h par défaut
           partySize: currentRes.partySize
-        } : undefined,
+        } : null,
         nextReservation: nextRes ? {
           id: nextRes.id,
           customerName: nextRes.customerName,

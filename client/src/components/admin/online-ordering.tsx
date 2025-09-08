@@ -147,7 +147,8 @@ export default function OnlineOrdering(): JSX.Element {
   // WEBSOCKET ET DONNÉES
   // ==========================================
 
-  const { lastMessage } = useWebSocket('/api/ws') || { lastMessage: null };
+  const webSocketHook = useWebSocket();
+  const lastMessage = webSocketHook?.lastMessage || null;
   
   useEffect(() => {
     if (lastMessage?.data) {

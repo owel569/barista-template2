@@ -49,7 +49,7 @@ export function MaintenanceTaskForm({
   onSubmit,
   onCancel,
 }: MaintenanceTaskFormProps) {
-  const [formData, setFormData] = useState<Partial<MaintenanceTask>>(() => {
+  const [formData, setFormData] = useState(() => {
       if (initialData) {
         return {
           id: initialData.id || '',  // Use string for ID

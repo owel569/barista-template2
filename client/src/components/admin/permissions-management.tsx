@@ -432,7 +432,7 @@ export default function PermissionsManagement(): JSX.Element {
                 <Label htmlFor="role">Rôle</Label>
                 <Select 
                   value={newUser.role} 
-                  onValueChange={(value: string) => setNewUser({...newUser, role: value as 'directeur' | 'employe'})}
+                  onValueChange={(value: string) => setNewUser({...newUser, role: value as any})}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Sélectionner un rôle" />

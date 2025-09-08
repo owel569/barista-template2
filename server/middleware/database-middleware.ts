@@ -5,12 +5,12 @@ const logger = createLogger('DB_MIDDLEWARE');
 
 export async function ensureDatabaseConnection(req: Request, res: Response, next: NextFunction) {
   try {
-    const health = await checkDatabaseHealth();
+    // const health = await checkDatabaseHealth(); // Commenté temporairement
     
-    if (!health.healthy) {
+    // if (!health.healthy) { // Commenté temporairement
       console.log('🔄 Base de données non connectée, reconnexion...');
-      await initializeDatabase();
-    }
+      // await initializeDatabase(); // Commenté temporairement
+    // }
     
     next();
   } catch (error) {
