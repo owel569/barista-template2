@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { useToast } from '@/hooks/use-toast';
 import { useWebSocket } from '@/hooks/use-websocket';
 import { Monitor, Eye, Clock, Package, AlertTriangle } from 'lucide-react';
-import { apiRequest } from '@/lib/auth-utils';
+import { apiRequest } from '@/lib/queryClient';
 
 // ==========================================
 // TYPES ET INTERFACES PRÉCISES
@@ -147,19 +147,21 @@ export default function OnlineOrdering(): JSX.Element {
   // WEBSOCKET ET DONNÉES
   // ==========================================
 
-  useWebSocket('orders', (data: any) => {
-    if (data.type === 'new_order') {
-      setNewOrdersCount(prev => prev + 1);
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/online-orders'] });
+  useWebSocket('/api/ws', {
+    onMessage: (data: any) => {
+      if (data.type === 'new_order') {
+        setNewOrdersCount(prev => prev + 1);
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/online-orders'] });
 
-      if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification('Nouvelle commande reçue', {
-          body: `Commande #${data.order.orderNumber}`,
-          icon: '/favicon.ico'
-        });
+        if ('Notification' in window && Notification.permission === 'granted') {
+          new Notification('Nouvelle commande reçue', {
+            body: `Commande #${data.order.orderNumber}`,
+            icon: '/favicon.ico'
+          });
+        }
+      } else if (data.type === 'order_updated') {
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/online-orders'] });
       }
-    } else if (data.type === 'order_updated') {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/online-orders'] });
     }
   });
 

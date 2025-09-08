@@ -347,7 +347,7 @@ export default function NotificationsSystem(): JSX.Element {
   useEffect(() => {
     if (lastMessage) {
       try {
-        const data = JSON.parse(lastMessage.data);
+        const data = JSON.parse(lastMessage.data as string);
         if (data.type === 'notification') {
           queryClient.invalidateQueries({ queryKey: ['notifications'] });
 

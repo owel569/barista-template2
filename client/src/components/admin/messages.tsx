@@ -451,7 +451,7 @@ export default function Messages({ userRole = 'directeur' }: MessagesProps) {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Message de {selectedMessage?.customerName || 'Anonyme'}</DialogTitle>
+            <DialogTitle>Message de {selectedMessage?.name || 'Anonyme'}</DialogTitle>
             <DialogDescription>
               Consulter et répondre au message
             </DialogDescription>

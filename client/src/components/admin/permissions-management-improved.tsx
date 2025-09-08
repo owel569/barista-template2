@@ -618,7 +618,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                           <Switch
                             checked={user.isActive}
                             onCheckedChange={(checked) => handleToggleUserStatus(user.id, checked)}
-                            disabled={isTogglingStatus || user.id === currentUser?.id}
+                            disabled={isTogglingStatus || String(user.id) === String(currentUser?.id)}
                           />
                           <Badge variant={user.isActive ? "default" : "secondary"}>
                             {user.isActive ? "Actif" : "Inactif"}
@@ -626,7 +626,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                         </div>
                       </TableCell>
                       <TableCell>
-                        {formatDate(user.lastLogin)}
+                        {user.lastLogin ? formatDate(user.lastLogin) : 'Jamais'}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
