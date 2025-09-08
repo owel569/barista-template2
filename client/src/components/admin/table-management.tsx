@@ -254,7 +254,8 @@ export default function TableManagement(): JSX.Element {
         };
     createTableMutation.mutate({
       ...newTable,
-      notes: newTable.notes || ''
+      notes: newTable.notes || '',
+      isVip: false
     });
   };
 

@@ -570,30 +570,28 @@ router.get('/reports', authenticateUser, async (_req: Request, res: Response) =>
 });
 
 // Route pour générer un rapport
-router.post('/reports/:reportId/generate', authenticateUser, async (_req: Request, res: Response) => {
+router.post('/reports/:reportId/generate', authenticateUser, async (_req: Request, res: Response): Promise<void> => {
   try {
-    const { reportId } = _req.params;
-
-    if (!reportId) {
-      return res.status(400).json({ 
-        success: false,
-        error: 'ID de rapport manquant' 
-      });
-    }
-
+    // Simulation de génération de rapport
     const reportData = {
-      id: reportId,
-      status: 'generating',
-      progress: 0,
-      estimatedTime: 30
+      id: _req.params.reportId,
+      generated: true,
+      timestamp: new Date().toISOString(),
+      data: {
+        // Données simulées du rapport
+      }
     };
 
-    res.json({ 
+    res.json({
       success: true,
-      data: reportData 
+      data: reportData
     });
   } catch (error) {
-    handleError(res, error, 'la génération de rapport');
+    console.error('Erreur génération rapport:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la génération du rapport'
+    });
   }
 });
 
@@ -625,11 +623,12 @@ router.post('/modules/:moduleId/activate', authenticateUser, async (_req: Reques
   try {
     const { moduleId } = _req.params;
 
-    if (!moduleId) {
-      return res.status(400).json({ 
+    if (!moduleId || typeof moduleId !== 'string') {
+      res.status(400).json({ 
         success: false,
         error: 'ID de module manquant' 
       });
+      return;
     }
 
     res.json({ 
@@ -649,11 +648,12 @@ router.post('/modules/:moduleId/deactivate', authenticateUser, async (_req: Requ
   try {
     const { moduleId } = _req.params;
 
-    if (!moduleId) {
-      return res.status(400).json({ 
+    if (!moduleId || typeof moduleId !== 'string') {
+      res.status(400).json({ 
         success: false,
         error: 'ID de module manquant' 
       });
+      return;
     }
 
     res.json({ 
