@@ -49,7 +49,7 @@ router.get('/', authenticateUser, requireRoleHierarchy('staff'), async (req, res
     }
 
     if (status) {
-      query = query.where(eq(reservations.status, status as any));
+      query = query.where(eq(reservations.status, status as 'pending' | 'confirmed' | 'seated' | 'completed' | 'cancelled' | 'no_show'));
     }
 
     const allReservations = await query.orderBy(desc(reservations.date), desc(reservations.time));

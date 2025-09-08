@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -345,7 +344,6 @@ const ChartTooltipContent = React.forwardRef<
                 indicatorColor={String(indicatorColor)}
                 indicator={indicator}
                 hideIndicator={hideIndicator}
-                formatter={formatter}
                 nestLabel={nestLabel}
                 tooltipLabel={tooltipLabel}
               />

@@ -2,92 +2,59 @@ export interface MaintenanceTask {
   id: number;
   title: string;
   description: string;
-  type: 'preventive' | 'corrective' | 'inspection';
-  priority: 'low' | 'medium' | 'high' | 'critical';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
-  scheduledDate: string;
-  completedDate?: string;
-  estimatedDuration: number;
-  actualDuration?: number;
-  cost?: number;
-  assignedToId?: number | null;
-  equipmentId?: number | null;
-  notes?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface MaintenanceTaskFormData {
-  title: string;
-  description: string;
-  type: 'preventive' | 'corrective' | 'emergency';
-  priority: 'low' | 'medium' | 'high' | 'critical';
-  scheduledDate: string;
-  estimatedDuration: number;
-  cost?: number;
-  assignedToId?: number | null;
-  notes?: string;
-  equipmentId?: number | null;
-}
-
-export type MaintenanceTaskCreateInput = Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'>;
-export type MaintenanceTaskUpdateInput = Partial<MaintenanceTaskCreateInput>;
-
-export interface ContactMessage {
-  id: string;
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-  status: 'read' | 'unread' | 'replied' | 'archived';
-  response?: string;
+  assignedTo?: string;
+  dueDate?: string;
+  completedAt?: string;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface OpeningHours {
-  open: string;
-  close: string;
-  closed?: boolean;
-}
-
-export interface RestaurantSettings {
-  restaurantName: string;
-  address: string;
-  phone: string;
-  email: string;
-  website: string;
-  description: string;
-  capacity: number;
-  openingHours: Record<string, OpeningHours>;
-  timezone: string;
-  currency: string;
-  specialDates: {
-    closedDates: string[];
-    specialHours: {
-      date: string;
-      openingHours: OpeningHours;
-      note: string;
-    }[];
-  };
-  notificationSettings: {
-    emailNotifications: boolean;
-    smsNotifications: boolean;
-    pushNotifications: boolean;
-  };
-}
-
 export interface Equipment {
-  id: string;
+  id: number;
   name: string;
   type: string;
-  location: string;
+  model?: string;
+  serialNumber?: string;
+  purchaseDate?: string;
+  warrantyExpiry?: string;
   status: 'operational' | 'maintenance' | 'broken' | 'retired';
-  purchaseDate: Date;
-  warrantyExpiry?: Date;
-  lastMaintenanceDate?: Date;
-  nextMaintenanceDate?: Date;
-  notes?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  location: string;
+  maintenanceSchedule?: string;
+  createdAt: string;
+  updatedAt: string;
 }
+
+export interface MaintenanceFormData {
+  title: string;
+  description: string;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  assignedTo?: string;
+  dueDate?: string;
+}
+
+export interface EquipmentFormData {
+  name: string;
+  type: string;
+  model?: string;
+  serialNumber?: string;
+  purchaseDate?: string;
+  warrantyExpiry?: string;
+  status: 'operational' | 'maintenance' | 'broken' | 'retired';
+  location: string;
+  maintenanceSchedule?: string;
+}
+
+export interface MaintenanceStatistics {
+  total: number;
+  pending: number;
+  inProgress: number;
+  completed: number;
+  urgent: number;
+  averageCompletionTime: number;
+}
+
+export type MaintenancePriority = 'low' | 'medium' | 'high' | 'urgent';
+export type MaintenanceStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled';
+export type EquipmentStatus = 'operational' | 'maintenance' | 'broken' | 'retired';

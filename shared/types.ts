@@ -12,6 +12,39 @@ export interface User {
   updatedAt: string;
 }
 
+export interface AuthenticatedUser extends User {
+  id: string;
+}
+
+// Maintenance types
+export interface MaintenanceTask {
+  id: number;
+  title: string;
+  description: string;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  assignedTo?: string;
+  dueDate?: string;
+  completedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Equipment {
+  id: number;
+  name: string;
+  type: string;
+  model?: string;
+  serialNumber?: string;
+  purchaseDate?: string;
+  warrantyExpiry?: string;
+  status: 'operational' | 'maintenance' | 'broken' | 'retired';
+  location: string;
+  maintenanceSchedule?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export type UserRole = 'admin' | 'manager' | 'staff' | 'customer';
 
 // Alias pour la compatibilité

@@ -296,8 +296,10 @@ export const usePermissions = (): UsePermissionsReturn => {
     return 'basic';
   }, [userRole]);
 
+  const userPermissions = getCurrentPermissions(); // Renamed for clarity
+
   return {
-    permissions: getCurrentPermissions(),
+    permissions: userPermissions,
     userRole,
     loading,
     isLoading: loading, // Alias pour loading
