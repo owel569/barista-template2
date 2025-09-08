@@ -1,0 +1,97 @@
+
+client/src/components/admin/settings.tsx:261:22 - error TS2345: Argument of type '(prev: RestaurantSettings) => { openingHours: { [x: string]: OpeningHours | { open?: string; close?: string; closed?: boolean; }; }; restaurantName: string; ... 8 more ...; specialDates: { ...; }; }' is not assignable to parameter of type 'SetStateAction<RestaurantSettings>'.
+  Type '(prev: RestaurantSettings) => { openingHours: { [x: string]: OpeningHours | { open?: string; close?: string; closed?: boolean; }; }; restaurantName: string; ... 8 more ...; specialDates: { ...; }; }' is not assignable to type '(prevState: RestaurantSettings) => RestaurantSettings'.
+    Call signature return types '{ openingHours: { [x: string]: OpeningHours | { open?: string; close?: string; closed?: boolean; }; }; restaurantName: string; address: string; phone: string; email: string; website: string; ... 4 more ...; specialDates: { ...; }; }' and 'RestaurantSettings' are incompatible.
+      The types of 'openingHours' are incompatible between these types.
+        Type '{ [x: string]: OpeningHours | { open?: string; close?: string; closed?: boolean; }; }' is not assignable to type 'Record<string, OpeningHours>'.
+          'string' index signatures are incompatible.
+            Type 'OpeningHours | { open?: string; close?: string; closed?: boolean; }' is not assignable to type 'OpeningHours'.
+              Type '{ open?: string; close?: string; closed?: boolean; }' is not assignable to type 'OpeningHours'.
+                Property 'open' is optional in type '{ open?: string; close?: string; closed?: boolean; }' but required in type 'OpeningHours'.
+
+261     setDraftSettings(prev => ({
+                         ~~~~~~~~~~
+262       ...prev,
+    ~~~~~~~~~~~~~~
+... 
+269       }
+    ~~~~~~~
+270     }));
+    ~~~~~~
+
+client/src/components/admin/settings.tsx:298:22 - error TS2345: Argument of type '(prev: RestaurantSettings) => { specialDates: { specialHours: { date: string | undefined; openingHours: OpeningHours; note: string; }[]; closedDates: string[]; }; ... 9 more ...; notificationSettings: { ...; }; }' is not assignable to parameter of type 'SetStateAction<RestaurantSettings>'.
+  Type '(prev: RestaurantSettings) => { specialDates: { specialHours: { date: string | undefined; openingHours: OpeningHours; note: string; }[]; closedDates: string[]; }; ... 9 more ...; notificationSettings: { ...; }; }' is not assignable to type '(prevState: RestaurantSettings) => RestaurantSettings'.
+    Call signature return types '{ specialDates: { specialHours: { date: string | undefined; openingHours: OpeningHours; note: string; }[]; closedDates: string[]; }; restaurantName: string; address: string; phone: string; ... 6 more ...; notificationSettings: { ...; }; }' and 'RestaurantSettings' are incompatible.
+      The types of 'specialDates.specialHours' are incompatible between these types.
+        Type '{ date: string | undefined; openingHours: OpeningHours; note: string; }[]' is not assignable to type '{ date: string; openingHours: OpeningHours; note: string; }[]'.
+          Type '{ date: string | undefined; openingHours: OpeningHours; note: string; }' is not assignable to type '{ date: string; openingHours: OpeningHours; note: string; }'.
+            Types of property 'date' are incompatible.
+              Type 'string | undefined' is not assignable to type 'string'.
+                Type 'undefined' is not assignable to type 'string'.
+
+298     setDraftSettings(prev => ({
+                         ~~~~~~~~~~
+299       ...prev,
+    ~~~~~~~~~~~~~~
+... 
+306       }
+    ~~~~~~~
+307     }));
+    ~~~~~~
+
+client/src/components/admin/settings.tsx:734:32 - error TS7006: Parameter 'date' implicitly has an 'any' type.
+
+734                     onSelect={(date) => {
+                                   ~~~~
+
+client/src/components/admin/settings.tsx:798:33 - error TS2322: Type '{ closed: boolean; open?: string; close?: string; }' is not assignable to type 'OpeningHours'.
+  Property 'open' is optional in type '{ closed: boolean; open?: string; close?: string; }' but required in type 'OpeningHours'.
+
+798                                 openingHours: {
+                                    ~~~~~~~~~~~~
+
+  client/src/components/admin/settings.tsx:71:7
+    71       openingHours: OpeningHours;
+             ~~~~~~~~~~~~
+    The expected type comes from property 'openingHours' which is declared here on type '{ date: string; openingHours: OpeningHours; note: string; }'
+
+client/src/components/admin/settings.tsx:827:35 - error TS2322: Type '{ open: string; close?: string; closed?: boolean; }' is not assignable to type 'OpeningHours'.
+  Property 'close' is optional in type '{ open: string; close?: string; closed?: boolean; }' but required in type 'OpeningHours'.
+
+827                                   openingHours: {
+                                      ~~~~~~~~~~~~
+
+  client/src/components/admin/settings.tsx:71:7
+    71       openingHours: OpeningHours;
+             ~~~~~~~~~~~~
+    The expected type comes from property 'openingHours' which is declared here on type '{ date: string; openingHours: OpeningHours; note: string; }'
+
+client/src/components/admin/settings.tsx:853:35 - error TS2322: Type '{ close: string; open?: string; closed?: boolean; }' is not assignable to type 'OpeningHours'.
+  Property 'open' is optional in type '{ close: string; open?: string; closed?: boolean; }' but required in type 'OpeningHours'.
+
+853                                   openingHours: {
+                                      ~~~~~~~~~~~~
+
+  client/src/components/admin/settings.tsx:71:7
+    71       openingHours: OpeningHours;
+             ~~~~~~~~~~~~
+    The expected type comes from property 'openingHours' which is declared here on type '{ date: string; openingHours: OpeningHours; note: string; }'
+
+client/src/components/admin/settings.tsx:882:47 - error TS2532: Object is possibly 'undefined'.
+
+882                                 openingHours: updatedHours[index].openingHours,
+                                                  ~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:168:13 - error TS2322: Type '{ id: any; employeeId: any; date: string | undefined; startTime: string; endTime: string; position: string; status: any; notes: any; createdAt: string; updatedAt: string; }[]' is not assignable to type 'Shift[]'.
+  Type '{ id: any; employeeId: any; date: string | undefined; startTime: string; endTime: string; position: string; status: any; notes: any; createdAt: string; updatedAt: string; }' is not assignable to type 'Shift'.
+    Types of property 'date' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+
+168       const mapped: Shift[] = data.map((s: any) => ({
+                ~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:292:7 - error TS2532: Object is possibly 'undefined'.
+
+292       shiftsByEmployee[shift.employeeId].push(shift);
+          ~~~~~~~~~~~~~~~~~~~~~~~

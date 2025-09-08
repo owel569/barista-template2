@@ -1,0 +1,82 @@
+client/src/components/admin/MaintenanceTaskForm.tsx:52:70 - error TS2345: Argument of type '() => { id: string | number; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "medium" | "low" | "high" | "critical"; status: "in_progress" | "completed" | "cancelled" | "pending"; ... 7 more ...; updatedAt: string | Date; }' is not assignable to parameter of type 'Partial<MaintenanceTask> | (() => Partial<MaintenanceTask>)'.
+  Type '() => { id: string | number; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "medium" | "low" | "high" | "critical"; status: "in_progress" | "completed" | "cancelled" | "pending"; ... 7 more ...; updatedAt: string | Date; }' is not assignable to type '() => Partial<MaintenanceTask>'.
+    Call signature return types '{ id: string | number; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "medium" | "low" | "high" | "critical"; status: "in_progress" | "completed" | "cancelled" | "pending"; ... 7 more ...; updatedAt: string | Date; }' and 'Partial<MaintenanceTask>' are incompatible.
+      The types of 'id' are incompatible between these types.
+        Type 'string | number' is not assignable to type 'string'.
+          Type 'number' is not assignable to type 'string'.
+
+52   const [formData, setFormData] = useState<Partial<MaintenanceTask>>(() => {
+                                                                        ~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:169:7 - error TS2322: Type 'string | Date' is not assignable to type 'string'.
+  Type 'Date' is not assignable to type 'string'.
+
+169       createdAt: formData.createdAt || new Date(), // Ensure createdAt is set
+          ~~~~~~~~~
+
+  client/src/types/maintenance.ts:16:3
+    16   createdAt: string;
+         ~~~~~~~~~
+    The expected type comes from property 'createdAt' which is declared here on type 'Omit<MaintenanceTask, "id"> & { equipmentId?: number | null; }'
+
+client/src/components/admin/MaintenanceTaskForm.tsx:170:7 - error TS2322: Type 'string | Date' is not assignable to type 'string'.
+  Type 'Date' is not assignable to type 'string'.
+
+170       updatedAt: formData.updatedAt || new Date() // Ensure updatedAt is set
+          ~~~~~~~~~
+
+  client/src/types/maintenance.ts:17:3
+    17   updatedAt: string;
+         ~~~~~~~~~
+    The expected type comes from property 'updatedAt' which is declared here on type 'Omit<MaintenanceTask, "id"> & { equipmentId?: number | null; }'
+
+client/src/components/admin/MaintenanceTaskForm.tsx:172:14 - error TS2379: Argument of type 'Omit<MaintenanceTask, "id"> & { equipmentId?: number | null; }' is not assignable to parameter of type 'Omit<MaintenanceTask, "id"> & { equipmentId?: string | null; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Type 'Omit<MaintenanceTask, "id"> & { equipmentId?: number | null; }' is not assignable to type '{ equipmentId?: string | null; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'equipmentId' are incompatible.
+      Type 'number | null' is not assignable to type 'string | null'.
+        Type 'number' is not assignable to type 'string'.
+
+172     onSubmit(taskToSubmit);
+                 ~~~~~~~~~~~~
+
+client/src/components/admin/maintenance-management.tsx:488:19 - error TS2412: Type 'MaintenanceTask | undefined' is not assignable to type 'Partial<MaintenanceTask & { equipmentId?: string | null; }> | undefined' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+
+488                   initialData={editingTask ?? undefined}
+                      ~~~~~~~~~~~
+
+  client/src/components/admin/MaintenanceTaskForm.tsx:24:3
+    24   initialData?: Partial<MaintenanceTask & { equipmentId?: string | null }>;
+         ~~~~~~~~~~~
+    The expected type comes from property 'initialData' which is declared here on type 'IntrinsicAttributes & MaintenanceTaskFormProps'
+
+client/src/components/admin/maintenance-management.tsx:489:19 - error TS2322: Type '(taskData: Omit<MaintenanceTask, "id">) => Promise<void>' is not assignable to type '(data: Omit<MaintenanceTask, "id"> & { equipmentId?: string | null; }) => void'.
+  Types of parameters 'taskData' and 'data' are incompatible.
+    Property 'equipment' is missing in type 'Omit<MaintenanceTask, "id"> & { equipmentId?: string | null; }' but required in type 'Omit<MaintenanceTask, "id">'.
+
+489                   onSubmit={editingTask ?
+                      ~~~~~~~~
+
+  client/src/components/admin/maintenance-management.tsx:37:3
+    37   equipment: string;
+         ~~~~~~~~~
+    'equipment' is declared here.
+  client/src/components/admin/MaintenanceTaskForm.tsx:25:3
+    25   onSubmit: (data: Omit<MaintenanceTask, 'id'> & { equipmentId?: string | null }) => void;
+         ~~~~~~~~
+    The expected type comes from property 'onSubmit' which is declared here on type 'IntrinsicAttributes & MaintenanceTaskFormProps'
+
+client/src/components/admin/online-ordering.tsx:150:11 - error TS2339: Property 'lastMessage' does not exist on type 'WebSocketHookReturn'.
+
+150   const { lastMessage } = useWebSocket('/api/ws');
+              ~~~~~~~~~~~
+
+client/src/components/admin/online-ordering.tsx:150:40 - error TS2554: Expected 0 arguments, but got 1.
+
+150   const { lastMessage } = useWebSocket('/api/ws');
+                                           ~~~~~~~~~
+
+client/src/components/admin/permissions-management.tsx:435:69 - error TS2322: Type '"directeur" | "employe"' is not assignable to type '"employe"'.
+  Type '"directeur"' is not assignable to type '"employe"'.
+
+435                   onValueChange={(value) => setNewUser({...newUser, role: value as 'directeur' | 'employe'})}
+                     

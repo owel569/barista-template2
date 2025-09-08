@@ -1,0 +1,101 @@
+
+server/routes/admin/customers.routes.ts:182:17 - error TS2532: Object is possibly 'undefined'.
+
+182         active: activeCustomers[0].count,
+                    ~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/menu-admin.routes.ts:102:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+102       return res.status(400).json({
+          ~~~~~~
+
+server/routes/admin/menu-admin.routes.ts:142:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+142       return res.status(400).json({
+          ~~~~~~
+
+server/routes/admin/reservations.routes.ts:48:7 - error TS2741: Property 'where' is missing in type 'Omit<import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"reservations", { id: import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; ...' but required in type 'Omit<import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"reservations", { id: import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; ...'.
+
+48       query = query.where(sql`DATE(${reservations.date}) = ${date}`);
+         ~~~~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/select.d.ts:402:5
+    402     where(where: ((aliases: this['_']['selection']) => SQL | undefined) | SQL | undefined): PgSelectWithout<this, TDynamic, 'where'>;
+            ~~~~~
+    'where' is declared here.
+
+server/routes/admin/reservations.routes.ts:53:7 - error TS2741: Property 'where' is missing in type 'Omit<PgSelectBase<"reservations", { id: PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; ... 5 more ...; generated: undefined; }, {}, {}>; ... 11 more ...; updatedAt: PgColumn<...>; },...' but required in type 'Omit<PgSelectBase<"reservations", { id: PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; ... 5 more ...; generated: undefined; }, {}, {}>; ... 10 more ...; tableNumber: PgColumn<...>; ...'.
+
+53       query = baseQuery.where(eq(reservations.status, status as any)); // Cast to any to satisfy Drizzle's type checking for status
+         ~~~~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/select.d.ts:402:5
+    402     where(where: ((aliases: this['_']['selection']) => SQL | undefined) | SQL | undefined): PgSelectWithout<this, TDynamic, 'where'>;
+            ~~~~~
+    'where' is declared here.
+
+server/routes/admin/reservations.routes.ts:148:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+148       return res.status(400).json({
+          ~~~~~~
+
+server/routes/admin/reservations.routes.ts:164:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+164       return res.status(404).json({
+          ~~~~~~
+
+server/routes/admin/reservations.routes.ts:195:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+195       return res.status(404).json({
+          ~~~~~~
+
+server/routes/admin/reservations.routes.ts:243:16 - error TS2532: Object is possibly 'undefined'.
+
+243         total: totalReservationsResult[0].count,
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/reservations.routes.ts:244:16 - error TS2532: Object is possibly 'undefined'.
+
+244         today: todayReservationsResult[0].count,
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/reservations.routes.ts:245:20 - error TS2532: Object is possibly 'undefined'.
+
+245         confirmed: confirmedReservationsResult[0].count,
+                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/reservations.routes.ts:246:18 - error TS2532: Object is possibly 'undefined'.
+
+246         pending: pendingReservationsResult[0].count
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/advanced-features.ts:630:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+630       return res.status(400).json({
+          ~~~~~~
+
+server/routes/ai.routes.ts:507:10 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { date: Date | SQL<unknown> | Placeholder<string, any>; time: string | SQL<unknown> | Placeholder<string, any>; partySize: number | SQL<unknown> | Placeholder<...>; ... 9 more ...; guestName?: string | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Argument of type '{ customerId: number; tableId: number; date: Date; time: any; partySize: any; status: "confirmed"; specialRequests: any; notes: string; }' is not assignable to parameter of type '{ date: Date | SQL<unknown> | Placeholder<string, any>; time: string | SQL<unknown> | Placeholder<string, any>; partySize: number | SQL<unknown> | Placeholder<...>; ... 9 more ...; guestName?: string | ... 3 more ... | undefined; }'.
+      Property 'reservationTime' is missing in type '{ customerId: number; tableId: number; date: Date; time: any; partySize: any; status: "confirmed"; specialRequests: any; notes: string; }' but required in type '{ date: Date | SQL<unknown> | Placeholder<string, any>; time: string | SQL<unknown> | Placeholder<string, any>; partySize: number | SQL<unknown> | Placeholder<...>; ... 9 more ...; guestName?: string | ... 3 more ... | undefined; }'.
+  Overload 2 of 2, '(values: { date: Date | SQL<unknown> | Placeholder<string, any>; time: string | SQL<unknown> | Placeholder<string, any>; partySize: number | SQL<unknown> | Placeholder<...>; ... 9 more ...; guestName?: string | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'customerId' does not exist in type '{ date: Date | SQL<unknown> | Placeholder<string, any>; time: string | SQL<unknown> | Placeholder<string, any>; partySize: number | SQL<unknown> | Placeholder<...>; ... 9 more ...; guestName?: string | ... 3 more ... | undefined; }[]'.
+
+507         .values({
+             ~~~~~~
+
+
+server/routes/ai.routes.ts:626:67 - error TS2345: Argument of type 'string | ParsedQs | undefined' is not assignable to parameter of type 'string | undefined'.
+  Type 'ParsedQs' is not assignable to type 'string'.
+
+626       const suggestions = AIService.generateAutomationSuggestions(categoryStr, priorityStr as 'low' | 'medium' | 'high');
+                                                                      ~~~~~~~~~~~
+
+server/routes/tables/tables.routes.ts:257:11 - error TS2322: Type '{ id: number; number: number; capacity: number; location: string | null; section: string | null; status: "maintenance" | "available" | "occupied" | "reserved"; currentReservation: { ...; } | undefined; nextReservation: { ...; } | undefined; }[]' is not assignable to type 'TableStatus[]'.
+  Type '{ id: number; number: number; capacity: number; location: string | null; section: string | null; status: "maintenance" | "available" | "occupied" | "reserved"; currentReservation: { ...; } | undefined; nextReservation: { ...; } | undefined; }' is not assignable to type 'TableStatus' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'currentReservation' are incompatible.
+      Type '{ id: number; customerName: string; startTime: Date; endTime: Date; partySize: number; } | undefined' is not assignable to type '{ id: number; customerName: string; startTime: Date; endTime: Date; partySize: number; }'.
+        Type 'undefined' is not assignable to type '{ id: number; customerName: string; startTime: Date; endTime: Date; partySize: number; }'.
+
+257     const tableStatuses: TableStatus[] = allTables.map(table => {
+              ~~~~~~~~~~~~~
