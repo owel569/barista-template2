@@ -1,0 +1,75 @@
+
+client/src/components/admin/settings.tsx:738:76 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+738                       if (!draftSettings.specialDates.closedDates.includes(dateStr)) {
+                                                                               ~~~~~~~
+
+client/src/components/admin/settings.tsx:792:83 - error TS2345: Argument of type '"closed"' is not assignable to parameter of type '"note" | "openingHours"'.
+
+792                           onCheckedChange={(checked) => updateSpecialHours(index, 'closed', !checked)}
+                                                                                      ~~~~~~~~
+
+client/src/components/admin/settings.tsx:801:76 - error TS2345: Argument of type '"open"' is not assignable to parameter of type '"note" | "openingHours"'.
+
+801                             onChange={(value) => updateSpecialHours(index, 'open', value)}
+                                                                               ~~~~~~
+
+client/src/components/admin/settings.tsx:807:76 - error TS2345: Argument of type '"close"' is not assignable to parameter of type '"note" | "openingHours"'.
+
+807                             onChange={(value) => updateSpecialHours(index, 'close', value)}
+                                                                               ~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:471:13 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+471             date: dateString,
+                ~~~~
+
+  client/src/components/admin/staff-scheduling.tsx:58:3
+    58   date: string;
+         ~~~~
+    The expected type comes from property 'date' which is declared here on type 'Shift'
+
+client/src/components/admin/staff-scheduling.tsx:1270:12 - error TS2375: Type '{ children: Element[]; value: string | undefined; onValueChange: (value: string) => void; required: true; }' is not assignable to type '{ value?: string; defaultValue?: string; onValueChange?(value: string): void; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'value' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+1270           <Select
+                ~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:1284:21 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+1284                     value={dateString}
+                         ~~~~~
+
+  node_modules/@radix-ui/react-select/dist/index.d.mts:93:5
+    93     value: string;
+           ~~~~~
+    The expected type comes from property 'value' which is declared here on type 'IntrinsicAttributes & Omit<SelectItemProps & RefAttributes<HTMLDivElement>, "ref"> & RefAttributes<...>'
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:210:34 - error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
+
+210       const message = JSON.parse(lastMessage.data);
+                                     ~~~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:423:29 - error TS18048: 'profile.loyalty.totalSpent' is possibly 'undefined'.
+
+423         'Panier Moyen (€)': profile.loyalty?.totalSpent / (profile.orderHistory?.length || 1),
+                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:483:7 - error TS2448: Block-scoped variable 'paginatedUsers' used before its declaration.
+
+483   }, [paginatedUsers, selectedUsers.length]);
+          ~~~~~~~~~~~~~~
+
+  client/src/components/admin/user-profile-enhanced-optimized.tsx:521:9
+    521   const paginatedUsers = sortedUsers.slice(
+                ~~~~~~~~~~~~~~
+    'paginatedUsers' is declared here.
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:483:7 - error TS2454: Variable 'paginatedUsers' is used before being assigned.
+
+483   }, [paginatedUsers, selectedUsers.l

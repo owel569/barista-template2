@@ -1,0 +1,125 @@
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:589:7 - error TS2375: Type '{ email: string; firstName: string; lastName: string; birthDate: string; preferences: { emailNotifications: boolean; smsNotifications: boolean; promotionalEmails: boolean; dietaryRestrictions: string[]; allergens: string[]; language: string; currency: string; favoriteTable?: number | undefined; }; address?: string |...' is not assignable to type 'Partial<UserProfile>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'phone' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+589       updates: {
+          ~~~~~~~
+
+  client/src/components/admin/user-profile-enhanced-optimized.tsx:308:44
+    308     mutationFn: async (data: { id: number; updates: Partial<UserProfile> }) => {
+                                                   ~~~~~~~
+    The expected type comes from property 'updates' which is declared here on type '{ id: number; updates: Partial<UserProfile>; }'
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:602:9 - error TS2375: Type '{ type: "other" | "home" | "work"; city: string; postalCode: string; street: string; country: string; isDefault?: boolean | undefined; }' is not assignable to type 'Partial<Address>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'isDefault' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+
+602         updates: values
+            ~~~~~~~
+
+  client/src/components/admin/user-profile-enhanced-optimized.tsx:356:51
+    356     mutationFn: async (data: { addressId: number; updates: Partial<Address> }) => {
+                                                          ~~~~~~~
+    The expected type comes from property 'updates' which is declared here on type '{ addressId: number; updates: Partial<Address>; }'
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:1140:24 - error TS18048: 'selectedUser.paymentMethods.length' is possibly 'undefined'.
+
+1140                       {selectedUser.paymentMethods?.length > 0 ? (
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:1141:25 - error TS18048: 'selectedUser.paymentMethods' is possibly 'undefined'.
+
+1141                         selectedUser.paymentMethods.map((method) => (
+                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:1197:24 - error TS18048: 'selectedUser.addresses.length' is possibly 'undefined'.
+
+1197                       {selectedUser.addresses?.length > 0 ? (
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:1199:28 - error TS18048: 'selectedUser.addresses' is possibly 'undefined'.
+
+1199                           {selectedUser.addresses.map((address) => (
+                                ~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:1286:26 - error TS18048: 'selectedUser.preferences.dietaryRestrictions.length' is possibly 'undefined'.
+
+1286                         {selectedUser.preferences?.dietaryRestrictions?.length > 0 ? (
+                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:1288:30 - error TS18048: 'selectedUser.preferences' is possibly 'undefined'.
+
+1288                             {selectedUser.preferences.dietaryRestrictions.map((restriction) => (
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:1301:26 - error TS18048: 'selectedUser.preferences.allergens.length' is possibly 'undefined'.
+
+1301                         {selectedUser.preferences?.allergens?.length > 0 ? (
+                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:1303:30 - error TS18048: 'selectedUser.preferences' is possibly 'undefined'.
+
+1303                             {selectedUser.preferences.allergens.map((allergen) => (
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:1349:24 - error TS18048: 'selectedUser.orderHistory.length' is possibly 'undefined'.
+
+1349                       {selectedUser.orderHistory?.length > 0 ? (
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:1361:30 - error TS18048: 'selectedUser.orderHistory' is possibly 'undefined'.
+
+1361                             {selectedUser.orderHistory.map((order) => (
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:194:5 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string | (() => string)'.
+  Type 'undefined' is not assignable to type 'string | (() => string)'.
+
+194     initialDate
+        ~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:294:45 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'SetStateAction<string>'.
+  Type 'undefined' is not assignable to type 'SetStateAction<string>'.
+
+294               onClick={() => setCurrentDate(new Date().toISOString().split('T')[0])}
+                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/chart.tsx:338:16 - error TS2375: Type '{ key: string; index: number; itemConfig: ItemConfig | undefined; item: TooltipPayloadItem; indicator: "line" | "dot" | "dashed"; hideIndicator: boolean; indicatorColor: string; formatter: (Formatter<...> & FormatterFunction) | undefined; nestLabel: boolean; tooltipLabel: Element | null; }' is not assignable to type '{ item: TooltipPayloadItem; index: number; itemConfig: ItemConfig | undefined; indicatorColor: string; indicator: "line" | "dot" | "dashed"; hideIndicator: boolean; formatter?: FormatterFunction; nestLabel: boolean; tooltipLabel: ReactNode; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'formatter' are incompatible.
+    Type '(Formatter<ValueType, NameType> & FormatterFunction) | undefined' is not assignable to type 'FormatterFunction'.
+      Type 'undefined' is not assignable to type 'FormatterFunction'.
+
+338               <TooltipItem
+                   ~~~~~~~~~~~
+
+server/routes/admin/customers.routes.ts:148:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+148       return res.status(404).json({
+          ~~~~~~
+
+server/routes/admin/menu-admin.routes.ts:143:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+143       return res.status(400).json({
+          ~~~~~~
+
+server/routes/ai.routes.ts:620:9 - error TS2345: Argument of type 'string | ParsedQs' is not assignable to parameter of type 'string | undefined'.
+  Type 'ParsedQs' is not assignable to type 'string'.
+
+620         categoryStr || '',
+            ~~~~~~~~~~~~~~~~~
+
+server/routes/tables/tables.routes.ts:271:11 - error TS2339: Property 'status' does not exist on type '{ id: number; tableId: number | null; guestName: string; startTime: Date; partySize: number; }'.
+
+271         r.status === 'confirmed' &&
+              ~~~~~~
+
+server/routes/tables/tables.routes.ts:275:13 - error TS2375: Type '{ id: number; number: number; capacity: number; location: string | null; section: string | null; status: "maintenance" | "available" | "occupied" | "reserved"; currentReservation: { ...; } | undefined; nextReservation: { ...; } | undefined; }' is not assignable to type 'TableStatus' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'currentReservation' are incompatible.
+    Type '{ id: number; customerName: string; startTime: Date; endTime: Date; partySize: number; } | undefined' is not assignable to type '{ id: number; customerName: string; startTime: Date; endTime: Date; partySize: number; }'.
+      Type 'undefined' is not assignable to type '{ id: number; customerName: string; startTime: Date; endTime: Date; partySize: number; }'.
+
+275       const result: TableStatus = {
+                ~~~~~~
