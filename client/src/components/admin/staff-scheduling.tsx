@@ -1100,7 +1100,7 @@ export default function StaffScheduling() {
               <CardTitle>Détection de Conflits</CardTitle>
               <CardDescription>
                 Conflits et problèmes potentiels dans le planning
-              </Description>
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {conflicts.length === 0 ? (

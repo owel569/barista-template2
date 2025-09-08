@@ -1,22 +1,24 @@
 import React from 'react';
 import Hero from '@/components/hero';
-import About from '@/components/about';
-import HomeMenuPreview from '@/components/home-menu-preview';
+import Menu from '@/components/menu';
 import Reservation from '@/components/reservation';
+import About from '@/components/about';
 import Contact from '@/components/contact';
-import { LanguageProvider } from '@/contexts/LanguageContext';
+import Gallery from '@/components/gallery';
+import Footer from '@/components/footer';
+import Navigation from '@/components/navigation';
 
 export default function HomePage() {
   return (
-    <LanguageProvider>
-      <div className="overflow-x-hidden">
-        <Hero />
-        <About />
-        <HomeMenuPreview />
-        <Reservation />
-        <Contact />
-      </div>
-    </LanguageProvider>
-
+    <div className="min-h-screen bg-background">
+      <Navigation />
+      <Hero />
+      <Menu />
+      <Reservation />
+      <About />
+      <Gallery />
+      <Contact />
+      <Footer />
+    </div>
   );
 }

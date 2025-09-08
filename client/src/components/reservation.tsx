@@ -318,7 +318,7 @@ export default function Reservation() : JSX.Element {
                 <div className="flex items-center space-x-4 text-sm">
                   <div className="flex items-center">
                     <div className="w-3 h-3 bg-coffee-green rounded mr-2"></div>
-                    <span>Disponible</span>
+                    <span> Disponible</span>
                   </div>
                   <div className="flex items-center">
                     <div className="w-3 h-3 bg-red-500 rounded mr-2"></div>
