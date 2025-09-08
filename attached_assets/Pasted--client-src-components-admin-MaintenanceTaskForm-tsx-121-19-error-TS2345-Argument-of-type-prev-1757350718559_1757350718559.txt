@@ -1,0 +1,73 @@
+
+client/src/components/admin/MaintenanceTaskForm.tsx:121:19 - error TS2345: Argument of type '(prev: { id: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "high" | "low" | "medium" | "critical"; status: "in_progress" | "completed" | "cancelled" | "pending"; ... 7 more ...; updatedAt: string; }) => { ...; }' is not assignable to parameter of type 'SetStateAction<{ id: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "high" | "low" | "medium" | "critical"; status: "in_progress" | "completed" | "cancelled" | "pending"; ... 7 more ...; updatedAt: string; }>'.
+  Type '(prev: { id: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "high" | "low" | "medium" | "critical"; status: "in_progress" | "completed" | "cancelled" | "pending"; ... 7 more ...; updatedAt: string; }) => { ...; }' is not assignable to type '(prevState: { id: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "high" | "low" | "medium" | "critical"; status: "in_progress" | "completed" | "cancelled" | "pending"; ... 7 more ...; updatedAt: string; }) => { ...; }'.
+    Call signature return types '{ equipmentId: number | null; equipment: string; id: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "high" | "low" | "medium" | "critical"; ... 7 more ...; updatedAt: string; }' and '{ id: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "high" | "low" | "medium" | "critical"; status: "in_progress" | "completed" | "cancelled" | "pending"; ... 7 more ...; updatedAt: string; }' are incompatible.
+      The types of 'equipmentId' are incompatible between these types.
+        Type 'number | null' is not assignable to type 'null'.
+          Type 'number' is not assignable to type 'null'.
+
+121       setFormData(prev => ({
+                      ~~~~~~~~~~
+122         ...prev,
+    ~~~~~~~~~~~~~~~~
+... 
+124         equipment: selectedEquipment?.name || '',
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+125       }));
+    ~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:193:111 - error TS2339: Property 'toString' does not exist on type 'never'.
+
+193             value={formData.equipmentId !== null && formData.equipmentId !== undefined ? formData.equipmentId.toString() : ''}
+                                                                                                                  ~~~~~~~~
+
+client/src/components/admin/maintenance-management.tsx:488:19 - error TS2412: Type '{ equipmentId: number | null; id: number; title: string; description: string; equipment: string; priority: "high" | "low" | "medium" | "urgent"; status: "in_progress" | "completed" | "cancelled" | "pending"; ... 6 more ...; notes?: string; } | undefined' is not assignable to type 'Partial<MaintenanceTask & { equipmentId?: string | null; }> | undefined' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+
+488                   initialData={editingTask ? {
+                      ~~~~~~~~~~~
+
+  client/src/components/admin/MaintenanceTaskForm.tsx:24:3
+    24   initialData?: Partial<MaintenanceTask & { equipmentId?: string | null }>;
+         ~~~~~~~~~~~
+    The expected type comes from property 'initialData' which is declared here on type 'IntrinsicAttributes & MaintenanceTaskFormProps'
+
+client/src/components/admin/maintenance-management.tsx:492:19 - error TS2322: Type '(taskData: Omit<MaintenanceTask, "id">) => Promise<void>' is not assignable to type '(data: Omit<MaintenanceTask, "id"> & { equipmentId?: number | null; }) => void'.
+  Types of parameters 'taskData' and 'data' are incompatible.
+    Property 'equipment' is missing in type 'Omit<MaintenanceTask, "id"> & { equipmentId?: number | null; }' but required in type 'Omit<MaintenanceTask, "id">'.
+
+492                   onSubmit={editingTask ?
+                      ~~~~~~~~
+
+  client/src/components/admin/maintenance-management.tsx:37:3
+    37   equipment: string;
+         ~~~~~~~~~
+    'equipment' is declared here.
+  client/src/components/admin/MaintenanceTaskForm.tsx:25:3
+    25   onSubmit: (data: Omit<MaintenanceTask, 'id'> & { equipmentId?: number | null }) => void;
+         ~~~~~~~~
+    The expected type comes from property 'onSubmit' which is declared here on type 'IntrinsicAttributes & MaintenanceTaskFormProps'
+
+client/src/components/admin/online-ordering.tsx:151:38 - error TS2339: Property 'lastMessage' does not exist on type 'WebSocketHookReturn'.
+
+151   const lastMessage = webSocketHook?.lastMessage || null;
+                                         ~~~~~~~~~~~
+
+client/src/components/admin/settings.tsx:261:22 - error TS2345: Argument of type '(prev: RestaurantSettings) => { openingHours: { [x: string]: OpeningHours | { open?: string; close?: string; closed?: boolean; }; }; restaurantName: string; ... 8 more ...; specialDates: { ...; }; }' is not assignable to parameter of type 'SetStateAction<RestaurantSettings>'.
+  Type '(prev: RestaurantSettings) => { openingHours: { [x: string]: OpeningHours | { open?: string; close?: string; closed?: boolean; }; }; restaurantName: string; ... 8 more ...; specialDates: { ...; }; }' is not assignable to type '(prevState: RestaurantSettings) => RestaurantSettings'.
+    Call signature return types '{ openingHours: { [x: string]: OpeningHours | { open?: string; close?: string; closed?: boolean; }; }; restaurantName: string; address: string; phone: string; email: string; website: string; ... 4 more ...; specialDates: { ...; }; }' and 'RestaurantSettings' are incompatible.
+      The types of 'openingHours' are incompatible between these types.
+        Type '{ [x: string]: OpeningHours | { open?: string; close?: string; closed?: boolean; }; }' is not assignable to type 'Record<string, OpeningHours>'.
+          'string' index signatures are incompatible.
+            Type 'OpeningHours | { open?: string; close?: string; closed?: boolean; }' is not assignable to type 'OpeningHours'.
+              Type '{ open?: string; close?: string; closed?: boolean; }' is not assignable to type 'OpeningHours'.
+                Property 'open' is optional in type '{ open?: string; close?: string; closed?: boolean; }' but required in type 'OpeningHours'.
+
+261     setDraftSettings(prev => ({
+                         ~~~~~~~~~~
+262       ...prev,
+    ~~~~~~~~~~~~~~
+... 
+269       }
+    ~~~~~~~
+270     }));
+    ~~~~~~

@@ -1,0 +1,80 @@
+client/src/components/admin/user-profile-enhanced-optimized.tsx:210:34 - error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
+
+210       const message = JSON.parse(lastMessage.data);
+                                     ~~~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:481:43 - error TS7006: Parameter 'user' implicitly has an 'any' type.
+
+481       setSelectedUsers(paginatedUsers.map(user => user.id));
+                                              ~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:483:7 - error TS2448: Block-scoped variable 'paginatedUsers' used before its declaration.
+
+483   }, [paginatedUsers, selectedUsers.length]);
+          ~~~~~~~~~~~~~~
+
+  client/src/components/admin/user-profile-enhanced-optimized.tsx:503:9
+    503   const paginatedUsers = sortedUsers.slice(
+                ~~~~~~~~~~~~~~
+    'paginatedUsers' is declared here.
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:493:12 - error TS2552: Cannot find name 'filteredUsers'. Did you mean 'FileReader'?
+
+493     return filteredUsers.sort((a, b) => {
+               ~~~~~~~~~~~~~
+
+  node_modules/typescript/lib/lib.dom.d.ts:11745:13
+    11745 declare var FileReader: {
+                      ~~~~~~~~~~
+    'FileReader' is declared here.
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:493:32 - error TS7006: Parameter 'a' implicitly has an 'any' type.
+
+493     return filteredUsers.sort((a, b) => {
+                                   ~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:493:35 - error TS7006: Parameter 'b' implicitly has an 'any' type.
+
+493     return filteredUsers.sort((a, b) => {
+                                      ~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:501:7 - error TS2552: Cannot find name 'filteredUsers'. Did you mean 'FileReader'?
+
+501   }, [filteredUsers, sortBy]);
+          ~~~~~~~~~~~~~
+
+  node_modules/typescript/lib/lib.dom.d.ts:11745:13
+    11745 declare var FileReader: {
+                      ~~~~~~~~~~
+    'FileReader' is declared here.
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:571:7 - error TS2375: Type '{ email: string; firstName: string; lastName: string; birthDate: string; preferences: { emailNotifications: boolean; smsNotifications: boolean; promotionalEmails: boolean; dietaryRestrictions: string[]; allergens: string[]; language: string; currency: string; favoriteTable?: number | undefined; }; phone?: string | u...' is not assignable to type 'Partial<UserProfile>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'phone' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+571       updates: {
+          ~~~~~~~
+
+  client/src/components/admin/user-profile-enhanced-optimized.tsx:308:44
+    308     mutationFn: async (data: { id: number; updates: Partial<UserProfile> }) => {
+                                                   ~~~~~~~
+    The expected type comes from property 'updates' which is declared here on type '{ id: number; updates: Partial<UserProfile>; }'
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:584:9 - error TS2375: Type '{ type: "home" | "work" | "other"; city: string; postalCode: string; street: string; country: string; isDefault?: boolean | undefined; }' is not assignable to type 'Partial<Address>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'isDefault' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+
+584         updates: values
+            ~~~~~~~
+
+  client/src/components/admin/user-profile-enhanced-optimized.tsx:356:51
+    356     mutationFn: async (data: { addressId: number; updates: Partial<Address> }) => {
+                                                          ~~~~~~~
+    The expected type comes from property 'updates' which is declared here on type '{ addressId: number; updates: Partial<Address>; }'
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:809:30 - error TS7006: Parameter 'user' implicitly has an 'any' type.
+
+809         {paginatedUsers.map((user) => (
+                                 ~~~~
