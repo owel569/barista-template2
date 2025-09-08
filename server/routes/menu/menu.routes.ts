@@ -69,7 +69,7 @@ async function logMenuActivity(
 // === ROUTES SPÉCIFIQUES AVANT LES PARAMÈTRES ===
 
 // Liste des articles du menu avec filtres
-router.get('/items',
+router.get('/',
   validateQuery(z.object({
     categoryId: z.coerce.number().int().positive().optional(),
     isAvailable: z.coerce.boolean().optional(),
@@ -300,8 +300,8 @@ router.get('/categories', asyncHandler(async (req, res) => {
 // === ROUTES AVEC PARAMÈTRES APRÈS ===
 
 // Détails d'un article du menu
-router.get('/items/:id',
-  validateParams(z.object({ id: z.string().regex(/^\d+$/, 'ID doit être numérique').transform(Number) })),
+router.get('/:id',
+  validateParams(z.object({ id: z.coerce.number().int().positive('ID invalide') })),
   cacheMiddleware({ ttl: 10 * 60 * 1000, tags: ['menu'] }),
   asyncHandler(async (req, res) => {
     const db = getDb();
@@ -341,13 +341,8 @@ router.get('/items/:id',
   })
 );
 
-// Route racine - redirection vers /items
-router.get('/', (req, res) => {
-  res.redirect('/api/menu/items');
-});
-
 // Créer un article (admin seulement)
-router.post('/items',
+router.post('/',
   authenticateUser,
   requireRoles(['admin', 'manager']),
   validateBody(CreateMenuItemSchema),
@@ -411,10 +406,10 @@ router.post('/items',
 );
 
 // Mettre à jour un article
-router.put('/items/:id',
+router.put('/:id',
   authenticateUser,
   requireRoles(['admin', 'manager']),
-  validateParams(z.object({ id: z.string().regex(/^\d+$/, 'ID doit être numérique').transform(Number) })),
+  validateParams(z.object({ id: z.coerce.number().int().positive('ID invalide') })),
   validateBody(UpdateMenuItemSchema.omit({ id: true })),
   invalidateCache(['menu']),
   asyncHandler(async (req, res) => {
@@ -494,10 +489,10 @@ router.put('/items/:id',
 );
 
 // Supprimer un article (désactivation)
-router.delete('/items/:id',
+router.delete('/:id',
   authenticateUser,
   requireRoles(['admin']),
-  validateParams(z.object({ id: z.string().regex(/^\d+$/, 'ID doit être numérique').transform(Number) })),
+  validateParams(z.object({ id: z.coerce.number().int().positive('ID invalide') })),
   invalidateCache(['menu']),
   asyncHandler(async (req, res) => {
     const db = getDb();
