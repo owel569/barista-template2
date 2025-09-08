@@ -485,9 +485,9 @@ export default function MaintenanceManagement() : JSX.Element {
                 <MaintenanceTaskForm 
                   equipmentList={equipment}
                   technicians={technicians}
-                  initialData={editingTask}
+                  initialData={editingTask || undefined}
                   onSubmit={editingTask ? 
-                    (data) => handleUpdateTask(editingTask.id, data) : 
+                    (data: Omit<MaintenanceTask, 'id'>) => handleUpdateTask(editingTask.id, data) : 
                     handleCreateTask}
                   onCancel={() => {
                     setIsTaskDialogOpen(false);
