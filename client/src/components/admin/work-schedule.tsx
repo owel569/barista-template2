@@ -93,7 +93,7 @@ export default function WorkScheduleWrapper(): JSX.Element {
 
   const currentRole = mappedUserRole(userRole);
 
-  const { viewMode, editable, exportable } = viewOptions[currentRole as keyof typeof viewOptions] || viewOptions.default;
+  const { viewMode, editable, exportable } = (currentRole && viewOptions[currentRole as keyof typeof viewOptions]) || viewOptions.default;
 
   return (
     <div className="p-6">
@@ -107,7 +107,7 @@ export default function WorkScheduleWrapper(): JSX.Element {
           ) : (
             <LazyWorkSchedule 
               userRole={currentRole}
-              viewMode={viewMode as ViewMode} // Utilisation du type ViewMode ici
+              viewMode={viewMode as any} // Cast temporaire pour éviter l'erreur de type
               editable={editable}
               exportable={exportable}
               key={`${userRole}-${viewMode}`} // Force le re-render si le rôle change

@@ -161,8 +161,8 @@ export default function StaffScheduling() {
     setIsLoading(prev => ({ ...prev, shifts: true }));
     try {
       const week = getWeekDates(selectedWeek);
-      const weekStart = week[0] ?? new Date();
-      const weekEnd = week[6] ?? new Date(weekStart.getTime() + 6 * 86400000);
+      const weekStart = week[0] || new Date();
+      const weekEnd = week[6] || new Date(weekStart.getTime() + 6 * 86400000);
       const res = await secureRequest<{ success: boolean; data: any[] }>(`/api/staff/shifts?startDate=${weekStart.toISOString()}&endDate=${weekEnd.toISOString()}`, { method: 'GET' });
       const data = Array.isArray(res?.data) ? res.data : [];
       const mapped: Shift[] = data.map((s: any) => ({
@@ -173,7 +173,7 @@ export default function StaffScheduling() {
         endTime: String(s.endTime),
         position: String(s.position),
         status: s.status,
-        notes: s.notes ?? undefined,
+        notes: s.notes || undefined,
         createdAt: new Date(s.createdAt ?? Date.now()).toISOString(),
         updatedAt: new Date(s.updatedAt ?? Date.now()).toISOString()
       }));

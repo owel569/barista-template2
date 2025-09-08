@@ -257,13 +257,13 @@ export default function Settings({ userRole }: SettingsProps) {
   }, []);
 
 
-  const updateOpeningHours = useCallback((day: string, field: keyof OpeningHours, value: string | boolean) => {
+  const updateOpeningHours = useCallback((day: string, field: string, value: string | boolean) => {
     setDraftSettings(prev => ({
       ...prev,
       openingHours: {
         ...prev.openingHours,
         [day]: {
-          ...prev.openingHours[day],
+          ...(prev.openingHours?.[day] || {}),
           [field]: value
         }
       }

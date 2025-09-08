@@ -147,10 +147,10 @@ export default function OnlineOrdering(): JSX.Element {
   // WEBSOCKET ET DONNÉES
   // ==========================================
 
-  const { lastMessage } = useWebSocket('/api/ws');
+  const { lastMessage } = useWebSocket('/api/ws') || { lastMessage: null };
   
   useEffect(() => {
-    if (lastMessage) {
+    if (lastMessage?.data) {
       const data = lastMessage.data as any;
       if (data?.type === 'new_order') {
         setNewOrdersCount(prev => prev + 1);
