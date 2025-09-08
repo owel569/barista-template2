@@ -741,7 +741,7 @@ export default function Settings({ userRole }: SettingsProps) {
                     }}
                     disabled={(date) => {
                       const dateStr = date.toISOString().split('T')[0];
-                      return draftSettings.specialDates.closedDates.includes(dateStr) || !hasPermission('settings', 'edit');
+                      return (dateStr && draftSettings.specialDates.closedDates.includes(dateStr)) || !hasPermission('settings', 'edit');
                     }}
                   />
                   {draftSettings.specialDates.closedDates.length > 0 && (

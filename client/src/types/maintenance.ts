@@ -74,3 +74,34 @@ export interface RestaurantSettings {
     pushNotifications: boolean;
   };
 }
+export interface MaintenanceTask {
+  id: string;
+  title: string;
+  description: string;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  assignedTo?: string;
+  equipmentId?: string;
+  scheduledDate: Date;
+  completedDate?: Date;
+  estimatedDuration: number;
+  actualDuration?: number;
+  notes?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Equipment {
+  id: string;
+  name: string;
+  type: string;
+  location: string;
+  status: 'operational' | 'maintenance' | 'broken' | 'retired';
+  purchaseDate: Date;
+  warrantyExpiry?: Date;
+  lastMaintenanceDate?: Date;
+  nextMaintenanceDate?: Date;
+  notes?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}

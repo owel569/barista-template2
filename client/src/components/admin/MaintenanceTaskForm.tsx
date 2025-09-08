@@ -49,25 +49,7 @@ export function MaintenanceTaskForm({
   onSubmit,
   onCancel,
 }: MaintenanceTaskFormProps) {
-  const [formData, setFormData] = useState<MaintenanceTask>(() => ({
-    id: 0,
-    title: '',
-    description: '',
-    type: 'preventive' as const,
-    priority: 'medium' as const,
-    status: 'pending' as const,
-    scheduledDate: new Date().toISOString().split('T')[0]!,
-    completedDate: null,
-    assignedTo: null,
-    equipment: null,
-    estimatedDuration: 0,
-    actualDuration: null,
-    cost: null,
-    notes: null,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    ...initialData
-  }));
+  const [formData, setFormData] = useState<Partial<MaintenanceTask>>(() => {
       if (initialData) {
         return {
           id: initialData.id || 0,
@@ -173,13 +155,13 @@ export function MaintenanceTaskForm({
     e.preventDefault();
     // Ensure required fields have values before submitting
     const taskToSubmit: Omit<MaintenanceTask, 'id'> = {
-      title: formData.title,
-      description: formData.description,
-      type: formData.type,
-      priority: formData.priority,
-      status: formData.status,
-      scheduledDate: formData.scheduledDate,
-      estimatedDuration: formData.estimatedDuration,
+      title: formData.title!,
+      description: formData.description || '',
+      type: formData.type || 'preventive',
+      priority: formData.priority || 'medium',
+      status: formData.status || 'pending',
+      scheduledDate: formData.scheduledDate!,
+      estimatedDuration: formData.estimatedDuration!,
       cost: formData.cost || 0,
       assignedToId: formData.assignedToId || null,
       notes: formData.notes || '',
@@ -196,7 +178,7 @@ export function MaintenanceTaskForm({
           <Input
             id="title"
             name="title"
-            value={formData.title}
+            value={formData.title || ''}
             onChange={handleChange}
             placeholder="Titre de la tâche"
             required
@@ -312,7 +294,7 @@ export function MaintenanceTaskForm({
             type="number"
             min="0.5"
             step="0.5"
-            value={formData.estimatedDuration}
+            value={formData.estimatedDuration || ''}
             onChange={handleNumberChange}
           />
         </div>
@@ -336,7 +318,7 @@ export function MaintenanceTaskForm({
         <Textarea
           id="description"
           name="description"
-          value={formData.description}
+          value={formData.description || ''}
           onChange={handleChange}
           placeholder="Description détaillée de la tâche..."
           rows={3}

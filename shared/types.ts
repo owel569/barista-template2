@@ -4,13 +4,19 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
-  role: 'admin' | 'manager' | 'staff' | 'customer';
+  role: UserRole;
   permissions: string[];
   phone?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
+
+export type UserRole = 'admin' | 'manager' | 'staff' | 'customer';
+
+// Alias pour la compatibilité
+export type UserRoleExtended = UserRole | 'employee' | 'directeur' | 'employe';
+
 
 // Types pour les produits du menu
 export interface MenuItem {

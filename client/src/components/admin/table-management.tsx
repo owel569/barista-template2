@@ -63,7 +63,7 @@ interface Reservation {
 }
 
 interface RestaurantTable {
-  id: number;
+  id: number | string;
   number: number;
   capacity: number;
   location: 'main_floor' | 'terrace' | 'private_room' | 'bar';
@@ -75,6 +75,8 @@ interface RestaurantTable {
   notes?: string;
   lastCleaned?: string;
   isVip: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 interface TableLayout {
@@ -170,7 +172,7 @@ export default function TableManagement(): JSX.Element {
 
   // Mutations
   const createTableMutation = useMutation({
-    mutationFn: (data: Omit<RestaurantTable, 'id'>) => 
+    mutationFn: (data: Omit<RestaurantTable, 'id' | 'createdAt' | 'updatedAt'>) => 
       apiRequest('POST', '/api/admin/tables', { 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -238,14 +240,21 @@ export default function TableManagement(): JSX.Element {
 
   // Handlers
   const handleSubmit = (data: z.infer<typeof tableSchema>) => {
-    const tableData = {
-      ...data,
-      position: { x: 0, y: 0 },
-      status: 'available' as const
-    };
+    const newTable = {
+          id: Math.random().toString(36).substr(2, 9),
+          position: { x: 100, y: 100 },
+          status: 'available' as const,
+          number: tables.length + 1,
+          capacity: 4,
+          location: 'main_floor' as const,
+          shape: 'round' as const,
+          notes: '',
+          createdAt: new Date(),
+          updatedAt: new Date()
+        };
     createTableMutation.mutate({
-      ...tableData,
-      notes: tableData.notes || ''
+      ...newTable,
+      notes: newTable.notes || ''
     });
   };
 
@@ -612,7 +621,7 @@ export default function TableManagement(): JSX.Element {
                           {table.status === 'occupied' && (
                             <Button
                               size="sm"
-                              onClick={() => handleStatusChange(table.id, 'cleaning')}
+                              onClick={() => handleStatusChange(table.id as number, 'cleaning')}
                             >
                               Libérer
                             </Button>
@@ -620,7 +629,7 @@ export default function TableManagement(): JSX.Element {
                           {table.status === 'cleaning' && (
                             <Button
                               size="sm"
-                              onClick={() => handleStatusChange(table.id, 'available')}
+                              onClick={() => handleStatusChange(table.id as number, 'available')}
                             >
                               Nettoyée
                             </Button>
@@ -628,7 +637,7 @@ export default function TableManagement(): JSX.Element {
                           {table.status === 'available' && (
                             <Button
                               size="sm"
-                              onClick={() => handleStatusChange(table.id, 'occupied')}
+                              onClick={() => handleStatusChange(table.id as number, 'occupied')}
                             >
                               Occuper
                             </Button>

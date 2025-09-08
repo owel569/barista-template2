@@ -29,6 +29,25 @@ interface PermissionResponse {
   message?: string;
 }
 
+// Added interface for the return type of the usePermissions hook
+interface UsePermissionsReturn {
+  permissions: Permission[];
+  userRole: UserRole | null;
+  loading: boolean;
+  isLoading: boolean; // Alias pour loading
+  error: string | null;
+  hasPermission: (module: string, action: string) => boolean;
+  canView: (module: ModuleName) => boolean;
+  canEdit: (module: ModuleName) => boolean;
+  canDelete: (module: ModuleName) => boolean;
+  canCreate: (module: ModuleName) => boolean;
+  isAdmin: boolean;
+  isManager: boolean;
+  isStaff: boolean;
+  refreshPermissions: () => Promise<void>;
+  getUserAccessLevel: () => 'admin' | 'manager' | 'staff' | 'basic';
+}
+
 const PERMISSIONS_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 const CACHE_KEY = 'user_permissions_cache';
 
@@ -83,7 +102,7 @@ const DEFAULT_PERMISSIONS: Record<UserRole, Permission[]> = {
   ]
 };
 
-export const usePermissions = () => {
+export const usePermissions = (): UsePermissionsReturn => {
   const { user, isAuthenticated } = useAuth();
   const [permissionsCache, setPermissionsCache] = useState<PermissionsCache | null>(null);
   const [loading, setLoading] = useState(false);
@@ -257,43 +276,42 @@ export const usePermissions = () => {
     return userRole === 'directeur' || userRole === 'admin' || userRole === 'manager';
   }, [userRole]);
 
+  // Added isStaff to the return object
+  const isStaff = useCallback((): boolean => {
+    return userRole === 'staff';
+  }, [userRole]);
+
   const refreshPermissions = useCallback(async (): Promise<void> => {
     localStorage.removeItem(CACHE_KEY);
     setPermissionsCache(null);
     await fetchPermissions();
   }, [fetchPermissions]);
 
+  // Added isStaff to the return object
+  const getUserAccessLevel = useCallback((): 'admin' | 'manager' | 'staff' | 'basic' => {
+    if (userRole === 'directeur') return 'admin'; // Assuming 'directeur' maps to 'admin' for access level
+    if (userRole === 'admin') return 'admin';
+    if (userRole === 'manager') return 'manager';
+    if (userRole === 'staff') return 'staff';
+    return 'basic';
+  }, [userRole]);
+
   return {
-    // State
-    permissions: getCurrentPermissions(),
+    permissions,
     userRole,
     loading,
+    isLoading: loading, // Alias pour loading
     error,
-
-    // Core methods
     hasPermission,
     canView,
-    canCreate,
     canEdit,
     canDelete,
-    canManage,
-
-    // Helpers
-    getPermissionLevel,
+    canCreate,
     isAdmin,
     isManager,
-
-    // Actions
+    isStaff,
     refreshPermissions,
-
-    // Meta
-    getAvailableModules: () => getCurrentPermissions().map(p => p.module),
-    getUserAccessLevel: (): 'super' | 'admin' | 'advanced' | 'basic' => {
-      if (userRole === 'directeur') return 'super';
-      if (userRole === 'admin') return 'admin';
-      if (userRole === 'manager') return 'advanced';
-      return 'basic';
-    }
+    getUserAccessLevel
   };
 };
 

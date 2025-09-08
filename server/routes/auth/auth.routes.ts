@@ -138,7 +138,7 @@ router.post('/register',
       .where(eq(users.email, email));
 
     if (existingUser) {
-      return res.status(409).json({
+      res.status(409).json({
         success: false,
         message: 'Un compte avec cet email existe déjà'
       });

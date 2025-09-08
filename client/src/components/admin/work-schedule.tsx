@@ -82,7 +82,7 @@ export default function WorkScheduleWrapper(): JSX.Element {
             <LoadingSkeleton />
           ) : (
             <LazyWorkSchedule 
-              userRole={userRole === 'admin' ? 'directeur' : 'employe'}
+              userRole={(userRole === 'employee' ? 'employe' : userRole) as 'directeur' | 'employe' || 'employe'}
               viewMode={viewMode as 'calendar' | 'list' | 'stats'}
               editable={editable}
               exportable={exportable}
