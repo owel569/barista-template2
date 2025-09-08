@@ -246,7 +246,7 @@ export default function RealTimeUpdates() {
       ]
     };
 
-    const titles = mockEvents[type];
+    const titles = mockEvents[type as keyof typeof mockEvents];
     const title = titles[Math.floor(Math.random() * titles.length)];
 
     const event: RealTimeEvent = {

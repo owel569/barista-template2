@@ -12,9 +12,11 @@ interface RevenueChartProps {
   data: RevenueData[];
   title?: string;
   height?: number;
+  loading?: boolean;
+  period?: string;
 }
 
-export function RevenueChart({ data, loading = false, period }: RevenueChartProps) {
+export function RevenueChart({ data, loading = false, period = 'Cette période' }: RevenueChartProps) {
   if (loading) {
     return (
       <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">

@@ -3,9 +3,8 @@ import React from 'react';
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Download, Loader2 } from 'lucide-react';
-import { exportToExcel } from '@/lib/excel-export';
-
-import { ExportData } from '@/lib/excel-export';
+// import { exportToExcel, ExportData } from '@/lib/excel-export';
+type ExportData = Record<string, any>;
 
 interface ExportToExcelButtonProps {
   data: ExportData[];

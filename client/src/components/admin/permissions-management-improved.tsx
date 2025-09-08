@@ -626,7 +626,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                         </div>
                       </TableCell>
                       <TableCell>
-                        {user.lastLogin ? formatDate(user.lastLogin instanceof Date ? user.lastLogin : new Date(user.lastLogin)) : 'Jamais'}
+                        {user.lastLogin ? formatDate(user.lastLogin) : 'Jamais'}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">

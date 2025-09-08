@@ -242,10 +242,10 @@ export default function Settings({ userRole }: SettingsProps) {
 
       if (path.includes('openingHours') && keys.length > 1) {
         const dayKey = keys[0];
-        if (lastKey && prev.openingHours?.[dayKey]) {
+        if (lastKey && dayKey && prev.openingHours?.[dayKey]) {
           current[lastKey] = {
             ...current[lastKey],
-            ...prev.openingHours[dayKey][lastKey],
+            ...(dayKey ? prev.openingHours[dayKey] : {})[lastKey],
             [keys[keys.length - 1]]: value,
           };
         }

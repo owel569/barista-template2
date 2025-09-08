@@ -84,11 +84,11 @@ export default function SuppliersManagement() {
               ['Dupont', 'Martin', 'Bernard', 'Petit', 'Durand', 'Leroy', 'Moreau', 'Simon', 'Laurent', 'Lefebvre', 'Michel', 'Garcia'][i],
         company: ['Café Premium', 'Pâtisserie Deluxe', 'Équipement Pro', 'Emballage Eco', 'Nettoyage Pro', 
                  'Boissons Fraîches', 'Service Qualité', 'Logistique Express', 'Sécurité Plus', 'Fournitures Office', 
-                 'Technologie Café', 'Design Intérieur'][i],
+                 'Technologie Café', 'Design Intérieur'][i] || 'Société Inconnue',
         email: `contact@${['cafe', 'patisserie', 'equipement', 'emballage', 'nettoyage', 'boissons', 'service', 'logistique', 'securite', 'fournitures', 'tech', 'design'][i]}.com`,
         phone: `06${Math.floor(10000000 + Math.random() * 90000000)}`,
         address: `${Math.floor(1 + Math.random() * 100)} Rue de ${['Paris', 'Lyon', 'Marseille', 'Toulouse', 'Nice', 'Nantes', 'Strasbourg', 'Montpellier', 'Bordeaux', 'Lille', 'Rennes', 'Reims'][i]}`,
-        category: ['Café', 'Pâtisserie', 'Équipement', 'Emballage', 'Nettoyage', 'Boisson', 'Service', 'Logistique', 'Sécurité', 'Fourniture', 'Technologie', 'Design'][i % 6],
+        category: ['Café', 'Pâtisserie', 'Équipement', 'Emballage', 'Nettoyage', 'Boisson', 'Service', 'Logistique', 'Sécurité', 'Fourniture', 'Technologie', 'Design'][i % 6] || 'Général',
         rating: Number((3 + Math.random() * 2).toFixed(1)),
         status: ['active', 'inactive', 'pending'][Math.floor(Math.random() * 3)] as 'active' | 'inactive' | 'pending',
         totalOrders: Math.floor(1 + Math.random() * 50),
@@ -98,10 +98,10 @@ export default function SuppliersManagement() {
           ['Café Arabica', 'Café Robusta', 'Croissants', 'Pains au Chocolat', 'Machines à Café', 'Tasses', 'Emballages Biodégradables', 
            'Détergents', 'Jus de Fruits', 'Services de Nettoyage', 'Contrats de Maintenance'][Math.floor(Math.random() * 11)]
         ),
-        contractType: ['Annuel', 'Semestriel', 'Trimestriel', 'Mensuel'][Math.floor(Math.random() * 4)],
+        contractType: ['Annuel', 'Semestriel', 'Trimestriel', 'Mensuel'][Math.floor(Math.random() * 4)] || 'Annuel',
         contractExpiry: new Date(Date.now() + Math.floor(Math.random() * 1000 * 60 * 60 * 24 * 365)).toISOString(),
         leadTime: Math.floor(1 + Math.random() * 10),
-        paymentTerms: ['30 jours', '45 jours', '60 jours', 'Paiement immédiat'][Math.floor(Math.random() * 4)]
+        paymentTerms: ['30 jours', '45 jours', '60 jours', 'Paiement immédiat'][Math.floor(Math.random() * 4)] || '30 jours'
       }));
 
       // Mock stats data
@@ -121,15 +121,15 @@ export default function SuppliersManagement() {
         }),
         recentOrders: Array.from({ length: 5 }, (_, i) => ({
           id: `ORD-${1000 + i}`,
-          supplier: mockSuppliers[i].company,
+          supplier: mockSuppliers[i]?.company || 'Fournisseur Inconnu',
           amount: Number((100 + Math.random() * 1000).toFixed(2)),
-          status: ['pending', 'processing', 'delivered', 'cancelled'][Math.floor(Math.random() * 4)],
+          status: ['pending', 'processing', 'delivered', 'cancelled'][Math.floor(Math.random() * 4)] || 'pending',
           date: new Date(Date.now() - Math.floor(Math.random() * 1000 * 60 * 60 * 24 * 7)).toISOString()
         })),
         expiringContracts: mockSuppliers
           .filter(s => s.contractExpiry)
           .map(s => ({
-            supplier: s.company,
+            supplier: s.company || 'Fournisseur Inconnu',
             type: s.contractType || 'Annuel',
             expiry: s.contractExpiry || new Date().toISOString(),
             value: Number((s.totalAmount * 0.3).toFixed(2))

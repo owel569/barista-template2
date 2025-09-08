@@ -148,8 +148,10 @@ export default function TableManagement(): JSX.Element {
   const queryClient = useQueryClient();
 
   // WebSocket for real-time updates
-  useWebSocket('table-updates', () => {
-    queryClient.invalidateQueries({ queryKey: ['/api/admin/tables'] });
+  useWebSocket('/api/ws', {
+    onMessage: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/tables'] });
+    }
   });
 
   // Data fetching
@@ -169,14 +171,13 @@ export default function TableManagement(): JSX.Element {
   // Mutations
   const createTableMutation = useMutation({
     mutationFn: (data: Omit<RestaurantTable, 'id'>) => 
-      apiRequest('/api/admin/tables', { 
-        method: 'POST', 
+      apiRequest('POST', '/api/admin/tables', { 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/tables'] });
-      toast({ title: "Table créée avec succès", variant: "default" });
+      toast({ title: "Table créée avec succès" });
     },
     onError: () => {
       toast({ title: "Erreur lors de la création", variant: "destructive" });
