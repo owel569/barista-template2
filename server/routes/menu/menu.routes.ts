@@ -69,7 +69,7 @@ async function logMenuActivity(
 // === ROUTES SPÉCIFIQUES AVANT LES PARAMÈTRES ===
 
 // Liste des articles du menu avec filtres
-router.get('/',
+router.get('/items',
   validateQuery(z.object({
     categoryId: z.coerce.number().int().positive().optional(),
     isAvailable: z.coerce.boolean().optional(),
@@ -300,8 +300,8 @@ router.get('/categories', asyncHandler(async (req, res) => {
 // === ROUTES AVEC PARAMÈTRES APRÈS ===
 
 // Détails d'un article du menu
-router.get('/:id',
-  validateParams(z.object({ id: z.coerce.number().int().positive('ID invalide') })),
+router.get('/items/:id',
+  validateParams(z.object({ id: z.string().regex(/^\d+$/, 'ID doit être numérique').transform(Number) })),
   cacheMiddleware({ ttl: 10 * 60 * 1000, tags: ['menu'] }),
   asyncHandler(async (req, res) => {
     const db = getDb();
@@ -341,8 +341,13 @@ router.get('/:id',
   })
 );
 
+// Route racine - redirection vers /items
+router.get('/', (req, res) => {
+  res.redirect('/api/menu/items');
+});
+
 // Créer un article (admin seulement)
-router.post('/',
+router.post('/items',
   authenticateUser,
   requireRoles(['admin', 'manager']),
   validateBody(CreateMenuItemSchema),
@@ -406,10 +411,10 @@ router.post('/',
 );
 
 // Mettre à jour un article
-router.put('/:id',
+router.put('/items/:id',
   authenticateUser,
   requireRoles(['admin', 'manager']),
-  validateParams(z.object({ id: z.coerce.number().int().positive('ID invalide') })),
+  validateParams(z.object({ id: z.string().regex(/^\d+$/, 'ID doit être numérique').transform(Number) })),
   validateBody(UpdateMenuItemSchema.omit({ id: true })),
   invalidateCache(['menu']),
   asyncHandler(async (req, res) => {
@@ -489,10 +494,10 @@ router.put('/:id',
 );
 
 // Supprimer un article (désactivation)
-router.delete('/:id',
+router.delete('/items/:id',
   authenticateUser,
   requireRoles(['admin']),
-  validateParams(z.object({ id: z.coerce.number().int().positive('ID invalide') })),
+  validateParams(z.object({ id: z.string().regex(/^\d+$/, 'ID doit être numérique').transform(Number) })),
   invalidateCache(['menu']),
   asyncHandler(async (req, res) => {
     const db = getDb();
