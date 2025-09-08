@@ -10,11 +10,11 @@ interface LogEntry {
   url?: string;
   statusCode?: number;
   responseTime?: number;
-  userAgent?: string;
-  ip?: string;
+  userAgent?: string | undefined;
+  ip?: string | undefined;
   userId?: number;
   message: string;
-  metadata?: Record<string, unknown>;
+  metadata: Record<string, unknown>;
 }
 
 class Logger {
@@ -30,7 +30,7 @@ class Logger {
     }
   }
 
-  private writeLog(entry: LogEntry) {
+  public writeLog(entry: LogEntry) {
     const date = new Date().toISOString().split('T')[0];
     const logFile = path.join(this.logDir, `${date}.log`);
     const logLine = JSON.stringify(entry) + '\n';
@@ -43,7 +43,7 @@ class Logger {
       timestamp: new Date().toISOString(),
       level: 'INFO',
       message,
-      metadata
+      metadata: metadata || {}
     };
     
     console.log(`ℹ️ [INFO] ${message}`, metadata || '');
@@ -55,7 +55,7 @@ class Logger {
       timestamp: new Date().toISOString(),
       level: 'WARN',
       message,
-      metadata
+      metadata: metadata || {}
     };
     
     console.warn(`⚠️ [WARN] ${message}`, metadata || '');
@@ -67,20 +67,24 @@ class Logger {
       timestamp: new Date().toISOString(),
       level: 'ERROR',
       message,
-      metadata: { error: error?.message || error, stack: error?.stack, ...metadata }
+      metadata: { 
+        error: error?.message || (error as any) || '', 
+        stack: error?.stack,
+        ...metadata 
+      }
     };
     
-    logger.error(`🚨 [ERROR] ${message}`, error || '');
+    console.error(`🚨 [ERROR] ${message}`, error || '');
     this.writeLog(entry);
   }
 
-  debug(message: string, metadata?: unknown) {
+  debug(message: string, metadata?: Record<string, unknown>) {
     if (process.env.NODE_ENV === 'development') {
       const entry: LogEntry = {
         timestamp: new Date().toISOString(),
         level: 'DEBUG',
         message,
-        metadata
+        metadata: metadata || {}
       };
       
       console.debug(`🔍 [DEBUG] ${message}`, metadata || '');

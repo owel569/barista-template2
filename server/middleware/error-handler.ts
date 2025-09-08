@@ -12,10 +12,8 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { ZodError } from 'zod';
 import { logger } from '../utils/logger';
-// import { metrics } from '@/lib/metrics'; // Removed - not available in server context
-
 // Types sécurisés pour les erreurs
-interface AppError extends Error {
+interface IAppError extends Error {
   status?: number;
   statusCode?: number;
   code?: string | number;
@@ -25,13 +23,13 @@ interface AppError extends Error {
   timestamp?: Date;
 }
 
-interface DatabaseError extends AppError {
+interface DatabaseError extends IAppError {
   code: string;
   severity?: string;
   constraint?: string;
 }
 
-interface ValidationError extends AppError {
+interface IValidationError extends IAppError {
   errors: Array<{
     field: string;
     message: string;
@@ -51,7 +49,7 @@ const DATABASE_ERROR_CODES = {
 };
 
 // Utilitaire pour identifier les erreurs de base de données
-const isDatabaseError = (err: AppError): err is DatabaseError => {
+const isDatabaseError = (err: IAppError): err is DatabaseError => {
   return Object.values(DATABASE_ERROR_CODES).includes(err.code?.toString() || '');
 };
 
@@ -65,7 +63,7 @@ export const asyncHandler = <P, ResBody, ReqBody, ReqQuery>(
 };
 
 // Fonction de logging structuré avec contexte enrichi
-const logError = (err: AppError, req: Request): void => {
+const logError = (err: IAppError, req: Request): void => {
   const errorContext = {
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
@@ -99,7 +97,7 @@ const logError = (err: AppError, req: Request): void => {
     logger.warn('Client error occurred', errorContext);
   } else {
     logger.error('Server error occurred', errorContext);
-    metrics.increment('server.errors', 1);
+    // Note: metrics service removed - not available in server context
   }
 };
 
@@ -108,7 +106,7 @@ const createErrorResponse = (
   status: number,
   message: string,
   options: {
-    code?: string;
+    code?: string | undefined;
     details?: any;
     retryAfter?: number;
     expose?: boolean;
@@ -146,7 +144,7 @@ const createErrorResponse = (
 
 // Middleware principal de gestion d'erreurs
 export const errorHandler = (
-  err: AppError,
+  err: IAppError,
   req: Request,
   res: Response,
   next: NextFunction
@@ -184,7 +182,7 @@ export const errorHandler = (
 
     // Erreur de base de données
     if (isDatabaseError(err)) {
-      metrics.increment('database.errors', 1);
+      // Note: metrics service removed - not available in server context
 
       let message = 'Erreur de base de données';
       let status = 503;
@@ -253,7 +251,7 @@ export const errorHandler = (
     if (err.isOperational) {
       return res.status(err.statusCode || 500).json(
         createErrorResponse(err.statusCode || 500, err.message, {
-          code: err.code?.toString(),
+          code: err.code?.toString() || undefined,
           details: err.details,
           expose: true
         })
@@ -325,7 +323,7 @@ export class NotFoundError extends AppError {
 }
 
 export class ValidationError extends AppError {
-  constructor(errors: ValidationError['errors']) {
+  constructor(errors: IValidationError['errors']) {
     super('Validation échouée', 400, {
       name: 'ValidationError',
       details: { errors }
