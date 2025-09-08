@@ -1,4 +1,3 @@
-
 import helmet from 'helmet';
 import compression from 'compression';
 import { Request as ExpressRequest, Response as ExpressResponse } from 'express';
@@ -117,14 +116,14 @@ export const productionConfig = {
     // Keep-alive connections
     keepAliveTimeout: 65000,
     headersTimeout: 66000,
-    
+
     // JSON settings
     jsonLimit: '10mb',
     urlEncodedLimit: '10mb',
-    
+
     // Trust proxy
     trustProxy: true,
-    
+
     // Disable x-powered-by
     poweredBy: false
   },
@@ -139,9 +138,9 @@ export const productionConfig = {
         'https://*.replit.app'
       ].filter(Boolean);
 
-      if (!origin || allowedOrigins.some(allowed => 
-        allowed.includes('*') ? 
-        origin.match(allowed.replace('*', '.*')) : 
+      if (!origin || allowedOrigins.some(allowed =>
+        (allowed && allowed.includes('*')) ?
+        origin.match((allowed || '').replace('*', '.*')) :
         origin === allowed
       )) {
         callback(null, true);
@@ -167,7 +166,7 @@ export const productionConfig = {
         uptime: true
       }
     },
-    
+
     metrics: {
       endpoint: '/metrics',
       enabled: process.env.NODE_ENV === 'production',

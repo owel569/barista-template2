@@ -108,8 +108,6 @@ export default function WorkScheduleWrapper(): JSX.Element {
             <LazyWorkSchedule 
               userRole={currentRole}
               viewMode={viewMode as any} // Cast temporaire pour éviter l'erreur de type
-              editable={editable}
-              exportable={exportable}
               key={`${userRole}-${viewMode}`} // Force le re-render si le rôle change
             />
           )}

@@ -70,7 +70,7 @@ router.get('/items',
 router.post('/items',
   authenticateUser,
   validateBody(MenuItemSchema),
-  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  asyncHandler(async (req: Request, res: Response): Promise<Response | void> => {
     const db = getDb();
     const itemData = req.body;
 
@@ -94,7 +94,7 @@ router.post('/items',
 router.put('/items/:id',
   authenticateUser,
   validateBody(MenuItemSchema.partial()),
-  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  asyncHandler(async (req: Request, res: Response): Promise<Response | void> => {
     const db = getDb();
     const { id } = req.params;
 
@@ -186,7 +186,7 @@ router.get('/categories',
 router.post('/categories',
   authenticateUser,
   validateBody(CategorySchema),
-  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  asyncHandler(async (req: Request, res: Response): Promise<Response | void> => {
     const db = getDb();
     const categoryData = req.body;
 

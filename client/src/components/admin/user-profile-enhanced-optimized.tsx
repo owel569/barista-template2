@@ -353,7 +353,7 @@ export default function UserProfileEnhanced(): JSX.Element {
   });
 
   const updateAddressMutation = useMutation({
-    mutationFn: async (data: { addressId: number; updates: Partial<import('../../../shared/types').Address> }) => {
+    mutationFn: async (data: { addressId: number; updates: Partial<Address> }) => {
       const response = await apiRequest(`/api/admin/addresses/${data.addressId}`, {
         method: 'PUT',
         body: JSON.stringify(data.updates),
@@ -482,51 +482,24 @@ export default function UserProfileEnhanced(): JSX.Element {
     }
   }, [paginatedUsers, selectedUsers.length]);
 
-  // Fonction pour imprimer le profil
+  // Options d'impression
   const handlePrint = useReactToPrint({
-    content: () => printRef.current,
-    pageStyle: `
-      @page { size: A4; margin: 1cm; }
-      @media print { 
-        body { -webkit-print-color-adjust: exact; }
-        .no-print { display: none !important; }
-      }
-    `,
+    contentRef: printRef,
+    documentTitle: 'Liste des utilisateurs'
   });
 
-  // Filtrage et tri des utilisateurs
-  const filteredUsers = useMemo(() => {
-    return users.filter((user) => {
-      const matchesSearch = 
-        user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.phone?.toLowerCase().includes(searchTerm.toLowerCase());
-
-      const matchesStatus = showInactive ? true : user.isActive;
-
-      return matchesSearch && matchesStatus;
-    });
-  }, [users, searchTerm, showInactive]);
-
+  // Pagination et tri
   const sortedUsers = useMemo(() => {
-    return [...filteredUsers].sort((a, b) => {
-      switch (sortBy) {
-        case 'name':
-          return `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`);
-        case 'points':
-          return (b.loyalty?.points || 0) - (a.loyalty?.points || 0);
-        case 'totalSpent':
-          return (b.loyalty?.totalSpent || 0) - (a.loyalty?.totalSpent || 0);
-        case 'joinDate':
-        default:
-          return new Date(b.loyalty?.joinDate || '').getTime() - new Date(a.loyalty?.joinDate || '').getTime();
-      }
+    return filteredUsers.sort((a, b) => {
+      const aValue = a[sortBy];
+      const bValue = b[sortBy];
+
+      if (aValue < bValue) return -1;
+      if (aValue > bValue) return 1;
+      return 0;
     });
   }, [filteredUsers, sortBy]);
 
-  // Pagination
-  const totalPages = Math.ceil(sortedUsers.length / usersPerPage);
   const paginatedUsers = sortedUsers.slice(
     (currentPage - 1) * usersPerPage,
     currentPage * usersPerPage
@@ -936,7 +909,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                     variant="outline"
                     onClick={() => {
                       setSelectedUser(user);
-                      setIsBulkAction(false);
+                      setAddressToDelete(null); 
                     }}
                     className="flex-1"
                   >
@@ -1726,7 +1699,7 @@ export default function UserProfileEnhanced(): JSX.Element {
         open={!!addressToDelete}
         onOpenChange={(open) => !open && setAddressToDelete(null)}
         title="Supprimer l'adresse"
-        message="Êtes-vous sûr de vouloir supprimer cette adresse ? Cette action est irréversible."
+        description="Êtes-vous sûr de vouloir supprimer cette adresse ? Cette action est irréversible."
         confirmText="Supprimer"
         onConfirm={() => {
           if (addressToDelete) {

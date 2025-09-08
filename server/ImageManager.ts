@@ -150,7 +150,7 @@ export class ImageManager {
             .where(eq(menuItems.id, menuItemId))
             .limit(1);
 
-        const menuItemName = menuItem.length > 0 ? menuItem[0].name : 'Élément de menu';
+        const menuItemName = menuItem.length > 0 ? menuItem[0]?.name || 'Élément de menu' : 'Élément de menu';
 
         // 1. Essayer d'abord l'image principale de la base de données
         const primaryImage = await this.getPrimaryImage(menuItemId);
@@ -192,7 +192,7 @@ export class ImageManager {
                     // Ajouter l'image depuis IMAGE_MAPPING
                     await this.addImage({
                         menuItemId: menuItem.id,
-                        imageUrl: imageMapping[menuItem.name],
+                        imageUrl: imageMapping[menuItem.name] || '',
                         altText: `Image de ${menuItem.name}`,
                         isPrimary: true,
                         uploadMethod: 'pexels'

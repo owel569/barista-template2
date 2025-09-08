@@ -203,8 +203,8 @@ router.get('/status',
       .select({
         id: reservations.id,
         tableId: reservations.tableId,
-        customerName: sql<string>`CONCAT(${customers.firstName}, ' ', ${customers.lastName})`,
-        startTime: sql<Date>`${reservations.date} + INTERVAL ${reservations.time}`,
+        guestName: sql<string>`CONCAT(${customers.firstName}, ' ', ${customers.lastName})`,
+        date: sql<Date>`${reservations.date} + INTERVAL ${reservations.time}`,
         endTime: sql<Date>`${reservations.date} + INTERVAL ${reservations.time} + INTERVAL '2 hours'`,
         partySize: reservations.partySize,
         status: reservations.status
@@ -223,7 +223,7 @@ router.get('/status',
       .select({
         id: reservations.id,
         tableId: reservations.tableId,
-        customerName: sql<string>`CONCAT(${customers.firstName}, ' ', ${customers.lastName})`,
+        guestName: sql<string>`CONCAT(${customers.firstName}, ' ', ${customers.lastName})`,
         startTime: sql<Date>`${reservations.date} + INTERVAL ${reservations.time}`,
         partySize: reservations.partySize
       })
@@ -277,14 +277,14 @@ router.get('/status',
         status,
         currentReservation: currentRes ? {
           id: currentRes.id,
-          customerName: currentRes.customerName,
-          startTime: currentRes.startTime,
-          endTime: new Date(currentRes.startTime.getTime() + 2 * 60 * 60 * 1000), // 2h par défaut
+          customerName: currentRes.guestName || 'Client',
+          startTime: currentRes.date,
+          endTime: new Date(currentRes.date.getTime() + 2 * 60 * 60 * 1000),
           partySize: currentRes.partySize
-        } : null,
+        } : undefined,
         nextReservation: nextRes ? {
           id: nextRes.id,
-          customerName: nextRes.customerName,
+          customerName: nextRes.guestName,
           startTime: nextRes.startTime,
           partySize: nextRes.partySize
         } : undefined

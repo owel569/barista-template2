@@ -492,16 +492,20 @@ router.post('/reservation',
       }
 
       const db = await getDb();
+      const customerId = customerInfo?.name ? 1 : 1; // Placeholder, should fetch/create customer
+      const tableId = 1; // Placeholder, should find an available table
+
       const reservation = await db.insert(reservations)
         .values({
-          customerId: 1, // ID par défaut pour les réservations IA
-          tableId: 1, // Table par défaut
+          customerId,
+          tableId,
           date: new Date(date),
-          time: time,
-          partySize: guests,
-          status: 'confirmed' as const,
-          specialRequests: preferences || '',
-          notes: `Réservation créée par IA - ${customerInfo?.name || 'Client IA'}`
+          time: String(time),
+          reservationTime: new Date(date + 'T' + time),
+          partySize: Number(guests),
+          status: 'confirmed' as any,
+          specialRequests: String(preferences || ''),
+          notes: 'Réservation créée par IA'
         })
         .returning();
 

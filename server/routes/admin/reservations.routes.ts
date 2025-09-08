@@ -120,7 +120,7 @@ router.get('/:id', authenticateUser, requireRoleHierarchy('staff'), async (req: 
 });
 
 // POST /api/admin/reservations - Créer une nouvelle réservation
-router.post('/', authenticateUser, requireRoleHierarchy('staff'), validateBody(ReservationSchema), async (req, res): Promise<void> => {
+router.post('/', authenticateUser, requireRoleHierarchy('staff'), validateBody(ReservationSchema), async (req, res): Promise<Response | void> => {
   try {
     const reservationData = req.body;
 
@@ -148,7 +148,7 @@ router.post('/', authenticateUser, requireRoleHierarchy('staff'), validateBody(R
 });
 
 // PUT /api/admin/reservations/:id - Mettre à jour une réservation
-router.put('/:id', authenticateUser, requireRoleHierarchy('staff'), validateBody(ReservationSchema.partial()), async (req, res): Promise<void> => {
+router.put('/:id', authenticateUser, requireRoleHierarchy('staff'), validateBody(ReservationSchema.partial()), async (req, res): Promise<Response | void> => {
   try {
     const { id } = req.params;
     const updateData = req.body;
@@ -233,7 +233,7 @@ router.patch('/:id/status', authenticateUser, requireRoleHierarchy('staff'), asy
 });
 
 // DELETE /api/admin/reservations/:id - Supprimer une réservation
-router.delete('/:id', authenticateUser, requireRoleHierarchy('manager'), async (req, res): Promise<void> => {
+router.delete('/:id', authenticateUser, requireRoleHierarchy('manager'), async (req, res): Promise<Response | void> => {
   try {
     const { id } = req.params;
 

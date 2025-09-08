@@ -66,7 +66,7 @@ router.post('/', authenticateUser, requireRoleHierarchy('staff'), validateBody(C
 });
 
 // GET /api/admin/customers/:id - Récupérer un client spécifique
-router.get('/:id', authenticateUser, requireRoleHierarchy('staff'), async (req: Request, res: Response): Promise<void> => {
+router.get('/:id', authenticateUser, requireRoleHierarchy('staff'), async (req: Request, res: Response): Promise<Response | void> => {
   try {
     const { id } = req.params;
 
@@ -77,11 +77,10 @@ router.get('/:id', authenticateUser, requireRoleHierarchy('staff'), async (req: 
       .limit(1);
 
     if (!customer) {
-      res.status(404).json({
+      return res.status(404).json({
         success: false,
         message: 'Client non trouvé'
       });
-      return;
     }
 
     res.json({

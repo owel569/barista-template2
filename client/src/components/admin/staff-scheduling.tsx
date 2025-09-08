@@ -1,24 +1,23 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { 
-  Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter 
+import {
+  Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { 
-  Tabs, TabsContent, TabsList, TabsTrigger 
+import {
+  Tabs, TabsContent, TabsList, TabsTrigger
 } from '@/components/ui/tabs';
-import { 
-  Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger 
+import {
+  Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger
 } from '@/components/ui/dialog';
-import { 
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue 
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { 
-  Calendar, Clock, Users, Plus, Edit, Trash2, Copy, 
+import { Calendar, Clock, Users, Plus, Edit, Trash2, Copy,
   Download, Upload, AlertCircle, CheckCircle, User,
   Coffee, Utensils, UserCheck, RotateCw, Bell, Search,
   Filter, ChevronDown, ChevronUp, BarChart2, AlertTriangle,
@@ -108,7 +107,7 @@ export default function StaffScheduling() {
 
   // Memoized derived data
   const filteredEmployees = useMemo(() => {
-    return employees.filter(emp => 
+    return employees.filter(emp =>
       (emp.firstName.toLowerCase() + ' ' + emp.lastName.toLowerCase()).includes(searchTerm.toLowerCase()) &&
       (filter.department ? emp.department === filter.department : true) &&
       (filter.position ? emp.position === filter.position : true) &&
@@ -118,7 +117,7 @@ export default function StaffScheduling() {
 
   const weekDays = useMemo(() => ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'], []);
   const timeSlots = useMemo(() => [
-    '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', 
+    '08:00', '09:00', '10:00', '11:00', '12:00', '13:00',
     '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'
   ], []);
 
@@ -168,7 +167,7 @@ export default function StaffScheduling() {
       const mapped: Shift[] = data.map((s: any) => ({
         id: s.id,
         employeeId: s.employeeId,
-        date: s.date ? new Date(s.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        date: s.date ? s.date.toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
         startTime: String(s.startTime),
         endTime: String(s.endTime),
         position: String(s.position),
@@ -207,7 +206,7 @@ export default function StaffScheduling() {
       // Simulated API call
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      const totalHours = shifts.reduce((total, shift) => 
+      const totalHours = shifts.reduce((total, shift) =>
         total + calculateHours(shift.startTime, shift.endTime), 0);
 
       const positionsDistribution = shifts.reduce((acc, shift) => {
@@ -222,7 +221,7 @@ export default function StaffScheduling() {
 
       setAnalytics({
         totalHours,
-        avgHoursPerEmployee: employees.length > 0 ? 
+        avgHoursPerEmployee: employees.length > 0 ?
           totalHours / employees.length : 0,
         positionsDistribution,
         statusDistribution,
@@ -243,7 +242,7 @@ export default function StaffScheduling() {
   const getWeekDates = useCallback((date: Date) => {
     const week = [];
     const start = new Date(date);
-    start.setDate(start.getDate() - start.getDay() + 1); // Lundi
+    start.setDate(start.getDay() === 0 ? start.getDate() - 6 : start.getDate() - start.getDay() + 1); // Lundi
 
     for (let i = 0; i < 7; i++) {
       const day = new Date(start);
@@ -265,7 +264,7 @@ export default function StaffScheduling() {
 
   const getEmployeeWeeklyHours = useCallback((employeeId: number) => {
     const weekDates = getWeekDates(selectedWeek);
-    const employeeShifts = shifts.filter(shift => 
+    const employeeShifts = shifts.filter(shift =>
       shift.employeeId === employeeId &&
       weekDates.some(date => shift.date === date.toISOString().split('T')[0])
     );
@@ -299,7 +298,7 @@ export default function StaffScheduling() {
         const prevShift = empShifts[i - 1];
         const currentShift = empShifts[i];
 
-        if (prevShift.date === currentShift.date && 
+        if (prevShift.date === currentShift.date &&
             prevShift && currentShift && prevShift.endTime > currentShift.startTime) {
           detectedConflicts.push({
             type: 'overlap',
@@ -312,7 +311,7 @@ export default function StaffScheduling() {
       }
 
       // Check overtime
-      const weeklyHours = empShifts.reduce((total, shift) => 
+      const weeklyHours = empShifts.reduce((total, shift) =>
         total + calculateHours(shift.startTime, shift.endTime), 0);
 
       const employee = employees.find(e => e.id === parseInt(employeeId));
@@ -364,11 +363,11 @@ export default function StaffScheduling() {
       // Simulated API call
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      setShifts(prev => prev.map(shift => 
+      setShifts(prev => prev.map(shift =>
         shift.id === shiftId ? { ...shift, ...updates, updatedAt: new Date().toISOString() } : shift
       ));
 
-      detectConflicts(shifts.map(shift => 
+      detectConflicts(shifts.map(shift =>
         shift.id === shiftId ? { ...shift, ...updates } : shift
       ));
 
@@ -411,12 +410,12 @@ export default function StaffScheduling() {
       // Simulated API call
       await new Promise(resolve => setTimeout(resolve, 800));
 
-      setShifts(prev => prev.map(shift => 
-        selectedShifts.includes(shift.id) ? 
+      setShifts(prev => prev.map(shift =>
+        selectedShifts.includes(shift.id) ?
           { ...shift, ...updates, updatedAt: new Date().toISOString() } : shift
       ));
 
-      detectConflicts(shifts.map(shift => 
+      detectConflicts(shifts.map(shift =>
         selectedShifts.includes(shift.id) ? { ...shift, ...updates } : shift
       ));
 
@@ -450,7 +449,7 @@ export default function StaffScheduling() {
       employees.forEach(employee => {
         if (employee.status !== 'active') return;
 
-        const daysAvailable = employee.availableDays || 
+        const daysAvailable = employee.availableDays ||
           ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi'];
 
         daysAvailable.forEach(day => {
@@ -533,11 +532,11 @@ export default function StaffScheduling() {
   }, [shifts, employees, fetchAnalytics]);
 
   // Components
-  const ShiftCard = React.memo(({ 
-    shift, 
+  const ShiftCard = React.memo(({
+    shift,
     onSelect,
     isSelected
-  }: { 
+  }: {
     shift: Shift;
     onSelect: (id: number) => void;
     isSelected: boolean;
@@ -547,7 +546,7 @@ export default function StaffScheduling() {
     const shiftConflicts = conflicts.filter(c => c.shiftId === shift.id);
 
     return (
-      <Card 
+      <Card
         className={`mb-2 p-3 cursor-pointer transition-all ${isSelected ? 'ring-2 ring-amber-500' : ''} ${
           shiftConflicts.length > 0 ? 'border-red-500' : ''
         }`}
@@ -557,9 +556,9 @@ export default function StaffScheduling() {
           <div className="flex-1">
             <div className="flex items-center space-x-2">
               {employee?.avatar ? (
-                <img 
-                  src={employee.avatar} 
-                  alt={employee.firstName} 
+                <img
+                  src={employee.avatar}
+                  alt={employee.firstName}
                   className="h-6 w-6 rounded-full object-cover"
                 />
               ) : (
@@ -568,15 +567,15 @@ export default function StaffScheduling() {
               <span className="text-sm font-medium">
                 {employee ? `${employee.firstName} ${employee.lastName}` : 'Employé inconnu'}
               </span>
-              <Badge 
+              <Badge
                 variant={
                   shift.status === 'confirmed' ? 'default' :
-                  shift.status === 'completed' ? 'secondary' : 
+                  shift.status === 'completed' ? 'secondary' :
                   shift.status === 'published' ? 'outline' : 'destructive'
                 }
                 className="text-xs"
               >
-                {shift.status === 'published' ? 'publié' : 
+                {shift.status === 'published' ? 'publié' :
                  shift.status === 'confirmed' ? 'confirmé' :
                  shift.status === 'completed' ? 'terminé' : 'brouillon'}
               </Badge>
@@ -608,12 +607,12 @@ export default function StaffScheduling() {
             )}
           </div>
           <div className="flex space-x-1">
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
-                updateShift(shift.id, { 
+                updateShift(shift.id, {
                   status: shift.status === 'published' ? 'confirmed' : 'published'
                 });
               }}
@@ -624,8 +623,8 @@ export default function StaffScheduling() {
                 <Bell className="h-4 w-4" />
               )}
             </Button>
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
@@ -651,9 +650,9 @@ export default function StaffScheduling() {
           <div className="flex justify-between items-start">
             <div className="flex items-center space-x-3">
               {employee.avatar ? (
-                <img 
-                  src={employee.avatar} 
-                  alt={employee.firstName} 
+                <img
+                  src={employee.avatar}
+                  alt={employee.firstName}
                   className="h-10 w-10 rounded-full object-cover"
                 />
               ) : (
@@ -669,7 +668,7 @@ export default function StaffScheduling() {
               </div>
             </div>
             <Badge variant={
-              isOvertime ? 'destructive' : 
+              isOvertime ? 'destructive' :
               isUnderMin ? 'warning' : 'default'
             }>
               {weeklyHours.toFixed(1)}h
@@ -688,10 +687,10 @@ export default function StaffScheduling() {
               <span className="font-medium">Disponibilités:</span> {employee.availableDays.join(', ')}
             </div>
             <div className="pt-2">
-              <Progress 
-                value={Math.min(weeklyHours, employee.maxHours) / employee.maxHours * 100} 
+              <Progress
+                value={Math.min(weeklyHours, employee.maxHours) / employee.maxHours * 100}
                 indicatorClassName={
-                  isOvertime ? 'bg-red-500' : 
+                  isOvertime ? 'bg-red-500' :
                   isUnderMin ? 'bg-yellow-500' : 'bg-green-500'
                 }
               />
@@ -703,9 +702,9 @@ export default function StaffScheduling() {
           </div>
         </CardContent>
         <CardFooter className="pt-0">
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             className="w-full"
             onClick={() => setShowAddShift(true)}
           >
@@ -738,8 +737,8 @@ export default function StaffScheduling() {
             <Plus className="h-4 w-4 mr-2" />
             Nouveau Créneau
           </Button>
-          <Button 
-            variant="secondary" 
+          <Button
+            variant="secondary"
             onClick={sendShiftNotifications}
             disabled={isSendingNotifications}
           >
@@ -755,18 +754,18 @@ export default function StaffScheduling() {
           <div className="flex justify-between items-center">
             <div>
               <CardTitle>
-                Semaine du {selectedWeek.toLocaleDateString('fr-FR', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
+                Semaine du {selectedWeek.toLocaleDateString('fr-FR', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
                 })}
               </CardTitle>
               <CardDescription>Planning hebdomadaire du personnel</CardDescription>
             </div>
             <div className="flex items-center space-x-2">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => {
                   const prev = new Date(selectedWeek);
@@ -776,15 +775,15 @@ export default function StaffScheduling() {
               >
                 ← Précédente
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => setSelectedWeek(new Date())}
               >
                 Aujourd'hui
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => {
                   const next = new Date(selectedWeek);
@@ -812,24 +811,24 @@ export default function StaffScheduling() {
                 <span className="text-sm text-muted-foreground">
                   {selectedShifts.length} sélectionné(s)
                 </span>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={() => bulkUpdateShifts({ status: 'confirmed' })}
                 >
                   <CheckCircle className="h-4 w-4 mr-2" />
                   Confirmer
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={() => bulkUpdateShifts({ status: 'published' })}
                 >
                   <Bell className="h-4 w-4 mr-2" />
                   Publier
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={() => {
                     setSelectedShifts([]);
@@ -879,8 +878,8 @@ export default function StaffScheduling() {
                     Heures
                   </div>
                   {getWeekDates(selectedWeek).map((date, index) => (
-                    <div 
-                      key={index} 
+                    <div
+                      key={index}
                       className="sticky top-0 z-10 bg-background p-2 text-center font-medium text-sm border-b"
                     >
                       <div>{weekDays[index]}</div>
@@ -896,13 +895,13 @@ export default function StaffScheduling() {
                       </div>
                       {getWeekDates(selectedWeek).map((date, dayIndex) => {
                         const dayShifts = getShiftsForDay(date);
-                        const timeShifts = dayShifts.filter(shift => 
+                        const timeShifts = dayShifts.filter(shift =>
                           shift.startTime <= timeSlot && shift.endTime > timeSlot
                         );
 
                         return (
-                          <div 
-                            key={`${timeSlot}-${dayIndex}`} 
+                          <div
+                            key={`${timeSlot}-${dayIndex}`}
                             className="min-h-[60px] border-t p-1"
                           >
                             {timeShifts.map(shift => {
@@ -910,16 +909,16 @@ export default function StaffScheduling() {
                               return (
                                 <Tooltip key={shift.id}>
                                   <TooltipTrigger asChild>
-                                    <div 
+                                    <div
                                       className={`text-xs rounded p-1 mb-1 cursor-pointer ${
                                         shift.status === 'confirmed' ? 'bg-green-100 text-green-900' :
                                         shift.status === 'completed' ? 'bg-gray-100 text-gray-900' :
                                         shift.status === 'published' ? 'bg-blue-100 text-blue-900' :
                                         'bg-red-100 text-red-900'
                                       }`}
-                                      onClick={() => setSelectedShifts(prev => 
-                                        prev.includes(shift.id) ? 
-                                        prev.filter(id => id !== shift.id) : 
+                                      onClick={() => setSelectedShifts(prev =>
+                                        prev.includes(shift.id) ?
+                                        prev.filter(id => id !== shift.id) :
                                         [...prev, shift.id]
                                       )}
                                     >
@@ -1065,8 +1064,8 @@ export default function StaffScheduling() {
                           <span>{position}:</span>
                           <span className="font-semibold">{count}</span>
                         </div>
-                        <Progress 
-                          value={count / shifts.length * 100} 
+                        <Progress
+                          value={count / shifts.length * 100}
                           className="h-2"
                           indicatorClassName="bg-amber-500"
                         />
@@ -1111,8 +1110,8 @@ export default function StaffScheduling() {
                     const shift = shifts.find(s => s.id === conflict.shiftId);
 
                     return (
-                      <Card 
-                        key={i} 
+                      <Card
+                        key={i}
                         className={`border-l-4 ${
                           conflict.severity === 'error' ? 'border-l-red-500' : 'border-l-yellow-500'
                         }`}
@@ -1138,8 +1137,8 @@ export default function StaffScheduling() {
                                 )}
                               </div>
                             </div>
-                            <Button 
-                              variant="ghost" 
+                            <Button
+                              variant="ghost"
                               size="sm"
                               onClick={() => {
                                 if (shift) {
@@ -1170,12 +1169,12 @@ export default function StaffScheduling() {
               Planifiez un nouveau créneau de travail
             </DialogDescription>
           </DialogHeader>
-          <AddShiftForm 
+          <AddShiftForm
             onSubmit={(data) => {
               addShift(data);
               setShowAddShift(false);
-            }} 
-            employees={employees} 
+            }}
+            employees={employees}
             weekDates={getWeekDates(selectedWeek)}
           />
         </DialogContent>
@@ -1184,11 +1183,11 @@ export default function StaffScheduling() {
   );
 }
 
-const AddShiftForm = ({ 
-  onSubmit, 
+const AddShiftForm = ({
+  onSubmit,
   employees,
   weekDates
-}: { 
+}: {
   onSubmit: (data: Omit<Shift, 'id' | 'createdAt' | 'updatedAt'>) => void;
   employees: Employee[];
   weekDates: Date[];
@@ -1216,8 +1215,8 @@ const AddShiftForm = ({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <Label>Employé</Label>
-        <Select 
-          value={formData.employeeId} 
+        <Select
+          value={formData.employeeId}
           onValueChange={(value) => {
             setFormData(prev => {
               const employee = employees.find(e => e.id === Number(value));
@@ -1239,9 +1238,9 @@ const AddShiftForm = ({
                 <SelectItem key={emp.id} value={emp.id.toString()}>
                   <div className="flex items-center space-x-2">
                     {emp.avatar ? (
-                      <img 
-                        src={emp.avatar} 
-                        alt={emp.firstName} 
+                      <img
+                        src={emp.avatar}
+                        alt={emp.firstName}
                         className="h-6 w-6 rounded-full object-cover"
                       />
                     ) : (
@@ -1272,10 +1271,10 @@ const AddShiftForm = ({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {weekDates.map(date => (
-                <SelectItem 
-                  key={date.toISOString()} 
-                  value={date.toISOString().split('T')[0]}
+              {weekDates.map((date, index) => (
+                <SelectItem
+                  key={index}
+                  value={date ? date.toISOString().split('T')[0] : ''}
                 >
                   {date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
                 </SelectItem>
@@ -1286,8 +1285,8 @@ const AddShiftForm = ({
         <div>
           <Label>Position</Label>
           <Select
-            value={formData.position}
-            onValueChange={(value) => setFormData({ ...formData, position: value })}
+            value={formData.position || undefined}
+            onValueChange={(value: string) => setFormData(prev => ({ ...prev, position: value }))}
             required
           >
             <SelectTrigger>
@@ -1336,8 +1335,8 @@ const AddShiftForm = ({
       </div>
 
       <div className="flex justify-end space-x-2 pt-4">
-        <Button 
-          type="button" 
+        <Button
+          type="button"
           variant="outline"
           onClick={() => onSubmit({
             ...formData,
