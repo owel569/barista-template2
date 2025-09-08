@@ -190,7 +190,7 @@ export function MaintenanceTaskForm({
         <div className="space-y-2">
           <Label htmlFor="equipmentId">Équipement *</Label>
           <Select
-            value={formData.equipmentId?.toString() || ''}
+            value={formData.equipmentId !== null && formData.equipmentId !== undefined ? formData.equipmentId.toString() : ''}
             onValueChange={handleEquipmentChange}
             required
           >

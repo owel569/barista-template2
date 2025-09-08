@@ -464,7 +464,7 @@ export default function StaffScheduling() {
           newShifts.push({
             id: shifts.length + newShifts.length + 1,
             employeeId: employee.id,
-            date: date.toISOString().split('T')[0],
+            date: date?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0],
             startTime: `${startHour.toString().padStart(2, '0')}:00`,
             endTime: `${(startHour + 8).toString().padStart(2, '0')}:00`,
             position: employee.position,

@@ -480,3 +480,5 @@ export const selectSupplierSchema = createSelectSchema(suppliers);
 export const selectInventorySchema = createSelectSchema(inventory);
 export const selectLoyaltyTransactionSchema = createSelectSchema(loyaltyTransactions);
 export const selectPermissionSchema = createSelectSchema(permissions);
+
+export const insertShiftSchema = createInsertSchema(shifts);

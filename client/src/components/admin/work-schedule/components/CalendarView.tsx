@@ -234,7 +234,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   };
 
   // Formatage des titres
-  const getTitle = () => {
+  const getTitle = (): string => {
     const date = new Date(currentDate);
 
     switch (viewMode) {

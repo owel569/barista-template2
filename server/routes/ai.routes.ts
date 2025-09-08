@@ -143,7 +143,8 @@ class AIService {
       return { isValid: false, error: 'La date de réservation doit être dans le futur' };
     }
 
-    const hours = parseInt(time?.split(':')[0] || '0');
+    const timeParts = time?.split(':');
+    const hours = parseInt(timeParts?.[0] || '0');
     if (hours < 7 || hours > 22) {
       return { isValid: false, error: 'Heures d\'ouverture: 7h-22h' };
     }

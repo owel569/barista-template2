@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { authenticateUser } from '../../middleware/auth';
 import { requireRoleHierarchy } from '../../middleware/security';
-import { validateBody } from '../../middleware/security';
+import { validateBody } from '../../middleware/validation';
 import { db } from '../../db';
 import { customers } from '../../../shared/schema';
 import { eq, desc, sql } from 'drizzle-orm';

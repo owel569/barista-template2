@@ -633,7 +633,7 @@ export default function Settings({ userRole }: SettingsProps) {
               </div>
 
               <div>
-                <Label>Politique d'annulation</Label>
+                <Label>Politique d\'annulation</Label>
                 <select
                   value={draftSettings.reservationSettings.cancellationPolicy}
                   onChange={(e) => handleChange('reservationSettings.cancellationPolicy', e.target.value)}
@@ -706,7 +706,7 @@ export default function Settings({ userRole }: SettingsProps) {
               </div>
 
               <div className="space-y-2">
-                <Label>Modèle de notification d'annulation</Label>
+                <Label>Modèle de notification d\'annulation</Label>
                 <Textarea
                   value={draftSettings.notificationSettings.cancellationTemplate}
                   onChange={(e) => handleChange('notificationSettings.cancellationTemplate', e.target.value)}
