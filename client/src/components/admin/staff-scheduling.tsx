@@ -293,7 +293,7 @@ export default function StaffScheduling() {
 
     Object.entries(shiftsByEmployee).forEach(([employeeId, empShifts]) => {
       if (!empShifts || empShifts.length === 0) return;
-      
+
       empShifts.sort((a, b) => a.startTime.localeCompare(b.startTime));
 
       for (let i = 1; i < empShifts.length; i++) {
@@ -461,7 +461,7 @@ export default function StaffScheduling() {
 
           const date = weekDates[dayIndex];
           if (!date) return;
-          
+
           const startHour = 8 + Math.floor(Math.random() * 4);
           const dateString = date.toISOString().split('T')[0];
 
@@ -1100,7 +1100,7 @@ export default function StaffScheduling() {
               <CardTitle>Détection de Conflits</CardTitle>
               <CardDescription>
                 Conflits et problèmes potentiels dans le planning
-              </CardDescription>
+              </Description>
             </CardHeader>
             <CardContent>
               {conflicts.length === 0 ? (
@@ -1221,7 +1221,7 @@ const AddShiftForm = ({
       <div>
         <Label>Employé</Label>
         <Select
-          value={formData.employeeId}
+          value={formData.employeeId !== null && formData.employeeId !== undefined ? formData.employeeId.toString() : undefined}
           onValueChange={(value) => {
             setFormData(prev => {
               const employee = employees.find(e => e.id === Number(value));
@@ -1279,10 +1279,7 @@ const AddShiftForm = ({
               {weekDates.map((date, index) => {
                 const dateString = date.toISOString().split('T')[0];
                 return (
-                  <SelectItem
-                    key={index}
-                    value={dateString}
-                  >
+                  <SelectItem key={date.toISOString()} value={dateString || ''}>
                     {date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
                   </SelectItem>
                 );

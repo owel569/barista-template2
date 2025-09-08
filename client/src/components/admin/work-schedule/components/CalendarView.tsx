@@ -191,7 +191,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 }) => {
   const initialDate = selectedDate ?? new Date().toISOString().split('T')[0];
   const [currentDate, setCurrentDate] = useState<string>(
-    initialDate
+    initialDate || new Date().toISOString().split('T')[0]
   );
 
   // Générer les dates selon le mode de vue
@@ -291,7 +291,12 @@ const CalendarView: React.FC<CalendarViewProps> = ({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCurrentDate(new Date().toISOString().split('T')[0])}
+              onClick={() => {
+                const today = new Date().toISOString().split('T')[0];
+                if (today) {
+                  setCurrentDate(today);
+                }
+              }}
             >
               Aujourd'hui
             </Button>

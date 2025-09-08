@@ -275,13 +275,15 @@ export default function Settings({ userRole }: SettingsProps) {
     const dateString = date?.toISOString().split('T')[0];
     if (!dateString) return;
 
-    setDraftSettings(prev => ({
-      ...prev,
-      specialDates: {
-        ...prev.specialDates,
-        closedDates: [...prev.specialDates.closedDates, dateString]
-      }
-    }));
+    if (!draftSettings.specialDates.closedDates.includes(dateString)) {
+      setDraftSettings(prev => ({
+        ...prev,
+        specialDates: {
+          ...prev.specialDates,
+          closedDates: [...prev.specialDates.closedDates, dateString]
+        }
+      }));
+    }
   };
 
   const removeClosedDate = useCallback((dateStr: string) => {
@@ -294,18 +296,28 @@ export default function Settings({ userRole }: SettingsProps) {
     }));
   }, []);
 
-  const updateSpecialHours = useCallback((index: number, field: keyof { openingHours: OpeningHours; note: string }, value: any) => {
+  const updateSpecialHours = useCallback((index: number, field: 'openingHours' | 'note' | 'open' | 'close' | 'closed', value: any) => {
     setDraftSettings(prev => ({
       ...prev,
       specialDates: {
         ...prev.specialDates,
-        specialHours: prev.specialDates.specialHours.map((item, i) =>
-          i === index ? {
-            ...item,
-            [field]: value,
-            date: item.date || new Date().toISOString().split('T')[0]
-          } : item
-        )
+        specialHours: prev.specialDates.specialHours.map((item, i) => {
+          if (i !== index) return item;
+          
+          const currentDate = item.date || new Date().toISOString().split('T')[0];
+          
+          if (field === 'note') {
+            return { ...item, note: value, date: currentDate };
+          } else if (field === 'open' || field === 'close' || field === 'closed') {
+            const updatedHours = { ...item.openingHours };
+            if (field === 'open') updatedHours.open = value;
+            if (field === 'close') updatedHours.close = value;
+            if (field === 'closed') updatedHours.closed = value;
+            return { ...item, openingHours: updatedHours, date: currentDate };
+          } else {
+            return { ...item, [field]: value, date: currentDate };
+          }
+        })
       }
     }));
   }, []);

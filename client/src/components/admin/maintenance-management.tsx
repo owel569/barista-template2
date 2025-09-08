@@ -487,7 +487,7 @@ export default function MaintenanceManagement() : JSX.Element {
                   technicians={technicians}
                   initialData={editingTask ? {
                     ...editingTask,
-                    equipmentId: editingTask.equipmentId || null
+                    equipmentId: editingTask.equipmentId?.toString() || null
                   } : undefined}
                   onSubmit={editingTask ? 
                     (data: Omit<MaintenanceTask, 'id'>) => handleUpdateTask(editingTask.id, data as any) : 

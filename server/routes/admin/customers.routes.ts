@@ -145,10 +145,11 @@ router.delete('/:id', authenticateUser, requireRoleHierarchy('manager'), async (
       .returning();
 
     if (!deletedCustomer) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Client non trouvé'
       });
+      return;
     }
 
     res.json({

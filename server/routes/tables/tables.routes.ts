@@ -260,7 +260,6 @@ router.get('/status',
       // Chercher la réservation actuelle (en cours)
       const currentReservation = currentReservations.find(r =>
         r.tableId === table.id &&
-        r.status === 'confirmed' &&
         new Date(r.date) <= currentTime &&
         new Date(r.date).getTime() + (2 * 60 * 60 * 1000) > currentTime.getTime() // 2h après début
       );
@@ -278,23 +277,27 @@ router.get('/status',
         capacity: table.capacity,
         location: table.location,
         section: table.section,
-        status: table.status,
-        currentReservation: currentReservation ? {
+        status: table.status
+      };
+
+      if (currentReservation) {
+        result.currentReservation = {
           id: currentReservation.id,
           customerName: currentReservation.guestName || 'Client inconnu',
           startTime: new Date(currentReservation.date),
           endTime: new Date(currentReservation.endTime),
           partySize: currentReservation.partySize
-        } : undefined,
-        nextReservation: nextReservation ? {
+        };
+      }
+
+      if (nextReservation) {
+        result.nextReservation = {
           id: nextReservation.id,
           customerName: nextReservation.guestName || 'Client inconnu',
           startTime: new Date(nextReservation.startTime),
-          // Note: The original code had an endTime for nextReservation which is not defined in the nextReservations query.
-          // Assuming it's not needed or should be calculated if required.
           partySize: nextReservation.partySize
-        } : undefined
-      };
+        };
+      }
 
       return result;
     });

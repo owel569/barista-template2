@@ -29,7 +29,7 @@ interface MaintenanceTaskFormProps {
 interface MaintenanceTaskFormData {
   title: string;
   description: string;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  priority: 'low' | 'medium' | 'high' | 'critical';
   assignedTo: string;
   assignedToId?: number | null; // Changed to allow null
   cost?: number;
@@ -219,7 +219,7 @@ export function MaintenanceTaskForm({
               <SelectItem value="low">Basse</SelectItem>
               <SelectItem value="medium">Moyenne</SelectItem>
               <SelectItem value="high">Haute</SelectItem>
-              <SelectItem value="urgent">Urgente</SelectItem>
+              <SelectItem value="critical">Critique</SelectItem>
             </SelectContent>
           </Select>
         </div>

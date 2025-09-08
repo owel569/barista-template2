@@ -140,10 +140,11 @@ router.delete('/items/:id',
     const { id } = req.params;
 
     if (!id) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'ID requis'
       });
+      return;
     }
 
     const [deletedItem] = await db

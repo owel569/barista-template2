@@ -66,6 +66,7 @@ import { exportCustomerProfiles } from '@/lib/excel-export';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 
 // Schéma de validation amélioré
@@ -1137,7 +1138,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      {selectedUser.paymentMethods?.length > 0 ? (
+                      {selectedUser.paymentMethods && selectedUser.paymentMethods.length > 0 ? (
                         selectedUser.paymentMethods.map((method) => (
                           <div key={method.id} className="flex items-center justify-between p-3 border rounded-lg">
                             <div className="flex items-center space-x-3">
@@ -1194,8 +1195,8 @@ export default function UserProfileEnhanced(): JSX.Element {
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      {selectedUser.addresses?.length > 0 ? (
-                        <div className="grid grid-cols-1 gap-3">
+                      {selectedUser.addresses && selectedUser.addresses.length > 0 ? (
+                        <div className="space-y-2">
                           {selectedUser.addresses.map((address) => (
                             <div 
                               key={address.id} 
@@ -1283,8 +1284,8 @@ export default function UserProfileEnhanced(): JSX.Element {
 
                       <div className="space-y-2">
                         <h4 className="font-medium">Préférences alimentaires</h4>
-                        {selectedUser.preferences?.dietaryRestrictions?.length > 0 ? (
-                          <div className="flex flex-wrap gap-2">
+                        {selectedUser.preferences?.dietaryRestrictions && selectedUser.preferences.dietaryRestrictions.length > 0 ? (
+                          <div className="flex flex-wrap gap-1">
                             {selectedUser.preferences.dietaryRestrictions.map((restriction) => (
                               <Badge key={restriction} variant="outline">
                                 {restriction}
@@ -1298,8 +1299,8 @@ export default function UserProfileEnhanced(): JSX.Element {
 
                       <div className="space-y-2">
                         <h4 className="font-medium">Allergènes</h4>
-                        {selectedUser.preferences?.allergens?.length > 0 ? (
-                          <div className="flex flex-wrap gap-2">
+                        {selectedUser.preferences?.allergens && selectedUser.preferences.allergens.length > 0 ? (
+                          <div className="flex flex-wrap gap-1">
                             {selectedUser.preferences.allergens.map((allergen) => (
                               <Badge key={allergen} variant="outline">
                                 {allergen}
@@ -1346,7 +1347,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      {selectedUser.orderHistory?.length > 0 ? (
+                      {selectedUser.orderHistory && selectedUser.orderHistory.length > 0 ? (
                         <Table>
                           <TableHeader>
                             <TableRow>
