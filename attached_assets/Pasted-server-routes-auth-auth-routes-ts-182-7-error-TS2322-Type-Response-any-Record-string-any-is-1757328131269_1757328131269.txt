@@ -1,0 +1,138 @@
+server/routes/auth/auth.routes.ts:182:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+182       return res.status(500).json({
+          ~~~~~~
+
+server/routes/auth/auth.routes.ts:239:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+239       return res.status(401).json({
+          ~~~~~~
+
+server/routes/auth/auth.routes.ts:252:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+252       return res.status(401).json({
+          ~~~~~~
+
+server/routes/loyalty-advanced.ts:11:15 - error TS2440: Import declaration conflicts with local declaration of 'LoyaltyLevel'.
+
+11 import type { LoyaltyLevel, CustomerLoyaltyData } from '../../shared/types-enhanced';
+                 ~~~~~~~~~~~~
+
+server/routes/loyalty-advanced.ts:11:29 - error TS2440: Import declaration conflicts with local declaration of 'CustomerLoyaltyData'.
+
+11 import type { LoyaltyLevel, CustomerLoyaltyData } from '../../shared/types-enhanced';
+                               ~~~~~~~~~~~~~~~~~~~
+
+server/routes/loyalty-advanced.ts:142:5 - error TS2353: Object literal may only specify known properties, and 'pointsRate' does not exist in type 'LoyaltyLevel'.
+
+142     pointsRate: 1,
+        ~~~~~~~~~~
+
+server/routes/loyalty-advanced.ts:158:5 - error TS2353: Object literal may only specify known properties, and 'pointsRate' does not exist in type 'LoyaltyLevel'.
+
+158     pointsRate: 1.2,
+        ~~~~~~~~~~
+
+server/routes/loyalty-advanced.ts:176:5 - error TS2353: Object literal may only specify known properties, and 'pointsRate' does not exist in type 'LoyaltyLevel'.
+
+176     pointsRate: 1.5,
+        ~~~~~~~~~~
+
+server/routes/loyalty-advanced.ts:195:5 - error TS2353: Object literal may only specify known properties, and 'pointsRate' does not exist in type 'LoyaltyLevel'.
+
+195     pointsRate: 2,
+        ~~~~~~~~~~
+
+server/routes/loyalty-advanced.ts:213:5 - error TS2353: Object literal may only specify known properties, and 'pointsRate' does not exist in type 'LoyaltyLevel'.
+
+213     pointsRate: 2.5,
+        ~~~~~~~~~~
+
+server/routes/loyalty-advanced.ts:314:5 - error TS2322: Type 'LoyaltyLevel | undefined' is not assignable to type 'LoyaltyLevel'.
+  Type 'undefined' is not assignable to type 'LoyaltyLevel'.
+
+314     return level ?? LOYALTY_LEVELS[0];
+        ~~~~~~
+
+server/routes/loyalty-advanced.ts:343:65 - error TS2339: Property 'pointsRate' does not exist on type 'LoyaltyLevel'.
+
+343     const estimatedSpendingToNext = pointsToNext / currentLevel.pointsRate;
+                                                                    ~~~~~~~~~~
+
+server/routes/loyalty-advanced.ts:366:35 - error TS2339: Property 'pointsRate' does not exist on type 'LoyaltyLevel'.
+
+366     const levelMultiplier = level.pointsRate;
+                                      ~~~~~~~~~~
+
+server/routes/loyalty-advanced.ts:628:23 - error TS2339: Property 'icon' does not exist on type 'LoyaltyLevel'.
+
+628           icon: level.icon,
+                          ~~~~
+
+server/routes/loyalty-advanced.ts:768:22 - error TS18048: 'customer' is possibly 'undefined'.
+
+768       const points = customer.loyaltyPoints || 0;
+                         ~~~~~~~~
+
+server/routes/loyalty-advanced.ts:822:69 - error TS18048: 'customer' is possibly 'undefined'.
+
+822       const currentLevel = AdvancedLoyaltyService.getLevelForPoints(customer.loyaltyPoints || 0);
+                                                                        ~~~~~~~~
+
+server/routes/loyalty-advanced.ts:823:65 - error TS18048: 'customer' is possibly 'undefined'.
+
+823       const nextLevel = AdvancedLoyaltyService.getNextLevelInfo(customer.loyaltyPoints || 0).nextLevel;
+                                                                    ~~~~~~~~
+
+server/routes/loyalty-advanced.ts:825:13 - error TS2375: Type '{ customerId: number; currentPoints: number; totalPointsEarned: number; totalPointsRedeemed: number; currentLevel: LoyaltyLevel; nextLevel: LoyaltyLevel | undefined; ... 7 more ...; visitFrequency: number; }' is not assignable to type 'CustomerLoyaltyData' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'nextLevel' are incompatible.
+    Type 'LoyaltyLevel | undefined' is not assignable to type 'LoyaltyLevel'.
+      Type 'undefined' is not assignable to type 'LoyaltyLevel'.
+
+825       const customerData: CustomerLoyaltyData = {
+                ~~~~~~~~~~~~
+
+server/routes/loyalty-advanced.ts:826:21 - error TS18048: 'customer' is possibly 'undefined'.
+
+826         customerId: customer.id,
+                        ~~~~~~~~
+
+server/routes/loyalty-advanced.ts:827:24 - error TS18048: 'customer' is possibly 'undefined'.
+
+827         currentPoints: customer.loyaltyPoints || 0,
+                           ~~~~~~~~
+
+server/routes/loyalty-advanced.ts:832:70 - error TS18048: 'customer' is possibly 'undefined'.
+
+832         progressToNextLevel: AdvancedLoyaltyService.getNextLevelInfo(customer.loyaltyPoints || 0).progress,
+                                                                         ~~~~~~~~
+
+server/routes/loyalty-advanced.ts:833:68 - error TS18048: 'customer' is possibly 'undefined'.
+
+833         pointsToNextLevel: AdvancedLoyaltyService.getNextLevelInfo(customer.loyaltyPoints || 0).pointsToNext,
+                                                                       ~~~~~~~~
+
+server/routes/loyalty-advanced.ts:878:16 - error TS7030: Not all code paths return a value.
+
+878   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/loyalty-advanced.ts:959:43 - error TS2339: Property 'pointsRate' does not exist on type 'LoyaltyLevel'.
+
+959             levelMultiplier: currentLevel.pointsRate,
+                                              ~~~~~~~~~~
+
+server/routes/loyalty-advanced.ts:961:43 - error TS2339: Property 'pointsRate' does not exist on type 'LoyaltyLevel'.
+
+961             totalMultiplier: currentLevel.pointsRate * (bonusMultiplier || 1)
+                                              ~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:108:32 - error TS2551: Property 'isAvailable' does not exist on type 'PgTableWithColumns<{ name: "menu_items"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 17 more ...; updatedAt: PgCo...'. Did you mean 'available'?
+
+108         isAvailable: menuItems.isAvailable,
+                                   ~~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:126:36 - error TS2551: Property 'isAvailable' does not exist on type 'PgTableWithColumns<{ name: "menu_items"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 17 more ...; updatedAt: PgCo...'. Did you mean 'available'?
+
+126       conditions.push(eq(menuItems.isAvailable, isAvailable));
+           

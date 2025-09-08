@@ -1,0 +1,57 @@
+     ~~~~~~
+
+server/routes/admin/customers.routes.ts:111:40 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+111       .where(eq(customers.id, parseInt(id)))
+                                           ~~
+
+server/routes/admin/customers.routes.ts:115:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+115       return res.status(404).json({
+          ~~~~~~
+
+server/routes/admin/customers.routes.ts:142:40 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+142       .where(eq(customers.id, parseInt(id)))
+                                           ~~
+
+server/routes/admin/customers.routes.ts:146:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+146       return res.status(404).json({
+          ~~~~~~
+
+server/routes/admin/customers.routes.ts:181:16 - error TS2532: Object is possibly 'undefined'.
+
+181         total: totalCustomers[0].count,
+                   ~~~~~~~~~~~~~~~~~
+
+server/routes/admin/customers.routes.ts:182:17 - error TS2532: Object is possibly 'undefined'.
+
+182         active: activeCustomers[0].count,
+                    ~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/menu-admin.routes.ts:48:32 - error TS2551: Property 'isAvailable' does not exist on type 'PgTableWithColumns<{ name: "menu_items"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 17 more ...; updatedAt: PgCo...'. Did you mean 'available'?
+
+48         isAvailable: menuItems.isAvailable,
+                                  ~~~~~~~~~~~
+
+server/routes/admin/menu-admin.routes.ts:102:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+102       return res.status(400).json({
+          ~~~~~~
+
+server/routes/admin/menu-admin.routes.ts:119:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+119       return res.status(404).json({
+          ~~~~~~
+
+server/routes/admin/menu-admin.routes.ts:141:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+141       return res.status(400).json({
+          ~~~~~~
+
+server/routes/admin/menu-admin.routes.ts:153:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+153       return res.status(404).json({

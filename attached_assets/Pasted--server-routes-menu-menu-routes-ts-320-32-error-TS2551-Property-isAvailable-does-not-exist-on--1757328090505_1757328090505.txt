@@ -1,0 +1,109 @@
+
+server/routes/menu/menu.routes.ts:320:32 - error TS2551: Property 'isAvailable' does not exist on type 'PgTableWithColumns<{ name: "menu_items"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 17 more ...; updatedAt: PgCo...'. Did you mean 'available'?
+
+320         isAvailable: menuItems.isAvailable,
+                                   ~~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:513:9 - error TS2561: Object literal may only specify known properties, but 'isAvailable' does not exist in type '{ name?: string | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined; price?: string | SQL<unknown> | PgColumn<...> | undefined; ... 16 more ...; calories?: number | ... 3 more ... | undefined; }'. Did you mean to write 'available'?
+
+513         isAvailable: false,
+            ~~~~~~~~~~~
+
+server/routes/orders/orders.routes.ts:271:22 - error TS2551: Property 'isAvailable' does not exist on type 'PgTableWithColumns<{ name: "menu_items"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "menu_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 17 more ...; updatedAt: PgCo...'. Did you mean 'available'?
+
+271         eq(menuItems.isAvailable, true)
+                         ~~~~~~~~~~~
+
+server/routes/tables/tables.routes.ts:254:11 - error TS2322: Type '{ id: number; number: number; capacity: number; location: string | null; section: string | null; status: "maintenance" | "available" | "occupied" | "reserved"; currentReservation: { ...; } | undefined; nextReservation: { ...; } | undefined; }[]' is not assignable to type 'TableStatus[]'.
+  Type '{ id: number; number: number; capacity: number; location: string | null; section: string | null; status: "maintenance" | "available" | "occupied" | "reserved"; currentReservation: { ...; } | undefined; nextReservation: { ...; } | undefined; }' is not assignable to type 'TableStatus' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'currentReservation' are incompatible.
+      Type '{ id: any; customerName: any; startTime: any; endTime: any; partySize: any; } | undefined' is not assignable to type '{ id: number; customerName: string; startTime: Date; endTime: Date; partySize: number; }'.
+        Type 'undefined' is not assignable to type '{ id: number; customerName: string; startTime: Date; endTime: Date; partySize: number; }'.
+
+254     const tableStatuses: TableStatus[] = allTables.map(table => {
+              ~~~~~~~~~~~~~
+
+server/routes/tables/tables.routes.ts:327:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+327       return res.status(409).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:391:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+391       return res.status(404).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:407:9 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+407         return res.status(409).json({
+            ~~~~~~
+
+server/routes/tables/tables.routes.ts:424:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+424       return res.status(404).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:471:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+471       return res.status(404).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:488:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+488       return res.status(404).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:531:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+531       return res.status(400).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:550:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+550       return res.status(400).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:566:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+566       return res.status(404).json({
+          ~~~~~~
+
+server/routes/users/users.routes.ts:224:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+224       return res.status(404).json({
+          ~~~~~~
+
+server/routes/users/users.routes.ts:286:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+286       return res.status(409).json({
+          ~~~~~~
+
+server/routes/users/users.routes.ts:384:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+384       return res.status(404).json({
+          ~~~~~~
+
+server/routes/users/users.routes.ts:401:9 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+401         return res.status(409).json({
+            ~~~~~~
+
+server/routes/users/users.routes.ts:423:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+423       return res.status(404).json({
+          ~~~~~~
+
+server/routes/users/users.routes.ts:493:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+493       return res.status(404).json({
+          ~~~~~~
+
+server/routes/users/users.routes.ts:554:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+554       return res.status(400).json({
+          ~~~~~~
+
+server/routes/users/users.routes.ts:575:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+575       return res.status(404).json({
+          ~~~~~~
