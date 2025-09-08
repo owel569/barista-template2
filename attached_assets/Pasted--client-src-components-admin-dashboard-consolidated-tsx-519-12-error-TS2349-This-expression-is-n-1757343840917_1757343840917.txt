@@ -1,0 +1,74 @@
+
+client/src/components/admin/dashboard-consolidated.tsx:519:12 - error TS2349: This expression is not callable.
+  Type 'Boolean' has no call signatures.
+
+519           {isAdmin() && <TabsTrigger value="admin">Administration</TabsTrigger>}
+               ~~~~~~~
+
+client/src/components/admin/dashboard-consolidated.tsx:749:10 - error TS2349: This expression is not callable.
+  Type 'Boolean' has no call signatures.
+
+749         {isAdmin() && (
+             ~~~~~~~
+
+client/src/components/admin/maintenance-management.tsx:488:19 - error TS2412: Type 'MaintenanceTask | undefined' is not assignable to type 'Partial<MaintenanceTask & { equipmentId?: string | null; }> | undefined' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+
+488                   initialData={editingTask ?? undefined}
+                      ~~~~~~~~~~~
+
+  client/src/components/admin/MaintenanceTaskForm.tsx:24:3
+    24   initialData?: Partial<MaintenanceTask & { equipmentId?: string | null }>;
+         ~~~~~~~~~~~
+    The expected type comes from property 'initialData' which is declared here on type 'IntrinsicAttributes & MaintenanceTaskFormProps'
+
+client/src/components/admin/maintenance-management.tsx:489:19 - error TS2322: Type '(taskData: Omit<MaintenanceTask, "id">) => Promise<void>' is not assignable to type '(data: Omit<MaintenanceTask, "id"> & { equipmentId?: string | null; }) => void'.
+  Types of parameters 'taskData' and 'data' are incompatible.
+    Property 'equipment' is missing in type 'Omit<MaintenanceTask, "id"> & { equipmentId?: string | null; }' but required in type 'Omit<MaintenanceTask, "id">'.
+
+489                   onSubmit={editingTask ?
+                      ~~~~~~~~
+
+  client/src/components/admin/maintenance-management.tsx:37:3
+    37   equipment: string;
+         ~~~~~~~~~
+    'equipment' is declared here.
+  client/src/components/admin/MaintenanceTaskForm.tsx:25:3
+    25   onSubmit: (data: Omit<MaintenanceTask, 'id'> & { equipmentId?: string | null }) => void;
+         ~~~~~~~~
+    The expected type comes from property 'onSubmit' which is declared here on type 'IntrinsicAttributes & MaintenanceTaskFormProps'
+
+client/src/components/admin/online-ordering.tsx:150:11 - error TS2339: Property 'lastMessage' does not exist on type 'WebSocketHookReturn'.
+
+150   const { lastMessage } = useWebSocket('/api/ws');
+              ~~~~~~~~~~~
+
+client/src/components/admin/online-ordering.tsx:150:40 - error TS2554: Expected 0 arguments, but got 1.
+
+150   const { lastMessage } = useWebSocket('/api/ws');
+                                           ~~~~~~~~~
+
+client/src/components/admin/permissions-management.tsx:435:69 - error TS2322: Type '"directeur" | "employe"' is not assignable to type '"employe"'.
+  Type '"directeur"' is not assignable to type '"employe"'.
+
+435                   onValueChange={(value) => setNewUser({...newUser, role: value as 'directeur' | 'employe'})}
+                                                                        ~~~~
+
+client/src/components/admin/settings.tsx:261:22 - error TS2345: Argument of type '(prev: RestaurantSettings) => { openingHours: { [x: string]: OpeningHours | { open?: string; close?: string; closed?: boolean; }; }; restaurantName: string; ... 8 more ...; specialDates: { ...; }; }' is not assignable to parameter of type 'SetStateAction<RestaurantSettings>'.
+  Type '(prev: RestaurantSettings) => { openingHours: { [x: string]: OpeningHours | { open?: string; close?: string; closed?: boolean; }; }; restaurantName: string; ... 8 more ...; specialDates: { ...; }; }' is not assignable to type '(prevState: RestaurantSettings) => RestaurantSettings'.
+    Call signature return types '{ openingHours: { [x: string]: OpeningHours | { open?: string; close?: string; closed?: boolean; }; }; restaurantName: string; address: string; phone: string; email: string; website: string; ... 4 more ...; specialDates: { ...; }; }' and 'RestaurantSettings' are incompatible.
+      The types of 'openingHours' are incompatible between these types.
+        Type '{ [x: string]: OpeningHours | { open?: string; close?: string; closed?: boolean; }; }' is not assignable to type 'Record<string, OpeningHours>'.
+          'string' index signatures are incompatible.
+            Type 'OpeningHours | { open?: string; close?: string; closed?: boolean; }' is not assignable to type 'OpeningHours'.
+              Type '{ open?: string; close?: string; closed?: boolean; }' is not assignable to type 'OpeningHours'.
+                Property 'open' is optional in type '{ open?: string; close?: string; closed?: boolean; }' but required in type 'OpeningHours'.
+
+261     setDraftSettings(prev => ({
+                         ~~~~~~~~~~
+262       ...prev,
+    ~~~~~~~~~~~~~~
+... 
+269       }
+    ~~~~~~~
+270     }));
+    ~~~~~~

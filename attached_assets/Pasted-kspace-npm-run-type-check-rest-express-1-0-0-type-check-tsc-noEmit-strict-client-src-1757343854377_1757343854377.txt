@@ -1,0 +1,28 @@
+kspace$ npm run type-check
+
+> rest-express@1.0.0 type-check
+> tsc --noEmit --strict
+
+client/src/components/admin/MaintenanceTaskForm.tsx:52:70 - error TS2345: Argument of type '() => { id: string | number; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "high" | "low" | "medium" | "critical"; status: "pending" | "completed" | "cancelled" | "in_progress"; ... 7 more ...; updatedAt: string | Date; }' is not assignable to parameter of type 'Partial<MaintenanceTask> | (() => Partial<MaintenanceTask>)'.
+  Type '() => { id: string | number; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "high" | "low" | "medium" | "critical"; status: "pending" | "completed" | "cancelled" | "in_progress"; ... 7 more ...; updatedAt: string | Date; }' is not assignable to type '() => Partial<MaintenanceTask>'.
+    Call signature return types '{ id: string | number; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "high" | "low" | "medium" | "critical"; status: "pending" | "completed" | "cancelled" | "in_progress"; ... 7 more ...; updatedAt: string | Date; }' and 'Partial<MaintenanceTask>' are incompatible.
+      The types of 'id' are incompatible between these types.
+        Type 'string | number' is not assignable to type 'string'.
+          Type 'number' is not assignable to type 'string'.
+
+52   const [formData, setFormData] = useState<Partial<MaintenanceTask>>(() => {
+                                                                        ~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:157:11 - error TS2739: Type '{ title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "high" | "low" | "medium" | "urgent"; status: "pending" | "completed" | "cancelled" | "in_progress"; ... 5 more ...; equipmentId: number | null; }' is missing the following properties from type 'Omit<MaintenanceTask, "id">': createdAt, updatedAt
+
+157     const taskToSubmit: Omit<MaintenanceTask, 'id'> = {
+              ~~~~~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:170:14 - error TS2379: Argument of type 'Omit<MaintenanceTask, "id">' is not assignable to parameter of type 'Omit<MaintenanceTask, "id"> & { equipmentId?: string | null; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Type 'Omit<MaintenanceTask, "id">' is not assignable to type '{ equipmentId?: string | null; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'equipmentId' are incompatible.
+      Type 'number | null' is not assignable to type 'string | null'.
+        Type 'number' is not assignable to type 'string'.
+
+170     onSubmit(taskToSubmit);
+                 ~~~~~~~~~~~~
