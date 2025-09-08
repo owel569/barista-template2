@@ -1,0 +1,123 @@
+
+server/routes/ai.routes.ts:734:55 - error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+
+734     logger.error('Erreur lors de l\'analyse vocale:', error);
+                                                          ~~~~~
+
+server/routes/auth/auth.routes.ts:141:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+141       return res.status(409).json({
+          ~~~~~~
+
+server/routes/auth/auth.routes.ts:182:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+182       return res.status(500).json({
+          ~~~~~~
+
+server/routes/loyalty-advanced.ts:314:5 - error TS2322: Type 'LoyaltyLevel | undefined' is not assignable to type 'LoyaltyLevel'.
+  Type 'undefined' is not assignable to type 'LoyaltyLevel'.
+
+314     return level || LOYALTY_LEVELS[0];
+        ~~~~~~
+
+server/routes/loyalty-advanced.ts:752:9 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+752         return res.status(404).json({
+            ~~~~~~
+
+server/routes/loyalty-advanced.ts:868:16 - error TS7030: Not all code paths return a value.
+
+868   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/tables/tables.routes.ts:244:33 - error TS2345: Argument of type 'number | null' is not assignable to parameter of type 'number'.
+  Type 'null' is not assignable to type 'number'.
+
+244       currentReservationMap.set(res.tableId, res);
+                                    ~~~~~~~~~~~
+
+server/routes/tables/tables.routes.ts:249:35 - error TS2345: Argument of type 'number | null' is not assignable to parameter of type 'number'.
+  Type 'null' is not assignable to type 'number'.
+
+249       if (!nextReservationMap.has(res.tableId)) {
+                                      ~~~~~~~~~~~
+
+server/routes/tables/tables.routes.ts:250:32 - error TS2345: Argument of type 'number | null' is not assignable to parameter of type 'number'.
+  Type 'null' is not assignable to type 'number'.
+
+250         nextReservationMap.set(res.tableId, res);
+                                   ~~~~~~~~~~~
+
+server/routes/tables/tables.routes.ts:255:11 - error TS2322: Type '{ id: number; number: number; capacity: number; location: string | null; section: string | null; status: "maintenance" | "available" | "occupied" | "reserved"; currentReservation: { ...; } | undefined; nextReservation: { ...; } | undefined; }[]' is not assignable to type 'TableStatus[]'.
+  Type '{ id: number; number: number; capacity: number; location: string | null; section: string | null; status: "maintenance" | "available" | "occupied" | "reserved"; currentReservation: { ...; } | undefined; nextReservation: { ...; } | undefined; }' is not assignable to type 'TableStatus' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'currentReservation' are incompatible.
+      Type '{ id: number; customerName: string; startTime: Date; endTime: Date; partySize: number; } | undefined' is not assignable to type '{ id: number; customerName: string; startTime: Date; endTime: Date; partySize: number; }'.
+        Type 'undefined' is not assignable to type '{ id: number; customerName: string; startTime: Date; endTime: Date; partySize: number; }'.
+
+255     const tableStatuses: TableStatus[] = allTables.map(table => {
+              ~~~~~~~~~~~~~
+
+server/routes/tables/tables.routes.ts:393:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+393       return res.status(404).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:427:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+427       return res.status(404).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:474:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+474       return res.status(404).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:491:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+491       return res.status(404).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:534:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+534       return res.status(400).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:553:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+553       return res.status(400).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:569:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+569       return res.status(404).json({
+          ~~~~~~
+
+server/routes/users/users.routes.ts:390:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+390       return res.status(404).json({
+          ~~~~~~
+
+server/routes/users/users.routes.ts:407:9 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+407         return res.status(409).json({
+            ~~~~~~
+
+server/routes/users/users.routes.ts:429:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+429       return res.status(404).json({
+          ~~~~~~
+
+server/routes/users/users.routes.ts:499:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+499       return res.status(404).json({
+          ~~~~~~
+
+server/routes/users/users.routes.ts:560:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+560       return res.status(400).json({
+          ~~~~~~
+
+server/routes/users/users.routes.ts:581:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+581       return res.status(404).json({
+          ~~~~~~
