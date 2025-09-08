@@ -272,7 +272,7 @@ class AdvancedCache {
     hitRate: number;
     totalAccesses: number;
     averageAccessCount: number;
-    metrics: typeof this.metrics;
+    metrics: CacheMetrics;
   } {
     const totalAccesses = this.metrics.hits + this.metrics.misses;
     const hitRate = totalAccesses > 0 ? (this.metrics.hits / totalAccesses) * 100 : 0;
@@ -356,7 +356,8 @@ export const cacheMiddleware = (options: CacheMiddlewareOptions = {}) => {
       res.setHeader('X-Cache', 'HIT');
       res.setHeader('X-Cache-Key', cacheKey);
       res.setHeader('X-Cache-TTL', options.ttl?.toString() || '300');
-      return res.json(cachedData);
+      res.json(cachedData);
+      return;
     }
 
     // Cache miss

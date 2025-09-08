@@ -8,6 +8,7 @@ import { validateBody, validateParams } from '../middleware/validation';
 import { getDb } from '../db';
 import { customers, loyaltyTransactions, activityLogs } from '../../shared/schema';
 import { eq, and, gte, lte, desc, count, sum } from 'drizzle-orm';
+import type { LoyaltyLevel, CustomerLoyaltyData } from '../../shared/types-enhanced';
 
 const router = Router();
 const logger = createLogger('LOYALTY_ADVANCED');
@@ -764,10 +765,6 @@ router.get('/customer/:customerId',
       }
 
       const customer = customerResult[0];
-      if (!customer) {
-        res.status(404).json({ success: false, message: 'Client non trouvé' });
-        return;
-      }
       const points = customer.loyaltyPoints || 0;
       const level = AdvancedLoyaltyService.getLevelForPoints(points);
       const nextLevelInfo = AdvancedLoyaltyService.getNextLevelInfo(points);
@@ -822,21 +819,26 @@ router.get('/customer/:customerId',
         validPreviousRewards
       );
 
+      const currentLevel = AdvancedLoyaltyService.getLevelForPoints(customer.loyaltyPoints || 0);
+      const nextLevel = AdvancedLoyaltyService.getNextLevelInfo(customer.loyaltyPoints || 0).nextLevel;
+
       const customerData: CustomerLoyaltyData = {
         customerId: customer.id,
-        currentPoints: points,
-        totalPointsEarned: stats.totalEarned,
-        totalPointsRedeemed: stats.totalRedeemed,
-        currentLevel: level,
-        nextLevel: nextLevelInfo.nextLevel || undefined,
-        progressToNextLevel: nextLevelInfo.progress,
-        pointsToNextLevel: nextLevelInfo.pointsToNext,
-        joinDate: customer?.createdAt?.toISOString() ?? new Date().toISOString(),
+        currentPoints: customer.loyaltyPoints || 0,
+        totalPointsEarned: stats.totalEarned || 0,
+        totalPointsRedeemed: stats.totalRedeemed || 0,
+        currentLevel,
+        nextLevel: nextLevel || undefined,
+        pointsToNextLevel: AdvancedLoyaltyService.getNextLevelInfo(customer.loyaltyPoints || 0).pointsToNext,
+        recentTransactions: typedTransactions,
+        monthlySpending: metrics.averageTransactionValue * 0.05 * 30, // Placeholder, needs actual monthly data
+        averageOrderValue: metrics.averageTransactionValue * 0.05, // Assuming a 5% conversion from points to currency
+        visitFrequency: metrics.frequencyScore,
         lastActivity: customer?.updatedAt?.toISOString() ?? new Date().toISOString(),
-        tier: level.name.toLowerCase() as CustomerLoyaltyData['tier'],
+        joinDate: customer?.createdAt?.toISOString() ?? new Date().toISOString(),
+        tier: currentLevel.name.toLowerCase() as CustomerLoyaltyData['tier'],
         lifetimeValue: metrics.lifetimeValue,
-        averageOrderValue: metrics.averageTransactionValue * 0.05,
-        visitFrequency: metrics.frequencyScore
+        expiringPoints: 0
       };
 
       res.json({
@@ -894,7 +896,7 @@ router.post('/earn-points',
       }
 
       const customer = customerResult[0];
-      const currentPoints = customer.loyaltyPoints || 0;
+      const currentPoints = customer?.loyaltyPoints || 0;
       const currentLevel = AdvancedLoyaltyService.getLevelForPoints(currentPoints);
 
       const finalPoints = AdvancedLoyaltyService.calculatePointsToAdd(
@@ -925,13 +927,12 @@ router.post('/earn-points',
           points: finalPoints,
           orderId,
           description: transactionDescription,
-          createdAt: new Date()
+          createdAt: new Date(),
+          expiresAt: expiresAt,
+          metadata: metadata
         };
 
-        await tx.insert(loyaltyTransactions).values({
-          ...transactionData,
-          // balance: newTotalPoints // Removed as it's not part of the schema
-        });
+        await tx.insert(loyaltyTransactions).values(transactionData);
 
         await tx.insert(activityLogs).values({
           userId: req.user?.id || 0,
@@ -1010,7 +1011,7 @@ router.post('/redeem-reward',
       }
 
       const customer = customerResult[0];
-      const currentPoints = customer.loyaltyPoints || 0;
+      const currentPoints = customer?.loyaltyPoints || 0;
       const customerLevel = AdvancedLoyaltyService.getLevelForPoints(currentPoints);
 
       const reward = ENHANCED_REWARDS.find(r => r.id === rewardId);
@@ -1060,7 +1061,10 @@ router.post('/redeem-reward',
           type: 'redeemed' as const,
           points: pointsUsed,
           description: description || `Échange: ${quantity}x ${reward.name}`,
-          createdAt: new Date()
+          createdAt: new Date(),
+          rewardId: rewardId,
+          notes: notes,
+          deliveryAddress: deliveryAddress,
         };
 
         await tx.insert(loyaltyTransactions).values(transactionData);

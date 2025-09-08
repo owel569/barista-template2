@@ -52,7 +52,7 @@ export const menuItems = pgTable('menu_items', {
   price: decimal('price', { precision: 10, scale: 2 }).notNull(),
   categoryId: integer('category_id').references(() => menuCategories.id),
   imageUrl: varchar('image_url', { length: 500 }),
-  isAvailable: boolean('is_available').notNull().default(true),
+  available: boolean('available').notNull().default(true),
   isVegetarian: boolean('is_vegetarian').notNull().default(false),
   isVegan: boolean('is_vegan').notNull().default(false),
   isGlutenFree: boolean('is_gluten_free').notNull().default(false),

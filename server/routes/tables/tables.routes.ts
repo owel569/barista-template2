@@ -149,8 +149,8 @@ router.get('/',
       query.orderBy(orderColumn)) as typeof query;
 
     // Pagination
-    const pageNum = typeof page === 'string' ? parseInt(page) : page;
-    const limitNum = typeof limit === 'string' ? parseInt(limit) : limit;
+    const pageNum = Number(page) || 1;
+    const limitNum = Number(limit) || 20;
     const offset = (pageNum - 1) * limitNum;
     const tablesData = await query.limit(limitNum).offset(offset);
 
@@ -337,6 +337,14 @@ router.post('/',
         status: 'available'
       })
       .returning();
+
+    if (!newTable) {
+      res.status(500).json({
+        success: false,
+        message: 'Erreur lors de la création de la table'
+      });
+      return;
+    }
 
     await logTableActivity(
       currentUser.id,

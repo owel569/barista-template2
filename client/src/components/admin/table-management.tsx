@@ -176,7 +176,7 @@ export default function TableManagement(): JSX.Element {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/tables'] });
-      toast({ title: "Table créée avec succès", variant: "success" });
+      toast({ title: "Table créée avec succès", variant: "default" });
     },
     onError: () => {
       toast({ title: "Erreur lors de la création", variant: "destructive" });
@@ -185,7 +185,7 @@ export default function TableManagement(): JSX.Element {
 
   const updateTableMutation = useMutation({
     mutationFn: ({ id, ...data }: Partial<RestaurantTable> & { id: number }) => 
-      apiRequest(`/api/admin/tables/${id}`, { method: 'PUT', data }),
+      apiRequest('PUT', `/api/admin/tables/${id}`, { body: JSON.stringify(data) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/tables'] });
       toast({ title: "Table mise à jour", variant: "success" });

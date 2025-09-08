@@ -346,33 +346,33 @@ class UserProfileService {
       const db = await getDb();
 
       // Construction de la requête de base
-      let query = db.select({
-        id: orders.id,
-        orderNumber: orders.orderNumber,
-        totalAmount: orders.totalAmount,
-        status: orders.status,
-        items: orders.items,
-        createdAt: orders.createdAt,
-        updatedAt: orders.updatedAt
-      })
-      .from(orders)
-      .where(eq(orders.customerId, userId));
+      const conditions = [eq(orders.customerId, userId)];
 
-      // Application des filtres
-      if (filters?.status && filters.status !== 'all') {
-        query = query.where(eq(orders.status, filters.status as any));
+      if (filters?.status) {
+        conditions.push(eq(orders.status, filters.status as any));
       }
 
       if (filters?.from) {
-        query = query.where(gte(orders.createdAt, new Date(filters.from)));
+        conditions.push(gte(orders.createdAt, new Date(filters.from)));
       }
 
       if (filters?.to) {
-        query = query.where(lte(orders.createdAt, new Date(filters.to)));
+        conditions.push(lte(orders.createdAt, new Date(filters.to)));
       }
 
-      // Ajout du tri
-      query = query.orderBy(desc(orders.createdAt));
+      const query = db
+        .select({
+          id: orders.id,
+          orderNumber: orders.orderNumber,
+          totalAmount: orders.totalAmount,
+          status: orders.status,
+          items: orders.items,
+          createdAt: orders.createdAt,
+          updatedAt: orders.updatedAt
+        })
+        .from(orders)
+        .where(and(...conditions))
+        .orderBy(desc(orders.createdAt));
 
       // Requête pour le total (pour la pagination)
       const total = await query.execute().then(res => res.length);
@@ -695,17 +695,17 @@ userProfileRouter.get('/orders',
     // Conversion des types
     const limit = typeof rawLimit === 'string' ? parseInt(rawLimit, 10) : 20;
     const offset = typeof rawOffset === 'string' ? parseInt(rawOffset, 10) : 0;
-    
+
     const filters: { status?: string, from?: string, to?: string } = {};
-    
+
     if (typeof status === 'string' && status !== 'all') {
       filters.status = status;
     }
-    
+
     if (typeof from === 'string') {
       filters.from = from;
     }
-    
+
     if (typeof to === 'string') {
       filters.to = to;
     }

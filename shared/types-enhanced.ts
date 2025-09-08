@@ -357,3 +357,64 @@ export interface AutomaticOrder {
   createdAt: string;
   estimatedDelivery: string;
 }
+// Interface pour les niveaux de loyauté
+export interface LoyaltyLevel {
+  id: number;
+  name: string;
+  minPoints: number;
+  maxPoints: number;
+  benefits: string[];
+  color: string;
+}
+
+// Interface pour les données de loyauté client
+export interface CustomerLoyaltyData {
+  customerId: number;
+  currentPoints: number;
+  totalPointsEarned: number;
+  totalPointsRedeemed: number;
+  currentLevel: LoyaltyLevel;
+  nextLevel?: LoyaltyLevel;
+  pointsToNextLevel: number;
+  recentTransactions: any[];
+  monthlySpending: number;
+  averageOrderValue: number;
+  visitFrequency: number;
+  lastVisit: Date | null;
+  joinDate: Date;
+  loyaltyTier: string;
+  expiringPoints: number;
+}
+
+// Interface pour le statut des tables
+export interface TableStatus {
+  id: number;
+  number: number;
+  capacity: number;
+  status: 'available' | 'occupied' | 'reserved' | 'maintenance';
+  location: string | null;
+  section: string | null;
+  currentReservation?: {
+    id: number;
+    customerName: string;
+    startTime: Date;
+    endTime: Date;
+    partySize: number;
+  };
+  nextReservation?: {
+    id: number;
+    customerName: string;
+    startTime: Date;
+    endTime: Date;
+    partySize: number;
+  };
+}
+
+// Interface pour les métriques de cache
+export interface CacheMetrics {
+  hits: number;
+  misses: number;
+  invalidations: number;
+  size: number;
+  hitRate: number;
+}
