@@ -1,11 +1,13 @@
+
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface CategoryData {
-  name: string;
-  value: number;
-  color: string;
+  readonly name: string;
+  readonly value: number;
+  readonly color: string;
 }
 
 interface CategoryPieChartProps {
@@ -113,3 +115,5 @@ export function CategoryPieChart({
     </Card>
   );
 }
+
+export default CategoryPieChart;

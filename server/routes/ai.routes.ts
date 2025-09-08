@@ -371,6 +371,7 @@ router.post('/chat',
       };
 
       res.json(aiResponse);
+      return;
     } catch (error) {
       logger.error('Erreur chatbot IA', { message, error });
 
@@ -380,6 +381,7 @@ router.post('/chat',
         message: 'Erreur lors de la traitement de la demande',
         timestamp: new Date().toISOString()
       });
+      return;
     }
   })
 );

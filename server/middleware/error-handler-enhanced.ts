@@ -2,6 +2,11 @@ import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
 import { createLogger } from './logging';
 
+// Skeleton component for loading state
+const Skeleton = ({ className }: { className: string }) => (
+  `<div class="animate-pulse ${className} bg-gray-300 rounded"></div>`
+);
+
 const logger = createLogger('ERROR_HANDLER');
 
 // Classes d'erreurs personnalisées

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -439,7 +439,7 @@ const AdvancedLoyalty: React.FC = () => {
                 <SelectItem value="all">Tous les niveaux</SelectItem>
                 {loyaltyProgram?.levels.map(level => (
                   <SelectItem key={level.name} value={level.name}>{level.name}</SelectItem>
-                ))}
+                )) || null}
               </SelectContent>
             </Select>
           </div>

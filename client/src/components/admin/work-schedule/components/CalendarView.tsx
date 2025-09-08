@@ -39,7 +39,7 @@ const ShiftItem: React.FC<ShiftItemProps> = ({
   onClick 
 }) => {
   const statusColor = SHIFT_STATUS_COLORS[shift.status];
-  
+
   return (
     <div
       onClick={onClick}
@@ -64,17 +64,17 @@ const ShiftItem: React.FC<ShiftItemProps> = ({
           <AlertTriangle className="h-3 w-3 text-yellow-500" />
         )}
       </div>
-      
+
       <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
         <Clock className="h-3 w-3" />
         <span>{shift.startTime} - {shift.endTime}</span>
       </div>
-      
+
       <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
         <MapPin className="h-3 w-3" />
         <span>{shift.position}</span>
       </div>
-      
+
       <div className="flex items-center justify-between mt-2">
         <Badge 
           variant="outline" 
@@ -103,7 +103,7 @@ const DayColumn: React.FC<DayColumnProps> = ({
 }) => {
   const dayDate = new Date(date);
   const isToday = date === new Date().toISOString().split('T')[0];
-  
+
   return (
     <div
       onClick={() => onDateClick(date)}
@@ -127,7 +127,7 @@ const DayColumn: React.FC<DayColumnProps> = ({
             {dayDate.getDate()}
           </div>
         </div>
-        
+
         <Button
           size="sm"
           variant="ghost"
@@ -153,7 +153,7 @@ const DayColumn: React.FC<DayColumnProps> = ({
           <Plus className="h-4 w-4" />
         </Button>
       </div>
-      
+
       <div className="space-y-2">
         {shifts.map((shift) => {
           const employee = employees.find(e => e.id === shift.employeeId);
@@ -170,7 +170,7 @@ const DayColumn: React.FC<DayColumnProps> = ({
           );
         })}
       </div>
-      
+
       {shifts.length === 0 && (
         <div className="text-center text-gray-400 dark:text-gray-600 text-sm mt-8">
           Aucun shift programmé
@@ -218,20 +218,20 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   const navigateDate = (direction: 'prev' | 'next') => {
     const current = new Date(currentDate ?? initialDate);
     const increment = direction === 'next' ? 1 : -1;
-    
+
     switch (viewMode) {
       case 'day': current.setDate(current.getDate() + increment); break;
       case 'week': current.setDate(current.getDate() + (increment * 7)); break;
       case 'month': current.setMonth(current.getMonth() + increment); break;
     }
-    
+
     setCurrentDate(current.toISOString().split('T')[0]);
   };
 
   // Formatage des titres
   const getTitle = () => {
     const date = new Date(currentDate);
-    
+
     switch (viewMode) {
       case 'day':
         return date.toLocaleDateString('fr-FR', { 
@@ -257,7 +257,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     const periodShifts = shifts.filter(shift => 
       dates.some(d => (typeof d === 'string' ? d : String(d)) === shift.date)
     );
-    
+
     return {
       totalShifts: periodShifts.length,
       totalHours: periodShifts.reduce((sum, shift) => sum + shift.totalHours, 0),
@@ -273,7 +273,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
           <CardTitle className="text-xl font-bold">
             {getTitle()}
           </CardTitle>
-          
+
           <div className="flex items-center space-x-2">
             <Button
               variant="outline"
@@ -282,7 +282,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            
+
             <Button
               variant="outline"
               size="sm"
@@ -290,7 +290,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
             >
               Aujourd'hui
             </Button>
-            
+
             <Button
               variant="outline"
               size="sm"
@@ -300,7 +300,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
             </Button>
           </div>
         </div>
-        
+
         {/* Statistiques rapides */}
         <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-300 mt-2">
           <div className="flex items-center space-x-1">
@@ -319,7 +319,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
           </div>
         </div>
       </CardHeader>
-      
+
       <CardContent>
         {viewMode === 'day' ? (
           <DayColumn 
