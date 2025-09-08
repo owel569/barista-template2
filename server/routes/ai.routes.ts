@@ -490,18 +490,19 @@ router.post('/reservation',
 
       // Enregistrer la réservation en base
       const db = await getDb();
-      const [reservation] = await db.insert(reservations)
-        .values({
+      const reservationData = {
+          time: time,
           date: new Date(date),
-          time,
-          partySize: guests,
           customerName: customerInfo?.name,
           customerEmail: customerInfo?.email,
           customerPhone: customerInfo?.phone,
-          status: 'confirmed',
+          guests: guests,
           specialRequests: preferences,
           notes: `Réservation créée par IA`,
-        })
+          status: 'confirmed'
+        };
+      const [reservation] = await db.insert(reservations)
+        .values(reservationData)
         .returning();
 
       const aiResponse: AIResponse<NonNullable<typeof reservation>> = {

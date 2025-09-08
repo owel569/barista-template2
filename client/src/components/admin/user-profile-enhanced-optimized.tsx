@@ -613,7 +613,10 @@ export default function UserProfileEnhanced(): JSX.Element {
     } else {
       await addAddressMutation.mutateAsync({
         userId: selectedUser.id,
-        address: values
+        address: {
+          ...values,
+          isDefault: values.isDefault || false
+        }
       });
     }
   };
@@ -659,7 +662,7 @@ export default function UserProfileEnhanced(): JSX.Element {
           <Button 
             onClick={handleImport} 
             variant="outline"
-            disabled={!permissions.canImport || isImporting}
+            disabled={!permissions.canCreate || isImporting}
           >
             <HardDriveDownload className="w-4 h-4 mr-2" />
             {isImporting ? 'Import...' : 'Importer'}
@@ -668,13 +671,13 @@ export default function UserProfileEnhanced(): JSX.Element {
           <Button 
             onClick={handleExportExcel} 
             variant="outline"
-            disabled={!permissions.canExport || exporting}
+            disabled={!permissions.canView || exporting}
           >
             <HardDriveUpload className="w-4 h-4 mr-2" />
             {exporting ? 'Export...' : 'Exporter'}
           </Button>
 
-          {permissions.canCreate && (
+          {permissions.canCreate('users') && (
             <Button onClick={() => {
               setSelectedUser(null);
               setIsEditDialogOpen(true);
@@ -914,7 +917,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                 >
                   <Eye className="w-3 h-3" />
                 </Button>
-                {permissions.canEdit && (
+                {permissions.canEdit('users') && (
                   <Button
                     size="sm"
                     variant="outline"
@@ -927,7 +930,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                     <Edit className="w-3 h-3" />
                   </Button>
                 )}
-                {permissions.canDelete && (
+                {permissions.canDelete('users') && (
                   <Button
                     size="sm"
                     variant="outline"
@@ -1691,7 +1694,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                     <FormLabel>Adresse par défaut</FormLabel>
                     <FormControl>
                       <Switch
-                        checked={field.value}
+                        checked={field.value || false}
                         onCheckedChange={field.onChange}
                       />
                     </FormControl>

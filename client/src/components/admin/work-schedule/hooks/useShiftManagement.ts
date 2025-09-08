@@ -322,6 +322,9 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
         groups[groupKey] = [];
       }
       if (groups[groupKey]) {
+        if (!groups[groupKey]) {
+          groups[groupKey] = [];
+        }
         groups[groupKey].push(shift);
       }
     });

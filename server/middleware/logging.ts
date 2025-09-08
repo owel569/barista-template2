@@ -1,4 +1,3 @@
-
 import fs from 'fs';
 import path from 'path';
 import { Request, Response, NextFunction } from 'express';
@@ -98,7 +97,7 @@ export class Logger {
     if (this.currentLogFile !== logFilePath) {
       this.currentLogFile = logFilePath;
       this.fileStream = fs.createWriteStream(logFilePath, { flags: 'a' });
-      
+
       this.fileStream.on('error', (error) => {
         console.error('Erreur lors de l\'écriture du log:', error);
       });
@@ -127,15 +126,15 @@ export class Logger {
     if (!this.fileStream || !this.currentLogFile) return;
 
     this.fileStream.end();
-    
+
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const rotatedFileName = this.currentLogFile.replace('.log', `-${timestamp}.log`);
-    
+
     fs.renameSync(this.currentLogFile, rotatedFileName);
-    
+
     // Supprimer les anciens fichiers
     this.cleanOldLogs();
-    
+
     // Créer un nouveau fichier
     this.createLogFile();
   }
@@ -171,7 +170,7 @@ export class Logger {
     const meta = entry.meta ? ` | ${JSON.stringify(entry.meta)}` : '';
     const requestInfo = entry.requestId ? ` [${entry.requestId}]` : '';
     const userInfo = entry.userId ? ` (User: ${entry.userId})` : '';
-    
+
     return `${entry.timestamp} [${entry.level.toUpperCase()}] [${entry.module}]${requestInfo}${userInfo} - ${entry.message}${meta}`;
   }
 
@@ -218,7 +217,7 @@ export class Logger {
       level,
       module: this.module,
       message: typeof message === 'string' ? message : JSON.stringify(message),
-      meta: meta ? this.sanitizeMeta(meta) : undefined
+      meta: meta || {}
     };
 
     this.writeToConsole(entry);
@@ -301,7 +300,7 @@ const loggerInstances = new Map<string, Logger>();
 
 export function createLogger(module: string, config?: Partial<LoggerConfig>): Logger {
   const key = `${module}-${JSON.stringify(config || {})}`;
-  
+
   if (!loggerInstances.has(key)) {
     loggerInstances.set(key, new Logger(module, config));
   }
@@ -316,14 +315,14 @@ export const mainLogger = createLogger('APP');
 export const requestLogger = (req: Request, res: Response, next: NextFunction): void => {
   const startTime = Date.now();
   const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  
+
   // Attacher l'ID de requête
   (req as any).requestId = requestId;
   res.setHeader('X-Request-ID', requestId);
 
   // Logger de requête
   const logger = createLogger('REQUEST');
-  
+
   logger.info('Incoming request', {
     requestId,
     method: req.method,
@@ -337,7 +336,7 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction): 
   const originalEnd = res.end;
   res.end = function(chunk?: any, encoding?: any): Response {
     const duration = Date.now() - startTime;
-    
+
     logger.info('Request completed', {
       requestId,
       method: req.method,
@@ -356,7 +355,7 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction): 
 // Middleware de logging des erreurs
 export const errorLogger = (error: Error, req: Request, res: Response, next: NextFunction): void => {
   const logger = createLogger('ERROR');
-  
+
   logger.logError(req, error, {
     statusCode: res.statusCode,
     body: req.body,

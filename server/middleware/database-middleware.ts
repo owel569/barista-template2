@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { checkDatabaseHealth, initializeDatabase } from '../db';
+import { db } from '../db';
 import { createLogger } from './logging';
 const logger = createLogger('DB_MIDDLEWARE');
 
@@ -21,7 +21,9 @@ export async function ensureDatabaseConnection(req: Request, res: Response, next
       await initializeDatabase();
       next();
     } catch (reconnectError) {
-      logger.error('❌ Échec de la reconnexion:', reconnectError);
+      logger.error('❌ Échec de la reconnexion:', { 
+        error: reconnectError instanceof Error ? reconnectError.message : String(reconnectError)
+      });
       res.status(500).json({ 
         success: false, 
         message: 'Erreur de connexion à la base de données',

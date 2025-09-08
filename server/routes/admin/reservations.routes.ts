@@ -111,7 +111,7 @@ router.put('/:id', authenticateUser, requireRoleHierarchy('staff'), validateBody
         ...updateData,
         updatedAt: new Date()
       })
-      .where(eq(reservations.id, parseInt(id)))
+      .where(eq(reservations.id, parseInt(id || '0')))
       .returning();
 
     if (!updatedReservation) {
@@ -155,7 +155,7 @@ router.patch('/:id/status', authenticateUser, requireRoleHierarchy('staff'), asy
         status,
         updatedAt: new Date()
       })
-      .where(eq(reservations.id, parseInt(id)))
+      .where(eq(reservations.id, parseInt(id || '0')))
       .returning();
 
     if (!updatedReservation) {
@@ -187,7 +187,7 @@ router.delete('/:id', authenticateUser, requireRoleHierarchy('manager'), async (
 
     const [deletedReservation] = await db
       .delete(reservations)
-      .where(eq(reservations.id, parseInt(id)))
+      .where(eq(reservations.id, parseInt(id || '0')))
       .returning();
 
     if (!deletedReservation) {

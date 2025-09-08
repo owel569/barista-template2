@@ -297,7 +297,7 @@ export const usePermissions = (): UsePermissionsReturn => {
   }, [userRole]);
 
   return {
-    permissions,
+    permissions: getCurrentPermissions(),
     userRole,
     loading,
     isLoading: loading, // Alias pour loading
@@ -307,9 +307,9 @@ export const usePermissions = (): UsePermissionsReturn => {
     canEdit,
     canDelete,
     canCreate,
-    isAdmin,
-    isManager,
-    isStaff,
+    isAdmin: isAdmin(),
+    isManager: isManager(),
+    isStaff: isStaff(),
     refreshPermissions,
     getUserAccessLevel
   };

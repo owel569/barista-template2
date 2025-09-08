@@ -127,7 +127,7 @@ async function logActivity(
 // Route d'inscription
 router.post('/register',
   validateBody(RegisterSchema),
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
     const { firstName, lastName, email, password, phone, role } = req.body;
 
@@ -142,6 +142,7 @@ router.post('/register',
         success: false,
         message: 'Un compte avec cet email existe déjà'
       });
+      return; // Added return statement
     }
 
     // Hasher le mot de passe
@@ -179,10 +180,11 @@ router.post('/register',
     }
 
     if (!newUser) {
-      return res.status(500).json({
+      res.status(500).json({
         success: false,
         message: 'Erreur lors de la création du compte'
       });
+      return; // Added return statement
     }
 
     // Générer le token
@@ -212,7 +214,7 @@ router.post('/register',
 // Route de connexion
 router.post('/login',
   validateBody(LoginSchema),
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
     const { email, password } = req.body;
 

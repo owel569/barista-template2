@@ -264,7 +264,7 @@ export interface RuleViolation {
 // String literal unions pour la sécurité des types
 export type ShiftStatus = 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show';
 
-export type ViewMode = 'calendar' | 'list' | 'employee' | 'analytics';
+export type ViewMode = 'calendar' | 'list' | 'employee' | 'analytics' | 'stats';
 
 export type TimePeriod = 'day' | 'week' | 'month';
 

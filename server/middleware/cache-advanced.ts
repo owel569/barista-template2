@@ -505,7 +505,7 @@ export const invalidateCacheByTags = (req: Request, res: Response): void => {
     const { tags } = req.body;
 
     if (!tags || !Array.isArray(tags)) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'Tags requis et doit être un tableau'
       });

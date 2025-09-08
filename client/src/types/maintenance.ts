@@ -2,17 +2,19 @@ export interface MaintenanceTask {
   id: number;
   title: string;
   description: string;
-  type: 'preventive' | 'corrective' | 'emergency';
+  type: 'preventive' | 'corrective' | 'inspection';
   priority: 'low' | 'medium' | 'high' | 'critical';
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
   scheduledDate: string;
+  completedDate?: string;
   estimatedDuration: number;
+  actualDuration?: number;
   cost?: number;
   assignedToId?: number | null;
-  notes?: string;
   equipmentId?: number | null;
-  createdAt?: Date;
-  updatedAt?: Date;
+  notes?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface MaintenanceTaskFormData {
@@ -73,22 +75,6 @@ export interface RestaurantSettings {
     smsNotifications: boolean;
     pushNotifications: boolean;
   };
-}
-export interface MaintenanceTask {
-  id: string;
-  title: string;
-  description: string;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
-  assignedTo?: string;
-  equipmentId?: string;
-  scheduledDate: Date;
-  completedDate?: Date;
-  estimatedDuration: number;
-  actualDuration?: number;
-  notes?: string;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 export interface Equipment {

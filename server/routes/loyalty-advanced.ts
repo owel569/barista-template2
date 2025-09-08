@@ -311,7 +311,7 @@ class AdvancedLoyaltyService {
       return points >= l.minPoints && points <= l.maxPoints;
     });
 
-    return level || LOYALTY_LEVELS[0];
+    return level || LOYALTY_LEVELS[0] as LoyaltyLevel;
   }
 
   /**
@@ -817,7 +817,7 @@ router.get('/customer/:customerId',
         customerId: customer.id,
         currentPoints: customer.loyaltyPoints || 0,
         totalPointsEarned: stats.totalEarned,
-        totalPointsRedeemed: stats.totalPointsRedeemed,
+        totalPointsRedeemed: stats.totalRedeemed,
         currentLevel,
         nextLevel: nextLevelInfoData.nextLevel || currentLevel,
         progressToNextLevel: nextLevelInfoData.progress,

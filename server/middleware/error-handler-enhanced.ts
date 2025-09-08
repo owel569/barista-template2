@@ -164,7 +164,9 @@ export const errorHandler = (
 
     // Ajouter la stack trace en développement
     if (process.env.NODE_ENV !== 'production') {
-      errorResponse.error.stack = error.stack;
+      if (error.stack) {
+        errorResponse.error.stack = error.stack;
+      }
     }
   }
 

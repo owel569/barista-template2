@@ -83,7 +83,7 @@ export default function WorkScheduleWrapper(): JSX.Element {
           ) : (
             <LazyWorkSchedule 
               userRole={(userRole === 'employee' ? 'employe' : userRole) as 'directeur' | 'employe' || 'employe'}
-              viewMode={viewMode as 'calendar' | 'list' | 'stats'}
+              viewMode={viewMode as ViewMode}
               editable={editable}
               exportable={exportable}
               key={`${userRole}-${viewMode}`} // Force le re-render si le rôle change

@@ -241,12 +241,14 @@ router.get('/status',
     // Créer un map des réservations par table
     const currentReservationMap = new Map<number, typeof currentReservations[0]>();
     currentReservations.forEach(res => {
-      currentReservationMap.set(res.tableId, res);
+      if (res.tableId !== null) {
+        currentReservationMap.set(res.tableId, res);
+      }
     });
 
     const nextReservationMap = new Map<number, typeof nextReservations[0]>();
     nextReservations.forEach(res => {
-      if (!nextReservationMap.has(res.tableId)) {
+      if (res.tableId !== null && !nextReservationMap.has(res.tableId)) {
         nextReservationMap.set(res.tableId, res);
       }
     });
