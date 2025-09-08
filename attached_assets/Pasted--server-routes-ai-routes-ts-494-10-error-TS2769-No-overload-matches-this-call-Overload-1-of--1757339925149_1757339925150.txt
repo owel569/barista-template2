@@ -1,0 +1,80 @@
+
+server/routes/ai.routes.ts:494:10 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { time: string | SQL<unknown> | Placeholder<string, any>; date: Date | SQL<unknown> | Placeholder<string, any>; reservationTime: Date | SQL<...> | Placeholder<...>; ... 9 more ...; specialRequests?: string | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'customerName' does not exist in type '{ time: string | SQL<unknown> | Placeholder<string, any>; date: Date | SQL<unknown> | Placeholder<string, any>; reservationTime: Date | SQL<...> | Placeholder<...>; ... 9 more ...; specialRequests?: string | ... 3 more ... | undefined; }'.
+  Overload 2 of 2, '(values: { time: string | SQL<unknown> | Placeholder<string, any>; date: Date | SQL<unknown> | Placeholder<string, any>; reservationTime: Date | SQL<...> | Placeholder<...>; ... 9 more ...; specialRequests?: string | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'date' does not exist in type '{ time: string | SQL<unknown> | Placeholder<string, any>; date: Date | SQL<unknown> | Placeholder<string, any>; reservationTime: Date | SQL<...> | Placeholder<...>; ... 9 more ...; specialRequests?: string | ... 3 more ... | undefined; }[]'.
+
+494         .values({
+             ~~~~~~
+
+
+server/routes/ai.routes.ts:612:67 - error TS2345: Argument of type 'string | string[] | ParsedQs | ParsedQs[] | undefined' is not assignable to parameter of type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+
+612       const suggestions = AIService.generateAutomationSuggestions(category, priority as 'low' | 'medium' | 'high');
+                                                                      ~~~~~~~~
+
+server/routes/ai.routes.ts:718:7 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+718       randomTranscript = transcripts[Math.floor(Math.random() * transcripts.length)] || transcripts[0];
+          ~~~~~~~~~~~~~~~~
+
+server/routes/ai.routes.ts:720:7 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+720       randomTranscript = transcripts[0]; // Français par défaut
+          ~~~~~~~~~~~~~~~~
+
+server/routes/ai.routes.ts:734:55 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'Record<string, unknown>'.
+
+734     logger.error('Erreur lors de l\'analyse vocale:', error instanceof Error ? error.message : String(error));
+                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/auth/auth.routes.ts:130:16 - error TS7030: Not all code paths return a value.
+
+130   asyncHandler(async (req: Request, res: Response) => {
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/loyalty-advanced.ts:314:5 - error TS2322: Type 'LoyaltyLevel | undefined' is not assignable to type 'LoyaltyLevel'.
+  Type 'undefined' is not assignable to type 'LoyaltyLevel'.
+
+314     return level || LOYALTY_LEVELS[0];
+        ~~~~~~
+
+server/routes/loyalty-advanced.ts:820:36 - error TS2551: Property 'totalPointsRedeemed' does not exist on type '{ nextLevel?: LoyaltyLevel; progress: number; pointsToNext: number; daysToNext?: number; estimatedSpendingToNext?: number; totalEarned: number; totalRedeemed: number; totalExpired: number; currentPoints: number; }'. Did you mean 'totalRedeemed'?
+
+820         totalPointsRedeemed: stats.totalPointsRedeemed,
+                                       ~~~~~~~~~~~~~~~~~~~
+
+  server/routes/loyalty-advanced.ts:796:9
+    796         totalRedeemed: redeemedTransactions.reduce((sum, t) => sum + t.points, 0),
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    'totalRedeemed' is declared here.
+
+server/routes/tables/tables.routes.ts:244:33 - error TS2345: Argument of type 'number | null' is not assignable to parameter of type 'number'.
+  Type 'null' is not assignable to type 'number'.
+
+244       currentReservationMap.set(res.tableId, res);
+                                    ~~~~~~~~~~~
+
+server/routes/tables/tables.routes.ts:249:35 - error TS2345: Argument of type 'number | null' is not assignable to parameter of type 'number'.
+  Type 'null' is not assignable to type 'number'.
+
+249       if (!nextReservationMap.has(res.tableId)) {
+                                      ~~~~~~~~~~~
+
+server/routes/tables/tables.routes.ts:250:32 - error TS2345: Argument of type 'number | null' is not assignable to parameter of type 'number'.
+  Type 'null' is not assignable to type 'number'.
+
+250         nextReservationMap.set(res.tableId, res);
+                                   ~~~~~~~~~~~
+
+server/routes/tables/tables.routes.ts:255:11 - error TS2322: Type '{ id: number; number: number; capacity: number; location: string | null; section: string | null; status: "maintenance" | "available" | "occupied" | "reserved"; currentReservation: { ...; } | undefined; nextReservation: { ...; } | undefined; }[]' is not assignable to type 'TableStatus[]'.
+  Type '{ id: number; number: number; capacity: number; location: string | null; section: string | null; status: "maintenance" | "available" | "occupied" | "reserved"; currentReservation: { ...; } | undefined; nextReservation: { ...; } | undefined; }' is not assignable to type 'TableStatus' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'currentReservation' are incompatible.
+      Type '{ id: number; customerName: string; startTime: Date; endTime: Date; partySize: number; } | undefined' is not assignable to type '{ id: number; customerName: string; startTime: Date; endTime: Date; partySize: number; }'.
+        Type 'undefined' is not assignable to type '{ id: number; customerName: string; startTime: Date; endTime: Date; partySize: number; }'.
+
+255     const tableStatuses: TableStatus[] = allTables.map(table => {

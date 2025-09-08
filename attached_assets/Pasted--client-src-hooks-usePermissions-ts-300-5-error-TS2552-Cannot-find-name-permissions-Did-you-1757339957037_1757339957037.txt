@@ -1,0 +1,159 @@
+
+
+client/src/hooks/usePermissions.ts:300:5 - error TS2552: Cannot find name 'permissions'. Did you mean 'hasPermission'?
+
+300     permissions,
+        ~~~~~~~~~~~
+
+  client/src/hooks/usePermissions.ts:220:9
+    220   const hasPermission = useCallback((module: string, action: string): boolean => {
+                ~~~~~~~~~~~~~
+    'hasPermission' is declared here.
+
+client/src/hooks/usePermissions.ts:310:5 - error TS2322: Type '() => boolean' is not assignable to type 'boolean'.
+
+310     isAdmin,
+        ~~~~~~~
+
+  client/src/hooks/usePermissions.ts:44:3
+    44   isAdmin: boolean;
+         ~~~~~~~
+    The expected type comes from property 'isAdmin' which is declared here on type 'UsePermissionsReturn'
+
+client/src/hooks/usePermissions.ts:311:5 - error TS2322: Type '() => boolean' is not assignable to type 'boolean'.
+
+311     isManager,
+        ~~~~~~~~~
+
+  client/src/hooks/usePermissions.ts:45:3
+    45   isManager: boolean;
+         ~~~~~~~~~
+    The expected type comes from property 'isManager' which is declared here on type 'UsePermissionsReturn'
+
+client/src/hooks/usePermissions.ts:312:5 - error TS2322: Type '() => boolean' is not assignable to type 'boolean'.
+
+312     isStaff,
+        ~~~~~~~
+
+  client/src/hooks/usePermissions.ts:46:3
+    46   isStaff: boolean;
+         ~~~~~~~
+    The expected type comes from property 'isStaff' which is declared here on type 'UsePermissionsReturn'
+
+client/src/hooks/usePermissionsSync.ts:69:38 - error TS2349: This expression is not callable.
+  Type 'Boolean' has no call signatures.
+
+69     if (!isAuthenticated || !user || isAdmin()) return;
+                                        ~~~~~~~
+
+client/src/hooks/usePermissionsSync.ts:84:38 - error TS2349: This expression is not callable.
+  Type 'Boolean' has no call signatures.
+
+84     if (!isAuthenticated || !user || isAdmin()) return;
+                                        ~~~~~~~
+
+client/src/types/maintenance.ts:14:3 - error TS2687: All declarations of 'createdAt' must have identical modifiers.
+
+14   createdAt?: Date;
+     ~~~~~~~~~
+
+client/src/types/maintenance.ts:15:3 - error TS2687: All declarations of 'updatedAt' must have identical modifiers.
+
+15   updatedAt?: Date;
+     ~~~~~~~~~
+
+client/src/types/maintenance.ts:78:3 - error TS2717: Subsequent property declarations must have the same type.  Property 'id' must be of type 'number', but here has type 'string'.
+
+78   id: string;
+     ~~
+
+  client/src/types/maintenance.ts:2:3
+    2   id: number;
+        ~~
+    'id' was also declared here.
+
+client/src/types/maintenance.ts:81:3 - error TS2717: Subsequent property declarations must have the same type.  Property 'priority' must be of type '"high" | "low" | "medium" | "critical"', but here has type '"high" | "low" | "medium" | "urgent"'.
+
+81   priority: 'low' | 'medium' | 'high' | 'urgent';
+     ~~~~~~~~
+
+  client/src/types/maintenance.ts:6:3
+    6   priority: 'low' | 'medium' | 'high' | 'critical';
+        ~~~~~~~~
+    'priority' was also declared here.
+
+client/src/types/maintenance.ts:84:3 - error TS2717: Subsequent property declarations must have the same type.  Property 'equipmentId' must be of type 'number | null | undefined', but here has type 'string | undefined'.
+
+84   equipmentId?: string;
+     ~~~~~~~~~~~
+
+  client/src/types/maintenance.ts:13:3
+    13   equipmentId?: number | null;
+         ~~~~~~~~~~~
+    'equipmentId' was also declared here.
+
+client/src/types/maintenance.ts:85:3 - error TS2717: Subsequent property declarations must have the same type.  Property 'scheduledDate' must be of type 'string', but here has type 'Date'.
+
+85   scheduledDate: Date;
+     ~~~~~~~~~~~~~
+
+  client/src/types/maintenance.ts:8:3
+    8   scheduledDate: string;
+        ~~~~~~~~~~~~~
+    'scheduledDate' was also declared here.
+
+client/src/types/maintenance.ts:90:3 - error TS2687: All declarations of 'createdAt' must have identical modifiers.
+
+90   createdAt: Date;
+     ~~~~~~~~~
+
+client/src/types/maintenance.ts:90:3 - error TS2717: Subsequent property declarations must have the same type.  Property 'createdAt' must be of type 'Date | undefined', but here has type 'Date'.
+
+90   createdAt: Date;
+     ~~~~~~~~~
+
+  client/src/types/maintenance.ts:14:3
+    14   createdAt?: Date;
+         ~~~~~~~~~
+    'createdAt' was also declared here.
+
+client/src/types/maintenance.ts:91:3 - error TS2687: All declarations of 'updatedAt' must have identical modifiers.
+
+91   updatedAt: Date;
+     ~~~~~~~~~
+
+client/src/types/maintenance.ts:91:3 - error TS2717: Subsequent property declarations must have the same type.  Property 'updatedAt' must be of type 'Date | undefined', but here has type 'Date'.
+
+91   updatedAt: Date;
+     ~~~~~~~~~
+
+  client/src/types/maintenance.ts:15:3
+    15   updatedAt?: Date;
+         ~~~~~~~~~
+    'updatedAt' was also declared here.
+
+server/ImageManager.ts:153:52 - error TS2532: Object is possibly 'undefined'.
+
+153         const menuItemName = menuItem.length > 0 ? menuItem[0].name : 'Élément de menu';
+                                                       ~~~~~~~~~~~
+
+server/ImageManager.ts:195:25 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+195                         imageUrl: imageMapping[menuItem.name],
+                            ~~~~~~~~
+
+  server/image-manager.ts:18:3
+    18   imageUrl: string;
+         ~~~~~~~~
+    The expected type comes from property 'imageUrl' which is declared here on type 'InsertMenuItemImage'
+
+server/config/production.ts:143:9 - error TS18048: 'allowed' is possibly 'undefined'.
+
+143         allowed.includes('*') ?
+            ~~~~~~~
+
+server/config/production.ts:144:22 - error TS18048: 'allowed' is possibly 'undefined'.
+
+144         origin.match(allowed.replace('*', '.*')) :
+                         ~~~~~~~

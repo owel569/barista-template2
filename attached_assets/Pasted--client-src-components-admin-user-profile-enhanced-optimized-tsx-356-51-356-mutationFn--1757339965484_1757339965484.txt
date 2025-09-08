@@ -1,0 +1,114 @@
+
+  client/src/components/admin/user-profile-enhanced-optimized.tsx:356:51
+    356     mutationFn: async (data: { addressId: number; updates: Partial<Address> }) => {
+                                                          ~~~~~~~
+    The expected type comes from property 'updates' which is declared here on type '{ addressId: number; updates: Partial<Address>; }'
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:616:9 - error TS2322: Type '{ type: "other" | "home" | "work"; city: string; postalCode: string; street: string; country: string; isDefault?: boolean | undefined; }' is not assignable to type 'Omit<Address, "id">'.
+  Types of property 'isDefault' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+
+616         address: values
+            ~~~~~~~
+
+  client/src/components/admin/user-profile-enhanced-optimized.tsx:337:48
+    337     mutationFn: async (data: { userId: number; address: Omit<Address, 'id'> }) => {
+                                                       ~~~~~~~
+    The expected type comes from property 'address' which is declared here on type '{ userId: number; address: Omit<Address, "id">; }'
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:662:36 - error TS2339: Property 'canImport' does not exist on type 'UsePermissionsReturn'.
+
+662             disabled={!permissions.canImport || isImporting}
+                                       ~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:671:36 - error TS2339: Property 'canExport' does not exist on type 'UsePermissionsReturn'.
+
+671             disabled={!permissions.canExport || exporting}
+                                       ~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:677:12 - error TS2774: This condition will always return true since this function is always defined. Did you mean to call it instead?
+
+677           {permissions.canCreate && (
+               ~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:917:18 - error TS2774: This condition will always return true since this function is always defined. Did you mean to call it instead?
+
+917                 {permissions.canEdit && (
+                     ~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:930:18 - error TS2774: This condition will always return true since this function is always defined. Did you mean to call it instead?
+
+930                 {permissions.canDelete && (
+                     ~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:1693:24 - error TS2375: Type '{ checked: boolean | undefined; onCheckedChange: (...event: any[]) => void; }' is not assignable to type 'SwitchProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'checked' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+
+1693                       <Switch
+                            ~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:1726:9 - error TS2322: Type '{ open: boolean; onOpenChange: (open: boolean) => false | void; title: string; message: string; confirmText: string; onConfirm: () => void; loading: boolean; }' is not assignable to type 'IntrinsicAttributes & ConfirmationDialogProps'.
+  Property 'message' does not exist on type 'IntrinsicAttributes & ConfirmationDialogProps'.
+
+1726         message="Êtes-vous sûr de vouloir supprimer cette adresse ? Cette action est irréversible."
+             ~~~~~~~
+
+client/src/components/admin/work-schedule.tsx:86:15 - error TS2322: Type '"calendar" | "list" | "stats"' is not assignable to type 'ViewMode'.
+  Type '"stats"' is not assignable to type 'ViewMode'.
+
+86               viewMode={viewMode as 'calendar' | 'list' | 'stats'}
+                 ~~~~~~~~
+
+  client/src/components/admin/work-schedule/types/schedule.types.ts:298:3
+    298   viewMode?: ViewMode;
+          ~~~~~~~~
+    The expected type comes from property 'viewMode' which is declared here on type 'IntrinsicAttributes & WorkScheduleProps'
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:193:58 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string | (() => string)'.
+  Type 'undefined' is not assignable to type 'string | (() => string)'.
+
+193   const [currentDate, setCurrentDate] = useState<string>(initialDate || new Date().toISOString().split('T')[0]);
+                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:292:45 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'SetStateAction<string>'.
+  Type 'undefined' is not assignable to type 'SetStateAction<string>'.
+
+292               onClick={() => setCurrentDate(new Date().toISOString().split('T')[0])}
+                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:325:9 - error TS2532: Object is possibly 'undefined'.
+
+325         groups[groupKey].push(shift);
+            ~~~~~~~~~~~~~~~~
+
+client/src/components/ui/chart.tsx:339:16 - error TS2375: Type '{ formatter: (Formatter<ValueType, NameType> & FormatterFunction) | undefined; key: string; item: TooltipPayloadItem; ... 6 more ...; tooltipLabel: Element | null; }' is not assignable to type '{ item: TooltipPayloadItem; index: number; itemConfig: ItemConfig | undefined; indicatorColor: string; indicator: "line" | "dot" | "dashed"; hideIndicator: boolean; formatter?: FormatterFunction; nestLabel: boolean; tooltipLabel: ReactNode; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'formatter' are incompatible.
+    Type '(Formatter<ValueType, NameType> & FormatterFunction) | undefined' is not assignable to type 'FormatterFunction'.
+      Type 'undefined' is not assignable to type 'FormatterFunction'.
+
+339               <TooltipItem
+                   ~~~~~~~~~~~
+
+client/src/components/ui/chart.tsx:340:42 - error TS2339: Property 'length' does not exist on type 'Element'.
+
+340                 formatter={tooltipLabel?.length ? tooltipLabel[0]?.formatter : undefined}
+                                             ~~~~~~
+
+client/src/components/ui/chart.tsx:340:51 - error TS7053: Element implicitly has an 'any' type because expression of type '0' can't be used to index type 'Element'.
+  Property '0' does not exist on type 'Element'.
+
+340                 formatter={tooltipLabel?.length ? tooltipLabel[0]?.formatter : undefined}
+                                                      ~~~~~~~~~~~~~~~
+
+client/src/components/ui/chart.tsx:348:17 - error TS17001: JSX elements cannot have multiple attributes with the same name.
+
+348                 formatter={formatter}
+                    ~~~~~~~~~
+
+client/src/hooks/usePermissionGuard.ts:79:5 - error TS2339: Property 'canManage' does not exist on type 'UsePermissionsReturn'.
+
+79     canManage,
+       ~~~~~~~~~
