@@ -627,7 +627,7 @@ router.post('/modules/:moduleId/activate', authenticateUser, async (_req: Reques
     const { moduleId } = _req.params;
 
     if (!moduleId) {
-      return res.status(400).json({ 
+      res.status(400).json({ 
         success: false,
         error: 'ID de module manquant' 
       });

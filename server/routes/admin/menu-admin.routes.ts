@@ -94,15 +94,16 @@ router.post('/items',
 router.put('/items/:id',
   authenticateUser,
   validateBody(MenuItemSchema.partial()),
-  asyncHandler(async (req: Request, res: Response): Promise<Response | void> => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
     const { id } = req.params;
 
     if (!id) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'ID requis'
       });
+      return;
     }
 
     const updateData = req.body;

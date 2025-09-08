@@ -66,9 +66,11 @@ router.get('/', authenticateUser, requireRoleHierarchy('staff'), async (req: Req
       conditions.push(eq(reservations.tableId, parseInt(tableId as string)));
     }
 
-    let query = baseQuery;
+    let query;
     if (conditions.length > 0) {
       query = baseQuery.where(and(...conditions));
+    } else {
+      query = baseQuery;
     }
 
     const allReservations = await query.orderBy(desc(reservations.createdAt));
@@ -196,10 +198,11 @@ router.patch('/:id/status', authenticateUser, requireRoleHierarchy('staff'), asy
 
     const validStatuses = ['pending', 'confirmed', 'seated', 'completed', 'cancelled'];
     if (!validStatuses.includes(status)) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'Statut invalide'
       });
+      return;
     }
 
     const [updatedReservation] = await db
@@ -212,10 +215,11 @@ router.patch('/:id/status', authenticateUser, requireRoleHierarchy('staff'), asy
       .returning();
 
     if (!updatedReservation) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Réservation non trouvée'
       });
+      return;
     }
 
     res.json({

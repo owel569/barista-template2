@@ -288,18 +288,21 @@ export default function StaffScheduling() {
       if (!shiftsByEmployee[shift.employeeId]) {
         shiftsByEmployee[shift.employeeId] = [];
       }
-      shiftsByEmployee[shift.employeeId].push(shift);
+      shiftsByEmployee[shift.employeeId]?.push(shift);
     });
 
     Object.entries(shiftsByEmployee).forEach(([employeeId, empShifts]) => {
+      if (!empShifts || empShifts.length === 0) return;
+      
       empShifts.sort((a, b) => a.startTime.localeCompare(b.startTime));
 
       for (let i = 1; i < empShifts.length; i++) {
         const prevShift = empShifts[i - 1];
         const currentShift = empShifts[i];
 
-        if (prevShift.date === currentShift.date &&
-            prevShift && currentShift && prevShift.endTime > currentShift.startTime) {
+        if (prevShift && currentShift && 
+            prevShift.date === currentShift.date &&
+            prevShift.endTime > currentShift.startTime) {
           detectedConflicts.push({
             type: 'overlap',
             message: `Chevauchement de shifts pour l'employé ${employeeId}`,
@@ -315,7 +318,7 @@ export default function StaffScheduling() {
         total + calculateHours(shift.startTime, shift.endTime), 0);
 
       const employee = employees.find(e => e.id === parseInt(employeeId));
-      if (employee && weeklyHours > employee.maxHours) {
+      if (employee && weeklyHours > employee.maxHours && empShifts[0]) {
         detectedConflicts.push({
           type: 'overtime',
           message: `Heures supplémentaires pour ${employee.firstName} ${employee.lastName}`,
@@ -457,13 +460,15 @@ export default function StaffScheduling() {
           if (dayIndex === -1) return;
 
           const date = weekDates[dayIndex];
-          if (!date) continue;
+          if (!date) return;
+          
           const startHour = 8 + Math.floor(Math.random() * 4);
+          const dateString = date.toISOString().split('T')[0];
 
           newShifts.push({
             id: shifts.length + newShifts.length + 1,
             employeeId: employee.id,
-            date: date?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0],
+            date: dateString,
             startTime: `${startHour.toString().padStart(2, '0')}:00`,
             endTime: `${(startHour + 8).toString().padStart(2, '0')}:00`,
             position: employee.position,
@@ -1271,21 +1276,24 @@ const AddShiftForm = ({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {weekDates.map((date, index) => (
-                <SelectItem
-                  key={index}
-                  value={date ? date.toISOString().split('T')[0] : ''}
-                >
-                  {date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
-                </SelectItem>
-              ))}
+              {weekDates.map((date, index) => {
+                const dateString = date.toISOString().split('T')[0];
+                return (
+                  <SelectItem
+                    key={index}
+                    value={dateString}
+                  >
+                    {date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
         </div>
         <div>
           <Label>Position</Label>
           <Select
-            value={formData.position || undefined}
+            value={formData.position || ''}
             onValueChange={(value: string) => setFormData(prev => ({ ...prev, position: value }))}
             required
           >

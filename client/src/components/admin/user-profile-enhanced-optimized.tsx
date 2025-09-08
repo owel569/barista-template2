@@ -111,33 +111,33 @@ interface UserProfile {
   firstName: string;
   lastName: string;
   email: string;
-  phone: string;
+  phone?: string;
   address?: string;
   city?: string;
   postalCode?: string;
   birthDate?: string;
   avatar?: string;
-  preferences: {
-    emailNotifications: boolean;
-    smsNotifications: boolean;
-    promotionalEmails: boolean;
+  preferences?: {
+    emailNotifications?: boolean;
+    smsNotifications?: boolean;
+    promotionalEmails?: boolean;
     favoriteTable?: number;
     dietaryRestrictions: string[];
     allergens: string[];
     language: string;
     currency: string;
   };
-  loyalty: {
+  loyalty?: {
     points: number;
     level: string;
-    nextLevelPoints: number;
+    nextLevelPoints?: number;
     totalSpent: number;
     visitsCount: number;
     joinDate: string;
   };
-  paymentMethods: PaymentMethod[];
-  addresses: Address[];
-  orderHistory: OrderHistory[];
+  paymentMethods?: PaymentMethod[];
+  addresses?: Address[];
+  orderHistory?: OrderHistory[];
   isActive: boolean;
   lastActivity?: string;
   notes?: string;
@@ -478,7 +478,7 @@ export default function UserProfileEnhanced(): JSX.Element {
     if (selectedUsers.length === paginatedUsers.length) {
       setSelectedUsers([]);
     } else {
-      setSelectedUsers(paginatedUsers.map(user => user.id));
+      setSelectedUsers(paginatedUsers.map((user: UserProfile) => user.id));
     }
   }, [paginatedUsers, selectedUsers.length]);
 
@@ -488,17 +488,35 @@ export default function UserProfileEnhanced(): JSX.Element {
     documentTitle: 'Liste des utilisateurs'
   });
 
+  // Filtrer les utilisateurs selon les critères de recherche
+  const filteredUsers = useMemo(() => {
+    return users.filter(user => {
+      const searchMatch = searchTerm === '' || 
+        `${user.firstName} ${user.lastName} ${user.email} ${user.phone || ''}`.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const statusMatch = showInactive || user.isActive;
+
+      return searchMatch && statusMatch;
+    });
+  }, [users, searchTerm, showInactive]);
+
   // Pagination et tri
   const sortedUsers = useMemo(() => {
-    return filteredUsers.sort((a, b) => {
-      const aValue = a[sortBy];
-      const bValue = b[sortBy];
+    return filteredUsers.sort((a: UserProfile, b: UserProfile) => {
+      const aValue = a[sortBy as keyof UserProfile];
+      const bValue = b[sortBy as keyof UserProfile];
 
-      if (aValue < bValue) return -1;
-      if (aValue > bValue) return 1;
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return aValue.localeCompare(bValue);
+      }
+      if (typeof aValue === 'number' && typeof bValue === 'number') {
+        return aValue - bValue;
+      }
       return 0;
     });
   }, [filteredUsers, sortBy]);
+
+  const totalPages = Math.ceil(sortedUsers.length / usersPerPage);
 
   const paginatedUsers = sortedUsers.slice(
     (currentPage - 1) * usersPerPage,
@@ -535,8 +553,8 @@ export default function UserProfileEnhanced(): JSX.Element {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   };
 
-  const getLoyaltyLevelColor = (level: string) => {
-    switch (level.toLowerCase()) {
+  const getLoyaltyLevelColor = (level?: string) => {
+    switch (level?.toLowerCase()) {
       case 'bronze': return 'bg-orange-100 text-orange-800';
       case 'silver': return 'bg-gray-100 text-gray-800';
       case 'gold': return 'bg-yellow-100 text-yellow-800';
@@ -845,7 +863,7 @@ export default function UserProfileEnhanced(): JSX.Element {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">Niveau</span>
-                  <Badge className={getLoyaltyLevelColor(user.loyalty?.level || '')}>
+                  <Badge className={getLoyaltyLevelColor(user.loyalty?.level)}>
                     {user.loyalty?.level || 'Nouveau'}
                   </Badge>
                 </div>
@@ -1066,7 +1084,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                     <CardContent className="space-y-4">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">Niveau actuel</span>
-                        <Badge className={getLoyaltyLevelColor(selectedUser.loyalty?.level || '')}>
+                        <Badge className={getLoyaltyLevelColor(selectedUser.loyalty?.level)}>
                           {selectedUser.loyalty?.level || 'Nouveau'}
                         </Badge>
                       </div>

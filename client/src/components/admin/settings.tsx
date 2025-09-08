@@ -257,14 +257,15 @@ export default function Settings({ userRole }: SettingsProps) {
   }, []);
 
 
-  const updateOpeningHours = useCallback((day: string, field: string, value: string | boolean) => {
+  const updateOpeningHours = useCallback((day: string, field: keyof OpeningHours, value: string | boolean) => {
     setDraftSettings(prev => ({
       ...prev,
       openingHours: {
         ...prev.openingHours,
         [day]: {
-          ...(prev.openingHours?.[day] || {}),
-          [field]: value
+          open: field === 'open' ? value as string : (prev.openingHours[day]?.open || '09:00'),
+          close: field === 'close' ? value as string : (prev.openingHours[day]?.close || '18:00'),
+          closed: field === 'closed' ? value as boolean : (prev.openingHours[day]?.closed || false)
         }
       }
     }));
@@ -293,16 +294,35 @@ export default function Settings({ userRole }: SettingsProps) {
     }));
   }, []);
 
-  const addSpecialHours = useCallback((date: Date, hours: OpeningHours, note: string) => {
-    const dateStr = date.toISOString().split('T')[0];
+  const updateSpecialHours = useCallback((index: number, field: keyof { openingHours: OpeningHours; note: string }, value: any) => {
     setDraftSettings(prev => ({
       ...prev,
       specialDates: {
         ...prev.specialDates,
-        specialHours: [
-          ...prev.specialDates.specialHours.filter(sh => sh.date !== dateStr),
-          { date: dateStr, openingHours: hours, note }
-        ]
+        specialHours: prev.specialDates.specialHours.map((item, i) =>
+          i === index ? {
+            ...item,
+            [field]: value,
+            date: item.date || new Date().toISOString().split('T')[0]
+          } : item
+        )
+      }
+    }));
+  }, []);
+
+  const addSpecialHours = useCallback((date: Date) => {
+    const dateString = date?.toISOString().split('T')[0];
+    if (!dateString) return;
+
+    setDraftSettings(prev => ({
+      ...prev,
+      specialDates: {
+        ...prev.specialDates,
+        specialHours: [...prev.specialDates.specialHours, {
+          date: dateString,
+          openingHours: { open: '09:00', close: '18:00', closed: false },
+          note: ''
+        }]
       }
     }));
   }, []);
@@ -319,25 +339,6 @@ export default function Settings({ userRole }: SettingsProps) {
 
   // State for new special date input
   const [newSpecialDate, setNewSpecialDate] = useState<Date | undefined>(undefined);
-
-  // Handler to add a new special hour entry
-  const addSpecialHour = () => {
-    const dateString = newSpecialDate?.toISOString().split('T')[0];
-    if (!dateString) return;
-
-    setDraftSettings(prev => ({
-      ...prev,
-      specialDates: {
-        ...prev.specialDates,
-        specialHours: [...prev.specialDates.specialHours, {
-          date: dateString,
-          openingHours: { open: '09:00', close: '18:00', closed: false },
-          note: ''
-        }]
-      }
-    }));
-  };
-
 
   if (!hasPermission('settings', 'view')) {
     return (
@@ -633,7 +634,7 @@ export default function Settings({ userRole }: SettingsProps) {
               </div>
 
               <div>
-                <Label>Politique d\'annulation</Label>
+                <Label>Politique d'annulation</Label>
                 <select
                   value={draftSettings.reservationSettings.cancellationPolicy}
                   onChange={(e) => handleChange('reservationSettings.cancellationPolicy', e.target.value)}
@@ -706,7 +707,7 @@ export default function Settings({ userRole }: SettingsProps) {
               </div>
 
               <div className="space-y-2">
-                <Label>Modèle de notification d\'annulation</Label>
+                <Label>Modèle de notification d'annulation</Label>
                 <Textarea
                   value={draftSettings.notificationSettings.cancellationTemplate}
                   onChange={(e) => handleChange('notificationSettings.cancellationTemplate', e.target.value)}
@@ -770,7 +771,7 @@ export default function Settings({ userRole }: SettingsProps) {
               <div>
                 <h3 className="font-medium mb-2">Horaires Spéciaux</h3>
                 <div className="space-y-4">
-                  {draftSettings.specialDates.specialHours.map(({ date, openingHours, note }) => (
+                  {draftSettings.specialDates.specialHours.map(({ date, openingHours, note }, index) => (
                     <div key={date} className="border rounded p-4">
                       <div className="flex justify-between items-center mb-2">
                         <span className="font-medium">
@@ -788,27 +789,7 @@ export default function Settings({ userRole }: SettingsProps) {
                       <div className="flex items-center gap-2 mb-2">
                         <Switch
                           checked={!openingHours.closed}
-                          onCheckedChange={(checked) => {
-                            const updatedHours = [...draftSettings.specialDates.specialHours];
-                            const index = updatedHours.findIndex(sh => sh.date === date);
-                            if (index >= 0) {
-                              updatedHours[index] = {
-                                date: updatedHours[index]?.date || '',
-                                openingHours: {
-                                  ...updatedHours[index]?.openingHours,
-                                  closed: !checked
-                                },
-                                note: updatedHours[index]?.note ?? ''
-                              };
-                              setDraftSettings(prev => ({
-                                ...prev,
-                                specialDates: {
-                                  ...prev.specialDates,
-                                  specialHours: updatedHours
-                                }
-                              }));
-                            }
-                          }}
+                          onCheckedChange={(checked) => updateSpecialHours(index, 'closed', !checked)}
                           disabled={!hasPermission('settings', 'edit')}
                         />
                         <Label>Ouvert</Label>
@@ -817,53 +798,13 @@ export default function Settings({ userRole }: SettingsProps) {
                         <div className="flex items-center gap-2">
                           <TimePicker
                             value={openingHours.open}
-                            onChange={(value) => {
-                              const updatedHours = [...draftSettings.specialDates.specialHours];
-                              const index = updatedHours.findIndex(sh => sh.date === date);
-                              if (index >= 0) {
-                                updatedHours[index] = {
-                                  date: updatedHours[index]?.date || '',
-                                  openingHours: {
-                                    ...updatedHours[index]?.openingHours,
-                                    open: value
-                                  },
-                                  note: updatedHours[index]?.note ?? ''
-                                };
-                                setDraftSettings(prev => ({
-                                  ...prev,
-                                  specialDates: {
-                                    ...prev.specialDates,
-                                    specialHours: updatedHours
-                                  }
-                                }));
-                              }
-                            }}
+                            onChange={(value) => updateSpecialHours(index, 'open', value)}
                             disabled={!hasPermission('settings', 'edit')}
                           />
                           <span>à</span>
                           <TimePicker
                             value={openingHours.close}
-                            onChange={(value) => {
-                              const updatedHours = [...draftSettings.specialDates.specialHours];
-                              const index = updatedHours.findIndex(sh => sh.date === date);
-                              if (index >= 0) {
-                                updatedHours[index] = {
-                                  date: updatedHours[index]?.date || '',
-                                  openingHours: {
-                                    ...updatedHours[index]?.openingHours,
-                                    close: value
-                                  },
-                                  note: updatedHours[index]?.note ?? ''
-                                };
-                                setDraftSettings(prev => ({
-                                  ...prev,
-                                  specialDates: {
-                                    ...prev.specialDates,
-                                    specialHours: updatedHours
-                                  }
-                                }));
-                              }
-                            }}
+                            onChange={(value) => updateSpecialHours(index, 'close', value)}
                             disabled={!hasPermission('settings', 'edit')}
                           />
                         </div>
@@ -872,24 +813,7 @@ export default function Settings({ userRole }: SettingsProps) {
                         <Label>Note (optionnelle)</Label>
                         <Input
                           value={note}
-                          onChange={(e) => {
-                            const updatedHours = [...draftSettings.specialDates.specialHours];
-                            const index = updatedHours.findIndex(sh => sh.date === date);
-                            if (index >= 0) {
-                              updatedHours[index] = {
-                                date: updatedHours[index]?.date || '',
-                                openingHours: updatedHours[index].openingHours,
-                                note: e.target.value,
-                              };
-                              setDraftSettings(prev => ({
-                                ...prev,
-                                specialDates: {
-                                  ...prev.specialDates,
-                                  specialHours: updatedHours
-                                }
-                              }));
-                            }
-                          }}
+                          onChange={(e) => updateSpecialHours(index, 'note', e.target.value)}
                           disabled={!hasPermission('settings', 'edit')}
                         />
                       </div>
@@ -897,15 +821,7 @@ export default function Settings({ userRole }: SettingsProps) {
                         <Button
                           variant="destructive"
                           size="sm"
-                          onClick={() => {
-                            setDraftSettings(prev => ({
-                              ...prev,
-                              specialDates: {
-                                ...prev.specialDates,
-                                specialHours: prev.specialDates.specialHours.filter(sh => sh.date !== date)
-                              }
-                            }));
-                          }}
+                          onClick={() => removeSpecialHours(date)}
                           disabled={!hasPermission('settings', 'edit')}
                         >
                           Supprimer
@@ -933,7 +849,7 @@ export default function Settings({ userRole }: SettingsProps) {
                     </div>
                     {newSpecialDate && (
                       <div className="col-span-1 md:col-span-2 flex items-end">
-                        <Button onClick={addSpecialHour} disabled={!hasPermission('settings', 'edit')}>
+                        <Button onClick={() => addSpecialHours(newSpecialDate as Date)} disabled={!hasPermission('settings', 'edit')}>
                           Ajouter Horaires Spéciaux
                         </Button>
                       </div>

@@ -8,9 +8,13 @@ import { RefreshCw } from 'lucide-react';
 // Type definition for view modes
 export type ViewMode = 'calendar' | 'list' | 'analytics' | 'overview' | 'personal' | 'team' | 'full';
 
+// Types pour les rôles utilisateur
+type UserRole = 'admin' | 'manager' | 'employee' | 'staff' | 'user' | null;
+type MappedUserRole = 'directeur' | 'employe';
+
 // Interface pour les props du composant WorkSchedule
 interface WorkScheduleProps {
-  userRole: 'directeur' | 'employe';
+  userRole: MappedUserRole;
   viewMode: ViewMode;
   editable: boolean;
   exportable: boolean;
@@ -81,17 +85,18 @@ export default function WorkScheduleWrapper(): JSX.Element {
   };
 
   // Mapping des rôles pour correspondre aux types attendus par LazyWorkSchedule
-  const mappedUserRole = (userRole: string | undefined): 'directeur' | 'employe' | undefined => {
-    if (userRole === 'manager' || userRole === 'admin') {
+  const mappedUserRole = (role: UserRole): MappedUserRole | null => {
+    if (!role) return null;
+    if (role === 'manager' || role === 'admin') {
       return 'directeur';
     }
-    if (userRole === 'employee') {
+    if (role === 'employee' || role === 'staff') {
       return 'employe';
     }
-    return undefined; // Ou une valeur par défaut appropriée
+    return null;
   };
 
-  const currentRole = mappedUserRole(userRole);
+  const currentRole = mappedUserRole(userRole as UserRole);
 
   const { viewMode, editable, exportable } = (currentRole && viewOptions[currentRole as keyof typeof viewOptions]) || viewOptions.default;
 

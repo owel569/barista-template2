@@ -254,41 +254,49 @@ router.get('/status',
     });
 
     // Construire le statut de chaque table
-    const tableStatuses: TableStatus[] = allTables.map(table => {
-      const currentRes = currentReservationMap.get(table.id);
-      const nextRes = nextReservationMap.get(table.id);
+    const tableStatuses = allTables.map(table => {
+      const currentTime = new Date();
 
-      let status: 'available' | 'occupied' | 'reserved' | 'maintenance' = 'available';
+      // Chercher la réservation actuelle (en cours)
+      const currentReservation = currentReservations.find(r =>
+        r.tableId === table.id &&
+        r.status === 'confirmed' &&
+        new Date(r.date) <= currentTime &&
+        new Date(r.date).getTime() + (2 * 60 * 60 * 1000) > currentTime.getTime() // 2h après début
+      );
 
-      if (table.status === 'maintenance') {
-        status = 'maintenance';
-      } else if (currentRes) {
-        status = 'occupied';
-      } else if (nextRes && new Date(nextRes.startTime).getTime() - now.getTime() < 60 * 60 * 1000) {
-        status = 'reserved';
-      }
+      // Chercher la prochaine réservation
+      const nextReservation = nextReservations.find(r =>
+        r.tableId === table.id &&
+        r.status === 'confirmed' &&
+        new Date(r.startTime) > currentTime
+      );
 
-      return {
+      const result: TableStatus = {
         id: table.id,
         number: table.number,
         capacity: table.capacity,
         location: table.location,
         section: table.section,
-        status,
-        currentReservation: currentRes ? {
-          id: currentRes.id,
-          customerName: currentRes.guestName || 'Client',
-          startTime: currentRes.date,
-          endTime: new Date(currentRes.date.getTime() + 2 * 60 * 60 * 1000),
-          partySize: currentRes.partySize
+        status: table.status,
+        currentReservation: currentReservation ? {
+          id: currentReservation.id,
+          customerName: currentReservation.guestName || 'Client inconnu',
+          startTime: new Date(currentReservation.date),
+          endTime: new Date(currentReservation.endTime),
+          partySize: currentReservation.partySize
         } : undefined,
-        nextReservation: nextRes ? {
-          id: nextRes.id,
-          customerName: nextRes.guestName,
-          startTime: nextRes.startTime,
-          partySize: nextRes.partySize
+        nextReservation: nextReservation ? {
+          id: nextReservation.id,
+          customerName: nextReservation.guestName || 'Client inconnu',
+          startTime: new Date(nextReservation.startTime),
+          // Note: The original code had an endTime for nextReservation which is not defined in the nextReservations query.
+          // Assuming it's not needed or should be calculated if required.
+          partySize: nextReservation.partySize
         } : undefined
       };
+
+      return result;
     });
 
     const stats = {
