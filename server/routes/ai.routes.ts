@@ -469,25 +469,23 @@ router.post('/reservation',
     try {
       const validation = AIService.validateReservationDate(date, time);
       if (!validation.isValid) {
-        res.status(400).json({
+        return res.status(400).json({
           success: false,
           error: 'INVALID_RESERVATION_DATE',
           message: validation.error,
           timestamp: new Date().toISOString()
         });
-        return;
       }
 
       const availability = await AIService.checkTableAvailability(date, time, guests);
       if (!availability.available) {
-        res.status(409).json({
+        return res.status(409).json({
           success: false,
           error: 'NO_AVAILABILITY',
           message: 'Aucune table disponible pour cette date/heure',
           alternatives: availability.alternatives,
           timestamp: new Date().toISOString()
         });
-        return;
       }
 
       // Enregistrer la réservation en base

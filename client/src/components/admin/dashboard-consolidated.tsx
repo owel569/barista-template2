@@ -516,7 +516,7 @@ export default function DashboardConsolidated(): JSX.Element {
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="activities">Activités</TabsTrigger>
           <TabsTrigger value="system">Système</TabsTrigger>
-          {isAdmin && <TabsTrigger value="admin">Administration</TabsTrigger>}
+          {isAdmin() && <TabsTrigger value="admin">Administration</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -746,7 +746,7 @@ export default function DashboardConsolidated(): JSX.Element {
           </Card>
         </TabsContent>
 
-        {isAdmin && (
+        {isAdmin() && (
           <TabsContent value="admin">
             <Card>
               <CardHeader>

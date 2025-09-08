@@ -6,7 +6,6 @@ import { db } from '../../db';
 import { reservations, customers, tables } from '../../../shared/schema';
 import { eq, desc, sql, gte, lte } from 'drizzle-orm';
 import { z } from 'zod';
-import { Request, Response } from 'express';
 
 const router = Router();
 
@@ -21,10 +20,8 @@ const ReservationSchema = z.object({
   status: z.enum(['pending', 'confirmed', 'seated', 'completed', 'cancelled']).optional()
 });
 
-const ReservationUpdateSchema = ReservationSchema.partial();
-
 // GET /api/admin/reservations - Récupérer toutes les réservations
-router.get('/', authenticateUser, requireRoleHierarchy('staff'), async (req: Request, res: Response): Promise<void> => {
+router.get('/', authenticateUser, requireRoleHierarchy('staff'), async (req, res): Promise<void> => {
   try {
     const { date, status } = req.query;
 
@@ -52,10 +49,8 @@ router.get('/', authenticateUser, requireRoleHierarchy('staff'), async (req: Req
     }
 
     if (status) {
-      // For status filtering, it's better to use the same query builder if possible
-      // If status is a string, Drizzle might infer it correctly, otherwise casting might be needed.
-      // Ensure 'status' from req.query is correctly typed or validated.
-      query = query.where(eq(reservations.status, status as any)); // Cast to any to satisfy Drizzle's type checking for status
+      const baseQuery = db.select().from(reservations);
+      query = baseQuery.where(eq(reservations.status, status as any)); // Cast to any to satisfy Drizzle's type checking for status
     }
 
     const allReservations = await query.orderBy(desc(reservations.date), desc(reservations.time));
@@ -73,40 +68,8 @@ router.get('/', authenticateUser, requireRoleHierarchy('staff'), async (req: Req
   }
 });
 
-// GET /api/admin/reservations/:id - Récupérer une réservation par ID
-router.get('/:id', authenticateUser, requireRoleHierarchy('staff'), async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { id } = req.params;
-
-    const [reservation] = await db
-      .select()
-      .from(reservations)
-      .where(eq(reservations.id, parseInt(id || '0')))
-      .limit(1);
-
-    if (!reservation) {
-      res.status(404).json({
-        success: false,
-        message: 'Réservation non trouvée'
-      });
-      return;
-    }
-
-    res.json({
-      success: true,
-      data: reservation
-    });
-  } catch (error) {
-    console.error('Erreur lors de la récupération de la réservation:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erreur lors de la récupération de la réservation'
-    });
-  }
-});
-
 // POST /api/admin/reservations - Créer une nouvelle réservation
-router.post('/', authenticateUser, requireRoleHierarchy('staff'), validateBody(ReservationSchema), async (req: Request, res: Response): Promise<void> => {
+router.post('/', authenticateUser, requireRoleHierarchy('staff'), validateBody(ReservationSchema), async (req, res): Promise<void> => {
   try {
     const reservationData = req.body;
 
@@ -134,27 +97,11 @@ router.post('/', authenticateUser, requireRoleHierarchy('staff'), validateBody(R
 });
 
 // PUT /api/admin/reservations/:id - Mettre à jour une réservation
-router.put('/:id', authenticateUser, requireRoleHierarchy('staff'), validateBody(ReservationUpdateSchema), async (req: Request, res: Response): Promise<void> => {
+router.put('/:id', authenticateUser, requireRoleHierarchy('staff'), validateBody(ReservationSchema.partial()), async (req, res): Promise<void> => {
   try {
     const { id } = req.params;
     const updateData = req.body;
 
-    // Vérifier si la réservation existe
-    const [existingReservation] = await db
-      .select()
-      .from(reservations)
-      .where(eq(reservations.id, parseInt(id || '0')))
-      .limit(1);
-
-    if (!existingReservation) {
-      res.status(400).json({
-        success: false,
-        message: 'Réservation non trouvée'
-      });
-      return;
-    }
-
-    // Update the reservation
     if (updateData.date) {
       updateData.date = new Date(updateData.date);
     }
@@ -167,6 +114,13 @@ router.put('/:id', authenticateUser, requireRoleHierarchy('staff'), validateBody
       })
       .where(eq(reservations.id, parseInt(id || '0')))
       .returning();
+
+    if (!updatedReservation) {
+      return res.status(404).json({
+        success: false,
+        message: 'Réservation non trouvée'
+      });
+    }
 
     res.json({
       success: true,
@@ -183,18 +137,17 @@ router.put('/:id', authenticateUser, requireRoleHierarchy('staff'), validateBody
 });
 
 // PATCH /api/admin/reservations/:id/status - Mettre à jour le statut d'une réservation
-router.patch('/:id/status', authenticateUser, requireRoleHierarchy('staff'), async (req: Request, res: Response): Promise<void> => {
+router.patch('/:id/status', authenticateUser, requireRoleHierarchy('staff'), async (req, res): Promise<void> => {
   try {
     const { id } = req.params;
     const { status } = req.body;
 
     const validStatuses = ['pending', 'confirmed', 'seated', 'completed', 'cancelled'];
     if (!validStatuses.includes(status)) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         message: 'Statut invalide'
       });
-      return;
     }
 
     const [updatedReservation] = await db
@@ -207,11 +160,10 @@ router.patch('/:id/status', authenticateUser, requireRoleHierarchy('staff'), asy
       .returning();
 
     if (!updatedReservation) {
-      res.status(404).json({
+      return res.status(404).json({
         success: false,
         message: 'Réservation non trouvée'
       });
-      return;
     }
 
     res.json({
@@ -229,7 +181,7 @@ router.patch('/:id/status', authenticateUser, requireRoleHierarchy('staff'), asy
 });
 
 // DELETE /api/admin/reservations/:id - Supprimer une réservation
-router.delete('/:id', authenticateUser, requireRoleHierarchy('manager'), async (req: Request, res: Response): Promise<void> => {
+router.delete('/:id', authenticateUser, requireRoleHierarchy('manager'), async (req, res): Promise<void> => {
   try {
     const { id } = req.params;
 
@@ -239,11 +191,10 @@ router.delete('/:id', authenticateUser, requireRoleHierarchy('manager'), async (
       .returning();
 
     if (!deletedReservation) {
-      res.status(404).json({
+      return res.status(404).json({
         success: false,
         message: 'Réservation non trouvée'
       });
-      return;
     }
 
     res.json({
@@ -259,8 +210,8 @@ router.delete('/:id', authenticateUser, requireRoleHierarchy('manager'), async (
   }
 });
 
-// GET /api/admin/reservations/stats/overview - Statistiques des réservations
-router.get('/stats/overview', authenticateUser, requireRoleHierarchy('staff'), async (req: Request, res: Response): Promise<void> => {
+// GET /api/admin/reservations/stats - Statistiques des réservations
+router.get('/stats/overview', authenticateUser, requireRoleHierarchy('staff'), async (req, res): Promise<void> => {
   try {
     const today = new Date();
     const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useCallback, useRef } from 'react';
 import { useAuth } from './useAuth';
 import { usePermissions } from './usePermissions';
@@ -9,9 +10,6 @@ interface PermissionUpdateEvent {
   permissions: any[];
   timestamp: number;
 }
-
-// Définir SYNC_INTERVAL ici si ce n'est pas déjà fait dans un autre fichier
-const SYNC_INTERVAL = 5 * 60 * 1000; // 5 minutes
 
 /**
  * Hook pour synchroniser les permissions en temps réel
@@ -26,15 +24,15 @@ export function usePermissionsSync() {
   // Handler pour les événements de mise à jour des permissions
   const handlePermissionsUpdate = useCallback((event: CustomEvent<PermissionUpdateEvent>) => {
     const { userId, timestamp } = event.detail;
-
+    
     // Éviter les doubles mises à jour
     if (timestamp <= lastUpdateRef.current) return;
     lastUpdateRef.current = timestamp;
-
+    
     // Si c'est notre utilisateur, rafraîchir les permissions
     if (user && String(userId) === String(user.id)) {
       refreshPermissions();
-
+      
       // Notification visuelle optionnelle
       if ('Notification' in window && Notification.permission === 'granted') {
         new Notification('Permissions mises à jour', {
@@ -51,14 +49,10 @@ export function usePermissionsSync() {
     if (!lastMessage || !isConnected || !user) return;
 
     try {
-      // Assurez-vous que lastMessage.type est correctement défini et que data existe
-      if (lastMessage.type === 'permission-update' && lastMessage.data) {
+      if (lastMessage.type === 'permission-update') {
         const data = lastMessage.data as any;
         if (data && String(data.userId) === String(user.id)) {
           const now = Date.now();
-          // Ajout d'une vérification pour s'assurer que 'data.timestamp' est bien un nombre avant de comparer
-          // Ou utiliser 'now' si 'data.timestamp' n'est pas fiable, comme c'était implicitement le cas avant.
-          // On garde la logique précédente pour éviter de trop changer le comportement sans raison claire.
           if (now > lastUpdateRef.current + 1000) { // Éviter les updates trop fréquentes
             lastUpdateRef.current = now;
             refreshPermissions();
@@ -72,15 +66,10 @@ export function usePermissionsSync() {
 
   // Écouter les événements custom du DOM
   useEffect(() => {
-    // On utilise 'isAdmin' directement car c'est un booléen
-    if (!isAuthenticated || !user || isAdmin) return;
+    if (!isAuthenticated || !user || isAdmin()) return;
 
     const handleCustomEvent = (event: Event) => {
-      // Assurez-vous que l'événement est bien de type CustomEvent et a le détail attendu
-      const customEvent = event as unknown as CustomEvent<PermissionUpdateEvent>;
-      if (customEvent.detail && customEvent.detail.type === 'permission-update') {
-        handlePermissionsUpdate(customEvent);
-      }
+      handlePermissionsUpdate(event as CustomEvent<PermissionUpdateEvent>);
     };
 
     window.addEventListener('permissions-updated', handleCustomEvent);
@@ -92,17 +81,14 @@ export function usePermissionsSync() {
 
   // Synchronisation périodique pour les utilisateurs non-admin
   useEffect(() => {
-    // On utilise 'isAdmin' directement car c'est un booléen
-    if (!isAuthenticated || !user || isAdmin) return;
+    if (!isAuthenticated || !user || isAdmin()) return;
 
     const syncInterval = setInterval(() => {
-      // Assurez-vous que refreshPermissions est la bonne fonction à appeler
-      // Si une fonction `syncPermissions` était prévue, elle devrait être définie ailleurs ou être `refreshPermissions`
       refreshPermissions();
-    }, SYNC_INTERVAL); // Sync toutes les 5 minutes
+    }, 5 * 60 * 1000); // Sync toutes les 5 minutes
 
     return () => clearInterval(syncInterval);
-  }, [isAuthenticated, user, isAdmin, refreshPermissions]); // Dépendances correctes
+  }, [isAuthenticated, user, isAdmin, refreshPermissions]);
 
   return {
     isConnected,
@@ -117,7 +103,6 @@ export function usePermissionsEmitter() {
   const { sendMessage } = useWebSocket();
 
   const emitPermissionUpdate = useCallback((userId: string | number, permissions?: any[]) => {
-    // On utilise 'isAdmin' directement car c'est un booléen
     if (!isAdmin) return false;
 
     const event = new CustomEvent('permissions-updated', {
@@ -150,3 +135,4 @@ export function usePermissionsEmitter() {
     canEmit: isAdmin
   };
 }
+

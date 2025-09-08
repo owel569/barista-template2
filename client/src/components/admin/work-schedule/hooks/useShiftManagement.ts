@@ -1,17 +1,17 @@
 import React, { useState, useCallback, useMemo } from "react";
-import {
-  Shift,
-  Employee,
-  ScheduleFilter,
+import { 
+  Shift, 
+  Employee, 
+  ScheduleFilter, 
   ShiftConflict,
   ScheduleValidation,
   ViewMode,
   TimePeriod
 } from "../types/schedule.types";
-import {
-  validateShift,
-  filterShifts,
-  sortShifts,
+import { 
+  validateShift, 
+  filterShifts, 
+  sortShifts, 
   shiftsToCalendarEvents,
   getWeekDates,
   getMonthDates,
@@ -29,7 +29,7 @@ interface useShiftManagementProps {
  */
 export const useShiftManagement = (props: useShiftManagementProps) => {
   const { shifts, employees, initialFilters } = props;
-
+  
   // États locaux
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
@@ -128,11 +128,11 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
   // Conflits détectés
   const conflicts = useMemo(() => {
     const allConflicts: ShiftConflict[] = [];
-
+    
     filteredShifts.forEach(shift => {
       const employee = employees.find(e => e.id === shift.employeeId);
       if (!employee) return;
-
+      
       const validation = validateShift(shift, shifts);
       if (!validation.isValid) {
         // schedule.utils.validateShift retourne { isValid, errors }
@@ -146,7 +146,7 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
         });
       }
     });
-
+    
     return allConflicts;
   }, [filteredShifts, shifts, employees]);
 
@@ -257,7 +257,7 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
   // Navigation dans le temps
   const navigateTime = useCallback((direction: "prev" | "next") => {
     const currentDate = new Date(selectedDate);
-
+    
     switch (timePeriod) {
       case "day":
         currentDate.setDate(currentDate.getDate() + (direction === "next" ? 1 : -1));
@@ -269,7 +269,7 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
         currentDate.setMonth(currentDate.getMonth() + (direction === "next" ? 1 : -1));
         break;
     }
-
+    
     const dateStr = currentDate.toISOString().split('T')[0];
     if (dateStr) {
       handleDateSelect(dateStr);
@@ -284,7 +284,7 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
     const uniqueEmployees = new Set(filteredShifts.map(s => s.employeeId)).size;
     const conflictCount = conflicts.length;
     const overtimeShifts = filteredShifts.filter(s => (s.overtimeHours || 0) > 0).length;
-
+    
     return {
       totalShifts,
       totalHours,
@@ -299,10 +299,10 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
   // Groupement des shifts
   const groupedShifts = useMemo(() => {
     const groups: Record<string, Shift[]> = {};
-
+    
     filteredShifts.forEach(shift => {
       let groupKey = "";
-
+      
       switch (viewMode) {
         case "employee":
           const employee = employees.find(e => e.id === shift.employeeId);
@@ -317,13 +317,18 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
         default:
           groupKey = shift.date;
       }
-
+      
       if (!groups[groupKey]) {
         groups[groupKey] = [];
       }
-      groups[groupKey]?.push(shift);
+      if (groups[groupKey]) {
+        if (!groups[groupKey]) {
+          groups[groupKey] = [];
+        }
+        groups[groupKey].push(shift);
+      }
     });
-
+    
     return groups;
   }, [filteredShifts, employees, viewMode]);
 
@@ -338,7 +343,7 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
     sorting,
     isCreatingShift,
     isEditingShift,
-
+    
     // Données traitées
     filteredShifts,
     calendarEvents,
@@ -347,7 +352,7 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
     conflicts,
     quickStats,
     groupedShifts,
-
+    
     // Fonctions de manipulation
     handleShiftSelect,
     handleEmployeeSelect,
@@ -360,7 +365,7 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
     clearSelection,
     validateShiftData,
     navigateTime,
-
+    
     // Fonctions d'état
     setSelectedShift,
     setSelectedEmployee,
