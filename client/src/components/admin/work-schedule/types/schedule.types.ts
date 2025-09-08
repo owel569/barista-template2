@@ -395,15 +395,11 @@ export interface ScheduleView {
   mode: 'calendar' | 'list' | 'analytics';
 }
 
-export interface ShiftStatus {
+export interface ShiftStatusInfo {
   id: string;
-  status: 'scheduled' | 'active' | 'completed' | 'cancelled';
-  timestamps: {
-    scheduled: Date;
-    started?: Date;
-    ended?: Date;
-    cancelled?: Date;
-  };
+  name: string;
+  color: string;
+  description: string;
 }
 
 export interface SecurityValidation {

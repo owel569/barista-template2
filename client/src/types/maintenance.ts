@@ -2,14 +2,21 @@ export interface MaintenanceTask {
   id: string;
   title: string;
   description: string;
+  type: 'preventive' | 'corrective' | 'emergency';
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
   priority: 'low' | 'medium' | 'high' | 'urgent';
   assignedTo?: string;
+  assignedToId?: number | null;
+  scheduledDate: string;
   dueDate?: string;
+  estimatedDuration: number;
+  cost?: number;
+  notes?: string;
+  equipmentId?: number | null;
   createdAt: string;
   updatedAt: string;
-  securityLevel: 'public' | 'restricted' | 'confidential';
-  auditTrail: Array<{
+  securityLevel?: 'public' | 'restricted' | 'confidential';
+  auditTrail?: Array<{
     timestamp: string;
     userId: string;
     action: string;

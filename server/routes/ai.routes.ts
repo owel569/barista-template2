@@ -143,7 +143,7 @@ class AIService {
       return { isValid: false, error: 'La date de réservation doit être dans le futur' };
     }
 
-    const hours = parseInt(time.split(':')[0]);
+    const hours = parseInt(time?.split(':')[0] || '0');
     if (hours < 7 || hours > 22) {
       return { isValid: false, error: 'Heures d\'ouverture: 7h-22h' };
     }
@@ -160,7 +160,7 @@ class AIService {
     const confidence = 0.85 + Math.random() * 0.15;
 
     return {
-      transcript: randomTranscript,
+      transcript: randomTranscript || 'Aucune transcription disponible',
       confidence: parseFloat(confidence.toFixed(2))
     };
   }
@@ -502,7 +502,11 @@ router.post('/reservation',
           status: 'confirmed'
         };
       const [reservation] = await db.insert(reservations)
-        .values(reservationData)
+        .values({
+          ...reservationData,
+          reservationTime: new Date(`${reservationData.date.toDateString()} ${reservationData.time}`),
+          partySize: parseInt(String(reservationData.guests)) || 1
+        })
         .returning();
 
       const aiResponse: AIResponse<NonNullable<typeof reservation>> = {
@@ -610,7 +614,9 @@ router.get('/automation/suggestions',
     const { category, priority } = req.query;
 
     try {
-      const suggestions = AIService.generateAutomationSuggestions(category, priority as 'low' | 'medium' | 'high');
+      const categoryStr = Array.isArray(category) ? category[0] : category;
+      const priorityStr = Array.isArray(priority) ? priority[0] : priority;
+      const suggestions = AIService.generateAutomationSuggestions(categoryStr, priorityStr as 'low' | 'medium' | 'high');
 
       res.json({
         success: true,
@@ -716,9 +722,9 @@ router.get('/voice-analysis', authenticateUser, async (req: Request, res: Respon
 
     // Logique basée sur l'heure
     if (hours >= 18) {
-      randomTranscript = transcripts[Math.floor(Math.random() * transcripts.length)] || transcripts[0];
+      randomTranscript = transcripts[Math.floor(Math.random() * transcripts.length)] || transcripts[0] || 'Transcription par défaut';
     } else {
-      randomTranscript = transcripts[0]; // Français par défaut
+      randomTranscript = transcripts[0] || 'Transcription française par défaut'; // Français par défaut
     }
 
     const analysisResult = {
@@ -732,7 +738,9 @@ router.get('/voice-analysis', authenticateUser, async (req: Request, res: Respon
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    logger.error('Erreur lors de l\'analyse vocale:', error instanceof Error ? error.message : String(error));
+    logger.error('Erreur lors de l\'analyse vocale:', { 
+      error: error instanceof Error ? error.message : String(error) 
+    });
     res.status(500).json({
       success: false,
       message: 'Erreur lors de l\'analyse vocale'

@@ -9,7 +9,7 @@ export type ModuleName =
   | 'reservations' | 'analytics' | 'reports' | 'settings' | 'permissions'
   | 'loyalty' | 'maintenance' | 'accounting' | 'backup' | 'quality'
   | 'suppliers' | 'calendar' | 'messages' | 'notifications' | 'pos'
-  | 'delivery' | 'events' | 'feedback' | 'scheduling' | 'tables';
+  | 'delivery' | 'events' | 'feedback' | 'scheduling' | 'tables' | 'users';
 
 interface Permission {
   module: ModuleName;
@@ -250,6 +250,10 @@ export const usePermissions = (): UsePermissionsReturn => {
     return hasPermission(module, 'manage');
   }, [hasPermission]);
 
+  const canManage = useCallback((module: ModuleName): boolean => {
+    return hasPermission(module, 'manage');
+  }, [hasPermission]);
+
   const getPermissionLevel = useCallback((module: ModuleName): 'none' | 'read' | 'write' | 'manage' => {
     if (!isAuthenticated || !userRole) return 'none';
 
@@ -297,7 +301,7 @@ export const usePermissions = (): UsePermissionsReturn => {
   }, [userRole]);
 
   return {
-    userPermissions: getCurrentPermissions(),
+    permissions: getCurrentPermissions(),
     userRole,
     loading,
     isLoading: loading, // Alias pour loading
@@ -307,6 +311,7 @@ export const usePermissions = (): UsePermissionsReturn => {
     canEdit,
     canDelete,
     canCreate,
+    canManage,
     isAdmin: isAdmin(),
     isManager: isManager(),
     isStaff: isStaff(),

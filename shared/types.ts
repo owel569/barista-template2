@@ -249,14 +249,14 @@ export interface TableStatusInfo {
     startTime: Date;
     endTime: Date;
     partySize: number;
-  };
+  } | undefined;
   nextReservation?: {
     id: number;
     customerName: string;
     startTime: Date;
     endTime: Date;
     partySize: number;
-  };
+  } | undefined;
 }
 
 // Types pour l'inventaire

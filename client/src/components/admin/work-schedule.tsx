@@ -5,6 +5,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 
+// Type definition for view modes
+export type ViewMode = 'calendar' | 'list' | 'analytics' | 'overview';
+
 // Chargement différé du composant principal pour une meilleure performance
 const LazyWorkSchedule = React.lazy(() => import('./work-schedule/WorkSchedule'));
 
@@ -69,7 +72,20 @@ export default function WorkScheduleWrapper(): JSX.Element {
     }
   };
 
-  const { viewMode, editable, exportable } = viewOptions[userRole as keyof typeof viewOptions] || viewOptions.default;
+  // Mapping des rôles pour correspondre aux types attendus par LazyWorkSchedule
+  const mappedUserRole = (userRole: string | undefined): 'directeur' | 'employe' | undefined => {
+    if (userRole === 'manager' || userRole === 'admin') {
+      return 'directeur';
+    }
+    if (userRole === 'employee') {
+      return 'employe';
+    }
+    return undefined; // Ou une valeur par défaut appropriée
+  };
+
+  const currentRole = mappedUserRole(userRole);
+
+  const { viewMode, editable, exportable } = viewOptions[currentRole as keyof typeof viewOptions] || viewOptions.default;
 
   return (
     <div className="p-6">
@@ -78,12 +94,12 @@ export default function WorkScheduleWrapper(): JSX.Element {
         onReset={() => window.location.reload()}
       >
         <Suspense fallback={<LoadingSkeleton />}>
-          {isPermissionsLoading ? (
+          {isPermissionsLoading || !currentRole ? (
             <LoadingSkeleton />
           ) : (
             <LazyWorkSchedule 
-              userRole={(userRole === 'employee' ? 'employe' : userRole) as 'directeur' | 'employe' || 'employe'}
-              viewMode={viewMode as ViewMode}
+              userRole={currentRole}
+              viewMode={viewMode as ViewMode} // Utilisation du type ViewMode ici
               editable={editable}
               exportable={exportable}
               key={`${userRole}-${viewMode}`} // Force le re-render si le rôle change

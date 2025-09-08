@@ -50,7 +50,7 @@ router.get('/', authenticateUser, requireRoleHierarchy('staff'), async (req, res
 
     if (status) {
       const baseQuery = db.select().from(reservations);
-      query = baseQuery.where(eq(reservations.status, status as ReservationStatus));
+      query = baseQuery.where(eq(reservations.status, status as any)); // Cast to any to satisfy Drizzle's type checking for status
     }
 
     const allReservations = await query.orderBy(desc(reservations.date), desc(reservations.time));
@@ -116,11 +116,10 @@ router.put('/:id', authenticateUser, requireRoleHierarchy('staff'), validateBody
       .returning();
 
     if (!updatedReservation) {
-      res.status(404).json({
+      return res.status(404).json({
         success: false,
         message: 'Réservation non trouvée'
       });
-      return;
     }
 
     res.json({
@@ -143,7 +142,8 @@ router.patch('/:id/status', authenticateUser, requireRoleHierarchy('staff'), asy
     const { id } = req.params;
     const { status } = req.body;
 
-    if (!['pending', 'confirmed', 'seated', 'completed', 'cancelled'].includes(status)) {
+    const validStatuses = ['pending', 'confirmed', 'seated', 'completed', 'cancelled'];
+    if (!validStatuses.includes(status)) {
       return res.status(400).json({
         success: false,
         message: 'Statut invalide'
@@ -160,11 +160,10 @@ router.patch('/:id/status', authenticateUser, requireRoleHierarchy('staff'), asy
       .returning();
 
     if (!updatedReservation) {
-      res.status(404).json({
+      return res.status(404).json({
         success: false,
         message: 'Réservation non trouvée'
       });
-      return;
     }
 
     res.json({
@@ -192,11 +191,10 @@ router.delete('/:id', authenticateUser, requireRoleHierarchy('manager'), async (
       .returning();
 
     if (!deletedReservation) {
-      res.status(404).json({
+      return res.status(404).json({
         success: false,
         message: 'Réservation non trouvée'
       });
-      return;
     }
 
     res.json({
@@ -221,10 +219,10 @@ router.get('/stats/overview', authenticateUser, requireRoleHierarchy('staff'), a
     endOfDay.setDate(endOfDay.getDate() + 1);
 
     const [
-      totalReservations,
-      todayReservations,
-      confirmedReservations,
-      pendingReservations
+      totalReservationsResult,
+      todayReservationsResult,
+      confirmedReservationsResult,
+      pendingReservationsResult
     ] = await Promise.all([
       db.select({ count: sql<number>`count(*)::integer` }).from(reservations),
       db.select({ count: sql<number>`count(*)::integer` })
@@ -241,10 +239,10 @@ router.get('/stats/overview', authenticateUser, requireRoleHierarchy('staff'), a
     res.json({
       success: true,
       data: {
-        total: totalReservations[0].count,
-        today: todayReservations[0].count,
-        confirmed: confirmedReservations[0].count,
-        pending: pendingReservations[0].count
+        total: totalReservationsResult[0].count,
+        today: todayReservationsResult[0].count,
+        confirmed: confirmedReservationsResult[0].count,
+        pending: pendingReservationsResult[0].count
       }
     });
   } catch (error) {

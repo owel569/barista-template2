@@ -226,7 +226,7 @@ export class Logger {
     // Rotation quotidienne
     if (this.config.enableRotation) {
       const currentDate = new Date().toISOString().split('T')[0];
-      const logFileDate = this.currentLogFile?.includes(currentDate);
+      const logFileDate = this.currentLogFile?.includes(currentDate) ?? false;
       if (!logFileDate) {
         this.createLogFile();
       }
@@ -324,7 +324,7 @@ const sanitizeLogData = (data: Record<string, unknown>): SecureLogData => {
   return sanitized as SecureLogData;
 };
 
-export const createLogger = (module: string) => {
+export const createLogger = (module: string, config?: Partial<LoggerConfig>) => {
   const key = `${module}-${JSON.stringify(config || {})}`;
 
   if (!loggerInstances.has(key)) {
