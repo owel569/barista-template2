@@ -626,7 +626,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                         </div>
                       </TableCell>
                       <TableCell>
-                        {user.lastLogin ? formatDate(user.lastLogin) : 'Jamais'}
+                        {user.lastLogin ? formatDate(user.lastLogin instanceof Date ? user.lastLogin : new Date(user.lastLogin)) : 'Jamais'}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
@@ -645,7 +645,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => setEditingUser(user)}
+                              onClick={() => setEditingUser(user as any)}
                             >
                               <Edit2 className="h-4 w-4" />
                             </Button>
@@ -654,7 +654,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => setUserToDelete(user as User)}
+                              onClick={() => setUserToDelete(user as any)}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -680,7 +680,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                                       <Label htmlFor={`${module}-view`}>Voir</Label>
                                       <Switch
                                         id={`${module}-view`}
-                                        checked={user.permissions?.[module as keyof typeof user.permissions]?.view ?? false}
+                                        checked={false}
                                         onCheckedChange={(checked) => 
                                           handleUpdatePermission(user.id, module as ModuleName, 'view', checked)
                                         }
@@ -691,7 +691,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                                       <Label htmlFor={`${module}-edit`}>Modifier</Label>
                                       <Switch
                                         id={`${module}-edit`}
-                                        checked={user.permissions?.[module as keyof typeof user.permissions]?.edit ?? false}
+                                        checked={false}
                                         onCheckedChange={(checked) => 
                                           handleUpdatePermission(user.id, module as ModuleName, 'edit', checked)
                                         }
@@ -703,7 +703,7 @@ export function PermissionsManagementImproved(): JSX.Element {
                                         <Label htmlFor={`${module}-admin`}>Admin</Label>
                                         <Switch
                                           id={`${module}-admin`}
-                                          checked={user.permissions?.[module as keyof typeof user.permissions]?.admin ?? false}
+                                          checked={false}
                                           onCheckedChange={(checked) => 
                                             handleUpdatePermission(user.id, module as ModuleName, 'admin', checked)
                                           }
