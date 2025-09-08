@@ -1,0 +1,110 @@
+
+server/routes/admin/statistics.routes.ts:199:42 - error TS2532: Object is possibly 'undefined'.
+
+199         averageLoyaltyPoints: Math.round(averageLoyaltyPoints[0].avg || 0)
+                                             ~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/advanced-features.ts:573:62 - error TS7030: Not all code paths return a value.
+
+573 router.post('/reports/:reportId/generate', authenticateUser, async (_req: Request, res: Response) => {
+                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/advanced-features.ts:629:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+629       return res.status(400).json({
+          ~~~~~~
+
+server/routes/advanced-features.ts:648:64 - error TS7030: Not all code paths return a value.
+
+648 router.post('/modules/:moduleId/deactivate', authenticateUser, async (_req: Request, res: Response) => {
+                                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/advanced-features.ts:673:63 - error TS7030: Not all code paths return a value.
+
+673 router.post('/modules/:moduleId/configure', authenticateUser, async (_req: Request, res: Response) => {
+                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/ai.routes.ts:146:28 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+146     const hours = parseInt(time.split(':')[0]);
+                               ~~~~~~~~~~~~~~~~~~
+
+server/routes/ai.routes.ts:163:7 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+163       transcript: randomTranscript,
+          ~~~~~~~~~~
+
+  server/routes/ai.routes.ts:155:5
+    155     transcript: string;
+            ~~~~~~~~~~
+    The expected type comes from property 'transcript' which is declared here on type '{ transcript: string; confidence: number; }'
+
+server/routes/ai.routes.ts:472:9 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+472         return res.status(400).json({
+            ~~~~~~
+
+server/routes/ai.routes.ts:482:9 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+482         return res.status(409).json({
+            ~~~~~~
+
+server/routes/ai.routes.ts:494:10 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { time: string | SQL<unknown> | Placeholder<string, any>; date: Date | SQL<unknown> | Placeholder<string, any>; reservationTime: Date | SQL<...> | Placeholder<...>; ... 9 more ...; specialRequests?: string | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'customerName' does not exist in type '{ time: string | SQL<unknown> | Placeholder<string, any>; date: Date | SQL<unknown> | Placeholder<string, any>; reservationTime: Date | SQL<...> | Placeholder<...>; ... 9 more ...; specialRequests?: string | ... 3 more ... | undefined; }'.
+  Overload 2 of 2, '(values: { time: string | SQL<unknown> | Placeholder<string, any>; date: Date | SQL<unknown> | Placeholder<string, any>; reservationTime: Date | SQL<...> | Placeholder<...>; ... 9 more ...; specialRequests?: string | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'date' does not exist in type '{ time: string | SQL<unknown> | Placeholder<string, any>; date: Date | SQL<unknown> | Placeholder<string, any>; reservationTime: Date | SQL<...> | Placeholder<...>; ... 9 more ...; specialRequests?: string | ... 3 more ... | undefined; }[]'.
+
+494         .values({
+             ~~~~~~
+
+
+server/routes/ai.routes.ts:612:67 - error TS2345: Argument of type 'string | string[] | ParsedQs | ParsedQs[] | undefined' is not assignable to parameter of type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+
+612       const suggestions = AIService.generateAutomationSuggestions(category, priority as 'low' | 'medium' | 'high');
+                                                                      ~~~~~~~~
+
+server/routes/ai.routes.ts:718:7 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+718       randomTranscript = transcripts[Math.floor(Math.random() * transcripts.length)] || transcripts[0];
+          ~~~~~~~~~~~~~~~~
+
+server/routes/ai.routes.ts:720:7 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+720       randomTranscript = transcripts[0]; // Français par défaut
+          ~~~~~~~~~~~~~~~~
+
+server/routes/ai.routes.ts:734:55 - error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+
+734     logger.error('Erreur lors de l\'analyse vocale:', error);
+                                                          ~~~~~
+
+server/routes/auth/auth.routes.ts:141:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+141       return res.status(409).json({
+          ~~~~~~
+
+server/routes/auth/auth.routes.ts:182:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+182       return res.status(500).json({
+          ~~~~~~
+
+server/routes/loyalty-advanced.ts:314:5 - error TS2322: Type 'LoyaltyLevel | undefined' is not assignable to type 'LoyaltyLevel'.
+  Type 'undefined' is not assignable to type 'LoyaltyLevel'.
+
+314     return level || LOYALTY_LEVELS[0];
+        ~~~~~~
+
+server/routes/loyalty-advanced.ts:768:22 - error TS18048: 'customer' is possibly 'undefined'.
+
+768       const points = customer.loyaltyPoints || 0;
+                         ~~~~~~~~
+
+server/routes/loyalty-advanced.ts:822:69 - error TS18048: 'customer' is possibly 'undefined'.
+
+822       const currentLevel = AdvancedLoyaltyService.getLevelForPoints(customer.loyaltyPoints || 0);

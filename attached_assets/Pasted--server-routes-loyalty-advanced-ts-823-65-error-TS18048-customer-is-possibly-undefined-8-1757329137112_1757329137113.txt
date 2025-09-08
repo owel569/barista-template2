@@ -1,0 +1,137 @@
+
+server/routes/loyalty-advanced.ts:823:65 - error TS18048: 'customer' is possibly 'undefined'.
+
+823       const nextLevel = AdvancedLoyaltyService.getNextLevelInfo(customer.loyaltyPoints || 0).nextLevel;
+                                                                    ~~~~~~~~
+
+server/routes/loyalty-advanced.ts:825:13 - error TS2375: Type '{ customerId: number; currentPoints: number; totalPointsEarned: number; totalPointsRedeemed: number; currentLevel: LoyaltyLevel; nextLevel: LoyaltyLevel | undefined; ... 7 more ...; visitFrequency: number; }' is not assignable to type 'CustomerLoyaltyData' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'nextLevel' are incompatible.
+    Type 'LoyaltyLevel | undefined' is not assignable to type 'LoyaltyLevel'.
+      Type 'undefined' is not assignable to type 'LoyaltyLevel'.
+
+825       const customerData: CustomerLoyaltyData = {
+                ~~~~~~~~~~~~
+
+server/routes/loyalty-advanced.ts:826:21 - error TS18048: 'customer' is possibly 'undefined'.
+
+826         customerId: customer.id,
+                        ~~~~~~~~
+
+server/routes/loyalty-advanced.ts:827:24 - error TS18048: 'customer' is possibly 'undefined'.
+
+827         currentPoints: customer.loyaltyPoints || 0,
+                           ~~~~~~~~
+
+server/routes/loyalty-advanced.ts:832:70 - error TS18048: 'customer' is possibly 'undefined'.
+
+832         progressToNextLevel: AdvancedLoyaltyService.getNextLevelInfo(customer.loyaltyPoints || 0).progress,
+                                                                         ~~~~~~~~
+
+server/routes/loyalty-advanced.ts:833:68 - error TS18048: 'customer' is possibly 'undefined'.
+
+833         pointsToNextLevel: AdvancedLoyaltyService.getNextLevelInfo(customer.loyaltyPoints || 0).pointsToNext,
+                                                                       ~~~~~~~~
+
+server/routes/loyalty-advanced.ts:878:16 - error TS7030: Not all code paths return a value.
+
+878   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/menu/menu.routes.ts:513:9 - error TS2561: Object literal may only specify known properties, but 'isAvailable' does not exist in type '{ name?: string | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined; price?: string | SQL<unknown> | PgColumn<...> | undefined; ... 16 more ...; calories?: number | ... 3 more ... | undefined; }'. Did you mean to write 'available'?
+
+513         isAvailable: false,
+            ~~~~~~~~~~~
+
+server/routes/tables/tables.routes.ts:255:11 - error TS2322: Type '{ id: number; number: number; capacity: number; location: string | null; section: string | null; status: "maintenance" | "available" | "occupied" | "reserved"; currentReservation: { ...; } | undefined; nextReservation: { ...; } | undefined; }[]' is not assignable to type 'TableStatus[]'.
+  Type '{ id: number; number: number; capacity: number; location: string | null; section: string | null; status: "maintenance" | "available" | "occupied" | "reserved"; currentReservation: { ...; } | undefined; nextReservation: { ...; } | undefined; }' is not assignable to type 'TableStatus' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'currentReservation' are incompatible.
+      Type '{ id: any; customerName: any; startTime: any; endTime: any; partySize: any; } | undefined' is not assignable to type '{ id: number; customerName: string; startTime: Date; endTime: Date; partySize: number; }'.
+        Type 'undefined' is not assignable to type '{ id: number; customerName: string; startTime: Date; endTime: Date; partySize: number; }'.
+
+255     const tableStatuses: TableStatus[] = allTables.map(table => {
+              ~~~~~~~~~~~~~
+
+server/routes/tables/tables.routes.ts:328:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+328       return res.status(409).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:392:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+392       return res.status(404).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:408:9 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+408         return res.status(409).json({
+            ~~~~~~
+
+server/routes/tables/tables.routes.ts:425:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+425       return res.status(404).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:472:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+472       return res.status(404).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:489:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+489       return res.status(404).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:532:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+532       return res.status(400).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:551:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+551       return res.status(400).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:567:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+567       return res.status(404).json({
+          ~~~~~~
+
+server/routes/users/users.routes.ts:225:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+225       return res.status(404).json({
+          ~~~~~~
+
+server/routes/users/users.routes.ts:287:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+287       return res.status(409).json({
+          ~~~~~~
+
+server/routes/users/users.routes.ts:385:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+385       return res.status(404).json({
+          ~~~~~~
+
+server/routes/users/users.routes.ts:402:9 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+402         return res.status(409).json({
+            ~~~~~~
+
+server/routes/users/users.routes.ts:424:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+424       return res.status(404).json({
+          ~~~~~~
+
+server/routes/users/users.routes.ts:494:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+494       return res.status(404).json({
+          ~~~~~~
+
+server/routes/users/users.routes.ts:555:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+555       return res.status(400).json({
+          ~~~~~~
+
+server/routes/users/users.routes.ts:576:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+576       return res.status(404).json({
+          ~~~~~~

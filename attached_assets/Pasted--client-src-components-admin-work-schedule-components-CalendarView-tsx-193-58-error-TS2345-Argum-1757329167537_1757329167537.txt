@@ -1,0 +1,126 @@
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:193:58 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string | (() => string)'.
+  Type 'undefined' is not assignable to type 'string | (() => string)'.
+
+193   const [currentDate, setCurrentDate] = useState<string>(initialDate);
+                                                             ~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:228:20 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'SetStateAction<string>'.
+  Type 'undefined' is not assignable to type 'SetStateAction<string>'.
+
+228     setCurrentDate(current.toISOString().split('T')[0]);
+                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:245:32 - error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string | number | Date'.
+      Type 'undefined' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string | number'.
+      Type 'undefined' is not assignable to type 'string | number'.
+
+245         const start = new Date(weekDates[0]);
+                                   ~~~~~~~~~~~~
+
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:246:30 - error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string | number | Date'.
+      Type 'undefined' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string | number'.
+      Type 'undefined' is not assignable to type 'string | number'.
+
+246         const end = new Date(weekDates[weekDates.length - 1]);
+                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:289:45 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'SetStateAction<string>'.
+  Type 'undefined' is not assignable to type 'SetStateAction<string>'.
+
+289               onClick={() => setCurrentDate(new Date().toISOString().split('T')[0])}
+                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:229:9 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+229         start: new Date().toISOString().split('T')[0],
+            ~~~~~
+
+  client/src/components/admin/work-schedule/types/schedule.types.ts:172:5
+    172     start: string;
+            ~~~~~
+    The expected type comes from property 'start' which is declared here on type '{ start: string; end: string; }'
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:230:9 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+230         end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+            ~~~
+
+  client/src/components/admin/work-schedule/types/schedule.types.ts:173:5
+    173     end: string;
+            ~~~
+    The expected type comes from property 'end' which is declared here on type '{ start: string; end: string; }'
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:273:22 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+273     handleDateSelect(currentDate.toISOString().split('T')[0]);
+                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:321:7 - error TS2532: Object is possibly 'undefined'.
+
+321       groups[groupKey].push(shift);
+          ~~~~~~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/utils/schedule.utils.ts:175:46 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+175     isSameDay(parseISO(shift.date), parseISO(newShift.date))
+                                                 ~~~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/utils/schedule.utils.ts:264:3 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+264   return SHIFT_STATUS_COLORS[shift.status] || SHIFT_STATUS_COLORS.scheduled;
+      ~~~~~~
+
+client/src/components/admin/work-schedule/utils/schedule.utils.ts:303:3 - error TS2322: Type '(string | undefined)[]' is not assignable to type 'string[]'.
+  Type 'string | undefined' is not assignable to type 'string'.
+    Type 'undefined' is not assignable to type 'string'.
+
+303   return dates.map(d => d.toISOString().split('T')[0]);
+      ~~~~~~
+
+client/src/components/admin/work-schedule/utils/schedule.utils.ts:307:3 - error TS2322: Type '(string | undefined)[]' is not assignable to type 'string[]'.
+  Type 'string | undefined' is not assignable to type 'string'.
+    Type 'undefined' is not assignable to type 'string'.
+
+307   return dates.map(d => d.toISOString().split('T')[0]);
+      ~~~~~~
+
+client/src/components/admin/work-schedule/utils/schedule.utils.ts:319:5 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+319     employeeColors[employee.id] = colors[index % colors.length];
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/chart.tsx:339:16 - error TS2375: Type '{ key: string; item: TooltipPayloadItem; index: number; itemConfig: ItemConfig | undefined; indicatorColor: string; indicator: "line" | "dot" | "dashed"; hideIndicator: boolean; formatter: (Formatter<...> & FormatterFunction) | undefined; nestLabel: boolean; tooltipLabel: Element | null; }' is not assignable to type '{ item: TooltipPayloadItem; index: number; itemConfig: ItemConfig | undefined; indicatorColor: string; indicator: "line" | "dot" | "dashed"; hideIndicator: boolean; formatter?: FormatterFunction; nestLabel: boolean; tooltipLabel: ReactNode; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'formatter' are incompatible.
+    Type '(Formatter<ValueType, NameType> & FormatterFunction) | undefined' is not assignable to type 'FormatterFunction'.
+      Type 'undefined' is not assignable to type 'FormatterFunction'.
+
+339               <TooltipItem
+                   ~~~~~~~~~~~
+
+client/src/hooks/useTypedToast.ts:81:12 - error TS2352: Conversion of type '(string & { unwrap: () => Promise<T>; }) | (number & { unwrap: () => Promise<T>; }) | { unwrap: () => Promise<T>; }' to type 'Promise<T>' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ unwrap: () => Promise<T>; }' is missing the following properties from type 'Promise<T>': then, catch, finally, [Symbol.toStringTag]
+
+81     return toast.promise(promise, options) as Promise<T>;
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/pages/AdminFinal.tsx:79:44 - error TS2554: Expected 0 arguments, but got 1.
+
+79   const { hasPermission } = usePermissions(user?.role || 'employe');
+                                              ~~~~~~~~~~~~~~~~~~~~~~~
