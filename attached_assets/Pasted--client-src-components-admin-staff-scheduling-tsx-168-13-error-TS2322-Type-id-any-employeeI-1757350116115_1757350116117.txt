@@ -1,0 +1,74 @@
+
+client/src/components/admin/staff-scheduling.tsx:168:13 - error TS2322: Type '{ id: any; employeeId: any; date: string | undefined; startTime: string; endTime: string; position: string; status: any; notes: any; createdAt: any; updatedAt: any; }[]' is not assignable to type 'Shift[]'.
+  Type '{ id: any; employeeId: any; date: string | undefined; startTime: string; endTime: string; position: string; status: any; notes: any; createdAt: any; updatedAt: any; }' is not assignable to type 'Shift'.
+    Types of property 'date' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+
+168       const mapped: Shift[] = data.map((s: any) => ({
+                ~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:292:7 - error TS2532: Object is possibly 'undefined'.
+
+292       shiftsByEmployee[shift.employeeId].push(shift);
+          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:302:13 - error TS18048: 'prevShift' is possibly 'undefined'.
+
+302         if (prevShift.date === currentShift.date &&
+                ~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:302:32 - error TS18048: 'currentShift' is possibly 'undefined'.
+
+302         if (prevShift.date === currentShift.date &&
+                                   ~~~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:324:20 - error TS2532: Object is possibly 'undefined'.
+
+324           shiftId: empShifts[0].id,
+                       ~~~~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:461:22 - error TS1107: Jump target cannot cross function boundary.
+
+461           if (!date) continue;
+                         ~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:467:13 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+467             date: date?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0],
+                ~~~~
+
+  client/src/components/admin/staff-scheduling.tsx:59:3
+    59   date: string;
+         ~~~~
+    The expected type comes from property 'date' which is declared here on type 'Shift'
+
+client/src/components/admin/staff-scheduling.tsx:1266:12 - error TS2375: Type '{ children: Element[]; value: string | undefined; onValueChange: (value: string) => void; required: true; }' is not assignable to type '{ value?: string; defaultValue?: string; onValueChange?(value: string): void; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'value' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+1266           <Select
+                ~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:1278:19 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+1278                   value={date.toISOString().split('T')[0]}
+                       ~~~~~
+
+  node_modules/@radix-ui/react-select/dist/index.d.mts:93:5
+    93     value: string;
+           ~~~~~
+    The expected type comes from property 'value' which is declared here on type 'IntrinsicAttributes & Omit<SelectItemProps & RefAttributes<HTMLDivElement>, "ref"> & RefAttributes<...>'
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:210:34 - error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
+
+210       const message = JSON.parse(lastMessage.data);
+                                     ~~~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:356:75 - error TS2307: Cannot find module '../../../shared/types' or its corresponding type declarations.
+
+356     mutationFn: async (data: { addressId: number; updates: Partial<import('../../../shared/types').Address> }) => {
+                                                                              ~~~~~~~~~~~~~~~~~~~~~~~

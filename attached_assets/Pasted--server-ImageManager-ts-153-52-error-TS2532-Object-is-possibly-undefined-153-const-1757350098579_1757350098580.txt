@@ -1,0 +1,59 @@
+
+server/ImageManager.ts:153:52 - error TS2532: Object is possibly 'undefined'.
+
+153         const menuItemName = menuItem.length > 0 ? menuItem[0].name : 'Élément de menu';
+                                                       ~~~~~~~~~~~
+
+server/ImageManager.ts:195:25 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+195                         imageUrl: imageMapping[menuItem.name],
+                            ~~~~~~~~
+
+  server/image-manager.ts:18:3
+    18   imageUrl: string;
+         ~~~~~~~~
+    The expected type comes from property 'imageUrl' which is declared here on type 'InsertMenuItemImage'
+
+server/config/production.ts:143:9 - error TS18048: 'allowed' is possibly 'undefined'.
+
+143         allowed.includes('*') ?
+            ~~~~~~~
+
+server/config/production.ts:144:22 - error TS18048: 'allowed' is possibly 'undefined'.
+
+144         origin.match(allowed.replace('*', '.*')) :
+                         ~~~~~~~
+
+server/middleware/database-middleware.ts:21:13 - error TS2304: Cannot find name 'initializeDatabase'.
+
+21       await initializeDatabase();
+               ~~~~~~~~~~~~~~~~~~
+
+server/middleware/database-middleware.ts:51:17 - error TS2304: Cannot find name 'initializeDatabase'.
+
+51           await initializeDatabase();
+                   ~~~~~~~~~~~~~~~~~~
+
+server/middleware/logging.ts:229:57 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+229       const logFileDate = this.currentLogFile?.includes(currentDate) ?? false;
+                                                            ~~~~~~~~~~~
+
+server/modules/ai-automation.ts:83:52 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+83       const command = await this.parseVoiceCommand(transcript);
+                                                      ~~~~~~~~~~
+
+server/modules/ai-automation.ts:282:27 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+282     const hour = parseInt(time.split(':')[0]);
+                              ~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/customers.routes.ts:116:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+116       return res.status(404).json({
+          ~~~~~~
