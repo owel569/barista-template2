@@ -3,7 +3,8 @@ import React from 'react';
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Download, Loader2 } from 'lucide-react';
-// import { exportToExcel, ExportData } from '@/lib/excel-export';
+import { exportToExcel } from '@/lib/excel-export';
+
 type ExportData = Record<string, any>;
 
 interface ExportToExcelButtonProps {
@@ -46,8 +47,7 @@ export function ExportToExcelButton({
       await exportToExcel(data, {
         filename: `${filename}_${new Date().toISOString().split('T')[0]}`,
         sheetName,
-        autoWidth: true,
-        styleHeaders: true
+        title: 'Export de données'
       });
     } catch (error) {
       // eslint-disable-next-line no-console

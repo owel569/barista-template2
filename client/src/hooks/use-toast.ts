@@ -9,7 +9,7 @@ export interface ToastProps {
   action?: ToastActionElement
   open?: boolean
   onOpenChange?: (open: boolean) => void
-  variant?: "default" | "destructive"
+  variant?: "default" | "destructive" | "success"
 }
 
 const TOAST_LIMIT = 1

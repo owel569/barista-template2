@@ -78,7 +78,8 @@ export function useTypedToast(): TypedToastReturn {
       error: string | ((error: Error) => string);
     }
   ): Promise<T> => {
-    return toast.promise(promise, options) as Promise<T>;
+    toast.promise(promise, options);
+    return promise;
   }, []);
 
   return {

@@ -222,10 +222,11 @@ router.get('/:id',
       .where(eq(users.id, id));
 
     if (!user) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Utilisateur non trouvé'
       });
+      return;
     }
 
     // Si c'est un client, récupérer les données client associées
@@ -284,10 +285,11 @@ router.post('/',
       .where(eq(users.email, userData.email));
 
     if (existingUser) {
-      return res.status(409).json({
+      res.status(409).json({
         success: false,
         message: 'Un utilisateur avec cet email existe déjà'
       });
+      return;
     }
 
     // Hasher le mot de passe

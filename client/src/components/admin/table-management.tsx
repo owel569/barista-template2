@@ -189,16 +189,19 @@ export default function TableManagement(): JSX.Element {
       apiRequest('PUT', `/api/admin/tables/${id}`, { body: JSON.stringify(data) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/tables'] });
-      toast({ title: "Table mise à jour", variant: "success" });
+      toast({ title: "Table mise à jour", variant: "default" });
     },
   });
 
   const updateTableStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: number; status: RestaurantTable['status'] }) => 
-      apiRequest(`/api/admin/tables/${id}/status`, { method: 'PUT', data: { status } }),
+      apiRequest('PUT', `/api/admin/tables/${id}/status`, { 
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/tables'] });
-      toast({ title: "Statut mis à jour", variant: "success" });
+      toast({ title: "Statut mis à jour", variant: "default" });
     },
   });
 
@@ -235,7 +238,12 @@ export default function TableManagement(): JSX.Element {
 
   // Handlers
   const handleSubmit = (data: z.infer<typeof tableSchema>) => {
-    createTableMutation.mutate(data);
+    const tableData = {
+      ...data,
+      position: { x: 0, y: 0 },
+      status: 'available' as const
+    };
+    createTableMutation.mutate(tableData);
   };
 
   const handleStatusChange = (id: number, status: RestaurantTable['status']) => {
@@ -392,7 +400,7 @@ export default function TableManagement(): JSX.Element {
                     render={({ field }) => (
                       <FormItem className="flex items-center space-x-2">
                         <FormControl>
-                          <Switch checked={field.value} onCheckedChange={field.onChange} />
+                          <Switch checked={field.value || false} onCheckedChange={field.onChange} />
                         </FormControl>
                         <FormLabel>Table VIP</FormLabel>
                       </FormItem>

@@ -96,7 +96,7 @@ export default function SuppliersManagement() {
         lastOrder: new Date(Date.now() - Math.floor(Math.random() * 1000 * 60 * 60 * 24 * 30)).toISOString(),
         products: Array.from({ length: 3 + Math.floor(Math.random() * 5) }, (_, p) => 
           ['Café Arabica', 'Café Robusta', 'Croissants', 'Pains au Chocolat', 'Machines à Café', 'Tasses', 'Emballages Biodégradables', 
-           'Détergents', 'Jus de Fruits', 'Services de Nettoyage', 'Contrats de Maintenance'][Math.floor(Math.random() * 11)]
+           'Détergents', 'Jus de Fruits', 'Services de Nettoyage', 'Contrats de Maintenance'][Math.floor(Math.random() * 11)] || 'Produit'
         ),
         contractType: ['Annuel', 'Semestriel', 'Trimestriel', 'Mensuel'][Math.floor(Math.random() * 4)] || 'Annuel',
         contractExpiry: new Date(Date.now() + Math.floor(Math.random() * 1000 * 60 * 60 * 24 * 365)).toISOString(),
@@ -713,7 +713,7 @@ export default function SuppliersManagement() {
                       <Progress 
                         value={(category.total / (stats?.totalSpend || 1)) * 100} 
                         className="h-2"
-                        indicatorClassName={getCategoryColor(category.category).replace('bg-', 'bg-').split(' ')[0]}
+                        indicatorClassName={getCategoryColor(category.category).replace('bg-', 'bg-').split(' ')[0] || 'bg-blue-500'}
                       />
                     </div>
                   ))}

@@ -370,4 +370,10 @@ export const exportFinancialReport = async (financialData: any): Promise<void> =
   window.URL.revokeObjectURL(url);
 };
 
+// Fonction simple pour l'export de base (compatibilité avec le bouton existant)
+export async function exportToExcel(data: ExportData[], options: ExportOptions = {}): Promise<void> {
+  const exporter = new ExcelExporter();
+  return await exporter.exportData(data, options);
+}
+
 export default ExcelExporter;
