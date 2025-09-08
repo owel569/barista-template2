@@ -1,0 +1,77 @@
+
+server/routes/admin/menu-admin.routes.ts:136:16 - error TS7030: Not all code paths return a value.
+
+136   asyncHandler(async (req: Request, res: Response) => {
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/reservations.routes.ts:48:7 - error TS2741: Property 'where' is missing in type 'Omit<import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"reservations", { id: import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; ...' but required in type 'Omit<import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"reservations", { id: import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; ...'.
+
+48       query = query.where(sql`DATE(${reservations.date}) = ${date}`);
+         ~~~~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/select.d.ts:402:5
+    402     where(where: ((aliases: this['_']['selection']) => SQL | undefined) | SQL | undefined): PgSelectWithout<this, TDynamic, 'where'>;
+            ~~~~~
+    'where' is declared here.
+
+server/routes/admin/reservations.routes.ts:52:7 - error TS2741: Property 'where' is missing in type 'Omit<import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"reservations", { id: import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; ...' but required in type 'Omit<import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"reservations", { id: import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; ...'.
+
+52       query = query.where(eq(reservations.status, status as any));
+         ~~~~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/select.d.ts:402:5
+    402     where(where: ((aliases: this['_']['selection']) => SQL | undefined) | SQL | undefined): PgSelectWithout<this, TDynamic, 'where'>;
+            ~~~~~
+    'where' is declared here.
+
+server/routes/admin/reservations.routes.ts:114:43 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+114       .where(eq(reservations.id, parseInt(id)))
+                                              ~~
+
+server/routes/admin/reservations.routes.ts:118:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+118       return res.status(404).json({
+          ~~~~~~
+
+server/routes/admin/reservations.routes.ts:145:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+145       return res.status(400).json({
+          ~~~~~~
+
+server/routes/admin/reservations.routes.ts:157:43 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+157       .where(eq(reservations.id, parseInt(id)))
+                                              ~~
+
+server/routes/admin/reservations.routes.ts:161:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+161       return res.status(404).json({
+          ~~~~~~
+
+server/routes/admin/reservations.routes.ts:188:43 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+188       .where(eq(reservations.id, parseInt(id)))
+                                              ~~
+
+server/routes/admin/reservations.routes.ts:192:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+192       return res.status(404).json({
+          ~~~~~~
+
+server/routes/admin/reservations.routes.ts:240:16 - error TS2532: Object is possibly 'undefined'.
+
+240         total: totalReservations[0].count,
+                   ~~~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/reservations.routes.ts:241:16 - error TS2532: Object is possibly 'undefined'.
+
+241         today: todayReservations[0].count,
+                   ~~~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/reservations.routes.ts:242:20 - error TS2532: Object is possibly 'undefined'.
+
+242         confirmed: confirmedReservations[0].count,

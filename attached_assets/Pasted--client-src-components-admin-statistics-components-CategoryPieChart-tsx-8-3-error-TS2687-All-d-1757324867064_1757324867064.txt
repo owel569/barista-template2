@@ -1,0 +1,138 @@
+
+
+client/src/components/admin/statistics/components/CategoryPieChart.tsx:8:3 - error TS2687: All declarations of 'color' must have identical modifiers.
+
+8   color: string;
+    ~~~~~
+
+client/src/components/admin/statistics/components/CategoryPieChart.tsx:20:3 - error TS2687: All declarations of 'color' must have identical modifiers.
+
+20   color?: string; // Make color optional since we have fallback
+     ~~~~~
+
+client/src/components/admin/statistics/components/CategoryPieChart.tsx:20:3 - error TS2717: Subsequent property declarations must have the same type.  Property 'color' must be of type 'string', but here has type 'string | undefined'.
+
+20   color?: string; // Make color optional since we have fallback
+     ~~~~~
+
+  client/src/components/admin/statistics/components/CategoryPieChart.tsx:8:3
+    8   color: string;
+        ~~~~~
+    'color' was also declared here.
+
+client/src/components/admin/statistics/components/ExportToExcelButton.tsx:6:10 - error TS2614: Module '"@/lib/excel-export"' has no exported member 'exportToExcel'. Did you mean to use 'import exportToExcel from "@/lib/excel-export"' instead?
+
+6 import { exportToExcel } from '@/lib/excel-export';
+           ~~~~~~~~~~~~~
+
+client/src/components/admin/statistics/components/ExportToExcelButton.tsx:8:10 - error TS2614: Module '"@/lib/excel-export"' has no exported member 'ExportData'. Did you mean to use 'import ExportData from "@/lib/excel-export"' instead?
+
+8 import { ExportData } from '@/lib/excel-export';
+           ~~~~~~~~~~
+
+client/src/components/admin/statistics/components/RevenueChart.tsx:17:38 - error TS2339: Property 'loading' does not exist on type 'RevenueChartProps'.
+
+17 export function RevenueChart({ data, loading = false, period }: RevenueChartProps) {
+                                        ~~~~~~~
+
+client/src/components/admin/statistics/components/RevenueChart.tsx:17:55 - error TS2339: Property 'period' does not exist on type 'RevenueChartProps'.
+
+17 export function RevenueChart({ data, loading = false, period }: RevenueChartProps) {
+                                                         ~~~~~~
+
+client/src/components/admin/suppliers-management.tsx:81:13 - error TS2322: Type '{ id: number; name: string; company: string | undefined; email: string; phone: string; address: string; category: string | undefined; rating: number; status: "active" | "inactive" | "pending"; ... 7 more ...; paymentTerms: string | undefined; }[]' is not assignable to type 'Supplier[]'.
+  Type '{ id: number; name: string; company: string | undefined; email: string; phone: string; address: string; category: string | undefined; rating: number; status: "active" | "inactive" | "pending"; ... 7 more ...; paymentTerms: string | undefined; }' is not assignable to type 'Supplier' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'company' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+
+81       const mockSuppliers: Supplier[] = Array.from({ length: 12 }, (_, i) => ({
+               ~~~~~~~~~~~~~
+
+client/src/components/admin/suppliers-management.tsx:122:9 - error TS2322: Type '{ id: string; supplier: string; amount: number; status: string | undefined; date: string; }[]' is not assignable to type '{ id: string; supplier: string; amount: number; status: string; date: string; }[]'.
+  Type '{ id: string; supplier: string; amount: number; status: string | undefined; date: string; }' is not assignable to type '{ id: string; supplier: string; amount: number; status: string; date: string; }'.
+    Types of property 'status' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+
+122         recentOrders: Array.from({ length: 5 }, (_, i) => ({
+            ~~~~~~~~~~~~
+
+  client/src/components/admin/suppliers-management.tsx:56:3
+    56   recentOrders: { id: string; supplier: string; amount: number; status: string; date: string }[];
+         ~~~~~~~~~~~~
+    The expected type comes from property 'recentOrders' which is declared here on type 'SupplierStats'
+
+client/src/components/admin/suppliers-management.tsx:124:21 - error TS2532: Object is possibly 'undefined'.
+
+124           supplier: mockSuppliers[i].company,
+                        ~~~~~~~~~~~~~~~~
+
+client/src/components/admin/suppliers-management.tsx:713:24 - error TS2375: Type '{ value: number; className: string; indicatorClassName: string | undefined; }' is not assignable to type 'ProgressProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'indicatorClassName' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+713                       <Progress
+                           ~~~~~~~~
+
+client/src/components/admin/table-management.tsx:151:33 - error TS2559: Type '() => void' has no properties in common with type 'WebSocketConfig'.
+
+151   useWebSocket('table-updates', () => {
+                                    ~~~~~~~
+
+client/src/components/admin/table-management.tsx:179:49 - error TS2322: Type '"success"' is not assignable to type '"default" | "destructive"'.
+
+179       toast({ title: "Table créée avec succès", variant: "success" });
+                                                    ~~~~~~~
+
+  client/src/hooks/use-toast.ts:12:3
+    12   variant?: "default" | "destructive"
+         ~~~~~~~
+    The expected type comes from property 'variant' which is declared here on type 'Toast'
+
+client/src/components/admin/table-management.tsx:188:7 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(endpoint: string, options?: RequestInit | undefined): Promise<any>', gave the following error.
+    Object literal may only specify known properties, and 'data' does not exist in type 'RequestInit'.
+  Overload 2 of 2, '(method: "POST" | "PUT" | "GET" | "DELETE" | "PATCH", endpoint: string, options?: RequestInit | undefined): Promise<any>', gave the following error.
+    Argument of type '`/api/admin/tables/${number}`' is not assignable to parameter of type '"POST" | "PUT" | "GET" | "DELETE" | "PATCH"'.
+
+188       apiRequest(`/api/admin/tables/${id}`, { method: 'PUT', data }),
+          ~~~~~~~~~~
+
+
+client/src/components/admin/table-management.tsx:191:43 - error TS2322: Type '"success"' is not assignable to type '"default" | "destructive"'.
+
+191       toast({ title: "Table mise à jour", variant: "success" });
+                                              ~~~~~~~
+
+  client/src/hooks/use-toast.ts:12:3
+    12   variant?: "default" | "destructive"
+         ~~~~~~~
+    The expected type comes from property 'variant' which is declared here on type 'Toast'
+
+client/src/components/admin/table-management.tsx:197:7 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(endpoint: string, options?: RequestInit | undefined): Promise<any>', gave the following error.
+    Object literal may only specify known properties, and 'data' does not exist in type 'RequestInit'.
+  Overload 2 of 2, '(method: "POST" | "PUT" | "GET" | "DELETE" | "PATCH", endpoint: string, options?: RequestInit | undefined): Promise<any>', gave the following error.
+    Argument of type '`/api/admin/tables/${number}/status`' is not assignable to parameter of type '"POST" | "PUT" | "GET" | "DELETE" | "PATCH"'.
+
+197       apiRequest(`/api/admin/tables/${id}/status`, { method: 'PUT', data: { status } }),
+          ~~~~~~~~~~
+
+
+client/src/components/admin/table-management.tsx:200:43 - error TS2322: Type '"success"' is not assignable to type '"default" | "destructive"'.
+
+200       toast({ title: "Statut mis à jour", variant: "success" });
+                                              ~~~~~~~
+
+  client/src/hooks/use-toast.ts:12:3
+    12   variant?: "default" | "destructive"
+         ~~~~~~~
+    The expected type comes from property 'variant' which is declared here on type 'Toast'
+
+client/src/components/admin/table-management.tsx:237:32 - error TS2379: Argument of type '{ number: number; location: "bar" | "terrace" | "private_room" | "main_floor"; shape: "round" | "square" | "rectangle"; capacity: number; notes?: string | undefined; isVip?: boolean | undefined; }' is not assignable to parameter of type 'Omit<RestaurantTable, "id">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Type '{ number: number; location: "bar" | "terrace" | "private_room" | "main_floor"; shape: "round" | "square" | "rectangle"; capacity: number; notes?: string | undefined; isVip?: boolean | undefined; }' is missing the following properties from type 'Omit<RestaurantTable, "id">': position, status
+
+237     createTableMutation.mutate(data);
+                                   ~~~~

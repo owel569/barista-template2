@@ -1,0 +1,161 @@
+
+client/src/components/admin/table-management.tsx:394:28 - error TS2375: Type '{ checked: boolean | undefined; onCheckedChange: (...event: any[]) => void; }' is not assignable to type 'SwitchProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'checked' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+
+394                           <Switch checked={field.value} onCheckedChange={field.onChange} />
+                               ~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:210:34 - error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
+
+210       const message = JSON.parse(lastMessage.data);
+                                     ~~~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:480:7 - error TS2448: Block-scoped variable 'paginatedUsers' used before its declaration.
+
+480   }, [paginatedUsers, selectedUsers.length]);
+          ~~~~~~~~~~~~~~
+
+  client/src/components/admin/user-profile-enhanced-optimized.tsx:527:9
+    527   const paginatedUsers = sortedUsers.slice(
+                ~~~~~~~~~~~~~~
+    'paginatedUsers' is declared here.
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:480:7 - error TS2454: Variable 'paginatedUsers' is used before being assigned.
+
+480   }, [paginatedUsers, selectedUsers.length]);
+          ~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:484:5 - error TS2353: Object literal may only specify known properties, and 'content' does not exist in type 'UseReactToPrintOptions'.
+
+484     content: () => printRef.current,
+        ~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:595:7 - error TS2375: Type '{ firstName: string; lastName: string; preferences: { currency: string; language: string; emailNotifications: boolean; smsNotifications: boolean; promotionalEmails: boolean; dietaryRestrictions: string[]; allergens: string[]; favoriteTable?: number | undefined; }; ... 5 more ...; postalCode?: string | undefined; }' is not assignable to type 'Partial<UserProfile>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'email' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+595       updates: values
+          ~~~~~~~
+
+  client/src/components/admin/user-profile-enhanced-optimized.tsx:308:44
+    308     mutationFn: async (data: { id: number; updates: Partial<UserProfile> }) => {
+                                                   ~~~~~~~
+    The expected type comes from property 'updates' which is declared here on type '{ id: number; updates: Partial<UserProfile>; }'
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:605:9 - error TS2375: Type '{ type: "home" | "work" | "other"; country: string; city: string; postalCode: string; street: string; isDefault?: boolean | undefined; }' is not assignable to type 'Partial<Address>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'isDefault' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+
+605         updates: values
+            ~~~~~~~
+
+  client/src/components/admin/user-profile-enhanced-optimized.tsx:353:51
+    353     mutationFn: async (data: { addressId: number; updates: Partial<Address> }) => {
+                                                          ~~~~~~~
+    The expected type comes from property 'updates' which is declared here on type '{ addressId: number; updates: Partial<Address>; }'
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:610:9 - error TS2322: Type '{ type: "home" | "work" | "other"; country: string; city: string; postalCode: string; street: string; isDefault?: boolean | undefined; }' is not assignable to type 'Omit<Address, "id">'.
+  Types of property 'isDefault' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+
+610         address: values
+            ~~~~~~~
+
+  client/src/components/admin/user-profile-enhanced-optimized.tsx:334:48
+    334     mutationFn: async (data: { userId: number; address: Omit<Address, 'id'> }) => {
+                                                       ~~~~~~~
+    The expected type comes from property 'address' which is declared here on type '{ userId: number; address: Omit<Address, "id">; }'
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:656:36 - error TS2339: Property 'canImport' does not exist on type '{ permissions: Permission[]; userRole: UserRole | null; loading: boolean; error: string | null; hasPermission: (module: string, action: string) => boolean; canView: (module: ModuleName) => boolean; ... 9 more ...; getUserAccessLevel: () => "admin" | ... 2 more ... | "basic"; }'.
+
+656             disabled={!permissions.canImport || isImporting}
+                                       ~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:665:36 - error TS2339: Property 'canExport' does not exist on type '{ permissions: Permission[]; userRole: UserRole | null; loading: boolean; error: string | null; hasPermission: (module: string, action: string) => boolean; canView: (module: ModuleName) => boolean; ... 9 more ...; getUserAccessLevel: () => "admin" | ... 2 more ... | "basic"; }'.
+
+665             disabled={!permissions.canExport || exporting}
+                                       ~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:671:12 - error TS2774: This condition will always return true since this function is always defined. Did you mean to call it instead?
+
+671           {permissions.canCreate && (
+               ~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:911:18 - error TS2774: This condition will always return true since this function is always defined. Did you mean to call it instead?
+
+911                 {permissions.canEdit && (
+                     ~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:924:18 - error TS2774: This condition will always return true since this function is always defined. Did you mean to call it instead?
+
+924                 {permissions.canDelete && (
+                     ~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:1687:24 - error TS2375: Type '{ checked: boolean | undefined; onCheckedChange: (...event: any[]) => void; }' is not assignable to type 'SwitchProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'checked' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+
+1687                       <Switch
+                            ~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:1720:9 - error TS2322: Type '{ open: boolean; onOpenChange: (open: boolean) => false | void; title: string; message: string; confirmText: string; onConfirm: () => void; loading: boolean; }' is not assignable to type 'IntrinsicAttributes & ConfirmationDialogProps'.
+  Property 'message' does not exist on type 'IntrinsicAttributes & ConfirmationDialogProps'.
+
+1720         message="Êtes-vous sûr de vouloir supprimer cette adresse ? Cette action est irréversible."
+             ~~~~~~~
+
+client/src/components/admin/work-schedule.tsx:46:21 - error TS2339: Property 'isLoading' does not exist on type '{ permissions: Permission[]; userRole: UserRole | null; loading: boolean; error: string | null; hasPermission: (module: string, action: string) => boolean; canView: (module: ModuleName) => boolean; ... 9 more ...; getUserAccessLevel: () => "admin" | ... 2 more ... | "basic"; }'.
+
+46   const { userRole, isLoading: isPermissionsLoading } = usePermissions();
+                       ~~~~~~~~~
+
+client/src/components/admin/work-schedule.tsx:85:15 - error TS2322: Type 'UserRole | "employe"' is not assignable to type '"directeur" | "employe"'.
+  Type '"admin"' is not assignable to type '"directeur" | "employe"'.
+
+85               userRole={userRole || 'employe'}
+                 ~~~~~~~~
+
+  client/src/components/admin/work-schedule/types/schedule.types.ts:295:3
+    295   userRole: 'directeur' | 'employe';
+          ~~~~~~~~
+    The expected type comes from property 'userRole' which is declared here on type 'IntrinsicAttributes & WorkScheduleProps'
+
+client/src/components/admin/work-schedule.tsx:86:15 - error TS2322: Type '"full" | "personal" | "team"' is not assignable to type 'ViewMode'.
+  Type '"full"' is not assignable to type 'ViewMode'.
+
+86               viewMode={viewMode}
+                 ~~~~~~~~
+
+  client/src/components/admin/work-schedule/types/schedule.types.ts:298:3
+    298   viewMode?: ViewMode;
+          ~~~~~~~~
+    The expected type comes from property 'viewMode' which is declared here on type 'IntrinsicAttributes & WorkScheduleProps'
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:193:58 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string | (() => string)'.
+  Type 'undefined' is not assignable to type 'string | (() => string)'.
+
+193   const [currentDate, setCurrentDate] = useState<string>(initialDate);
+                                                             ~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:228:20 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'SetStateAction<string>'.
+  Type 'undefined' is not assignable to type 'SetStateAction<string>'.
+
+228     setCurrentDate(current.toISOString().split('T')[0]);
+                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:245:32 - error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string | number | Date'.
+      Type 'undefined' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string | number'.
+      Type 'undefined' is not assignable to type 'string | number'.
+
+245         const start = new Date(weekDates[0]);
+                                   ~~~~~~~~~~~~

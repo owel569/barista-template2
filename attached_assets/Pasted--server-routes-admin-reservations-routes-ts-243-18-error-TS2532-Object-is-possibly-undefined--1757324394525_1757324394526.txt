@@ -1,0 +1,114 @@
+
+server/routes/admin/reservations.routes.ts:243:18 - error TS2532: Object is possibly 'undefined'.
+
+243         pending: pendingReservations[0].count
+                     ~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/statistics.routes.ts:50:16 - error TS2532: Object is possibly 'undefined'.
+
+50         total: totalCustomers[0].count,
+                  ~~~~~~~~~~~~~~~~~
+
+server/routes/admin/statistics.routes.ts:51:23 - error TS2532: Object is possibly 'undefined'.
+
+51         newThisMonth: newCustomersThisMonth[0].count,
+                         ~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/statistics.routes.ts:55:21 - error TS2532: Object is possibly 'undefined'.
+
+55         totalItems: totalMenuItems[0].count,
+                       ~~~~~~~~~~~~~~~~~
+
+server/routes/admin/statistics.routes.ts:56:22 - error TS2532: Object is possibly 'undefined'.
+
+56         activeItems: activeMenuItems[0].count,
+                        ~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/statistics.routes.ts:57:26 - error TS2532: Object is possibly 'undefined'.
+
+57         totalCategories: totalCategories[0].count
+                            ~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/statistics.routes.ts:197:16 - error TS2532: Object is possibly 'undefined'.
+
+197         total: totalCustomers[0].count,
+                   ~~~~~~~~~~~~~~~~~
+
+server/routes/admin/statistics.routes.ts:198:17 - error TS2532: Object is possibly 'undefined'.
+
+198         active: activeCustomers[0].count,
+                    ~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/statistics.routes.ts:199:42 - error TS2532: Object is possibly 'undefined'.
+
+199         averageLoyaltyPoints: Math.round(averageLoyaltyPoints[0].avg || 0)
+                                             ~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/advanced-features.ts:573:62 - error TS7030: Not all code paths return a value.
+
+573 router.post('/reports/:reportId/generate', authenticateUser, async (_req: Request, res: Response) => {
+                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/advanced-features.ts:624:62 - error TS7030: Not all code paths return a value.
+
+624 router.post('/modules/:moduleId/activate', authenticateUser, async (_req: Request, res: Response) => {
+                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/advanced-features.ts:648:64 - error TS7030: Not all code paths return a value.
+
+648 router.post('/modules/:moduleId/deactivate', authenticateUser, async (_req: Request, res: Response) => {
+                                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/advanced-features.ts:673:63 - error TS7030: Not all code paths return a value.
+
+673 router.post('/modules/:moduleId/configure', authenticateUser, async (_req: Request, res: Response) => {
+                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/ai.routes.ts:146:28 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+146     const hours = parseInt(time.split(':')[0]);
+                               ~~~~~~~~~~~~~~~~~~
+
+server/routes/ai.routes.ts:163:7 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+163       transcript: randomTranscript,
+          ~~~~~~~~~~
+
+  server/routes/ai.routes.ts:155:5
+    155     transcript: string;
+            ~~~~~~~~~~
+    The expected type comes from property 'transcript' which is declared here on type '{ transcript: string; confidence: number; }'
+
+server/routes/ai.routes.ts:181:13 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "date"; tableName: "reservations"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>, right: Date | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'Date | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string>, right: string | SQLWrapper): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "date"; tableName: "reservations"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string>'.
+      Type 'PgColumn<{ name: "date"; tableName: "reservations"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "date"; tableName: "reservations"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: false; isPrimaryKey: false; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+181             eq(reservations.date, date),
+                ~~
+
+
+server/routes/ai.routes.ts:191:75 - error TS2339: Property 'guests' does not exist on type '{ id: number; customerId: number | null; tableId: number | null; date: Date; time: string; reservationTime: Date; guestName: string | null; partySize: number; status: "pending" | "completed" | "cancelled" | "confirmed"; specialRequests: string | null; notes: string | null; createdAt: Date; updatedAt: Date; }'.
+
+191       const totalGuests = existingReservations.reduce((sum, r) => sum + r.guests, 0);
+                                                                              ~~~~~~
+
+server/routes/ai.routes.ts:462:16 - error TS7030: Not all code paths return a value.
+
+462   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/ai.routes.ts:490:10 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { date: Date | SQL<unknown> | Placeholder<string, any>; time: string | SQL<unknown> | Placeholder<string, any>; reservationTime: Date | SQL<...> | Placeholder<...>; ... 9 more ...; guestName?: string | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'guests' does not exist in type '{ date: Date | SQL<unknown> | Placeholder<string, any>; time: string | SQL<unknown> | Placeholder<string, any>; reservationTime: Date | SQL<...> | Placeholder<...>; ... 9 more ...; guestName?: string | ... 3 more ... | undefined; }'.
+  Overload 2 of 2, '(values: { date: Date | SQL<unknown> | Placeholder<string, any>; time: string | SQL<unknown> | Placeholder<string, any>; reservationTime: Date | SQL<...> | Placeholder<...>; ... 9 more ...; guestName?: string | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'date' does not exist in type '{ date: Date | SQL<unknown> | Placeholder<string, any>; time: string | SQL<unknown> | Placeholder<string, any>; reservationTime: Date | SQL<...> | Placeholder<...>; ... 9 more ...; guestName?: string | ... 3 more ... | undefined; }[]'.
+
+490         .values({
+             ~~~~~~
