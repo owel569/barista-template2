@@ -183,6 +183,7 @@ router.get('/',
         totalPages: Math.ceil(count / limitNum)
       }
     });
+    return;
   })
 );
 
@@ -264,6 +265,7 @@ router.get('/:id',
       success: true,
       data: result
     });
+    return;
   })
 );
 
@@ -353,6 +355,7 @@ router.post('/',
       data: newUser,
       message: 'Utilisateur créé avec succès'
     });
+    return;
   })
 );
 
