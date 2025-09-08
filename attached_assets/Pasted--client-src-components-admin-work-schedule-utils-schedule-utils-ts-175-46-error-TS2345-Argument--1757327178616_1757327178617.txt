@@ -1,0 +1,102 @@
+
+client/src/components/admin/work-schedule/utils/schedule.utils.ts:175:46 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+175     isSameDay(parseISO(shift.date), parseISO(newShift.date))
+                                                 ~~~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/utils/schedule.utils.ts:264:3 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+264   return SHIFT_STATUS_COLORS[shift.status] || SHIFT_STATUS_COLORS.scheduled;
+      ~~~~~~
+
+client/src/components/admin/work-schedule/utils/schedule.utils.ts:303:3 - error TS2322: Type '(string | undefined)[]' is not assignable to type 'string[]'.
+  Type 'string | undefined' is not assignable to type 'string'.
+    Type 'undefined' is not assignable to type 'string'.
+
+303   return dates.map(d => d.toISOString().split('T')[0]);
+      ~~~~~~
+
+client/src/components/admin/work-schedule/utils/schedule.utils.ts:307:3 - error TS2322: Type '(string | undefined)[]' is not assignable to type 'string[]'.
+  Type 'string | undefined' is not assignable to type 'string'.
+    Type 'undefined' is not assignable to type 'string'.
+
+307   return dates.map(d => d.toISOString().split('T')[0]);
+      ~~~~~~
+
+client/src/components/admin/work-schedule/utils/schedule.utils.ts:319:5 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+319     employeeColors[employee.id] = colors[index % colors.length];
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/ui/chart.tsx:339:16 - error TS2375: Type '{ key: string; item: TooltipPayloadItem; index: number; itemConfig: ItemConfig | undefined; indicatorColor: string; indicator: "line" | "dashed" | "dot"; hideIndicator: boolean; formatter: (Formatter<...> & FormatterFunction) | undefined; nestLabel: boolean; tooltipLabel: Element | null; }' is not assignable to type '{ item: TooltipPayloadItem; index: number; itemConfig: ItemConfig | undefined; indicatorColor: string; indicator: "line" | "dashed" | "dot"; hideIndicator: boolean; formatter?: FormatterFunction; nestLabel: boolean; tooltipLabel: ReactNode; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'formatter' are incompatible.
+    Type '(Formatter<ValueType, NameType> & FormatterFunction) | undefined' is not assignable to type 'FormatterFunction'.
+      Type 'undefined' is not assignable to type 'FormatterFunction'.
+
+339               <TooltipItem
+                   ~~~~~~~~~~~
+
+client/src/hooks/useTypedToast.ts:81:12 - error TS2352: Conversion of type '(string & { unwrap: () => Promise<T>; }) | (number & { unwrap: () => Promise<T>; }) | { unwrap: () => Promise<T>; }' to type 'Promise<T>' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ unwrap: () => Promise<T>; }' is missing the following properties from type 'Promise<T>': then, catch, finally, [Symbol.toStringTag]
+
+81     return toast.promise(promise, options) as Promise<T>;
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/lib/security.ts:273:32 - error TS2532: Object is possibly 'undefined'.
+
+273     while (calls.length > 0 && calls[0] <= now - windowMs) {
+                                   ~~~~~~~~
+
+client/src/pages/AdminFinal.tsx:79:44 - error TS2554: Expected 0 arguments, but got 1.
+
+79   const { hasPermission } = usePermissions(user?.role || 'employe');
+                                              ~~~~~~~~~~~~~~~~~~~~~~~
+
+server/ImageManager.ts:61:69 - error TS2532: Object is possibly 'undefined'.
+
+61             altText = menuItem && menuItem.length > 0 ? `Image de ${menuItem[0].name}` : 'Image du menu';
+                                                                       ~~~~~~~~~~~
+
+server/ImageManager.ts:99:62 - error TS2532: Object is possibly 'undefined'.
+
+99             if (existingImage && existingImage.length > 0 && existingImage[0].menuItemId != null) {
+                                                                ~~~~~~~~~~~~~~~~
+
+server/ImageManager.ts:103:58 - error TS2532: Object is possibly 'undefined'.
+
+103                     .where(eq(menuItemImages.menuItemId, existingImage[0].menuItemId as number));
+                                                             ~~~~~~~~~~~~~~~~
+
+server/ImageManager.ts:153:52 - error TS2532: Object is possibly 'undefined'.
+
+153         const menuItemName = menuItem.length > 0 ? menuItem[0].name : 'Élément de menu';
+                                                       ~~~~~~~~~~~
+
+server/ImageManager.ts:195:25 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+195                         imageUrl: imageMapping[menuItem.name],
+                            ~~~~~~~~
+
+  server/image-manager.ts:18:3
+    18   imageUrl: string;
+         ~~~~~~~~
+    The expected type comes from property 'imageUrl' which is declared here on type 'InsertMenuItemImage'
+
+server/config/production.ts:143:9 - error TS18048: 'allowed' is possibly 'undefined'.
+
+143         allowed.includes('*') ?
+            ~~~~~~~
+
+server/config/production.ts:144:22 - error TS18048: 'allowed' is possibly 'undefined'.
+
+144         origin.match(allowed.replace('*', '.*')) :
+                         ~~~~~~~
+
+server/middleware/authorization.ts:20:52 - error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+
+20         .where(and(eq(permissions.userId, parseInt(user.id)), eq(permissions.module, moduleName)))
+                                                      ~~~~~~~

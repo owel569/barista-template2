@@ -1,0 +1,163 @@
+
+server/routes/loyalty-advanced.ts:825:13 - error TS2375: Type '{ customerId: number; currentPoints: number; totalPointsEarned: number; totalPointsRedeemed: number; currentLevel: LoyaltyLevel; nextLevel: LoyaltyLevel | undefined; ... 7 more ...; visitFrequency: number; }' is not assignable to type 'CustomerLoyaltyData' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'nextLevel' are incompatible.
+    Type 'LoyaltyLevel | undefined' is not assignable to type 'LoyaltyLevel'.
+      Type 'undefined' is not assignable to type 'LoyaltyLevel'.
+
+825       const customerData: CustomerLoyaltyData = {
+                ~~~~~~~~~~~~
+
+server/routes/loyalty-advanced.ts:878:16 - error TS7030: Not all code paths return a value.
+
+878   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/loyalty-advanced.ts:897:29 - error TS18048: 'customer' is possibly 'undefined'.
+
+897       const currentPoints = customer.loyaltyPoints || 0;
+                                ~~~~~~~~
+
+server/routes/loyalty-advanced.ts:1013:29 - error TS18048: 'customer' is possibly 'undefined'.
+
+1013       const currentPoints = customer.loyaltyPoints || 0;
+                                 ~~~~~~~~
+
+server/routes/menu/menu.routes.ts:292:53 - error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+
+292     logger.error('Erreur récupération catégories:', error);
+                                                        ~~~~~
+
+server/routes/tables/tables.routes.ts:154:21 - error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+
+154     const offset = (pageNum - 1) * limitNum;
+                        ~~~~~~~
+
+server/routes/tables/tables.routes.ts:154:36 - error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+
+154     const offset = (pageNum - 1) * limitNum;
+                                       ~~~~~~~~
+
+server/routes/tables/tables.routes.ts:155:42 - error TS2345: Argument of type 'number | string[] | ParsedQs | ParsedQs[]' is not assignable to parameter of type 'number | Placeholder<string, any>'.
+  Type 'string[]' is not assignable to type 'number | Placeholder<string, any>'.
+
+155     const tablesData = await query.limit(limitNum).offset(offset);
+                                             ~~~~~~~~
+
+server/routes/tables/tables.routes.ts:178:39 - error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+
+178         totalPages: Math.ceil(count / limitNum)
+                                          ~~~~~~~~
+
+server/routes/tables/tables.routes.ts:254:11 - error TS2322: Type '{ id: number; number: number; capacity: number; location: string | null; section: string | null; status: "maintenance" | "available" | "occupied" | "reserved"; currentReservation: { ...; } | undefined; nextReservation: { ...; } | undefined; }[]' is not assignable to type 'TableStatus[]'.
+  Type '{ id: number; number: number; capacity: number; location: string | null; section: string | null; status: "maintenance" | "available" | "occupied" | "reserved"; currentReservation: { ...; } | undefined; nextReservation: { ...; } | undefined; }' is not assignable to type 'TableStatus' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'currentReservation' are incompatible.
+      Type '{ id: any; customerName: any; startTime: any; endTime: any; partySize: any; } | undefined' is not assignable to type '{ id: number; customerName: string; startTime: Date; endTime: Date; partySize: number; }'.
+        Type 'undefined' is not assignable to type '{ id: number; customerName: string; startTime: Date; endTime: Date; partySize: number; }'.
+
+254     const tableStatuses: TableStatus[] = allTables.map(table => {
+              ~~~~~~~~~~~~~
+
+server/routes/tables/tables.routes.ts:327:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+327       return res.status(409).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:346:7 - error TS18048: 'newTable' is possibly 'undefined'.
+
+346       newTable.id
+          ~~~~~~~~
+
+server/routes/tables/tables.routes.ts:350:16 - error TS18048: 'newTable' is possibly 'undefined'.
+
+350       tableId: newTable.id,
+                   ~~~~~~~~
+
+server/routes/tables/tables.routes.ts:383:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+383       return res.status(404).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:399:9 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+399         return res.status(409).json({
+            ~~~~~~
+
+server/routes/tables/tables.routes.ts:416:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+416       return res.status(404).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:463:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+463       return res.status(404).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:480:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+480       return res.status(404).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:523:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+523       return res.status(400).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:542:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+542       return res.status(400).json({
+          ~~~~~~
+
+server/routes/tables/tables.routes.ts:558:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+558       return res.status(404).json({
+          ~~~~~~
+
+server/routes/user-profile.ts:363:23 - error TS2339: Property 'where' does not exist on type 'Omit<PgSelectBase<"orders", { id: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>; ... 5 more ...; updatedAt: PgColu...'.
+
+363         query = query.where(eq(orders.status, filters.status as any));
+                          ~~~~~
+
+server/routes/user-profile.ts:367:23 - error TS2339: Property 'where' does not exist on type 'Omit<PgSelectBase<"orders", { id: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>; ... 5 more ...; updatedAt: PgColu...'.
+
+367         query = query.where(gte(orders.createdAt, new Date(filters.from)));
+                          ~~~~~
+
+server/routes/user-profile.ts:371:23 - error TS2339: Property 'where' does not exist on type 'Omit<PgSelectBase<"orders", { id: PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>; ... 5 more ...; updatedAt: PgColu...'.
+
+371         query = query.where(lte(orders.createdAt, new Date(filters.to)));
+                          ~~~~~
+
+server/routes/user-profile.ts:375:7 - error TS2741: Property 'orderBy' is missing in type 'Omit<import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"orders", { id: import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam:...' but required in type 'Omit<import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"orders", { id: import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "orders"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam:...'.
+
+375       query = query.orderBy(desc(orders.createdAt));
+          ~~~~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/select.d.ts:471:5
+    471     orderBy(builder: (aliases: this['_']['selection']) => ValueOrArray<PgColumn | SQL | SQL.Aliased>): PgSelectWithout<this, TDynamic, 'orderBy'>;
+            ~~~~~~~
+    'orderBy' is declared here.
+
+server/routes/users/users.routes.ts:194:16 - error TS7030: Not all code paths return a value.
+
+194   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/users/users.routes.ts:274:16 - error TS7030: Not all code paths return a value.
+
+274   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/users/users.routes.ts:363:16 - error TS7030: Not all code paths return a value.
+
+363   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/users/users.routes.ts:472:16 - error TS7030: Not all code paths return a value.
+
+472   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/users/users.routes.ts:538:16 - error TS7030: Not all code paths return a value.
+
+538   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~

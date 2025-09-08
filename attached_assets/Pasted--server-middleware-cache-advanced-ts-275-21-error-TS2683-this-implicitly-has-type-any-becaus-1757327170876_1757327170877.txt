@@ -1,0 +1,115 @@
+
+server/middleware/cache-advanced.ts:275:21 - error TS2683: 'this' implicitly has type 'any' because it does not have a type annotation.
+
+275     metrics: typeof this.metrics;
+                        ~~~~
+
+  server/middleware/cache-advanced.ts:275:5
+    275     metrics: typeof this.metrics;
+            ~~~~~~~
+    An outer value of 'this' is shadowed by this container.
+
+server/middleware/cache-advanced.ts:359:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+359       return res.json(cachedData);
+          ~~~~~~
+
+server/middleware/cache-advanced.ts:500:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+500       return res.status(400).json({
+          ~~~~~~
+
+server/middleware/database-middleware.ts:2:10 - error TS2614: Module '"../db"' has no exported member 'checkDatabaseHealth'. Did you mean to use 'import checkDatabaseHealth from "../db"' instead?
+
+2 import { checkDatabaseHealth, initializeDatabase } from '../db';
+           ~~~~~~~~~~~~~~~~~~~
+
+server/middleware/database-middleware.ts:2:31 - error TS2614: Module '"../db"' has no exported member 'initializeDatabase'. Did you mean to use 'import initializeDatabase from "../db"' instead?
+
+2 import { checkDatabaseHealth, initializeDatabase } from '../db';
+                                ~~~~~~~~~~~~~~~~~~
+
+server/middleware/database-middleware.ts:24:50 - error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+
+24       logger.error('❌ Échec de la reconnexion:', reconnectError);
+                                                    ~~~~~~~~~~~~~~
+
+server/middleware/error-handler-enhanced.ts:167:7 - error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+
+167       errorResponse.error.stack = error.stack;
+          ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/middleware/logging.ts:216:11 - error TS2375: Type '{ timestamp: string; level: LogLevel; module: string; message: string; meta: Record<string, unknown> | undefined; }' is not assignable to type 'LogEntry' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'meta' are incompatible.
+    Type 'Record<string, unknown> | undefined' is not assignable to type 'Record<string, unknown>'.
+      Type 'undefined' is not assignable to type 'Record<string, unknown>'.
+
+216     const entry: LogEntry = {
+              ~~~~~
+
+server/middleware/logging.ts:230:57 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+230       const logFileDate = this.currentLogFile?.includes(currentDate);
+                                                            ~~~~~~~~~~~
+
+server/modules/ai-automation.ts:83:52 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+83       const command = await this.parseVoiceCommand(transcript);
+                                                      ~~~~~~~~~~
+
+server/modules/ai-automation.ts:282:27 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+282     const hour = parseInt(time.split(':')[0]);
+                              ~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/customers.routes.ts:76:40 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+76       .where(eq(customers.id, parseInt(id)))
+                                          ~~
+
+server/routes/admin/customers.routes.ts:80:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+80       return res.status(404).json({
+         ~~~~~~
+
+server/routes/admin/customers.routes.ts:111:40 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+111       .where(eq(customers.id, parseInt(id)))
+                                           ~~
+
+server/routes/admin/customers.routes.ts:115:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+115       return res.status(404).json({
+          ~~~~~~
+
+server/routes/admin/customers.routes.ts:142:40 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+142       .where(eq(customers.id, parseInt(id)))
+                                           ~~
+
+server/routes/admin/customers.routes.ts:146:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+146       return res.status(404).json({
+          ~~~~~~
+
+server/routes/admin/customers.routes.ts:181:16 - error TS2532: Object is possibly 'undefined'.
+
+181         total: totalCustomers[0].count,
+                   ~~~~~~~~~~~~~~~~~
+
+server/routes/admin/customers.routes.ts:182:17 - error TS2532: Object is possibly 'undefined'.
+
+182         active: activeCustomers[0].count,
+                    ~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/menu-admin.routes.ts:97:16 - error TS7030: Not all code paths return a value.
+
+97   asyncHandler(async (req: Request, res: Response) => {
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

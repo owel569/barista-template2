@@ -1,0 +1,112 @@
+server/routes/admin/menu-admin.routes.ts:136:16 - error TS7030: Not all code paths return a value.
+
+136   asyncHandler(async (req: Request, res: Response) => {
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/reservations.routes.ts:48:7 - error TS2741: Property 'where' is missing in type 'Omit<import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"reservations", { id: import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; ...' but required in type 'Omit<import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"reservations", { id: import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; ...'.
+
+48       query = query.where(sql`DATE(${reservations.date}) = ${date}`);
+         ~~~~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/select.d.ts:402:5
+    402     where(where: ((aliases: this['_']['selection']) => SQL | undefined) | SQL | undefined): PgSelectWithout<this, TDynamic, 'where'>;
+            ~~~~~
+    'where' is declared here.
+
+server/routes/admin/reservations.routes.ts:52:7 - error TS2741: Property 'where' is missing in type 'Omit<import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"reservations", { id: import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; ...' but required in type 'Omit<import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"reservations", { id: import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; ...'.
+
+52       query = query.where(eq(reservations.status, status as any));
+         ~~~~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/select.d.ts:402:5
+    402     where(where: ((aliases: this['_']['selection']) => SQL | undefined) | SQL | undefined): PgSelectWithout<this, TDynamic, 'where'>;
+            ~~~~~
+    'where' is declared here.
+
+server/routes/admin/reservations.routes.ts:114:43 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+114       .where(eq(reservations.id, parseInt(id)))
+                                              ~~
+
+server/routes/admin/reservations.routes.ts:146:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+146       return res.status(400).json({
+          ~~~~~~
+
+server/routes/admin/reservations.routes.ts:158:43 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+158       .where(eq(reservations.id, parseInt(id)))
+                                              ~~
+
+server/routes/admin/reservations.routes.ts:190:43 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+190       .where(eq(reservations.id, parseInt(id)))
+                                              ~~
+
+server/routes/admin/reservations.routes.ts:243:16 - error TS2532: Object is possibly 'undefined'.
+
+243         total: totalReservations[0].count,
+                   ~~~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/reservations.routes.ts:244:16 - error TS2532: Object is possibly 'undefined'.
+
+244         today: todayReservations[0].count,
+                   ~~~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/reservations.routes.ts:245:20 - error TS2532: Object is possibly 'undefined'.
+
+245         confirmed: confirmedReservations[0].count,
+                       ~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/reservations.routes.ts:246:18 - error TS2532: Object is possibly 'undefined'.
+
+246         pending: pendingReservations[0].count
+                     ~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/statistics.routes.ts:50:16 - error TS2532: Object is possibly 'undefined'.
+
+50         total: totalCustomers[0].count,
+                  ~~~~~~~~~~~~~~~~~
+
+server/routes/admin/statistics.routes.ts:51:23 - error TS2532: Object is possibly 'undefined'.
+
+51         newThisMonth: newCustomersThisMonth[0].count,
+                         ~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/statistics.routes.ts:55:21 - error TS2532: Object is possibly 'undefined'.
+
+55         totalItems: totalMenuItems[0].count,
+                       ~~~~~~~~~~~~~~~~~
+
+server/routes/admin/statistics.routes.ts:56:22 - error TS2532: Object is possibly 'undefined'.
+
+56         activeItems: activeMenuItems[0].count,
+                        ~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/statistics.routes.ts:57:26 - error TS2532: Object is possibly 'undefined'.
+
+57         totalCategories: totalCategories[0].count
+                            ~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/statistics.routes.ts:197:16 - error TS2532: Object is possibly 'undefined'.
+
+197         total: totalCustomers[0].count,
+                   ~~~~~~~~~~~~~~~~~
+
+server/routes/admin/statistics.routes.ts:198:17 - error TS2532: Object is possibly 'undefined'.
+
+198         active: activeCustomers[0].count,
+                    ~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/statistics.routes.ts:199:42 - error TS2532: Object is possibly 'undefined'.
+
+199         averageLoyaltyPoints: Math.round(averageLoyaltyPoints[0].avg || 0)
+                                             ~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/advanced-features.ts:573:62 - error TS7030: Not all code paths return a value.
+
+573 router.post('/reports/:reportId/generate', authenticateUser, async (_req: Request, res: Response) => {
+                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
