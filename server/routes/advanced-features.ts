@@ -570,15 +570,16 @@ router.get('/reports', authenticateUser, async (_req: Request, res: Response) =>
 });
 
 // Route pour générer un rapport
-router.post('/reports/:reportId/generate', authenticateUser, async (_req: Request, res: Response) => {
+router.post('/reports/:reportId/generate', authenticateUser, async (_req: Request, res: Response): Promise<void> => {
   try {
     const { reportId } = _req.params;
 
     if (!reportId) {
-      return res.status(400).json({ 
+      res.status(400).json({ 
         success: false,
         error: 'ID de rapport manquant' 
       });
+      return;
     }
 
     const reportData = {
@@ -645,15 +646,16 @@ router.post('/modules/:moduleId/activate', authenticateUser, async (_req: Reques
   }
 });
 
-router.post('/modules/:moduleId/deactivate', authenticateUser, async (_req: Request, res: Response) => {
+router.post('/modules/:moduleId/deactivate', authenticateUser, async (_req: Request, res: Response): Promise<void> => {
   try {
     const { moduleId } = _req.params;
 
     if (!moduleId) {
-      return res.status(400).json({ 
+      res.status(400).json({ 
         success: false,
         error: 'ID de module manquant' 
       });
+      return;
     }
 
     res.json({ 
@@ -670,16 +672,17 @@ router.post('/modules/:moduleId/deactivate', authenticateUser, async (_req: Requ
 });
 
 // Route pour configurer un module
-router.post('/modules/:moduleId/configure', authenticateUser, async (_req: Request, res: Response) => {
+router.post('/modules/:moduleId/configure', authenticateUser, async (_req: Request, res: Response): Promise<void> => {
   try {
     const { moduleId } = _req.params;
     const { config } = _req.body;
 
     if (!moduleId || !config) {
-      return res.status(400).json({ 
+      res.status(400).json({ 
         success: false,
         error: 'Données de configuration manquantes' 
       });
+      return;
     }
 
     res.json({ 

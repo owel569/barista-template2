@@ -469,23 +469,25 @@ router.post('/reservation',
     try {
       const validation = AIService.validateReservationDate(date, time);
       if (!validation.isValid) {
-        return res.status(400).json({
+        res.status(400).json({
           success: false,
           error: 'INVALID_RESERVATION_DATE',
           message: validation.error,
           timestamp: new Date().toISOString()
         });
+        return;
       }
 
       const availability = await AIService.checkTableAvailability(date, time, guests);
       if (!availability.available) {
-        return res.status(409).json({
+        res.status(409).json({
           success: false,
           error: 'NO_AVAILABILITY',
           message: 'Aucune table disponible pour cette date/heure',
           alternatives: availability.alternatives,
           timestamp: new Date().toISOString()
         });
+        return;
       }
 
       // Enregistrer la réservation en base
@@ -510,8 +512,7 @@ router.post('/reservation',
           partySize: guests,
           status: 'confirmed' as const,
           specialRequests: preferences || '',
-          notes: `Réservation créée par IA - ${customerInfo?.name || 'Client IA'}`,
-          confirmationCode: `AI-${Date.now()}`
+          notes: `Réservation créée par IA - ${customerInfo?.name || 'Client IA'}`
         })
         .returning();
 
@@ -620,8 +621,8 @@ router.get('/automation/suggestions',
     const { category, priority } = req.query;
 
     try {
-      const categoryStr = Array.isArray(category) ? category[0] : category;
-      const priorityStr = Array.isArray(priority) ? priority[0] : priority;
+      const categoryStr = Array.isArray(category) ? category[0] : category as string;
+      const priorityStr = Array.isArray(priority) ? priority[0] : priority as string;
       const suggestions = AIService.generateAutomationSuggestions(categoryStr, priorityStr as 'low' | 'medium' | 'high');
 
       res.json({

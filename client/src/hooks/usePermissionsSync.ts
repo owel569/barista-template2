@@ -1,4 +1,3 @@
-
 import React, { useEffect, useCallback, useRef } from 'react';
 import { useAuth } from './useAuth';
 import { usePermissions } from './usePermissions';
@@ -24,15 +23,15 @@ export function usePermissionsSync() {
   // Handler pour les événements de mise à jour des permissions
   const handlePermissionsUpdate = useCallback((event: CustomEvent<PermissionUpdateEvent>) => {
     const { userId, timestamp } = event.detail;
-    
+
     // Éviter les doubles mises à jour
     if (timestamp <= lastUpdateRef.current) return;
     lastUpdateRef.current = timestamp;
-    
+
     // Si c'est notre utilisateur, rafraîchir les permissions
     if (user && String(userId) === String(user.id)) {
       refreshPermissions();
-      
+
       // Notification visuelle optionnelle
       if ('Notification' in window && Notification.permission === 'granted') {
         new Notification('Permissions mises à jour', {
@@ -66,7 +65,7 @@ export function usePermissionsSync() {
 
   // Écouter les événements custom du DOM
   useEffect(() => {
-    if (!isAuthenticated || !user || isAdmin()) return;
+    if (!isAuthenticated || !user || isAdmin) return;
 
     const handleCustomEvent = (event: Event) => {
       handlePermissionsUpdate(event as CustomEvent<PermissionUpdateEvent>);
@@ -81,7 +80,7 @@ export function usePermissionsSync() {
 
   // Synchronisation périodique pour les utilisateurs non-admin
   useEffect(() => {
-    if (!isAuthenticated || !user || isAdmin()) return;
+    if (!isAuthenticated || !user || isAdmin) return;
 
     const syncInterval = setInterval(() => {
       refreshPermissions();
@@ -135,4 +134,3 @@ export function usePermissionsEmitter() {
     canEmit: isAdmin
   };
 }
-

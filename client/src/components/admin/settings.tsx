@@ -706,7 +706,7 @@ export default function Settings({ userRole }: SettingsProps) {
               </div>
 
               <div className="space-y-2">
-                <Label>Modèle de notification d'annulation</Label>
+                <Label>Modèle de notification d\'annulation</Label>
                 <Textarea
                   value={draftSettings.notificationSettings.cancellationTemplate}
                   onChange={(e) => handleChange('notificationSettings.cancellationTemplate', e.target.value)}
@@ -796,7 +796,7 @@ export default function Settings({ userRole }: SettingsProps) {
                               updatedHours[index] = {
                                 date: updatedHours[index]?.date || '',
                                 openingHours: {
-                                  ...updatedHours[index].openingHours,
+                                  ...updatedHours[index]?.openingHours,
                                   closed: !checked
                                 },
                                 note: updatedHours[index]?.note ?? ''
@@ -825,7 +825,7 @@ export default function Settings({ userRole }: SettingsProps) {
                                 updatedHours[index] = {
                                   date: updatedHours[index]?.date || '',
                                   openingHours: {
-                                    ...updatedHours[index].openingHours,
+                                    ...updatedHours[index]?.openingHours,
                                     open: value
                                   },
                                   note: updatedHours[index]?.note ?? ''
@@ -851,7 +851,7 @@ export default function Settings({ userRole }: SettingsProps) {
                                 updatedHours[index] = {
                                   date: updatedHours[index]?.date || '',
                                   openingHours: {
-                                    ...updatedHours[index].openingHours,
+                                    ...updatedHours[index]?.openingHours,
                                     close: value
                                   },
                                   note: updatedHours[index]?.note ?? ''

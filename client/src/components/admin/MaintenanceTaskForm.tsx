@@ -154,10 +154,10 @@ export function MaintenanceTaskForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Ensure required fields have values before submitting
-    const taskToSubmit: Omit<MaintenanceTask, 'id'> = {
+    const taskToSubmit: Omit<MaintenanceTask, 'id'> & { equipmentId?: number | null } = {
       title: formData.title!,
       description: formData.description || '',
-      type: formData.type || 'preventive',
+      type: formData.type || 'preventive', // Corrected default type
       priority: formData.priority || 'medium',
       status: formData.status || 'pending',
       scheduledDate: formData.scheduledDate!,
@@ -166,6 +166,8 @@ export function MaintenanceTaskForm({
       assignedToId: formData.assignedToId || null,
       notes: formData.notes || '',
       equipmentId: formData.equipmentId || null,
+      createdAt: formData.createdAt || new Date(), // Ensure createdAt is set
+      updatedAt: formData.updatedAt || new Date() // Ensure updatedAt is set
     };
     onSubmit(taskToSubmit);
   };

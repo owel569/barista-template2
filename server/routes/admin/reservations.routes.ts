@@ -116,10 +116,11 @@ router.put('/:id', authenticateUser, requireRoleHierarchy('staff'), validateBody
       .returning();
 
     if (!updatedReservation) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Réservation non trouvée'
       });
+      return;
     }
 
     res.json({

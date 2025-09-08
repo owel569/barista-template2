@@ -249,6 +249,7 @@ export default function TableManagement(): JSX.Element {
           location: 'main_floor' as const,
           shape: 'round' as const,
           notes: '',
+          isVip: false,
           createdAt: new Date(),
           updatedAt: new Date()
         };

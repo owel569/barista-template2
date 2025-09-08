@@ -321,12 +321,7 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
       if (!groups[groupKey]) {
         groups[groupKey] = [];
       }
-      if (groups[groupKey]) {
-        if (!groups[groupKey]) {
-          groups[groupKey] = [];
-        }
-        groups[groupKey].push(shift);
-      }
+      groups[groupKey]!.push(shift);
     });
     
     return groups;
