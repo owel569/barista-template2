@@ -1,0 +1,129 @@
+client/src/components/admin/staff-scheduling.tsx:461:22 - error TS1107: Jump target cannot cross function boundary.
+
+461           if (!date) continue;
+                         ~~~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:467:13 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+467             date: date.toISOString().split('T')[0],
+                ~~~~
+
+  client/src/components/admin/staff-scheduling.tsx:59:3
+    59   date: string;
+         ~~~~
+    The expected type comes from property 'date' which is declared here on type 'Shift'
+
+client/src/components/admin/staff-scheduling.tsx:467:19 - error TS18048: 'date' is possibly 'undefined'.
+
+467             date: date.toISOString().split('T')[0],
+                      ~~~~
+
+client/src/components/admin/staff-scheduling.tsx:1266:12 - error TS2375: Type '{ children: Element[]; value: string | undefined; onValueChange: (value: string) => void; required: true; }' is not assignable to type '{ value?: string; defaultValue?: string; onValueChange?(value: string): void; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'value' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+1266           <Select
+                ~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:1278:19 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+1278                   value={date.toISOString().split('T')[0]}
+                       ~~~~~
+
+  node_modules/@radix-ui/react-select/dist/index.d.mts:93:5
+    93     value: string;
+           ~~~~~
+    The expected type comes from property 'value' which is declared here on type 'IntrinsicAttributes & Omit<SelectItemProps & RefAttributes<HTMLDivElement>, "ref"> & RefAttributes<...>'
+
+client/src/components/admin/statistics-enhanced.tsx:108:20 - error TS2339: Property 'canManage' does not exist on type 'UsePermissionsReturn'.
+
+108   const { canView, canManage } = usePermissions();
+                       ~~~~~~~~~
+
+client/src/components/admin/table-management.tsx:255:32 - error TS2345: Argument of type '{ notes: string; id: string; position: { x: number; y: number; }; status: "available"; number: number; capacity: number; location: "main_floor"; shape: "round"; createdAt: Date; updatedAt: Date; }' is not assignable to parameter of type 'Omit<RestaurantTable, "id" | "createdAt" | "updatedAt">'.
+  Property 'isVip' is missing in type '{ notes: string; id: string; position: { x: number; y: number; }; status: "available"; number: number; capacity: number; location: "main_floor"; shape: "round"; createdAt: Date; updatedAt: Date; }' but required in type 'Omit<RestaurantTable, "id" | "createdAt" | "updatedAt">'.
+
+255     createTableMutation.mutate({
+                                   ~
+256       ...newTable,
+    ~~~~~~~~~~~~~~~~~~
+257       notes: newTable.notes || ''
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+258     });
+    ~~~~~
+
+  client/src/components/admin/table-management.tsx:77:3
+    77   isVip: boolean;
+         ~~~~~
+    'isVip' is declared here.
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:210:34 - error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
+
+210       const message = JSON.parse(lastMessage.data);
+                                     ~~~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:356:75 - error TS2307: Cannot find module '../../../shared/types' or its corresponding type declarations.
+
+356     mutationFn: async (data: { addressId: number; updates: Partial<import('../../../shared/types').Address> }) => {
+                                                                              ~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:483:7 - error TS2448: Block-scoped variable 'paginatedUsers' used before its declaration.
+
+483   }, [paginatedUsers, selectedUsers.length]);
+          ~~~~~~~~~~~~~~
+
+  client/src/components/admin/user-profile-enhanced-optimized.tsx:530:9
+    530   const paginatedUsers = sortedUsers.slice(
+                ~~~~~~~~~~~~~~
+    'paginatedUsers' is declared here.
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:483:7 - error TS2454: Variable 'paginatedUsers' is used before being assigned.
+
+483   }, [paginatedUsers, selectedUsers.length]);
+          ~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:487:5 - error TS2353: Object literal may only specify known properties, and 'content' does not exist in type 'UseReactToPrintOptions'.
+
+487     content: () => printRef.current,
+        ~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:598:7 - error TS2375: Type '{ email: string; firstName: string; lastName: string; birthDate: string; preferences: { currency: string; emailNotifications: boolean; smsNotifications: boolean; promotionalEmails: boolean; dietaryRestrictions: string[]; allergens: string[]; language: string; favoriteTable?: number | undefined; }; address?: string |...' is not assignable to type 'Partial<UserProfile>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'phone' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+598       updates: {
+          ~~~~~~~
+
+  client/src/components/admin/user-profile-enhanced-optimized.tsx:308:44
+    308     mutationFn: async (data: { id: number; updates: Partial<UserProfile> }) => {
+                                                   ~~~~~~~
+    The expected type comes from property 'updates' which is declared here on type '{ id: number; updates: Partial<UserProfile>; }'
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:680:34 - error TS2345: Argument of type '"users"' is not assignable to parameter of type 'ModuleName'.
+
+680           {permissions.canCreate('users') && (
+                                     ~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:920:38 - error TS2345: Argument of type '"users"' is not assignable to parameter of type 'ModuleName'.
+
+920                 {permissions.canEdit('users') && (
+                                         ~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:933:40 - error TS2345: Argument of type '"users"' is not assignable to parameter of type 'ModuleName'.
+
+933                 {permissions.canDelete('users') && (
+                                           ~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:1729:9 - error TS2322: Type '{ open: boolean; onOpenChange: (open: boolean) => false | void; title: string; message: string; confirmText: string; onConfirm: () => void; loading: boolean; }' is not assignable to type 'IntrinsicAttributes & ConfirmationDialogProps'.
+  Property 'message' does not exist on type 'IntrinsicAttributes & ConfirmationDialogProps'.
+
+1729         message="Êtes-vous sûr de vouloir supprimer cette adresse ? Cette action est irréversible."
+             ~~~~~~~
+
+client/src/components/admin/work-schedule.tsx:86:37 - error TS2304: Cannot find name 'ViewMode'.
+
+86               viewMode={viewMode as ViewMode}

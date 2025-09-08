@@ -1,0 +1,120 @@
+
+server/routes/ai.routes.ts:505:17 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { date: Date | SQL<unknown> | Placeholder<string, any>; time: string | SQL<unknown> | Placeholder<string, any>; reservationTime: Date | SQL<...> | Placeholder<...>; ... 9 more ...; guestName?: string | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Argument of type '{ time: any; date: Date; customerName: any; customerEmail: any; customerPhone: any; guests: any; specialRequests: any; notes: string; status: string; }' is not assignable to parameter of type '{ date: Date | SQL<unknown> | Placeholder<string, any>; time: string | SQL<unknown> | Placeholder<string, any>; reservationTime: Date | SQL<...> | Placeholder<...>; ... 9 more ...; guestName?: string | ... 3 more ... | undefined; }'.
+      Type '{ time: any; date: Date; customerName: any; customerEmail: any; customerPhone: any; guests: any; specialRequests: any; notes: string; status: string; }' is missing the following properties from type '{ date: Date | SQL<unknown> | Placeholder<string, any>; time: string | SQL<unknown> | Placeholder<string, any>; reservationTime: Date | SQL<...> | Placeholder<...>; ... 9 more ...; guestName?: string | ... 3 more ... | undefined; }': reservationTime, partySize
+  Overload 2 of 2, '(values: { date: Date | SQL<unknown> | Placeholder<string, any>; time: string | SQL<unknown> | Placeholder<string, any>; reservationTime: Date | SQL<...> | Placeholder<...>; ... 9 more ...; guestName?: string | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Argument of type '{ time: any; date: Date; customerName: any; customerEmail: any; customerPhone: any; guests: any; specialRequests: any; notes: string; status: string; }' is not assignable to parameter of type '{ date: Date | SQL<unknown> | Placeholder<string, any>; time: string | SQL<unknown> | Placeholder<string, any>; reservationTime: Date | SQL<...> | Placeholder<...>; ... 9 more ...; guestName?: string | ... 3 more ... | undefined; }[]'.
+      Type '{ time: any; date: Date; customerName: any; customerEmail: any; customerPhone: any; guests: any; specialRequests: any; notes: string; status: string; }' is missing the following properties from type '{ date: Date | SQL<unknown> | Placeholder<string, any>; time: string | SQL<unknown> | Placeholder<string, any>; reservationTime: Date | SQL<...> | Placeholder<...>; ... 9 more ...; guestName?: string | ... 3 more ... | undefined; }[]': length, pop, push, concat, and 29 more.
+
+505         .values(reservationData)
+                    ~~~~~~~~~~~~~~~
+
+
+server/routes/ai.routes.ts:613:67 - error TS2345: Argument of type 'string | string[] | ParsedQs | ParsedQs[] | undefined' is not assignable to parameter of type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+
+613       const suggestions = AIService.generateAutomationSuggestions(category, priority as 'low' | 'medium' | 'high');
+                                                                      ~~~~~~~~
+
+server/routes/ai.routes.ts:719:7 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+719       randomTranscript = transcripts[Math.floor(Math.random() * transcripts.length)] || transcripts[0];
+          ~~~~~~~~~~~~~~~~
+
+server/routes/ai.routes.ts:721:7 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+721       randomTranscript = transcripts[0]; // Français par défaut
+          ~~~~~~~~~~~~~~~~
+
+server/routes/ai.routes.ts:735:55 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'Record<string, unknown>'.
+
+735     logger.error('Erreur lors de l\'analyse vocale:', error instanceof Error ? error.message : String(error));
+                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/tables/tables.routes.ts:257:11 - error TS2322: Type '{ id: number; number: number; capacity: number; location: string | null; section: string | null; status: "maintenance" | "available" | "occupied" | "reserved"; currentReservation: { ...; } | undefined; nextReservation: { ...; } | undefined; }[]' is not assignable to type 'TableStatus[]'.
+  Type '{ id: number; number: number; capacity: number; location: string | null; section: string | null; status: "maintenance" | "available" | "occupied" | "reserved"; currentReservation: { ...; } | undefined; nextReservation: { ...; } | undefined; }' is not assignable to type 'TableStatus' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'currentReservation' are incompatible.
+      Type '{ id: number; customerName: string; startTime: Date; endTime: Date; partySize: number; } | undefined' is not assignable to type '{ id: number; customerName: string; startTime: Date; endTime: Date; partySize: number; }'.
+        Type 'undefined' is not assignable to type '{ id: number; customerName: string; startTime: Date; endTime: Date; partySize: number; }'.
+
+257     const tableStatuses: TableStatus[] = allTables.map(table => {
+              ~~~~~~~~~~~~~
+
+
+Found 88 errors in 27 files.
+
+Errors  Files
+     2  client/src/components/admin/MaintenanceTaskForm.tsx:52
+     3  client/src/components/admin/dashboard-consolidated.tsx:99
+     2  client/src/components/admin/maintenance-management.tsx:488
+     2  client/src/components/admin/online-ordering.tsx:150
+     1  client/src/components/admin/permissions-management.tsx:435
+     7  client/src/components/admin/settings.tsx:261
+    10  client/src/components/admin/staff-scheduling.tsx:168
+     1  client/src/components/admin/statistics-enhanced.tsx:108
+     1  client/src/components/admin/table-management.tsx:255
+    10  client/src/components/admin/user-profile-enhanced-optimized.tsx:210
+     2  client/src/components/admin/work-schedule.tsx:86
+     2  client/src/components/admin/work-schedule/components/CalendarView.tsx:193
+     1  client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:328
+     2  client/src/components/ui/chart.tsx:339
+     1  client/src/hooks/usePermissionGuard.ts:79
+     2  client/src/hooks/usePermissionsSync.ts:69
+     2  server/ImageManager.ts:153
+     2  server/config/production.ts:143
+     4  server/middleware/database-middleware.ts:8
+     1  server/middleware/logging.ts:229
+     2  server/modules/ai-automation.ts:83
+     5  server/routes/admin/customers.routes.ts:80
+     2  server/routes/admin/menu-admin.routes.ts:102
+     7  server/routes/admin/reservations.routes.ts:48
+     4  server/routes/advanced-features.ts:573
+     9  server/routes/ai.routes.ts:146
+     1  server/routes/tables/tables.routes.ts:257
+~/workspace$ npm run type-check
+
+> rest-express@1.0.0 type-check
+> tsc --noEmit --strict
+
+client/src/components/admin/MaintenanceTaskForm.tsx:52:70 - error TS2345: Argument of type '() => { id: string | number; title: string; description: string; type: any; priority: "low" | "medium" | "high" | "critical"; status: "in_progress" | "completed" | "cancelled" | "pending"; ... 7 more ...; updatedAt: string | Date; }' is not assignable to parameter of type 'Partial<MaintenanceTask> | (() => Partial<MaintenanceTask>)'.
+  Type '() => { id: string | number; title: string; description: string; type: any; priority: "low" | "medium" | "high" | "critical"; status: "in_progress" | "completed" | "cancelled" | "pending"; ... 7 more ...; updatedAt: string | Date; }' is not assignable to type '() => Partial<MaintenanceTask>'.
+    Call signature return types '{ id: string | number; title: string; description: string; type: any; priority: "low" | "medium" | "high" | "critical"; status: "in_progress" | "completed" | "cancelled" | "pending"; ... 7 more ...; updatedAt: string | Date; }' and 'Partial<MaintenanceTask>' are incompatible.
+      The types of 'id' are incompatible between these types.
+        Type 'string | number' is not assignable to type 'string'.
+          Type 'number' is not assignable to type 'string'.
+
+52   const [formData, setFormData] = useState<Partial<MaintenanceTask>>(() => {
+                                                                        ~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:58:29 - error TS2339: Property 'type' does not exist on type 'Partial<MaintenanceTask>'.
+
+58           type: initialData.type || 'preventive', // Default to 'preventive'
+                               ~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:61:38 - error TS2339: Property 'scheduledDate' does not exist on type 'Partial<MaintenanceTask>'.
+
+61           scheduledDate: initialData.scheduledDate || new Date().toISOString().split('T')[0],
+                                        ~~~~~~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:62:42 - error TS2339: Property 'estimatedDuration' does not exist on type 'Partial<MaintenanceTask>'.
+
+62           estimatedDuration: initialData.estimatedDuration || 1,
+                                            ~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:63:29 - error TS2339: Property 'cost' does not exist on type 'Partial<MaintenanceTask>'.
+
+63           cost: initialData.cost || 0, // Default to 0 if not provided
+                               ~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:64:37 - error TS2551: Property 'assignedToId' does not exist on type 'Partial<MaintenanceTask>'. Did you mean 'assignedTo'?
+
+64           assignedToId: initialData.assignedToId || null, // Default to null if not provided
+                                       ~~~~~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:65:30 - error TS2339: Property 'notes' does not exist on type 'Partial<MaintenanceTask>'.
+
+65           notes: initialData.notes || '',
+                                ~~~~~

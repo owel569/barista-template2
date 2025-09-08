@@ -1,0 +1,178 @@
+
+client/src/components/admin/work-schedule.tsx:87:15 - error TS2322: Type '{ userRole: "directeur" | "employe"; viewMode: ViewMode; editable: boolean; exportable: boolean; key: string; }' is not assignable to type 'IntrinsicAttributes & WorkScheduleProps'.
+  Property 'editable' does not exist on type 'IntrinsicAttributes & WorkScheduleProps'.
+
+87               editable={editable}
+                 ~~~~~~~~
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:193:58 - error TS2345: Argument of type '() => string | undefined' is not assignable to parameter of type 'string | (() => string)'.
+  Type '() => string | undefined' is not assignable to type '() => string'.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+193   const [currentDate, setCurrentDate] = useState<string>(() =>
+                                                             ~~~~~
+194     initialDate || new Date().toISOString().split('T')[0]
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:294:45 - error TS2345: Argument of type '() => string | undefined' is not assignable to parameter of type 'SetStateAction<string>'.
+  Type '() => string | undefined' is not assignable to type '(prevState: string) => string'.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+294               onClick={() => setCurrentDate(() => new Date().toISOString().split('T')[0])}
+                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/hooks/useShiftManagement.ts:328:9 - error TS2532: Object is possibly 'undefined'.
+
+328         groups[groupKey].push(shift);
+            ~~~~~~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/types/schedule.types.ts:265:13 - error TS2300: Duplicate identifier 'ShiftStatus'.
+
+265 export type ShiftStatus = 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show';
+                ~~~~~~~~~~~
+
+client/src/components/admin/work-schedule/types/schedule.types.ts:398:18 - error TS2300: Duplicate identifier 'ShiftStatus'.
+
+398 export interface ShiftStatus {
+                     ~~~~~~~~~~~
+
+client/src/components/ui/chart.tsx:338:16 - error TS2375: Type '{ formatter: (Formatter<ValueType, NameType> & FormatterFunction) | undefined; key: string; item: TooltipPayloadItem; ... 6 more ...; tooltipLabel: Element | null; }' is not assignable to type '{ item: TooltipPayloadItem; index: number; itemConfig: ItemConfig | undefined; indicatorColor: string; indicator: "line" | "dot" | "dashed"; hideIndicator: boolean; formatter?: FormatterFunction; nestLabel: boolean; tooltipLabel: ReactNode; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'formatter' are incompatible.
+    Type '(Formatter<ValueType, NameType> & FormatterFunction) | undefined' is not assignable to type 'FormatterFunction'.
+      Type 'undefined' is not assignable to type 'FormatterFunction'.
+
+338               <TooltipItem
+                   ~~~~~~~~~~~
+
+client/src/hooks/usePermissionGuard.ts:79:5 - error TS2339: Property 'canManage' does not exist on type 'UsePermissionsReturn'.
+
+79     canManage,
+       ~~~~~~~~~
+
+client/src/hooks/usePermissions.ts:300:5 - error TS2561: Object literal may only specify known properties, but 'userPermissions' does not exist in type 'UsePermissionsReturn'. Did you mean to write 'permissions'?
+
+300     userPermissions: getCurrentPermissions(),
+        ~~~~~~~~~~~~~~~
+
+client/src/hooks/usePermissionsSync.ts:69:38 - error TS2349: This expression is not callable.
+  Type 'Boolean' has no call signatures.
+
+69     if (!isAuthenticated || !user || isAdmin()) return;
+                                        ~~~~~~~
+
+client/src/hooks/usePermissionsSync.ts:84:38 - error TS2349: This expression is not callable.
+  Type 'Boolean' has no call signatures.
+
+84     if (!isAuthenticated || !user || isAdmin()) return;
+                                        ~~~~~~~
+
+server/ImageManager.ts:153:52 - error TS2532: Object is possibly 'undefined'.
+
+153         const menuItemName = menuItem.length > 0 ? menuItem[0].name : 'Élément de menu';
+                                                       ~~~~~~~~~~~
+
+server/ImageManager.ts:195:25 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+195                         imageUrl: imageMapping[menuItem.name],
+                            ~~~~~~~~
+
+  server/image-manager.ts:18:3
+    18   imageUrl: string;
+         ~~~~~~~~
+    The expected type comes from property 'imageUrl' which is declared here on type 'InsertMenuItemImage'
+
+server/config/production.ts:143:9 - error TS18048: 'allowed' is possibly 'undefined'.
+
+143         allowed.includes('*') ?
+            ~~~~~~~
+
+server/config/production.ts:144:22 - error TS18048: 'allowed' is possibly 'undefined'.
+
+144         origin.match(allowed.replace('*', '.*')) :
+                         ~~~~~~~
+
+server/middleware/cache-advanced.ts:77:7 - error TS2663: Cannot find name 'cleanup'. Did you mean the instance member 'this.cleanup'?
+
+77       cleanup();
+         ~~~~~~~
+
+server/middleware/database-middleware.ts:8:26 - error TS2304: Cannot find name 'checkDatabaseHealth'.
+
+8     const health = await checkDatabaseHealth();
+                           ~~~~~~~~~~~~~~~~~~~
+
+server/middleware/database-middleware.ts:12:13 - error TS2304: Cannot find name 'initializeDatabase'.
+
+12       await initializeDatabase();
+               ~~~~~~~~~~~~~~~~~~
+
+server/middleware/database-middleware.ts:21:13 - error TS2304: Cannot find name 'initializeDatabase'.
+
+21       await initializeDatabase();
+               ~~~~~~~~~~~~~~~~~~
+
+server/middleware/database-middleware.ts:51:17 - error TS2304: Cannot find name 'initializeDatabase'.
+
+51           await initializeDatabase();
+                   ~~~~~~~~~~~~~~~~~~
+
+server/middleware/logging.ts:229:57 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+229       const logFileDate = this.currentLogFile?.includes(currentDate);
+                                                            ~~~~~~~~~~~
+
+server/middleware/logging.ts:328:43 - error TS2304: Cannot find name 'config'.
+
+328   const key = `${module}-${JSON.stringify(config || {})}`;
+                                              ~~~~~~
+
+server/middleware/logging.ts:331:49 - error TS2304: Cannot find name 'config'.
+
+331     loggerInstances.set(key, new Logger(module, config));
+                                                    ~~~~~~
+
+server/modules/ai-automation.ts:83:52 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+83       const command = await this.parseVoiceCommand(transcript);
+                                                      ~~~~~~~~~~
+
+server/modules/ai-automation.ts:282:27 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+282     const hour = parseInt(time.split(':')[0]);
+                              ~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/customers.routes.ts:80:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+80       return res.status(404).json({
+         ~~~~~~
+
+server/routes/admin/customers.routes.ts:115:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+115       return res.status(404).json({
+          ~~~~~~
+
+server/routes/admin/customers.routes.ts:146:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+146       return res.status(404).json({
+          ~~~~~~
+
+server/routes/admin/customers.routes.ts:181:16 - error TS2532: Object is possibly 'undefined'.
+
+181         total: totalCustomers[0].count,
+                   ~~~~~~~~~~~~~~~~~
+
+server/routes/admin/customers.routes.ts:182:17 - error TS2532: Object is possibly 'undefined'.
+
+182         active: activeCustomers[0].count,
+                    ~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/menu-admin.routes.ts:102:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+102       return res.status(400).json({
+          ~~~~~~

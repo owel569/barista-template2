@@ -1,0 +1,148 @@
+server/routes/admin/menu-admin.routes.ts:142:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+142       return res.status(400).json({
+          ~~~~~~
+
+server/routes/admin/reservations.routes.ts:48:7 - error TS2741: Property 'where' is missing in type 'Omit<import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"reservations", { id: import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; ...' but required in type 'Omit<import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"reservations", { id: import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; ...'.
+
+48       query = query.where(sql`DATE(${reservations.date}) = ${date}`);
+         ~~~~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/select.d.ts:402:5
+    402     where(where: ((aliases: this['_']['selection']) => SQL | undefined) | SQL | undefined): PgSelectWithout<this, TDynamic, 'where'>;
+            ~~~~~
+    'where' is declared here.
+
+server/routes/admin/reservations.routes.ts:53:7 - error TS2741: Property 'where' is missing in type 'Omit<PgSelectBase<"reservations", { id: PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; ... 5 more ...; generated: undefined; }, {}, {}>; ... 11 more ...; updatedAt: PgColumn<...>; },...' but required in type 'Omit<PgSelectBase<"reservations", { id: PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; ... 5 more ...; generated: undefined; }, {}, {}>; ... 10 more ...; tableNumber: PgColumn<...>; ...'.
+
+53       query = baseQuery.where(eq(reservations.status, status as ReservationStatus));
+         ~~~~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/select.d.ts:402:5
+    402     where(where: ((aliases: this['_']['selection']) => SQL | undefined) | SQL | undefined): PgSelectWithout<this, TDynamic, 'where'>;
+            ~~~~~
+    'where' is declared here.
+
+server/routes/admin/reservations.routes.ts:53:65 - error TS2304: Cannot find name 'ReservationStatus'.
+
+53       query = baseQuery.where(eq(reservations.status, status as ReservationStatus));
+                                                                   ~~~~~~~~~~~~~~~~~
+
+server/routes/admin/reservations.routes.ts:147:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+147       return res.status(400).json({
+          ~~~~~~
+
+server/routes/admin/reservations.routes.ts:244:16 - error TS2532: Object is possibly 'undefined'.
+
+244         total: totalReservations[0].count,
+                   ~~~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/reservations.routes.ts:245:16 - error TS2532: Object is possibly 'undefined'.
+
+245         today: todayReservations[0].count,
+                   ~~~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/reservations.routes.ts:246:20 - error TS2532: Object is possibly 'undefined'.
+
+246         confirmed: confirmedReservations[0].count,
+                       ~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/reservations.routes.ts:247:18 - error TS2532: Object is possibly 'undefined'.
+
+247         pending: pendingReservations[0].count
+                     ~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/advanced-features.ts:573:62 - error TS7030: Not all code paths return a value.
+
+573 router.post('/reports/:reportId/generate', authenticateUser, async (_req: Request, res: Response) => {
+                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/advanced-features.ts:629:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+629       return res.status(400).json({
+          ~~~~~~
+
+server/routes/advanced-features.ts:648:64 - error TS7030: Not all code paths return a value.
+
+648 router.post('/modules/:moduleId/deactivate', authenticateUser, async (_req: Request, res: Response) => {
+                                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/advanced-features.ts:673:63 - error TS7030: Not all code paths return a value.
+
+673 router.post('/modules/:moduleId/configure', authenticateUser, async (_req: Request, res: Response) => {
+                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/ai.routes.ts:146:28 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+146     const hours = parseInt(time.split(':')[0]);
+                               ~~~~~~~~~~~~~~~~~~
+
+server/routes/ai.routes.ts:163:7 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+163       transcript: randomTranscript,
+          ~~~~~~~~~~
+
+  server/routes/ai.routes.ts:155:5
+    155     transcript: string;
+            ~~~~~~~~~~
+    The expected type comes from property 'transcript' which is declared here on type '{ transcript: string; confidence: number; }'
+
+server/routes/ai.routes.ts:472:9 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+472         return res.status(400).json({
+            ~~~~~~
+
+server/routes/ai.routes.ts:482:9 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+482         return res.status(409).json({
+            ~~~~~~
+
+server/routes/ai.routes.ts:505:17 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { date: Date | SQL<unknown> | Placeholder<string, any>; time: string | SQL<unknown> | Placeholder<string, any>; reservationTime: Date | SQL<...> | Placeholder<...>; ... 9 more ...; guestName?: string | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Argument of type '{ time: any; date: Date; customerName: any; customerEmail: any; customerPhone: any; guests: any; specialRequests: any; notes: string; status: string; }' is not assignable to parameter of type '{ date: Date | SQL<unknown> | Placeholder<string, any>; time: string | SQL<unknown> | Placeholder<string, any>; reservationTime: Date | SQL<...> | Placeholder<...>; ... 9 more ...; guestName?: string | ... 3 more ... | undefined; }'.
+      Type '{ time: any; date: Date; customerName: any; customerEmail: any; customerPhone: any; guests: any; specialRequests: any; notes: string; status: string; }' is missing the following properties from type '{ date: Date | SQL<unknown> | Placeholder<string, any>; time: string | SQL<unknown> | Placeholder<string, any>; reservationTime: Date | SQL<...> | Placeholder<...>; ... 9 more ...; guestName?: string | ... 3 more ... | undefined; }': reservationTime, partySize
+  Overload 2 of 2, '(values: { date: Date | SQL<unknown> | Placeholder<string, any>; time: string | SQL<unknown> | Placeholder<string, any>; reservationTime: Date | SQL<...> | Placeholder<...>; ... 9 more ...; guestName?: string | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Argument of type '{ time: any; date: Date; customerName: any; customerEmail: any; customerPhone: any; guests: any; specialRequests: any; notes: string; status: string; }' is not assignable to parameter of type '{ date: Date | SQL<unknown> | Placeholder<string, any>; time: string | SQL<unknown> | Placeholder<string, any>; reservationTime: Date | SQL<...> | Placeholder<...>; ... 9 more ...; guestName?: string | ... 3 more ... | undefined; }[]'.
+      Type '{ time: any; date: Date; customerName: any; customerEmail: any; customerPhone: any; guests: any; specialRequests: any; notes: string; status: string; }' is missing the following properties from type '{ date: Date | SQL<unknown> | Placeholder<string, any>; time: string | SQL<unknown> | Placeholder<string, any>; reservationTime: Date | SQL<...> | Placeholder<...>; ... 9 more ...; guestName?: string | ... 3 more ... | undefined; }[]': length, pop, push, concat, and 29 more.
+
+505         .values(reservationData)
+                    ~~~~~~~~~~~~~~~
+
+
+server/routes/ai.routes.ts:613:67 - error TS2345: Argument of type 'string | string[] | ParsedQs | ParsedQs[] | undefined' is not assignable to parameter of type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+
+613       const suggestions = AIService.generateAutomationSuggestions(category, priority as 'low' | 'medium' | 'high');
+                                                                      ~~~~~~~~
+
+server/routes/ai.routes.ts:719:7 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+719       randomTranscript = transcripts[Math.floor(Math.random() * transcripts.length)] || transcripts[0];
+          ~~~~~~~~~~~~~~~~
+
+server/routes/ai.routes.ts:721:7 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+721       randomTranscript = transcripts[0]; // Français par défaut
+          ~~~~~~~~~~~~~~~~
+
+server/routes/ai.routes.ts:735:55 - error TS2345: Argument of type 'string' is not assignable to parameter of type 'Record<string, unknown>'.
+
+735     logger.error('Erreur lors de l\'analyse vocale:', error instanceof Error ? error.message : String(error));
+                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/tables/tables.routes.ts:257:11 - error TS2322: Type '{ id: number; number: number; capacity: number; location: string | null; section: string | null; status: "maintenance" | "available" | "occupied" | "reserved"; currentReservation: { ...; } | undefined; nextReservation: { ...; } | undefined; }[]' is not assignable to type 'TableStatus[]'.
+  Type '{ id: number; number: number; capacity: number; location: string | null; section: string | null; status: "maintenance" | "available" | "occupied" | "reserved"; currentReservation: { ...; } | undefined; nextReservation: { ...; } | undefined; }' is not assignable to type 'TableStatus' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'currentReservation' are incompatible.
+      Type '{ id: number; customerName: string; startTime: Date; endTime: Date; partySize: number; } | undefined' is not assignable to type '{ id: number; customerName: string; startTime: Date; endTime: Date; partySize: number; }'.
+        Type 'undefined' is not assignable to type '{ id: number; customerName: string; startTime: Date; endTime: Date; partySize: number; }'.
+
+257     const tableStatuses: TableStatus[] = allTables.map(table => {
+              ~~~~~~~~~~~~~
+
+
+Found 115 errors in 30 files.

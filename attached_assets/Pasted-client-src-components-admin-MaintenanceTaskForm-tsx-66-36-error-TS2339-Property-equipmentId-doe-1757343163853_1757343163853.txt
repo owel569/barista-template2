@@ -1,0 +1,113 @@
+client/src/components/admin/MaintenanceTaskForm.tsx:66:36 - error TS2339: Property 'equipmentId' does not exist on type 'Partial<MaintenanceTask>'.
+
+66           equipmentId: initialData.equipmentId || null, // Default to null if not provided
+                                      ~~~~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:91:55 - error TS2339: Property 'scheduledDate' does not exist on type 'Partial<MaintenanceTask>'.
+
+91   const [date, setDate] = useState<Date>(initialData?.scheduledDate ? new Date(initialData.scheduledDate) : new Date());
+                                                         ~~~~~~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:91:92 - error TS2339: Property 'scheduledDate' does not exist on type 'Partial<MaintenanceTask>'.
+
+91   const [date, setDate] = useState<Date>(initialData?.scheduledDate ? new Date(initialData.scheduledDate) : new Date());
+                                                                                              ~~~~~~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:160:7 - error TS2353: Object literal may only specify known properties, and 'type' does not exist in type 'Omit<MaintenanceTask, "id">'.
+
+160       type: formData.type || 'preventive',
+          ~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:160:22 - error TS2339: Property 'type' does not exist on type 'Partial<MaintenanceTask>'.
+
+160       type: formData.type || 'preventive',
+                         ~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:163:31 - error TS2339: Property 'scheduledDate' does not exist on type 'Partial<MaintenanceTask>'.
+
+163       scheduledDate: formData.scheduledDate!,
+                                  ~~~~~~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:164:35 - error TS2339: Property 'estimatedDuration' does not exist on type 'Partial<MaintenanceTask>'.
+
+164       estimatedDuration: formData.estimatedDuration!,
+                                      ~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:165:22 - error TS2339: Property 'cost' does not exist on type 'Partial<MaintenanceTask>'.
+
+165       cost: formData.cost || 0,
+                         ~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:166:30 - error TS2551: Property 'assignedToId' does not exist on type 'Partial<MaintenanceTask>'. Did you mean 'assignedTo'?
+
+166       assignedToId: formData.assignedToId || null,
+                                 ~~~~~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:167:23 - error TS2339: Property 'notes' does not exist on type 'Partial<MaintenanceTask>'.
+
+167       notes: formData.notes || '',
+                          ~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:168:29 - error TS2339: Property 'equipmentId' does not exist on type 'Partial<MaintenanceTask>'.
+
+168       equipmentId: formData.equipmentId || null,
+                                ~~~~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:191:29 - error TS2339: Property 'equipmentId' does not exist on type 'Partial<MaintenanceTask>'.
+
+191             value={formData.equipmentId?.toString() || ''}
+                                ~~~~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:249:29 - error TS2551: Property 'assignedToId' does not exist on type 'Partial<MaintenanceTask>'. Did you mean 'assignedTo'?
+
+249             value={formData.assignedToId?.toString() || ''}
+                                ~~~~~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:297:29 - error TS2339: Property 'estimatedDuration' does not exist on type 'Partial<MaintenanceTask>'.
+
+297             value={formData.estimatedDuration || ''}
+                                ~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:310:29 - error TS2339: Property 'cost' does not exist on type 'Partial<MaintenanceTask>'.
+
+310             value={formData.cost || ''}
+                                ~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:333:27 - error TS2339: Property 'notes' does not exist on type 'Partial<MaintenanceTask>'.
+
+333           value={formData.notes || ''}
+                              ~~~~~
+
+client/src/components/admin/dashboard-consolidated.tsx:99:20 - error TS2339: Property 'canManage' does not exist on type 'UsePermissionsReturn'.
+
+99   const { canView, canManage, isAdmin, userRole } = usePermissions();
+                      ~~~~~~~~~
+
+client/src/components/admin/dashboard-consolidated.tsx:519:12 - error TS2349: This expression is not callable.
+  Type 'Boolean' has no call signatures.
+
+519           {isAdmin() && <TabsTrigger value="admin">Administration</TabsTrigger>}
+               ~~~~~~~
+
+client/src/components/admin/dashboard-consolidated.tsx:749:10 - error TS2349: This expression is not callable.
+  Type 'Boolean' has no call signatures.
+
+749         {isAdmin() && (
+             ~~~~~~~
+
+client/src/components/admin/maintenance-management.tsx:488:19 - error TS2412: Type 'MaintenanceTask | undefined' is not assignable to type 'Partial<MaintenanceTask> | undefined' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+
+488                   initialData={editingTask ?? undefined}
+                      ~~~~~~~~~~~
+
+  client/src/components/admin/MaintenanceTaskForm.tsx:24:3
+    24   initialData?: Partial<MaintenanceTask>;
+         ~~~~~~~~~~~
+    The expected type comes from property 'initialData' which is declared here on type 'IntrinsicAttributes & MaintenanceTaskFormProps'
+
+client/src/components/admin/maintenance-management.tsx:489:19 - error TS2322: Type '(taskData: Omit<MaintenanceTask, "id">) => Promise<void>' is not assignable to type '(data: Omit<MaintenanceTask, "id">) => void'.
+  Types of parameters 'taskData' and 'data' are incompatible.
+    Type 'Omit<MaintenanceTask, "id">' is missing the following properties from type 'Omit<MaintenanceTask, "id">': scheduledDate, estimatedDuration, cost, assignedToId, and 2 more.
+
+489                   onSubmit={editingTask ?
+                      ~~~~~~~~
