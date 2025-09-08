@@ -742,29 +742,19 @@ router.get('/customer/:customerId',
       const customerId = parseInt(req.params.customerId as string);
       const db = await getDb();
 
-      const customerResult = await db.select({
-        id: customers.id,
-        firstName: customers.firstName,
-        lastName: customers.lastName,
-        email: customers.email,
-        phone: customers.phone,
-        loyaltyPoints: customers.loyaltyPoints,
-        createdAt: customers.createdAt,
-        updatedAt: customers.updatedAt
-      })
-      .from(customers)
-      .where(eq(customers.id, customerId))
-      .limit(1);
+      // Récupérer les données du client
+      const [customer] = await db
+        .select()
+        .from(customers)
+        .where(eq(customers.id, customerId));
 
-      if (customerResult.length === 0) {
-        res.status(404).json({
+      if (!customer) {
+        return res.status(404).json({
           success: false,
           message: 'Client non trouvé'
         });
-        return;
       }
 
-      const customer = customerResult[0];
       const points = customer.loyaltyPoints || 0;
       const level = AdvancedLoyaltyService.getLevelForPoints(points);
       const nextLevelInfo = AdvancedLoyaltyService.getNextLevelInfo(points);
@@ -777,7 +767,7 @@ router.get('/customer/:customerId',
         description: loyaltyTransactions.description,
         orderId: loyaltyTransactions.orderId,
         createdAt: loyaltyTransactions.createdAt,
-        balance: points as any
+        balance: points as any // Corrected type for balance
       })
       .from(loyaltyTransactions)
       .where(eq(loyaltyTransactions.customerId, customerId))
@@ -790,7 +780,7 @@ router.get('/customer/:customerId',
         points: t.points,
         description: t.description || '',
         orderId: t.orderId || 0,
-        createdAt: t.createdAt.toISOString(),
+        createdAt: typeof t.createdAt === 'string' ? t.createdAt : new Date(t.createdAt).toISOString(),
         balance: t.balance
       }));
 
@@ -820,17 +810,17 @@ router.get('/customer/:customerId',
       );
 
       const currentLevel = AdvancedLoyaltyService.getLevelForPoints(customer.loyaltyPoints || 0);
-      const nextLevel = AdvancedLoyaltyService.getNextLevelInfo(customer.loyaltyPoints || 0).nextLevel;
+      const nextLevelInfoData = AdvancedLoyaltyService.getNextLevelInfo(customer.loyaltyPoints || 0);
 
       const customerData: CustomerLoyaltyData = {
         customerId: customer.id,
         currentPoints: customer.loyaltyPoints || 0,
-        totalPointsEarned: stats.totalEarned || 0,
-        totalPointsRedeemed: stats.totalRedeemed || 0,
+        totalPointsEarned: stats.totalEarned,
+        totalPointsRedeemed: stats.totalRedeemed,
         currentLevel,
-        nextLevel: nextLevel || undefined,
-        progressToNextLevel: AdvancedLoyaltyService.getNextLevelInfo(customer.loyaltyPoints || 0).progress,
-        pointsToNextLevel: AdvancedLoyaltyService.getNextLevelInfo(customer.loyaltyPoints || 0).pointsToNext,
+        nextLevel: nextLevelInfoData.nextLevel || currentLevel,
+        progressToNextLevel: nextLevelInfoData.progress,
+        pointsToNextLevel: nextLevelInfoData.pointsToNext,
         joinDate: customer?.createdAt?.toISOString() ?? new Date().toISOString(),
         lastActivity: customer?.updatedAt?.toISOString() ?? new Date().toISOString(),
         tier: currentLevel.name.toLowerCase() as CustomerLoyaltyData['tier'],
@@ -883,8 +873,7 @@ router.post('/earn-points',
 
       const customerResult = await db.select()
         .from(customers)
-        .where(eq(customers.id, customerId))
-        .limit(1);
+        .where(eq(customers.id, customerId));
 
       if (customerResult.length === 0) {
         return res.status(404).json({
@@ -892,7 +881,7 @@ router.post('/earn-points',
           message: 'Client non trouvé'
         });
       }
-
+      
       const customer = customerResult[0];
       const currentPoints = customer?.loyaltyPoints || 0;
       const currentLevel = AdvancedLoyaltyService.getLevelForPoints(currentPoints);
@@ -997,8 +986,7 @@ router.post('/redeem-reward',
 
       const customerResult = await db.select()
         .from(customers)
-        .where(eq(customers.id, customerId))
-        .limit(1);
+        .where(eq(customers.id, customerId));
 
       if (customerResult.length === 0) {
         res.status(404).json({

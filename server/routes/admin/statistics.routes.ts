@@ -47,14 +47,14 @@ router.get('/dashboard', authenticateUser, requireRoleHierarchy('staff'), async 
 
     const stats = {
       customers: {
-        total: totalCustomers[0].count,
-        newThisMonth: newCustomersThisMonth[0].count,
+        total: totalCustomers[0]?.count || 0,
+        newThisMonth: newCustomersThisMonth[0]?.count || 0,
         topCustomers: topCustomers
       },
       menu: {
-        totalItems: totalMenuItems[0].count,
-        activeItems: activeMenuItems[0].count,
-        totalCategories: totalCategories[0].count
+        totalItems: totalMenuItems[0]?.count || 0,
+        activeItems: activeMenuItems[0]?.count || 0,
+        totalCategories: totalCategories[0]?.count || 0
       },
       // Données simulées pour la démo
       revenue: {
@@ -194,9 +194,9 @@ router.get('/customer-analytics', authenticateUser, requireRoleHierarchy('manage
 
     const analytics = {
       overview: {
-        total: totalCustomers[0].count,
-        active: activeCustomers[0].count,
-        averageLoyaltyPoints: Math.round(averageLoyaltyPoints[0].avg || 0)
+        total: totalCustomers[0]?.count || 0,
+        active: activeCustomers[0]?.count || 0,
+        averageLoyaltyPoints: Math.round(averageLoyaltyPoints[0]?.avg || 0)
       },
       growth: customersByMonth,
       demographics: {

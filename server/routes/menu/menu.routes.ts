@@ -510,7 +510,7 @@ router.delete('/items/:id',
     const [deactivatedItem] = await db
       .update(menuItems)
       .set({
-        isAvailable: false,
+        available: false,
         updatedAt: new Date()
       })
       .where(eq(menuItems.id, Number(id)))

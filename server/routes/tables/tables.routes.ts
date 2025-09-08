@@ -239,12 +239,12 @@ router.get('/status',
       .orderBy(sql`${reservations.date} + INTERVAL ${reservations.time}`);
 
     // Créer un map des réservations par table
-    const currentReservationMap = new Map();
+    const currentReservationMap = new Map<number, typeof currentReservations[0]>();
     currentReservations.forEach(res => {
       currentReservationMap.set(res.tableId, res);
     });
 
-    const nextReservationMap = new Map();
+    const nextReservationMap = new Map<number, typeof nextReservations[0]>();
     nextReservations.forEach(res => {
       if (!nextReservationMap.has(res.tableId)) {
         nextReservationMap.set(res.tableId, res);
@@ -325,10 +325,11 @@ router.post('/',
       .where(eq(tables.number, req.body.number));
 
     if (existingTable) {
-      return res.status(409).json({
+      res.status(409).json({
         success: false,
         message: 'Une table avec ce numéro existe déjà'
       });
+      return;
     }
 
     const [newTable] = await db
@@ -405,10 +406,11 @@ router.put('/:id',
         ));
 
       if (numberExists) {
-        return res.status(409).json({
+        res.status(409).json({
           success: false,
           message: 'Une table avec ce numéro existe déjà'
         });
+        return;
       }
     }
 

@@ -1,4 +1,3 @@
-
 // Types TypeScript améliorés pour corriger toutes les erreurs identifiées
 import { z } from 'zod';
 
@@ -395,23 +394,23 @@ export interface TableStatus {
   id: number;
   number: number;
   capacity: number;
-  status: 'available' | 'occupied' | 'reserved' | 'maintenance';
   location: string | null;
   section: string | null;
+  status: 'available' | 'occupied' | 'reserved' | 'maintenance';
   currentReservation?: {
     id: number;
     customerName: string;
     startTime: Date;
     endTime: Date;
     partySize: number;
-  } | undefined;
+  };
   nextReservation?: {
     id: number;
     customerName: string;
     startTime: Date;
     endTime: Date;
     partySize: number;
-  } | undefined;
+  };
 }
 
 // Interface pour les métriques de cache

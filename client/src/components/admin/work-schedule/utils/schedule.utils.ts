@@ -300,11 +300,11 @@ export const getShiftTimeStatus = (shift: Shift): 'past' | 'current' | 'future' 
 // Fonctions pour les composants
 export const getWeekDates = (dateISO: string): string[] => {
   const dates = generateWeekDates(parseISO(dateISO));
-  return dates.map(d => d.toISOString().split('T')[0]);
+  return dates.map(d => d.toISOString().split('T')[0]!);
 };
 export const getMonthDates = (dateISO: string): string[] => {
   const dates = generateMonthDates(parseISO(dateISO));
-  return dates.map(d => d.toISOString().split('T')[0]);
+  return dates.map(d => d.toISOString().split('T')[0]!);
 };
 
 export const generateEmployeeColors = (employees: Employee[]): Record<number, string> => {
