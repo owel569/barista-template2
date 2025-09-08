@@ -706,7 +706,7 @@ export default function Settings({ userRole }: SettingsProps) {
               </div>
 
               <div className="space-y-2">
-                <Label>Modèle de notification d\'annulation</Label>
+                <Label>Modèle de notification d'annulation</Label>
                 <Textarea
                   value={draftSettings.notificationSettings.cancellationTemplate}
                   onChange={(e) => handleChange('notificationSettings.cancellationTemplate', e.target.value)}
@@ -731,12 +731,11 @@ export default function Settings({ userRole }: SettingsProps) {
                 <h3 className="font-medium mb-2">Jours de fermeture</h3>
                 <div className="flex flex-col gap-4">
                   <DayPicker
-                    onSelect={(date) => {
-                      if (date) {
-                        const dateStr = date.toISOString().split('T')[0];
-                        if (!draftSettings.specialDates.closedDates.includes(dateStr)) {
-                          addClosedDate(date);
-                        }
+                    onSelect={(date: Date | undefined) => {
+                      if (!date) return;
+                      const dateStr = date.toISOString().split('T')[0];
+                      if (!draftSettings.specialDates.closedDates.includes(dateStr)) {
+                        addClosedDate(date);
                       }
                     }}
                     disabled={(date) => {

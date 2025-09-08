@@ -77,10 +77,11 @@ router.get('/:id', authenticateUser, requireRoleHierarchy('staff'), async (req: 
       .limit(1);
 
     if (!customer) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Client non trouvé'
       });
+      return;
     }
 
     res.json({
@@ -178,8 +179,8 @@ router.get('/stats/overview', authenticateUser, requireRoleHierarchy('staff'), a
     res.json({
       success: true,
       data: {
-        total: totalCustomers[0].count,
-        active: activeCustomers[0].count,
+        total: totalCustomers[0]?.count || 0,
+        active: activeCustomers[0]?.count || 0,
         topCustomers
       }
     });

@@ -1,17 +1,17 @@
 import React, { useState, useMemo } from 'react';
-import { 
+import {
   Card, CardContent, CardHeader, CardTitle,
-  Button, Badge 
+  Button, Badge
 } from '@/components/ui';
-import { 
+import {
   ChevronLeft, ChevronRight, Plus,
-  Clock, User, MapPin, AlertTriangle 
+  Clock, User, MapPin, AlertTriangle
 } from 'lucide-react';
 import { CalendarViewProps, Shift } from '../types/schedule.types';
-import { 
-  formatDuration, formatCurrency, 
+import {
+  formatDuration, formatCurrency,
   getWeekDates, getMonthDates,
-  SHIFT_STATUS_COLORS 
+  SHIFT_STATUS_COLORS
 } from '../utils/schedule.utils';
 
 interface DayColumnProps {
@@ -32,11 +32,11 @@ interface ShiftItemProps {
   onClick: (e?: React.MouseEvent) => void;
 }
 
-const ShiftItem: React.FC<ShiftItemProps> = ({ 
-  shift, 
+const ShiftItem: React.FC<ShiftItemProps> = ({
+  shift,
   employee,
   compact = false,
-  onClick 
+  onClick
 }) => {
   const statusColor = SHIFT_STATUS_COLORS[shift.status];
 
@@ -48,7 +48,7 @@ const ShiftItem: React.FC<ShiftItemProps> = ({
         hover:shadow-md hover:scale-[1.02]
         ${compact ? 'text-xs' : 'text-sm'}
       `}
-      style={{ 
+      style={{
         backgroundColor: `${statusColor}20`,
         borderColor: `${statusColor}40`
       }}
@@ -76,8 +76,8 @@ const ShiftItem: React.FC<ShiftItemProps> = ({
       </div>
 
       <div className="flex items-center justify-between mt-2">
-        <Badge 
-          variant="outline" 
+        <Badge
+          variant="outline"
           className="text-xs"
           style={{ color: statusColor }}
         >
@@ -91,9 +91,9 @@ const ShiftItem: React.FC<ShiftItemProps> = ({
   );
 };
 
-const DayColumn: React.FC<DayColumnProps> = ({ 
-  date, 
-  shifts, 
+const DayColumn: React.FC<DayColumnProps> = ({
+  date,
+  shifts,
   isSelected,
   onDateClick,
   onShiftClick,
@@ -108,7 +108,7 @@ const DayColumn: React.FC<DayColumnProps> = ({
     <div
       onClick={() => onDateClick(date)}
       className={`
-        border rounded-lg p-2 min-h-[200px] 
+        border rounded-lg p-2 min-h-[200px]
         ${isSelected ? 'ring-2 ring-blue-500' : ''}
         ${isToday ? 'bg-blue-50 dark:bg-blue-950' : 'bg-white dark:bg-gray-900'}
         hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors
@@ -121,7 +121,7 @@ const DayColumn: React.FC<DayColumnProps> = ({
             {dayDate.toLocaleDateString('fr-FR', { weekday: 'short' })}
           </div>
           <div className={`
-            text-lg font-semibold 
+            text-lg font-semibold
             ${isToday ? 'text-blue-600 dark:text-blue-400' : 'text-gray-900 dark:text-gray-100'}
           `}>
             {dayDate.getDate()}
@@ -158,8 +158,8 @@ const DayColumn: React.FC<DayColumnProps> = ({
         {shifts.map((shift) => {
           const employee = employees.find(e => e.id === shift.employeeId);
           return (
-            <ShiftItem 
-              key={shift.id} 
+            <ShiftItem
+              key={shift.id}
               shift={shift}
               employee={employee ?? undefined}
               compact={compact}
@@ -190,7 +190,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   viewMode = 'week'
 }) => {
   const initialDate = selectedDate ?? new Date().toISOString().split('T')[0];
-  const [currentDate, setCurrentDate] = useState<string>(() => 
+  const [currentDate, setCurrentDate] = useState<string>(() =>
     initialDate || new Date().toISOString().split('T')[0]
   );
 
@@ -239,11 +239,11 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
     switch (viewMode) {
       case 'day':
-        return date.toLocaleDateString('fr-FR', { 
-          weekday: 'long', 
-          year: 'numeric', 
-          month: 'long', 
-          day: 'numeric' 
+        return date.toLocaleDateString('fr-FR', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
         });
       case 'week':
         const weekDates = getWeekDates(currentDate ?? initialDate);
@@ -259,7 +259,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
   // Statistiques pour la période
   const periodStats = useMemo(() => {
-    const periodShifts = shifts.filter(shift => 
+    const periodShifts = shifts.filter(shift =>
       dates.some(d => (typeof d === 'string' ? d : String(d)) === shift.date)
     );
 
@@ -327,8 +327,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
       <CardContent>
         {viewMode === 'day' ? (
-          <DayColumn 
-            date={currentDate} 
+          <DayColumn
+            date={currentDate}
             shifts={shiftsByDate[currentDate] || []}
             isSelected={true}
             onDateClick={onDateClick}
@@ -338,7 +338,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
           />
         ) : (
           <div className={`
-            grid gap-4 
+            grid gap-4
             ${viewMode === 'week' ? 'grid-cols-1 sm:grid-cols-7' : 'grid-cols-1 sm:grid-cols-7'}
             ${viewMode === 'month' ? 'grid-rows-5' : ''}
           `}>

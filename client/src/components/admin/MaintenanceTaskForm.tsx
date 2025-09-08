@@ -120,8 +120,8 @@ export function MaintenanceTaskForm({
     if (selectedEquipment) {
       setFormData(prev => ({
         ...prev,
-        equipmentId: selectedEquipment.id,
-        equipment: selectedEquipment.name,
+        equipmentId: parseInt(equipmentId) || null,
+        equipment: selectedEquipment?.name || '',
       }));
     } else {
       // Handle case where no equipment is selected or found

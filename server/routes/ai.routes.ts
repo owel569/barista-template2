@@ -490,20 +490,8 @@ router.post('/reservation',
         return;
       }
 
-      // Enregistrer la réservation en base
       const db = await getDb();
-      const reservationData = {
-          time: time,
-          date: new Date(date),
-          customerName: customerInfo?.name,
-          customerEmail: customerInfo?.email,
-          customerPhone: customerInfo?.phone,
-          guests: guests,
-          specialRequests: preferences,
-          notes: `Réservation créée par IA`,
-          status: 'confirmed'
-        };
-      const [reservation] = await db.insert(reservations)
+      const reservation = await db.insert(reservations)
         .values({
           customerId: 1, // ID par défaut pour les réservations IA
           tableId: 1, // Table par défaut
@@ -516,9 +504,9 @@ router.post('/reservation',
         })
         .returning();
 
-      const aiResponse: AIResponse<NonNullable<typeof reservation>> = {
+      const aiResponse: AIResponse<NonNullable<typeof reservation[0]>> = {
         success: true,
-        data: reservation!,
+        data: reservation[0]!,
         timestamp: new Date().toISOString(),
         confidence: 0.95
       };

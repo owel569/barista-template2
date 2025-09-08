@@ -174,8 +174,8 @@ export default function StaffScheduling() {
         position: String(s.position),
         status: s.status,
         notes: s.notes || undefined,
-        createdAt: new Date(s.createdAt ?? Date.now()).toISOString(),
-        updatedAt: new Date(s.updatedAt ?? Date.now()).toISOString()
+        createdAt: s.createdAt?.toISOString() || new Date().toISOString(),
+        updatedAt: s.updatedAt?.toISOString() || new Date().toISOString()
       }));
 
       setShifts(mapped);

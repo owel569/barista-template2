@@ -1,11 +1,13 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { authenticateUser } from '../../middleware/auth';
 import { requireRoleHierarchy } from '../../middleware/security';
 import { validateBody } from '../../middleware/security';
 import { db } from '../../db';
-import { reservations, customers, tables } from '../../../shared/schema';
-import { eq, desc, sql, gte, lte } from 'drizzle-orm';
+import { reservations, customers, tables, reservationStatusEnum } from '../../../shared/schema';
+import { eq, desc, sql, and, gte, lte, count } from 'drizzle-orm';
 import { z } from 'zod';
+
+type ReservationStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed';
 
 const router = Router();
 
@@ -21,20 +23,25 @@ const ReservationSchema = z.object({
 });
 
 // GET /api/admin/reservations - Récupérer toutes les réservations
-router.get('/', authenticateUser, requireRoleHierarchy('staff'), async (req, res): Promise<void> => {
+router.get('/', authenticateUser, requireRoleHierarchy('staff'), async (req: Request, res: Response): Promise<void> => {
   try {
-    const { date, status } = req.query;
+    const { status, date, tableId } = req.query;
 
-    let query = db
+    let baseQuery = db
       .select({
         id: reservations.id,
+        customerId: reservations.customerId,
+        tableId: reservations.tableId,
         date: reservations.date,
         time: reservations.time,
+        reservationTime: reservations.reservationTime,
+        guestName: reservations.guestName,
         partySize: reservations.partySize,
         status: reservations.status,
         specialRequests: reservations.specialRequests,
         notes: reservations.notes,
         createdAt: reservations.createdAt,
+        updatedAt: reservations.updatedAt,
         customerName: sql<string>`COALESCE(${customers.firstName} || ' ' || ${customers.lastName}, 'Client inconnu')`,
         customerEmail: customers.email,
         customerPhone: customers.phone,
@@ -44,16 +51,28 @@ router.get('/', authenticateUser, requireRoleHierarchy('staff'), async (req, res
       .leftJoin(customers, eq(reservations.customerId, customers.id))
       .leftJoin(tables, eq(reservations.tableId, tables.id));
 
+    // Filtres conditionnels
+    const conditions = [];
+
     if (date) {
-      query = query.where(sql`DATE(${reservations.date}) = ${date}`);
+      conditions.push(sql`DATE(${reservations.date}) = ${date}`);
     }
 
-    if (status) {
-      const baseQuery = db.select().from(reservations);
-      query = baseQuery.where(eq(reservations.status, status as any)); // Cast to any to satisfy Drizzle's type checking for status
+    if (status && ['pending', 'confirmed', 'cancelled', 'completed'].includes(status as string)) {
+      conditions.push(eq(reservations.status, status as ReservationStatus));
     }
 
-    const allReservations = await query.orderBy(desc(reservations.date), desc(reservations.time));
+    if (tableId) {
+      conditions.push(eq(reservations.tableId, parseInt(tableId as string)));
+    }
+
+    let query = baseQuery;
+    if (conditions.length > 0) {
+      query = baseQuery.where(and(...conditions));
+    }
+
+    const allReservations = await query.orderBy(desc(reservations.createdAt));
+
 
     res.json({
       success: true,
@@ -64,6 +83,38 @@ router.get('/', authenticateUser, requireRoleHierarchy('staff'), async (req, res
     res.status(500).json({
       success: false,
       message: 'Erreur lors de la récupération des réservations'
+    });
+  }
+});
+
+// GET /api/admin/reservations/:id - Récupérer une réservation spécifique
+router.get('/:id', authenticateUser, requireRoleHierarchy('staff'), async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    const [reservation] = await db
+      .select()
+      .from(reservations)
+      .where(eq(reservations.id, parseInt(id || '0')))
+      .limit(1);
+
+    if (!reservation) {
+      res.status(404).json({
+        success: false,
+        message: 'Réservation non trouvée'
+      });
+      return;
+    }
+
+    res.json({
+      success: true,
+      data: reservation
+    });
+  } catch (error) {
+    console.error('Erreur lors de la récupération de la réservation:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la récupération de la réservation'
     });
   }
 });
@@ -212,7 +263,7 @@ router.delete('/:id', authenticateUser, requireRoleHierarchy('manager'), async (
 });
 
 // GET /api/admin/reservations/stats - Statistiques des réservations
-router.get('/stats/overview', authenticateUser, requireRoleHierarchy('staff'), async (req, res): Promise<void> => {
+router.get('/stats/overview', authenticateUser, requireRoleHierarchy('staff'), async (req: Request, res: Response): Promise<void> => {
   try {
     const today = new Date();
     const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
@@ -225,25 +276,22 @@ router.get('/stats/overview', authenticateUser, requireRoleHierarchy('staff'), a
       confirmedReservationsResult,
       pendingReservationsResult
     ] = await Promise.all([
-      db.select({ count: sql<number>`count(*)::integer` }).from(reservations),
-      db.select({ count: sql<number>`count(*)::integer` })
-        .from(reservations)
+      db.select({ count: count() }).from(reservations),
+      db.select({ count: count() }).from(reservations)
         .where(sql`DATE(${reservations.date}) = CURRENT_DATE`),
-      db.select({ count: sql<number>`count(*)::integer` })
-        .from(reservations)
+      db.select({ count: count() }).from(reservations)
         .where(eq(reservations.status, 'confirmed')),
-      db.select({ count: sql<number>`count(*)::integer` })
-        .from(reservations)
+      db.select({ count: count() }).from(reservations)
         .where(eq(reservations.status, 'pending'))
     ]);
 
     res.json({
       success: true,
       data: {
-        total: totalReservationsResult[0].count,
-        today: todayReservationsResult[0].count,
-        confirmed: confirmedReservationsResult[0].count,
-        pending: pendingReservationsResult[0].count
+        total: totalReservationsResult[0]?.count || 0,
+        today: todayReservationsResult[0]?.count || 0,
+        confirmed: confirmedReservationsResult[0]?.count || 0,
+        pending: pendingReservationsResult[0]?.count || 0
       }
     });
   } catch (error) {
