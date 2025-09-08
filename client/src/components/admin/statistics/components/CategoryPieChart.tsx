@@ -1,8 +1,16 @@
-
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { 
+  Chart as ChartJS, 
+  ArcElement, 
+  Tooltip, 
+  Legend,
+  ChartConfiguration,
+  ChartData,
+  ChartOptions 
+} from 'chart.js';
 
 interface CategoryData {
   readonly name: string;

@@ -33,8 +33,8 @@ const CategorySchema = z.object({
 });
 
 // GET /api/admin/menu/items - Récupérer tous les éléments du menu
-router.get('/items', 
-  authenticateUser, 
+router.get('/items',
+  authenticateUser,
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
     const items = await db
@@ -67,9 +67,9 @@ router.get('/items',
 );
 
 // POST /api/admin/menu/items - Créer un nouvel élément de menu
-router.post('/items', 
+router.post('/items',
   authenticateUser,
-  validateBody(MenuItemSchema), 
+  validateBody(MenuItemSchema),
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
     const itemData = req.body;
@@ -91,9 +91,9 @@ router.post('/items',
 );
 
 // PUT /api/admin/menu/items/:id - Mettre à jour un élément de menu
-router.put('/items/:id', 
+router.put('/items/:id',
   authenticateUser,
-  validateBody(MenuItemSchema.partial()), 
+  validateBody(MenuItemSchema.partial()),
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
     const { id } = req.params;
@@ -116,10 +116,11 @@ router.put('/items/:id',
       .returning();
 
     if (!updatedItem) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Élément de menu non trouvé'
       });
+      return;
     }
 
     res.json({
@@ -131,7 +132,7 @@ router.put('/items/:id',
 );
 
 // DELETE /api/admin/menu/items/:id - Supprimer un élément de menu
-router.delete('/items/:id', 
+router.delete('/items/:id',
   authenticateUser,
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
@@ -150,10 +151,11 @@ router.delete('/items/:id',
       .returning();
 
     if (!deletedItem) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Élément de menu non trouvé'
       });
+      return;
     }
 
     res.json({
@@ -164,7 +166,7 @@ router.delete('/items/:id',
 );
 
 // GET /api/admin/menu/categories - Récupérer toutes les catégories
-router.get('/categories', 
+router.get('/categories',
   authenticateUser,
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
@@ -181,9 +183,9 @@ router.get('/categories',
 );
 
 // POST /api/admin/menu/categories - Créer une nouvelle catégorie
-router.post('/categories', 
+router.post('/categories',
   authenticateUser,
-  validateBody(CategorySchema), 
+  validateBody(CategorySchema),
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
     const categoryData = req.body;
@@ -202,7 +204,7 @@ router.post('/categories',
 );
 
 // GET /api/admin/menu/stats - Statistiques du menu
-router.get('/stats', 
+router.get('/stats',
   authenticateUser,
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();

@@ -73,7 +73,7 @@ router.get('/:id', authenticateUser, requireRoleHierarchy('staff'), async (req: 
     const [customer] = await db
       .select()
       .from(customers)
-      .where(eq(customers.id, parseInt(id)))
+      .where(eq(customers.id, parseInt(id || '0')))
       .limit(1);
 
     if (!customer) {
@@ -108,7 +108,7 @@ router.put('/:id', authenticateUser, requireRoleHierarchy('staff'), validateBody
         ...updateData,
         updatedAt: new Date()
       })
-      .where(eq(customers.id, parseInt(id)))
+      .where(eq(customers.id, parseInt(id || '0')))
       .returning();
 
     if (!updatedCustomer) {
@@ -139,7 +139,7 @@ router.delete('/:id', authenticateUser, requireRoleHierarchy('manager'), async (
 
     const [deletedCustomer] = await db
       .delete(customers)
-      .where(eq(customers.id, parseInt(id)))
+      .where(eq(customers.id, parseInt(id || '0')))
       .returning();
 
     if (!deletedCustomer) {

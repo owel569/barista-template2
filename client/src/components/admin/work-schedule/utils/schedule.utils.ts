@@ -171,7 +171,7 @@ export const checkShiftConflict = (newShift: Partial<Shift>, existingShifts: Shi
   }
 
   const employeeShifts = filterShiftsByEmployee(existingShifts, newShift.employeeId);
-  const sameDayShifts = employeeShifts.filter(shift => 
+  const sameDayShifts = employeeShifts.filter(shift =>
     isSameDay(parseISO(shift.date), parseISO(newShift.date))
   );
 
@@ -431,7 +431,7 @@ export function validateSchedule(scheduleData: unknown): boolean {
   const schedule = scheduleData as Record<string, unknown>;
 
   // Validation des propriétés requises
-  if (typeof schedule.startTime !== 'string' || 
+  if (typeof schedule.startTime !== 'string' ||
       typeof schedule.endTime !== 'string' ||
       typeof schedule.employeeId !== 'string') {
     return false;

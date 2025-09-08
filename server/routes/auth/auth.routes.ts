@@ -212,7 +212,7 @@ router.post('/register',
 // Route de connexion
 router.post('/login',
   validateBody(LoginSchema),
-  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  asyncHandler(async (req: Request, res: Response) => {
     const db = getDb();
     const { email, password } = req.body;
 
@@ -236,10 +236,11 @@ router.post('/login',
 
     if (!user || user.isActive === false) {
       recordLoginAttempt(email);
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: 'Email ou mot de passe incorrect'
       });
+      return;
     }
 
     // Vérifier le mot de passe
@@ -249,10 +250,11 @@ router.post('/login',
       recordLoginAttempt(email);
       await logActivity(user.id, 'LOGIN_FAILED', 'Mot de passe incorrect', req);
 
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: 'Email ou mot de passe incorrect'
       });
+      return;
     }
 
     // Supprimer les tentatives précédentes

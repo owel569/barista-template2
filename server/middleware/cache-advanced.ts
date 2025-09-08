@@ -75,7 +75,7 @@ class AdvancedCache {
 
     this.cleanupTimer = setInterval(() => {
       this.cleanup();
-    }, this.config.cleanupInterval);
+    }, this.config.cleanupInterval) as NodeJS.Timeout;
   }
 
   /**

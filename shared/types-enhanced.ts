@@ -131,6 +131,7 @@ export interface Table {
   capacity: number;
   status: 'available' | 'occupied' | 'reserved' | 'maintenance';
   location?: string;
+  section?: string;
   isAccessible?: boolean;
   features?: string[];
 }

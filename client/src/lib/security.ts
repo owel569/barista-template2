@@ -22,7 +22,7 @@ export interface SecurityConfig {
  * Sanitise une chaîne de caractères pour éviter les injections XSS
  */
 export function sanitizeString(
-  value: string, 
+  value: string,
   config: SecurityConfig = {}
 ): string {
   if (typeof value !== 'string') {
@@ -66,10 +66,10 @@ export function sanitizeString(
  */
 export function validateEmail(email: string): ValidationResult {
   const sanitized = sanitizeString(email, { maxLength: 254 })
-  
+
   // RFC 5322 regex simplifié mais sécurisé
   const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
-  
+
   if (!emailRegex.test(sanitized)) {
     return {
       isValid: false,
@@ -87,15 +87,15 @@ export function validateEmail(email: string): ValidationResult {
  * Valide un numéro de téléphone
  */
 export function validatePhone(phone: string): ValidationResult {
-  const sanitized = sanitizeString(phone, { 
+  const sanitized = sanitizeString(phone, {
     allowedChars: /[0-9+\-\s()]/g,
-    maxLength: 20 
+    maxLength: 20
   })
-  
+
   // Regex pour formats internationaux basiques
   const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/
   const cleanPhone = sanitized.replace(/[\s\-()]/g, '')
-  
+
   if (!phoneRegex.test(cleanPhone)) {
     return {
       isValid: false,
@@ -114,10 +114,10 @@ export function validatePhone(phone: string): ValidationResult {
  */
 export function validateUrl(url: string): ValidationResult {
   const sanitized = sanitizeString(url, { maxLength: 2048 })
-  
+
   try {
     const urlObj = new URL(sanitized)
-    
+
     // Protocoles autorisés
     const allowedProtocols = ['http:', 'https:', 'ftp:', 'ftps:']
     if (!allowedProtocols.includes(urlObj.protocol)) {
@@ -204,7 +204,7 @@ export function validateFormData(
       case 'string':
       default:
         sanitized[key] = sanitizeString(String(value), config)
-        
+
         // Validation de longueur
         if (config.minLength && String(sanitized[key]).length < config.minLength) {
           errors[key] = `Minimum ${config.minLength} caractères requis`
@@ -248,7 +248,7 @@ export function validateCSRFToken(token: string, expectedToken: string): boolean
   if (!token || !expectedToken || token.length !== expectedToken.length) {
     return false
   }
-  
+
   // Comparaison en temps constant pour éviter les attaques de timing
   let result = 0
   for (let i = 0; i < token.length; i++) {
@@ -256,7 +256,7 @@ export function validateCSRFToken(token: string, expectedToken: string): boolean
     const b = i < expectedToken.length ? expectedToken.charCodeAt(i) : 0;
     result |= a ^ b;
   }
-  
+
   return result === 0
 }
 
@@ -265,20 +265,20 @@ export function validateCSRFToken(token: string, expectedToken: string): boolean
  */
 export function createRateLimiter(maxCalls: number, windowMs: number) {
   const calls: number[] = []
-  
+
   return function rateLimiter(): boolean {
     const now = Date.now()
-    
+
     // Supprime les appels anciens
     while (calls.length > 0 && calls[0] !== undefined && calls[0] <= now - windowMs) {
       calls.shift()
     }
-    
+
     // Vérifie la limite
     if (calls.length >= maxCalls) {
       return false
     }
-    
+
     calls.push(now)
     return true
   }
@@ -298,18 +298,18 @@ export function secureDebounce<T extends (...args: unknown[]) => unknown>(
 
   return ((...args: Parameters<T>) => {
     const now = Date.now()
-    
+
     // Protection contre les appels trop fréquents
     if (now - lastCallTime < 10) { // Minimum 10ms entre les appels
       return
     }
-    
+
     lastCallTime = now
 
     if (timeout) {
       clearTimeout(timeout)
     }
-    
+
     if (maxWait && !maxTimeout) {
       maxTimeout = setTimeout(() => {
         if (timeout) {
