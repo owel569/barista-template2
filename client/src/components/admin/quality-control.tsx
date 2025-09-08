@@ -723,7 +723,7 @@ export default function QualityControl(): JSX.Element {
                     {selectedCheck.correctionActions.map((action, index) => (
                       <div key={index} className="flex items-center gap-2 text-sm">
                         <CheckCircle className="h-3 w-3 text-green-500" />
-                        {action}
+                        {String(action)}
                       </div>
                     ))}
                   </div>

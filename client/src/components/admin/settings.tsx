@@ -132,7 +132,7 @@ const CANCELLATION_POLICIES = [
 
 export default function Settings({ userRole }: SettingsProps) {
   const { user } = useAuth();
-  const { hasPermission } = usePermissions(user);
+  const { hasPermission } = usePermissions();
   const [settings, setSettings] = useState<RestaurantSettings>(defaultSettings);
   const [draftSettings, setDraftSettings] = useState<RestaurantSettings>(defaultSettings);
   const [hasChanges, setHasChanges] = useState(false);

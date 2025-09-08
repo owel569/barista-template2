@@ -8,7 +8,7 @@ import {
   Loader2, ChevronDown, Plus, Clock, AlertCircle, CheckCircle
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { createIconWrapper } from '@/types/icons';
+// import { createIconWrapper } from '@/types/icons';
 
 interface Report {
   id: string;
@@ -471,7 +471,7 @@ export default function ReportsSystem() {
 
                     <div className="flex items-center justify-between">
                       <div className="text-xs text-gray-500 dark:text-gray-500">
-                        Dernière génération: {new Date(report.lastGenerated).toLocaleDateString('fr-FR')}
+                        Dernière génération: {report.lastGenerated ? new Date(report.lastGenerated).toLocaleDateString('fr-FR') : 'Jamais'}
                       </div>
                       <Button
                         size="sm"
