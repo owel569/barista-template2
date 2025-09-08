@@ -1,4 +1,3 @@
-
 import { Router } from 'express';
 import { z } from 'zod';
 import { hash, compare } from 'bcryptjs';
@@ -50,15 +49,15 @@ const ChangePasswordSchema = z.object({
 function checkRateLimit(identifier: string): void {
   const now = new Date();
   const attempt = loginAttempts.get(identifier);
-  
+
   if (attempt) {
     const timeDiff = now.getTime() - attempt.lastAttempt.getTime();
     const hoursDiff = timeDiff / (1000 * 60 * 60);
-    
+
     if (hoursDiff < 1 && attempt.count >= 5) {
       throw new RateLimitError('Trop de tentatives de connexion. Réessayez dans 1 heure.');
     }
-    
+
     if (hoursDiff >= 1) {
       loginAttempts.delete(identifier);
     }
@@ -69,7 +68,7 @@ function checkRateLimit(identifier: string): void {
 function recordLoginAttempt(identifier: string): void {
   const now = new Date();
   const attempt = loginAttempts.get(identifier);
-  
+
   if (attempt) {
     attempt.count += 1;
     attempt.lastAttempt = now;
@@ -79,27 +78,31 @@ function recordLoginAttempt(identifier: string): void {
 }
 
 // Fonction utilitaire pour générer un token JWT
-function generateToken(user: { id: number; email: string; role: string }): string {
+function generateToken(user: { id: number; email: string; role: string }, remember?: boolean): string {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET not configured');
+  }
+
   return jwt.sign(
     {
-      userId: user.id,
+      id: user.id,
       email: user.email,
       role: user.role
     },
-    JWT_SECRET as jwt.Secret,
+    process.env.JWT_SECRET,
     {
-      expiresIn: JWT_EXPIRES_IN,
+      expiresIn: remember ? '30d' : '7d',
       issuer: 'barista-cafe',
-      audience: 'barista-cafe-users'
+      audience: 'barista-users'
     }
   );
 }
 
 // Fonction utilitaire pour enregistrer une activité
 async function logActivity(
-  userId: number, 
-  action: string, 
-  details: string, 
+  userId: number,
+  action: string,
+  details: string,
   req: any
 ): Promise<void> {
   try {
@@ -113,10 +116,10 @@ async function logActivity(
       userAgent: req.get('User-Agent')
     });
   } catch (error) {
-    logger.error('Erreur enregistrement activité', { 
-      userId, 
-      action, 
-      error: error instanceof Error ? error.message : 'Erreur inconnue' 
+    logger.error('Erreur enregistrement activité', {
+      userId,
+      action,
+      error: error instanceof Error ? error.message : 'Erreur inconnue'
     });
   }
 }
@@ -124,7 +127,7 @@ async function logActivity(
 // Route d'inscription
 router.post('/register',
   validateBody(RegisterSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const { firstName, lastName, email, password, phone, role } = req.body;
 
@@ -188,11 +191,11 @@ router.post('/register',
     // Enregistrer l'activité
     await logActivity(newUser.id, 'REGISTER', 'Inscription utilisateur', req);
 
-    logger.info('Utilisateur inscrit', { 
-      userId: newUser.id, 
-      email, 
+    logger.info('Utilisateur inscrit', {
+      userId: newUser.id,
+      email,
       role,
-      ip: req.ip 
+      ip: req.ip
     });
 
     res.status(201).json({
@@ -209,7 +212,7 @@ router.post('/register',
 // Route de connexion
 router.post('/login',
   validateBody(LoginSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const { email, password } = req.body;
 
@@ -241,11 +244,11 @@ router.post('/login',
 
     // Vérifier le mot de passe
     const isPasswordValid = await compare(password, user.password);
-    
+
     if (!isPasswordValid) {
       recordLoginAttempt(email);
       await logActivity(user.id, 'LOGIN_FAILED', 'Mot de passe incorrect', req);
-      
+
       return res.status(401).json({
         success: false,
         message: 'Email ou mot de passe incorrect'
@@ -261,11 +264,11 @@ router.post('/login',
     // Enregistrer l'activité
     await logActivity(user.id, 'LOGIN', 'Connexion utilisateur', req);
 
-    logger.info('Utilisateur connecté', { 
-      userId: user.id, 
-      email, 
+    logger.info('Utilisateur connecté', {
+      userId: user.id,
+      email,
       role: user.role,
-      ip: req.ip 
+      ip: req.ip
     });
 
     // Retourner les données sans le mot de passe

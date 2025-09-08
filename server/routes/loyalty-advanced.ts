@@ -310,7 +310,7 @@ class AdvancedLoyaltyService {
       return points >= l.minPoints && points <= l.maxPoints;
     });
 
-    return level || LOYALTY_LEVELS[0];
+    return level ?? LOYALTY_LEVELS[0];
   }
 
   /**
@@ -765,7 +765,8 @@ router.get('/customer/:customerId',
 
       const customer = customerResult[0];
       if (!customer) {
-        return res.status(404).json({ success: false, message: 'Client non trouvé' });
+        res.status(404).json({ success: false, message: 'Client non trouvé' });
+        return;
       }
       const points = customer.loyaltyPoints || 0;
       const level = AdvancedLoyaltyService.getLevelForPoints(points);
@@ -827,7 +828,7 @@ router.get('/customer/:customerId',
         totalPointsEarned: stats.totalEarned,
         totalPointsRedeemed: stats.totalRedeemed,
         currentLevel: level,
-        nextLevel: nextLevelInfo.nextLevel || null,
+        nextLevel: nextLevelInfo.nextLevel || undefined,
         progressToNextLevel: nextLevelInfo.progress,
         pointsToNextLevel: nextLevelInfo.pointsToNext,
         joinDate: customer?.createdAt?.toISOString() ?? new Date().toISOString(),
@@ -929,7 +930,7 @@ router.post('/earn-points',
 
         await tx.insert(loyaltyTransactions).values({
           ...transactionData,
-          balance: newTotalPoints
+          // balance: newTotalPoints // Removed as it's not part of the schema
         });
 
         await tx.insert(activityLogs).values({

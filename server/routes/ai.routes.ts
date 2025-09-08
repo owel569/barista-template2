@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { asyncHandler } from '../middleware/error-handler';
 import { createLogger } from '../middleware/logging';
@@ -174,21 +174,23 @@ class AIService {
       const db = await getDb();
 
       // Vérifier les réservations existantes
-      const existingReservations = await db.select()
-        .from(reservations)
-        .where(
-          and(
-            eq(reservations.date, date),
-            eq(reservations.time, time)
-          )
-        );
+      const existingReservations = await db
+      .select()
+      .from(reservations)
+      .where(
+        and(
+          eq(reservations.date, new Date(date)),
+          eq(reservations.status, 'confirmed')
+        )
+      );
+
+    const totalGuests = existingReservations.reduce((sum, r) => sum + r.partySize, 0);
 
       // Logique simplifiée de disponibilité
       const isWeekend = new Date(date).getDay() === 0 || new Date(date).getDay() === 6;
       const isPeakHour = time >= '19:00' && time <= '21:00';
       const capacity = isWeekend && isPeakHour ? 50 : 80;
 
-      const totalGuests = existingReservations.reduce((sum, r) => sum + r.guests, 0);
       const available = (totalGuests + guests) <= capacity;
 
       if (!available) {
@@ -355,7 +357,7 @@ class AIService {
 router.post('/chat', 
   authenticateUser,
   validateBody(ChatMessageSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { message, context, sessionId } = req.body;
 
     try {
@@ -375,7 +377,7 @@ router.post('/chat',
       res.status(500).json({
         success: false,
         error: 'CHAT_ERROR',
-        message: 'Erreur lors du traitement de la demande',
+        message: 'Erreur lors de la traitement de la demande',
         timestamp: new Date().toISOString()
       });
     }
@@ -403,7 +405,7 @@ router.post('/chat',
 router.post('/voice',
   authenticateUser,
   validateBody(VoiceCommandSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { audioData, language, userId } = req.body;
 
     try {
@@ -459,7 +461,7 @@ router.post('/voice',
 router.post('/reservation',
   authenticateUser,
   validateBody(AIReservationSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { date, time, guests, preferences, customerInfo } = req.body;
 
     try {
@@ -488,21 +490,21 @@ router.post('/reservation',
       const db = await getDb();
       const [reservation] = await db.insert(reservations)
         .values({
-          date,
+          date: new Date(date),
           time,
-          guests,
-          preferences,
+          partySize: guests,
           customerName: customerInfo?.name,
           customerEmail: customerInfo?.email,
           customerPhone: customerInfo?.phone,
           status: 'confirmed',
-          createdAt: new Date()
+          specialRequests: preferences,
+          notes: `Réservation créée par IA`,
         })
         .returning();
 
-      const aiResponse: AIResponse<typeof reservation> = {
+      const aiResponse: AIResponse<NonNullable<typeof reservation>> = {
         success: true,
-        data: reservation,
+        data: reservation!,
         timestamp: new Date().toISOString(),
         confidence: 0.95
       };
@@ -550,11 +552,11 @@ router.get('/predictions',
   authenticateUser,
   requireRoles(['admin', 'manager']),
   validateQuery(PredictionQuerySchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { timeframe, metrics } = req.query;
 
     try {
-      const predictions = AIService.generatePredictions(timeframe, metrics);
+      const predictions = AIService.generatePredictions(timeframe as string, metrics as string[]);
 
       res.json({
         success: true,
@@ -601,11 +603,11 @@ router.get('/automation/suggestions',
   authenticateUser,
   requireRoles(['admin', 'manager']),
   validateQuery(AutomationSuggestionSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { category, priority } = req.query;
 
     try {
-      const suggestions = AIService.generateAutomationSuggestions(category, priority);
+      const suggestions = AIService.generateAutomationSuggestions(category, priority as 'low' | 'medium' | 'high');
 
       res.json({
         success: true,
@@ -652,7 +654,7 @@ router.post('/sentiment-analysis',
   authenticateUser,
   requireRoles(['admin', 'manager']),
   validateBody(SentimentAnalysisSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { text, source } = req.body;
 
     try {
@@ -682,5 +684,58 @@ router.post('/sentiment-analysis',
     }
   })
 );
+
+// GET /api/ai/voice-analysis - Simuler une analyse vocale
+router.get('/voice-analysis', authenticateUser, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { time } = req.query;
+
+    if (!time || typeof time !== 'string') {
+      res.status(400).json({ 
+        success: false, 
+        message: 'Paramètre time requis' 
+      });
+      return;
+    }
+
+    // Simulation de différents accents/dialectes
+    const transcripts = [
+      "Bonjour, je souhaiterais réserver une table pour deux personnes",
+      "Good evening, I'd like a table for four please",
+      "Buongiorno, vorrei prenotare un tavolo per tre persone",
+      "Hola, ¿podría reservar una mesa para dos?",
+      "Guten Tag, ich möchte einen Tisch für vier Personen reservieren"
+    ];
+
+    const timeParts = time.split(':');
+    const hours = parseInt(timeParts[0] || '0');
+    let randomTranscript: string;
+
+    // Logique basée sur l'heure
+    if (hours >= 18) {
+      randomTranscript = transcripts[Math.floor(Math.random() * transcripts.length)] || transcripts[0];
+    } else {
+      randomTranscript = transcripts[0]; // Français par défaut
+    }
+
+    const analysisResult = {
+      transcript: randomTranscript,
+      confidence: Math.random() * 0.3 + 0.7, // Entre 70% et 100%
+    };
+
+    res.json({
+      success: true,
+      data: analysisResult,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    logger.error('Erreur lors de l\'analyse vocale:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de l\'analyse vocale'
+    });
+  }
+});
+
 
 export default router;

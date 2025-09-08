@@ -10,18 +10,6 @@ interface CategoryData {
 
 interface CategoryPieChartProps {
   data: CategoryData[];
-  title?: string;
-}
-import { Skeleton } from "@/components/ui/skeleton";
-
-interface CategoryData {
-  name: string;
-  value: number;
-  color?: string; // Make color optional since we have fallback
-}
-
-interface CategoryPieChartProps {
-  data: CategoryData[];
   loading?: boolean;
   title?: string;
   emptyMessage?: string;
@@ -43,7 +31,7 @@ export function CategoryPieChart({
 }: CategoryPieChartProps) {
   // Derived state
   const isEmpty = !loading && (!data || data.length === 0);
-  
+
   if (loading) {
     return (
       <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">

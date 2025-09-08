@@ -22,7 +22,7 @@ export class AppError extends Error {
     this.statusCode = statusCode;
     this.isOperational = isOperational;
     this.timestamp = new Date();
-    this.requestId = requestId;
+    this.requestId = requestId || '';
 
     Error.captureStackTrace(this, this.constructor);
   }
@@ -34,7 +34,7 @@ export class ValidationError extends AppError {
 
   constructor(message: string, field?: string, validationErrors?: any) {
     super(message, 400);
-    this.field = field;
+    this.field = field || '';
     this.validationErrors = validationErrors;
   }
 }

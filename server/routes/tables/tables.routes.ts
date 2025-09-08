@@ -324,11 +324,10 @@ router.post('/',
       .where(eq(tables.number, req.body.number));
 
     if (existingTable) {
-      res.status(409).json({
+      return res.status(409).json({
         success: false,
         message: 'Une table avec ce numéro existe déjà'
       });
-      return;
     }
 
     const [newTable] = await db
@@ -373,7 +372,7 @@ router.put('/:id',
   asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const currentUser = (req as any).user;
-    const id = parseInt(req.params.id, 10);
+    const id = parseInt(req.params.id || '0', 10);
 
     const [existingTable] = await db
       .select()
@@ -452,7 +451,7 @@ router.patch('/:id/status',
   asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const currentUser = (req as any).user;
-    const id = parseInt(req.params.id, 10);
+    const id = parseInt(req.params.id || '0', 10);
     const { status, notes } = req.body;
 
     const [existingTable] = await db
@@ -518,7 +517,7 @@ router.delete('/:id',
   asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const currentUser = (req as any).user;
-    const id = parseInt(req.params.id, 10);
+    const id = parseInt(req.params.id || '0', 10);
 
     if (!id) {
       return res.status(400).json({

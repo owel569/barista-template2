@@ -323,8 +323,8 @@ const AdvancedLoyalty: React.FC = () => {
                 <div className="space-y-2">
                   <label>Type</label>
                   <Select
-                    value={newRewardData.type || undefined}
-                    onValueChange={(value: string) => setNewRewardData({...newRewardData, type: value as 'discount' | 'free_item' | 'special_offer'})}
+                    value={newRewardData.type || ''}
+                    onValueChange={(value) => setNewRewardData({...newRewardData, type: value as 'discount' | 'free_item' | 'special_offer'})}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Sélectionner un type" />

@@ -33,7 +33,7 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
   // États locaux
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
-  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0] || '');
   const [viewMode, setViewMode] = useState<ViewMode>("calendar");
   const [timePeriod, setTimePeriod] = useState<TimePeriod>("week");
   const [isCreatingShift, setIsCreatingShift] = useState(false);
@@ -47,8 +47,8 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
     positions: initialFilters?.positions ?? [],
     employees: initialFilters?.employees ?? [],
     dateRange: {
-      start: initialFilters?.dateRange?.start ?? defaultStart,
-      end: initialFilters?.dateRange?.end ?? defaultEnd
+      start: initialFilters?.dateRange?.start ?? defaultStart ?? '',
+      end: initialFilters?.dateRange?.end ?? defaultEnd ?? ''
     },
     status: initialFilters?.status ?? [],
     showConflicts: initialFilters?.showConflicts ?? false,

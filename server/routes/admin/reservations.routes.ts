@@ -24,7 +24,7 @@ const ReservationSchema = z.object({
 router.get('/', authenticateUser, requireRoleHierarchy('staff'), async (req, res): Promise<void> => {
   try {
     const { date, status } = req.query;
-    
+
     let query = db
       .select({
         id: reservations.id,
@@ -71,7 +71,7 @@ router.get('/', authenticateUser, requireRoleHierarchy('staff'), async (req, res
 router.post('/', authenticateUser, requireRoleHierarchy('staff'), validateBody(ReservationSchema), async (req, res): Promise<void> => {
   try {
     const reservationData = req.body;
-    
+
     const [newReservation] = await db
       .insert(reservations)
       .values({
@@ -115,10 +115,11 @@ router.put('/:id', authenticateUser, requireRoleHierarchy('staff'), validateBody
       .returning();
 
     if (!updatedReservation) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Réservation non trouvée'
       });
+      return;
     }
 
     res.json({
@@ -158,10 +159,11 @@ router.patch('/:id/status', authenticateUser, requireRoleHierarchy('staff'), asy
       .returning();
 
     if (!updatedReservation) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Réservation non trouvée'
       });
+      return;
     }
 
     res.json({
@@ -189,10 +191,11 @@ router.delete('/:id', authenticateUser, requireRoleHierarchy('manager'), async (
       .returning();
 
     if (!deletedReservation) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Réservation non trouvée'
       });
+      return;
     }
 
     res.json({
