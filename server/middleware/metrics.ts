@@ -1,4 +1,3 @@
-
 import { Request, Response, NextFunction } from 'express';
 
 interface MetricsData {
@@ -9,45 +8,6 @@ interface MetricsData {
   responseTime: number;
   userId?: string;
 }
-
-class MetricsCollector {
-  private metrics: MetricsData[] = [];
-
-  collect(data: MetricsData): void {
-    this.metrics.push(data);
-    // Garder seulement les 1000 dernières métriques
-    if (this.metrics.length > 1000) {
-      this.metrics = this.metrics.slice(-1000);
-    }
-  }
-
-  getMetrics(): MetricsData[] {
-    return [...this.metrics];
-  }
-}
-
-const metricsCollector = new MetricsCollector();
-
-export const metricsMiddleware = (req: Request, res: Response, next: NextFunction): void => {
-  const startTime = Date.now();
-
-  res.on('finish', () => {
-    const responseTime = Date.now() - startTime;
-    
-    metricsCollector.collect({
-      timestamp: Date.now(),
-      endpoint: req.path,
-      method: req.method,
-      statusCode: res.statusCode,
-      responseTime,
-      userId: req.user?.id
-    });
-  });
-
-  next();
-};
-
-export { metricsCollector };
 
 interface Metrics {
   requests: {
@@ -81,7 +41,7 @@ interface Metrics {
 }
 
 class MetricsCollector {
-  private metrics: Metrics;
+  private metrics: Metrics = this.createInitialMetrics();
   private startTime: number;
 
   constructor() {
@@ -89,8 +49,8 @@ class MetricsCollector {
     this.resetMetrics();
   }
 
-  private resetMetrics() {
-    this.metrics = {
+  private createInitialMetrics(): Metrics {
+    return {
       requests: {
         total: 0,
         success: 0,
@@ -120,6 +80,10 @@ class MetricsCollector {
       uptime: 0,
       lastReset: new Date().toISOString()
     };
+  }
+
+  private resetMetrics() {
+    this.metrics = this.createInitialMetrics();
   }
 
   recordRequest(method: string, route: string, statusCode: number, responseTime: number) {
@@ -204,6 +168,17 @@ class MetricsCollector {
     this.resetMetrics();
     this.startTime = Date.now();
   }
+
+  // Legacy method for compatibility
+  collect(data: MetricsData): void {
+    this.recordRequest(data.method, data.endpoint, data.statusCode, data.responseTime);
+  }
+
+  // Legacy method for compatibility
+  getMetricsData(): MetricsData[] {
+    // Return empty array for backward compatibility
+    return [];
+  }
 }
 
 const metricsCollector = new MetricsCollector();
@@ -215,6 +190,7 @@ export const metricsMiddleware = (req: Request, res: Response, next: NextFunctio
   res.send = function(body) {
     const responseTime = Date.now() - startTime;
     const route = req.route?.path || req.path;
+    const userId = (req as any).user?.id?.toString();
     
     metricsCollector.recordRequest(req.method, route, res.statusCode, responseTime);
     

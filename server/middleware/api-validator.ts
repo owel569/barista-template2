@@ -16,7 +16,7 @@ interface ApiResponse<T = unknown> {
 interface StandardError {
   name?: string;
   message: string;
-  stack?: string;
+  stack?: string | undefined;
   details?: unknown;
 }
 
@@ -57,7 +57,7 @@ export const apiResponseValidator = (req: Request, res: Response, next: NextFunc
       try {
         parsedBody = JSON.parse(body);
       } catch (e) {
-        logger.error('🚨 Réponse API non-JSON détectée:', body.substring(0, 100));
+        logger.error('🚨 Réponse API non-JSON détectée:', e as Error, { body: body.substring(0, 100) });
         const errorResponse: ApiResponse<string> = {
           ...standardResponse,
           success: false,
@@ -88,7 +88,7 @@ export const apiResponseValidator = (req: Request, res: Response, next: NextFunc
 
     // Validation du schéma de réponse
     if (!validateResponseSchema(response)) {
-      logger.warn('Schéma de réponse non standard', response);
+      logger.warn('Schéma de réponse non standard', { response });
     }
 
     return originalJson.call(this, response);
@@ -99,7 +99,7 @@ export const apiResponseValidator = (req: Request, res: Response, next: NextFunc
     if (typeof body === 'string') {
       // Détection de HTML
       if (body.includes('<!DOCTYPE') || body.startsWith('<html')) {
-        logger.error('🚨 Tentative d\'envoi de HTML sur route API:', req.path);
+        logger.error('🚨 Tentative d\'envoi de HTML sur route API:', new Error('HTML response not allowed'), { path: req.path });
         const errorResponse: ApiResponse<string> = {
           ...standardResponse,
           success: false,
@@ -146,8 +146,7 @@ export const errorResponseHandler = (error: unknown, req: Request, res: Response
   };
 
   // Log de l'erreur
-  logger.error(`API Error [${statusCode}] at ${req.path}: ${message}`, {
-    error: error,
+  logger.error(`API Error [${statusCode}] at ${req.path}: ${message}`, error as Error, {
     request: {
       method: req.method,
       url: req.originalUrl,
@@ -175,7 +174,7 @@ function validateResponseSchema(response: ApiResponse): boolean {
     (response.statusCode === undefined || typeof response.statusCode === 'number');
 
   if (!isValid) {
-    logger.warn('Response schema validation failed:', response);
+    logger.warn('Response schema validation failed:', { response });
   }
 
   return isValid;
@@ -204,7 +203,7 @@ function getErrorDetails(error: unknown): StandardError | string {
     return {
       name: error.name,
       message: error.message,
-      stack: error.stack,
+      stack: error.stack || undefined,
       // Vérification sécurisée pour la propriété 'cause'
       details: 'cause' in error && error.cause !== undefined ? error.cause : undefined
     };
