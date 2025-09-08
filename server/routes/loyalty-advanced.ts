@@ -829,16 +829,14 @@ router.get('/customer/:customerId',
         totalPointsRedeemed: stats.totalRedeemed || 0,
         currentLevel,
         nextLevel: nextLevel || undefined,
+        progressToNextLevel: AdvancedLoyaltyService.getNextLevelInfo(customer.loyaltyPoints || 0).progress,
         pointsToNextLevel: AdvancedLoyaltyService.getNextLevelInfo(customer.loyaltyPoints || 0).pointsToNext,
-        recentTransactions: typedTransactions,
-        monthlySpending: metrics.averageTransactionValue * 0.05 * 30, // Placeholder, needs actual monthly data
-        averageOrderValue: metrics.averageTransactionValue * 0.05, // Assuming a 5% conversion from points to currency
-        visitFrequency: metrics.frequencyScore,
-        lastActivity: customer?.updatedAt?.toISOString() ?? new Date().toISOString(),
         joinDate: customer?.createdAt?.toISOString() ?? new Date().toISOString(),
+        lastActivity: customer?.updatedAt?.toISOString() ?? new Date().toISOString(),
         tier: currentLevel.name.toLowerCase() as CustomerLoyaltyData['tier'],
         lifetimeValue: metrics.lifetimeValue,
-        expiringPoints: 0
+        averageOrderValue: metrics.averageTransactionValue * 0.05,
+        visitFrequency: metrics.frequencyScore
       };
 
       res.json({

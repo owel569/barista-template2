@@ -7,7 +7,7 @@ export interface Toast {
   id: string;
   title?: string;
   description?: string;
-  variant?: 'default' | 'destructive' | 'success' | 'warning';
+  variant?: 'default' | 'destructive';
   duration?: number;
   action?: {
     label: string;
@@ -375,15 +375,14 @@ export interface CustomerLoyaltyData {
   totalPointsRedeemed: number;
   currentLevel: LoyaltyLevel;
   nextLevel?: LoyaltyLevel;
+  progressToNextLevel: number;
   pointsToNextLevel: number;
-  recentTransactions: any[];
-  monthlySpending: number;
+  joinDate: string;
+  lastActivity: string;
+  tier: 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
+  lifetimeValue: number;
   averageOrderValue: number;
   visitFrequency: number;
-  lastVisit: Date | null;
-  joinDate: Date;
-  loyaltyTier: string;
-  expiringPoints: number;
 }
 
 // Interface pour le statut des tables

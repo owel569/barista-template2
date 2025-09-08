@@ -35,7 +35,7 @@ const CategorySchema = z.object({
 // GET /api/admin/menu/items - Récupérer tous les éléments du menu
 router.get('/items', 
   authenticateUser, 
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
     const items = await db
       .select({
@@ -70,10 +70,10 @@ router.get('/items',
 router.post('/items', 
   authenticateUser,
   validateBody(MenuItemSchema), 
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
     const itemData = req.body;
-    
+
     const [newItem] = await db
       .insert(menuItems)
       .values({
@@ -94,10 +94,10 @@ router.post('/items',
 router.put('/items/:id', 
   authenticateUser,
   validateBody(MenuItemSchema.partial()), 
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
     const { id } = req.params;
-    
+
     if (!id) {
       return res.status(400).json({
         success: false,
@@ -133,7 +133,7 @@ router.put('/items/:id',
 // DELETE /api/admin/menu/items/:id - Supprimer un élément de menu
 router.delete('/items/:id', 
   authenticateUser,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
     const { id } = req.params;
 
@@ -166,7 +166,7 @@ router.delete('/items/:id',
 // GET /api/admin/menu/categories - Récupérer toutes les catégories
 router.get('/categories', 
   authenticateUser,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
     const categories = await db
       .select()
@@ -184,10 +184,10 @@ router.get('/categories',
 router.post('/categories', 
   authenticateUser,
   validateBody(CategorySchema), 
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
     const categoryData = req.body;
-    
+
     const [newCategory] = await db
       .insert(menuCategories)
       .values(categoryData)
@@ -204,9 +204,9 @@ router.post('/categories',
 // GET /api/admin/menu/stats - Statistiques du menu
 router.get('/stats', 
   authenticateUser,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
-    
+
     const [
       totalItems,
       availableItems,

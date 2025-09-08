@@ -621,7 +621,7 @@ router.get('/modules', authenticateUser, async (_req: Request, res: Response) =>
 });
 
 // Routes pour activer/désactiver les modules
-router.post('/modules/:moduleId/activate', authenticateUser, async (_req: Request, res: Response) => {
+router.post('/modules/:moduleId/activate', authenticateUser, async (_req: Request, res: Response): Promise<void> => {
   try {
     const { moduleId } = _req.params;
 

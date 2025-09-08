@@ -1,4 +1,3 @@
-
 import { Request, Response, NextFunction } from 'express';
 import { createHash } from 'crypto';
 import { createLogger } from './logging';
@@ -32,12 +31,20 @@ interface CacheMiddlewareOptions {
   skipMethods?: string[];
 }
 
+// Interface pour les métriques du cache
+interface CacheMetrics {
+  hits: number;
+  misses: number;
+  evictions: number;
+  cleanups: number;
+}
+
 // Classe de gestion du cache en mémoire optimisée
 class AdvancedCache {
   private cache = new Map<string, CacheEntry>();
   private readonly config: CacheConfig;
   private cleanupTimer: NodeJS.Timeout | null = null;
-  private metrics = {
+  private metrics: CacheMetrics = {
     hits: 0,
     misses: 0,
     evictions: 0,
@@ -52,7 +59,7 @@ class AdvancedCache {
     };
 
     this.startCleanupTimer();
-    
+
     // Graceful shutdown
     process.on('SIGTERM', () => this.shutdown());
     process.on('SIGINT', () => this.shutdown());
@@ -82,7 +89,7 @@ class AdvancedCache {
       user: (req as any).user?.id || 'anonymous',
       timestamp: Math.floor(Date.now() / (5 * 60 * 1000)) // Groupe par 5 minutes
     };
-    
+
     return createHash('sha256')
       .update(JSON.stringify(keyData))
       .digest('hex')
@@ -94,7 +101,7 @@ class AdvancedCache {
    */
   get(key: string): Record<string, unknown> | null {
     const entry = this.cache.get(key);
-    
+
     if (!entry) {
       this.metrics.misses++;
       return null;
@@ -136,7 +143,7 @@ class AdvancedCache {
       };
 
       this.cache.set(key, entry);
-      
+
       logger.debug('Cache set', { 
         key, 
         ttl: entry.ttl, 
@@ -168,7 +175,7 @@ class AdvancedCache {
    */
   invalidateByTags(tags: string[]): number {
     let invalidatedCount = 0;
-    
+
     for (const [key, entry] of this.cache.entries()) {
       if (entry.tags.some(tag => tags.includes(tag))) {
         this.cache.delete(key);
@@ -191,7 +198,7 @@ class AdvancedCache {
    */
   invalidateByPattern(pattern: RegExp): number {
     let invalidatedCount = 0;
-    
+
     for (const key of this.cache.keys()) {
       if (pattern.test(key)) {
         this.cache.delete(key);
@@ -224,7 +231,7 @@ class AdvancedCache {
     }
 
     this.metrics.cleanups++;
-    
+
     if (cleanedCount > 0) {
       logger.debug('Cache cleanup completed', { 
         cleanedCount, 
@@ -255,7 +262,7 @@ class AdvancedCache {
     if (leastUsedKey) {
       this.cache.delete(leastUsedKey);
       this.metrics.evictions++;
-      
+
       logger.debug('Cache entry evicted', { 
         key: leastUsedKey, 
         score: leastScore 
@@ -276,10 +283,10 @@ class AdvancedCache {
   } {
     const totalAccesses = this.metrics.hits + this.metrics.misses;
     const hitRate = totalAccesses > 0 ? (this.metrics.hits / totalAccesses) * 100 : 0;
-    
+
     const totalAccessCount = Array.from(this.cache.values())
       .reduce((sum, entry) => sum + entry.accessCount, 0);
-    
+
     const averageAccessCount = this.cache.size > 0 ? totalAccessCount / this.cache.size : 0;
 
     return {
@@ -298,7 +305,7 @@ class AdvancedCache {
   clear(): void {
     const previousSize = this.cache.size;
     this.cache.clear();
-    
+
     // Reset metrics
     this.metrics = {
       hits: 0,
@@ -318,7 +325,7 @@ class AdvancedCache {
       clearInterval(this.cleanupTimer);
       this.cleanupTimer = null;
     }
-    
+
     this.clear();
     logger.info('Cache shutdown completed');
   }
@@ -415,7 +422,7 @@ export const ordersCacheMiddleware = cacheMiddleware({
 export const invalidateCache = (tags: string[] = [], patterns: RegExp[] = []) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     const originalJson = res.json.bind(res);
-    
+
     res.json = function(data: any) {
       // Invalider seulement après une modification réussie
       if (res.statusCode >= 200 && res.statusCode < 300) {
@@ -436,7 +443,7 @@ export const invalidateCache = (tags: string[] = [], patterns: RegExp[] = []) =>
           res.setHeader('X-Cache-Invalidated-Tags', tags.join(','));
         }
       }
-      
+
       return originalJson(data);
     };
 
@@ -448,7 +455,7 @@ export const invalidateCache = (tags: string[] = [], patterns: RegExp[] = []) =>
 export const getCacheStats = (req: Request, res: Response): void => {
   try {
     const stats = cache.getStats();
-    
+
     res.json({
       success: true,
       data: stats,
@@ -458,7 +465,7 @@ export const getCacheStats = (req: Request, res: Response): void => {
     logger.error('Erreur récupération stats cache', { 
       error: error instanceof Error ? error.message : 'Erreur inconnue' 
     });
-    
+
     res.status(500).json({
       success: false,
       message: 'Erreur lors de la récupération des statistiques du cache'
@@ -470,12 +477,12 @@ export const clearCache = (req: Request, res: Response): void => {
   try {
     const statsBefore = cache.getStats();
     cache.clear();
-    
+
     logger.info('Cache vidé manuellement', { 
       previousSize: statsBefore.size,
       user: (req as any).user?.id 
     });
-    
+
     res.json({
       success: true,
       message: 'Cache vidé avec succès',
@@ -485,7 +492,7 @@ export const clearCache = (req: Request, res: Response): void => {
     logger.error('Erreur vidage cache', { 
       error: error instanceof Error ? error.message : 'Erreur inconnue' 
     });
-    
+
     res.status(500).json({
       success: false,
       message: 'Erreur lors du vidage du cache'
@@ -496,7 +503,7 @@ export const clearCache = (req: Request, res: Response): void => {
 export const invalidateCacheByTags = (req: Request, res: Response): void => {
   try {
     const { tags } = req.body;
-    
+
     if (!tags || !Array.isArray(tags)) {
       return res.status(400).json({
         success: false,
@@ -505,13 +512,13 @@ export const invalidateCacheByTags = (req: Request, res: Response): void => {
     }
 
     const invalidatedCount = cache.invalidateByTags(tags);
-    
+
     logger.info('Cache invalidé par tags', { 
       tags, 
       invalidatedCount, 
       user: (req as any).user?.id 
     });
-    
+
     res.json({
       success: true,
       message: `${invalidatedCount} entrées invalidées`,
@@ -522,7 +529,7 @@ export const invalidateCacheByTags = (req: Request, res: Response): void => {
     logger.error('Erreur invalidation cache par tags', { 
       error: error instanceof Error ? error.message : 'Erreur inconnue' 
     });
-    
+
     res.status(500).json({
       success: false,
       message: 'Erreur lors de l\'invalidation du cache'

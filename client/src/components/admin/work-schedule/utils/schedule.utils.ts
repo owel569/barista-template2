@@ -291,7 +291,7 @@ export const getShiftTimeStatus = (shift: Shift): 'past' | 'current' | 'future' 
   const now = new Date();
   const shiftStart = new Date(`${shift.date}T${shift.startTime}`);
   const shiftEnd = new Date(`${shift.date}T${shift.endTime}`);
-  
+
   if (now > shiftEnd) return 'past';
   if (now >= shiftStart && now <= shiftEnd) return 'current';
   return 'future';
@@ -313,12 +313,12 @@ export const generateEmployeeColors = (employees: Employee[]): Record<number, st
     '#82d982', '#ffb347', '#ff6b6b', '#4ecdc4', '#45b7d1',
     '#f39c12', '#e74c3c', '#9b59b6', '#1abc9c', '#34495e'
   ];
-  
+
   const employeeColors: Record<number, string> = {};
   employees.forEach((employee, index) => {
     employeeColors[employee.id] = colors[index % colors.length];
   });
-  
+
   return employeeColors;
 };
 
@@ -366,14 +366,14 @@ export const filterShifts = (shifts: Shift[], filters: {
     if (filters.department && shift.department !== filters.department) return false;
     if (filters.position && shift.position !== filters.position) return false;
     if (filters.status && shift.status !== filters.status) return false;
-    
+
     if (filters.dateRange) {
       const shiftDate = parseISO(shift.date);
       const rangeStart = parseISO(filters.dateRange.start);
       const rangeEnd = parseISO(filters.dateRange.end);
       if (shiftDate < rangeStart || shiftDate > rangeEnd) return false;
     }
-    
+
     return true;
   });
 };
@@ -421,4 +421,26 @@ export const shiftsToCalendarEvents = (shifts: Shift[], employees: Employee[] = 
       },
     };
   });
-}; 
+};
+
+export function validateSchedule(scheduleData: unknown): boolean {
+  if (!scheduleData || typeof scheduleData !== 'object') {
+    return false;
+  }
+
+  const schedule = scheduleData as Record<string, unknown>;
+
+  // Validation des propriétés requises
+  if (typeof schedule.startTime !== 'string' || 
+      typeof schedule.endTime !== 'string' ||
+      typeof schedule.employeeId !== 'string') {
+    return false;
+  }
+
+  // Validation du format de temps
+  const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+  const startTime = schedule.startTime as string;
+  const endTime = schedule.endTime as string;
+
+  return timeRegex.test(startTime) && timeRegex.test(endTime);
+}
