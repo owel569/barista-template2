@@ -1,0 +1,20 @@
+/workspace$ npm run type-check
+
+> rest-express@1.0.0 type-check
+> tsc --noEmit --strict
+
+client/src/components/admin/MaintenanceTaskForm.tsx:121:19 - error TS2345: Argument of type '(prev: { id: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "high" | "low" | "medium" | "critical"; status: "completed" | "cancelled" | "pending" | "in_progress"; ... 7 more ...; updatedAt: string; }) => { ...; }' is not assignable to parameter of type 'SetStateAction<{ id: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "high" | "low" | "medium" | "critical"; status: "completed" | "cancelled" | "pending" | "in_progress"; ... 7 more ...; updatedAt: string; }>'.
+  Type '(prev: { id: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "high" | "low" | "medium" | "critical"; status: "completed" | "cancelled" | "pending" | "in_progress"; ... 7 more ...; updatedAt: string; }) => { ...; }' is not assignable to type '(prevState: { id: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "high" | "low" | "medium" | "critical"; status: "completed" | "cancelled" | "pending" | "in_progress"; ... 7 more ...; updatedAt: string; }) => { ...; }'.
+    Call signature return types '{ equipmentId: number; equipment: string; id: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "high" | "low" | "medium" | "critical"; ... 7 more ...; updatedAt: string; }' and '{ id: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "high" | "low" | "medium" | "critical"; status: "completed" | "cancelled" | "pending" | "in_progress"; ... 7 more ...; updatedAt: string; }' are incompatible.
+      The types of 'equipmentId' are incompatible between these types.
+        Type 'number' is not assignable to type 'null'.
+
+121       setFormData(prev => ({
+                      ~~~~~~~~~~
+122         ...prev,
+    ~~~~~~~~~~~~~~~~
+... 
+124         equipment: selectedEquipment.name,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+125       }));
+    ~~~~~~~~
