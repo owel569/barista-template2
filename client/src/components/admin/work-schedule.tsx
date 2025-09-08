@@ -6,7 +6,15 @@ import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 
 // Type definition for view modes
-export type ViewMode = 'calendar' | 'list' | 'analytics' | 'overview';
+export type ViewMode = 'calendar' | 'list' | 'analytics' | 'overview' | 'personal' | 'team' | 'full';
+
+// Interface pour les props du composant WorkSchedule
+interface WorkScheduleProps {
+  userRole: 'directeur' | 'employe';
+  viewMode: ViewMode;
+  editable: boolean;
+  exportable: boolean;
+}
 
 // Chargement différé du composant principal pour une meilleure performance
 const LazyWorkSchedule = React.lazy(() => import('./work-schedule/WorkSchedule'));

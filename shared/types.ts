@@ -24,6 +24,7 @@ export interface MaintenanceTask {
   priority: 'low' | 'medium' | 'high' | 'urgent';
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
   assignedTo?: string;
+  equipmentId?: string | null;
   dueDate?: string;
   completedAt?: string;
   createdAt: string;

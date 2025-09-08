@@ -21,8 +21,8 @@ import { MaintenanceTask as MaintenanceTaskType, Equipment, Technician } from '.
 interface MaintenanceTaskFormProps {
   equipmentList: Equipment[];
   technicians: Technician[];
-  initialData?: Partial<MaintenanceTask>;
-  onSubmit: (data: Omit<MaintenanceTask, 'id'>) => void;
+  initialData?: Partial<MaintenanceTask & { equipmentId?: string | null }>;
+  onSubmit: (data: Omit<MaintenanceTask, 'id'> & { equipmentId?: string | null }) => void;
   onCancel: () => void;
 }
 

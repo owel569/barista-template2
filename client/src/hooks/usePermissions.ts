@@ -41,6 +41,7 @@ interface UsePermissionsReturn {
   canEdit: (module: ModuleName) => boolean;
   canDelete: (module: ModuleName) => boolean;
   canCreate: (module: ModuleName) => boolean;
+  canManage: (module: ModuleName) => boolean;
   isAdmin: boolean;
   isManager: boolean;
   isStaff: boolean;
@@ -244,10 +245,6 @@ export const usePermissions = (): UsePermissionsReturn => {
 
   const canDelete = useCallback((module: ModuleName): boolean => {
     return hasPermission(module, 'delete') || hasPermission(module, 'manage');
-  }, [hasPermission]);
-
-  const canManage = useCallback((module: ModuleName): boolean => {
-    return hasPermission(module, 'manage');
   }, [hasPermission]);
 
   const canManage = useCallback((module: ModuleName): boolean => {

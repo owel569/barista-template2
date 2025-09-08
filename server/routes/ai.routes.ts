@@ -503,9 +503,15 @@ router.post('/reservation',
         };
       const [reservation] = await db.insert(reservations)
         .values({
-          ...reservationData,
-          reservationTime: new Date(`${reservationData.date.toDateString()} ${reservationData.time}`),
-          partySize: parseInt(String(reservationData.guests)) || 1
+          customerId: 1, // ID par défaut pour les réservations IA
+          tableId: 1, // Table par défaut
+          date: new Date(date),
+          time: time,
+          partySize: guests,
+          status: 'confirmed' as const,
+          specialRequests: preferences || '',
+          notes: `Réservation créée par IA - ${customerInfo?.name || 'Client IA'}`,
+          confirmationCode: `AI-${Date.now()}`
         })
         .returning();
 
