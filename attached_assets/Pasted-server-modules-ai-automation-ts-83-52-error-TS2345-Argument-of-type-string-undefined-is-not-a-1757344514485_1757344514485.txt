@@ -1,0 +1,96 @@
+server/modules/ai-automation.ts:83:52 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+83       const command = await this.parseVoiceCommand(transcript);
+                                                      ~~~~~~~~~~
+
+server/modules/ai-automation.ts:282:27 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+282     const hour = parseInt(time.split(':')[0]);
+                              ~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/customers.routes.ts:80:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+80       return res.status(404).json({
+         ~~~~~~
+
+server/routes/admin/customers.routes.ts:115:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+115       return res.status(404).json({
+          ~~~~~~
+
+server/routes/admin/customers.routes.ts:146:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+146       return res.status(404).json({
+          ~~~~~~
+
+server/routes/admin/customers.routes.ts:181:16 - error TS2532: Object is possibly 'undefined'.
+
+181         total: totalCustomers[0].count,
+                   ~~~~~~~~~~~~~~~~~
+
+server/routes/admin/customers.routes.ts:182:17 - error TS2532: Object is possibly 'undefined'.
+
+182         active: activeCustomers[0].count,
+                    ~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/menu-admin.routes.ts:102:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+102       return res.status(400).json({
+          ~~~~~~
+
+server/routes/admin/menu-admin.routes.ts:142:7 - error TS2322: Type 'Response<any, Record<string, any>>' is not assignable to type 'void'.
+
+142       return res.status(400).json({
+          ~~~~~~
+
+server/routes/admin/reservations.routes.ts:48:7 - error TS2741: Property 'where' is missing in type 'Omit<import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"reservations", { id: import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; ...' but required in type 'Omit<import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/query-builders/select").PgSelectBase<"reservations", { id: import("/home/runner/workspace/node_modules/drizzle-orm/pg-core/columns/common").PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; ...'.
+
+48       query = query.where(sql`DATE(${reservations.date}) = ${date}`);
+         ~~~~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/select.d.ts:402:5
+    402     where(where: ((aliases: this['_']['selection']) => SQL | undefined) | SQL | undefined): PgSelectWithout<this, TDynamic, 'where'>;
+            ~~~~~
+    'where' is declared here.
+
+server/routes/admin/reservations.routes.ts:53:7 - error TS2741: Property 'where' is missing in type 'Omit<PgSelectBase<"reservations", { id: PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; ... 5 more ...; generated: undefined; }, {}, {}>; ... 11 more ...; updatedAt: PgColumn<...>; },...' but required in type 'Omit<PgSelectBase<"reservations", { id: PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; ... 5 more ...; generated: undefined; }, {}, {}>; ... 10 more ...; tableNumber: PgColumn<...>; ...'.
+
+53       query = baseQuery.where(eq(reservations.status, status as any)); // Cast to any to satisfy Drizzle's type checking for status
+         ~~~~~
+
+  node_modules/drizzle-orm/pg-core/query-builders/select.d.ts:402:5
+    402     where(where: ((aliases: this['_']['selection']) => SQL | undefined) | SQL | undefined): PgSelectWithout<this, TDynamic, 'where'>;
+            ~~~~~
+    'where' is declared here.
+
+server/routes/admin/reservations.routes.ts:119:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+119       return res.status(404).json({
+          ~~~~~~
+
+server/routes/admin/reservations.routes.ts:147:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+147       return res.status(400).json({
+          ~~~~~~
+
+server/routes/admin/reservations.routes.ts:163:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+163       return res.status(404).json({
+          ~~~~~~
+
+server/routes/admin/reservations.routes.ts:194:7 - error TS2322: Type 'Response<any, Record<string, any>, number>' is not assignable to type 'void'.
+
+194       return res.status(404).json({
+          ~~~~~~
+
+server/routes/admin/reservations.routes.ts:242:16 - error TS2532: Object is possibly 'undefined'.
+
+242         total: totalReservationsResult[0].count,
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/reservations.routes.ts:243:16 - error TS2532: Object is possibly 'undefined'.
+
+243         today: todayReservationsResult[0].count,
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~
