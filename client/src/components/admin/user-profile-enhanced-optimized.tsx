@@ -353,7 +353,7 @@ export default function UserProfileEnhanced(): JSX.Element {
   });
 
   const updateAddressMutation = useMutation({
-    mutationFn: async (data: { addressId: number; updates: Partial<{ street: string; city: string; postalCode: string; country: string }> }) => {
+    mutationFn: async (data: { addressId: number; updates: Partial<import('../../../shared/types').Address> }) => {
       const response = await apiRequest(`/api/admin/addresses/${data.addressId}`, {
         method: 'PUT',
         body: JSON.stringify(data.updates),

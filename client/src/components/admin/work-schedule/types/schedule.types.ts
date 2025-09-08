@@ -264,7 +264,7 @@ export interface RuleViolation {
 // String literal unions pour la sécurité des types
 export type ShiftStatus = 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show';
 
-export type ViewMode = 'calendar' | 'list' | 'employee' | 'analytics' | 'stats';
+export type ViewMode = 'calendar' | 'list' | 'employee' | 'analytics';
 
 export type TimePeriod = 'day' | 'week' | 'month';
 
@@ -390,3 +390,31 @@ export const OVERTIME_THRESHOLD = 40; // heures par semaine
 export const BREAK_DURATION = 30; // minutes
 export const MAX_SHIFT_HOURS = 12; // heures
 export const MIN_BREAK_BETWEEN_SHIFTS = 11; // heures
+
+export interface ScheduleView {
+  mode: 'calendar' | 'list' | 'analytics';
+}
+
+export interface ShiftStatus {
+  id: string;
+  status: 'scheduled' | 'active' | 'completed' | 'cancelled';
+  timestamps: {
+    scheduled: Date;
+    started?: Date;
+    ended?: Date;
+    cancelled?: Date;
+  };
+}
+
+export interface SecurityValidation {
+  isValidShift: (shift: WorkShift) => boolean;
+  canModifyShift: (userId: string, shiftId: string) => boolean;
+  validateTimeSlot: (start: Date, end: Date) => boolean;
+}
+
+// Placeholder for WorkShift type if not defined elsewhere
+// You might need to define this type based on your project's structure
+interface WorkShift {
+  id: string;
+  // other properties of a shift
+}

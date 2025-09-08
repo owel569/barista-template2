@@ -1,44 +1,82 @@
+
 import { z } from 'zod';
 
-export const commonSchemas = {
-  id: z.number().int().positive(),
-  idSchema: z.object({
-    id: z.coerce.number().int().positive()
-  }),
-  email: z.string().email(),
-  password: z.string().min(8),
-  username: z.string().min(3),
-  phone: z.string().optional(),
-  date: z.string(),
-  time: z.string(),
-  dateRange: z.object({
-    startDate: z.string().optional(),
-    endDate: z.string().optional()
-  }),
-  pagination: z.object({
-    page: z.coerce.number().int().min(1).default(1),
-    limit: z.coerce.number().int().min(1).max(100).default(20)
-  }),
-  sortOrder: z.enum(['asc', 'desc']).default('asc')
-};
+// Schémas de base sécurisés
+export const secureStringSchema = z.string()
+  .min(1, 'Champ requis')
+  .max(1000, 'Trop long')
+  .regex(/^[^<>\"'&]*$/, 'Caractères dangereux détectés');
 
-export const OrderStatusEnum = z.enum(['pending', 'cancelled', 'preparing', 'ready', 'delivered']);
+export const secureEmailSchema = z.string()
+  .email('Email invalide')
+  .max(254, 'Email trop long')
+  .toLowerCase();
 
-export const CreateOrderSchema = z.object({
-  customerId: z.number().int().positive().optional(),
-  tableId: z.number().int().positive().optional(),
-  orderType: z.string().default('dine-in'),
+export const securePasswordSchema = z.string()
+  .min(8, 'Minimum 8 caractères')
+  .max(128, 'Maximum 128 caractères')
+  .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, 
+    'Doit contenir majuscule, minuscule, chiffre et caractère spécial');
+
+export const secureIdSchema = z.union([
+  z.string().regex(/^\d+$/, 'ID invalide').transform(Number),
+  z.number().int().positive('ID doit être positif')
+]);
+
+// Schémas métier sécurisés
+export const userSchema = z.object({
+  email: secureEmailSchema,
+  firstName: secureStringSchema.max(50),
+  lastName: secureStringSchema.max(50),
+  phone: z.string().regex(/^[\+]?[0-9\s\-\(\)]{10,}$/).optional(),
+  role: z.enum(['customer', 'staff', 'manager', 'admin'])
+});
+
+export const menuItemSchema = z.object({
+  name: secureStringSchema.max(100),
+  description: secureStringSchema.max(500),
+  price: z.number().positive().max(999.99),
+  categoryId: secureIdSchema,
+  isAvailable: z.boolean(),
+  allergens: z.array(secureStringSchema.max(50)).max(20)
+});
+
+export const reservationSchema = z.object({
+  customerId: secureIdSchema,
+  tableId: secureIdSchema,
+  date: z.string().datetime(),
+  partySize: z.number().int().min(1).max(20),
+  notes: secureStringSchema.max(500).optional()
+});
+
+export const orderSchema = z.object({
+  customerId: secureIdSchema,
   items: z.array(z.object({
-    menuItemId: z.number().int().positive(),
-    quantity: z.number().int().min(1),
-    notes: z.string().optional()
-  })),
-  specialRequests: z.string().optional(),
-  notes: z.string().optional()
+    menuItemId: secureIdSchema,
+    quantity: z.number().int().min(1).max(10),
+    modifications: z.array(secureStringSchema.max(100)).max(5).optional()
+  })).min(1).max(50),
+  notes: secureStringSchema.max(500).optional()
 });
 
-export const UpdateOrderSchema = z.object({
-  status: OrderStatusEnum.optional(),
-  specialRequests: z.string().optional(),
-  notes: z.string().optional()
+// Validation de sécurité pour les uploads
+export const fileUploadSchema = z.object({
+  filename: z.string().regex(/^[a-zA-Z0-9._-]+$/, 'Nom de fichier invalide'),
+  mimetype: z.enum(['image/jpeg', 'image/png', 'image/webp']),
+  size: z.number().max(5 * 1024 * 1024, 'Fichier trop volumineux (max 5MB)')
 });
+
+// Middleware de validation sécurisé
+export const secureValidation = {
+  sanitizeHtml: (str: string): string => {
+    return str.replace(/<[^>]*>/g, '').replace(/[<>&"']/g, '');
+  },
+  
+  validateAndSanitize: <T>(schema: z.ZodSchema<T>, data: unknown): T => {
+    const result = schema.safeParse(data);
+    if (!result.success) {
+      throw new Error(`Validation échouée: ${result.error.message}`);
+    }
+    return result.data;
+  }
+};

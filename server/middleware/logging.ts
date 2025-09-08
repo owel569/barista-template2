@@ -298,7 +298,33 @@ export class Logger {
 // Factory pour créer des loggers
 const loggerInstances = new Map<string, Logger>();
 
-export function createLogger(module: string, config?: Partial<LoggerConfig>): Logger {
+interface SecureLogData {
+  [key: string]: unknown;
+  // Exclusion automatique des données sensibles
+  password?: never;
+  token?: never;
+  secret?: never;
+  apiKey?: never;
+}
+
+const sanitizeLogData = (data: Record<string, unknown>): SecureLogData => {
+  const sensitiveKeys = ['password', 'token', 'secret', 'apiKey', 'authorization', 'cookie'];
+  const sanitized: Record<string, unknown> = {};
+
+  for (const [key, value] of Object.entries(data)) {
+    if (sensitiveKeys.some(sensitive => key.toLowerCase().includes(sensitive))) {
+      sanitized[key] = '[REDACTED]';
+    } else if (typeof value === 'object' && value !== null) {
+      sanitized[key] = sanitizeLogData(value as Record<string, unknown>);
+    } else {
+      sanitized[key] = value;
+    }
+  }
+
+  return sanitized as SecureLogData;
+};
+
+export const createLogger = (module: string) => {
   const key = `${module}-${JSON.stringify(config || {})}`;
 
   if (!loggerInstances.has(key)) {

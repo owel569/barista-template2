@@ -88,20 +88,21 @@ interface ErrorResponse {
   };
 }
 
+interface SecureError extends Error {
+  statusCode?: number;
+  code?: string;
+  isOperational?: boolean;
+}
+
 // Gestionnaire principal d'erreurs
-export const errorHandler = (
-  error: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void => {
+export const errorHandler = (err: SecureError, req: Request, res: Response, next: NextFunction): void => {
   const requestId = req.headers['x-request-id'] as string || 
                    Math.random().toString(36).substring(7);
 
   // Log de l'erreur
   logger.error('Erreur interceptée', {
-    error: error.message,
-    stack: error.stack,
+    error: err.message,
+    stack: err.stack,
     requestId,
     method: req.method,
     path: req.path,
@@ -112,24 +113,24 @@ export const errorHandler = (
   let errorResponse: ErrorResponse;
 
   // Gestion des différents types d'erreurs
-  if (error instanceof AppError) {
+  if (err instanceof AppError) {
     errorResponse = {
       success: false,
       error: {
-        message: error.message,
-        code: error.constructor.name,
-        statusCode: error.statusCode,
-        timestamp: error.timestamp.toISOString(),
-        requestId: error.requestId || requestId
+        message: err.message,
+        code: err.constructor.name,
+        statusCode: err.statusCode || 500, // Fallback to 500 if not set
+        timestamp: err.timestamp ? err.timestamp.toISOString() : new Date().toISOString(), // Ensure timestamp exists
+        requestId: err.requestId || requestId
       }
     };
 
     // Ajouter des détails spécifiques pour certaines erreurs
-    if (error instanceof ValidationError && error.validationErrors) {
-      errorResponse.error.details = error.validationErrors;
+    if (err instanceof ValidationError && err.validationErrors) {
+      errorResponse.error.details = err.validationErrors;
     }
 
-  } else if (error instanceof ZodError) {
+  } else if (err instanceof ZodError) {
     errorResponse = {
       success: false,
       error: {
@@ -138,7 +139,7 @@ export const errorHandler = (
         statusCode: 400,
         timestamp: new Date().toISOString(),
         requestId,
-        details: error.errors.map(err => ({
+        details: err.errors.map(err => ({
           field: err.path.join('.'),
           message: err.message,
           code: err.code
@@ -154,7 +155,7 @@ export const errorHandler = (
       error: {
         message: process.env.NODE_ENV === 'production' 
           ? 'Erreur interne du serveur' 
-          : error.message,
+          : err.message,
         code: 'INTERNAL_SERVER_ERROR',
         statusCode,
         timestamp: new Date().toISOString(),
@@ -163,10 +164,8 @@ export const errorHandler = (
     };
 
     // Ajouter la stack trace en développement
-    if (process.env.NODE_ENV !== 'production') {
-      if (error.stack) {
-        errorResponse.error.stack = error.stack;
-      }
+    if (process.env.NODE_ENV !== 'production' && err.stack) {
+      errorResponse.error.stack = err.stack;
     }
   }
 
