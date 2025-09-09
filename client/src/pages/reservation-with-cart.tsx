@@ -98,13 +98,13 @@ export default function ReservationWithCart() : JSX.Element {
   // Récupération des catégories de menu
   const { data: categories = [] } = useQuery({
     queryKey: ["/api/menu/categories"],
-    queryFn: () => apiRequest("GET", "/menu/categories"),
+    queryFn: () => apiRequest("/menu/categories", { method: "GET" }),
   });
 
   // Récupération des articles du menu
   const { data: menuItems = [] } = useQuery({
     queryKey: ["/api/menu/items"],
-    queryFn: () => apiRequest("GET", "/menu/items"),
+    queryFn: () => apiRequest("/menu/items", { method: "GET" }),
   });
 
   // Sélectionner la première catégorie par défaut
