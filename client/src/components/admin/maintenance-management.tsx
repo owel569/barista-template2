@@ -492,7 +492,7 @@ export default function MaintenanceManagement() : JSX.Element {
                     priority: editingTask.priority,
                     status: editingTask.status,
                     scheduledDate: editingTask.scheduledDate,
-                    completedDate: editingTask.completedDate,
+                    ...(editingTask.completedDate && { completedDate: editingTask.completedDate }),
                     assignedToId: editingTask.assignedToId || null,
                     equipmentId: editingTask.equipmentId?.toString() || null,
                     notes: editingTask.notes || undefined

@@ -355,7 +355,7 @@ export default function UserProfileEnhanced(): JSX.Element {
             allergens: data.updates.preferences?.allergens || [],
             language: data.updates.preferences?.language || 'fr',
             currency: data.updates.preferences?.currency || 'EUR',
-            favoriteTable: data.updates.preferences?.favoriteTable || undefined,
+            favoriteTable: data.updates.preferences?.favoriteTable !== undefined ? data.updates.preferences.favoriteTable : undefined,
           },
         }),
       });

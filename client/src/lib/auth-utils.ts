@@ -202,7 +202,7 @@ export const apiRequest = async (
     const response = await fetch(url, {
       method,
       headers,
-      body: body || undefined,
+      body: options?.body || undefined,
       ...options,
     });
 
