@@ -1,0 +1,56 @@
+
+client/src/components/admin/maintenance-management.tsx:488:19 - error TS2322: Type '{ title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "low" | "medium" | "high" | "critical"; status: "pending" | "in_progress" | "completed" | "cancelled"; ... 5 more ...; equipmentId: number | ... 1 more ... | undefined; } | undefined' is not assignable to type 'Partial<MaintenanceTask & { equipmentId?: string | null; }> | undefined'.
+  Type '{ title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "low" | "medium" | "high" | "critical"; status: "pending" | "in_progress" | "completed" | "cancelled"; ... 5 more ...; equipmentId: number | ... 1 more ... | undefined; }' is not assignable to type 'Partial<MaintenanceTask & { equipmentId?: string | null; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'notes' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+
+488                   initialData={editingTask ? {
+                      ~~~~~~~~~~~
+
+  client/src/components/admin/MaintenanceTaskForm.tsx:24:3
+    24   initialData?: Partial<MaintenanceTask & { equipmentId?: string | null }> | undefined;
+         ~~~~~~~~~~~
+    The expected type comes from property 'initialData' which is declared here on type 'IntrinsicAttributes & MaintenanceTaskFormProps'
+
+client/src/components/admin/settings.tsx:300:22 - error TS2345: Argument of type '(prev: RestaurantSettings) => { specialDates: { specialHours: { date: string | undefined; openingHours: any; note: string; }[]; closedDates: string[]; }; restaurantName: string; ... 8 more ...; notificationSettings: { ...; }; }' is not assignable to parameter of type 'SetStateAction<RestaurantSettings>'.
+  Type '(prev: RestaurantSettings) => { specialDates: { specialHours: { date: string | undefined; openingHours: any; note: string; }[]; closedDates: string[]; }; restaurantName: string; ... 8 more ...; notificationSettings: { ...; }; }' is not assignable to type '(prevState: RestaurantSettings) => RestaurantSettings'.
+    Call signature return types '{ specialDates: { specialHours: { date: string | undefined; openingHours: any; note: string; }[]; closedDates: string[]; }; restaurantName: string; address: string; phone: string; email: string; website: string; ... 4 more ...; notificationSettings: { ...; }; }' and 'RestaurantSettings' are incompatible.
+      The types of 'specialDates.specialHours' are incompatible between these types.
+        Type '{ date: string | undefined; openingHours: any; note: string; }[]' is not assignable to type '{ date: string; openingHours: OpeningHours; note: string; }[]'.
+          Type '{ date: string | undefined; openingHours: any; note: string; }' is not assignable to type '{ date: string; openingHours: OpeningHours; note: string; }'.
+            Types of property 'date' are incompatible.
+              Type 'string | undefined' is not assignable to type 'string'.
+                Type 'undefined' is not assignable to type 'string'.
+
+300     setDraftSettings(prev => ({
+                         ~~~~~~~~~~
+301       ...prev,
+    ~~~~~~~~~~~~~~
+... 
+333       }
+    ~~~~~~~
+334     }));
+    ~~~~~~
+
+client/src/components/admin/settings.tsx:762:76 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+762                       if (!draftSettings.specialDates.closedDates.includes(dateStr)) {
+                                                                               ~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:471:13 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+471             date: dateString,
+                ~~~~
+
+  client/src/components/admin/staff-scheduling.tsx:58:3
+    58   date: string;
+         ~~~~
+    The expected type comes from property 'date' which is declared here on type 'Shift'
+
+client/src/components/admin/table-management.tsx:176:47 - error TS2554: Expected 1-2 arguments, but got 3.
+
+176       apiRequest('POST', '/api/admin/tables', { body: JSON.stringify(data) }),
+                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

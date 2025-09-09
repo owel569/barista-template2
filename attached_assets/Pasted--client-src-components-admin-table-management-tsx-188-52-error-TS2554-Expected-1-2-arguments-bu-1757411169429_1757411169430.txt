@@ -1,0 +1,50 @@
+
+client/src/components/admin/table-management.tsx:188:52 - error TS2554: Expected 1-2 arguments, but got 3.
+
+188       apiRequest('PUT', `/api/admin/tables/${id}`, { body: JSON.stringify(data) }),
+                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/table-management.tsx:197:59 - error TS2554: Expected 1-2 arguments, but got 3.
+
+197       apiRequest('PUT', `/api/admin/tables/${id}/status`, { body: JSON.stringify({ status }) }),
+                                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:683:9 - error TS2375: Type '{ emailNotifications: boolean; smsNotifications: boolean; promotionalEmails: boolean; dietaryRestrictions: string[]; allergens: string[]; language: string; currency: string; favoriteTable: number | undefined; }' is not assignable to type '{ emailNotifications?: boolean; smsNotifications?: boolean; promotionalEmails?: boolean; favoriteTable?: number; dietaryRestrictions: string[]; allergens: string[]; language: string; currency: string; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'favoriteTable' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+
+683         preferences: {
+            ~~~~~~~~~~~
+
+  client/src/components/admin/user-profile-enhanced-optimized.tsx:121:3
+    121   preferences?: {
+          ~~~~~~~~~~~
+    The expected type comes from property 'preferences' which is declared here on type 'Partial<UserProfile>'
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:703:9 - error TS2375: Type '{ type: "other" | "home" | "work"; city: string; postalCode: string; street: string; country: string; isDefault?: boolean | undefined; }' is not assignable to type 'Partial<Address>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'isDefault' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+
+703         updates: values
+            ~~~~~~~
+
+  client/src/components/admin/user-profile-enhanced-optimized.tsx:366:51
+    366     mutationFn: async (data: { addressId: number; updates: Partial<Address> }) => {
+                                                          ~~~~~~~
+    The expected type comes from property 'updates' which is declared here on type '{ addressId: number; updates: Partial<Address>; }'
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:193:58 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string | (() => string)'.
+  Type 'undefined' is not assignable to type 'string | (() => string)'.
+
+193   const [currentDate, setCurrentDate] = useState<string>(initialDate);
+                                                             ~~~~~~~~~~~
+
+client/src/components/ui/chart.tsx:338:16 - error TS2375: Type '{ key: string | undefined; index: number; itemConfig: ItemConfig | undefined; item: TooltipPayloadItem; indicator: "line" | "dot" | "dashed"; hideIndicator: boolean; indicatorColor: string; formatter: (Formatter<...> & FormatterFunction) | undefined; nestLabel: boolean; tooltipLabel: Element | null; }' is not assignable to type '{ item: TooltipPayloadItem; index: number; itemConfig: ItemConfig | undefined; indicatorColor: string; indicator: "line" | "dot" | "dashed"; hideIndicator: boolean; formatter?: FormatterFunction; nestLabel: boolean; tooltipLabel: ReactNode; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'formatter' are incompatible.
+    Type '(Formatter<ValueType, NameType> & FormatterFunction) | undefined' is not assignable to type 'FormatterFunction'.
+      Type 'undefined' is not assignable to type 'FormatterFunction'.
+
+338               <TooltipItem
+                   ~~~~~~~~~~~
