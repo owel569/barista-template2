@@ -21,58 +21,6 @@ router.use('/menu', menuAdminRoutes);
 router.use('/statistics', statisticsRoutes);
 router.use('/reservations', reservationsRoutes);
 
-// Routes de maintenance
-router.get('/maintenance', 
-  authenticateUser,
-  requireRoles(['admin', 'manager']),
-  asyncHandler(async (req: Request, res: Response) => {
-    // TODO: Récupérer les tâches de maintenance depuis la base
-    res.json({
-      success: true,
-      data: [],
-      message: 'Liste des tâches de maintenance'
-    });
-  })
-);
-
-router.post('/maintenance',
-  authenticateUser,
-  requireRoles(['admin', 'manager']),
-  asyncHandler(async (req: Request, res: Response) => {
-    // TODO: Créer une nouvelle tâche de maintenance
-    res.status(201).json({
-      success: true,
-      message: 'Tâche de maintenance créée'
-    });
-  })
-);
-
-// Routes des équipements  
-router.get('/equipment',
-  authenticateUser,
-  requireRoles(['admin', 'manager']),
-  asyncHandler(async (req: Request, res: Response) => {
-    // TODO: Récupérer la liste des équipements
-    res.json({
-      success: true,
-      data: [],
-      message: 'Liste des équipements'
-    });
-  })
-);
-
-router.post('/equipment',
-  authenticateUser,
-  requireRoles(['admin', 'manager']),
-  asyncHandler(async (req: Request, res: Response) => {
-    // TODO: Ajouter un nouvel équipement
-    res.status(201).json({
-      success: true,
-      message: 'Équipement ajouté'
-    });
-  })
-);
-
 // Schémas de validation pour l'admin
 const SettingsSchema = z.object({
   restaurantName: z.string().min(1).max(100),

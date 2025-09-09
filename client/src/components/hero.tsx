@@ -1,25 +1,17 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Coffee, Star, Clock, MapPin, ChevronDown } from 'lucide-react';
+import { Coffee, Star, Clock, MapPin } from 'lucide-react';
 import { useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Calendar, Utensils } from "lucide-react";
-import { motion } from "framer-motion";
 
 // Import du logo avec gestion d'erreur
 const logoBaristaCafe = "/logo-barista-cafe.png";
 
-export default function Hero() {
-  const context = useLanguage();
-  if (!context) {
-    // Fallback si le LanguageProvider n'est pas disponible
-    const t = (key: string) => key;
-    return <HeroContent t={t} />;
-  }
-  const { t } = context;
-
+export default function Hero() : JSX.Element {
   const [, setLocation] = useLocation();
+  const { t } = useLanguage();
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -28,17 +20,13 @@ export default function Hero() {
     }
   };
 
-  return <HeroContent t={t} scrollToSection={scrollToSection} setLocation={setLocation} />;
-}
-
-function HeroContent({ t, scrollToSection, setLocation }: { t: (key: string) => string, scrollToSection?: (sectionId: string) => void, setLocation?: (path: string) => void }) {
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
       {/* Background Pattern */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-fixed"
         style={{
-          backgroundImage: "url('https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8fHx8fGVufDB8fHx8&auto=format&fit=crop&w=1920&h=1080')"
+          backgroundImage: "url('https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1920&h=1080')"
         }}
       />
       <div className="absolute inset-0 bg-coffee-dark bg-opacity-60" />
@@ -62,14 +50,14 @@ function HeroContent({ t, scrollToSection, setLocation }: { t: (key: string) => 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button 
-              onClick={() => setLocation?.("/reservation")}
+              onClick={() => setLocation("/reservation")}
               className="bg-coffee-accent hover:bg-opacity-90 text-white px-8 py-3 text-lg font-semibold transition duration-300 transform hover:scale-105"
             >
               <Calendar className="mr-2 h-5 w-5" />
               {t('home.cta.reserve')}
             </Button>
             <Button 
-              onClick={() => scrollToSection?.("menu")}
+              onClick={() => scrollToSection("menu")}
               variant="outline" 
               className="border-2 border-white hover:bg-white hover:text-coffee-dark text-white px-8 py-3 text-lg font-semibold transition duration-300"
             >
