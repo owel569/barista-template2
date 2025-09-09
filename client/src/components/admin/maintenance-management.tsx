@@ -380,12 +380,11 @@ export default function MaintenanceManagement() : JSX.Element {
   // Filtrage des tâches
   const filteredTasks = tasks.filter(task => {
     const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         task.equipment.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          task.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = selectedStatus === 'all' || task.status === selectedStatus;
     const matchesPriority = selectedPriority === 'all' || task.priority === selectedPriority;
-    const matchesEquipment = selectedEquipment === 'all' || task.equipmentId.toString() === selectedEquipment;
-    const matchesTechnician = selectedTechnician === 'all' || task.assignedToId.toString() === selectedTechnician;
+    const matchesEquipment = selectedEquipment === 'all' || (task.equipmentId && task.equipmentId.toString() === selectedEquipment);
+    const matchesTechnician = selectedTechnician === 'all' || (task.assignedToId && task.assignedToId.toString() === selectedTechnician);
 
     return matchesSearch && matchesStatus && matchesPriority && matchesEquipment && matchesTechnician;
   });
@@ -393,13 +392,13 @@ export default function MaintenanceManagement() : JSX.Element {
   // Préparation des événements pour le calendrier
   const calendarEvents: CalendarEvent[] = tasks.map(task => ({
     id: task.id,
-    title: `${task.title} (${task.equipment})`,
+    title: `${task.title} (${task.equipmentId ? equipment.find(e => e.id === task.equipmentId)?.name || 'Équipement' : 'Équipement'})`,
     start: new Date(task.scheduledDate),
     end: new Date(new Date(task.scheduledDate).getTime() + (task.estimatedDuration * 60 * 60 * 1000)),
     resource: {
       status: task.status,
       priority: task.priority,
-      assignedTo: task.assignedTo
+      assignedTo: task.assignedToId ? technicians.find(t => t.id === task.assignedToId)?.name || 'Non assigné' : 'Non assigné'
     }
   }));
 
@@ -492,7 +491,7 @@ export default function MaintenanceManagement() : JSX.Element {
                     type: editingTask.type,
                     priority: editingTask.priority,
                     status: editingTask.status,
-                    assignedToId: editingTask.assignedToId,
+                    assignedToId: editingTask.assignedToId || null,
                     scheduledDate: editingTask.scheduledDate,
                     estimatedDuration: editingTask.estimatedDuration,
                     cost: editingTask.cost,
@@ -500,8 +499,8 @@ export default function MaintenanceManagement() : JSX.Element {
                     equipmentId: editingTask.equipmentId
                   } : undefined}
                   onSubmit={editingTask ?
-                    (data: Omit<MaintenanceTask, 'id'> & { equipmentId?: number | null }) => handleUpdateTask(editingTask.id, data as any) : 
-                    (data: Omit<MaintenanceTask, 'id'> & { equipmentId?: number | null }) => handleCreateTask(data as any)}
+                    (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null }) => handleUpdateTask(editingTask.id, {...data, createdAt: editingTask.createdAt, updatedAt: new Date().toISOString()} as any) : 
+                    (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null }) => handleCreateTask({...data, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()} as any)}
                   onCancel={() => {
                     setIsTaskDialogOpen(false);
                     setEditingTask(null);
@@ -722,11 +721,11 @@ export default function MaintenanceManagement() : JSX.Element {
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                               <div>
                                 <span className="text-gray-600 dark:text-gray-400">Équipement:</span>
-                                <p className="font-medium">{task.equipment}</p>
+                                <p className="font-medium">{task.equipmentId ? equipment.find(e => e.id === task.equipmentId)?.name || 'Équipement inconnu' : 'Non assigné'}</p>
                               </div>
                               <div>
                                 <span className="text-gray-600 dark:text-gray-400">Assigné à:</span>
-                                <p className="font-medium">{task.assignedTo}</p>
+                                <p className="font-medium">{task.assignedToId ? technicians.find(t => t.id === task.assignedToId)?.name || 'Technicien inconnu' : 'Non assigné'}</p>
                               </div>
                               <div>
                                 <span className="text-gray-600 dark:text-gray-400">Date prévue:</span>
@@ -736,7 +735,7 @@ export default function MaintenanceManagement() : JSX.Element {
                               </div>
                               <div>
                                 <span className="text-gray-600 dark:text-gray-400">Coût:</span>
-                                <p className="font-medium text-green-600">{task.cost.toFixed(2)}€</p>
+                                <p className="font-medium text-green-600">{(task.cost || 0).toFixed(2)}€</p>
                               </div>
                             </div>
                           </div>
@@ -892,16 +891,17 @@ export default function MaintenanceManagement() : JSX.Element {
                           id: 0,
                           title: `Maintenance ${item.name}`,
                           description: `Maintenance préventive pour ${item.name}`,
-                          equipment: item.name,
+                          type: 'preventive',
                           equipmentId: item.id,
                           priority: 'medium',
                           status: 'pending',
-                          assignedTo: '',
-                          assignedToId: 0,
+                          assignedToId: null,
                           scheduledDate: item.nextMaintenance,
                           estimatedDuration: 2,
                           cost: 0,
-                          notes: ''
+                          notes: '',
+                          createdAt: new Date().toISOString(),
+                          updatedAt: new Date().toISOString()
                         });
                         setIsTaskDialogOpen(true);
                       }}
@@ -944,7 +944,7 @@ export default function MaintenanceManagement() : JSX.Element {
                       <div key={task.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                         <div>
                           <h4 className="font-semibold">{task.title}</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">{task.equipment}</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{task.equipmentId ? equipment.find(e => e.id === task.equipmentId)?.name || 'Équipement inconnu' : 'Non assigné'}</p>
                         </div>
                         <div className="text-right">
                           <p className="font-medium">
@@ -989,16 +989,17 @@ export default function MaintenanceManagement() : JSX.Element {
                               id: 0,
                               title: `Maintenance ${item.name}`,
                               description: `Maintenance en retard pour ${item.name}`,
-                              equipment: item.name,
+                              type: 'preventive',
                               equipmentId: item.id,
                               priority: 'high',
                               status: 'pending',
-                              assignedTo: '',
-                              assignedToId: 0,
+                              assignedToId: null,
                               scheduledDate: new Date().toISOString(),
                               estimatedDuration: 2,
                               cost: 0,
-                              notes: ''
+                              notes: '',
+                              createdAt: new Date().toISOString(),
+                              updatedAt: new Date().toISOString()
                             });
                             setIsTaskDialogOpen(true);
                           }}
@@ -1051,14 +1052,14 @@ export default function MaintenanceManagement() : JSX.Element {
                     <span>Coût moyen par tâche:</span>
                     <span className="font-semibold">
                       {tasks.length > 0 
-                        ? (tasks.reduce((sum, t) => sum + t.cost, 0) / tasks.length).toFixed(2)
+                        ? (tasks.reduce((sum, t) => sum + (t.cost || 0), 0) / tasks.length).toFixed(2)
                         : 0}€
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span>Tâches urgentes:</span>
                     <Badge className="bg-red-100 text-red-800">
-                      {tasks.filter(t => t.priority === 'urgent').length}
+                      {tasks.filter(t => t.priority === 'critical').length}
                     </Badge>
                   </div>
                   <div className="flex items-center justify-between">
