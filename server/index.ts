@@ -26,14 +26,14 @@ async function startApplication() {
   setupUncaughtExceptionHandlers();
 
   // 1. Middlewares de sécurité et utilitaires
-  
+
   app.use(helmet({
     contentSecurityPolicy: false, // Désactivé pour le développement
     crossOriginEmbedderPolicy: false,
   }));
-  
+
   app.use(compression());
-  
+
   if (process.env.NODE_ENV !== 'production') {
     app.use(cors({
       origin: true,
@@ -44,137 +44,75 @@ async function startApplication() {
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-  // 1. Créer le serveur Vite en mode middleware
-  const vite = await createViteServer({
-    server: {
-      middlewareMode: true,
-      hmr: process.env.NODE_ENV !== 'production',
-      allowedHosts: true
-    },
-    root: path.resolve(__dirname, '../client'),
-    appType: 'spa',
-    logLevel: 'info',
-    clearScreen: false,
-    optimizeDeps: {
-      include: ['react', 'react-dom']
-    }
-  });
-
-  // 2. Routes API (avant Vite pour éviter l'interception)
+  // 1. Routes API (en premier pour éviter l'interception)
   app.use('/api', apiRoutes);
 
-  // Health check endpoint pour Replit
-  app.get('/health', (req, res) => {
-    const requestId = (req as any).requestId || 'unknown';
-    res.status(200).json(createApiResponse(
-      true,
-      {
-        status: 'OK',
-        environment: process.env.NODE_ENV || 'development',
-        uptime: process.uptime(),
-        memory: process.memoryUsage(),
+  // 2. Configuration Vite pour le développement
+  if (process.env.NODE_ENV !== 'production') {
+    const server = createServer(app);
+
+    // Configuration WebSocket
+    wsManager.setup(server);
+
+    const vite = await createViteServer({
+      server: {
+        middlewareMode: true,
+        hmr: { server },
+        allowedHosts: true
       },
-      undefined,
-      'Service en ligne',
-      requestId
-    ));
-  });
-
-  // 3. Vite middleware (après les routes API)
-  app.use(vite.middlewares);
-
-  // 4. Middleware pour les erreurs 404 des routes API
-  app.use('/api/*', notFoundHandler);
-
-  // 5. Gestion des routes SPA
-  app.use('*', async (req, res, next) => {
-    try {
-      const url = req.originalUrl;
-
-      // Ne pas interférer avec les routes API
-      if (url.startsWith('/api')) {
-        return next();
+      root: path.resolve(__dirname, '../client'),
+      appType: 'spa',
+      logLevel: 'info',
+      clearScreen: false,
+      optimizeDeps: {
+        include: ['react', 'react-dom', 'lucide-react']
       }
+    });
 
-      // Servir l'application React principale via Vite
-      const html = await vite.transformIndexHtml(url, `
-<!DOCTYPE html>
-<html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Barista Café</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
-      `);
-      res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
-    } catch (e) {
-      vite.ssrFixStacktrace(e as Error);
-      console.error('Error serving SPA:', e);
-      res.status(500).end((e as Error).message);
-    }
-  });
+    app.use(vite.middlewares);
 
-  // 6. Middleware de gestion d'erreurs (doit être en dernier)
-  app.use(errorHandler);
+    // 3. Gestion des erreurs
+    app.use(notFoundHandler);
+    app.use(errorHandler);
 
-  // 7. Créer le serveur HTTP et initialiser WebSocket
-  const httpServer = createServer(app);
-  
-  // Initialiser WebSocket sur le même serveur
-  wsManager.initialize(httpServer);
+    server.listen(PORT, HOST, () => {
+      console.log(`✅ Serveur démarré avec succès`);
+      console.log(`🚀 Server running on http://${HOST}:${PORT}`);
+      console.log(`⚡ API: http://${HOST}:${PORT}/api`);
+      console.log(`✨ Vite: http://${HOST}:${PORT}`);
+      console.log(`🔌 WebSocket: ws://${HOST}:${PORT}/ws`);
+      console.log(`❤️ Health: http://${HOST}:${PORT}/health`);
+    });
+  } else {
+    // Configuration production
+    const server = createServer(app);
+    wsManager.setup(server);
 
-  // 8. Démarrer le serveur
-  httpServer.listen(PORT, HOST, () => {
-    console.log(`✅ Serveur démarré avec succès`);
-    console.log(`🚀 Server running on http://${HOST}:${PORT}`);
-    console.log(`⚡ API: http://${HOST}:${PORT}/api`);
-    console.log(`✨ Vite: http://${HOST}:${PORT}`);
-    console.log(`🔌 WebSocket: ws://${HOST}:${PORT}/ws`);
-    console.log(`❤️ Health: http://${HOST}:${PORT}/health`);
-  });
+    app.use(notFoundHandler);
+    app.use(errorHandler);
 
-  httpServer.on('error', (err: NodeJS.ErrnoException) => {
-    if (err.code === 'EADDRINUSE') {
-      console.error(`❌ Port ${PORT} is already in use`);
-      console.log('🔄 Attempting to kill existing processes and retry...');
-      
-      // Try to kill existing process on the port
-      const { exec } = require('child_process');
-      exec(`lsof -ti:${PORT} | xargs kill -9`, (error: Error | null) => {
-        if (!error) {
-          console.log('✅ Killed existing process, retrying...');
-          setTimeout(() => {
-            httpServer.listen(PORT, HOST, () => {
-              console.log(`✅ Serveur démarré avec succès (retry)`);
-              console.log(`🚀 Server running on http://${HOST}:${PORT}`);
-              console.log(`⚡ API: http://${HOST}:${PORT}/api`);
-              console.log(`✨ Vite: http://${HOST}:${PORT}`);
-              console.log(`🔌 WebSocket: ws://${HOST}:${PORT}/ws`);
-              console.log(`❤️ Health: http://${HOST}:${PORT}/health`);
-            });
-          }, 1000);
-        } else {
-          console.error('❌ Could not kill existing process');
-          process.exit(1);
-        }
-      });
-    } else {
-      console.error('❌ Server error:', err);
-      process.exit(1);
-    }
-  });
-
-  return httpServer;
+    server.listen(PORT, HOST, () => {
+      console.log(`✅ Serveur démarré avec succès`);
+      console.log(`🚀 Production server running on http://${HOST}:${PORT}`);
+    });
+  }
 }
 
-startApplication().catch(err => {
-  console.error('Server error:', err);
+// Gestion des erreurs non capturées
+function setupUncaughtExceptionHandlers() {
+  process.on('uncaughtException', (error) => {
+    console.error('❌ Uncaught Exception:', error);
+    process.exit(1);
+  });
+
+  process.on('unhandledRejection', (reason, promise) => {
+    console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+    process.exit(1);
+  });
+}
+
+startApplication().catch((error) => {
+  console.error('❌ Failed to start application:', error);
   process.exit(1);
 });
 
