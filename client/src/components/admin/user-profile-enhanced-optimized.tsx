@@ -355,7 +355,7 @@ export default function UserProfileEnhanced(): JSX.Element {
             allergens: data.updates.preferences?.allergens || [],
             language: data.updates.preferences?.language || 'fr',
             currency: data.updates.preferences?.currency || 'EUR',
-            favoriteTable: data.updates.preferences?.favoriteTable !== undefined ? data.updates.preferences.favoriteTable : undefined,
+            ...(data.updates.preferences?.favoriteTable !== undefined && { favoriteTable: data.updates.preferences.favoriteTable }),
           },
         }),
       });
@@ -734,7 +734,7 @@ export default function UserProfileEnhanced(): JSX.Element {
           allergens: values.preferences.allergens,
           language: values.preferences.language,
           currency: values.preferences.currency,
-          favoriteTable: values.preferences.favoriteTable ?? undefined,
+          ...(values.preferences.favoriteTable !== undefined && { favoriteTable: values.preferences.favoriteTable }),
         },
       }
     });

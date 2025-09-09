@@ -322,10 +322,11 @@ export default function Settings({ userRole }: SettingsProps) {
               openingHours: updatedHours,
               note: item.note || ''
             };
-          } else if (field === 'date' && typeof value === 'string') {
-             return {
-              ...item,
-              date: value
+          } else if (field === 'openingHours') {
+            return {
+              date: currentDate,
+              openingHours: value as OpeningHours,
+              note: item.note || ''
             };
           }
            else {
@@ -341,8 +342,7 @@ export default function Settings({ userRole }: SettingsProps) {
   }, []);
 
   const addSpecialHours = useCallback((selectedDate: Date) => {
-    const dateString = selectedDate?.toISOString().split('T')[0];
-    if (!dateString) return;
+    const dateString = selectedDate.toISOString().split('T')[0];
 
     setDraftSettings(prev => ({
       ...prev,
@@ -772,7 +772,7 @@ export default function Settings({ userRole }: SettingsProps) {
                     onSelect={(date: Date | undefined) => {
                       if (!date) return;
                       const dateStr = date.toISOString().split('T')[0];
-                      if (!draftSettings.specialDates.closedDates.includes(dateStr)) {
+                      if (dateStr && !draftSettings.specialDates.closedDates.includes(dateStr)) {
                         addClosedDate(date);
                       }
                     }}

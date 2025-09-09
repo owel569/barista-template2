@@ -486,16 +486,11 @@ export default function MaintenanceManagement() : JSX.Element {
                   equipmentList={equipment}
                   technicians={technicians}
                   initialData={editingTask ? {
-                    title: editingTask.title,
-                    description: editingTask.description,
-                    type: editingTask.type,
-                    priority: editingTask.priority,
-                    status: editingTask.status,
-                    scheduledDate: editingTask.scheduledDate,
-                    ...(editingTask.completedDate && { completedDate: editingTask.completedDate }),
-                    assignedToId: editingTask.assignedToId || null,
+                    ...editingTask,
                     equipmentId: editingTask.equipmentId?.toString() || null,
-                    notes: editingTask.notes || undefined
+                    assignedToId: editingTask.assignedToId || null,
+                    ...(editingTask.completedDate && { completedDate: editingTask.completedDate }),
+                    ...(editingTask.notes && { notes: editingTask.notes }),
                   } : undefined}
                   onSubmit={editingTask ?
                     (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null }) => handleUpdateTask(editingTask.id, {...data, createdAt: editingTask.createdAt, updatedAt: new Date().toISOString()} as any) : 

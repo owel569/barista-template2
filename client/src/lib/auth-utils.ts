@@ -188,23 +188,30 @@ export { usePermissions } from '../hooks/usePermissions';
 export const apiRequest = async (
   method: string, 
   url: string, 
-  options?: RequestInit & { body?: string }
+  options?: RequestInit & { body?: unknown } // Changed body type to unknown for flexibility
 ): Promise<Response> => {
   const token = getStoredToken();
 
-  const headers: HeadersInit = {
+  // Define authHeaders separately to include Authorization header
+  const authHeaders: HeadersInit = {
     'Content-Type': 'application/json',
     ...(token && { Authorization: `Bearer ${token}` }),
-    ...options?.headers,
+    ...options?.headers, // Merge custom headers from options
   };
 
-  try {
-    const response = await fetch(url, {
+  const requestInit: RequestInit = {
       method,
-      headers,
-      body: options?.body || undefined,
-      ...options,
-    });
+      headers: authHeaders,
+      ...options, // Spread other options like credentials, mode, etc.
+    };
+
+    // Add the body only if it's defined and not null or undefined
+    if (options?.body !== undefined) {
+      requestInit.body = JSON.stringify(options.body);
+    }
+
+    try {
+    const response = await fetch(url, requestInit);
 
     if (response.status === 401) {
       clearStoredToken();
