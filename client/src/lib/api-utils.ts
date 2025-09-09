@@ -1,4 +1,3 @@
-
 export interface ApiRequestOptions {
   body?: unknown;
   headers?: Record<string, string>;
@@ -11,9 +10,9 @@ export async function apiRequest<T = unknown>(
   options?: ApiRequestOptions
 ): Promise<T> {
   const { body, headers = {}, params } = options || {};
-  
+
   const url = new URL(endpoint, window.location.origin);
-  
+
   // Add query parameters if provided
   if (params) {
     Object.entries(params).forEach(([key, value]) => {

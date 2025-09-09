@@ -463,12 +463,13 @@ export default function StaffScheduling() {
           if (!date) return;
 
           const startHour = 8 + Math.floor(Math.random() * 4);
-          const dateString = date.toISOString().split('T')[0];
+          const dateString = date?.toISOString().split('T')[0];
+          if (!dateString) return;
 
           newShifts.push({
             id: shifts.length + newShifts.length + 1,
             employeeId: employee.id,
-            date: dateString ?? new Date().toISOString().split('T')[0],
+            date: dateString,
             startTime: `${startHour.toString().padStart(2, '0')}:00`,
             endTime: `${(startHour + 8).toString().padStart(2, '0')}:00`,
             position: employee.position,

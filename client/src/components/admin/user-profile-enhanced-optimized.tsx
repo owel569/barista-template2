@@ -111,12 +111,12 @@ interface UserProfile {
   id: number;
   firstName: string;
   lastName: string;
-  email: string;
-  phone?: string;
-  address?: string;
-  city?: string;
-  postalCode?: string;
-  birthDate?: string;
+  email: string | undefined;
+  phone?: string | undefined;
+  address?: string | undefined;
+  city?: string | undefined;
+  postalCode?: string | undefined;
+  birthDate?: string | undefined;
   avatar?: string;
   preferences?: {
     emailNotifications?: boolean;
@@ -341,7 +341,7 @@ export default function UserProfileEnhanced(): JSX.Element {
         method: 'PUT',
         body: JSON.stringify({
           ...data.updates,
-          email: data.updates.email || '',
+          email: data.updates.email || undefined,
           phone: data.updates.phone || undefined,
           address: data.updates.address || undefined,
           city: data.updates.city || undefined,

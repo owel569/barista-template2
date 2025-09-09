@@ -21,18 +21,19 @@ import { Equipment, Technician } from './maintenance-management';
 interface MaintenanceTaskFormProps {
   equipmentList: Equipment[];
   technicians: Technician[];
-  initialData?: Partial<MaintenanceTask & { 
+  initialData?: Partial<MaintenanceTask & {
     equipmentId?: string | null;
     completedDate?: string | null;
-  }> | undefined;
-  onSubmit: (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null }) => void;
+    notes?: string | null;
+  }>;
+  onSubmit: (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: string | null }) => void;
   onCancel: () => void;
 }
 
 interface MaintenanceTaskFormData {
   title: string;
   description: string;
-  priority: 'low' | 'medium' | 'high' | 'critical';
+  type: 'preventive' | 'corrective' | 'emergency';
   assignedToId?: number | null;
   cost?: number;
   scheduledDate: string;
@@ -40,7 +41,6 @@ interface MaintenanceTaskFormData {
   equipmentId?: number | null;
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
   notes: string;
-  type: 'preventive' | 'corrective' | 'emergency';
 }
 
 export function MaintenanceTaskForm({
@@ -153,11 +153,11 @@ export function MaintenanceTaskForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const taskToSubmit: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null } = {
+    const taskToSubmit: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: string | null } = {
       title: formData.title!,
       description: formData.description || '',
       type: formData.type as 'preventive' | 'corrective' | 'emergency',
-      equipmentId: formData.equipmentId || null,
+      equipmentId: formData.equipmentId !== undefined ? formData.equipmentId.toString() : null,
       priority: formData.priority as 'low' | 'medium' | 'high' | 'critical',
       status: formData.status || 'pending',
       assignedToId: formData.assignedToId || null,

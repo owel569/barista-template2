@@ -304,36 +304,35 @@ export default function Settings({ userRole }: SettingsProps) {
         specialHours: prev.specialDates.specialHours.map((item, idx) => {
           if (idx !== index) return item;
 
-          const currentDate = item.date || new Date().toISOString().split('T')[0];
+          const currentDate = item.date ?? new Date().toISOString().split('T')[0]!;
 
           if (field === 'note') {
             return {
               date: currentDate,
-              openingHours: item.openingHours || { open: '09:00', close: '17:00', closed: false },
+              openingHours: item.openingHours ?? { open: '09:00', close: '17:00', closed: false },
               note: value as string
             };
           } else if (field === 'open' || field === 'close' || field === 'closed') {
-            const updatedHours = { ...(item.openingHours || { open: '09:00', close: '17:00', closed: false }) };
+            const updatedHours = { ...(item.openingHours ?? { open: '09:00', close: '17:00', closed: false }) };
             if (field === 'open') updatedHours.open = value as string;
             if (field === 'close') updatedHours.close = value as string;
             if (field === 'closed') updatedHours.closed = value as boolean;
             return {
               date: currentDate,
               openingHours: updatedHours,
-              note: item.note || ''
+              note: item.note ?? ''
             };
           } else if (field === 'openingHours') {
             return {
               date: currentDate,
               openingHours: value as OpeningHours,
-              note: item.note || ''
+              note: item.note ?? ''
             };
-          }
-           else {
+          } else {
             return {
               date: currentDate,
-              openingHours: field === 'openingHours' ? value : (item.openingHours || { open: '09:00', close: '17:00', closed: false }),
-              note: item.note || ''
+              openingHours: field === 'openingHours' ? value : (item.openingHours ?? { open: '09:00', close: '17:00', closed: false }),
+              note: item.note ?? ''
             };
           }
         })
@@ -343,6 +342,7 @@ export default function Settings({ userRole }: SettingsProps) {
 
   const addSpecialHours = useCallback((selectedDate: Date) => {
     const dateString = selectedDate.toISOString().split('T')[0];
+    if (!dateString) return;
 
     setDraftSettings(prev => ({
       ...prev,
