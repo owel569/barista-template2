@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { MaintenanceTask as MaintenanceTaskType, Equipment, Technician } from './maintenance-management'; // Renamed to avoid conflict
+import { Equipment, Technician } from './maintenance-management';
 
 interface MaintenanceTaskFormProps {
   equipmentList: Equipment[];
@@ -30,16 +30,14 @@ interface MaintenanceTaskFormData {
   title: string;
   description: string;
   priority: 'low' | 'medium' | 'high' | 'critical';
-  assignedTo: string;
-  assignedToId?: number | null; // Changed to allow null
+  assignedToId?: number | null;
   cost?: number;
   scheduledDate: string;
-  completedDate?: string;
   estimatedDuration: number;
-  equipment: string;
-  equipmentId?: number | null; // Changed to allow null
+  equipmentId?: number | null;
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
   notes: string;
+  type: 'preventive' | 'corrective' | 'emergency';
 }
 
 export function MaintenanceTaskForm({
@@ -74,7 +72,7 @@ export function MaintenanceTaskForm({
         title: initialData.title || '',
         description: initialData.description || '',
         type: initialData.type || 'preventive',
-        priority: (initialData.priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium',
+        priority: (initialData.priority as 'low' | 'medium' | 'high' | 'critical') || 'medium',
         status: (initialData.status as 'pending' | 'in_progress' | 'completed' | 'cancelled') || 'pending',
         scheduledDate: initialData.scheduledDate || defaultValues.scheduledDate,
         estimatedDuration: initialData.estimatedDuration || defaultValues.estimatedDuration,
@@ -152,14 +150,13 @@ export function MaintenanceTaskForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const taskToSubmit: Omit<MaintenanceTask, 'id'> & { equipmentId?: number | null } = {
+    const taskToSubmit: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null } = {
       title: formData.title!,
       description: formData.description || '',
-      equipment: formData.equipment || '',
+      type: formData.type as 'preventive' | 'corrective' | 'emergency',
       equipmentId: formData.equipmentId || null,
-      priority: (formData.priority === 'urgent' ? 'high' : formData.priority) as 'low' | 'medium' | 'high' | 'urgent' || 'medium',
+      priority: formData.priority as 'low' | 'medium' | 'high' | 'critical',
       status: formData.status || 'pending',
-      assignedTo: formData.assignedTo || '',
       assignedToId: formData.assignedToId || null,
       scheduledDate: formData.scheduledDate!,
       estimatedDuration: formData.estimatedDuration!,
