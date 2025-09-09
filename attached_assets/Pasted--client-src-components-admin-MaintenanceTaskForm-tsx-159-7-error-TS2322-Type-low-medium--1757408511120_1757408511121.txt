@@ -1,0 +1,111 @@
+
+client/src/components/admin/MaintenanceTaskForm.tsx:159:7 - error TS2322: Type '"low" | "medium" | "high" | "urgent"' is not assignable to type '"low" | "medium" | "high" | "critical"'.
+  Type '"urgent"' is not assignable to type '"low" | "medium" | "high" | "critical"'.
+
+159       priority: formData.priority || 'medium',
+          ~~~~~~~~
+
+  client/src/types/maintenance.ts:7:3
+    7   priority: 'low' | 'medium' | 'high' | 'critical';
+        ~~~~~~~~
+    The expected type comes from property 'priority' which is declared here on type 'Omit<MaintenanceTask, "id"> & { equipmentId?: number | null; }'
+
+client/src/components/admin/maintenance-management.tsx:488:19 - error TS2412: Type '{ equipmentId: string | null; id: number; title: string; description: string; equipment: string; priority: "low" | "medium" | "high" | "urgent"; status: "pending" | "in_progress" | "completed" | "cancelled"; ... 6 more ...; notes?: string; } | undefined' is not assignable to type 'Partial<MaintenanceTask & { equipmentId?: string | null; }> | undefined' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+
+488                   initialData={editingTask ? {
+                      ~~~~~~~~~~~
+
+  client/src/components/admin/MaintenanceTaskForm.tsx:24:3
+    24   initialData?: Partial<MaintenanceTask & { equipmentId?: string | null }>;
+         ~~~~~~~~~~~
+    The expected type comes from property 'initialData' which is declared here on type 'IntrinsicAttributes & MaintenanceTaskFormProps'
+
+client/src/components/admin/maintenance-management.tsx:492:19 - error TS2322: Type '(taskData: Omit<MaintenanceTask, "id">) => Promise<void>' is not assignable to type '(data: Omit<MaintenanceTask, "id"> & { equipmentId?: number | null; }) => void'.
+  Types of parameters 'taskData' and 'data' are incompatible.
+    Property 'equipment' is missing in type 'Omit<MaintenanceTask, "id"> & { equipmentId?: number | null; }' but required in type 'Omit<MaintenanceTask, "id">'.
+
+492                   onSubmit={editingTask ?
+                      ~~~~~~~~
+
+  client/src/components/admin/maintenance-management.tsx:37:3
+    37   equipment: string;
+         ~~~~~~~~~
+    'equipment' is declared here.
+  client/src/components/admin/MaintenanceTaskForm.tsx:25:3
+    25   onSubmit: (data: Omit<MaintenanceTask, 'id'> & { equipmentId?: number | null }) => void;
+         ~~~~~~~~
+    The expected type comes from property 'onSubmit' which is declared here on type 'IntrinsicAttributes & MaintenanceTaskFormProps'
+
+client/src/components/admin/settings.tsx:300:22 - error TS2345: Argument of type '(prev: RestaurantSettings) => { specialDates: { specialHours: ({ note: any; date: string | undefined; openingHours: OpeningHours; } | { openingHours: any; date: string | undefined; note: string; })[]; closedDates: string[]; }; ... 9 more ...; notificationSettings: { ...; }; }' is not assignable to parameter of type 'SetStateAction<RestaurantSettings>'.
+  Type '(prev: RestaurantSettings) => { specialDates: { specialHours: ({ note: any; date: string | undefined; openingHours: OpeningHours; } | { openingHours: any; date: string | undefined; note: string; })[]; closedDates: string[]; }; ... 9 more ...; notificationSettings: { ...; }; }' is not assignable to type '(prevState: RestaurantSettings) => RestaurantSettings'.
+    Call signature return types '{ specialDates: { specialHours: ({ note: any; date: string | undefined; openingHours: OpeningHours; } | { openingHours: any; date: string | undefined; note: string; })[]; closedDates: string[]; }; ... 9 more ...; notificationSettings: { ...; }; }' and 'RestaurantSettings' are incompatible.
+      The types of 'specialDates.specialHours' are incompatible between these types.
+        Type '({ note: any; date: string | undefined; openingHours: OpeningHours; } | { openingHours: any; date: string | undefined; note: string; })[]' is not assignable to type '{ date: string; openingHours: OpeningHours; note: string; }[]'.
+          Type '{ note: any; date: string | undefined; openingHours: OpeningHours; } | { openingHours: any; date: string | undefined; note: string; }' is not assignable to type '{ date: string; openingHours: OpeningHours; note: string; }'.
+            Type '{ note: any; date: string | undefined; openingHours: OpeningHours; }' is not assignable to type '{ date: string; openingHours: OpeningHours; note: string; }'.
+              Types of property 'date' are incompatible.
+                Type 'string | undefined' is not assignable to type 'string'.
+                  Type 'undefined' is not assignable to type 'string'.
+
+300     setDraftSettings(prev => ({
+                         ~~~~~~~~~~
+301       ...prev,
+    ~~~~~~~~~~~~~~
+... 
+321       }
+    ~~~~~~~
+322     }));
+    ~~~~~~
+
+client/src/components/admin/settings.tsx:750:76 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+750                       if (!draftSettings.specialDates.closedDates.includes(dateStr)) {
+                                                                               ~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:471:13 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+471             date: dateString,
+                ~~~~
+
+  client/src/components/admin/staff-scheduling.tsx:58:3
+    58   date: string;
+         ~~~~
+    The expected type comes from property 'date' which is declared here on type 'Shift'
+
+client/src/components/admin/staff-scheduling.tsx:1223:10 - error TS2375: Type '{ children: Element[]; value: string | undefined; onValueChange: (value: string) => void; required: true; }' is not assignable to type '{ value?: string; defaultValue?: string; onValueChange?(value: string): void; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'value' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+1223         <Select
+              ~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:1270:12 - error TS2375: Type '{ children: Element[]; value: string | undefined; onValueChange: (value: string) => void; required: true; }' is not assignable to type '{ value?: string; defaultValue?: string; onValueChange?(value: string): void; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'value' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+1270           <Select
+                ~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:211:34 - error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
+
+211       const message = JSON.parse(lastMessage.data);
+                                     ~~~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:424:29 - error TS18048: 'profile.loyalty.totalSpent' is possibly 'undefined'.
+
+424         'Panier Moyen (€)': profile.loyalty?.totalSpent / (profile.orderHistory?.length || 1),
+                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:484:7 - error TS2448: Block-scoped variable 'paginatedUsers' used before its declaration.
+
+484   }, [paginatedUsers, selectedUsers.length]);
+          ~~~~~~~~~~~~~~
+
+  client/src/components/admin/user-profile-enhanced-optimized.tsx:522:9
+    522   const paginatedUsers = sortedUsers.slice(
+                ~~~~~~~~~~~~~~
+    'paginatedUsers' is declared here.

@@ -1,0 +1,65 @@
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:484:7 - error TS2454: Variable 'paginatedUsers' is used before being assigned.
+
+484   }, [paginatedUsers, selectedUsers.length]);
+          ~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:590:7 - error TS2375: Type '{ email: string; firstName: string; lastName: string; birthDate: string; preferences: { currency: string; emailNotifications: boolean; smsNotifications: boolean; promotionalEmails: boolean; dietaryRestrictions: string[]; allergens: string[]; language: string; favoriteTable?: number | undefined; }; address?: string |...' is not assignable to type 'Partial<UserProfile>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'phone' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+590       updates: {
+          ~~~~~~~
+
+  client/src/components/admin/user-profile-enhanced-optimized.tsx:309:44
+    309     mutationFn: async (data: { id: number; updates: Partial<UserProfile> }) => {
+                                                   ~~~~~~~
+    The expected type comes from property 'updates' which is declared here on type '{ id: number; updates: Partial<UserProfile>; }'
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:603:9 - error TS2375: Type '{ type: "home" | "work" | "other"; city: string; postalCode: string; street: string; country: string; isDefault?: boolean | undefined; }' is not assignable to type 'Partial<Address>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'isDefault' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+
+603         updates: values
+            ~~~~~~~
+
+  client/src/components/admin/user-profile-enhanced-optimized.tsx:357:51
+    357     mutationFn: async (data: { addressId: number; updates: Partial<Address> }) => {
+                                                          ~~~~~~~
+    The expected type comes from property 'updates' which is declared here on type '{ addressId: number; updates: Partial<Address>; }'
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:194:5 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string | (() => string)'.
+  Type 'undefined' is not assignable to type 'string | (() => string)'.
+
+194     initialDate || new Date().toISOString().split('T')[0]
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/hero.tsx:55:16 - error TS2304: Cannot find name 'Calendar'.
+
+55               <Calendar className="mr-2 h-5 w-5" />
+                  ~~~~~~~~
+
+client/src/components/hero.tsx:63:16 - error TS2304: Cannot find name 'Utensils'.
+
+63               <Utensils className="mr-2 h-5 w-5" />
+                  ~~~~~~~~
+
+client/src/components/ui/chart.tsx:338:16 - error TS2375: Type '{ key: string; index: number; itemConfig: ItemConfig | undefined; item: TooltipPayloadItem; indicator: "line" | "dot" | "dashed"; hideIndicator: boolean; indicatorColor: string; formatter: (Formatter<...> & FormatterFunction) | undefined; nestLabel: boolean; tooltipLabel: Element | null; }' is not assignable to type '{ item: TooltipPayloadItem; index: number; itemConfig: ItemConfig | undefined; indicatorColor: string; indicator: "line" | "dot" | "dashed"; hideIndicator: boolean; formatter?: FormatterFunction; nestLabel: boolean; tooltipLabel: ReactNode; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'formatter' are incompatible.
+    Type '(Formatter<ValueType, NameType> & FormatterFunction) | undefined' is not assignable to type 'FormatterFunction'.
+      Type 'undefined' is not assignable to type 'FormatterFunction'.
+
+338               <TooltipItem
+                   ~~~~~~~~~~~
+
+server/routes/ai.routes.ts:620:9 - error TS2345: Argument of type 'string | ParsedQs' is not assignable to parameter of type 'string | undefined'.
+  Type 'ParsedQs' is not assignable to type 'string'.
+
+620         categoryStr || '',
+            ~~~~~~~~~~~~~~~~~
+
+server/routes/tables/tables.routes.ts:270:11 - error TS2339: Property 'status' does not exist on type '{ id: number; tableId: number | null; guestName: string; startTime: Date; partySize: number; }'.
+
+270         r.status === 'confirmed' &&
