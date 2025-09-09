@@ -344,7 +344,7 @@ const ChartTooltipContent = React.forwardRef<
                 indicatorColor={String(indicatorColor)}
                 indicator={indicator}
                 hideIndicator={hideIndicator}
-                formatter={formatter}
+                formatter={formatter || undefined}
                 nestLabel={nestLabel}
                 tooltipLabel={tooltipLabel}
               />

@@ -149,8 +149,8 @@ router.get('/',
       query.orderBy(orderColumn)) as typeof query;
 
     // Pagination
-    const pageNum = typeof page === 'string' ? parseInt(page) : page;
-    const limitNum = typeof limit === 'string' ? parseInt(limit) : limit;
+    const pageNum = typeof page === 'string' ? parseInt(page) : (page as number) || 1;
+    const limitNum = typeof limit === 'string' ? parseInt(limit) : (limit as number) || 20;
     const offset = (pageNum - 1) * limitNum;
     const tablesData = await query.limit(limitNum).offset(offset);
 
@@ -272,19 +272,23 @@ router.get('/status',
         location: table.location,
         section: table.section,
         status,
-        currentReservation: currentRes ? {
-          id: currentRes.id,
-          customerName: currentRes.customerName,
-          startTime: currentRes.startTime,
-          endTime: currentRes.endTime,
-          partySize: currentRes.partySize
-        } : undefined,
-        nextReservation: nextRes ? {
-          id: nextRes.id,
-          customerName: nextRes.customerName,
-          startTime: nextRes.startTime,
-          partySize: nextRes.partySize
-        } : undefined
+        ...(currentRes && {
+          currentReservation: {
+            id: currentRes.id,
+            customerName: currentRes.customerName,
+            startTime: currentRes.startTime,
+            endTime: currentRes.endTime,
+            partySize: currentRes.partySize
+          }
+        }),
+        ...(nextRes && {
+          nextReservation: {
+            id: nextRes.id,
+            customerName: nextRes.customerName,
+            startTime: nextRes.startTime,
+            partySize: nextRes.partySize
+          }
+        })
       };
     });
 
@@ -339,27 +343,34 @@ router.post('/',
       })
       .returning();
 
-    await logTableActivity(
-      currentUser.id,
-      'CREATE_TABLE',
-      `Table créée: #${req.body.number} (${req.body.capacity} places, ${req.body.location})`,
-      req,
-      newTable.id
-    );
+    if (newTable) {
+      await logTableActivity(
+        currentUser.id,
+        'CREATE_TABLE',
+        `Table créée: #${req.body.number} (${req.body.capacity} places, ${req.body.location})`,
+        req,
+        newTable.id
+      );
 
-    logger.info('Table créée', {
-      tableId: newTable.id,
-      number: req.body.number,
-      capacity: req.body.capacity,
-      location: req.body.location,
-      createdBy: currentUser.id
-    });
+      logger.info('Table créée', {
+        tableId: newTable.id,
+        number: req.body.number,
+        capacity: req.body.capacity,
+        location: req.body.location,
+        createdBy: currentUser.id
+      });
 
-    res.status(201).json({
-      success: true,
-      data: newTable,
-      message: 'Table créée avec succès'
-    });
+      res.status(201).json({
+        success: true,
+        data: newTable,
+        message: 'Table créée avec succès'
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: 'Erreur lors de la création de la table'
+      });
+    }
   })
 );
 
@@ -373,7 +384,7 @@ router.put('/:id',
   asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const currentUser = (req as any).user;
-    const id = parseInt(req.params.id, 10);
+    const id = parseInt(req.params.id || '0', 10);
 
     const [existingTable] = await db
       .select()
@@ -381,10 +392,11 @@ router.put('/:id',
       .where(eq(tables.id, Number(id)));
 
     if (!existingTable) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Table non trouvée'
       });
+      return;
     }
 
     if (req.body.number && req.body.number !== existingTable.number) {
@@ -397,10 +409,11 @@ router.put('/:id',
         ));
 
       if (numberExists) {
-        return res.status(409).json({
+        res.status(409).json({
           success: false,
           message: 'Une table avec ce numéro existe déjà'
         });
+        return;
       }
     }
 
@@ -414,10 +427,11 @@ router.put('/:id',
       .returning();
 
     if (!updatedTable) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Table non trouvée'
       });
+      return;
     }
 
     await logTableActivity(
@@ -452,7 +466,7 @@ router.patch('/:id/status',
   asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const currentUser = (req as any).user;
-    const id = parseInt(req.params.id, 10);
+    const id = parseInt(req.params.id || '0', 10);
     const { status, notes } = req.body;
 
     const [existingTable] = await db
@@ -461,10 +475,11 @@ router.patch('/:id/status',
       .where(eq(tables.id, Number(id)));
 
     if (!existingTable) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Table non trouvée'
       });
+      return;
     }
 
     const [updatedTable] = await db
@@ -478,10 +493,11 @@ router.patch('/:id/status',
       .returning();
 
     if (!updatedTable) {
-      return res.status(404).json({
+      res.status(500).json({
         success: false,
-        message: 'Table non trouvée'
+        message: 'Erreur lors de la mise à jour de la table'
       });
+      return;
     }
 
     await logTableActivity(
@@ -518,13 +534,14 @@ router.delete('/:id',
   asyncHandler(async (req, res): Promise<void> => {
     const db = getDb();
     const currentUser = (req as any).user;
-    const id = parseInt(req.params.id, 10);
+    const id = parseInt(req.params.id || '0', 10);
 
     if (!id) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'ID de table invalide'
       });
+      return;
     }
 
     const futureReservations = await db
@@ -540,10 +557,11 @@ router.delete('/:id',
 
     const reservationCount = futureReservations[0]?.count || 0;
     if (reservationCount > 0) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: `Impossible de supprimer la table: ${reservationCount} réservation(s) future(s)`
       });
+      return;
     }
 
     const [deactivatedTable] = await db
@@ -556,10 +574,11 @@ router.delete('/:id',
       .returning();
 
     if (!deactivatedTable) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Table non trouvée'
       });
+      return;
     }
 
     await logTableActivity(

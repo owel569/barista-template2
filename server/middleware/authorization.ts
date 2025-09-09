@@ -17,7 +17,7 @@ export const requirePermission = (moduleName: string, capability: Capability) =>
       const db = await getDb();
       const rows = await db.select()
         .from(permissions)
-        .where(and(eq(permissions.userId, parseInt(user.id)), eq(permissions.module, moduleName)))
+        .where(and(eq(permissions.userId, parseInt(user.id.toString())), eq(permissions.module, moduleName)))
         .limit(1);
 
       const perm = rows[0];

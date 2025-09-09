@@ -289,7 +289,7 @@ router.get('/categories', asyncHandler(async (req, res) => {
 
     res.json({ success: true, data: categories });
   } catch (error) {
-    logger.error('Erreur récupération catégories:', error);
+    logger.error('Erreur récupération catégories:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     res.status(500).json({
       success: false,
       error: 'Erreur serveur lors de la récupération des catégories'

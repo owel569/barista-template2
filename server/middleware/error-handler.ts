@@ -15,7 +15,7 @@ import { logger } from '../utils/logger';
 // import { metrics } from '@/lib/metrics'; // Removed - not available in server context
 
 // Types sécurisés pour les erreurs
-interface AppError extends Error {
+export interface AppError extends Error {
   status?: number;
   statusCode?: number;
   code?: string | number;
@@ -25,13 +25,13 @@ interface AppError extends Error {
   timestamp?: Date;
 }
 
-interface DatabaseError extends AppError {
+export interface DatabaseError extends AppError {
   code: string;
   severity?: string;
   constraint?: string;
 }
 
-interface ValidationError extends AppError {
+export interface ValidationError extends AppError {
   errors: Array<{
     field: string;
     message: string;
@@ -99,7 +99,7 @@ const logError = (err: AppError, req: Request): void => {
     logger.warn('Client error occurred', errorContext);
   } else {
     logger.error('Server error occurred', errorContext);
-    metrics.increment('server.errors', 1);
+    // metrics.increment('server.errors', 1); // Commented out - metrics not available
   }
 };
 
@@ -184,7 +184,7 @@ export const errorHandler = (
 
     // Erreur de base de données
     if (isDatabaseError(err)) {
-      metrics.increment('database.errors', 1);
+      // metrics.increment('database.errors', 1); // Commented out - metrics not available
 
       let message = 'Erreur de base de données';
       let status = 503;
@@ -253,7 +253,7 @@ export const errorHandler = (
     if (err.isOperational) {
       return res.status(err.statusCode || 500).json(
         createErrorResponse(err.statusCode || 500, err.message, {
-          code: err.code?.toString(),
+          code: err.code?.toString() || undefined,
           details: err.details,
           expose: true
         })
@@ -294,7 +294,7 @@ export const errorHandler = (
 };
 
 // Classe d'erreur personnalisée pour une meilleure gestion
-export class AppError extends Error {
+export class AppErrorClass extends Error {
   statusCode: number;
   isOperational: boolean;
   details?: any;
@@ -318,13 +318,13 @@ export class AppError extends Error {
 }
 
 // Erreurs spécifiques prédéfinies
-export class NotFoundError extends AppError {
+export class NotFoundError extends AppErrorClass {
   constructor(resource = 'Ressource') {
     super(`${resource} non trouvé`, 404, { name: 'NotFoundError' });
   }
 }
 
-export class ValidationError extends AppError {
+export class ValidationErrorClass extends AppErrorClass {
   constructor(errors: ValidationError['errors']) {
     super('Validation échouée', 400, {
       name: 'ValidationError',
@@ -333,7 +333,7 @@ export class ValidationError extends AppError {
   }
 }
 
-export class DatabaseConnectionError extends AppError {
+export class DatabaseConnectionError extends AppErrorClass {
   constructor() {
     super('Erreur de connexion à la base de données', 503, {
       name: 'DatabaseConnectionError',
@@ -342,7 +342,7 @@ export class DatabaseConnectionError extends AppError {
   }
 }
 
-export class RateLimitError extends AppError {
+export class RateLimitError extends AppErrorClass {
   constructor(retryAfter = 60) {
     super('Limite de taux dépassée', 429, {
       name: 'RateLimitError',

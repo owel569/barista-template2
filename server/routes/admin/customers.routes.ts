@@ -70,6 +70,14 @@ router.get('/:id', authenticateUser, requireRoleHierarchy('staff'), async (req: 
   try {
     const { id } = req.params;
 
+    if (!id) {
+      res.status(400).json({
+        success: false,
+        message: 'ID du client requis'
+      });
+      return;
+    }
+
     const [customer] = await db
       .select()
       .from(customers)
@@ -77,10 +85,11 @@ router.get('/:id', authenticateUser, requireRoleHierarchy('staff'), async (req: 
       .limit(1);
 
     if (!customer) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Client non trouvé'
       });
+      return;
     }
 
     res.json({
@@ -102,6 +111,14 @@ router.put('/:id', authenticateUser, requireRoleHierarchy('staff'), validateBody
     const { id } = req.params;
     const updateData = req.body;
 
+    if (!id) {
+      res.status(400).json({
+        success: false,
+        message: 'ID du client requis'
+      });
+      return;
+    }
+
     const [updatedCustomer] = await db
       .update(customers)
       .set({
@@ -112,10 +129,11 @@ router.put('/:id', authenticateUser, requireRoleHierarchy('staff'), validateBody
       .returning();
 
     if (!updatedCustomer) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Client non trouvé'
       });
+      return;
     }
 
     res.json({
@@ -137,16 +155,25 @@ router.delete('/:id', authenticateUser, requireRoleHierarchy('manager'), async (
   try {
     const { id } = req.params;
 
+    if (!id) {
+      res.status(400).json({
+        success: false,
+        message: 'ID du client requis'
+      });
+      return;
+    }
+
     const [deletedCustomer] = await db
       .delete(customers)
       .where(eq(customers.id, parseInt(id)))
       .returning();
 
     if (!deletedCustomer) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Client non trouvé'
       });
+      return;
     }
 
     res.json({
@@ -178,8 +205,8 @@ router.get('/stats/overview', authenticateUser, requireRoleHierarchy('staff'), a
     res.json({
       success: true,
       data: {
-        total: totalCustomers[0].count,
-        active: activeCustomers[0].count,
+        total: totalCustomers[0]?.count || 0,
+        active: activeCustomers[0]?.count || 0,
         topCustomers
       }
     });

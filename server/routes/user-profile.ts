@@ -360,19 +360,19 @@ class UserProfileService {
 
       // Application des filtres
       if (filters?.status && filters.status !== 'all') {
-        query = query.where(eq(orders.status, filters.status as any));
+        query = query.where(eq(orders.status, filters.status as any)) as any;
       }
 
       if (filters?.from) {
-        query = query.where(gte(orders.createdAt, new Date(filters.from)));
+        query = query.where(gte(orders.createdAt, new Date(filters.from))) as any;
       }
 
       if (filters?.to) {
-        query = query.where(lte(orders.createdAt, new Date(filters.to)));
+        query = query.where(lte(orders.createdAt, new Date(filters.to))) as any;
       }
 
       // Ajout du tri
-      query = query.orderBy(desc(orders.createdAt));
+      query = query.orderBy(desc(orders.createdAt)) as any;
 
       // Requête pour le total (pour la pagination)
       const total = await query.execute().then(res => res.length);

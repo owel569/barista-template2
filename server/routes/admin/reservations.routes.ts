@@ -45,11 +45,11 @@ router.get('/', authenticateUser, requireRoleHierarchy('staff'), async (req, res
       .leftJoin(tables, eq(reservations.tableId, tables.id));
 
     if (date) {
-      query = query.where(sql`DATE(${reservations.date}) = ${date}`);
+      query = query.where(sql`DATE(${reservations.date}) = ${date}`) as any;
     }
 
     if (status) {
-      query = query.where(eq(reservations.status, status as any));
+      query = query.where(eq(reservations.status, status as any)) as any;
     }
 
     const allReservations = await query.orderBy(desc(reservations.date), desc(reservations.time));
@@ -111,14 +111,15 @@ router.put('/:id', authenticateUser, requireRoleHierarchy('staff'), validateBody
         ...updateData,
         updatedAt: new Date()
       })
-      .where(eq(reservations.id, parseInt(id)))
+      .where(eq(reservations.id, parseInt(id || '0')))
       .returning();
 
     if (!updatedReservation) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Réservation non trouvée'
       });
+      return;
     }
 
     res.json({
@@ -142,10 +143,11 @@ router.patch('/:id/status', authenticateUser, requireRoleHierarchy('staff'), asy
     const { status } = req.body;
 
     if (!['pending', 'confirmed', 'seated', 'completed', 'cancelled'].includes(status)) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'Statut invalide'
       });
+      return;
     }
 
     const [updatedReservation] = await db
@@ -154,14 +156,15 @@ router.patch('/:id/status', authenticateUser, requireRoleHierarchy('staff'), asy
         status,
         updatedAt: new Date()
       })
-      .where(eq(reservations.id, parseInt(id)))
+      .where(eq(reservations.id, parseInt(id || '0')))
       .returning();
 
     if (!updatedReservation) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Réservation non trouvée'
       });
+      return;
     }
 
     res.json({
@@ -185,14 +188,15 @@ router.delete('/:id', authenticateUser, requireRoleHierarchy('manager'), async (
 
     const [deletedReservation] = await db
       .delete(reservations)
-      .where(eq(reservations.id, parseInt(id)))
+      .where(eq(reservations.id, parseInt(id || '0')))
       .returning();
 
     if (!deletedReservation) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Réservation non trouvée'
       });
+      return;
     }
 
     res.json({
@@ -237,10 +241,10 @@ router.get('/stats/overview', authenticateUser, requireRoleHierarchy('staff'), a
     res.json({
       success: true,
       data: {
-        total: totalReservations[0].count,
-        today: todayReservations[0].count,
-        confirmed: confirmedReservations[0].count,
-        pending: pendingReservations[0].count
+        total: totalReservations[0]?.count || 0,
+        today: todayReservations[0]?.count || 0,
+        confirmed: confirmedReservations[0]?.count || 0,
+        pending: pendingReservations[0]?.count || 0
       }
     });
   } catch (error) {

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -323,7 +323,7 @@ const AdvancedLoyalty: React.FC = () => {
                 <div className="space-y-2">
                   <label>Type</label>
                   <Select
-                    value={newRewardData.type || undefined}
+                    value={newRewardData.type || 'discount'}
                     onValueChange={(value: string) => setNewRewardData({...newRewardData, type: value as 'discount' | 'free_item' | 'special_offer'})}
                   >
                     <SelectTrigger>

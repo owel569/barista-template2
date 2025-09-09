@@ -125,7 +125,7 @@ class AdvancedValidator {
           field: err.path.join('.') || 'root',
           message: err.message,
           code: err.code,
-          value: err.input
+          value: (err as any).input
         }));
 
         return {
@@ -403,7 +403,7 @@ export const authSchemas = {
 export const crudSchemas = {
   create: <T>(schema: ZodSchema<T>) => schema,
 
-  update: <T>(schema: ZodSchema<T>) => schema.partial(),
+  update: <T>(schema: ZodSchema<T>) => (schema as any).partial() as any,
 
   delete: z.object({
     id: commonSchemas.id

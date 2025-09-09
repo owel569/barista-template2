@@ -1,33 +1,21 @@
 import { Request, Response, NextFunction } from 'express';
-import { checkDatabaseHealth, initializeDatabase } from '../db';
+import { db } from '../db';
 import { createLogger } from './logging';
 const logger = createLogger('DB_MIDDLEWARE');
 
 export async function ensureDatabaseConnection(req: Request, res: Response, next: NextFunction) {
   try {
-    const health = await checkDatabaseHealth();
-    
-    if (!health.healthy) {
-      console.log('🔄 Base de données non connectée, reconnexion...');
-      await initializeDatabase();
-    }
-    
+    // Test simple de connexion
+    await db.execute('SELECT 1');
     next();
   } catch (error) {
     logger.error('❌ Erreur middleware base de données:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     
-    // Tentative de reconnexion automatique
-    try {
-      await initializeDatabase();
-      next();
-    } catch (reconnectError) {
-      logger.error('❌ Échec de la reconnexion:', reconnectError);
-      res.status(500).json({ 
-        success: false, 
-        message: 'Erreur de connexion à la base de données',
-        error: process.env.NODE_ENV === 'development' && error instanceof Error ? error.message : 'Service temporairement indisponible'
-      });
-    }
+    res.status(500).json({ 
+      success: false, 
+      message: 'Erreur de connexion à la base de données',
+      error: process.env.NODE_ENV === 'development' && error instanceof Error ? error.message : 'Service temporairement indisponible'
+    });
   }
 }
 
@@ -46,7 +34,7 @@ export async function withDatabaseRetry<T>(operation: () => Promise<T>, maxRetri
         
         // Réinitialiser la connexion avant la nouvelle tentative
         try {
-          await initializeDatabase();
+          await db.execute('SELECT 1');
         } catch (initError) {
           console.warn('⚠️ Erreur lors de la réinitialisation:', initError);
         }

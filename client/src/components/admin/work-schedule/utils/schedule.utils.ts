@@ -172,7 +172,7 @@ export const checkShiftConflict = (newShift: Partial<Shift>, existingShifts: Shi
 
   const employeeShifts = filterShiftsByEmployee(existingShifts, newShift.employeeId);
   const sameDayShifts = employeeShifts.filter(shift => 
-    isSameDay(parseISO(shift.date), parseISO(newShift.date))
+    isSameDay(parseISO(shift.date), parseISO(newShift.date || ''))
   );
 
   return sameDayShifts.some(shift => {
@@ -261,7 +261,7 @@ export const formatCurrency = (amount: number): string => {
 
 // Utilitaires pour la couleur
 export const getShiftColor = (shift: Shift): string => {
-  return SHIFT_STATUS_COLORS[shift.status] || SHIFT_STATUS_COLORS.scheduled;
+  return SHIFT_STATUS_COLORS[shift.status || 'scheduled'] || SHIFT_STATUS_COLORS.scheduled;
 };
 
 export const getDepartmentColor = (department: string): string => {
@@ -300,11 +300,11 @@ export const getShiftTimeStatus = (shift: Shift): 'past' | 'current' | 'future' 
 // Fonctions pour les composants
 export const getWeekDates = (dateISO: string): string[] => {
   const dates = generateWeekDates(parseISO(dateISO));
-  return dates.map(d => d.toISOString().split('T')[0]);
+  return dates.map(d => d.toISOString().split('T')[0] || '');
 };
 export const getMonthDates = (dateISO: string): string[] => {
   const dates = generateMonthDates(parseISO(dateISO));
-  return dates.map(d => d.toISOString().split('T')[0]);
+  return dates.map(d => d.toISOString().split('T')[0] || '');
 };
 
 export const generateEmployeeColors = (employees: Employee[]): Record<number, string> => {
@@ -316,7 +316,7 @@ export const generateEmployeeColors = (employees: Employee[]): Record<number, st
   
   const employeeColors: Record<number, string> = {};
   employees.forEach((employee, index) => {
-    employeeColors[employee.id] = colors[index % colors.length];
+    employeeColors[employee.id || 0] = colors[index % colors.length];
   });
   
   return employeeColors;

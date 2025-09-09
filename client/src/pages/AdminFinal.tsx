@@ -76,7 +76,7 @@ export default function AdminFinal() : JSX.Element {
     lowStockItems: 0
   });
 
-  const { hasPermission } = usePermissions(user?.role || 'employe');
+  const { hasPermission } = usePermissions();
 
   useEffect(() => {
     // Vérifier l'authentification une seule fois

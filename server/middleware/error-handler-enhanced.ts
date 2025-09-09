@@ -158,7 +158,7 @@ export const errorHandler = (
     };
 
     // Ajouter la stack trace en développement
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== 'production' && error.stack) {
       errorResponse.error.stack = error.stack;
     }
   }

@@ -143,7 +143,7 @@ class AIService {
       return { isValid: false, error: 'La date de réservation doit être dans le futur' };
     }
 
-    const hours = parseInt(time.split(':')[0]);
+    const hours = parseInt((time || '0').split(':')[0]);
     if (hours < 7 || hours > 22) {
       return { isValid: false, error: 'Heures d\'ouverture: 7h-22h' };
     }
@@ -160,7 +160,7 @@ class AIService {
     const confidence = 0.85 + Math.random() * 0.15;
 
     return {
-      transcript: randomTranscript,
+      transcript: randomTranscript || 'Commande non reconnue',
       confidence: parseFloat(confidence.toFixed(2))
     };
   }
@@ -178,7 +178,7 @@ class AIService {
         .from(reservations)
         .where(
           and(
-            eq(reservations.date, date),
+            eq(reservations.date, new Date(date)),
             eq(reservations.time, time)
           )
         );
@@ -188,7 +188,7 @@ class AIService {
       const isPeakHour = time >= '19:00' && time <= '21:00';
       const capacity = isWeekend && isPeakHour ? 50 : 80;
 
-      const totalGuests = existingReservations.reduce((sum, r) => sum + r.guests, 0);
+      const totalGuests = existingReservations.reduce((sum, r) => sum + (r.partySize || 0), 0);
       const available = (totalGuests + guests) <= capacity;
 
       if (!available) {
@@ -488,14 +488,14 @@ router.post('/reservation',
       const db = await getDb();
       const [reservation] = await db.insert(reservations)
         .values({
-          date,
+          date: new Date(date),
           time,
-          guests,
-          preferences,
-          customerName: customerInfo?.name,
-          customerEmail: customerInfo?.email,
-          customerPhone: customerInfo?.phone,
+          reservationTime: new Date(`${date}T${time}`),
+          guestName: customerInfo?.name,
+          partySize: guests,
           status: 'confirmed',
+          specialRequests: preferences,
+          notes: null,
           createdAt: new Date()
         })
         .returning();
@@ -554,7 +554,7 @@ router.get('/predictions',
     const { timeframe, metrics } = req.query;
 
     try {
-      const predictions = AIService.generatePredictions(timeframe, metrics);
+      const predictions = AIService.generatePredictions(timeframe as string, metrics as any);
 
       res.json({
         success: true,
@@ -605,7 +605,7 @@ router.get('/automation/suggestions',
     const { category, priority } = req.query;
 
     try {
-      const suggestions = AIService.generateAutomationSuggestions(category, priority);
+      const suggestions = AIService.generateAutomationSuggestions(category as string, priority as 'high' | 'low' | 'medium' | undefined);
 
       res.json({
         success: true,

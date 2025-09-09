@@ -10,8 +10,8 @@ interface LogEntry {
   url?: string;
   statusCode?: number;
   responseTime?: number;
-  userAgent?: string;
-  ip?: string;
+  userAgent?: string | undefined;
+  ip?: string | undefined;
   userId?: number;
   message: string;
   metadata?: Record<string, unknown>;
@@ -43,7 +43,7 @@ class Logger {
       timestamp: new Date().toISOString(),
       level: 'INFO',
       message,
-      metadata
+      metadata: metadata || {}
     };
     
     console.log(`ℹ️ [INFO] ${message}`, metadata || '');
@@ -55,7 +55,7 @@ class Logger {
       timestamp: new Date().toISOString(),
       level: 'WARN',
       message,
-      metadata
+      metadata: metadata || {}
     };
     
     console.warn(`⚠️ [WARN] ${message}`, metadata || '');
@@ -70,7 +70,7 @@ class Logger {
       metadata: { error: error?.message || error, stack: error?.stack, ...metadata }
     };
     
-    logger.error(`🚨 [ERROR] ${message}`, error || '');
+    console.error(`🚨 [ERROR] ${message}`, error || '');
     this.writeLog(entry);
   }
 
@@ -80,7 +80,7 @@ class Logger {
         timestamp: new Date().toISOString(),
         level: 'DEBUG',
         message,
-        metadata
+        metadata: metadata as Record<string, unknown> || {}
       };
       
       console.debug(`🔍 [DEBUG] ${message}`, metadata || '');
@@ -105,8 +105,8 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction) =
       url: req.originalUrl,
       statusCode: res.statusCode,
       responseTime,
-      userAgent: req.get('user-agent'),
-      ip: req.ip || req.connection.remoteAddress,
+      userAgent: req.get('user-agent') || undefined,
+      ip: req.ip || req.connection.remoteAddress || undefined,
       userId: (req as any).user?.id,
       message: `${req.method} ${req.originalUrl} - ${res.statusCode} (${responseTime}ms)`,
       metadata: {
@@ -116,7 +116,7 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction) =
       }
     };
 
-    logger.writeLog(logEntry);
+    (logger as any).writeLog(logEntry);
     
     // Console log pour développement
     const statusColor = res.statusCode >= 400 ? '🔴' : res.statusCode >= 300 ? '🟡' : '🟢';

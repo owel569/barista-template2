@@ -1,4 +1,3 @@
-
 import { Request, Response, NextFunction } from 'express';
 
 interface MetricsData {
@@ -9,45 +8,6 @@ interface MetricsData {
   responseTime: number;
   userId?: string;
 }
-
-class MetricsCollector {
-  private metrics: MetricsData[] = [];
-
-  collect(data: MetricsData): void {
-    this.metrics.push(data);
-    // Garder seulement les 1000 dernières métriques
-    if (this.metrics.length > 1000) {
-      this.metrics = this.metrics.slice(-1000);
-    }
-  }
-
-  getMetrics(): MetricsData[] {
-    return [...this.metrics];
-  }
-}
-
-const metricsCollector = new MetricsCollector();
-
-export const metricsMiddleware = (req: Request, res: Response, next: NextFunction): void => {
-  const startTime = Date.now();
-
-  res.on('finish', () => {
-    const responseTime = Date.now() - startTime;
-    
-    metricsCollector.collect({
-      timestamp: Date.now(),
-      endpoint: req.path,
-      method: req.method,
-      statusCode: res.statusCode,
-      responseTime,
-      userId: req.user?.id
-    });
-  });
-
-  next();
-};
-
-export { metricsCollector };
 
 interface Metrics {
   requests: {
@@ -81,8 +41,9 @@ interface Metrics {
 }
 
 class MetricsCollector {
-  private metrics: Metrics;
+  private metrics!: Metrics;
   private startTime: number;
+  private simpleMetrics: MetricsData[] = [];
 
   constructor() {
     this.startTime = Date.now();
@@ -120,6 +81,14 @@ class MetricsCollector {
       uptime: 0,
       lastReset: new Date().toISOString()
     };
+  }
+
+  collect(data: MetricsData): void {
+    this.simpleMetrics.push(data);
+    // Garder seulement les 1000 dernières métriques
+    if (this.simpleMetrics.length > 1000) {
+      this.simpleMetrics = this.simpleMetrics.slice(-1000);
+    }
   }
 
   recordRequest(method: string, route: string, statusCode: number, responseTime: number) {
@@ -186,7 +155,7 @@ class MetricsCollector {
       : 0;
     
     const avgResponseTime = this.metrics.performance.averageResponseTime;
-    const memoryUsage = this.metrics.memory.heapUsed / this.metrics.memory.heapTotal;
+    const memoryUsage = this.metrics.memory.heapTotal > 0 ? this.metrics.memory.heapUsed / this.metrics.memory.heapTotal : 0;
 
     let health = 'excellent';
     if (errorRate > 0.1 || avgResponseTime > 2000 || memoryUsage > 0.9) {
@@ -198,6 +167,10 @@ class MetricsCollector {
     }
 
     return { ...this.metrics, health };
+  }
+
+  getSimpleMetrics(): MetricsData[] {
+    return [...this.simpleMetrics];
   }
 
   reset() {
@@ -217,6 +190,16 @@ export const metricsMiddleware = (req: Request, res: Response, next: NextFunctio
     const route = req.route?.path || req.path;
     
     metricsCollector.recordRequest(req.method, route, res.statusCode, responseTime);
+    
+    // Collect simple metrics
+    metricsCollector.collect({
+      timestamp: Date.now(),
+      endpoint: req.path,
+      method: req.method,
+      statusCode: res.statusCode,
+      responseTime,
+      userId: (req as any).user?.id?.toString()
+    });
     
     return originalSend.call(this, body);
   };

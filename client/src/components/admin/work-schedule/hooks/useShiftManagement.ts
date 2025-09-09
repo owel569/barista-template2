@@ -33,15 +33,15 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
   // États locaux
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
-  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0] || '');
   const [viewMode, setViewMode] = useState<ViewMode>("calendar");
   const [timePeriod, setTimePeriod] = useState<TimePeriod>("week");
   const [isCreatingShift, setIsCreatingShift] = useState(false);
   const [isEditingShift, setIsEditingShift] = useState(false);
 
   // Filtres
-  const defaultStart = new Date().toISOString().split('T')[0];
-  const defaultEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  const defaultStart = new Date().toISOString().split('T')[0] || '';
+  const defaultEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] || '';
   const [filters, setFilters] = useState<ScheduleFilter>({
     departments: initialFilters?.departments ?? [],
     positions: initialFilters?.positions ?? [],
@@ -226,8 +226,8 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
       positions: [],
       employees: [],
       dateRange: {
-        start: new Date().toISOString().split('T')[0],
-        end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        start: new Date().toISOString().split('T')[0] || '',
+        end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] || ''
       },
       status: [],
       showConflicts: false,
@@ -270,7 +270,7 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
         break;
     }
     
-    handleDateSelect(currentDate.toISOString().split('T')[0]);
+    handleDateSelect(currentDate.toISOString().split('T')[0] || '');
   }, [selectedDate, timePeriod, handleDateSelect]);
 
   // Statistiques rapides
@@ -318,7 +318,7 @@ export const useShiftManagement = (props: useShiftManagementProps) => {
       if (!groups[groupKey]) {
         groups[groupKey] = [];
       }
-      groups[groupKey].push(shift);
+      groups[groupKey]?.push(shift);
     });
     
     return groups;

@@ -310,7 +310,7 @@ class AdvancedLoyaltyService {
       return points >= l.minPoints && points <= l.maxPoints;
     });
 
-    return level || LOYALTY_LEVELS[0];
+    return level || LOYALTY_LEVELS[0]!;
   }
 
   /**
@@ -765,7 +765,8 @@ router.get('/customer/:customerId',
 
       const customer = customerResult[0];
       if (!customer) {
-        return res.status(404).json({ success: false, message: 'Client non trouvé' });
+        res.status(404).json({ success: false, message: 'Client non trouvé' });
+        return;
       }
       const points = customer.loyaltyPoints || 0;
       const level = AdvancedLoyaltyService.getLevelForPoints(points);
@@ -827,7 +828,7 @@ router.get('/customer/:customerId',
         totalPointsEarned: stats.totalEarned,
         totalPointsRedeemed: stats.totalRedeemed,
         currentLevel: level,
-        nextLevel: nextLevelInfo.nextLevel || null,
+        nextLevel: nextLevelInfo.nextLevel || LOYALTY_LEVELS[0]!,
         progressToNextLevel: nextLevelInfo.progress,
         pointsToNextLevel: nextLevelInfo.pointsToNext,
         joinDate: customer?.createdAt?.toISOString() ?? new Date().toISOString(),
@@ -893,7 +894,7 @@ router.post('/earn-points',
       }
 
       const customer = customerResult[0];
-      const currentPoints = customer.loyaltyPoints || 0;
+      const currentPoints = customer?.loyaltyPoints || 0;
       const currentLevel = AdvancedLoyaltyService.getLevelForPoints(currentPoints);
 
       const finalPoints = AdvancedLoyaltyService.calculatePointsToAdd(
@@ -929,7 +930,7 @@ router.post('/earn-points',
 
         await tx.insert(loyaltyTransactions).values({
           ...transactionData,
-          balance: newTotalPoints
+          points: newTotalPoints
         });
 
         await tx.insert(activityLogs).values({
@@ -1009,7 +1010,7 @@ router.post('/redeem-reward',
       }
 
       const customer = customerResult[0];
-      const currentPoints = customer.loyaltyPoints || 0;
+      const currentPoints = customer?.loyaltyPoints || 0;
       const customerLevel = AdvancedLoyaltyService.getLevelForPoints(currentPoints);
 
       const reward = ENHANCED_REWARDS.find(r => r.id === rewardId);

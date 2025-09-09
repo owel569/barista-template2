@@ -41,7 +41,8 @@ class AdvancedCache {
     hits: 0,
     misses: 0,
     evictions: 0,
-    cleanups: 0
+    cleanups: 0,
+    errors: 0
   };
 
   constructor(config: Partial<CacheConfig> = {}) {
@@ -272,7 +273,12 @@ class AdvancedCache {
     hitRate: number;
     totalAccesses: number;
     averageAccessCount: number;
-    metrics: typeof this.metrics;
+    metrics: {
+      hits: number;
+      misses: number;
+      evictions: number;
+      errors: number;
+    };
   } {
     const totalAccesses = this.metrics.hits + this.metrics.misses;
     const hitRate = totalAccesses > 0 ? (this.metrics.hits / totalAccesses) * 100 : 0;
@@ -288,7 +294,12 @@ class AdvancedCache {
       hitRate: Math.round(hitRate * 100) / 100,
       totalAccesses,
       averageAccessCount: Math.round(averageAccessCount * 100) / 100,
-      metrics: { ...this.metrics }
+      metrics: { 
+        hits: this.metrics.hits,
+        misses: this.metrics.misses,
+        evictions: this.metrics.evictions,
+        errors: this.metrics.errors || 0
+      }
     };
   }
 
@@ -304,7 +315,8 @@ class AdvancedCache {
       hits: 0,
       misses: 0,
       evictions: 0,
-      cleanups: 0
+      cleanups: 0,
+      errors: 0
     };
 
     logger.info('Cache cleared completely', { previousSize });
@@ -356,7 +368,8 @@ export const cacheMiddleware = (options: CacheMiddlewareOptions = {}) => {
       res.setHeader('X-Cache', 'HIT');
       res.setHeader('X-Cache-Key', cacheKey);
       res.setHeader('X-Cache-TTL', options.ttl?.toString() || '300');
-      return res.json(cachedData);
+      res.json(cachedData);
+      return;
     }
 
     // Cache miss
@@ -497,10 +510,11 @@ export const invalidateCacheByTags = (req: Request, res: Response): void => {
     const { tags } = req.body;
     
     if (!tags || !Array.isArray(tags)) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'Tags requis et doit être un tableau'
       });
+      return;
     }
 
     const invalidatedCount = cache.invalidateByTags(tags);

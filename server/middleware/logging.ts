@@ -227,7 +227,7 @@ export class Logger {
     // Rotation quotidienne
     if (this.config.enableRotation) {
       const currentDate = new Date().toISOString().split('T')[0];
-      const logFileDate = this.currentLogFile?.includes(currentDate);
+      const logFileDate = this.currentLogFile?.includes(currentDate || '') || false;
       if (!logFileDate) {
         this.createLogFile();
       }

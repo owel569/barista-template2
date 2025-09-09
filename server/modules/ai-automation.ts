@@ -80,7 +80,7 @@ export class AIAutomationModule {
       
       // Simulation de reconnaissance vocale améliorée
       const transcript = await this.speechToText(audioData, language);
-      const command = await this.parseVoiceCommand(transcript);
+      const command = await this.parseVoiceCommand(transcript || '');
       
       res.json({
         transcript,
@@ -279,7 +279,7 @@ export class AIAutomationModule {
   private static async checkAvailability(date: string, time: string, guests: number) {
     // Simulation de vérification de disponibilité
     const isWeekend = new Date(date).getDay() === 0 || new Date(date).getDay() === 6;
-    const hour = parseInt(time.split(':')[0]);
+    const hour = parseInt((time || '0').split(':')[0]);
     
     // Plus de chances d'être disponible en semaine et hors heures de pointe
     const availability = !isWeekend && (hour < 12 || hour > 14) && (hour < 19 || hour > 21);
