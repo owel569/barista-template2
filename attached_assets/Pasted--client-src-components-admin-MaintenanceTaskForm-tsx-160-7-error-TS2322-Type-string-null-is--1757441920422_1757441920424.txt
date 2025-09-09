@@ -1,0 +1,31 @@
+
+client/src/components/admin/MaintenanceTaskForm.tsx:160:7 - error TS2322: Type 'string | null' is not assignable to type 'null'.
+  Type 'string' is not assignable to type 'null'.
+
+160       equipmentId: formData.equipmentId !== undefined ? formData.equipmentId.toString() : null,
+          ~~~~~~~~~~~
+
+  client/src/types/maintenance.ts:15:3
+    15   equipmentId?: number | null;
+         ~~~~~~~~~~~
+    The expected type comes from property 'equipmentId' which is declared here on type 'Omit<MaintenanceTask, "id" | "createdAt" | "updatedAt"> & { equipmentId?: string | null; }'
+
+client/src/components/admin/MaintenanceTaskForm.tsx:160:57 - error TS18047: 'formData.equipmentId' is possibly 'null'.
+
+160       equipmentId: formData.equipmentId !== undefined ? formData.equipmentId.toString() : null,
+                                                            ~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/maintenance-management.tsx:488:19 - error TS2412: Type '{ id: string; equipmentId: string | null; assignedToId: number | null; completedDate: string | null; notes: string | null; title: string; description: string; type: "preventive" | "corrective" | "emergency"; ... 6 more ...; updatedAt: string; } | undefined' is not assignable to type 'Partial<MaintenanceTask & { equipmentId?: string | null; completedDate?: string | null; notes?: string | null; }> | undefined' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+
+488                   initialData={editingTask ? {
+                      ~~~~~~~~~~~
+
+  client/src/components/admin/MaintenanceTaskForm.tsx:24:3
+    24   initialData?: Partial<MaintenanceTask & {
+         ~~~~~~~~~~~
+    The expected type comes from property 'initialData' which is declared here on type 'IntrinsicAttributes & MaintenanceTaskFormProps'
+
+client/src/components/admin/table-management.tsx:197:63 - error TS2554: Expected 2-3 arguments, but got 4.
+
+197       apiRequest('PUT', `/api/admin/tables/${id}/status`, {}, { status }),
+                                                                  ~~~~~~~~~~
