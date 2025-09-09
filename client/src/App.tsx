@@ -51,8 +51,9 @@ const SimplePage = ({ title, description }: { title: string; description: string
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Router>
+      <LanguageProvider>
+        <AuthProvider>
+          <Router>
           <div className="min-h-screen bg-background flex flex-col">
             <Switch>
               {/* ========== ROUTES ADMIN (sans navbar/footer) ========== */}
@@ -140,6 +141,7 @@ function App() {
           </div>
         </Router>
       </AuthProvider>
+    </LanguageProvider>
     </QueryClientProvider>
   );
 }
