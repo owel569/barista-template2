@@ -34,17 +34,18 @@ export interface MaintenanceTask {
   id: number;
   title: string;
   description: string;
-  equipment: string;
-  equipmentId: number;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  type: 'preventive' | 'corrective' | 'emergency';
+  equipmentId?: number | null;
+  priority: 'low' | 'medium' | 'high' | 'critical';
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
-  assignedTo: string;
-  assignedToId: number;
+  assignedToId?: number | null;
   scheduledDate: string;
   completedDate?: string;
   estimatedDuration: number; // en heures
-  cost: number;
+  cost?: number;
   notes?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Equipment {
@@ -460,7 +461,7 @@ export default function MaintenanceManagement() : JSX.Element {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Toutes priorités</SelectItem>
-                <SelectItem value="urgent">Urgent</SelectItem>
+                <SelectItem value="critical">Critique</SelectItem>
                 <SelectItem value="high">Haute</SelectItem>
                 <SelectItem value="medium">Moyenne</SelectItem>
                 <SelectItem value="low">Basse</SelectItem>
@@ -488,14 +489,15 @@ export default function MaintenanceManagement() : JSX.Element {
                   initialData={editingTask ? {
                     title: editingTask.title,
                     description: editingTask.description,
+                    type: editingTask.type,
                     priority: editingTask.priority,
                     status: editingTask.status,
-                    assignedTo: editingTask.assignedTo,
+                    assignedToId: editingTask.assignedToId,
                     scheduledDate: editingTask.scheduledDate,
                     estimatedDuration: editingTask.estimatedDuration,
                     cost: editingTask.cost,
                     notes: editingTask.notes,
-                    equipmentId: editingTask.equipmentId ? editingTask.equipmentId.toString() : null
+                    equipmentId: editingTask.equipmentId
                   } : undefined}
                   onSubmit={editingTask ?
                     (data: Omit<MaintenanceTask, 'id'> & { equipmentId?: number | null }) => handleUpdateTask(editingTask.id, data as any) : 

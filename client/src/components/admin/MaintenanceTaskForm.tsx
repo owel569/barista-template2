@@ -22,7 +22,7 @@ interface MaintenanceTaskFormProps {
   equipmentList: Equipment[];
   technicians: Technician[];
   initialData?: Partial<MaintenanceTask & { equipmentId?: string | null }> | undefined;
-  onSubmit: (data: Omit<MaintenanceTask, 'id'> & { equipmentId?: number | null }) => void;
+  onSubmit: (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null }) => void;
   onCancel: () => void;
 }
 
