@@ -421,3 +421,43 @@ export interface CacheMetrics {
   size: number;
   hitRate: number;
 }
+
+// Types pour remplacer 'any' dans les composants admin
+export interface TypedError {
+  message: string;
+  code?: string;
+  details?: Record<string, unknown>;
+}
+
+// Types pour les exports de données
+export type ExportFormat = 'json' | 'csv' | 'excel';
+export type ExportData = Record<string, unknown>;
+
+// Types pour les fonctions d'export
+export interface ExportFunction {
+  (data: ExportData[], filename: string): void;
+}
+
+// Types stricts pour les sélecteurs
+export type CustomerFilterStatus = 'all' | 'active' | 'inactive' | 'vip';
+export type CustomerSortBy = 'name' | 'email' | 'date' | 'orders' | 'points';
+export type SortOrder = 'asc' | 'desc';
+
+// Types pour les données de backup
+export interface BackupItem {
+  id: string;
+  name: string;
+  date: string;
+  size: string;
+  type: 'full' | 'incremental' | 'differential';
+  status: 'completed' | 'in_progress' | 'failed';
+}
+
+// Types pour les permissions d'actions admin
+export interface AdminActionPermission {
+  view?: boolean;
+  create?: boolean;
+  edit?: boolean;
+  delete?: boolean;
+  export?: boolean;
+}

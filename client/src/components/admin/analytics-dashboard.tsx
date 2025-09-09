@@ -34,7 +34,7 @@ interface ExportData extends Record<string, unknown> {
 }
 
 // Fonctions d'export
-const exportToJSON = (data: any, filename: string) => {
+const exportToJSON = (data: Record<string, unknown>, filename: string) => {
   const jsonString = JSON.stringify(data, null, 2);
   const blob = new Blob([jsonString], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -45,7 +45,7 @@ const exportToJSON = (data: any, filename: string) => {
   URL.revokeObjectURL(url);
 };
 
-const exportToCSV = (data: any[], filename: string) => {
+const exportToCSV = (data: Record<string, unknown>[], filename: string) => {
   const headers = Object.keys(data[0]);
   const csvContent = [
     headers.join(','),
@@ -61,7 +61,7 @@ const exportToCSV = (data: any[], filename: string) => {
   URL.revokeObjectURL(url);
 };
 
-const exportToExcel = (data: any[], filename: string) => {
+const exportToExcel = (data: Record<string, unknown>[], filename: string) => {
   // Export simple en CSV pour l'instant (Excel peut lire les CSV)
   exportToCSV(data, filename);
 };

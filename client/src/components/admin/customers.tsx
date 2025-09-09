@@ -655,7 +655,7 @@ function Customers({ userRole, user }: CustomersProps) {
               </div>
               <div className="w-48">
                 <Label htmlFor="status">Statut</Label>
-                <Select value={filterStatus} onValueChange={(value: any) => setFilterStatus(value)}>
+                <Select value={filterStatus} onValueChange={(value: string) => setFilterStatus(value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Tous les statuts" />
                   </SelectTrigger>
@@ -673,7 +673,7 @@ function Customers({ userRole, user }: CustomersProps) {
             <div className="flex gap-4">
               <div className="w-48">
                 <Label htmlFor="sortBy">Trier par</Label>
-                <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+                <Select value={sortBy} onValueChange={(value: string) => setSortBy(value)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -687,7 +687,7 @@ function Customers({ userRole, user }: CustomersProps) {
               </div>
               <div className="w-32">
                 <Label htmlFor="sortOrder">Ordre</Label>
-                <Select value={sortOrder} onValueChange={(value: any) => setSortOrder(value)}>
+                <Select value={sortOrder} onValueChange={(value: 'asc' | 'desc') => setSortOrder(value)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>

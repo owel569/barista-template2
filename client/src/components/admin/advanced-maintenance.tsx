@@ -197,8 +197,9 @@ export default function MaintenanceDashboard() {
       setShowTaskDialog(false);
       taskForm.reset();
       setSelectedTask(null);
-    } catch (err: any) {
-      setError(err.message || 'Erreur lors de la sauvegarde de la tâche');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la sauvegarde de la tâche';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -231,8 +232,9 @@ export default function MaintenanceDashboard() {
       setShowEquipmentDialog(false);
       equipmentForm.reset();
       setSelectedEquipment(null);
-    } catch (err: any) {
-      setError(err.message || 'Erreur lors de la sauvegarde de l\'équipement');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la sauvegarde de l\'équipement';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

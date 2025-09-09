@@ -188,7 +188,7 @@ export function EquipmentForm({ initialData, onSubmit, onCancel }: EquipmentForm
           <Label htmlFor="status">Statut *</Label>
           <Select
             value={formData.status || 'operational'}
-            onValueChange={(value) => setFormData({ ...formData, status: value as any })}
+            onValueChange={(value: 'operational' | 'maintenance' | 'out_of_order') => setFormData({ ...formData, status: value })}
             required
           >
             <SelectTrigger>

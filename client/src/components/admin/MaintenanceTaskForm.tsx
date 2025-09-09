@@ -21,7 +21,7 @@ import { Equipment, Technician } from './maintenance-management';
 interface MaintenanceTaskFormProps {
   equipmentList: Equipment[];
   technicians: Technician[];
-  initialData?: Partial<MaintenanceTask> & {
+  initialData?: Partial<Omit<MaintenanceTask, 'assignedToId'>> & {
     id?: string;
     equipmentId?: string | null;
     completedDate?: string | null;
@@ -29,6 +29,7 @@ interface MaintenanceTaskFormProps {
     priority?: string;
     createdAt?: string;
     updatedAt?: string;
+    assignedToId?: number | null | undefined;
   } | undefined;
   onSubmit: (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null }) => void;
   onCancel: () => void;
