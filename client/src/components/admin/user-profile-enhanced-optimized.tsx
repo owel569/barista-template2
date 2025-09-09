@@ -217,7 +217,7 @@ export default function UserProfileEnhanced(): JSX.Element {
   // Effet pour les mises à jour en temps réel via WebSocket
   useEffect(() => {
     if (lastMessage) {
-      const message = JSON.parse(lastMessage.data);
+      const message = JSON.parse(lastMessage.data as string);
       if (message.type === 'user-profile-updated') {
         queryClient.setQueryData(['user-profiles'], (old: UserProfile[] | undefined) => {
           if (!old) return old;
@@ -430,7 +430,7 @@ export default function UserProfileEnhanced(): JSX.Element {
         'Points Fidélité': profile.loyalty?.points || 0,
         'Total Dépensé (€)': profile.loyalty?.totalSpent || 0,
         'Commandes': profile.orderHistory?.length || 0,
-        'Panier Moyen (€)': profile.loyalty?.totalSpent / (profile.orderHistory?.length || 1),
+        'Panier Moyen (€)': (profile.loyalty?.totalSpent || 0) / (profile.orderHistory?.length || 1),
         'Dernière Visite': profile.lastActivity || '',
         'Date d\'Inscription': profile.loyalty?.joinDate || '',
         'Statut': profile.isActive ? 'Actif' : 'Inactif',
@@ -483,14 +483,6 @@ export default function UserProfileEnhanced(): JSX.Element {
     );
   }, []);
 
-  // Fonction pour sélectionner/désélectionner tous les utilisateurs visibles
-  const toggleAllUsersSelection = useCallback(() => {
-    if (selectedUsers.length === paginatedUsers.length) {
-      setSelectedUsers([]);
-    } else {
-      setSelectedUsers(paginatedUsers.map((user: UserProfile) => user.id));
-    }
-  }, [paginatedUsers, selectedUsers.length]);
 
   // Options d'impression
   const handlePrint = useReactToPrint({
@@ -508,53 +500,6 @@ export default function UserProfileEnhanced(): JSX.Element {
     });
   }, [users, searchTerm, showInactive]);
 
-  // Tri des utilisateurs
-  const sortedUsers = useMemo(() => {
-    return [...filteredUsers].sort((a: UserProfile, b: UserProfile) => {
-      // Helper to get values for sorting, handling potential undefined values
-      const getValue = (user: UserProfile, field: keyof UserProfile) => {
-        let value = user[field];
-        if (value === undefined || value === null) {
-          // Define default values for sorting to avoid errors with undefined
-          if (typeof user.firstName === 'string') return ''; // Default for string fields
-          if (typeof user.loyalty?.points === 'number') return 0; // Default for number fields
-          if (typeof user.isActive === 'boolean') return false; // Default for boolean fields
-          return ''; // Fallback
-        }
-        if (field === 'firstName' || field === 'lastName' || field === 'email' || field === 'phone' || field === 'city' || field === 'postalCode' || field === 'address' || field === 'lastActivity' || field === 'birthDate' || field === 'lastVisit' || field === 'lastLoginAt') {
-          return String(value).toLowerCase();
-        }
-        if (field === 'loyalty') {
-          if (sortBy === 'joinDate') return user.loyalty?.joinDate || '';
-          if (sortBy === 'points') return user.loyalty?.points || 0;
-          if (sortBy === 'totalSpent') return user.loyalty?.totalSpent || 0;
-        }
-        if (field === 'isActive') {
-          return value ? 1 : 0; // Sort active users first
-        }
-        return value;
-      };
-
-      const aValue = getValue(a, sortBy);
-      const bValue = getValue(b, sortBy);
-
-      if (aValue < bValue) {
-        return sortOrder === 'asc' ? -1 : 1;
-      }
-      if (aValue > bValue) {
-        return sortOrder === 'asc' ? 1 : -1;
-      }
-      return 0;
-    });
-  }, [filteredUsers, sortBy, sortOrder]);
-
-  // Pagination
-  const paginatedUsers = sortedUsers.slice(
-    (currentPage - 1) * usersPerPage, // Use usersPerPage consistently
-    currentPage * usersPerPage
-  );
-
-  const totalPages = Math.ceil(sortedUsers.length / usersPerPage);
 
   // Gestion de la sélection multiple
   useEffect(() => {
@@ -641,6 +586,15 @@ export default function UserProfileEnhanced(): JSX.Element {
     currentPage * usersPerPage
   );
   const totalPages = Math.ceil(sortedUsers.length / usersPerPage);
+
+  // Fonction pour sélectionner/désélectionner tous les utilisateurs visibles
+  const toggleAllUsersSelection = useCallback(() => {
+    if (selectedUsers.length === paginatedUsers.length) {
+      setSelectedUsers([]);
+    } else {
+      setSelectedUsers(paginatedUsers.map((user: UserProfile) => user.id));
+    }
+  }, [paginatedUsers, selectedUsers.length]);
 
   // Gestion de la sélection multiple (moved up for better organization)
   useEffect(() => {
