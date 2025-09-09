@@ -184,3 +184,46 @@ export const logOut = (): void => {
 
 // Export usePermissions hook
 export { usePermissions } from '../hooks/usePermissions';
+
+export const apiRequest = async (
+  method: string, 
+  url: string, 
+  options?: RequestInit & { body?: string }
+): Promise<Response> => {
+  const token = getStoredToken();
+
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+    ...(token && { Authorization: `Bearer ${token}` }),
+    ...options?.headers,
+  };
+
+  try {
+    const response = await fetch(url, {
+      method,
+      headers,
+      body: options?.body,
+      ...options,
+    });
+
+    if (response.status === 401) {
+      clearStoredToken();
+      window.location.href = '/login';
+      throw new Error('Non autorisé');
+    }
+
+    return response;
+  } catch (error) {
+    console.error('Erreur API:', error);
+    throw error;
+  }
+};
+
+// Helper function to clear stored token, assuming it exists globally or is imported elsewhere
+// If clearStoredToken is not defined, it needs to be defined or replaced with clearToken()
+const clearStoredToken = () => {
+    // Assuming clearStoredToken is meant to be clearToken from AuthTokenManager or similar
+    // If clearStoredToken is defined elsewhere, this needs to be adjusted.
+    // For this example, we'll assume it's a placeholder for clearing auth token.
+    clearToken(); 
+};

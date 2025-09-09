@@ -242,6 +242,16 @@ export default function UserProfileEnhanced(): JSX.Element {
         const data = await response.json();
         return data.map((user: UserProfile) => ({
           ...user,
+          preferences: {
+            ...user.preferences,
+            emailNotifications: user.preferences?.emailNotifications ?? true,
+            smsNotifications: user.preferences?.smsNotifications ?? false,
+            promotionalEmails: user.preferences?.promotionalEmails ?? true,
+            dietaryRestrictions: user.preferences?.dietaryRestrictions || [],
+            allergens: user.preferences?.allergens || [],
+            language: user.preferences?.language || 'fr',
+            currency: user.preferences?.currency || 'EUR',
+          },
           loyalty: {
             ...user.loyalty,
             level: user.loyalty?.level || 'Nouveau',
@@ -304,11 +314,22 @@ export default function UserProfileEnhanced(): JSX.Element {
     if (selectedUser && isEditDialogOpen) {
       profileForm.reset({
         ...selectedUser,
+        email: selectedUser.email || '',
+        phone: selectedUser.phone || '',
+        address: selectedUser.address || '',
+        city: selectedUser.city || '',
+        postalCode: selectedUser.postalCode || '',
+        birthDate: selectedUser.birthDate || '',
         preferences: {
-          ...selectedUser.preferences,
+          emailNotifications: selectedUser.preferences?.emailNotifications ?? true,
+          smsNotifications: selectedUser.preferences?.smsNotifications ?? false,
+          promotionalEmails: selectedUser.preferences?.promotionalEmails ?? true,
           dietaryRestrictions: selectedUser.preferences?.dietaryRestrictions || [],
           allergens: selectedUser.preferences?.allergens || [],
-        }
+          language: selectedUser.preferences?.language || 'fr',
+          currency: selectedUser.preferences?.currency || 'EUR',
+          favoriteTable: selectedUser.preferences?.favoriteTable,
+        },
       });
     }
   }, [selectedUser, isEditDialogOpen, profileForm]);
@@ -316,12 +337,27 @@ export default function UserProfileEnhanced(): JSX.Element {
   // Mutations pour les opérations CRUD
   const updateUserMutation = useMutation({
     mutationFn: async (data: { id: number; updates: Partial<UserProfile> }) => {
-      const response = await apiRequest(`/api/admin/user-profiles/${data.id}`, {
+      const response = await apiRequest('/api/admin/user-profiles/${data.id}', {
         method: 'PUT',
         body: JSON.stringify({
-        ...data.updates,
-        email: data.updates.email || ''
-      }),
+          ...data.updates,
+          email: data.updates.email || '',
+          phone: data.updates.phone || undefined,
+          address: data.updates.address || undefined,
+          city: data.updates.city || undefined,
+          postalCode: data.updates.postalCode || undefined,
+          birthDate: data.updates.birthDate || undefined,
+          preferences: {
+            emailNotifications: data.updates.preferences?.emailNotifications,
+            smsNotifications: data.updates.preferences?.smsNotifications,
+            promotionalEmails: data.updates.preferences?.promotionalEmails,
+            dietaryRestrictions: data.updates.preferences?.dietaryRestrictions || [],
+            allergens: data.updates.preferences?.allergens || [],
+            language: data.updates.preferences?.language || 'fr',
+            currency: data.updates.preferences?.currency || 'EUR',
+            ...(data.updates.preferences?.favoriteTable !== undefined && { favoriteTable: data.updates.preferences.favoriteTable }),
+          },
+        }),
       });
       return response.json();
     },
@@ -364,10 +400,20 @@ export default function UserProfileEnhanced(): JSX.Element {
 
   const updateAddressMutation = useMutation({
     mutationFn: async (data: { addressId: number; updates: Partial<Address> }) => {
-      const response = await apiRequest(`/api/admin/addresses/${data.addressId}`, {
+      // Nettoyer les valeurs undefined
+      const cleanUpdates = Object.fromEntries(
+        Object.entries(data.updates).filter(([_, value]) => value !== undefined)
+      );
+
+      const response = await apiRequest('PUT', `/api/admin/users/${selectedUser?.id}/addresses/${data.addressId}`, {
         method: 'PUT',
-        body: JSON.stringify(data.updates),
+        body: JSON.stringify(cleanUpdates)
       });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la mise à jour de l\'adresse');
+      }
+
       return response.json();
     },
     onSuccess: () => {
@@ -561,7 +607,7 @@ export default function UserProfileEnhanced(): JSX.Element {
         if (sortField === 'status') return user.isActive ? 1 : 0;
         if (sortField === 'lastLogin') return user.lastLoginAt || '';
         if (sortField === 'role') return user.role || '';
-        
+
         // Handle direct UserProfile keys
         const field = sortField as keyof UserProfile;
         if (field in user) {
@@ -698,9 +744,18 @@ export default function UserProfileEnhanced(): JSX.Element {
     if (!selectedUser) return;
 
     if (editingAddress) {
+      // Nettoyer les valeurs undefined avant l'envoi
+      const cleanValues = {
+        type: values.type,
+        street: values.street,
+        city: values.city,
+        postalCode: values.postalCode,
+        country: values.country,
+        ...(values.isDefault !== undefined && { isDefault: values.isDefault }),
+      };
       await updateAddressMutation.mutateAsync({
         addressId: editingAddress.id,
-        updates: values
+        updates: cleanValues
       });
     } else {
       await addAddressMutation.mutateAsync({

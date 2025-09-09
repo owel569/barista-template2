@@ -307,7 +307,7 @@ export default function Settings({ userRole }: SettingsProps) {
           const currentDate = item.date || new Date().toISOString().split('T')[0];
 
           if (field === 'note') {
-            return { 
+            return {
               date: currentDate,
               openingHours: item.openingHours || { open: '09:00', close: '17:00', closed: false },
               note: value as string
@@ -317,13 +317,13 @@ export default function Settings({ userRole }: SettingsProps) {
             if (field === 'open') updatedHours.open = value as string;
             if (field === 'close') updatedHours.close = value as string;
             if (field === 'closed') updatedHours.closed = value as boolean;
-            return { 
+            return {
               date: currentDate,
               openingHours: updatedHours,
               note: item.note || ''
             };
           } else {
-            return { 
+            return {
               date: currentDate,
               openingHours: field === 'openingHours' ? value : (item.openingHours || { open: '09:00', close: '17:00', closed: false }),
               note: item.note || ''
@@ -342,11 +342,14 @@ export default function Settings({ userRole }: SettingsProps) {
       ...prev,
       specialDates: {
         ...prev.specialDates,
-        specialHours: [...prev.specialDates.specialHours, {
-          date: dateString,
-          openingHours: { open: '09:00', close: '18:00', closed: false },
-          note: ''
-        }]
+        specialHours: [
+          ...prev.specialDates.specialHours,
+          {
+            date: dateString || '',
+            openingHours: { open: '00:00', close: '00:00' },
+            note: ''
+          }
+        ]
       }
     }));
   }, []);
@@ -731,7 +734,7 @@ export default function Settings({ userRole }: SettingsProps) {
               </div>
 
               <div className="space-y-2">
-                <Label>Modèle de notification d\'annulation</Label>
+                <Label>Modèle de notification d'annulation</Label>
                 <Textarea
                   value={draftSettings.notificationSettings.cancellationTemplate}
                   onChange={(e) => handleChange('notificationSettings.cancellationTemplate', e.target.value)}
