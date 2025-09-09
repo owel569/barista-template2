@@ -503,8 +503,8 @@ export default function MaintenanceManagement() : JSX.Element {
                     notes: editingTask.notes || undefined,
                   } : undefined}
                   onSubmit={editingTask ?
-                    (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null }) => handleUpdateTask(editingTask.id, {...data, createdAt: editingTask.createdAt, updatedAt: new Date().toISOString()} as any) : 
-                    (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null }) => handleCreateTask({...data, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()} as any)}
+                    (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null }) => handleUpdateTask(editingTask.id, {...data, id: editingTask.id, createdAt: editingTask.createdAt, updatedAt: new Date().toISOString()}) : 
+                    (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null }) => handleCreateTask({...data, id: Date.now(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()})}
                   onCancel={() => {
                     setIsTaskDialogOpen(false);
                     setEditingTask(null);

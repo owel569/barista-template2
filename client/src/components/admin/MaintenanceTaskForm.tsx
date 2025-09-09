@@ -26,7 +26,10 @@ interface MaintenanceTaskFormProps {
     equipmentId?: string | null;
     completedDate?: string | null;
     notes?: string | null;
-  };
+    priority?: string;
+    createdAt?: string;
+    updatedAt?: string;
+  } | undefined;
   onSubmit: (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null }) => void;
   onCancel: () => void;
 }
