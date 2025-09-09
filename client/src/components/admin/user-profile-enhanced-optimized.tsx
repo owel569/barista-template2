@@ -552,19 +552,26 @@ export default function UserProfileEnhanced(): JSX.Element {
   // Tri des utilisateurs (moved up for better organization)
   const sortedUsers = useMemo(() => {
     return [...filteredUsers].sort((a: UserProfile, b: UserProfile) => {
-      const getValue = (user: UserProfile, field: keyof UserProfile) => {
-        let value = user[field];
-        if (value === undefined || value === null) return ''; // Default for string fields
-        if (typeof value === 'string') return value.toLowerCase();
-        if (typeof value === 'number') return value;
-        if (typeof value === 'boolean') return value ? 1 : 0; // For status sorting
-        // Special handling for loyalty fields based on sortBy
-        if (field === 'loyalty') {
-          if (sortBy === 'joinDate') return user.loyalty?.joinDate || '';
-          if (sortBy === 'points') return user.loyalty?.points || 0;
-          if (sortBy === 'totalSpent') return user.loyalty?.totalSpent || 0;
+      const getValue = (user: UserProfile, sortField: string) => {
+        // Handle special sortBy cases that don't directly map to UserProfile keys
+        if (sortField === 'joinDate') return user.loyalty?.joinDate || '';
+        if (sortField === 'points') return user.loyalty?.points || 0;
+        if (sortField === 'totalSpent') return user.loyalty?.totalSpent || 0;
+        if (sortField === 'name') return `${user.firstName} ${user.lastName}`.toLowerCase();
+        if (sortField === 'status') return user.isActive ? 1 : 0;
+        if (sortField === 'lastLogin') return user.lastLoginAt || '';
+        if (sortField === 'role') return user.role || '';
+        
+        // Handle direct UserProfile keys
+        const field = sortField as keyof UserProfile;
+        if (field in user) {
+          let value = user[field];
+          if (value === undefined || value === null) return '';
+          if (typeof value === 'string') return value.toLowerCase();
+          if (typeof value === 'number') return value;
+          if (typeof value === 'boolean') return value ? 1 : 0;
         }
-        return ''; // Fallback
+        return '';
       };
 
       const aValue = getValue(a, sortBy);
@@ -681,7 +688,7 @@ export default function UserProfileEnhanced(): JSX.Element {
           allergens: values.preferences.allergens,
           language: values.preferences.language,
           currency: values.preferences.currency,
-          favoriteTable: values.preferences.favoriteTable || undefined,
+          favoriteTable: values.preferences.favoriteTable ?? undefined,
         },
       }
     });
@@ -700,7 +707,7 @@ export default function UserProfileEnhanced(): JSX.Element {
         userId: selectedUser.id,
         address: {
           ...values,
-          isDefault: values.isDefault || false
+          isDefault: values.isDefault ?? false
         }
       });
     }
