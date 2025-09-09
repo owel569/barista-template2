@@ -48,12 +48,12 @@ async function startApplication() {
   const vite = await createViteServer({
     server: {
       middlewareMode: true,
-      hmr: process.env.NODE_ENV !== 'production',
+      hmr: false, // Désactiver HMR WebSocket en environnement Replit
       allowedHosts: true
     },
     root: path.resolve(__dirname, '../client'),
     appType: 'spa',
-    logLevel: 'info',
+    logLevel: 'warn',
     clearScreen: false,
     optimizeDeps: {
       include: ['react', 'react-dom']

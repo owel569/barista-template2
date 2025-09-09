@@ -14,7 +14,8 @@ export default defineConfig({
     strictPort: false,
     allowedHosts: true,
     hmr: {
-      clientPort: 5000
+      port: 24678,
+      clientPort: 24678
     }
   },
   resolve: {
