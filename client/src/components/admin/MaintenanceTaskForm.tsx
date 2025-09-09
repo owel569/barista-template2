@@ -21,11 +21,12 @@ import { Equipment, Technician } from './maintenance-management';
 interface MaintenanceTaskFormProps {
   equipmentList: Equipment[];
   technicians: Technician[];
-  initialData?: Partial<MaintenanceTask & {
+  initialData?: Partial<MaintenanceTask> & {
+    id?: string;
     equipmentId?: string | null;
     completedDate?: string | null;
     notes?: string | null;
-  }>;
+  };
   onSubmit: (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: string | null }) => void;
   onCancel: () => void;
 }
@@ -157,7 +158,7 @@ export function MaintenanceTaskForm({
       title: formData.title!,
       description: formData.description || '',
       type: formData.type as 'preventive' | 'corrective' | 'emergency',
-      equipmentId: formData.equipmentId !== undefined ? formData.equipmentId.toString() : null,
+      equipmentId: formData.equipmentId !== null && formData.equipmentId !== undefined ? formData.equipmentId.toString() : null,
       priority: formData.priority as 'low' | 'medium' | 'high' | 'critical',
       status: formData.status || 'pending',
       assignedToId: formData.assignedToId || null,

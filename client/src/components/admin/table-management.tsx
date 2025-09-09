@@ -194,7 +194,7 @@ export default function TableManagement(): JSX.Element {
 
   const updateTableStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: number; status: RestaurantTable['status'] }) => 
-      apiRequest('PUT', `/api/admin/tables/${id}/status`, {}, { status }),
+      apiRequest('PUT', `/api/admin/tables/${id}/status`, { body: { status } }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/tables'] });
       toast({ title: "Statut mis à jour", variant: "default" });

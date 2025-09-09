@@ -486,8 +486,17 @@ export default function MaintenanceManagement() : JSX.Element {
                   equipmentList={equipment}
                   technicians={technicians}
                   initialData={editingTask ? {
-                    ...editingTask,
                     id: editingTask.id.toString(),
+                    title: editingTask.title,
+                    description: editingTask.description,
+                    type: editingTask.type,
+                    priority: editingTask.priority,
+                    status: editingTask.status,
+                    scheduledDate: editingTask.scheduledDate,
+                    estimatedDuration: editingTask.estimatedDuration,
+                    cost: editingTask.cost,
+                    createdAt: editingTask.createdAt,
+                    updatedAt: editingTask.updatedAt,
                     equipmentId: editingTask.equipmentId?.toString() ?? null,
                     assignedToId: editingTask.assignedToId ?? null,
                     completedDate: editingTask.completedDate ?? null,
