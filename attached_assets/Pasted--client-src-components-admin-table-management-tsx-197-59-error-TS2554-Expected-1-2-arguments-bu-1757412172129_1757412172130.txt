@@ -1,0 +1,61 @@
+
+client/src/components/admin/table-management.tsx:197:59 - error TS2554: Expected 1-2 arguments, but got 3.
+
+197       apiRequest('PUT', `/api/admin/tables/${id}/status`, { body: JSON.stringify({ status }) }),
+                                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:408:116 - error TS2554: Expected 1-2 arguments, but got 3.
+
+408       const response = await apiRequest('PUT', `/api/admin/users/${selectedUser?.id}/addresses/${data.addressId}`, {
+                                                                                                                       ~
+409         method: 'PUT',
+    ~~~~~~~~~~~~~~~~~~~~~~
+410         body: JSON.stringify(cleanUpdates)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+411       });
+    ~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:729:9 - error TS2375: Type '{ emailNotifications: boolean; smsNotifications: boolean; promotionalEmails: boolean; dietaryRestrictions: string[]; allergens: string[]; language: string; currency: string; favoriteTable: number | undefined; }' is not assignable to type '{ emailNotifications?: boolean; smsNotifications?: boolean; promotionalEmails?: boolean; favoriteTable?: number; dietaryRestrictions: string[]; allergens: string[]; language: string; currency: string; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'favoriteTable' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+
+729         preferences: {
+            ~~~~~~~~~~~
+
+  client/src/components/admin/user-profile-enhanced-optimized.tsx:121:3
+    121   preferences?: {
+          ~~~~~~~~~~~
+    The expected type comes from property 'preferences' which is declared here on type 'Partial<UserProfile>'
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:193:58 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string | (() => string)'.
+  Type 'undefined' is not assignable to type 'string | (() => string)'.
+
+193   const [currentDate, setCurrentDate] = useState<string>(initialDate || new Date().toISOString().split('T')[0]);
+                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/lib/auth-utils.ts:202:39 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(input: string | URL | Request, init?: RequestInit | undefined): Promise<Response>', gave the following error.
+    Argument of type '{ body: string | undefined; cache?: RequestCache; credentials?: RequestCredentials; headers: HeadersInit; integrity?: string; keepalive?: boolean; method: string; mode?: RequestMode; priority?: RequestPriority; ... 4 more ...; window?: null; }' is not assignable to parameter of type 'RequestInit' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+      Types of property 'body' are incompatible.
+        Type 'string | undefined' is not assignable to type 'BodyInit | null'.
+          Type 'undefined' is not assignable to type 'BodyInit | null'.
+  Overload 2 of 2, '(input: URL | RequestInfo, init?: RequestInit | undefined): Promise<Response>', gave the following error.
+    Argument of type '{ body: string | undefined; cache?: RequestCache; credentials?: RequestCredentials; headers: HeadersInit; integrity?: string; keepalive?: boolean; method: string; mode?: RequestMode; priority?: RequestPriority; ... 4 more ...; window?: null; }' is not assignable to parameter of type 'RequestInit' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+      Types of property 'body' are incompatible.
+        Type 'string | undefined' is not assignable to type 'BodyInit | null'.
+          Type 'undefined' is not assignable to type 'BodyInit | null'.
+
+202     const response = await fetch(url, {
+                                          ~
+203       method,
+    ~~~~~~~~~~~~~
+... 
+206       ...options,
+    ~~~~~~~~~~~~~~~~~
+207     });
+    ~~~~~
+
+
+
+Found 12 errors in 7 files.
