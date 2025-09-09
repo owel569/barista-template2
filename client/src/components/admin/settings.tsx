@@ -309,24 +309,24 @@ export default function Settings({ userRole }: SettingsProps) {
           if (field === 'note') {
             return { 
               date: currentDate,
-              openingHours: item.openingHours,
-              note: value
+              openingHours: item.openingHours || { open: '09:00', close: '17:00', closed: false },
+              note: value as string
             };
           } else if (field === 'open' || field === 'close' || field === 'closed') {
-            const updatedHours = { ...item.openingHours };
-            if (field === 'open') updatedHours.open = value;
-            if (field === 'close') updatedHours.close = value;
-            if (field === 'closed') updatedHours.closed = value;
+            const updatedHours = { ...(item.openingHours || { open: '09:00', close: '17:00', closed: false }) };
+            if (field === 'open') updatedHours.open = value as string;
+            if (field === 'close') updatedHours.close = value as string;
+            if (field === 'closed') updatedHours.closed = value as boolean;
             return { 
               date: currentDate,
               openingHours: updatedHours,
-              note: item.note
+              note: item.note || ''
             };
           } else {
             return { 
               date: currentDate,
-              openingHours: field === 'openingHours' ? value : item.openingHours,
-              note: item.note
+              openingHours: field === 'openingHours' ? value : (item.openingHours || { open: '09:00', close: '17:00', closed: false }),
+              note: item.note || ''
             };
           }
         })
@@ -764,8 +764,8 @@ export default function Settings({ userRole }: SettingsProps) {
                       }
                     }}
                     disabled={(date) => {
-                      const dateStr = date.toISOString().split('T')[0];
-                      return (dateStr && draftSettings.specialDates.closedDates.includes(dateStr)) || !hasPermission('settings', 'edit');
+                      const dateStr = date?.toISOString().split('T')[0];
+                      return (dateStr ? draftSettings.specialDates.closedDates.includes(dateStr) : false) || !hasPermission('settings', 'edit');
                     }}
                   />
                   {draftSettings.specialDates.closedDates.length > 0 && (

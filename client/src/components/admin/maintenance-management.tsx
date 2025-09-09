@@ -494,7 +494,7 @@ export default function MaintenanceManagement() : JSX.Element {
                     assignedToId: editingTask.assignedToId || null,
                     scheduledDate: editingTask.scheduledDate,
                     estimatedDuration: editingTask.estimatedDuration,
-                    cost: editingTask.cost,
+                    cost: editingTask.cost || 0,
                     notes: editingTask.notes,
                     equipmentId: editingTask.equipmentId
                   } : undefined}
