@@ -3,6 +3,7 @@ import { Router, Route, Switch } from 'wouter';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/components/auth/AuthProvider';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 
 // Pages
 import HomePage from '@/pages/HomePage';
@@ -84,10 +85,10 @@ function App() {
 
               {/* ========== ROUTES PUBLIQUES (sans navbar pour HomePage) ========== */}
               <Route path="/" component={HomePage} />
-              
+
               {/* Authentification */}
               <Route path="/login" component={LoginSimple} />
-              
+
               {/* Autres routes avec navbar/footer */}
               <Route>
                 <Navbar />
@@ -99,28 +100,28 @@ function App() {
                         description="Découvrez notre carte de spécialités" 
                       />
                     </Route>
-                    
+
                     <Route path="/reservations">
                       <SimplePage 
                         title="Réservations" 
                         description="Réservez votre table en ligne" 
                       />
                     </Route>
-                    
+
                     <Route path="/contact">
                       <SimplePage 
                         title="Contact" 
                         description="Contactez-nous pour plus d'informations" 
                       />
                     </Route>
-                    
+
                     <Route path="/register">
                       <SimplePage 
                         title="Inscription" 
                         description="Créez votre compte" 
                       />
                     </Route>
-                    
+
                     {/* 404 */}
                     <Route>
                       <SimplePage 
@@ -133,7 +134,7 @@ function App() {
                 <Footer />
               </Route>
             </Switch>
-            
+
             {/* Notifications Toast */}
             <Toaster />
           </div>

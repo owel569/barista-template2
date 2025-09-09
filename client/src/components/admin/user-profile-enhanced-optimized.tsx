@@ -498,16 +498,12 @@ export default function UserProfileEnhanced(): JSX.Element {
     documentTitle: 'Liste des utilisateurs'
   });
 
-  // Filtrer les utilisateurs selon les critères de recherche
+  // Gestion de la recherche et du filtrage avancé
   const filteredUsers = useMemo(() => {
-    if (!searchTerm && !showInactive) return users || [];
-
     return (users || []).filter((user: UserProfile) => {
       const matchesSearch = !searchTerm || 
         `${user.firstName} ${user.lastName} ${user.email} ${user.phone || ''}`.toLowerCase().includes(searchTerm.toLowerCase());
-
       const matchesStatus = showInactive || user.isActive;
-
       return matchesSearch && matchesStatus;
     });
   }, [users, searchTerm, showInactive]);
@@ -607,16 +603,6 @@ export default function UserProfileEnhanced(): JSX.Element {
       }
     }
   }, [lastMessage, queryClient]);
-
-  // Gestion de la recherche et du filtrage avancé (moved up for better organization)
-  const filteredUsers = useMemo(() => {
-    return (users || []).filter((user: UserProfile) => {
-      const matchesSearch = !searchTerm || 
-        `${user.firstName} ${user.lastName} ${user.email} ${user.phone || ''}`.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus = showInactive || user.isActive;
-      return matchesSearch && matchesStatus;
-    });
-  }, [users, searchTerm, showInactive]);
 
   // Tri des utilisateurs (moved up for better organization)
   const sortedUsers = useMemo(() => {

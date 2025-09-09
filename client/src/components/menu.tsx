@@ -1,11 +1,11 @@
-import React from 'react';
-import { useState } from "react";
+import React, { useState } from 'react';
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Coffee, GlassWater, Cookie, Utensils, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getItemImageUrl } from "@/lib/image-mapping";
+import { apiRequest } from '@/lib/queryClient';
 
 interface MenuItem {
   id: string;
@@ -167,11 +167,13 @@ export default function Menu() : JSX.Element {
   const { toast } = useToast();
 
   const { data: categories = [] } = useQuery<MenuCategory[]>({
-    queryKey: ["/api/menu/categories"]
+    queryKey: ['/api/menu/categories'],
+    queryFn: () => apiRequest('/api/menu/categories'),
   });
 
   const { data: menuItems = [] } = useQuery<MenuItem[]>({
-    queryKey: ["/api/menu/items"]
+    queryKey: ['/api/menu/items'],
+    queryFn: () => apiRequest('/api/menu/items'),
   });
 
   // Use default categories if API data is not available
