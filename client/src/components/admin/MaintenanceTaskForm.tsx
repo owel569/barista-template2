@@ -27,7 +27,7 @@ interface MaintenanceTaskFormProps {
     completedDate?: string | null;
     notes?: string | null;
   };
-  onSubmit: (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: string | null }) => void;
+  onSubmit: (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null }) => void;
   onCancel: () => void;
 }
 
@@ -154,11 +154,11 @@ export function MaintenanceTaskForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const taskToSubmit: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: string | null } = {
+    const taskToSubmit: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null } = {
       title: formData.title!,
       description: formData.description || '',
       type: formData.type as 'preventive' | 'corrective' | 'emergency',
-      equipmentId: formData.equipmentId !== null && formData.equipmentId !== undefined ? formData.equipmentId.toString() : null,
+      equipmentId: formData.equipmentId !== null && formData.equipmentId !== undefined ? formData.equipmentId : null,
       priority: formData.priority as 'low' | 'medium' | 'high' | 'critical',
       status: formData.status || 'pending',
       assignedToId: formData.assignedToId || null,
