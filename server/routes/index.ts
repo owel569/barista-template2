@@ -24,14 +24,14 @@ router.use('/auth', authRoutes);
 router.use('/menu', menuRoutes); // Menu public pour consultation
 
 // Routes protégées (nécessitent une authentification)
-// router.use('/users', authenticateUser, userRoutes);
-// router.use('/orders', authenticateUser, orderRoutes);
-// router.use('/analytics', authenticateUser, analyticsRoutes);
-// router.use('/dashboard', authenticateUser, dashboardRoutes);
-// router.use('/admin', authenticateUser, adminRoutes);
-// router.use('/delivery', authenticateUser, deliveryRoutes);
-// router.use('/tables', authenticateUser, tablesRouter);
-// router.use('/events', authenticateUser, eventRoutes);
+router.use('/users', authenticateUser, userRoutes);
+router.use('/orders', authenticateUser, orderRoutes);
+router.use('/analytics', authenticateUser, analyticsRoutes);
+router.use('/dashboard', authenticateUser, dashboardRoutes);
+router.use('/admin', authenticateUser, adminRoutes);
+router.use('/delivery', authenticateUser, deliveryRoutes);
+router.use('/tables', authenticateUser, tablesRouter);
+router.use('/events', authenticateUser, eventRoutes);
 router.use('/inventory', authenticateUser, inventoryRoutes);
 router.use('/staff', authenticateUser, staffRoutes);
 
