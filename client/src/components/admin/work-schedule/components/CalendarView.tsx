@@ -190,9 +190,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   viewMode = 'week'
 }) => {
   const initialDate = selectedDate ?? new Date().toISOString().split('T')[0];
-  const [currentDate, setCurrentDate] = useState<string>(
-    initialDate ?? new Date().toISOString().split('T')[0]
-  );
+  const [currentDate, setCurrentDate] = useState<string>(initialDate);
 
   // Générer les dates selon le mode de vue
   const dates = useMemo(() => {
