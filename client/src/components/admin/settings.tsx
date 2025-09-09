@@ -307,15 +307,27 @@ export default function Settings({ userRole }: SettingsProps) {
           const currentDate = item.date || new Date().toISOString().split('T')[0];
 
           if (field === 'note') {
-            return { ...item, note: value, date: currentDate };
+            return { 
+              date: currentDate,
+              openingHours: item.openingHours,
+              note: value
+            };
           } else if (field === 'open' || field === 'close' || field === 'closed') {
             const updatedHours = { ...item.openingHours };
             if (field === 'open') updatedHours.open = value;
             if (field === 'close') updatedHours.close = value;
             if (field === 'closed') updatedHours.closed = value;
-            return { ...item, openingHours: updatedHours, date: currentDate };
+            return { 
+              date: currentDate,
+              openingHours: updatedHours,
+              note: item.note
+            };
           } else {
-            return { ...item, [field]: value, date: currentDate };
+            return { 
+              date: currentDate,
+              openingHours: field === 'openingHours' ? value : item.openingHours,
+              note: item.note
+            };
           }
         })
       }
