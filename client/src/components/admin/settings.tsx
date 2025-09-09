@@ -322,7 +322,13 @@ export default function Settings({ userRole }: SettingsProps) {
               openingHours: updatedHours,
               note: item.note || ''
             };
-          } else {
+          } else if (field === 'date' && typeof value === 'string') {
+             return {
+              ...item,
+              date: value
+            };
+          }
+           else {
             return {
               date: currentDate,
               openingHours: field === 'openingHours' ? value : (item.openingHours || { open: '09:00', close: '17:00', closed: false }),
@@ -334,8 +340,8 @@ export default function Settings({ userRole }: SettingsProps) {
     }));
   }, []);
 
-  const addSpecialHours = useCallback((date: Date) => {
-    const dateString = date?.toISOString().split('T')[0];
+  const addSpecialHours = useCallback((selectedDate: Date) => {
+    const dateString = selectedDate?.toISOString().split('T')[0];
     if (!dateString) return;
 
     setDraftSettings(prev => ({
@@ -345,8 +351,12 @@ export default function Settings({ userRole }: SettingsProps) {
         specialHours: [
           ...prev.specialDates.specialHours,
           {
-            date: dateString || '',
-            openingHours: { open: '00:00', close: '00:00' },
+            date: dateString,
+            openingHours: {
+              open: '09:00',
+              close: '17:00',
+              closed: false
+            },
             note: ''
           }
         ]
@@ -734,7 +744,7 @@ export default function Settings({ userRole }: SettingsProps) {
               </div>
 
               <div className="space-y-2">
-                <Label>Modèle de notification d'annulation</Label>
+                <Label>Modèle de notification d\'annulation</Label>
                 <Textarea
                   value={draftSettings.notificationSettings.cancellationTemplate}
                   onChange={(e) => handleChange('notificationSettings.cancellationTemplate', e.target.value)}

@@ -173,7 +173,7 @@ export default function TableManagement(): JSX.Element {
   // Mutations
   const createTableMutation = useMutation({
     mutationFn: (data: Omit<RestaurantTable, 'id' | 'createdAt' | 'updatedAt'>) => 
-      apiRequest('POST', '/api/admin/tables', { body: JSON.stringify(data) }),
+      apiRequest('POST', '/api/admin/tables', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/tables'] });
       toast({ title: "Table créée avec succès" });
@@ -185,7 +185,7 @@ export default function TableManagement(): JSX.Element {
 
   const updateTableMutation = useMutation({
     mutationFn: ({ id, ...data }: Partial<RestaurantTable> & { id: number }) => 
-      apiRequest('PUT', `/api/admin/tables/${id}`, { body: JSON.stringify(data) }),
+      apiRequest('PUT', `/api/admin/tables/${id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/tables'] });
       toast({ title: "Table mise à jour", variant: "default" });
@@ -194,7 +194,7 @@ export default function TableManagement(): JSX.Element {
 
   const updateTableStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: number; status: RestaurantTable['status'] }) => 
-      apiRequest('PUT', `/api/admin/tables/${id}/status`, { body: JSON.stringify({ status }) }),
+      apiRequest('PUT', `/api/admin/tables/${id}/status`, { status }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/tables'] });
       toast({ title: "Statut mis à jour", variant: "default" });

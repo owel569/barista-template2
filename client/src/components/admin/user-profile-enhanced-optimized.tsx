@@ -50,12 +50,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { 
-  User, Heart, Clock, Star, MapPin, Phone, Mail, 
+import {
+  User, Heart, Clock, Star, MapPin, Phone, Mail,
   Calendar, CreditCard, Bell, Shield, Settings,
   Trash2, Edit, Plus, Gift, Search, Filter,
   Download, QrCode, Printer, Trophy, Crown,
-  ChevronLeft, ChevronRight, Eye, EyeOff, Users, 
+  ChevronLeft, ChevronRight, Eye, EyeOff, Users,
   DollarSign, HardDriveUpload, HardDriveDownload, RefreshCw
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -221,7 +221,7 @@ export default function UserProfileEnhanced(): JSX.Element {
       if (message.type === 'user-profile-updated') {
         queryClient.setQueryData(['user-profiles'], (old: UserProfile[] | undefined) => {
           if (!old) return old;
-          return old.map(user => 
+          return old.map(user =>
             user.id === message.data.id ? { ...user, ...message.data } : user
           );
         });
@@ -337,7 +337,7 @@ export default function UserProfileEnhanced(): JSX.Element {
   // Mutations pour les opérations CRUD
   const updateUserMutation = useMutation({
     mutationFn: async (data: { id: number; updates: Partial<UserProfile> }) => {
-      const response = await apiRequest('/api/admin/user-profiles/${data.id}', {
+      const response = await apiRequest(`/api/admin/user-profiles/${data.id}`, {
         method: 'PUT',
         body: JSON.stringify({
           ...data.updates,
@@ -355,7 +355,7 @@ export default function UserProfileEnhanced(): JSX.Element {
             allergens: data.updates.preferences?.allergens || [],
             language: data.updates.preferences?.language || 'fr',
             currency: data.updates.preferences?.currency || 'EUR',
-            ...(data.updates.preferences?.favoriteTable !== undefined && { favoriteTable: data.updates.preferences.favoriteTable }),
+            favoriteTable: data.updates.preferences?.favoriteTable || undefined,
           },
         }),
       });
@@ -405,7 +405,7 @@ export default function UserProfileEnhanced(): JSX.Element {
         Object.entries(data.updates).filter(([_, value]) => value !== undefined)
       );
 
-      const response = await apiRequest('PUT', `/api/admin/users/${selectedUser?.id}/addresses/${data.addressId}`, {
+      const response = await apiRequest(`/api/admin/users/${selectedUser?.id}/addresses/${data.addressId}`, {
         method: 'PUT',
         body: JSON.stringify(cleanUpdates)
       });
@@ -522,9 +522,9 @@ export default function UserProfileEnhanced(): JSX.Element {
 
   // Fonction pour basculer la sélection d'un utilisateur
   const toggleUserSelection = useCallback((userId: number) => {
-    setSelectedUsers(prev => 
-      prev.includes(userId) 
-        ? prev.filter(id => id !== userId) 
+    setSelectedUsers(prev =>
+      prev.includes(userId)
+        ? prev.filter(id => id !== userId)
         : [...prev, userId]
     );
   }, []);
@@ -539,7 +539,7 @@ export default function UserProfileEnhanced(): JSX.Element {
   // Gestion de la recherche et du filtrage avancé
   const filteredUsers = useMemo(() => {
     return (users || []).filter((user: UserProfile) => {
-      const matchesSearch = !searchTerm || 
+      const matchesSearch = !searchTerm ||
         `${user.firstName} ${user.lastName} ${user.email} ${user.phone || ''}`.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = showInactive || user.isActive;
       return matchesSearch && matchesStatus;
@@ -806,8 +806,8 @@ export default function UserProfileEnhanced(): JSX.Element {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <Button 
-            onClick={handleImport} 
+          <Button
+            onClick={handleImport}
             variant="outline"
             disabled={!permissions.canCreate || isImporting}
           >
@@ -815,8 +815,8 @@ export default function UserProfileEnhanced(): JSX.Element {
             {isImporting ? 'Import...' : 'Importer'}
           </Button>
 
-          <Button 
-            onClick={handleExportExcel} 
+          <Button
+            onClick={handleExportExcel}
             variant="outline"
             disabled={!permissions.canView || exporting}
           >
@@ -853,8 +853,8 @@ export default function UserProfileEnhanced(): JSX.Element {
           </div>
         </div>
 
-        <Select 
-          value={sortBy} 
+        <Select
+          value={sortBy}
           onValueChange={(value) => {
             setSortBy(value as any);
             setCurrentPage(1);
@@ -901,7 +901,7 @@ export default function UserProfileEnhanced(): JSX.Element {
             </SelectContent>
           </Select>
 
-          <Button 
+          <Button
             variant="outline"
             onClick={() => {
               bulkUpdateMutation.mutate({
@@ -913,8 +913,8 @@ export default function UserProfileEnhanced(): JSX.Element {
             Appliquer
           </Button>
 
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             onClick={() => {
               setIsBulkAction(false);
               setSelectedUsers([]);
@@ -983,8 +983,8 @@ export default function UserProfileEnhanced(): JSX.Element {
       {/* Grille des profils */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {paginatedUsers.map((user) => (
-          <Card 
-            key={user.id} 
+          <Card
+            key={user.id}
             className={cn(
               "hover:shadow-lg transition-shadow",
               selectedUsers.includes(user.id) ? "ring-2 ring-primary" : "",
@@ -1009,7 +1009,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                   <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                 </div>
                 {isBulkAction && (
-                  <Switch 
+                  <Switch
                     checked={selectedUsers.includes(user.id)}
                     onCheckedChange={() => toggleUserSelection(user.id)}
                   />
@@ -1032,9 +1032,9 @@ export default function UserProfileEnhanced(): JSX.Element {
                       <span>Progression</span>
                       <span>{user.loyalty.points} / {user.loyalty.nextLevelPoints} pts</span>
                     </div>
-                    <Progress 
-                      value={getLoyaltyProgress(user)} 
-                      className="h-2" 
+                    <Progress
+                      value={getLoyaltyProgress(user)}
+                      className="h-2"
                     />
                   </div>
                 )}
@@ -1129,8 +1129,8 @@ export default function UserProfileEnhanced(): JSX.Element {
           <p className="text-muted-foreground">
             Aucun client ne correspond à vos critères de recherche.
           </p>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             className="mt-4"
             onClick={() => {
               setSearchTerm('');
@@ -1163,9 +1163,9 @@ export default function UserProfileEnhanced(): JSX.Element {
                       <Printer className="w-4 h-4 mr-2" />
                       Imprimer
                     </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => setShowQRCode(!showQRCode)}
                     >
                       <QrCode className="w-4 h-4 mr-2" />
@@ -1177,7 +1177,7 @@ export default function UserProfileEnhanced(): JSX.Element {
 
               {showQRCode && (
                 <div className="flex justify-center p-4 border rounded-lg">
-                  <QRCodeSVG 
+                  <QRCodeSVG
                     value={`${window.location.origin}/client/${selectedUser.id}`}
                     size={128}
                     level="H"
@@ -1252,9 +1252,9 @@ export default function UserProfileEnhanced(): JSX.Element {
                               {selectedUser.loyalty.points} / {selectedUser.loyalty.nextLevelPoints} pts
                             </span>
                           </div>
-                          <Progress 
-                            value={getLoyaltyProgress(selectedUser)} 
-                            className="h-2" 
+                          <Progress
+                            value={getLoyaltyProgress(selectedUser)}
+                            className="h-2"
                           />
                         </div>
                       )}
@@ -1304,7 +1304,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                               )}
                               <div>
                                 <p className="text-sm font-medium">
-                                  {method.type === 'card' ? 'Carte bancaire' : 
+                                  {method.type === 'card' ? 'Carte bancaire' :
                                    method.type === 'paypal' ? 'PayPal' : 'Espèces'}
                                 </p>
                                 {method.last4 && (
@@ -1336,8 +1336,8 @@ export default function UserProfileEnhanced(): JSX.Element {
                           <MapPin className="w-5 h-5" />
                           <span>Adresses</span>
                         </CardTitle>
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           onClick={() => {
                             setEditingAddress(null);
                             setIsAddressDialogOpen(true);
@@ -1352,14 +1352,14 @@ export default function UserProfileEnhanced(): JSX.Element {
                       {selectedUser.addresses && selectedUser.addresses.length > 0 ? (
                         <div className="space-y-2">
                           {selectedUser.addresses.map((address) => (
-                            <div 
-                              key={address.id} 
+                            <div
+                              key={address.id}
                               className="p-4 border rounded-lg relative"
                             >
                               <div className="flex justify-between">
                                 <div className="space-y-1">
                                   <p className="font-medium">
-                                    {address.type === 'home' ? 'Domicile' : 
+                                    {address.type === 'home' ? 'Domicile' :
                                      address.type === 'work' ? 'Travail' : 'Autre'}
                                   </p>
                                   <p className="text-sm">{address.street}</p>
@@ -1413,21 +1413,21 @@ export default function UserProfileEnhanced(): JSX.Element {
                         <h4 className="font-medium">Notifications</h4>
                         <div className="flex items-center justify-between">
                           <span className="text-sm">Notifications par email</span>
-                          <Switch 
+                          <Switch
                             checked={selectedUser.preferences?.emailNotifications || false}
                             disabled
                           />
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="text-sm">Notifications SMS</span>
-                          <Switch 
+                          <Switch
                             checked={selectedUser.preferences?.smsNotifications || false}
                             disabled
                           />
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="text-sm">Emails promotionnels</span>
-                          <Switch 
+                          <Switch
                             checked={selectedUser.preferences?.promotionalEmails || false}
                             disabled
                           />
@@ -1566,7 +1566,7 @@ export default function UserProfileEnhanced(): JSX.Element {
                     </CardHeader>
                     <CardContent>
                       {selectedUser.notes ? (
-                        <Textarea 
+                        <Textarea
                           value={selectedUser.notes}
                           readOnly
                           className="min-h-[100px]"
@@ -1722,8 +1722,8 @@ export default function UserProfileEnhanced(): JSX.Element {
               </div>
 
               <DialogFooter>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => setIsEditDialogOpen(false)}
                 >
                   Annuler
@@ -1849,8 +1849,8 @@ export default function UserProfileEnhanced(): JSX.Element {
               />
 
               <DialogFooter>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => setIsAddressDialogOpen(false)}
                 >
                   Annuler
