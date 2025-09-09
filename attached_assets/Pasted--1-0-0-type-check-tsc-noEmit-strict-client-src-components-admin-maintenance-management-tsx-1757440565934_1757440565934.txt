@@ -1,0 +1,63 @@
+@1.0.0 type-check
+> tsc --noEmit --strict
+
+client/src/components/admin/maintenance-management.tsx:488:19 - error TS2322: Type '{ assignedToId: number | null; equipmentId: string | null; notes: string | undefined; completedDate?: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "high" | ... 2 more ... | "critical"; status: "in_progress" | ... 2 more ... | "pending"; scheduledDate: string;...' is not assignable to type 'Partial<MaintenanceTask & { equipmentId?: string | null; completedDate?: string | null; }> | undefined'.
+  Type '{ assignedToId: number | null; equipmentId: string | null; notes: string | undefined; completedDate?: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "high" | ... 2 more ... | "critical"; status: "in_progress" | ... 2 more ... | "pending"; scheduledDate: string; }' is not assignable to type 'Partial<MaintenanceTask & { equipmentId?: string | null; completedDate?: string | null; }>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'notes' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+
+488                   initialData={editingTask ? {
+                      ~~~~~~~~~~~
+
+  client/src/components/admin/MaintenanceTaskForm.tsx:24:3
+    24   initialData?: Partial<MaintenanceTask & {
+         ~~~~~~~~~~~
+    The expected type comes from property 'initialData' which is declared here on type 'IntrinsicAttributes & MaintenanceTaskFormProps'
+
+client/src/components/admin/settings.tsx:300:22 - error TS2345: Argument of type '(prev: RestaurantSettings) => { specialDates: { specialHours: { date: string | undefined; openingHours: any; note: string; }[]; closedDates: string[]; }; restaurantName: string; ... 8 more ...; notificationSettings: { ...; }; }' is not assignable to parameter of type 'SetStateAction<RestaurantSettings>'.
+  Type '(prev: RestaurantSettings) => { specialDates: { specialHours: { date: string | undefined; openingHours: any; note: string; }[]; closedDates: string[]; }; restaurantName: string; ... 8 more ...; notificationSettings: { ...; }; }' is not assignable to type '(prevState: RestaurantSettings) => RestaurantSettings'.
+    Call signature return types '{ specialDates: { specialHours: { date: string | undefined; openingHours: any; note: string; }[]; closedDates: string[]; }; restaurantName: string; address: string; phone: string; email: string; website: string; ... 4 more ...; notificationSettings: { ...; }; }' and 'RestaurantSettings' are incompatible.
+      The types of 'specialDates.specialHours' are incompatible between these types.
+        Type '{ date: string | undefined; openingHours: any; note: string; }[]' is not assignable to type '{ date: string; openingHours: OpeningHours; note: string; }[]'.
+          Type '{ date: string | undefined; openingHours: any; note: string; }' is not assignable to type '{ date: string; openingHours: OpeningHours; note: string; }'.
+            Types of property 'date' are incompatible.
+              Type 'string | undefined' is not assignable to type 'string'.
+                Type 'undefined' is not assignable to type 'string'.
+
+300     setDraftSettings(prev => ({
+                         ~~~~~~~~~~
+301       ...prev,
+    ~~~~~~~~~~~~~~
+... 
+339       }
+    ~~~~~~~
+340     }));
+    ~~~~~~
+
+client/src/components/admin/settings.tsx:325:22 - error TS2367: This comparison appears to be unintentional because the types '"openingHours"' and '"date"' have no overlap.
+
+325           } else if (field === 'date' && typeof value === 'string') {
+                         ~~~~~~~~~~~~~~~~
+
+client/src/components/admin/settings.tsx:775:76 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+775                       if (!draftSettings.specialDates.closedDates.includes(dateStr)) {
+                                                                               ~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:471:13 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+471             date: dateString || new Date().toISOString().split('T')[0],
+                ~~~~
+
+  client/src/components/admin/staff-scheduling.tsx:58:3
+    58   date: string;
+         ~~~~
+    The expected type comes from property 'date' which is declared here on type 'Shift'
+
+client/src/components/admin/table-management.tsx:176:47 - error TS2559: Type 'Omit<RestaurantTable, "id" | "createdAt" | "updatedAt">' has no properties in common with type 'ApiRequestOptions'.
+
+176       apiRequest('POST', '/api/admin/tables', data),
+                                                  ~~~~
