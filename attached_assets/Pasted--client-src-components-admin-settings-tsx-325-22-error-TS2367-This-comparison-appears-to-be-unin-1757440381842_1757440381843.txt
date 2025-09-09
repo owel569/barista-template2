@@ -1,0 +1,60 @@
+
+client/src/components/admin/settings.tsx:325:22 - error TS2367: This comparison appears to be unintentional because the types '"openingHours"' and '"date"' have no overlap.
+
+325           } else if (field === 'date' && typeof value === 'string') {
+                         ~~~~~~~~~~~~~~~~
+
+client/src/components/admin/settings.tsx:775:76 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+775                       if (!draftSettings.specialDates.closedDates.includes(dateStr)) {
+                                                                               ~~~~~~~
+
+client/src/components/admin/staff-scheduling.tsx:471:13 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+471             date: dateString ?? new Date().toISOString().split('T')[0],
+                ~~~~
+
+  client/src/components/admin/staff-scheduling.tsx:58:3
+    58   date: string;
+         ~~~~
+    The expected type comes from property 'date' which is declared here on type 'Shift'
+
+client/src/components/admin/table-management.tsx:176:47 - error TS2554: Expected 1-2 arguments, but got 3.
+
+176       apiRequest('POST', '/api/admin/tables', data),
+                                                  ~~~~
+
+client/src/components/admin/table-management.tsx:188:52 - error TS2554: Expected 1-2 arguments, but got 3.
+
+188       apiRequest('PUT', `/api/admin/tables/${id}`, data),
+                                                       ~~~~
+
+client/src/components/admin/table-management.tsx:197:59 - error TS2554: Expected 1-2 arguments, but got 3.
+
+197       apiRequest('PUT', `/api/admin/tables/${id}/status`, { status }),
+                                                              ~~~~~~~~~~
+
+client/src/components/admin/user-profile-enhanced-optimized.tsx:729:9 - error TS2375: Type '{ emailNotifications: boolean; smsNotifications: boolean; promotionalEmails: boolean; dietaryRestrictions: string[]; allergens: string[]; language: string; currency: string; favoriteTable: number | undefined; }' is not assignable to type '{ emailNotifications?: boolean; smsNotifications?: boolean; promotionalEmails?: boolean; favoriteTable?: number; dietaryRestrictions: string[]; allergens: string[]; language: string; currency: string; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'favoriteTable' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+
+729         preferences: {
+            ~~~~~~~~~~~
+
+  client/src/components/admin/user-profile-enhanced-optimized.tsx:121:3
+    121   preferences?: {
+          ~~~~~~~~~~~
+    The expected type comes from property 'preferences' which is declared here on type 'Partial<UserProfile>'
+
+client/src/components/admin/work-schedule/components/CalendarView.tsx:193:58 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string | (() => string)'.
+  Type 'undefined' is not assignable to type 'string | (() => string)'.
+
+193   const [currentDate, setCurrentDate] = useState<string>(initialDate ?? new Date().toISOString().split('T')[0]);
+                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/lib/auth-utils.ts:205:13 - error TS2304: Cannot find name 'body'.
+
+205       body: body || undefined,
