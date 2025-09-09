@@ -301,11 +301,11 @@ export default function Settings({ userRole }: SettingsProps) {
       ...prev,
       specialDates: {
         ...prev.specialDates,
-        specialHours: prev.specialDates.specialHours.map((item, i) => {
-          if (i !== index) return item;
-          
+        specialHours: prev.specialDates.specialHours.map((item, idx) => {
+          if (idx !== index) return item;
+
           const currentDate = item.date || new Date().toISOString().split('T')[0];
-          
+
           if (field === 'note') {
             return { ...item, note: value, date: currentDate };
           } else if (field === 'open' || field === 'close' || field === 'closed') {
@@ -719,7 +719,7 @@ export default function Settings({ userRole }: SettingsProps) {
               </div>
 
               <div className="space-y-2">
-                <Label>Modèle de notification d'annulation</Label>
+                <Label>Modèle de notification d\'annulation</Label>
                 <Textarea
                   value={draftSettings.notificationSettings.cancellationTemplate}
                   onChange={(e) => handleChange('notificationSettings.cancellationTemplate', e.target.value)}

@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Coffee, Star, Clock, MapPin } from 'lucide-react';
 import { useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Calendar, Utensils } from "lucide-react";
 
 // Import du logo avec gestion d'erreur
 const logoBaristaCafe = "/logo-barista-cafe.png";

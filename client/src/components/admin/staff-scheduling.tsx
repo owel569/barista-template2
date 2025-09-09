@@ -300,9 +300,9 @@ export default function StaffScheduling() {
         const prevShift = empShifts[i - 1];
         const currentShift = empShifts[i];
 
-        if (prevShift && currentShift && 
-            prevShift.date === currentShift.date &&
-            prevShift.endTime > currentShift.startTime) {
+        if (prevShift && currentShift &&
+          prevShift.date === currentShift.date &&
+          prevShift.endTime > currentShift.startTime) {
           detectedConflicts.push({
             type: 'overlap',
             message: `Chevauchement de shifts pour l'employé ${employeeId}`,
@@ -1221,7 +1221,7 @@ const AddShiftForm = ({
       <div>
         <Label>Employé</Label>
         <Select
-          value={formData.employeeId !== null && formData.employeeId !== undefined ? formData.employeeId.toString() : undefined}
+          value={formData.employeeId?.toString() || ''}
           onValueChange={(value) => {
             setFormData(prev => {
               const employee = employees.find(e => e.id === Number(value));

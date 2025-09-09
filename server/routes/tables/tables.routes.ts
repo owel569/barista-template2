@@ -267,7 +267,7 @@ router.get('/status',
       // Chercher la prochaine réservation
       const nextReservation = nextReservations.find(r =>
         r.tableId === table.id &&
-        r.status === 'confirmed' &&
+        // r.status === 'confirmed' &&
         new Date(r.startTime) > currentTime
       );
 

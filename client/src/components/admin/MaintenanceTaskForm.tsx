@@ -156,7 +156,7 @@ export function MaintenanceTaskForm({
       title: formData.title!,
       description: formData.description || '',
       type: formData.type || 'preventive',
-      priority: formData.priority || 'medium',
+      priority: (formData.priority === 'urgent' ? 'critical' : formData.priority) || 'medium',
       status: formData.status || 'pending',
       scheduledDate: formData.scheduledDate!,
       estimatedDuration: formData.estimatedDuration!,

@@ -336,10 +336,10 @@ const ChartTooltipContent = React.forwardRef<
 
             return (
               <TooltipItem
-                key={`${item.dataKey}-${index}`}
+                key={item.dataKey}
                 index={index}
                 itemConfig={itemConfig}
-                item={item as TooltipPayloadItem}
+                item={item}
                 indicator={indicator}
                 hideIndicator={hideIndicator}
                 indicatorColor={String(indicatorColor)}
@@ -360,7 +360,7 @@ ChartTooltipContent.displayName = "ChartTooltipContent"
  * Composant pour un élément individuel du tooltip
  * Séparé pour améliorer la lisibilité et les performances
  */
-const TooltipItem = React.memo (({ 
+const TooltipItem = React.memo (({
   item,
   index,
   itemConfig,
@@ -370,7 +370,7 @@ const TooltipItem = React.memo (({
   formatter,
   nestLabel,
   tooltipLabel
-}: { 
+}: {
   item: TooltipPayloadItem
   index: number
   itemConfig: ItemConfig | undefined
@@ -522,11 +522,11 @@ ChartLegendContent.displayName = "ChartLegendContent"
 /**
  * Composant pour un élément individuel de la légende
  */
-const LegendItem = React.memo (({ 
+const LegendItem = React.memo (({
   item,
   itemConfig,
   hideIcon
-}: { 
+}: {
   item: LegendPayloadItem
   itemConfig: ItemConfig | undefined
   hideIcon: boolean
