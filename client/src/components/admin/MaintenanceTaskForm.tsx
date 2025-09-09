@@ -21,7 +21,7 @@ import { MaintenanceTask as MaintenanceTaskType, Equipment, Technician } from '.
 interface MaintenanceTaskFormProps {
   equipmentList: Equipment[];
   technicians: Technician[];
-  initialData?: Partial<MaintenanceTask & { equipmentId?: string | null }>;
+  initialData?: Partial<MaintenanceTask & { equipmentId?: string | null }> | undefined;
   onSubmit: (data: Omit<MaintenanceTask, 'id'> & { equipmentId?: number | null }) => void;
   onCancel: () => void;
 }
@@ -155,17 +155,16 @@ export function MaintenanceTaskForm({
     const taskToSubmit: Omit<MaintenanceTask, 'id'> & { equipmentId?: number | null } = {
       title: formData.title!,
       description: formData.description || '',
-      type: formData.type || 'preventive',
-      priority: (formData.priority === 'urgent' ? 'critical' : formData.priority) || 'medium',
+      equipment: formData.equipment || '',
+      equipmentId: formData.equipmentId || null,
+      priority: (formData.priority === 'urgent' ? 'high' : formData.priority) as 'low' | 'medium' | 'high' | 'urgent' || 'medium',
       status: formData.status || 'pending',
+      assignedTo: formData.assignedTo || '',
+      assignedToId: formData.assignedToId || null,
       scheduledDate: formData.scheduledDate!,
       estimatedDuration: formData.estimatedDuration!,
       cost: formData.cost || 0,
-      assignedToId: formData.assignedToId || null,
-      notes: formData.notes || '',
-      equipmentId: formData.equipmentId || null,
-      createdAt: formData.createdAt || new Date().toISOString(),
-      updatedAt: formData.updatedAt || new Date().toISOString()
+      notes: formData.notes || ''
     };
     onSubmit(taskToSubmit);
   };
