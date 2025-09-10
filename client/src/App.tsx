@@ -31,8 +31,7 @@ import { PermissionsManagementImproved } from '@/components/admin/permissions-ma
 import ComprehensiveReportsManager from '@/components/admin/ComprehensiveReportsManager';
 import UserProfileEnhanced from '@/components/admin/user-profile-enhanced-optimized';
 
-// Debug Component
-import { DebugCSS } from '@/components/debug-css';
+// Debug Component removed to fix import issues
 
 
 // Configuration React Query
@@ -141,8 +140,7 @@ function App() {
                 </Route>
               </Switch>
 
-              {/* Debug CSS Component */}
-              <DebugCSS />
+              {/* Debug CSS Component removed */}
 
               {/* Notifications Toast */}
               <Toaster />
