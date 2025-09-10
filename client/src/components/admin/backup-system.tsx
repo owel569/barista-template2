@@ -75,7 +75,10 @@ function useBackupData() {
           }))
         : [];
 
-      setBackups(processedBackups);
+      setBackups(processedBackups.map(backup => ({
+        ...backup,
+        type: backup.type as 'manual' | 'automatic'
+      })));
       setSettings(settingsData);
     } catch (e: unknown) {
       const errorMessage = e instanceof Error ? e.message : 'Erreur lors du chargement des sauvegardes';

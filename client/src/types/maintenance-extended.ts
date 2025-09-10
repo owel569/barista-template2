@@ -1,15 +1,19 @@
-
 import type { MaintenanceTask } from './maintenance';
 
-export interface MaintenanceTaskFormData extends Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> {
+export interface MaintenanceTaskFormData {
   id?: string;
+  title: string;
+  description: string;
+  type: 'preventive' | 'corrective' | 'emergency';
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
   equipmentId?: string | null;
+  assignedToId?: number | string | undefined;
+  scheduledDate: string;
   completedDate?: string | null;
-  notes?: string | null;
-  priority?: string;
+  notes?: string;
   createdAt?: string;
   updatedAt?: string;
-  assignedToId?: number | null | undefined;
 }
 
 export interface StockAlert {

@@ -154,7 +154,13 @@ export default function InventoryManagement() : JSX.Element {
           currentStock: alert.currentStock || 0,
           minStock: alert.minStock || 0
         })) : [];
-        setAlerts(processedAlerts);
+        setAlerts(processedAlerts.map(alert => ({
+          ...alert,
+          id: Number(alert.id) || 0,
+          itemId: Number(alert.itemId) || 0,
+          currentStock: Number(alert.currentStock) || 0,
+          minStock: Number(alert.minStock) || 0
+        })));
       }
 
       if (suppliersRes.ok) {

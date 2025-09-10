@@ -486,7 +486,7 @@ export default function MaintenanceManagement() : JSX.Element {
                   equipmentList={equipment}
                   technicians={technicians}
                   initialData={editingTask ? {
-                    id: editingTask.id.toString(),
+                    // id is handled separately
                     title: editingTask.title,
                     description: editingTask.description,
                     type: editingTask.type,
