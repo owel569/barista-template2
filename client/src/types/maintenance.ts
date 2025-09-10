@@ -3,16 +3,16 @@ export interface MaintenanceTask {
   title: string;
   description: string;
   type: 'preventive' | 'corrective' | 'emergency';
-  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
   priority: 'low' | 'medium' | 'high' | 'critical';
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
   assignedTo?: string;
-  assignedToId?: number | null;
-  scheduledDate: string;
-  dueDate?: string;
-  estimatedDuration: number;
-  cost?: number;
-  notes?: string;
+  assignedToId?: string | number | null;
   equipmentId?: number | null;
+  scheduledDate?: string;
+  completedDate?: string;
+  notes?: string;
+  estimatedDuration?: number;
+  cost?: number;
   createdAt: string;
   updatedAt: string;
   securityLevel?: 'public' | 'restricted' | 'confidential';
@@ -32,16 +32,45 @@ export interface SecureMaintenanceFilter {
 }
 
 export interface MaintenanceTaskFormData {
+  id?: string;
   title: string;
   description: string;
   type: 'preventive' | 'corrective' | 'emergency';
   priority: 'low' | 'medium' | 'high' | 'critical';
-  scheduledDate: string;
-  estimatedDuration: number;
-  cost?: number;
-  assignedToId?: number | null;
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  assignedTo?: string;
+  assignedToId?: string | number | null;
+  equipmentId?: string | number | null;
+  scheduledDate?: string;
+  completedDate?: string;
   notes?: string;
-  equipmentId?: number | null;
+  estimatedDuration?: number;
+  cost?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Backup {
+  id: number;
+  name: string;
+  type: 'manual' | 'automatic';
+  status: 'completed' | 'in_progress' | 'failed';
+  createdAt: string;
+  size: number;
+  tables: string[];
+}
+
+export interface StockAlert {
+  id: number;
+  itemId: number;
+  itemName: string;
+  currentStock: number;
+  minStock: number;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  createdAt: string;
+  message: string;
+  type: 'low_stock' | 'out_of_stock' | 'overstocked';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
 }
 
 export type MaintenanceTaskCreateInput = Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'>;

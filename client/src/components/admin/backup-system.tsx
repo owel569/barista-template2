@@ -77,7 +77,8 @@ function useBackupData() {
 
       setBackups(processedBackups.map(backup => ({
         ...backup,
-        type: backup.type as 'manual' | 'automatic'
+        type: backup.type as 'manual' | 'automatic',
+        status: backup.status as 'completed' | 'in_progress' | 'failed'
       })));
       setSettings(settingsData);
     } catch (e: unknown) {

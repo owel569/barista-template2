@@ -27,13 +27,20 @@ interface MaintenanceTaskFormData {
   type: 'preventive' | 'corrective' | 'emergency';
   priority: 'low' | 'medium' | 'high' | 'critical';
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
-  equipmentId?: string | null;
+  assignedTo?: string;
   assignedToId?: number | string | undefined;
+  equipmentId?: number | null;
   scheduledDate: string;
   completedDate?: string | null;
   notes?: string;
+  estimatedDuration?: number;
+  cost?: number;
   createdAt?: string;
   updatedAt?: string;
+}
+
+interface OriginalMaintenanceTaskFormData extends Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> {
+  equipmentId?: number | null;
 }
 
 interface MaintenanceTaskFormProps {
@@ -51,44 +58,43 @@ export function MaintenanceTaskForm({
   onSubmit,
   onCancel,
 }: MaintenanceTaskFormProps) {
-  const initializeFormData = () => {
-    const defaultValues = {
-      id: '',
-      title: '',
-      description: '',
-      type: 'preventive' as const,
-      priority: 'medium' as const,
-      status: 'pending' as const,
-      scheduledDate: new Date().toISOString().split('T')[0],
-      estimatedDuration: 1,
-      cost: 0,
-      assignedToId: null,
-      notes: '',
-      equipmentId: null,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
+  const defaultValues: MaintenanceTaskFormData = {
+    title: '',
+    description: '',
+    type: 'preventive',
+    priority: 'medium',
+    status: 'pending',
+    assignedTo: '',
+    assignedToId: undefined,
+    equipmentId: null,
+    scheduledDate: '',
+    completedDate: '',
+    notes: '',
+    estimatedDuration: 0,
+    cost: 0
+  };
 
-    if (initialData) {
-      return {
-        ...defaultValues,
-        id: initialData.id || '',
-        title: initialData.title || '',
-        description: initialData.description || '',
-        type: initialData.type || 'preventive',
-        priority: (initialData.priority as 'low' | 'medium' | 'high' | 'critical') || 'medium',
-        status: (initialData.status as 'pending' | 'in_progress' | 'completed' | 'cancelled') || 'pending',
-        scheduledDate: initialData.scheduledDate || defaultValues.scheduledDate,
-        estimatedDuration: initialData.estimatedDuration || defaultValues.estimatedDuration,
-        cost: initialData.cost || defaultValues.cost,
-        assignedToId: initialData.assignedToId !== undefined ? initialData.assignedToId : defaultValues.assignedToId,
-        notes: initialData.notes || '',
-        equipmentId: initialData.equipmentId !== null && initialData.equipmentId !== undefined ? parseInt(initialData.equipmentId as string) : defaultValues.equipmentId,
-        createdAt: initialData.createdAt || defaultValues.createdAt,
-        updatedAt: initialData.updatedAt || defaultValues.updatedAt,
-      };
-    }
-    return defaultValues;
+  const initializeFormData = (): MaintenanceTaskFormData => {
+    if (!initialData) return defaultValues;
+
+    return {
+      id: initialData.id || '',
+      title: initialData.title || defaultValues.title,
+      description: initialData.description || defaultValues.description,
+      type: initialData.type || defaultValues.type,
+      priority: initialData.priority || defaultValues.priority,
+      status: initialData.status || defaultValues.status,
+      assignedTo: initialData.assignedTo || defaultValues.assignedTo,
+      assignedToId: initialData.assignedToId || defaultValues.assignedToId,
+      equipmentId: initialData.equipmentId !== undefined ? initialData.equipmentId : defaultValues.equipmentId,
+      scheduledDate: initialData.scheduledDate || defaultValues.scheduledDate,
+      completedDate: initialData.completedDate || defaultValues.completedDate,
+      notes: initialData.notes || defaultValues.notes,
+      estimatedDuration: initialData.estimatedDuration || defaultValues.estimatedDuration,
+      cost: initialData.cost || defaultValues.cost,
+      createdAt: initialData.createdAt || '',
+      updatedAt: initialData.updatedAt || ''
+    };
   };
 
   const [formData, setFormData] = useState<MaintenanceTaskFormData>(initializeFormData());
@@ -130,7 +136,7 @@ export function MaintenanceTaskForm({
     const selectedEquipment = equipmentList.find(e => e.id.toString() === equipmentId);
     setFormData(prev => ({
       ...prev,
-      equipmentId: selectedEquipment?.id?.toString() ?? null,
+      equipmentId: selectedEquipment?.id ?? null,
       equipment: selectedEquipment?.name || '',
     }));
   };
@@ -158,10 +164,10 @@ export function MaintenanceTaskForm({
       title: formData.title!,
       description: formData.description || '',
       type: formData.type as 'preventive' | 'corrective' | 'emergency',
-      equipmentId: formData.equipmentId !== null && formData.equipmentId !== undefined ? parseInt(formData.equipmentId) : null,
+      equipmentId: formData.equipmentId !== null && formData.equipmentId !== undefined ? Number(formData.equipmentId) : null,
       priority: formData.priority as 'low' | 'medium' | 'high' | 'critical',
       status: formData.status || 'pending',
-      assignedToId: formData.assignedToId || null,
+      assignedToId: typeof formData.assignedToId === 'string' ? Number(formData.assignedToId) : formData.assignedToId,
       scheduledDate: formData.scheduledDate!,
       estimatedDuration: formData.estimatedDuration!,
       cost: formData.cost || 0,
