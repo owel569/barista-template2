@@ -1,0 +1,29 @@
+
+  client/src/components/admin/MaintenanceTaskForm.tsx:31:3
+    31   initialData?: MaintenanceTaskFormProps | undefined;
+         ~~~~~~~~~~~
+    The expected type comes from property 'initialData' which is declared here on type 'IntrinsicAttributes & MaintenanceTaskFormProps'
+
+client/src/components/admin/maintenance-management.tsx:495:45 - error TS2551: Property 'assignedTo' does not exist on type 'MaintenanceTask'. Did you mean 'assignedToId'?
+
+495                     assignedTo: editingTask.assignedTo,
+                                                ~~~~~~~~~~
+
+  client/src/components/admin/maintenance-management.tsx:41:3
+    41   assignedToId?: number | null;
+         ~~~~~~~~~~~~
+    'assignedToId' is declared here.
+
+client/src/components/admin/maintenance-management.tsx:506:19 - error TS2322: Type '(data: Omit<MaintenanceTask, "id" | "createdAt" | "updatedAt"> & { equipmentId?: number | null; }) => Promise<void>' is not assignable to type '(data: Omit<MaintenanceTask, "id" | "createdAt" | "updatedAt"> & { equipmentId?: number | null; }) => void'.
+  Types of parameters 'data' and 'data' are incompatible.
+    Type 'Omit<import("/home/runner/workspace/client/src/types/maintenance").MaintenanceTask, "id" | "createdAt" | "updatedAt"> & { equipmentId?: number | null; }' is not assignable to type 'Omit<import("/home/runner/workspace/client/src/components/admin/maintenance-management").MaintenanceTask, "id" | "createdAt" | "updatedAt"> & { equipmentId?: number | null; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+      Type 'Omit<MaintenanceTask, "id" | "createdAt" | "updatedAt"> & { equipmentId?: number | null; }' is not assignable to type 'Omit<MaintenanceTask, "id" | "createdAt" | "updatedAt">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+        Property 'scheduledDate' is optional in type 'Omit<MaintenanceTask, "id" | "createdAt" | "updatedAt"> & { equipmentId?: number | null; }' but required in type 'Omit<MaintenanceTask, "id" | "createdAt" | "updatedAt">'.
+
+506                   onSubmit={editingTask ?
+                      ~~~~~~~~
+
+  client/src/components/admin/MaintenanceTaskForm.tsx:32:3
+    32   onSubmit: (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null }) => void;
+         ~~~~~~~~
+    The expected type comes from property 'onSubmit' which is declared here on type 'IntrinsicAttributes & MaintenanceTaskFormProps'

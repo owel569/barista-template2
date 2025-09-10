@@ -1,0 +1,67 @@
+
+client/src/components/admin/MaintenanceTaskForm.tsx:43:9 - error TS2375: Type '{ title: string; description: string; type: "preventive"; priority: "medium"; status: "pending"; assignedTo: string; assignedToId: undefined; equipmentId: null; scheduledDate: string; completedDate: string; notes: string; estimatedDuration: number; cost: number; }' is not assignable to type 'MaintenanceTaskFormData' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'assignedToId' are incompatible.
+    Type 'undefined' is not assignable to type 'number | null'.
+
+43   const defaultValues: MaintenanceTaskFormData = {
+           ~~~~~~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:62:5 - error TS2375: Type '{ id: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "low" | "critical" | "medium" | "high"; status: "pending" | "in_progress" | "completed" | "cancelled"; ... 9 more ...; updatedAt: string; }' is not assignable to type 'MaintenanceTaskFormData' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'assignedToId' are incompatible.
+    Type 'number | null | undefined' is not assignable to type 'number | null'.
+      Type 'undefined' is not assignable to type 'number | null'.
+
+62     return {
+       ~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:135:19 - error TS2345: Argument of type '(prev: MaintenanceTaskFormData) => { assignedTo: string; assignedToId: undefined; id?: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; ... 9 more ...; updatedAt?: string; }' is not assignable to parameter of type 'SetStateAction<MaintenanceTaskFormData>'.
+  Type '(prev: MaintenanceTaskFormData) => { assignedTo: string; assignedToId: undefined; id?: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; ... 9 more ...; updatedAt?: string; }' is not assignable to type '(prevState: MaintenanceTaskFormData) => MaintenanceTaskFormData'.
+    Call signature return types '{ assignedTo: string; assignedToId: undefined; id?: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "low" | "critical" | "medium" | "high"; ... 8 more ...; updatedAt?: string; }' and 'MaintenanceTaskFormData' are incompatible.
+      The types of 'assignedToId' are incompatible between these types.
+        Type 'undefined' is not assignable to type 'number | null'.
+
+135       setFormData(prev => ({
+                      ~~~~~~~~~~
+136         ...prev,
+    ~~~~~~~~~~~~~~~~
+... 
+138         assignedToId: undefined,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+139       }));
+    ~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:145:11 - error TS2375: Type '{ title: string; description: string; type: "preventive" | "corrective" | "emergency"; equipmentId: number | null; priority: "low" | "medium" | "high" | "critical"; status: "pending" | "in_progress" | "completed" | "cancelled"; ... 5 more ...; notes: string; }' is not assignable to type 'Omit<MaintenanceTask, "id" | "createdAt" | "updatedAt"> & { equipmentId?: number | null; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Type '{ title: string; description: string; type: "preventive" | "corrective" | "emergency"; equipmentId: number | null; priority: "low" | "medium" | "high" | "critical"; status: "pending" | "in_progress" | "completed" | "cancelled"; ... 5 more ...; notes: string; }' is not assignable to type 'Omit<MaintenanceTask, "id" | "createdAt" | "updatedAt">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'assignedTo' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+
+145     const taskToSubmit: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null } = {
+              ~~~~~~~~~~~~
+
+client/src/components/admin/inventory-management.tsx:157:19 - error TS2345: Argument of type '{ id: {}; itemId: {}; currentStock: {}; minStock: {}; itemName: {}; severity: "low" | "critical" | "medium" | "high"; createdAt: {}; message: {}; type: "low_stock" | "out_of_stock" | "overstocked"; priority: "low" | ... 2 more ... | "urgent"; }[]' is not assignable to parameter of type 'SetStateAction<StockAlert[]>'.
+  Type '{ id: {}; itemId: {}; currentStock: {}; minStock: {}; itemName: {}; severity: "low" | "critical" | "medium" | "high"; createdAt: {}; message: {}; type: "low_stock" | "out_of_stock" | "overstocked"; priority: "low" | ... 2 more ... | "urgent"; }[]' is not assignable to type 'StockAlert[]'.
+    Type '{ id: {}; itemId: {}; currentStock: {}; minStock: {}; itemName: {}; severity: "low" | "critical" | "medium" | "high"; createdAt: {}; message: {}; type: "low_stock" | "out_of_stock" | "overstocked"; priority: "low" | ... 2 more ... | "urgent"; }' is not assignable to type 'StockAlert'.
+      Types of property 'id' are incompatible.
+        Type '{}' is not assignable to type 'number'.
+
+157         setAlerts(processedAlerts.map((alert, index) => ({
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+158           ...alert,
+    ~~~~~~~~~~~~~~~~~~~
+... 
+168           priority: (alert.priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium'
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+169         })));
+    ~~~~~~~~~~~
+
+client/src/components/admin/maintenance-management.tsx:488:19 - error TS2322: Type '{ id: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "low" | "critical" | "medium" | "high"; status: "pending" | "in_progress" | "completed" | "cancelled"; ... 9 more ...; updatedAt: string; } | undefined' is not assignable to type 'MaintenanceTaskFormProps | undefined'.
+  Type '{ id: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "low" | "critical" | "medium" | "high"; status: "pending" | "in_progress" | "completed" | "cancelled"; ... 9 more ...; updatedAt: string; }' is missing the following properties from type 'MaintenanceTaskFormProps': equipmentList, technicians, onSubmit, onCancel
+
+488                   initialData={editingTask ? {
+                      ~~~~~~~~~~~
+
+  client/src/components/admin/MaintenanceTaskForm.tsx:31:3
+    31   initialData?: MaintenanceTaskFormProps | undefined;
+         ~~~~~~~~~~~
+    The expected type comes from property 'initialData' which is declared here on type 'IntrinsicAttributes & MaintenanceTaskFormProps'
