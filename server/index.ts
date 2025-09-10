@@ -74,7 +74,91 @@ async function startApplication() {
 
   const vite = await createViteServer(viteConfig);
 
-  // 2. Routes API (avant Vite pour éviter l'interception)
+  // 2. Middleware spécial pour éliminer les erreurs WebSocket Vite sur Replit
+  if (isReplit) {
+    // Servir un script no-op pour /@vite/client qui remplace complètement le client Vite HMR
+    app.get('/@vite/client', (req, res) => {
+      res.setHeader('Content-Type', 'application/javascript');
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate'); // Pas de cache pour debug
+      res.send(`
+// Vite client mock pour Replit - Élimine complètement les erreurs WebSocket
+console.log('[vite-replit] HMR client désactivé pour Replit');
+
+// Mock complet des exports Vite pour éviter toutes les erreurs de compatibilité
+const noop = () => {};
+const noopObj = {};
+
+// Contexte HMR principal
+export function createHotContext(ownerPath) {
+  return {
+    data: {},
+    accept: noop,
+    acceptExports: noop,
+    acceptDeps: noop,
+    dispose: noop,
+    decline: noop,
+    invalidate: noop,
+    on: noop,
+    off: noop,
+    send: noop,
+    prune: noop
+  };
+}
+
+// API de styles
+export function updateStyle(id, content) {}
+export function removeStyle(id) {}
+
+// API HMR legacy
+export const hot = {
+  accept: noop,
+  acceptDeps: noop,
+  dispose: noop,
+  decline: noop,
+  invalidate: noop,
+  data: {},
+  addDisposeHandler: noop,
+  removeDisposeHandler: noop,
+  send: noop
+};
+
+// Exports supplémentaires que Vite pourrait utiliser
+export const injectQuery = (url, queryToInject) => url;
+export const isPreloadSupported = () => false;
+export const notifyListeners = noop;
+export const queueUpdate = noop;
+
+// Mock du client WebSocket pour éviter les tentatives de connexion
+export const socket = {
+  send: noop,
+  close: noop,
+  addEventListener: noop,
+  removeEventListener: noop,
+  readyState: 3 // CLOSED
+};
+
+// Export par défaut
+export default {
+  createHotContext,
+  updateStyle,
+  removeStyle,
+  hot,
+  socket,
+  injectQuery,
+  isPreloadSupported,
+  notifyListeners,
+  queueUpdate
+};
+      `);
+    });
+
+    // Intercepter et neutraliser toutes les routes liées au WebSocket Vite
+    app.get('/@vite/ws', (req, res) => {
+      res.status(404).send('WebSocket Vite désactivé sur Replit');
+    });
+  }
+
+  // 3. Routes API (avant Vite pour éviter l'interception)
   app.use('/api', apiRoutes);
 
   // Health check endpoint pour Replit

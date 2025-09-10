@@ -1,30 +1,10 @@
-import { getDb } from '../server/db';
-import bcrypt from 'bcrypt';
-import { 
-  users, menuCategories, menuItems, tables, customers, employees, 
-  reservations, orders, orderItems, workShifts, activityLogs, permissions 
-} from '../shared/schema';
-
-interface UserInsert {
-  username: string;
-  email: string;
-  passwordHash: string;
-  role: 'directeur' | 'manager' | 'serveur' | 'cuisinier' | 'caissier';
-  fullName: string;
-  phone?: string;
-}
-
-interface MenuCategoryInsert {
-  name: string;
-  description: string;
-  displayOrder: number;
-  isActive: boolean;
-}
+import { getDbAsync, connection } from '../server/db';
+import { sql } from 'drizzle-orm';
 import { 
   users, menuCategories, menuItems, tables, customers, employees,
-  orders, orderItems, permissions, reservations, reservationItems
+  orders, orderItems, permissions, reservations
 } from '../shared/schema';
-import { hashPassword } from '../server/middleware/auth';
+import { SecurityUtils } from '../server/utils/security';
 import type { 
   User, MenuCategory, MenuItem, Table, Customer, Employee,
   Order, OrderItem, Permission
@@ -79,7 +59,7 @@ export async function seedDatabase(options: {
   console.log('🌱 Début du seeding de la base de données...');
 
   try {
-    const db = await getDb();
+    const db = await waitForDatabase();
 
     // Transaction globale pour garantir l'atomicité
     await db.transaction(async (tx: unknown) => {
@@ -128,7 +108,7 @@ export async function seedDatabase(options: {
     return stats;
 
   } catch (error) {
-    logger.error('❌ Erreur lors du seeding:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+    console.error('❌ Erreur lors du seeding:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     throw error;
   }
 }
@@ -140,7 +120,7 @@ async function seedUsersWithTransaction(tx: unknown): Promise<SeedResult<User>> 
     const userData = [
       {
         username: 'admin',
-        password: await hashPassword('admin123'),
+        password: await SecurityUtils.hashPassword('admin123'),
         role: 'directeur',
         firstName: 'Jean',
         lastName: 'Dupont',
@@ -148,7 +128,7 @@ async function seedUsersWithTransaction(tx: unknown): Promise<SeedResult<User>> 
       },
       {
         username: 'manager',
-        password: await hashPassword('manager123'),
+        password: await SecurityUtils.hashPassword('manager123'),
         role: 'gerant',
         firstName: 'Marie',
         lastName: 'Martin',
@@ -156,7 +136,7 @@ async function seedUsersWithTransaction(tx: unknown): Promise<SeedResult<User>> 
       },
       {
         username: 'employee',
-        password: await hashPassword('employee123'),
+        password: await SecurityUtils.hashPassword('employee123'),
         role: 'employe',
         firstName: 'Pierre',
         lastName: 'Bernard',
@@ -164,7 +144,7 @@ async function seedUsersWithTransaction(tx: unknown): Promise<SeedResult<User>> 
       }
     ];
 
-    const createdUsers = await tx.insert(users).values(userData).returning();
+    const createdUsers = await tx.insert(users).values(userData).onConflictDoNothing().returning();
 
     return {
       success: true,
@@ -187,35 +167,26 @@ async function seedEmployeesWithTransaction(tx: unknown): Promise<SeedResult<Emp
 
     const employeeData = [
       {
-        firstName: 'Sophie',
-        lastName: 'Dubois',
+        employeeNumber: 'EMP001',
         position: 'Barista senior',
-        phone: '0123456789',
-        email: 'sophie.dubois@barista-cafe.com',
         hireDate: hireDates[0],
         salary: 2200
       },
       {
-        firstName: 'Antoine',
-        lastName: 'Rousseau',
+        employeeNumber: 'EMP002',
         position: 'Serveur',
-        phone: '0123456790',
-        email: 'antoine.rousseau@barista-cafe.com',
         hireDate: hireDates[1],
         salary: 1800
       },
       {
-        firstName: 'Clara',
-        lastName: 'Moreau',
+        employeeNumber: 'EMP003',
         position: 'Pâtissière',
-        phone: '0123456791',
-        email: 'clara.moreau@barista-cafe.com',
         hireDate: hireDates[2],
         salary: 2000
       }
     ];
 
-    const createdEmployees = await tx.insert(employees).values(employeeData).returning();
+    const createdEmployees = await tx.insert(employees).values(employeeData).onConflictDoNothing().returning();
 
     return {
       success: true,
@@ -269,12 +240,12 @@ async function seedPermissionsWithTransaction(tx: unknown, createdUsers: User[])
             canCreate,
             canUpdate,
             canDelete
-          )});
+          });
         }
       }
     }
 
-    const createdPermissions = await tx.insert(permissions).values(permissionData).returning();
+    const createdPermissions = await tx.insert(permissions).values(permissionData).onConflictDoNothing().returning();
 
     return {
       success: true,
@@ -296,14 +267,14 @@ async function seedMenuCategoriesWithTransaction(tx: unknown): Promise<SeedResul
     console.log('📂 Création des catégories de menu...');
 
     const categoryData = [
-      { name: 'Cafés', description: 'Nos cafés artisanaux', slug: 'cafes', displayOrder: 1 },
-      { name: 'Boissons chaudes', description: 'Thés et boissons chaudes', slug: 'boissons-chaudes', displayOrder: 2 },
-      { name: 'Pâtisseries', description: 'Pâtisseries et desserts', slug: 'patisseries', displayOrder: 3 },
-      { name: 'Sandwichs', description: 'Sandwichs et plats légers', slug: 'sandwichs', displayOrder: 4 },
-      { name: 'Boissons froides', description: 'Smoothies et boissons rafraîchissantes', slug: 'boissons-froides', displayOrder: 5 }
+      { name: 'Cafés', description: 'Nos cafés artisanaux', sortOrder: 1 },
+      { name: 'Boissons chaudes', description: 'Thés et boissons chaudes', sortOrder: 2 },
+      { name: 'Pâtisseries', description: 'Pâtisseries et desserts', sortOrder: 3 },
+      { name: 'Sandwichs', description: 'Sandwichs et plats légers', sortOrder: 4 },
+      { name: 'Boissons froides', description: 'Smoothies et boissons rafraîchissantes', sortOrder: 5 }
     ];
 
-    const createdCategories = await tx.insert(menuCategories).values(categoryData).returning();
+    const createdCategories = await tx.insert(menuCategories).values(categoryData).onConflictDoNothing().returning();
 
     return {
       success: true,
@@ -325,40 +296,40 @@ async function seedMenuItemsWithTransaction(tx: unknown, categories: MenuCategor
     console.log('🍽️ Création des éléments de menu...');
 
     const categoryMap = categories.reduce((acc, cat) => {
-      acc[cat.slug] = cat.id;
+      acc[cat.name.toLowerCase()] = cat.id;
       return acc;
     }, {} as Record<string, number>);
 
     const menuItemData = [
       // Cafés
-      { name: 'Espresso', description: 'Café espresso italien authentique', price: 2.5, categoryId: categoryMap['cafes'] },
-      { name: 'Cappuccino', description: 'Espresso avec mousse de lait crémeuse', price: 3.8, categoryId: categoryMap['cafes'] },
-      { name: 'Latte', description: 'Café au lait avec art latte', price: 4.2, categoryId: categoryMap['cafes'] },
-      { name: 'Americano', description: 'Espresso allongé avec eau chaude', price: 3.0, categoryId: categoryMap['cafes'] },
-      { name: 'Mocha', description: 'Café chocolaté avec crème fouettée', price: 4.5, categoryId: categoryMap['cafes'] },
+      { name: 'Espresso', description: 'Café espresso italien authentique', price: '2.50', categoryId: categoryMap['cafés'] },
+      { name: 'Cappuccino', description: 'Espresso avec mousse de lait crémeuse', price: '3.80', categoryId: categoryMap['cafés'] },
+      { name: 'Latte', description: 'Café au lait avec art latte', price: '4.20', categoryId: categoryMap['cafés'] },
+      { name: 'Americano', description: 'Espresso allongé avec eau chaude', price: '3.00', categoryId: categoryMap['cafés'] },
+      { name: 'Mocha', description: 'Café chocolaté avec crème fouettée', price: '4.50', categoryId: categoryMap['cafés'] },
 
       // Boissons chaudes
-      { name: 'Thé Earl Grey', description: 'Thé noir bergamote premium', price: 2.8, categoryId: categoryMap['boissons-chaudes'] },
-      { name: 'Chocolat chaud', description: 'Chocolat belge avec chantilly', price: 3.5, categoryId: categoryMap['boissons-chaudes'] },
-      { name: 'Thé vert Sencha', description: 'Thé vert japonais délicat', price: 3.0, categoryId: categoryMap['boissons-chaudes'] },
+      { name: 'Thé Earl Grey', description: 'Thé noir bergamote premium', price: '2.80', categoryId: categoryMap['boissons chaudes'] },
+      { name: 'Chocolat chaud', description: 'Chocolat belge avec chantilly', price: '3.50', categoryId: categoryMap['boissons chaudes'] },
+      { name: 'Thé vert Sencha', description: 'Thé vert japonais délicat', price: '3.00', categoryId: categoryMap['boissons chaudes'] },
 
       // Pâtisseries
-      { name: 'Croissant', description: 'Croissant artisanal au beurre', price: 2.2, categoryId: categoryMap['patisseries'] },
-      { name: 'Muffin myrtilles', description: 'Muffin fait maison aux myrtilles', price: 2.8, categoryId: categoryMap['patisseries'] },
-      { name: 'Éclair au chocolat', description: 'Éclair traditionnel garni de crème chocolat', price: 3.2, categoryId: categoryMap['patisseries'] },
-      { name: 'Tarte aux pommes', description: 'Tarte aux pommes maison', price: 3.8, categoryId: categoryMap['patisseries'] },
+      { name: 'Croissant', description: 'Croissant artisanal au beurre', price: '2.20', categoryId: categoryMap['pâtisseries'] },
+      { name: 'Muffin myrtilles', description: 'Muffin fait maison aux myrtilles', price: '2.80', categoryId: categoryMap['pâtisseries'] },
+      { name: 'Éclair au chocolat', description: 'Éclair traditionnel garni de crème chocolat', price: '3.20', categoryId: categoryMap['pâtisseries'] },
+      { name: 'Tarte aux pommes', description: 'Tarte aux pommes maison', price: '3.80', categoryId: categoryMap['pâtisseries'] },
 
       // Sandwichs
-      { name: 'Sandwich jambon', description: 'Sandwich jambon fromage sur pain artisanal', price: 6.5, categoryId: categoryMap['sandwichs'] },
-      { name: 'Croque-monsieur', description: 'Croque-monsieur traditionnel', price: 7.2, categoryId: categoryMap['sandwichs'] },
-      { name: 'Wrap végétarien', description: 'Wrap aux légumes grillés et houmous', price: 6.8, categoryId: categoryMap['sandwichs'] },
+      { name: 'Sandwich jambon', description: 'Sandwich jambon fromage sur pain artisanal', price: '6.50', categoryId: categoryMap['sandwichs'] },
+      { name: 'Croque-monsieur', description: 'Croque-monsieur traditionnel', price: '7.20', categoryId: categoryMap['sandwichs'] },
+      { name: 'Wrap végétarien', description: 'Wrap aux légumes grillés et houmous', price: '6.80', categoryId: categoryMap['sandwichs'] },
 
       // Boissons froides
-      { name: 'Smoothie mangue', description: 'Smoothie mangue passion', price: 4.5, categoryId: categoryMap['boissons-froides'] },
-      { name: 'Iced coffee', description: 'Café glacé avec glaçons', price: 3.5, categoryId: categoryMap['boissons-froides'] }
+      { name: 'Smoothie mangue', description: 'Smoothie mangue passion', price: '4.50', categoryId: categoryMap['boissons froides'] },
+      { name: 'Iced coffee', description: 'Café glacé avec glaçons', price: '3.50', categoryId: categoryMap['boissons froides'] }
     ];
 
-    const createdMenuItems = await tx.insert(menuItems).values(menuItemData).returning();
+    const createdMenuItems = await tx.insert(menuItems).values(menuItemData).onConflictDoNothing().returning();
 
     return {
       success: true,
@@ -380,15 +351,15 @@ async function seedTablesWithTransaction(tx: unknown): Promise<SeedResult<Table>
     console.log('🪑 Création des tables...');
 
     const tableData = [
-      { number: 1, capacity: 2, status: 'libre', location: 'Terrasse' },
-      { number: 2, capacity: 4, status: 'libre', location: 'Salon principal' },
-      { number: 3, capacity: 6, status: 'libre', location: 'Salon principal' },
-      { number: 4, capacity: 2, status: 'libre', location: 'Coin lecture' },
-      { number: 5, capacity: 8, status: 'libre', location: 'Salle privée' },
-      { number: 6, capacity: 4, status: 'libre', location: 'Terrasse' }
+      { number: 1, capacity: 2, status: 'available', location: 'Terrasse' },
+      { number: 2, capacity: 4, status: 'available', location: 'Salon principal' },
+      { number: 3, capacity: 6, status: 'available', location: 'Salon principal' },
+      { number: 4, capacity: 2, status: 'available', location: 'Coin lecture' },
+      { number: 5, capacity: 8, status: 'available', location: 'Salle privée' },
+      { number: 6, capacity: 4, status: 'available', location: 'Terrasse' }
     ];
 
-    const createdTables = await tx.insert(tables).values(tableData).returning();
+    const createdTables = await tx.insert(tables).values(tableData).onConflictDoNothing().returning();
 
     return {
       success: true,
@@ -440,7 +411,7 @@ async function seedCustomersWithTransaction(tx: unknown): Promise<SeedResult<Cus
       }
     ];
 
-    const createdCustomers = await tx.insert(customers).values(customerData).returning();
+    const createdCustomers = await tx.insert(customers).values(customerData).onConflictDoNothing().returning();
 
     return {
       success: true,
@@ -463,51 +434,54 @@ async function seedSampleOrdersWithTransaction(tx: unknown, customers: Customer[
 
     const orderData = [
       {
+        orderNumber: 'ORD001',
         customerId: customers[0].id,
-        total: 8.6,
-        status: 'termine',
-        type: 'sur_place'
+        totalAmount: '8.60',
+        status: 'delivered',
+        orderType: 'dine-in'
       },
       {
+        orderNumber: 'ORD002',
         customerId: customers[1].id,
-        total: 12.3,
-        status: 'en_cours',
-        type: 'emporter'
+        totalAmount: '12.30',
+        status: 'preparing',
+        orderType: 'takeout'
       },
       {
+        orderNumber: 'ORD003',
         customerId: customers[2].id,
-        total: 15.7,
-        status: 'en_attente',
-        type: 'sur_place'
+        totalAmount: '15.70',
+        status: 'pending',
+        orderType: 'dine-in'
       }
     ];
 
-    const createdOrders = await tx.insert(orders).values(orderData).returning();
+    const createdOrders = await tx.insert(orders).values(orderData).onConflictDoNothing().returning();
 
     // Création des order items
     const orderItemData = [
       // Commande 1
-      { orderId: createdOrders[0].id, menuItemId: menuItems[0].id, quantity: 2, price: menuItems[0].price },
-      { orderId: createdOrders[0].id, menuItemId: menuItems[8].id, quantity: 1, price: menuItems[8].price },
+      { orderId: createdOrders[0].id, menuItemId: menuItems[0].id, quantity: 2, unitPrice: menuItems[0].price, totalPrice: String(Number(menuItems[0].price) * 2) },
+      { orderId: createdOrders[0].id, menuItemId: menuItems[8].id, quantity: 1, unitPrice: menuItems[8].price, totalPrice: menuItems[8].price },
 
       // Commande 2  
-      { orderId: createdOrders[1].id, menuItemId: menuItems[1].id, quantity: 1, price: menuItems[1].price },
-      { orderId: createdOrders[1].id, menuItemId: menuItems[12].id, quantity: 1, price: menuItems[12].price },
+      { orderId: createdOrders[1].id, menuItemId: menuItems[1].id, quantity: 1, unitPrice: menuItems[1].price, totalPrice: menuItems[1].price },
+      { orderId: createdOrders[1].id, menuItemId: menuItems[12].id, quantity: 1, unitPrice: menuItems[12].price, totalPrice: menuItems[12].price },
 
       // Commande 3
-      { orderId: createdOrders[2].id, menuItemId: menuItems[2].id, quantity: 2, price: menuItems[2].price },
-      { orderId: createdOrders[2].id, menuItemId: menuItems[10].id, quantity: 1, price: menuItems[10].price },
-      { orderId: createdOrders[2].id, menuItemId: menuItems[15].id, quantity: 1, price: menuItems[15].price }
+      { orderId: createdOrders[2].id, menuItemId: menuItems[2].id, quantity: 2, unitPrice: menuItems[2].price, totalPrice: String(Number(menuItems[2].price) * 2) },
+      { orderId: createdOrders[2].id, menuItemId: menuItems[10].id, quantity: 1, unitPrice: menuItems[10].price, totalPrice: menuItems[10].price },
+      { orderId: createdOrders[2].id, menuItemId: menuItems[15].id, quantity: 1, unitPrice: menuItems[15].price, totalPrice: menuItems[15].price }
     ];
 
-    const createdOrderItems = await tx.insert(orderItems).values(orderItemData).returning();
+    const createdOrderItems = await tx.insert(orderItems).values(orderItemData).onConflictDoNothing().returning();
 
     return {
       orders: createdOrders.length,
       orderItems: createdOrderItems.length
     };
   } catch (error) {
-    logger.error('Erreur création commandes:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+    console.error('Erreur création commandes:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     return { orders: 0, orderItems: 0 };
   }
 }
@@ -524,30 +498,28 @@ async function seedSampleReservationsWithTransaction(tx: unknown, customers: Cus
 
     const reservationData = [
       {
-        customerName: customers[0].firstName + ' ' + customers[0].lastName,
-        customerEmail: customers[0].email,
-        customerPhone: customers[0].phone,
+        customerId: customers[0].id,
+        tableId: tables[0].id,
         date: tomorrow,
+        reservationTime: tomorrow,
         time: '12:30',
         partySize: 2,
-        tableId: tables[0].id,
-        status: 'confirmee',
+        status: 'confirmed',
         specialRequests: 'Table près de la fenêtre'
       },
       {
-        customerName: customers[1].firstName + ' ' + customers[1].lastName,
-        customerEmail: customers[1].email, 
-        customerPhone: customers[1].phone,
+        customerId: customers[1].id,
+        tableId: tables[1].id,
         date: nextWeek,
+        reservationTime: nextWeek,
         time: '19:00',
         partySize: 4,
-        tableId: tables[1].id,
-        status: 'en_attente',
+        status: 'pending',
         specialRequests: ''
       }
     ];
 
-    const createdReservations = await tx.insert(reservations).values(reservationData).returning();
+    const createdReservations = await tx.insert(reservations).values(reservationData).onConflictDoNothing().returning();
 
     return {
       success: true,
@@ -575,13 +547,48 @@ function printSeedingStats(stats: SeedStats): void {
   console.log(`🪑 Tables: ${stats.tables}`);
   console.log(`👤 Clients: ${stats.customers}`);
   if (stats.orders > 0) {
-    console.log(`🛒 Commandes: ${stats.orders)}`);
+    console.log(`🛒 Commandes: ${stats.orders}`);
     console.log(`📦 Articles commandés: ${stats.orderItems}`);
   }
   if (stats.reservations > 0) {
-    console.log(`📅 Réservations: ${stats.reservations)}`);
+    console.log(`📅 Réservations: ${stats.reservations}`);
   }
   console.log('========================\n');
+}
+
+// Fonction d'attente robuste pour la base de données
+async function waitForDatabase(maxRetries = 10, baseDelay = 1000): Promise<ReturnType<typeof getDb>> {
+  let lastError: Error | undefined;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`🔄 Tentative de connexion à la base de données (${attempt}/${maxRetries})...`);
+      
+      const db = await getDbAsync();
+      
+      // Test de la connexion avec une requête simple
+      await connection`SELECT 1 as test`;
+      
+      console.log('✅ Base de données prête pour le seeding');
+      return db;
+      
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error('Erreur inconnue');
+      console.warn(`⚠️  Tentative ${attempt} échouée:`, lastError.message);
+      
+      if (attempt < maxRetries) {
+        // Backoff exponentiel avec jitter
+        const delay = baseDelay * Math.pow(2, attempt - 1) + Math.random() * 1000;
+        const maxDelay = 30000; // Maximum 30 secondes
+        const actualDelay = Math.min(delay, maxDelay);
+        
+        console.log(`⏳ Nouvelle tentative dans ${Math.round(actualDelay)}ms...`);
+        await new Promise(resolve => setTimeout(resolve, actualDelay));
+      }
+    }
+  }
+  
+  throw new Error(`❌ Impossible de se connecter à la base de données après ${maxRetries} tentatives. Dernière erreur: ${lastError?.message}`);
 }
 
 // Exécution directe du script
@@ -593,11 +600,11 @@ if (process.argv[1] === __filename) {
   seedDatabase({
     includeOrders: true,
     includeReservations: true
-  )}).then(() => {
+  }).then(() => {
     console.log('✅ Seeding terminé avec succès');
     process.exit(0);
   }).catch((error) => {
-    logger.error('❌ Erreur lors du seeding:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+    console.error('❌ Erreur lors du seeding:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     process.exit(1);
   });
 }
