@@ -1,0 +1,73 @@
+
+client/src/components/admin/MaintenanceTaskForm.tsx:164:7 - error TS2322: Type 'string | number | null' is not assignable to type 'number | null'.
+  Type 'string' is not assignable to type 'number'.
+
+164       assignedToId: formData.assignedToId || null,
+          ~~~~~~~~~~~~
+
+  client/src/types/maintenance.ts:9:3
+    9   assignedToId?: number | null;
+        ~~~~~~~~~~~~
+    The expected type comes from property 'assignedToId' which is declared here on type 'Omit<MaintenanceTask, "id" | "createdAt" | "updatedAt"> & { equipmentId?: number | null; }'
+
+client/src/components/admin/MaintenanceTaskForm.tsx:166:35 - error TS2339: Property 'estimatedDuration' does not exist on type 'MaintenanceTaskFormData'.
+
+166       estimatedDuration: formData.estimatedDuration!,
+                                      ~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:167:22 - error TS2339: Property 'cost' does not exist on type 'MaintenanceTaskFormData'.
+
+167       cost: formData.cost || 0,
+                         ~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:297:29 - error TS2339: Property 'estimatedDuration' does not exist on type 'MaintenanceTaskFormData'.
+
+297             value={formData.estimatedDuration || ''}
+                                ~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:310:29 - error TS2339: Property 'cost' does not exist on type 'MaintenanceTaskFormData'.
+
+310             value={formData.cost || ''}
+                                ~~~~
+
+client/src/components/admin/backup-system.tsx:78:18 - error TS2345: Argument of type '{ type: "manual" | "automatic"; id: number; name: string; status: string; createdAt: string; size: number; tables: any[]; }[]' is not assignable to parameter of type 'SetStateAction<Backup[]>'.
+  Type '{ type: "manual" | "automatic"; id: number; name: string; status: string; createdAt: string; size: number; tables: any[]; }[]' is not assignable to type 'Backup[]'.
+    Type '{ type: "manual" | "automatic"; id: number; name: string; status: string; createdAt: string; size: number; tables: any[]; }' is not assignable to type 'Backup'.
+      Types of property 'status' are incompatible.
+        Type 'string' is not assignable to type '"completed" | "in_progress" | "failed"'.
+
+78       setBackups(processedBackups.map(backup => ({
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+79         ...backup,
+   ~~~~~~~~~~~~~~~~~~
+80         type: backup.type as 'manual' | 'automatic'
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+81       })));
+   ~~~~~~~~~
+
+client/src/components/admin/inventory-management.tsx:157:19 - error TS2345: Argument of type '{ id: number; itemId: number; currentStock: number; minStock: number; itemName: {}; severity: {}; createdAt: {}; message: {}; type: {}; priority: {}; }[]' is not assignable to parameter of type 'SetStateAction<StockAlert[]>'.
+  Type '{ id: number; itemId: number; currentStock: number; minStock: number; itemName: {}; severity: {}; createdAt: {}; message: {}; type: {}; priority: {}; }[]' is not assignable to type 'StockAlert[]'.
+    Type '{ id: number; itemId: number; currentStock: number; minStock: number; itemName: {}; severity: {}; createdAt: {}; message: {}; type: {}; priority: {}; }' is not assignable to type 'StockAlert'.
+      Types of property 'itemName' are incompatible.
+        Type '{}' is not assignable to type 'string'.
+
+157         setAlerts(processedAlerts.map(alert => ({
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+158           ...alert,
+    ~~~~~~~~~~~~~~~~~~~
+... 
+162           minStock: Number(alert.minStock) || 0
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+163         })));
+    ~~~~~~~~~~~
+
+client/src/components/admin/maintenance-management.tsx:496:21 - error TS2322: Type '{ title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "high" | "low" | "medium" | "critical"; status: "completed" | "cancelled" | "pending" | "in_progress"; ... 8 more ...; notes: string | null; } | undefined' is not assignable to type 'MaintenanceTaskFormData | undefined'.
+  Object literal may only specify known properties, and 'estimatedDuration' does not exist in type 'MaintenanceTaskFormData'.
+
+496                     estimatedDuration: editingTask.estimatedDuration,
+                        ~~~~~~~~~~~~~~~~~
+
+  client/src/components/admin/MaintenanceTaskForm.tsx:42:3
+    42   initialData?: OriginalMaintenanceTaskFormData | undefined;
+         ~~~~~~~~~~~
+    The expected type comes from property 'initialData' which is declared here on type 'IntrinsicAttributes & MaintenanceTaskFormProps'

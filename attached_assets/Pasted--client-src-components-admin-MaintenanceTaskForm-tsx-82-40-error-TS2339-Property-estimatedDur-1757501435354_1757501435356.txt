@@ -1,0 +1,53 @@
+
+
+client/src/components/admin/MaintenanceTaskForm.tsx:82:40 - error TS2339: Property 'estimatedDuration' does not exist on type 'MaintenanceTaskFormData'.
+
+82         estimatedDuration: initialData.estimatedDuration || defaultValues.estimatedDuration,
+                                          ~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:83:27 - error TS2339: Property 'cost' does not exist on type 'MaintenanceTaskFormData'.
+
+83         cost: initialData.cost || defaultValues.cost,
+                             ~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:94:69 - error TS2345: Argument of type '{ id: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "high" | "low" | "medium" | "critical"; status: "completed" | "cancelled" | "pending" | "in_progress"; ... 7 more ...; updatedAt: string; }' is not assignable to parameter of type 'MaintenanceTaskFormData | (() => MaintenanceTaskFormData)'.
+  Type '{ id: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "high" | "low" | "medium" | "critical"; status: "completed" | "cancelled" | "pending" | "in_progress"; ... 7 more ...; updatedAt: string; }' is not assignable to type 'MaintenanceTaskFormData'.
+    Types of property 'equipmentId' are incompatible.
+      Type 'number | null' is not assignable to type 'string | null'.
+        Type 'number' is not assignable to type 'string'.
+
+94   const [formData, setFormData] = useState<MaintenanceTaskFormData>(initializeFormData());
+                                                                       ~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:141:19 - error TS2345: Argument of type '(prev: MaintenanceTaskFormData) => { assignedTo: string; assignedToId: number | null; id?: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; ... 7 more ...; updatedAt?: string; }' is not assignable to parameter of type 'SetStateAction<MaintenanceTaskFormData>'.
+  Type '(prev: MaintenanceTaskFormData) => { assignedTo: string; assignedToId: number | null; id?: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; ... 7 more ...; updatedAt?: string; }' is not assignable to type '(prevState: MaintenanceTaskFormData) => MaintenanceTaskFormData'.
+    Call signature return types '{ assignedTo: string; assignedToId: number | null; id?: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "high" | "low" | "medium" | "critical"; ... 6 more ...; updatedAt?: string; }' and 'MaintenanceTaskFormData' are incompatible.
+      The types of 'assignedToId' are incompatible between these types.
+        Type 'number | null' is not assignable to type 'string | number | undefined'.
+          Type 'null' is not assignable to type 'string | number | undefined'.
+
+141       setFormData(prev => ({
+                      ~~~~~~~~~~
+142         ...prev,
+    ~~~~~~~~~~~~~~~~
+... 
+144         assignedToId: selectedTechnician.id || null,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+145       }));
+    ~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:147:19 - error TS2345: Argument of type '(prev: MaintenanceTaskFormData) => { assignedTo: string; assignedToId: null; id?: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; ... 7 more ...; updatedAt?: string; }' is not assignable to parameter of type 'SetStateAction<MaintenanceTaskFormData>'.
+  Type '(prev: MaintenanceTaskFormData) => { assignedTo: string; assignedToId: null; id?: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; ... 7 more ...; updatedAt?: string; }' is not assignable to type '(prevState: MaintenanceTaskFormData) => MaintenanceTaskFormData'.
+    Call signature return types '{ assignedTo: string; assignedToId: null; id?: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "high" | "low" | "medium" | "critical"; ... 6 more ...; updatedAt?: string; }' and 'MaintenanceTaskFormData' are incompatible.
+      The types of 'assignedToId' are incompatible between these types.
+        Type 'null' is not assignable to type 'string | number | undefined'.
+
+147       setFormData(prev => ({
+                      ~~~~~~~~~~
+148         ...prev,
+    ~~~~~~~~~~~~~~~~
+... 
+150         assignedToId: null,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+151       }));
+    ~~~~~~~~
