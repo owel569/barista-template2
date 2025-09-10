@@ -1,3 +1,4 @@
+
 export interface MaintenanceTask {
   id: string;
   title: string;
@@ -8,10 +9,10 @@ export interface MaintenanceTask {
   assignedTo?: string;
   assignedToId?: number | null;
   equipmentId?: number | null;
-  scheduledDate?: string;
+  scheduledDate: string;
   completedDate?: string;
   notes?: string;
-  estimatedDuration?: number;
+  estimatedDuration: number;
   cost?: number;
   createdAt: string;
   updatedAt: string;
@@ -41,10 +42,10 @@ export interface MaintenanceTaskFormData {
   assignedTo?: string;
   assignedToId?: number | null;
   equipmentId?: number | null;
-  scheduledDate?: string;
+  scheduledDate: string;
   completedDate?: string;
   notes?: string;
-  estimatedDuration?: number;
+  estimatedDuration: number;
   cost?: number;
   createdAt?: string;
   updatedAt?: string;
@@ -121,7 +122,7 @@ export interface RestaurantSettings {
 }
 
 export interface Equipment {
-  id: string;
+  id: number;
   name: string;
   type: string;
   location: string;
@@ -133,4 +134,11 @@ export interface Equipment {
   notes?: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface Technician {
+  id: number;
+  name: string;
+  email: string;
+  specialization: string;
 }

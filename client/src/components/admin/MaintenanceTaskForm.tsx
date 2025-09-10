@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from 'react';
-import type { MaintenanceTask, MaintenanceTaskFormData } from '@/types/maintenance';
+import type { MaintenanceTask, MaintenanceTaskFormData, Equipment, Technician } from '@/types/maintenance';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -16,20 +17,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Equipment, Technician } from './maintenance-management';
-
-interface MaintenanceTaskFormProps extends Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> {
-  id?: string;
-  equipmentId?: number | null;
-  createdAt?: string;
-  updatedAt?: string;
-}
 
 interface MaintenanceTaskFormProps {
   equipmentList: Equipment[];
   technicians: Technician[];
-  initialData?: MaintenanceTaskFormProps | undefined;
-  onSubmit: (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null }) => void;
+  initialData?: MaintenanceTaskFormData;
+  onSubmit: (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null }) => Promise<void>;
   onCancel: () => void;
 }
 
@@ -47,7 +40,7 @@ export function MaintenanceTaskForm({
     priority: 'medium',
     status: 'pending',
     assignedTo: '',
-    assignedToId: undefined,
+    assignedToId: null,
     equipmentId: null,
     scheduledDate: '',
     completedDate: '',
@@ -67,7 +60,7 @@ export function MaintenanceTaskForm({
       priority: initialData.priority || defaultValues.priority,
       status: initialData.status || defaultValues.status,
       assignedTo: initialData.assignedTo || defaultValues.assignedTo || '',
-      assignedToId: initialData.assignedToId || defaultValues.assignedToId,
+      assignedToId: initialData.assignedToId !== undefined ? initialData.assignedToId : defaultValues.assignedToId,
       equipmentId: initialData.equipmentId !== undefined ? initialData.equipmentId : defaultValues.equipmentId,
       scheduledDate: initialData.scheduledDate || defaultValues.scheduledDate,
       completedDate: initialData.completedDate || defaultValues.completedDate,
@@ -119,7 +112,6 @@ export function MaintenanceTaskForm({
     setFormData(prev => ({
       ...prev,
       equipmentId: selectedEquipment?.id ?? null,
-      equipment: selectedEquipment?.name || '',
     }));
   };
 
@@ -135,28 +127,28 @@ export function MaintenanceTaskForm({
       setFormData(prev => ({
         ...prev,
         assignedTo: '',
-        assignedToId: undefined,
+        assignedToId: null,
       }));
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const taskToSubmit: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null } = {
-      title: formData.title!,
+      title: formData.title,
       description: formData.description || '',
       type: formData.type as 'preventive' | 'corrective' | 'emergency',
       equipmentId: formData.equipmentId !== null && formData.equipmentId !== undefined ? Number(formData.equipmentId) : null,
       priority: formData.priority as 'low' | 'medium' | 'high' | 'critical',
       status: formData.status || 'pending',
-      assignedTo: formData.assignedTo,
+      assignedTo: formData.assignedTo || '',
       assignedToId: formData.assignedToId || null,
-      scheduledDate: formData.scheduledDate!,
-      estimatedDuration: formData.estimatedDuration!,
+      scheduledDate: formData.scheduledDate,
+      estimatedDuration: formData.estimatedDuration,
       cost: formData.cost || 0,
       notes: formData.notes || ''
     };
-    onSubmit(taskToSubmit);
+    await onSubmit(taskToSubmit);
   };
 
   return (
@@ -198,7 +190,7 @@ export function MaintenanceTaskForm({
           <Label htmlFor="priority">Priorité *</Label>
           <Select
             value={formData.priority || 'medium'}
-            onValueChange={(value) => setFormData(prev => ({ ...prev, priority: value as any }))}
+            onValueChange={(value) => setFormData(prev => ({ ...prev, priority: value as MaintenanceTask['priority'] }))}
             required
           >
             <SelectTrigger>
@@ -217,7 +209,7 @@ export function MaintenanceTaskForm({
           <Label htmlFor="status">Statut *</Label>
           <Select
             value={formData.status || 'pending'}
-            onValueChange={(value) => setFormData(prev => ({ ...prev, status: value as any }))}
+            onValueChange={(value) => setFormData(prev => ({ ...prev, status: value as MaintenanceTask['status'] }))}
             required
           >
             <SelectTrigger>

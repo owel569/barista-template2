@@ -38,6 +38,7 @@ export interface MaintenanceTask {
   equipmentId?: number | null;
   priority: 'low' | 'medium' | 'high' | 'critical';
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  assignedTo?: string;
   assignedToId?: number | null;
   scheduledDate: string;
   completedDate?: string;
@@ -492,7 +493,7 @@ export default function MaintenanceManagement() : JSX.Element {
                     type: editingTask.type,
                     priority: editingTask.priority,
                     status: editingTask.status,
-                    assignedTo: editingTask.assignedTo,
+                    assignedTo: editingTask.assignedTo || '',
                     assignedToId: editingTask.assignedToId,
                     scheduledDate: editingTask.scheduledDate,
                     estimatedDuration: editingTask.estimatedDuration,
@@ -504,8 +505,12 @@ export default function MaintenanceManagement() : JSX.Element {
                     updatedAt: editingTask.updatedAt
                   } : undefined}
                   onSubmit={editingTask ?
-                    (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null }) => handleUpdateTask(editingTask.id, {...data, createdAt: editingTask.createdAt, updatedAt: new Date().toISOString()}) : 
-                    (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null }) => handleCreateTask({...data, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()})}
+                    async (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null }) => {
+                      await handleUpdateTask(editingTask.id, {...data, createdAt: editingTask.createdAt, updatedAt: new Date().toISOString()});
+                    } : 
+                    async (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null }) => {
+                      await handleCreateTask({...data, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()});
+                    }}
                   onCancel={() => {
                     setIsTaskDialogOpen(false);
                     setEditingTask(null);
