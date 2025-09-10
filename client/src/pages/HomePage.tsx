@@ -5,8 +5,8 @@ import About from '@/components/about';
 import Contact from '@/components/contact';
 import Footer from '@/components/footer';
 import Navigation from '@/components/navigation';
-import Link from 'next/link'; // Assurez-vous que Link est importé
-import { Coffee, MapPin, Phone, Clock, Star, ChefHat, Users, Calendar, Camera } from 'lucide-react'; // Importer Camera
+import { Link } from 'wouter';
+import { Coffee, MapPin, Phone, Clock, Star, ChefHat, Users, Calendar, Camera } from 'lucide-react';
 
 export default function HomePage() {
   return (
