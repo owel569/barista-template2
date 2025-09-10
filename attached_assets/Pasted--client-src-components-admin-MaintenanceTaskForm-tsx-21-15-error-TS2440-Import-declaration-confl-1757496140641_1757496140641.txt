@@ -1,0 +1,79 @@
+
+client/src/components/admin/MaintenanceTaskForm.tsx:21:15 - error TS2440: Import declaration conflicts with local declaration of 'MaintenanceTaskFormData'.
+
+21 import type { MaintenanceTaskFormData } from '@/types/maintenance-extended';
+                 ~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:72:25 - error TS2339: Property 'id' does not exist on type 'MaintenanceTaskFormData'.
+
+72         id: initialData.id || '',
+                           ~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:76:32 - error TS2339: Property 'priority' does not exist on type 'MaintenanceTaskFormData'.
+
+76         priority: (initialData.priority as 'low' | 'medium' | 'high' | 'critical') || 'medium',
+                                  ~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:83:107 - error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+
+83         equipmentId: initialData.equipmentId !== null && initialData.equipmentId !== undefined ? parseInt(initialData.equipmentId) : defaultValues.equipmentId,
+                                                                                                             ~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:84:32 - error TS2339: Property 'createdAt' does not exist on type 'MaintenanceTaskFormData'.
+
+84         createdAt: initialData.createdAt || defaultValues.createdAt,
+                                  ~~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:85:32 - error TS2339: Property 'updatedAt' does not exist on type 'MaintenanceTaskFormData'.
+
+85         updatedAt: initialData.updatedAt || defaultValues.updatedAt,
+                                  ~~~~~~~~~
+
+client/src/components/admin/analytics-dashboard.tsx:49:57 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(o: {}): string[]', gave the following error.
+    Argument of type 'Record<string, unknown> | undefined' is not assignable to parameter of type '{}'.
+      Type 'undefined' is not assignable to type '{}'.
+  Overload 2 of 2, '(o: object): string[]', gave the following error.
+    Argument of type 'Record<string, unknown> | undefined' is not assignable to parameter of type 'object'.
+      Type 'undefined' is not assignable to type 'object'.
+
+49   const headers = data && data.length > 0 ? Object.keys(data[0]) : [];
+                                                           ~~~~~~~
+
+
+client/src/components/admin/backup-system.tsx:78:18 - error TS2345: Argument of type '{ id: number; name: string; type: string; status: string; createdAt: string; size: number; tables: any[]; }[]' is not assignable to parameter of type 'SetStateAction<Backup[]>'.
+  Type '{ id: number; name: string; type: string; status: string; createdAt: string; size: number; tables: any[]; }[]' is not assignable to type 'Backup[]'.
+    Type '{ id: number; name: string; type: string; status: string; createdAt: string; size: number; tables: any[]; }' is not assignable to type 'Backup'.
+      Types of property 'type' are incompatible.
+        Type 'string' is not assignable to type '"manual" | "automatic"'.
+
+78       setBackups(processedBackups);
+                    ~~~~~~~~~~~~~~~~
+
+client/src/components/admin/inventory-management.tsx:157:19 - error TS2345: Argument of type '{ id: {}; itemId: {}; itemName: {}; severity: {}; createdAt: {}; message: {}; type: {}; priority: {}; currentStock: {}; minStock: {}; }[]' is not assignable to parameter of type 'SetStateAction<StockAlert[]>'.
+  Type '{ id: {}; itemId: {}; itemName: {}; severity: {}; createdAt: {}; message: {}; type: {}; priority: {}; currentStock: {}; minStock: {}; }[]' is not assignable to type 'StockAlert[]'.
+    Type '{ id: {}; itemId: {}; itemName: {}; severity: {}; createdAt: {}; message: {}; type: {}; priority: {}; currentStock: {}; minStock: {}; }' is not assignable to type 'StockAlert'.
+      Types of property 'id' are incompatible.
+        Type '{}' is not assignable to type 'number'.
+
+157         setAlerts(processedAlerts);
+                      ~~~~~~~~~~~~~~~
+
+client/src/components/admin/maintenance-management.tsx:489:21 - error TS2322: Type '{ id: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "high" | "low" | "critical" | "medium"; status: "pending" | "in_progress" | "completed" | "cancelled"; ... 8 more ...; notes: string | null; } | undefined' is not assignable to type 'MaintenanceTaskFormData | undefined'.
+  Object literal may only specify known properties, and 'id' does not exist in type 'MaintenanceTaskFormData'.
+
+489                     id: editingTask.id.toString(),
+                        ~~
+
+  client/src/components/admin/MaintenanceTaskForm.tsx:26:3
+    26   initialData?: MaintenanceTaskFormData | undefined;
+         ~~~~~~~~~~~
+    The expected type comes from property 'initialData' which is declared here on type 'IntrinsicAttributes & MaintenanceTaskFormProps'
+
+client/src/types/maintenance-extended.ts:4:18 - error TS2430: Interface 'MaintenanceTaskFormData' incorrectly extends interface 'Omit<MaintenanceTask, "createdAt" | "id" | "updatedAt">'.
+  Types of property 'notes' are incompatible.
+    Type 'string | null' is not assignable to type 'string'.
+      Type 'null' is not assignable to type 'string'.
+
+4 export interface MaintenanceTaskFormData extends Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> {
+                   ~~~~~~~~~~~~~~~~~~~~~~~
