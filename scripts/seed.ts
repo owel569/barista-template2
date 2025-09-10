@@ -128,7 +128,7 @@ export async function seedDatabase(options: {
     return stats;
 
   } catch (error) {
-    logger.error('❌ Erreur lors du seeding:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+    logger.error('❌ Erreur lors du seeding:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     throw error;
   }
 }
@@ -507,7 +507,7 @@ async function seedSampleOrdersWithTransaction(tx: unknown, customers: Customer[
       orderItems: createdOrderItems.length
     };
   } catch (error) {
-    logger.error('Erreur création commandes:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+    logger.error('Erreur création commandes:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     return { orders: 0, orderItems: 0 };
   }
 }
@@ -597,7 +597,7 @@ if (process.argv[1] === __filename) {
     console.log('✅ Seeding terminé avec succès');
     process.exit(0);
   }).catch((error) => {
-    logger.error('❌ Erreur lors du seeding:', { error: error instanceof Error ? error.message : 'Erreur inconnue' )});
+    logger.error('❌ Erreur lors du seeding:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
     process.exit(1);
   });
 }

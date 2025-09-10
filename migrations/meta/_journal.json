@@ -5,43 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1756380513874,
-      "tag": "0000_naive_thena",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1756474177782,
-      "tag": "0001_blushing_domino",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1756483923832,
-      "tag": "0002_lowly_layla_miller",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1757333075682,
-      "tag": "0003_white_bloodaxe",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1757348467717,
-      "tag": "0004_known_leo",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1757439820399,
-      "tag": "0005_icy_alex_wilder",
+      "when": 1757500147314,
+      "tag": "0000_cuddly_jetstream",
       "breakpoints": true
     }
   ]
