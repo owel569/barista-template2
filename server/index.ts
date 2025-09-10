@@ -44,21 +44,35 @@ async function startApplication() {
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-  // 1. Créer le serveur Vite en mode middleware
-  const vite = await createViteServer({
+  // 1. Créer le serveur Vite en mode middleware avec configuration optimisée pour Replit
+  const isReplit = process.env.REPL_ID !== undefined;
+  const viteConfig = {
     server: {
       middlewareMode: true,
-      hmr: false, // Désactiver HMR WebSocket en environnement Replit
-      allowedHosts: true
+      allowedHosts: true,
+      ...(isReplit ? {
+        hmr: false,
+        ws: false
+      } : {
+        hmr: { 
+          port: 24678,
+          clientPort: 24678 
+        }
+      })
     },
     root: path.resolve(__dirname, '../client'),
     appType: 'spa',
-    logLevel: 'warn',
+    logLevel: isReplit ? 'error' : 'warn', // Moins de logs sur Replit
     clearScreen: false,
+    define: {
+      __HMR__: !isReplit // Désactiver complètement HMR sur Replit
+    },
     optimizeDeps: {
       include: ['react', 'react-dom']
     }
-  });
+  } as any; // Type assertion pour éviter les problèmes de type complexes
+
+  const vite = await createViteServer(viteConfig);
 
   // 2. Routes API (avant Vite pour éviter l'interception)
   app.use('/api', apiRoutes);

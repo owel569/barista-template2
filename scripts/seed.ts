@@ -174,9 +174,9 @@ async function seedUsersWithTransaction(tx: unknown): Promise<SeedResult<User>> 
   } catch (error) {
     return {
       success: false,
-      data: [,],
+      data: [],
       count: 0,
-      error: `Erreur création utilisateurs: ${error}rror.message}`
+      error: `Erreur création utilisateurs: ${error instanceof Error ? error.message : error}`
     };
   }
 }
@@ -192,7 +192,7 @@ async function seedEmployeesWithTransaction(tx: unknown): Promise<SeedResult<Emp
         position: 'Barista senior',
         phone: '0123456789',
         email: 'sophie.dubois@barista-cafe.com',
-        hireDate: hireDates[0,],
+        hireDate: hireDates[0],
         salary: 2200
       },
       {
@@ -201,7 +201,7 @@ async function seedEmployeesWithTransaction(tx: unknown): Promise<SeedResult<Emp
         position: 'Serveur',
         phone: '0123456790',
         email: 'antoine.rousseau@barista-cafe.com',
-        hireDate: hireDates[1,],
+        hireDate: hireDates[1],
         salary: 1800
       },
       {
@@ -210,7 +210,7 @@ async function seedEmployeesWithTransaction(tx: unknown): Promise<SeedResult<Emp
         position: 'Pâtissière',
         phone: '0123456791',
         email: 'clara.moreau@barista-cafe.com',
-        hireDate: hireDates[2,],
+        hireDate: hireDates[2],
         salary: 2000
       }
     ];
@@ -225,7 +225,7 @@ async function seedEmployeesWithTransaction(tx: unknown): Promise<SeedResult<Emp
   } catch (error) {
     return {
       success: false,
-      data: [,],
+      data: [],
       count: 0,
       error: `Erreur création employés: ${error.message}`
     };
@@ -284,7 +284,7 @@ async function seedPermissionsWithTransaction(tx: unknown, createdUsers: User[])
   } catch (error) {
     return {
       success: false,
-      data: [,],
+      data: [],
       count: 0,
       error: `Erreur création permissions: ${error.message}`
     };
@@ -313,7 +313,7 @@ async function seedMenuCategoriesWithTransaction(tx: unknown): Promise<SeedResul
   } catch (error) {
     return {
       success: false,
-      data: [,],
+      data: [],
       count: 0,
       error: `Erreur création catégories: ${error.message}`
     };
@@ -368,7 +368,7 @@ async function seedMenuItemsWithTransaction(tx: unknown, categories: MenuCategor
   } catch (error) {
     return {
       success: false,
-      data: [,],
+      data: [],
       count: 0,
       error: `Erreur création éléments de menu: ${error.message}`
     };
@@ -398,7 +398,7 @@ async function seedTablesWithTransaction(tx: unknown): Promise<SeedResult<Table>
   } catch (error) {
     return {
       success: false,
-      data: [,],
+      data: [],
       count: 0,
       error: `Erreur création tables: ${error.message}`
     };
@@ -450,14 +450,14 @@ async function seedCustomersWithTransaction(tx: unknown): Promise<SeedResult<Cus
   } catch (error) {
     return {
       success: false,
-      data: [,],
+      data: [],
       count: 0,
       error: `Erreur création clients: ${error.message}`
     };
   }
 }
 
-async function seedSampleOrdersWithTransaction(tx: unknown, customers: Customer[,], menuItems: MenuItem[]): Promise<{orders: number, orderItems: number}> {
+async function seedSampleOrdersWithTransaction(tx: unknown, customers: Customer[], menuItems: MenuItem[]): Promise<{orders: number, orderItems: number}> {
   try {
     console.log('🛒 Création des commandes d\'exemple...');
 
@@ -512,7 +512,7 @@ async function seedSampleOrdersWithTransaction(tx: unknown, customers: Customer[
   }
 }
 
-async function seedSampleReservationsWithTransaction(tx: unknown, customers: Customer[,], tables: Table[]): Promise<SeedResult<any>> {
+async function seedSampleReservationsWithTransaction(tx: unknown, customers: Customer[], tables: Table[]): Promise<SeedResult<any>> {
   try {
     console.log('📅 Création des réservations d\'exemple...');
 
@@ -557,7 +557,7 @@ async function seedSampleReservationsWithTransaction(tx: unknown, customers: Cus
   } catch (error) {
     return {
       success: false,
-      data: [,],
+      data: [],
       count: 0,
       error: `Erreur création réservations: ${error.message}`
     };

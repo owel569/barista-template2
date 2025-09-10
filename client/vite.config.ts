@@ -13,9 +13,19 @@ export default defineConfig({
     host: '0.0.0.0',
     strictPort: false,
     allowedHosts: true,
-    hmr: {
+    // Configuration HMR optimisée pour Replit
+    hmr: process.env.REPL_ID ? false : {
       port: 24678,
-      clientPort: 24678
+      clientPort: 24678,
+      overlay: false
+    },
+    // Configuration WebSocket pour Replit
+    ws: process.env.REPL_ID ? false : undefined,
+    // Configuration proxy pour éviter les conflits
+    middlewareMode: false,
+    fs: {
+      // Autoriser l'accès aux fichiers de niveau supérieur
+      allow: ['..']
     }
   },
   resolve: {
