@@ -75,30 +75,38 @@ function App() {
               <Switch>
                 {/* ========== ROUTES ADMIN (sans navbar/footer) ========== */}
                 <Route path="/admin" nest>
-                  <AdminLayout>
-                    <Switch>
-                      <Route path="/" component={Dashboard} />
-                      <Route path="/dashboard" component={Dashboard} />
-                      <Route path="/menu">
-                        <MenuManagement userRole="directeur" />
-                      </Route>
-                      <Route path="/orders" component={Orders} />
-                      <Route path="/reservations" component={Reservations} />
-                      <Route path="/customers">
-                        <Customers userRole="directeur" user={null} />
-                      </Route>
-                      <Route path="/statistics">
-                        <Statistics userRole="directeur" />
-                      </Route>
-                      <Route path="/inventory" component={InventoryManagement} />
-                      <Route path="/schedule">
-                        <WorkSchedule userRole="directeur" />
-                      </Route>
-                      <Route path="/permissions" component={PermissionsManagementImproved} />
-                      <Route path="/reports" component={ComprehensiveReportsManager} />
-                      <Route path="/profile" component={UserProfileEnhanced} />
-                    </Switch>
-                  </AdminLayout>
+                  <Switch>
+                    {/* Route de connexion admin sans layout */}
+                    <Route path="/login" component={LoginSimple} />
+                    
+                    {/* Routes admin protégées avec layout */}
+                    <Route>
+                      <AdminLayout>
+                        <Switch>
+                          <Route path="/" component={Dashboard} />
+                          <Route path="/dashboard" component={Dashboard} />
+                          <Route path="/menu">
+                            <MenuManagement userRole="directeur" />
+                          </Route>
+                          <Route path="/orders" component={Orders} />
+                          <Route path="/reservations" component={Reservations} />
+                          <Route path="/customers">
+                            <Customers userRole="directeur" user={null} />
+                          </Route>
+                          <Route path="/statistics">
+                            <Statistics userRole="directeur" />
+                          </Route>
+                          <Route path="/inventory" component={InventoryManagement} />
+                          <Route path="/schedule">
+                            <WorkSchedule userRole="directeur" />
+                          </Route>
+                          <Route path="/permissions" component={PermissionsManagementImproved} />
+                          <Route path="/reports" component={ComprehensiveReportsManager} />
+                          <Route path="/profile" component={UserProfileEnhanced} />
+                        </Switch>
+                      </AdminLayout>
+                    </Route>
+                  </Switch>
                 </Route>
 
                 {/* ========== ROUTES PUBLIQUES (sans navbar pour HomePage) ========== */}
@@ -107,10 +115,28 @@ function App() {
                 {/* Authentification */}
                 <Route path="/login" component={LoginSimple} />
 
-                {/* Routes publiques avec leurs composants dédiés */}
-                <Route path="/menu" component={MenuPage} />
-                <Route path="/gallery" component={GalleryPage} />
-                <Route path="/galerie" component={GalleryPage} />
+                {/* Routes publiques avec navbar/footer */}
+                <Route path="/menu">
+                  <Navbar />
+                  <main className="flex-1">
+                    <MenuPage />
+                  </main>
+                  <Footer />
+                </Route>
+                <Route path="/gallery">
+                  <Navbar />
+                  <main className="flex-1">
+                    <GalleryPage />
+                  </main>
+                  <Footer />
+                </Route>
+                <Route path="/galerie">
+                  <Navbar />
+                  <main className="flex-1">
+                    <GalleryPage />
+                  </main>
+                  <Footer />
+                </Route>
                 <Route path="/contact" component={ContactPage} />
                 <Route path="/reservations" component={ReservationPage} />
                 <Route path="/reservation" component={ReservationPage} />
