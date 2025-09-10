@@ -1,0 +1,42 @@
+client/src/components/admin/inventory-management.tsx:157:19 - error TS2345: Argument of type '{ itemId: number; currentStock: number; minStock: number; itemName: string; severity: "low" | "critical" | "medium" | "high"; createdAt: string; message: string; type: "low_stock" | "out_of_stock" | "overstocked"; priority: "low" | ... 2 more ... | "urgent"; id: {}; }[]' is not assignable to parameter of type 'SetStateAction<StockAlert[]>'.
+  Type '{ itemId: number; currentStock: number; minStock: number; itemName: string; severity: "low" | "critical" | "medium" | "high"; createdAt: string; message: string; type: "low_stock" | "out_of_stock" | "overstocked"; priority: "low" | ... 2 more ... | "urgent"; id: {}; }[]' is not assignable to type 'StockAlert[]'.
+    Type '{ itemId: number; currentStock: number; minStock: number; itemName: string; severity: "low" | "critical" | "medium" | "high"; createdAt: string; message: string; type: "low_stock" | "out_of_stock" | "overstocked"; priority: "low" | ... 2 more ... | "urgent"; id: {}; }' is not assignable to type 'StockAlert'.
+      Types of property 'id' are incompatible.
+        Type '{}' is not assignable to type 'number'.
+
+157         setAlerts(processedAlerts.map(alert => ({
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+158           ...alert,
+    ~~~~~~~~~~~~~~~~~~~
+... 
+167           priority: (alert.priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium'
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+168         })));
+    ~~~~~~~~~~~
+
+client/src/components/admin/maintenance-management.tsx:498:21 - error TS2322: Type '{ title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "low" | "critical" | "medium" | "high"; status: "pending" | "in_progress" | "completed" | "cancelled"; ... 8 more ...; notes: string | null; } | undefined' is not assignable to type 'OriginalMaintenanceTaskFormData | undefined'.
+  Object literal may only specify known properties, and 'createdAt' does not exist in type 'OriginalMaintenanceTaskFormData'.
+
+498                     createdAt: editingTask.createdAt,
+                        ~~~~~~~~~
+
+  client/src/components/admin/MaintenanceTaskForm.tsx:49:3
+    49   initialData?: OriginalMaintenanceTaskFormData | undefined;
+         ~~~~~~~~~~~
+    The expected type comes from property 'initialData' which is declared here on type 'IntrinsicAttributes & MaintenanceTaskFormProps'
+
+client/src/components/admin/maintenance-management.tsx:505:19 - error TS2322: Type '(data: Omit<MaintenanceTask, "id" | "createdAt" | "updatedAt"> & { equipmentId?: number | null; }) => Promise<void>' is not assignable to type '(data: Omit<MaintenanceTask, "id" | "createdAt" | "updatedAt"> & { equipmentId?: number | null; }) => void'.
+  Types of parameters 'data' and 'data' are incompatible.
+    Type 'Omit<import("/home/runner/workspace/client/src/types/maintenance").MaintenanceTask, "id" | "createdAt" | "updatedAt"> & { equipmentId?: number | null; }' is not assignable to type 'Omit<import("/home/runner/workspace/client/src/components/admin/maintenance-management").MaintenanceTask, "id" | "createdAt" | "updatedAt"> & { equipmentId?: number | null; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+      Type 'Omit<MaintenanceTask, "id" | "createdAt" | "updatedAt"> & { equipmentId?: number | null; }' is not assignable to type 'Omit<MaintenanceTask, "id" | "createdAt" | "updatedAt">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+        Types of property 'assignedToId' are incompatible.
+          Type 'string | number | null' is not assignable to type 'number | null'.
+            Type 'string' is not assignable to type 'number'.
+
+505                   onSubmit={editingTask ?
+                      ~~~~~~~~
+
+  client/src/components/admin/MaintenanceTaskForm.tsx:50:3
+    50   onSubmit: (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null }) => void;
+         ~~~~~~~~
+    The expected type comes from property 'onSubmit' which is declared here on type 'IntrinsicAttributes & MaintenanceTaskFormProps'
