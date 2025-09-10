@@ -123,6 +123,7 @@ function App() {
                   </main>
                   <Footer />
                 </Route>
+                
                 <Route path="/gallery">
                   <Navbar />
                   <main className="flex-1">
@@ -130,6 +131,7 @@ function App() {
                   </main>
                   <Footer />
                 </Route>
+                
                 <Route path="/galerie">
                   <Navbar />
                   <main className="flex-1">
@@ -137,9 +139,30 @@ function App() {
                   </main>
                   <Footer />
                 </Route>
-                <Route path="/contact" component={ContactPage} />
-                <Route path="/reservations" component={ReservationPage} />
-                <Route path="/reservation" component={ReservationPage} />
+                
+                <Route path="/contact">
+                  <Navbar />
+                  <main className="flex-1">
+                    <ContactPage />
+                  </main>
+                  <Footer />
+                </Route>
+                
+                <Route path="/reservations">
+                  <Navbar />
+                  <main className="flex-1">
+                    <ReservationPage />
+                  </main>
+                  <Footer />
+                </Route>
+                
+                <Route path="/reservation">
+                  <Navbar />
+                  <main className="flex-1">
+                    <ReservationPage />
+                  </main>
+                  <Footer />
+                </Route>
 
                 {/* Autres routes avec navbar/footer */}
                 <Route>

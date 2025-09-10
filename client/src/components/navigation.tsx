@@ -39,12 +39,20 @@ export default function Navigation(): JSX.Element {
     {
       id: "home",
       label: "Accueil",
+      href: "/",
       icon: <Home className="h-5 w-5" />,
     },
     {
       id: "menu",
       label: "Menu",
+      href: "/menu",
       icon: <Utensils className="h-5 w-5" />,
+    },
+    {
+      id: "gallery",
+      label: "Galerie",
+      href: "/gallery",
+      icon: <MapPin className="h-5 w-5" />,
     },
     {
       id: "reservation",
@@ -53,13 +61,9 @@ export default function Navigation(): JSX.Element {
       icon: <CalendarDays className="h-5 w-5" />,
     },
     {
-      id: "map",
-      label: "Localisation",
-      icon: <MapPin className="h-5 w-5" />,
-    },
-    {
       id: "contact",
       label: "Contact",
+      href: "/contact",
       icon: <Mail className="h-5 w-5" />,
     },
   ];
@@ -115,6 +119,12 @@ export default function Navigation(): JSX.Element {
       // Les liens normaux sont gérés par le composant Link
       return;
     }
+    // Pour la page d'accueil, faire défiler vers les sections
+    if (item.id === "home" && location === "/") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    // Autres actions de scroll si nécessaire
     scrollToSection(item.id);
   };
 
