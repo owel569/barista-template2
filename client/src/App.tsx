@@ -8,6 +8,10 @@ import { LanguageProvider } from '@/contexts/LanguageContext';
 // Pages
 import HomePage from '@/pages/HomePage';
 import LoginSimple from '@/pages/LoginSimple';
+import MenuPage from '@/pages/MenuPage';
+import GalleryPage from '@/pages/GalleryPage';
+import ContactPage from '@/pages/ContactPage';
+import ReservationPage from '@/pages/ReservationPage';
 
 // Layout
 import AdminLayout from '@/layouts/AdminLayout';
@@ -104,32 +108,19 @@ function App() {
                 {/* Authentification */}
                 <Route path="/login" component={LoginSimple} />
 
+                {/* Routes publiques avec leurs composants dédiés */}
+                <Route path="/menu" component={MenuPage} />
+                <Route path="/gallery" component={GalleryPage} />
+                <Route path="/galerie" component={GalleryPage} />
+                <Route path="/contact" component={ContactPage} />
+                <Route path="/reservations" component={ReservationPage} />
+                <Route path="/reservation" component={ReservationPage} />
+
                 {/* Autres routes avec navbar/footer */}
                 <Route>
                   <Navbar />
                   <main className="flex-1">
                     <Switch>
-                      <Route path="/menu">
-                        <SimplePage
-                          title="Menu du Restaurant"
-                          description="Découvrez notre carte de spécialités"
-                        />
-                      </Route>
-
-                      <Route path="/reservations">
-                        <SimplePage
-                          title="Réservations"
-                          description="Réservez votre table en ligne"
-                        />
-                      </Route>
-
-                      <Route path="/contact">
-                        <SimplePage
-                          title="Contact"
-                          description="Contactez-nous pour plus d'informations"
-                        />
-                      </Route>
-
                       <Route path="/register">
                         <SimplePage
                           title="Inscription"
