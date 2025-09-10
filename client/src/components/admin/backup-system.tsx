@@ -64,7 +64,7 @@ function useBackupData() {
       const settingsData = await settingsRes.json();
 
       const processedBackups = Array.isArray(backupsData)
-        ? backupsData.map((b: any) => ({
+        ? backupsData.map((b: Record<string, unknown>) => ({
             ...b,
             size: Number(b.size) || 0,
             tables: Array.isArray(b.tables) ? b.tables : [],
@@ -73,8 +73,9 @@ function useBackupData() {
 
       setBackups(processedBackups);
       setSettings(settingsData);
-    } catch (e: any) {
-      setError(e.message || 'Erreur inconnue');
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : 'Erreur lors du chargement des sauvegardes';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

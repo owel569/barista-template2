@@ -123,7 +123,7 @@ export default function InventoryManagement() : JSX.Element {
 
       if (itemsRes.ok) {
         const itemsData = await itemsRes.json();
-        const processedItems = (itemsData || []).map((item: any) => ({
+        const processedItems = (itemsData || []).map((item: Record<string, unknown>) => ({
           ...item,
           currentStock: Number(item.currentStock) || 0,
           minStock: Number(item.minStock) || 0,
@@ -139,8 +139,15 @@ export default function InventoryManagement() : JSX.Element {
 
       if (alertsRes.ok) {
         const alertsData = await alertsRes.json();
-        const processedAlerts = Array.isArray(alertsData) ? alertsData.map((alert: any) => ({
-          ...alert,
+        const processedAlerts = Array.isArray(alertsData) ? alertsData.map((alert: Record<string, unknown>) => ({
+          id: alert.id || Math.random().toString(),
+          itemId: alert.itemId || alert.id || '',
+          itemName: alert.itemName || alert.name || 'Article inconnu',
+          severity: alert.severity || 'medium',
+          createdAt: alert.createdAt || new Date().toISOString(),
+          message: alert.message || 'Alerte de stock',
+          type: alert.type || 'stock_low',
+          priority: alert.priority || 'medium',
           currentStock: Number(alert.currentStock) || 0,
           minStock: Number(alert.minStock) || 0
         })) : [];
