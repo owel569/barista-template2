@@ -27,6 +27,10 @@ import { PermissionsManagementImproved } from '@/components/admin/permissions-ma
 import ComprehensiveReportsManager from '@/components/admin/ComprehensiveReportsManager';
 import UserProfileEnhanced from '@/components/admin/user-profile-enhanced-optimized';
 
+// Debug Component
+import { DebugCSS } from '@/components/debug-css';
+
+
 // Configuration React Query
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -49,99 +53,112 @@ const SimplePage = ({ title, description }: { title: string; description: string
 );
 
 function App() {
+  // Ensure CSS is loaded
+  if (typeof window !== 'undefined') {
+    // Force CSS application
+    document.documentElement.classList.add('css-loaded');
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <AuthProvider>
           <Router>
-          <div className="min-h-screen bg-background flex flex-col">
-            <Switch>
-              {/* ========== ROUTES ADMIN (sans navbar/footer) ========== */}
-              <Route path="/admin" nest>
-                <AdminLayout>
-                  <Switch>
-                    <Route path="/" component={Dashboard} />
-                    <Route path="/dashboard" component={Dashboard} />
-                    <Route path="/menu">
-                      <MenuManagement userRole="directeur" />
-                    </Route>
-                    <Route path="/orders" component={Orders} />
-                    <Route path="/reservations" component={Reservations} />
-                    <Route path="/customers">
-                      <Customers userRole="directeur" user={null} />  
-                    </Route>
-                    <Route path="/statistics">
-                      <Statistics userRole="directeur" />
-                    </Route>
-                    <Route path="/inventory" component={InventoryManagement} />
-                    <Route path="/schedule">
-                      <WorkSchedule userRole="directeur" />
-                    </Route>
-                    <Route path="/permissions" component={PermissionsManagementImproved} />
-                    <Route path="/reports" component={ComprehensiveReportsManager} />
-                    <Route path="/profile" component={UserProfileEnhanced} />
-                  </Switch>
-                </AdminLayout>
-              </Route>
+            <div className="min-h-screen w-full bg-coffee-light text-coffee-dark" style={{
+              backgroundColor: 'hsl(42, 33%, 96%)',
+              color: 'hsl(30, 67%, 16%)',
+              fontFamily: "'Inter', system-ui, sans-serif"
+            }}>
+              <Switch>
+                {/* ========== ROUTES ADMIN (sans navbar/footer) ========== */}
+                <Route path="/admin" nest>
+                  <AdminLayout>
+                    <Switch>
+                      <Route path="/" component={Dashboard} />
+                      <Route path="/dashboard" component={Dashboard} />
+                      <Route path="/menu">
+                        <MenuManagement userRole="directeur" />
+                      </Route>
+                      <Route path="/orders" component={Orders} />
+                      <Route path="/reservations" component={Reservations} />
+                      <Route path="/customers">
+                        <Customers userRole="directeur" user={null} />
+                      </Route>
+                      <Route path="/statistics">
+                        <Statistics userRole="directeur" />
+                      </Route>
+                      <Route path="/inventory" component={InventoryManagement} />
+                      <Route path="/schedule">
+                        <WorkSchedule userRole="directeur" />
+                      </Route>
+                      <Route path="/permissions" component={PermissionsManagementImproved} />
+                      <Route path="/reports" component={ComprehensiveReportsManager} />
+                      <Route path="/profile" component={UserProfileEnhanced} />
+                    </Switch>
+                  </AdminLayout>
+                </Route>
 
-              {/* ========== ROUTES PUBLIQUES (sans navbar pour HomePage) ========== */}
-              <Route path="/" component={HomePage} />
+                {/* ========== ROUTES PUBLIQUES (sans navbar pour HomePage) ========== */}
+                <Route path="/" component={HomePage} />
 
-              {/* Authentification */}
-              <Route path="/login" component={LoginSimple} />
+                {/* Authentification */}
+                <Route path="/login" component={LoginSimple} />
 
-              {/* Autres routes avec navbar/footer */}
-              <Route>
-                <Navbar />
-                <main className="flex-1">
-                  <Switch>
-                    <Route path="/menu">
-                      <SimplePage 
-                        title="Menu du Restaurant" 
-                        description="Découvrez notre carte de spécialités" 
-                      />
-                    </Route>
+                {/* Autres routes avec navbar/footer */}
+                <Route>
+                  <Navbar />
+                  <main className="flex-1">
+                    <Switch>
+                      <Route path="/menu">
+                        <SimplePage
+                          title="Menu du Restaurant"
+                          description="Découvrez notre carte de spécialités"
+                        />
+                      </Route>
 
-                    <Route path="/reservations">
-                      <SimplePage 
-                        title="Réservations" 
-                        description="Réservez votre table en ligne" 
-                      />
-                    </Route>
+                      <Route path="/reservations">
+                        <SimplePage
+                          title="Réservations"
+                          description="Réservez votre table en ligne"
+                        />
+                      </Route>
 
-                    <Route path="/contact">
-                      <SimplePage 
-                        title="Contact" 
-                        description="Contactez-nous pour plus d'informations" 
-                      />
-                    </Route>
+                      <Route path="/contact">
+                        <SimplePage
+                          title="Contact"
+                          description="Contactez-nous pour plus d'informations"
+                        />
+                      </Route>
 
-                    <Route path="/register">
-                      <SimplePage 
-                        title="Inscription" 
-                        description="Créez votre compte" 
-                      />
-                    </Route>
+                      <Route path="/register">
+                        <SimplePage
+                          title="Inscription"
+                          description="Créez votre compte"
+                        />
+                      </Route>
 
-                    {/* 404 */}
-                    <Route>
-                      <SimplePage 
-                        title="Page non trouvée" 
-                        description="La page que vous cherchez n'existe pas" 
-                      />
-                    </Route>
-                  </Switch>
-                </main>
-                <Footer />
-              </Route>
-            </Switch>
+                      {/* 404 */}
+                      <Route>
+                        <SimplePage
+                          title="Page non trouvée"
+                          description="La page que vous cherchez n'existe pas"
+                        />
+                      </Route>
+                    </Switch>
+                  </main>
+                  <Footer />
+                </Route>
+              </Switch>
 
-            {/* Notifications Toast */}
-            <Toaster />
-          </div>
-        </Router>
-      </AuthProvider>
-    </LanguageProvider>
+              {/* Debug CSS Component */}
+              <DebugCSS />
+
+              {/* Notifications Toast */}
+              <Toaster />
+            </div>
+          </Router>
+        </AuthProvider>
+      </LanguageProvider>
     </QueryClientProvider>
   );
 }
