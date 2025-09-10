@@ -44,6 +44,7 @@ export default function Navigation(): JSX.Element {
     {
       id: "menu",
       label: "Menu",
+      href: "/menu",
       icon: <Utensils className="h-5 w-5" />,
     },
     {
@@ -55,6 +56,12 @@ export default function Navigation(): JSX.Element {
     {
       id: "map",
       label: "Localisation",
+      icon: <MapPin className="h-5 w-5" />,
+    },
+    {
+      id: "gallery",
+      label: "Galerie",
+      href: "/gallery",
       icon: <MapPin className="h-5 w-5" />,
     },
     {

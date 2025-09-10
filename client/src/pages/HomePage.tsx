@@ -12,12 +12,24 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <Hero />
-      <Menu />
-      <Reservation />
-      <About />
-      <Gallery />
-      <Contact />
+      <section id="home">
+        <Hero />
+      </section>
+      <section id="menu">
+        <Menu />
+      </section>
+      <section id="reservation">
+        <Reservation />
+      </section>
+      <section id="about">
+        <About />
+      </section>
+      <section id="gallery">
+        <Gallery />
+      </section>
+      <section id="contact">
+        <Contact />
+      </section>
       <Footer />
     </div>
   );
