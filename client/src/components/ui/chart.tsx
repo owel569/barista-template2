@@ -306,7 +306,7 @@ const ChartTooltipContent = React.forwardRef<
     // Mémorisation des classes CSS du conteneur
     const containerClasses = React.useMemo(
       () => cn(
-        "grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl",
+        "grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-gray-200/50 bg-background px-2.5 py-1.5 text-xs shadow-xl",
         className
       ),
       [className]

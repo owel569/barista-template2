@@ -14,9 +14,9 @@ const accordionItemVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-border",
-        bordered: "border border-border rounded-lg mb-2 last:mb-0",
-        filled: "bg-muted/50 border border-border rounded-lg mb-2 last:mb-0 px-4",
+        default: "border-gray-200",
+        bordered: "border border-gray-200 rounded-lg mb-2 last:mb-0",
+        filled: "bg-muted/50 border border-gray-200 rounded-lg mb-2 last:mb-0 px-4",
         ghost: "border-transparent",
       },
     },

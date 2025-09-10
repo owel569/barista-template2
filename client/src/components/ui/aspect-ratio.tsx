@@ -13,7 +13,7 @@ const aspectRatioVariants = cva(
         default: "",
         rounded: "rounded-lg",
         circle: "rounded-full",
-        bordered: "border border-border",
+        bordered: "border border-gray-200",
       },
     },
     defaultVariants: {

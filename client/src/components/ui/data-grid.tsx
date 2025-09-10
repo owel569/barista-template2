@@ -300,7 +300,7 @@ export function DataGrid<T = Record<string, unknown>>({
       {/* Tableau */}
       <div className={cn(
         "relative border rounded-lg",
-        bordered && "border-border",
+        bordered && "border-gray-200",
         !bordered && "border-transparent"
       )}>
         <div className={cn(
