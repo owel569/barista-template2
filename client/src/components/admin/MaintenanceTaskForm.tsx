@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { MaintenanceTask } from '@/types/maintenance';
+import type { MaintenanceTask, MaintenanceTaskFormData } from '@/types/maintenance';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -18,35 +18,17 @@ import {
 import { Label } from '@/components/ui/label';
 import { Equipment, Technician } from './maintenance-management';
 
-import type { MaintenanceTaskFormData as OriginalMaintenanceTaskFormData } from '@/types/maintenance-extended';
-
-interface MaintenanceTaskFormData {
+interface MaintenanceTaskFormProps extends Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> {
   id?: string;
-  title: string;
-  description: string;
-  type: 'preventive' | 'corrective' | 'emergency';
-  priority: 'low' | 'medium' | 'high' | 'critical';
-  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
-  assignedTo?: string;
-  assignedToId?: number | string | undefined;
   equipmentId?: number | null;
-  scheduledDate: string;
-  completedDate?: string | null;
-  notes?: string;
-  estimatedDuration?: number;
-  cost?: number;
   createdAt?: string;
   updatedAt?: string;
-}
-
-interface OriginalMaintenanceTaskFormData extends Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> {
-  equipmentId?: number | null;
 }
 
 interface MaintenanceTaskFormProps {
   equipmentList: Equipment[];
   technicians: Technician[];
-  initialData?: OriginalMaintenanceTaskFormData | undefined;
+  initialData?: MaintenanceTaskFormProps | undefined;
   onSubmit: (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null }) => void;
   onCancel: () => void;
 }
@@ -84,7 +66,7 @@ export function MaintenanceTaskForm({
       type: initialData.type || defaultValues.type,
       priority: initialData.priority || defaultValues.priority,
       status: initialData.status || defaultValues.status,
-      assignedTo: initialData.assignedTo || defaultValues.assignedTo,
+      assignedTo: initialData.assignedTo || defaultValues.assignedTo || '',
       assignedToId: initialData.assignedToId || defaultValues.assignedToId,
       equipmentId: initialData.equipmentId !== undefined ? initialData.equipmentId : defaultValues.equipmentId,
       scheduledDate: initialData.scheduledDate || defaultValues.scheduledDate,
@@ -147,13 +129,13 @@ export function MaintenanceTaskForm({
       setFormData(prev => ({
         ...prev,
         assignedTo: selectedTechnician.name,
-        assignedToId: selectedTechnician.id || null,
+        assignedToId: selectedTechnician.id,
       }));
     } else {
       setFormData(prev => ({
         ...prev,
         assignedTo: '',
-        assignedToId: null,
+        assignedToId: undefined,
       }));
     }
   };
@@ -167,7 +149,8 @@ export function MaintenanceTaskForm({
       equipmentId: formData.equipmentId !== null && formData.equipmentId !== undefined ? Number(formData.equipmentId) : null,
       priority: formData.priority as 'low' | 'medium' | 'high' | 'critical',
       status: formData.status || 'pending',
-      assignedToId: typeof formData.assignedToId === 'string' ? Number(formData.assignedToId) : formData.assignedToId,
+      assignedTo: formData.assignedTo,
+      assignedToId: formData.assignedToId || null,
       scheduledDate: formData.scheduledDate!,
       estimatedDuration: formData.estimatedDuration!,
       cost: formData.cost || 0,

@@ -6,7 +6,7 @@ export interface MaintenanceTask {
   priority: 'low' | 'medium' | 'high' | 'critical';
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
   assignedTo?: string;
-  assignedToId?: string | number | null;
+  assignedToId?: number | null;
   equipmentId?: number | null;
   scheduledDate?: string;
   completedDate?: string;
@@ -39,8 +39,8 @@ export interface MaintenanceTaskFormData {
   priority: 'low' | 'medium' | 'high' | 'critical';
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
   assignedTo?: string;
-  assignedToId?: string | number | null;
-  equipmentId?: string | number | null;
+  assignedToId?: number | null;
+  equipmentId?: number | null;
   scheduledDate?: string;
   completedDate?: string;
   notes?: string;

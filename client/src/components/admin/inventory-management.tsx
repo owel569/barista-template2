@@ -154,15 +154,16 @@ export default function InventoryManagement() : JSX.Element {
           currentStock: alert.currentStock || 0,
           minStock: alert.minStock || 0
         })) : [];
-        setAlerts(processedAlerts.map(alert => ({
+        setAlerts(processedAlerts.map((alert, index) => ({
           ...alert,
-          itemId: Number(alert.itemId) || 0,
-          currentStock: Number(alert.currentStock) || 0,
-          minStock: Number(alert.minStock) || 0,
-          itemName: String(alert.itemName || 'Item inconnu'),
+          id: alert.id || Date.now() + index,
+          itemId: alert.itemId,
+          currentStock: alert.currentStock,
+          minStock: alert.minStock,
+          itemName: alert.itemName,
           severity: (alert.severity as 'low' | 'medium' | 'high' | 'critical') || 'medium',
-          createdAt: String(alert.createdAt || new Date().toISOString()),
-          message: String(alert.message || 'Alerte de stock'),
+          createdAt: alert.createdAt || new Date().toISOString(),
+          message: alert.message,
           type: (alert.type as 'low_stock' | 'out_of_stock' | 'overstocked') || 'low_stock',
           priority: (alert.priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium'
         })));
