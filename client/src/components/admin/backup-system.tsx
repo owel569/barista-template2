@@ -65,8 +65,12 @@ function useBackupData() {
 
       const processedBackups = Array.isArray(backupsData)
         ? backupsData.map((b: Record<string, unknown>) => ({
-            ...b,
-            size: Number(b.size) || 0,
+            id: typeof b.id === 'number' ? b.id : Date.now(),
+            name: typeof b.name === 'string' ? b.name : `backup-${Date.now()}`,
+            type: b.type === 'manual' || b.type === 'automatic' ? b.type : 'manual',
+            status: b.status === 'completed' || b.status === 'in_progress' || b.status === 'failed' ? b.status : 'completed',
+            createdAt: typeof b.createdAt === 'string' ? b.createdAt : new Date().toISOString(),
+            size: typeof b.size === 'number' ? b.size : 0,
             tables: Array.isArray(b.tables) ? b.tables : [],
           }))
         : [];

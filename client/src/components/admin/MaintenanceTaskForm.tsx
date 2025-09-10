@@ -18,19 +18,12 @@ import {
 import { Label } from '@/components/ui/label';
 import { Equipment, Technician } from './maintenance-management';
 
+import type { MaintenanceTaskFormData } from '@/types/maintenance-extended';
+
 interface MaintenanceTaskFormProps {
   equipmentList: Equipment[];
   technicians: Technician[];
-  initialData?: Partial<Omit<MaintenanceTask, 'assignedToId'>> & {
-    id?: string;
-    equipmentId?: string | null;
-    completedDate?: string | null;
-    notes?: string | null;
-    priority?: string;
-    createdAt?: string;
-    updatedAt?: string;
-    assignedToId?: number | null | undefined;
-  } | undefined;
+  initialData?: MaintenanceTaskFormData | undefined;
   onSubmit: (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null }) => void;
   onCancel: () => void;
 }

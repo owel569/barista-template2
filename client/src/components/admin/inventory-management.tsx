@@ -71,6 +71,9 @@ interface StockAlert {
   severity: AlertSeverity;
   createdAt: string;
   resolved?: boolean;
+  message: string;
+  type: string;
+  priority: string;
 }
 
 interface Supplier {
@@ -108,7 +111,7 @@ export default function InventoryManagement() : JSX.Element {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      
+
       const [itemsRes, alertsRes, suppliersRes] = await Promise.all([
         fetch('/api/admin/inventory/items', {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -140,16 +143,16 @@ export default function InventoryManagement() : JSX.Element {
       if (alertsRes.ok) {
         const alertsData = await alertsRes.json();
         const processedAlerts = Array.isArray(alertsData) ? alertsData.map((alert: Record<string, unknown>) => ({
-          id: alert.id || Math.random().toString(),
-          itemId: alert.itemId || alert.id || '',
-          itemName: alert.itemName || alert.name || 'Article inconnu',
-          severity: alert.severity || 'medium',
+          id: alert.id || Date.now(),
+          itemId: alert.itemId || 0,
+          itemName: alert.itemName || 'Unknown Item',
+          severity: alert.severity || 'low',
           createdAt: alert.createdAt || new Date().toISOString(),
-          message: alert.message || 'Alerte de stock',
-          type: alert.type || 'stock_low',
-          priority: alert.priority || 'medium',
-          currentStock: Number(alert.currentStock) || 0,
-          minStock: Number(alert.minStock) || 0
+          message: alert.message || 'Stock alert',
+          type: alert.type || 'low_stock',
+          priority: alert.priority || 'low',
+          currentStock: alert.currentStock || 0,
+          minStock: alert.minStock || 0
         })) : [];
         setAlerts(processedAlerts);
       }
@@ -183,15 +186,15 @@ export default function InventoryManagement() : JSX.Element {
 
   const getSortedItems = () => {
     if (!sortConfig) return filteredItems;
-    
+
     return [...filteredItems].sort((a, b) => {
       const aValue = a[sortConfig.key];
       const bValue = b[sortConfig.key];
-      
+
       if (aValue === undefined || bValue === undefined) {
         return 0;
       }
-      
+
       if (aValue < bValue) {
         return sortConfig.direction === 'ascending' ? -1 : 1;
       }
@@ -230,7 +233,7 @@ export default function InventoryManagement() : JSX.Element {
   const updateStock = async (itemId: number, newStock: number) => {
     try {
       const token = localStorage.getItem('token');
-      
+
       const response = await fetch(`/api/admin/inventory/items/${itemId}/stock`, {
         method: 'PUT',
         headers: {
@@ -302,7 +305,7 @@ export default function InventoryManagement() : JSX.Element {
       'ID', 'Nom', 'Catégorie', 'Stock Actuel', 'Stock Min', 'Stock Max',
       'Coût Unitaire', 'Fournisseur', 'Dernière Réappro', 'Statut'
     ];
-    
+
     const data = filteredItems.map(item => [
       item.id,
       item.name,
@@ -340,13 +343,13 @@ export default function InventoryManagement() : JSX.Element {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          item.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.barcode?.includes(searchTerm);
-    
+
     const matchesCategory = selectedCategories.length === 0 || 
                           selectedCategories.includes(item.category);
-    
+
     const matchesSupplier = selectedSuppliers.length === 0 || 
                           selectedSuppliers.includes(item.supplier);
-    
+
     return matchesSearch && matchesCategory && matchesSupplier;
   });
 
@@ -490,7 +493,7 @@ export default function InventoryManagement() : JSX.Element {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline">
@@ -836,7 +839,7 @@ export default function InventoryManagement() : JSX.Element {
                   const supplierItems = items.filter(item => item.supplier === supplier.name);
                   const totalValue = supplierItems.reduce((sum, item) => sum + (item.currentStock * item.unitCost), 0);
                   const criticalItems = supplierItems.filter(item => item.status === 'critical' || item.status === 'out').length;
-                  
+
                   return (
                     <div key={`supplier-${supplier.id}`} className="border rounded-lg p-4">
                       <div className="flex items-center justify-between mb-2">
@@ -882,7 +885,7 @@ export default function InventoryManagement() : JSX.Element {
                     const categoryItems = items.filter(item => item.category === category);
                     const totalValue = categoryItems.reduce((sum, item) => sum + (item.currentStock * item.unitCost), 0);
                     const criticalItems = categoryItems.filter(item => item.status === 'critical' || item.status === 'out').length;
-                    
+
                     return (
                       <div key={`category-${category}`} className="flex items-center justify-between">
                         <div>

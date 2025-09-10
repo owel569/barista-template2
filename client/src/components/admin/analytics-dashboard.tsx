@@ -46,7 +46,7 @@ const exportToJSON = (data: Record<string, unknown>, filename: string) => {
 };
 
 const exportToCSV = (data: Record<string, unknown>[], filename: string) => {
-  const headers = Object.keys(data[0]);
+  const headers = data && data.length > 0 ? Object.keys(data[0]) : [];
   const csvContent = [
     headers.join(','),
     ...data.map(row => headers.map(header => row[header]).join(','))
