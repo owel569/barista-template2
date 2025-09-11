@@ -1,5 +1,16 @@
-/* Directives Tailwind CSS - Ces directives sont traitées par PostCSS + Tailwind */
-/* L'éditeur peut signaler des erreurs mais elles sont normales et fonctionnent correctement */
+/* 
+ * DIRECTIVES TAILWIND CSS - FONCTIONNEMENT NORMAL
+ * 
+ * Les directives @tailwind et @apply ci-dessous sont CORRECTES et FONCTIONNELLES.
+ * Si VSCode affiche des erreurs "Unknown at rule", c'est NORMAL car :
+ * 
+ * 1. Ces directives sont traitées par PostCSS + Tailwind pendant la compilation
+ * 2. Elles ne sont pas des règles CSS standard mais des directives spéciales
+ * 3. L'application fonctionne parfaitement malgré ces avertissements
+ * 
+ * Solution : Les fichiers .vscode/settings.json et .vscode/css_custom_data.json
+ * configurent l'éditeur pour reconnaître ces directives.
+ */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
