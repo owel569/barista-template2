@@ -185,7 +185,7 @@ class AIService {
         )
       );
 
-    const totalGuests = existingReservations.reduce((sum, r) => sum + r.partySize, 0);
+    const totalGuests = existingReservations.reduce((sum: number, r: any) => sum + r.partySize, 0);
 
       // Logique simplifiée de disponibilité
       const isWeekend = new Date(date).getDay() === 0 || new Date(date).getDay() === 6;

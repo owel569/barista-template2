@@ -250,6 +250,10 @@ class UserProfileService {
       const totalSpent = customerOrders.reduce((sum: number, order: any) => sum + Number(order.totalAmount), 0);
 
       // Statistiques des visites ce mois
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+      
       const visitsThisMonth = customerOrders.filter((order: any) => {
         const orderDate = new Date(order.createdAt);
         return orderDate.getMonth() === currentMonth && 

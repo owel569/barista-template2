@@ -438,10 +438,10 @@ router.get('/revenue-chart',
       dateLabel,
       data: revenueData,
       summary: {
-        totalRevenue: revenueData.reduce((sum, item) => sum + item.revenue, 0),
-        totalOrders: revenueData.reduce((sum, item) => sum + item.orderCount, 0),
-        averageRevenuePerPeriod: revenueData.length > 0 ?
-          revenueData.reduce((sum, item) => sum + item.revenue, 0) / revenueData.length : 0
+        totalRevenue: revenueData.reduce((sum: number, item: any) => sum + item.revenue, 0),
+        totalOrders: revenueData.reduce((sum: number, item: any) => sum + item.orderCount, 0),
+        averageOrderValue: revenueData.length > 0 ?
+          revenueData.reduce((sum: number, item: any) => sum + item.revenue, 0) / revenueData.length : 0
       }
     };
 

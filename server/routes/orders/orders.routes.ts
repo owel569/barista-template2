@@ -149,7 +149,8 @@ router.get('/',
         orderId: orderItems.orderId,
         menuItemId: orderItems.menuItemId,
         quantity: orderItems.quantity,
-        price: orderItems.price,
+        unitPrice: orderItems.unitPrice,
+        totalPrice: orderItems.totalPrice,
         menuItemName: menuItems.name
       })
       .from(orderItems)
@@ -169,7 +170,7 @@ router.get('/',
     }, {} as Record<string, any[]>);
 
     // Combiner les données
-    const result = ordersData.map(order => ({
+    const result = ordersData.map((order: any) => ({
       ...order,
       items: groupedItems[order.id] || []
     }));
@@ -279,7 +280,7 @@ router.post('/',
     // Calculer les totaux
     let subtotal = 0;
     const itemsWithPrices = orderItemsData.map((item: OrderItemData) => {
-      const menuItem = menuItemsFromDb.find(mi => mi.id === item.menuItemId);
+      const menuItem = menuItemsFromDb.find((mi: any) => mi.id === item.menuItemId);
       if (!menuItem) {
         throw new Error(`Article ${item.menuItemId} non trouvé`);
       }
@@ -415,8 +416,8 @@ router.get('/stats/realtime',
 
     const result = {
       today: {
-        totalOrders: stats.reduce((sum, stat) => sum + stat.count, 0),
-        totalRevenue: stats.reduce((sum, stat) => sum + (stat.totalRevenue || 0), 0),
+        totalOrders: stats.reduce((sum: number, stat: any) => sum + stat.count, 0),
+        totalRevenue: stats.reduce((sum: number, stat: any) => sum + (stat.totalRevenue || 0), 0),
         byStatus: stats
       }
     };

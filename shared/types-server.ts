@@ -440,9 +440,10 @@ export interface OrderStatistics {
 }
 
 export interface RevenueData {
+  date: Date;
   revenue: number;
-  orderCount: number;
-  date?: string;
+  orders: number;
+  averageOrderValue: number;
 }
 
 export interface LoyaltyTransaction {

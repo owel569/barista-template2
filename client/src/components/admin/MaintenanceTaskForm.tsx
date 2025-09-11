@@ -20,7 +20,7 @@ import { Label } from '@/components/ui/label';
 interface MaintenanceTaskFormProps {
   equipmentList: Equipment[];
   technicians: Technician[];
-  initialData?: MaintenanceTaskFormData;
+  initialData?: MaintenanceTask | MaintenanceTaskFormData;
   onSubmit: (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null }) => Promise<void>;
   onCancel: () => void;
 }

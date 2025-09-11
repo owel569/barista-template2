@@ -1,13 +1,27 @@
 import { getDbAsync, connection } from '../server/db';
+import { hash } from 'bcryptjs';
+
+// Utilitaire de sécurité
+const SecurityUtils = {
+  async hashPassword(password: string): Promise<string> {
+    return await hash(password, 12);
+  }
+};
 import { sql } from 'drizzle-orm';
 import {
   users, menuCategories, menuItems, tables, customers, employees,
   orders, orderItems, permissions, reservations
 } from '../shared/schema';
-import type {
-  User, MenuCategory, MenuItem, Table, Customer, Employee,
-  Order, OrderItem, Permission
-} from '../shared/schema';
+// Types inférés du schéma
+type User = typeof users.$inferSelect;
+type MenuCategory = typeof menuCategories.$inferSelect;
+type MenuItem = typeof menuItems.$inferSelect;
+type Table = typeof tables.$inferSelect;
+type Customer = typeof customers.$inferSelect;
+type Employee = typeof employees.$inferSelect;
+type Order = typeof orders.$inferSelect;
+type OrderItem = typeof orderItems.$inferSelect;
+type Permission = typeof permissions.$inferSelect;
 
 // Types pour le seeding
 interface SeedResult<T> {

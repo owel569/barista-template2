@@ -126,14 +126,14 @@ router.get('/recent-activities', authenticateUser, async (req, res) => {
       .limit(5);
 
     const activities = [
-      ...recentReservations.map((res, index) => ({
+      ...recentReservations.map((res: any, index: number) => ({
         id: res.id,
         type: 'reservation' as const,
         message: `Nouvelle réservation - Table ${res.tableNumber}`,
         time: `Il y a ${index + 1} minute${index > 0 ? 's' : ''}`,
         status: 'success' as const
       })),
-      ...recentOrders.map((order, index) => ({
+      ...recentOrders.map((order: any, index: number) => ({
         id: order.id + 1000,
         type: 'order' as const,
         message: `Commande #${order.id} ${order.status === 'delivered' ? 'terminée' : 'en cours'}`,

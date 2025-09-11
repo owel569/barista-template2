@@ -306,10 +306,10 @@ router.get('/status',
 
     const stats = {
       total: tableStatuses.length,
-      available: tableStatuses.filter(t => t.status === 'available').length,
-      occupied: tableStatuses.filter(t => t.status === 'occupied').length,
-      reserved: tableStatuses.filter(t => t.status === 'reserved').length,
-      maintenance: tableStatuses.filter(t => t.status === 'maintenance').length
+      available: tableStatuses.filter((t: TableStatus) => t.status === 'available').length,
+      occupied: tableStatuses.filter((t: TableStatus) => t.status === 'occupied').length,
+      reserved: tableStatuses.filter((t: TableStatus) => t.status === 'reserved').length,
+      maintenance: tableStatuses.filter((t: TableStatus) => t.status === 'maintenance').length
     };
 
     logger.info('Statut des tables récupéré', stats);

@@ -613,7 +613,7 @@ router.get('/overview',
 
       const totalCustomersCount = totalCustomersResult[0]?.count || 1;
       const levelDistribution = LOYALTY_LEVELS.map(level => {
-        const customersInLevel = customersByPoints.filter(c => {
+        const customersInLevel = customersByPoints.filter((c: any) => {
           const points = c.loyaltyPoints || 0;
           if (level.maxPoints === undefined) {
             return points >= level.minPoints;
@@ -643,7 +643,7 @@ router.get('/overview',
       .limit(10);
 
       const enrichedTopCustomers = await Promise.all(
-        topCustomers.map(async (customer) => {
+        topCustomers.map(async (customer: any) => {
           const transactions = await db.select({
             id: loyaltyTransactions.id,
             customerId: loyaltyTransactions.customerId,
@@ -659,7 +659,7 @@ router.get('/overview',
           .orderBy(desc(loyaltyTransactions.createdAt))
           .limit(50);
 
-          const typedTransactions: LoyaltyTransaction[] = transactions.map(t => ({
+          const typedTransactions: LoyaltyTransaction[] = transactions.map((t: any) => ({
             id: t.id as number,
             customerId: t.customerId as number,
             type: t.type as LoyaltyTransaction['type'],
@@ -699,9 +699,9 @@ router.get('/overview',
       const performanceMetrics = {
         dailyActiveUsers: Math.floor(recentActivity.length / 30),
         averagePointsPerTransaction: recentActivity.length > 0 ?
-          Math.round(recentActivity.reduce((sum, t) => sum + t.points, 0) / recentActivity.length) : 0,
+          Math.round(recentActivity.reduce((sum: number, t: any) => sum + t.points, 0) / recentActivity.length) : 0,
         redemptionRate: recentActivity.length > 0 ?
-          Math.round((recentActivity.filter(t => t.type === 'redeemed').length / recentActivity.length) * 100) : 0
+          Math.round((recentActivity.filter((t: any) => t.type === 'redeemed').length / recentActivity.length) * 100) : 0
       };
 
       res.json({
@@ -774,7 +774,7 @@ router.get('/customer/:customerId',
       .where(eq(loyaltyTransactions.customerId, customerId))
       .orderBy(desc(loyaltyTransactions.createdAt));
 
-      const typedTransactions: LoyaltyTransaction[] = allTransactions.map(t => ({
+      const typedTransactions: LoyaltyTransaction[] = allTransactions.map((t: any) => ({
         id: t.id,
         customerId: t.customerId || 0,
         type: t.type as LoyaltyTransaction['type'],

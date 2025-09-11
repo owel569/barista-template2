@@ -15,7 +15,7 @@ export type MenuItemInsert = typeof menuItems.$inferInsert;
 export type Category = typeof categories.$inferSelect;
 export type CategoryInsert = typeof categories.$inferInsert;
 export type Table = typeof tables.$inferSelect;
-export type TableInsert = typeof tables.$insert;
+export type TableInsert = typeof tables.$inferInsert;
 export type Customer = typeof customers.$inferSelect;
 export type CustomerInsert = typeof customers.$inferInsert;
 export type Reservation = typeof reservations.$inferSelect;
@@ -331,6 +331,9 @@ export class MemStorage implements IStorage {
   }
 
   private generateId(table: string): number {
+    if (!this.counters[table]) {
+      this.counters[table] = 1;
+    }
     return this.counters[table]++;
   }
 
