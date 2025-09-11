@@ -96,8 +96,9 @@
     color: hsl(30, 67%, 16%) !important;
     line-height: 1.6;
     min-height: 100vh;
-    margin: 0;
-    padding: 0;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -113,6 +114,8 @@
     width: 100%;
     display: flex;
     flex-direction: column;
+    margin: 0 !important;
+    padding: 0 !important;
   }
   
   /* Ensure components are visible */
