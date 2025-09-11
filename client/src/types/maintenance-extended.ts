@@ -8,10 +8,13 @@ export interface MaintenanceTaskFormData {
   priority: 'low' | 'medium' | 'high' | 'critical';
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
   equipmentId?: string | null;
-  assignedToId?: number | string | undefined;
+  assignedToId?: number | string | null;
+  assignedTo?: string;
   scheduledDate: string;
   completedDate?: string | null;
   notes?: string;
+  estimatedDuration?: number;
+  cost?: number;
   createdAt?: string;
   updatedAt?: string;
 }

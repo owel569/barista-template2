@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import type { MaintenanceTask, MaintenanceTaskFormData, Equipment, Technician } from '@/types/maintenance';
+import type { MaintenanceTask, Equipment, Technician } from '@/types/maintenance';
+import type { MaintenanceTaskFormData } from '@/types/maintenance-extended';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
