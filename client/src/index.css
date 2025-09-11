@@ -65,6 +65,11 @@
     box-sizing: border-box;
   }
   
+  /* Force l'application des styles Tailwind sur Replit */
+  .tailwind-loaded * {
+    box-sizing: border-box;
+  }
+  
   html {
     scroll-behavior: smooth;
     height: 100%;
