@@ -16,8 +16,6 @@ import {
   handleUncaughtErrors as setupUncaughtExceptionHandlers
 } from './middleware/error-handler-enhanced';
 import { createApiResponse } from './utils/response';
-import tailwindcss from 'tailwindcss';
-import autoprefixer from 'autoprefixer';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = parseInt(process.env.PORT || '5000', 10);
@@ -116,9 +114,20 @@ export function createHotContext(ownerPath) {
   };
 }
 
-// API de styles
-export function updateStyle(id, content) {}
-export function removeStyle(id) {}
+// API de styles - Implémentation fonctionnelle pour injection CSS
+export function updateStyle(id, content) {
+  let el = document.querySelector(\`style[data-vite-dev-id="\${id}"]\`);
+  if (!el) {
+    el = document.createElement('style');
+    el.setAttribute('data-vite-dev-id', id);
+    document.head.appendChild(el);
+  }
+  el.textContent = content;
+}
+export function removeStyle(id) {
+  const el = document.querySelector(\`style[data-vite-dev-id="\${id}"]\`);
+  if (el) el.remove();
+}
 
 // API HMR legacy
 export const hot = {
