@@ -23,7 +23,7 @@ export default function Hero() : JSX.Element {
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
       {/* Background Pattern */}
-      <div 
+      <div
         className="absolute inset-0 bg-cover bg-center bg-fixed"
         style={{
           backgroundImage: "url('https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1920&h=1080')"
@@ -33,9 +33,7 @@ export default function Hero() : JSX.Element {
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className="space-y-8">
-          <div className="flex justify-center mb-8">
-            <img src={logoBaristaCafe} alt="Barista Café Logo" className="h-48 w-48 drop-shadow-2xl" />
-          </div>
+          
           {/* Main Heading */}
           <div className="space-y-4">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight">
@@ -49,16 +47,16 @@ export default function Hero() : JSX.Element {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button 
+            <Button
               onClick={() => setLocation("/reservation")}
               className="bg-coffee-accent hover:bg-opacity-90 text-white px-8 py-3 text-lg font-semibold transition duration-300 transform hover:scale-105"
             >
               <Calendar className="mr-2 h-5 w-5" />
               {t('home.cta.reserve')}
             </Button>
-            <Button 
+            <Button
               onClick={() => scrollToSection("menu")}
-              variant="outline" 
+              variant="outline"
               className="border-2 border-white hover:bg-white hover:text-coffee-dark text-white px-8 py-3 text-lg font-semibold transition duration-300"
             >
               <Utensils className="mr-2 h-5 w-5" />
