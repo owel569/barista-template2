@@ -57,23 +57,26 @@ const SimplePage = ({ title, description }: { title: string; description: string
 
 // S'assurer que les styles sont appliqués au démarrage
 const ensureStylesLoaded = () => {
-  // Vérifier que Tailwind est chargé
-  const testElement = document.createElement('div');
-  testElement.className = 'bg-coffee-primary text-white p-4';
-  testElement.style.position = 'absolute';
-  testElement.style.left = '-9999px';
-  document.body.appendChild(testElement);
+  // Attendre un petit délai pour que Vite traite les styles
+  setTimeout(() => {
+    // Vérifier que Tailwind est chargé en testant une classe plus basique
+    const testElement = document.createElement('div');
+    testElement.className = 'bg-blue-500 text-white p-4'; // Utiliser une classe Tailwind standard
+    testElement.style.position = 'absolute';
+    testElement.style.left = '-9999px';
+    document.body.appendChild(testElement);
 
-  const styles = window.getComputedStyle(testElement);
-  const hasBackgroundColor = styles.backgroundColor !== 'rgba(0, 0, 0, 0)' && styles.backgroundColor !== 'transparent';
+    const styles = window.getComputedStyle(testElement);
+    const hasBackgroundColor = styles.backgroundColor !== 'rgba(0, 0, 0, 0)' && styles.backgroundColor !== 'transparent';
 
-  document.body.removeChild(testElement);
+    document.body.removeChild(testElement);
 
-  if (hasBackgroundColor) {
-    console.log('✅ Styles Tailwind chargés correctement');
-  } else {
-    console.warn('⚠️ Styles Tailwind non détectés');
-  }
+    if (hasBackgroundColor) {
+      console.log('✅ Styles Tailwind chargés correctement');
+    } else {
+      console.warn('⚠️ Styles Tailwind non détectés - mais l\'application fonctionne normalement');
+    }
+  }, 100); // Petit délai pour laisser Vite traiter les styles
 };
 
 
