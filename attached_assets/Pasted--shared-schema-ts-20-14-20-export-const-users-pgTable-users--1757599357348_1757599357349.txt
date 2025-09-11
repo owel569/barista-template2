@@ -1,0 +1,145 @@
+
+  shared/schema.ts:20:14
+    20 export const users = pgTable('users', {
+                    ~~~~~
+    'users' is declared here.
+
+scripts/seed.ts:9:9 - error TS2724: '"../shared/schema"' has no exported member named 'MenuCategory'. Did you mean 'menuCategories'?
+
+9   User, MenuCategory, MenuItem, Table, Customer, Employee,
+          ~~~~~~~~~~~~
+
+  shared/schema.ts:37:14
+    37 export const menuCategories = pgTable("menu_categories", {
+                    ~~~~~~~~~~~~~~
+    'menuCategories' is declared here.
+
+scripts/seed.ts:9:23 - error TS2724: '"../shared/schema"' has no exported member named 'MenuItem'. Did you mean 'menuItems'?
+
+9   User, MenuCategory, MenuItem, Table, Customer, Employee,
+                        ~~~~~~~~
+
+  shared/schema.ts:48:14
+    48 export const menuItems = pgTable('menu_items', {
+                    ~~~~~~~~~
+    'menuItems' is declared here.
+
+scripts/seed.ts:9:33 - error TS2724: '"../shared/schema"' has no exported member named 'Table'. Did you mean 'tables'?
+
+9   User, MenuCategory, MenuItem, Table, Customer, Employee,
+                                  ~~~~~
+
+  shared/schema.ts:80:14
+    80 export const tables = pgTable("tables", {
+                    ~~~~~~
+    'tables' is declared here.
+
+scripts/seed.ts:9:40 - error TS2724: '"../shared/schema"' has no exported member named 'Customer'. Did you mean 'customers'?
+
+9   User, MenuCategory, MenuItem, Table, Customer, Employee,
+                                         ~~~~~~~~
+
+  shared/schema.ts:95:14
+    95 export const customers = pgTable("customers", {
+                    ~~~~~~~~~
+    'customers' is declared here.
+
+scripts/seed.ts:9:50 - error TS2724: '"../shared/schema"' has no exported member named 'Employee'. Did you mean 'employees'?
+
+9   User, MenuCategory, MenuItem, Table, Customer, Employee,
+                                                   ~~~~~~~~
+
+  shared/schema.ts:210:14
+    210 export const employees = pgTable('employees', {
+                     ~~~~~~~~~
+    'employees' is declared here.
+
+scripts/seed.ts:10:3 - error TS2724: '"../shared/schema"' has no exported member named 'Order'. Did you mean 'orders'?
+
+10   Order, OrderItem, Permission
+     ~~~~~
+
+  shared/schema.ts:127:14
+    127 export const orders = pgTable('orders', {
+                     ~~~~~~
+    'orders' is declared here.
+
+scripts/seed.ts:10:10 - error TS2724: '"../shared/schema"' has no exported member named 'OrderItem'. Did you mean 'orderItems'?
+
+10   Order, OrderItem, Permission
+            ~~~~~~~~~
+
+  shared/schema.ts:147:14
+    147 export const orderItems = pgTable("order_items", {
+                     ~~~~~~~~~~
+    'orderItems' is declared here.
+
+scripts/seed.ts:10:21 - error TS2724: '"../shared/schema"' has no exported member named 'Permission'. Did you mean 'permissions'?
+
+10   Order, OrderItem, Permission
+                       ~~~~~~~~~~
+
+  shared/schema.ts:277:14
+    277 export const permissions = pgTable("permissions", {
+                     ~~~~~~~~~~~
+    'permissions' is declared here.
+
+scripts/seed.ts:147:32 - error TS18046: 'tx' is of type 'unknown'.
+
+147     const createdUsers = await tx.insert(users).values(userData).onConflictDoNothing().returning();
+                                   ~~
+
+scripts/seed.ts:189:36 - error TS18046: 'tx' is of type 'unknown'.
+
+189     const createdEmployees = await tx.insert(employees).values(employeeData).onConflictDoNothing().returning();
+                                       ~~
+
+scripts/seed.ts:201:43 - error TS18046: 'error' is of type 'unknown'.
+
+201       error: `Erreur création employés: ${error.message}`
+                                              ~~~~~
+
+scripts/seed.ts:248:38 - error TS18046: 'tx' is of type 'unknown'.
+
+248     const createdPermissions = await tx.insert(permissions).values(permissionData).onConflictDoNothing().returning();
+                                         ~~
+
+scripts/seed.ts:260:46 - error TS18046: 'error' is of type 'unknown'.
+
+260       error: `Erreur création permissions: ${error.message}`
+                                                 ~~~~~
+
+scripts/seed.ts:277:37 - error TS18046: 'tx' is of type 'unknown'.
+
+277     const createdCategories = await tx.insert(menuCategories).values(categoryData).onConflictDoNothing().returning();
+                                        ~~
+
+scripts/seed.ts:289:45 - error TS18046: 'error' is of type 'unknown'.
+
+289       error: `Erreur création catégories: ${error.message}`
+                                                ~~~~~
+
+scripts/seed.ts:332:36 - error TS18046: 'tx' is of type 'unknown'.
+
+332     const createdMenuItems = await tx.insert(menuItems).values(menuItemData).onConflictDoNothing().returning();
+                                       ~~
+
+scripts/seed.ts:344:51 - error TS18046: 'error' is of type 'unknown'.
+
+344       error: `Erreur création éléments de menu: ${error.message}`
+                                                      ~~~~~
+
+scripts/seed.ts:362:33 - error TS18046: 'tx' is of type 'unknown'.
+
+362     const createdTables = await tx.insert(tables).values(tableData).onConflictDoNothing().returning();
+                                    ~~
+
+scripts/seed.ts:374:41 - error TS18046: 'error' is of type 'unknown'.
+
+374       error: `Erreur création tables: ${error.message}`
+                                            ~~~~~
+
+scripts/seed.ts:414:36 - error TS18046: 'tx' is of type 'unknown'.
+
+414     const createdCustomers = await tx.insert(customers).values(customerData).onConflictDoNothing().returning();
+                                       ~~

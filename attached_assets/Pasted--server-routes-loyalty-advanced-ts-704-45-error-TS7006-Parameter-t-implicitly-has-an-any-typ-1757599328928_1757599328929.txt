@@ -1,0 +1,100 @@
+
+server/routes/loyalty-advanced.ts:704:45 - error TS7006: Parameter 't' implicitly has an 'any' type.
+
+704           Math.round((recentActivity.filter(t => t.type === 'redeemed').length / recentActivity.length) * 100) : 0
+                                                ~
+
+server/routes/loyalty-advanced.ts:777:75 - error TS7006: Parameter 't' implicitly has an 'any' type.
+
+777       const typedTransactions: LoyaltyTransaction[] = allTransactions.map(t => ({
+                                                                              ~
+
+server/routes/loyalty-advanced.ts:903:35 - error TS7006: Parameter 'tx' implicitly has an 'any' type.
+
+903       await db.transaction(async (tx) => {
+                                      ~~
+
+server/routes/loyalty-advanced.ts:1039:35 - error TS7006: Parameter 'tx' implicitly has an 'any' type.
+
+1039       await db.transaction(async (tx) => {
+                                       ~~
+
+server/routes/orders/orders.routes.ts:145:37 - error TS7006: Parameter 'order' implicitly has an 'any' type.
+
+145     const orderIds = ordersData.map(order => order.id);
+                                        ~~~~~
+
+server/routes/orders/orders.routes.ts:162:49 - error TS7006: Parameter 'acc' implicitly has an 'any' type.
+
+162     const groupedItems = orderItemsData.reduce((acc, item) => {
+                                                    ~~~
+
+server/routes/orders/orders.routes.ts:162:54 - error TS7006: Parameter 'item' implicitly has an 'any' type.
+
+162     const groupedItems = orderItemsData.reduce((acc, item) => {
+                                                         ~~~~
+
+server/routes/orders/orders.routes.ts:174:35 - error TS7006: Parameter 'order' implicitly has an 'any' type.
+
+174     const result = ordersData.map(order => ({
+                                      ~~~~~
+
+server/routes/orders/orders.routes.ts:284:45 - error TS7006: Parameter 'mi' implicitly has an 'any' type.
+
+284       const menuItem = menuItemsFromDb.find(mi => mi.id === item.menuItemId);
+                                                ~~
+
+server/routes/orders/orders.routes.ts:420:36 - error TS7006: Parameter 'sum' implicitly has an 'any' type.
+
+420         totalOrders: stats.reduce((sum, stat) => sum + stat.count, 0),
+                                       ~~~
+
+server/routes/orders/orders.routes.ts:420:41 - error TS7006: Parameter 'stat' implicitly has an 'any' type.
+
+420         totalOrders: stats.reduce((sum, stat) => sum + stat.count, 0),
+                                            ~~~~
+
+server/routes/orders/orders.routes.ts:421:37 - error TS7006: Parameter 'sum' implicitly has an 'any' type.
+
+421         totalRevenue: stats.reduce((sum, stat) => sum + (stat.totalRevenue || 0), 0),
+                                        ~~~
+
+server/routes/orders/orders.routes.ts:421:42 - error TS7006: Parameter 'stat' implicitly has an 'any' type.
+
+421         totalRevenue: stats.reduce((sum, stat) => sum + (stat.totalRevenue || 0), 0),
+                                             ~~~~
+
+server/routes/tables/tables.routes.ts:243:33 - error TS7006: Parameter 'res' implicitly has an 'any' type.
+
+243     currentReservations.forEach(res => {
+                                    ~~~
+
+server/routes/tables/tables.routes.ts:250:30 - error TS7006: Parameter 'res' implicitly has an 'any' type.
+
+250     nextReservations.forEach(res => {
+                                 ~~~
+
+server/routes/tables/tables.routes.ts:257:41 - error TS7006: Parameter 'table' implicitly has an 'any' type.
+
+257     const tableStatuses = allTables.map(table => {
+                                            ~~~~~
+
+server/routes/tables/tables.routes.ts:261:59 - error TS7006: Parameter 'r' implicitly has an 'any' type.
+
+261       const currentReservation = currentReservations.find(r =>
+                                                              ~
+
+server/routes/tables/tables.routes.ts:268:53 - error TS7006: Parameter 'r' implicitly has an 'any' type.
+
+268       const nextReservation = nextReservations.find(r =>
+                                                        ~
+
+server/routes/tables/tables.routes.ts:307:39 - error TS7006: Parameter 't' implicitly has an 'any' type.
+
+307       available: tableStatuses.filter(t => t.status === 'available').length,
+                                          ~
+
+server/routes/tables/tables.routes.ts:308:38 - error TS7006: Parameter 't' implicitly has an 'any' type.
+
+308       occupied: tableStatuses.filter(t => t.status === 'occupied').length,
+                            
