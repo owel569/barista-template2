@@ -40,6 +40,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from 'sonner';
+import type { AlertSeverity } from '@/components/admin/types/admin-common';
+import type { StockAlert } from '@/types/maintenance';
 // import { InventoryItemForm } from './inventory-item-form';
 
 type InventoryStatus = 'ok' | 'low' | 'critical' | 'out';
@@ -58,22 +60,6 @@ interface InventoryItem {
   status: InventoryStatus;
   barcode?: string;
   location?: string;
-}
-
-type AlertSeverity = 'low' | 'critical' | 'out';
-
-interface StockAlert {
-  id: number;
-  itemId: number;
-  itemName: string;
-  currentStock: number;
-  minStock: number;
-  severity: AlertSeverity;
-  createdAt: string;
-  resolved?: boolean;
-  message: string;
-  type: string;
-  priority: string;
 }
 
 interface Supplier {
@@ -160,7 +146,7 @@ export default function InventoryManagement() : JSX.Element {
           currentStock: Number(alert.currentStock) || 0,
           minStock: Number(alert.minStock) || 0,
           itemName: String(alert.itemName) || 'Unknown Item',
-          severity: (alert.severity as 'low' | 'medium' | 'high' | 'critical') || 'medium',
+          severity: (['low', 'medium', 'high', 'critical'].includes(alert.severity as string) ? alert.severity : 'medium') as 'low' | 'medium' | 'high' | 'critical',
           createdAt: String(alert.createdAt) || new Date().toISOString(),
           message: String(alert.message) || 'Stock alert',
           type: (alert.type as 'low_stock' | 'out_of_stock' | 'overstocked') || 'low_stock',
@@ -368,7 +354,7 @@ export default function InventoryManagement() : JSX.Element {
   const totalValue = items.reduce((sum, item) => sum + (item.currentStock * item.unitCost), 0);
   const lowStockItems = items.filter(item => item.status === 'low' || item.status === 'critical').length;
   const outOfStockItems = items.filter(item => item.status === 'out').length;
-  const activeAlerts = alerts.filter(alert => !alert.resolved);
+  const activeAlerts = alerts.filter(alert => alert.id > 0); // Tous les alerts actifs
 
   if (loading) {
     return (

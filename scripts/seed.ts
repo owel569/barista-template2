@@ -448,21 +448,21 @@ async function seedSampleOrdersWithTransaction(tx: any, customers: Customer[], m
     const orderData = [
       {
         orderNumber: 'ORD001',
-        customerId: customers[0].id,
+        customerId: customers[0]?.id || 1,
         totalAmount: '8.60',
         status: 'delivered',
         orderType: 'dine-in'
       },
       {
         orderNumber: 'ORD002',
-        customerId: customers[1].id,
+        customerId: customers[1]?.id || 2,
         totalAmount: '12.30',
         status: 'preparing',
         orderType: 'takeout'
       },
       {
         orderNumber: 'ORD003',
-        customerId: customers[2].id,
+        customerId: customers[2]?.id || 3,
         totalAmount: '15.70',
         status: 'pending',
         orderType: 'dine-in'

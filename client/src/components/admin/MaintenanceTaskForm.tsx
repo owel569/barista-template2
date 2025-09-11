@@ -51,7 +51,7 @@ export function MaintenanceTaskForm({
   const initializeFormData = (): MaintenanceTaskFormData => {
     if (!initialData) return defaultValues;
 
-    return {
+    const result: MaintenanceTaskFormData = {
       id: initialData.id || '',
       title: initialData.title || defaultValues.title,
       description: initialData.description || defaultValues.description,
@@ -59,16 +59,20 @@ export function MaintenanceTaskForm({
       priority: initialData.priority || defaultValues.priority,
       status: initialData.status || defaultValues.status,
       assignedTo: initialData.assignedTo || defaultValues.assignedTo || '',
-      assignedToId: initialData.assignedToId !== undefined ? initialData.assignedToId : defaultValues.assignedToId,
-      equipmentId: initialData.equipmentId !== undefined ? initialData.equipmentId : defaultValues.equipmentId,
+      assignedToId: initialData.assignedToId ?? null,
+      equipmentId: initialData.equipmentId ?? null,
       scheduledDate: initialData.scheduledDate || defaultValues.scheduledDate,
-      completedDate: initialData.completedDate || defaultValues.completedDate,
-      notes: initialData.notes || defaultValues.notes,
       estimatedDuration: initialData.estimatedDuration || defaultValues.estimatedDuration,
-      cost: initialData.cost || defaultValues.cost,
-      createdAt: initialData.createdAt || '',
-      updatedAt: initialData.updatedAt || ''
+      cost: (initialData.cost !== undefined ? initialData.cost : defaultValues.cost)
     };
+
+    // Ajouter les champs optionnels seulement s'ils ont des valeurs
+    if (initialData.completedDate) result.completedDate = initialData.completedDate;
+    if (initialData.notes) result.notes = initialData.notes;
+    if (initialData.createdAt) result.createdAt = initialData.createdAt;
+    if (initialData.updatedAt) result.updatedAt = initialData.updatedAt;
+
+    return result;
   };
 
   const [formData, setFormData] = useState<MaintenanceTaskFormData>(initializeFormData());

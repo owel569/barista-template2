@@ -486,24 +486,27 @@ export default function MaintenanceManagement() : JSX.Element {
                 <MaintenanceTaskForm 
                   equipmentList={equipment}
                   technicians={technicians}
-                  initialData={editingTask ? {
-                    id: editingTask.id.toString(),
-                    title: editingTask.title,
-                    description: editingTask.description,
-                    type: editingTask.type,
-                    priority: editingTask.priority,
-                    status: editingTask.status,
-                    assignedTo: editingTask.assignedTo || '',
-                    assignedToId: editingTask.assignedToId,
-                    scheduledDate: editingTask.scheduledDate,
-                    estimatedDuration: editingTask.estimatedDuration,
-                    cost: editingTask.cost,
-                    equipmentId: editingTask.equipmentId,
-                    completedDate: editingTask.completedDate,
-                    notes: editingTask.notes,
-                    createdAt: editingTask.createdAt,
-                    updatedAt: editingTask.updatedAt
-                  } : undefined}
+                  initialData={editingTask ? (() => {
+                    const data: any = {
+                      id: editingTask.id.toString(),
+                      title: editingTask.title,
+                      description: editingTask.description,
+                      type: editingTask.type,
+                      priority: editingTask.priority,
+                      status: editingTask.status,
+                      assignedTo: editingTask.assignedTo || '',
+                      assignedToId: editingTask.assignedToId ?? null,
+                      scheduledDate: editingTask.scheduledDate,
+                      estimatedDuration: editingTask.estimatedDuration,
+                      cost: editingTask.cost ?? 0,
+                      equipmentId: editingTask.equipmentId ?? null,
+                      createdAt: editingTask.createdAt,
+                      updatedAt: editingTask.updatedAt
+                    };
+                    if (editingTask.completedDate) data.completedDate = editingTask.completedDate;
+                    if (editingTask.notes) data.notes = editingTask.notes;
+                    return data;
+                  })() : undefined}
                   onSubmit={editingTask ?
                     async (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null }) => {
                       await handleUpdateTask(editingTask.id, {...data, createdAt: editingTask.createdAt, updatedAt: new Date().toISOString()});
