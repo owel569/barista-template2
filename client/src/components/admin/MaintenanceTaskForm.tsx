@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import type { MaintenanceTask, Equipment, Technician } from '@/types/maintenance';
-import type { MaintenanceTaskFormData } from '@/types/maintenance-extended';
+import type { MaintenanceTask, Technician } from '@/types/maintenance';
+import type { MaintenanceTaskFormData, EquipmentFormData } from '@/types/maintenance-extended';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -19,7 +19,7 @@ import {
 import { Label } from '@/components/ui/label';
 
 interface MaintenanceTaskFormProps {
-  equipmentList: Equipment[];
+  equipmentList: EquipmentFormData[];
   technicians: Technician[];
   initialData?: MaintenanceTask | MaintenanceTaskFormData;
   onSubmit: (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { equipmentId?: number | null }) => Promise<void>;
@@ -146,7 +146,7 @@ export function MaintenanceTaskForm({
       priority: formData.priority as 'low' | 'medium' | 'high' | 'critical',
       status: formData.status || 'pending',
       assignedTo: formData.assignedTo || '',
-      assignedToId: formData.assignedToId || null,
+      assignedToId: formData.assignedToId ? Number(formData.assignedToId) : null,
       scheduledDate: formData.scheduledDate,
       estimatedDuration: formData.estimatedDuration,
       cost: formData.cost || 0,

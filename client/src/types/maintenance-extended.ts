@@ -1,5 +1,19 @@
 import type { MaintenanceTask } from './maintenance';
 
+// Interface Equipment pour les formulaires (sans les timestamps)
+export interface EquipmentFormData {
+  id: number;
+  name: string;
+  type: string;
+  location: string;
+  status: 'operational' | 'maintenance' | 'out_of_order' | 'broken' | 'retired';
+  purchaseDate?: Date | string;
+  warrantyExpiry?: Date | string;
+  lastMaintenanceDate?: Date | string;
+  nextMaintenanceDate?: Date | string;
+  notes?: string;
+}
+
 export interface MaintenanceTaskFormData {
   id?: string;
   title: string;
@@ -7,14 +21,14 @@ export interface MaintenanceTaskFormData {
   type: 'preventive' | 'corrective' | 'emergency';
   priority: 'low' | 'medium' | 'high' | 'critical';
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
-  equipmentId?: string | null;
+  equipmentId?: number | string | null;
   assignedToId?: number | string | null;
   assignedTo?: string;
   scheduledDate: string;
   completedDate?: string | null;
   notes?: string;
-  estimatedDuration?: number;
-  cost?: number;
+  estimatedDuration: number;
+  cost: number;
   createdAt?: string;
   updatedAt?: string;
 }
