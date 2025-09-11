@@ -424,3 +424,82 @@ export type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'ready' | 'ser
 export type ReservationStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show';
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
 export type TableStatus = 'available' | 'occupied' | 'reserved' | 'maintenance';
+// Types d'interface pour les routes serveur
+
+export interface TableStatus {
+  id: number;
+  status: 'available' | 'occupied' | 'reserved' | 'maintenance';
+  capacity: number;
+  reservationTime?: Date;
+}
+
+export interface OrderStatistics {
+  count: number;
+  totalRevenue?: number;
+  role?: string;
+}
+
+export interface RevenueData {
+  revenue: number;
+  orderCount: number;
+  date?: string;
+}
+
+export interface LoyaltyTransaction {
+  id: string;
+  userId: string;
+  type: 'earned' | 'redeemed';
+  points: number;
+  description: string;
+  createdAt: Date;
+}
+
+export interface MarketingOpportunity {
+  type: 'product_promotion' | 'customer_retention' | 'seasonal_campaign';
+  title: string;
+  description: string;
+  priority: 'low' | 'medium' | 'high';
+  estimatedImpact: number;
+  recommendedActions: string[];
+}
+
+export interface StockAlert {
+  id: number;
+  itemId: number;
+  itemName: string;
+  currentStock: number;
+  minStock: number;
+  type: 'low_stock' | 'out_of_stock' | 'overstocked';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  message: string;
+  createdAt: string;
+}
+
+export interface DatabaseTransaction {
+  insert: (table: any) => {
+    values: (data: any) => {
+      onConflictDoNothing: () => {
+        returning: () => Promise<any[]>;
+      };
+    };
+  };
+}
+
+export interface CustomerOrder {
+  id: string;
+  userId: string;
+  totalAmount: number;
+  createdAt: string;
+  status: string;
+}
+
+export interface UserAddress {
+  id: string;
+  userId: string;
+  street: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  isDefault: boolean;
+}

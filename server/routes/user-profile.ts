@@ -247,12 +247,10 @@ class UserProfileService {
       .where(eq(orders.customerId, userId));
 
       // Calculer les statistiques
-      const totalSpent = customerOrders.reduce((sum, order) => sum + Number(order.totalAmount), 0);
-      const now = new Date();
-      const currentMonth = now.getMonth();
-      const currentYear = now.getFullYear();
+      const totalSpent = customerOrders.reduce((sum: number, order: any) => sum + Number(order.totalAmount), 0);
 
-      const visitsThisMonth = customerOrders.filter(order => {
+      // Statistiques des visites ce mois
+      const visitsThisMonth = customerOrders.filter((order: any) => {
         const orderDate = new Date(order.createdAt);
         return orderDate.getMonth() === currentMonth && 
                orderDate.getFullYear() === currentYear;
@@ -270,8 +268,14 @@ class UserProfileService {
 
       // Articles favoris (analyse réelle des commandes)
       const itemCounts: Record<string, {id: number, count: number, lastOrdered: Date}> = {};
+      const monthlySpending: Record<number, number> = {}; // Added for monthly spending calculation
 
-      customerOrders.forEach(order => {
+      customerOrders.forEach((order: any) => {
+        const month = new Date(order.createdAt).getMonth();
+        monthlySpending[month] = (monthlySpending[month] || 0) + Number(order.totalAmount);
+      });
+
+      customerOrders.forEach((order: any) => {
         const items = order.items as Array<{id: number, name: string}> || [];
         items.forEach(item => {
           if (!itemCounts[item.id]) {
@@ -375,14 +379,14 @@ class UserProfileService {
         .orderBy(desc(orders.createdAt));
 
       // Requête pour le total (pour la pagination)
-      const total = await query.execute().then(res => res.length);
+      const total = await query.execute().then((res: any[]) => res.length);
 
       // Requête pour les données paginées
       const userOrders = await query.limit(limit).offset(offset).execute();
 
       // Récupération des adresses associées
-      const ordersWithAddresses = await Promise.all(
-        userOrders.map(async order => {
+      const detailedOrders = await Promise.all(
+        userOrders.map(async (order: any) => {
           const [address] = await db.select()
             .from(addresses)
             .where(eq(addresses.orderId, order.id))
@@ -405,7 +409,7 @@ class UserProfileService {
       );
 
       return {
-        orders: ordersWithAddresses.map(order => ({
+        orders: detailedOrders.map(order => ({
           id: order.id,
           orderNumber: order.orderNumber,
           totalAmount: Number(order.totalAmount),
@@ -444,7 +448,7 @@ class UserProfileService {
         .where(eq(addresses.userId, userId))
         .orderBy(desc(addresses.isDefault), desc(addresses.createdAt));
 
-      return userAddresses.map(address => ({
+      return userAddresses.map((address: any) => ({
         id: address.id,
         title: address.title,
         street: address.street,
@@ -480,7 +484,7 @@ class UserProfileService {
           ));
       }
 
-      let address: Address;
+      let address: any; // Use 'any' for now and refine return type if needed
 
       if (addressId) {
         // Mise à jour

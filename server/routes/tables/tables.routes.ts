@@ -204,7 +204,7 @@ router.get('/status',
         id: reservations.id,
         tableId: reservations.tableId,
         guestName: sql<string>`CONCAT(${customers.firstName}, ' ', ${customers.lastName})`,
-        date: sql<Date>`${reservations.date} + INTERVAL ${reservations.time}`,
+        reservationTime: sql<Date>`${reservations.date} + INTERVAL ${reservations.time}`,
         endTime: sql<Date>`${reservations.date} + INTERVAL ${reservations.time} + INTERVAL '2 hours'`,
         partySize: reservations.partySize,
         status: reservations.status
@@ -224,7 +224,7 @@ router.get('/status',
         id: reservations.id,
         tableId: reservations.tableId,
         guestName: sql<string>`CONCAT(${customers.firstName}, ' ', ${customers.lastName})`,
-        startTime: sql<Date>`${reservations.date} + INTERVAL ${reservations.time}`,
+        reservationTime: sql<Date>`${reservations.date} + INTERVAL ${reservations.time}`,
         partySize: reservations.partySize
       })
       .from(reservations)
@@ -239,36 +239,38 @@ router.get('/status',
       .orderBy(sql`${reservations.date} + INTERVAL ${reservations.time}`);
 
     // Créer un map des réservations par table
-    const currentReservationMap = new Map<number, typeof currentReservations[0]>();
-    currentReservations.forEach(res => {
-      if (res.tableId !== null) {
-        currentReservationMap.set(res.tableId, res);
+    const currentReservationsByTable = new Map<number, { id: number; tableId: number | null; guestName: string; reservationTime: Date; endTime?: Date; partySize: number; status?: string }>();
+    currentReservations.forEach((res: any) => {
+      if (res.tableId && res.reservationTime) {
+        const tableId = Number(res.tableId);
+        const reservationTime = new Date(res.reservationTime);
+        currentReservationsByTable.set(tableId, { ...res, reservationTime });
       }
     });
 
-    const nextReservationMap = new Map<number, typeof nextReservations[0]>();
-    nextReservations.forEach(res => {
-      if (res.tableId !== null && !nextReservationMap.has(res.tableId)) {
-        nextReservationMap.set(res.tableId, res);
+    const nextReservationsByTable = new Map<number, { id: number; tableId: number | null; guestName: string; reservationTime: Date; partySize: number }>();
+    nextReservations.forEach((res: any) => {
+      if (res.tableId && res.reservationTime) {
+        const tableId = Number(res.tableId);
+        if (!nextReservationsByTable.has(tableId)) {
+          const reservationTime = new Date(res.reservationTime);
+          nextReservationsByTable.set(tableId, { ...res, reservationTime });
+        }
       }
     });
 
     // Construire le statut de chaque table
-    const tableStatuses = allTables.map(table => {
-      const currentTime = new Date();
+    const tableStatuses = allTables.map((table: any) => {
+      const tableId = Number(table.id);
 
-      // Chercher la réservation actuelle (en cours)
-      const currentReservation = currentReservations.find(r =>
-        r.tableId === table.id &&
-        new Date(r.date) <= currentTime &&
-        new Date(r.date).getTime() + (2 * 60 * 60 * 1000) > currentTime.getTime() // 2h après début
+      const currentReservation = currentReservations.find((r: any) =>
+        Number(r.tableId) === tableId &&
+        r.reservationTime &&
+        new Date(r.reservationTime) <= now
       );
 
-      // Chercher la prochaine réservation
-      const nextReservation = nextReservations.find(r =>
-        r.tableId === table.id &&
-        // r.status === 'confirmed' &&
-        new Date(r.startTime) > currentTime
+      const nextReservation = nextReservations.find((r: any) =>
+        Number(r.tableId) === tableId
       );
 
       const result: TableStatus = {
@@ -284,7 +286,7 @@ router.get('/status',
         result.currentReservation = {
           id: currentReservation.id,
           customerName: currentReservation.guestName || 'Client inconnu',
-          startTime: new Date(currentReservation.date),
+          startTime: new Date(currentReservation.reservationTime),
           endTime: new Date(currentReservation.endTime),
           partySize: currentReservation.partySize
         };
@@ -294,7 +296,7 @@ router.get('/status',
         result.nextReservation = {
           id: nextReservation.id,
           customerName: nextReservation.guestName || 'Client inconnu',
-          startTime: new Date(nextReservation.startTime),
+          startTime: new Date(nextReservation.reservationTime),
           partySize: nextReservation.partySize
         };
       }

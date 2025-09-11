@@ -900,7 +900,7 @@ router.post('/earn-points',
       const newLevel = AdvancedLoyaltyService.getLevelForPoints(newTotalPoints);
       const levelChanged = newLevel.id !== currentLevel.id;
 
-      await db.transaction(async (tx) => {
+      await db.transaction(async (tx: any) => {
         await tx.update(customers)
           .set({
             loyaltyPoints: newTotalPoints,
@@ -1036,7 +1036,7 @@ router.post('/redeem-reward',
       const pointsUsed = reward.cost * quantity;
       const newPoints = currentPoints - pointsUsed;
 
-      await db.transaction(async (tx) => {
+      await db.transaction(async (tx: any) => {
         await tx.update(customers)
           .set({
             loyaltyPoints: newPoints,

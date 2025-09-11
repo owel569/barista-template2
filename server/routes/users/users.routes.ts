@@ -630,22 +630,11 @@ router.get('/stats/overview',
       .groupBy(users.role, users.isActive);
 
     const result = {
-      total: stats.reduce((sum, stat) => sum + stat.count, 0),
-      byRole: stats.reduce((acc, stat) => {
-        if (!acc[stat.role]) {
-          acc[stat.role] = { total: 0, active: 0, inactive: 0 };
-        }
-        const roleStats = acc[stat.role];
-        if (roleStats) {
-          roleStats.total += stat.count;
-          if (stat.isActive) {
-            roleStats.active += stat.count;
-          } else {
-            roleStats.inactive += stat.count;
-          }
-        }
+      total: stats.reduce((sum: number, stat: any) => sum + stat.count, 0),
+      byRole: stats.reduce((acc: Record<string, number>, stat: any) => {
+        acc[stat.role] = stat.count;
         return acc;
-      }, {} as Record<string, { total: number; active: number; inactive: number }>)
+      }, {} as Record<string, number>)
     };
 
     logger.info('Statistiques utilisateurs récupérées', result);

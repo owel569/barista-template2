@@ -14,7 +14,7 @@ export function DebugCSS() {
     const styles = window.getComputedStyle(testElement);
     const hasBackground = styles.backgroundColor && styles.backgroundColor !== 'rgba(0, 0, 0, 0)';
     
-    setCssLoaded(hasBackground);
+    setCssLoaded(Boolean(hasBackground));
     document.body.removeChild(testElement);
 
     // Check if fonts are loaded

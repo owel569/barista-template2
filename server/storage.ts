@@ -15,7 +15,7 @@ export type MenuItemInsert = typeof menuItems.$inferInsert;
 export type Category = typeof categories.$inferSelect;
 export type CategoryInsert = typeof categories.$inferInsert;
 export type Table = typeof tables.$inferSelect;
-export type TableInsert = typeof tables.$inferInsert;
+export type TableInsert = typeof tables.$insert;
 export type Customer = typeof customers.$inferSelect;
 export type CustomerInsert = typeof customers.$inferInsert;
 export type Reservation = typeof reservations.$inferSelect;
@@ -314,12 +314,12 @@ export class MemStorage implements IStorage {
       loyaltyTransactions: new Map(),
       permissions: new Map(),
     };
-    
+
     // Initialiser les compteurs
     Object.keys(this.data).forEach(key => {
       this.counters[key] = 1;
     });
-    
+
     console.log('✅ MemStorage initialisé avec stockage en mémoire');
   }
 
@@ -388,7 +388,7 @@ export class MemStorage implements IStorage {
     update: async (id: number, data: Partial<UserInsert>): Promise<User | null> => {
       const existing = this.data.users.get(id);
       if (!existing) return null;
-      
+
       const updated = { ...existing, ...this.updateTimestamps(data) } as User;
       this.data.users.set(id, updated);
       return updated;
@@ -423,7 +423,7 @@ export class MemStorage implements IStorage {
     update: async (id: number, data: Partial<MenuCategoryInsert>): Promise<MenuCategory | null> => {
       const existing = this.data.menuCategories.get(id);
       if (!existing) return null;
-      
+
       const updated = { ...existing, ...this.updateTimestamps(data) } as MenuCategory;
       this.data.menuCategories.set(id, updated);
       return updated;
@@ -470,7 +470,7 @@ export class MemStorage implements IStorage {
     update: async (id: number, data: Partial<MenuItemInsert>): Promise<MenuItem | null> => {
       const existing = this.data.menuItems.get(id);
       if (!existing) return null;
-      
+
       const updated = { ...existing, ...this.updateTimestamps(data) } as MenuItem;
       this.data.menuItems.set(id, updated);
       return updated;
@@ -505,7 +505,7 @@ export class MemStorage implements IStorage {
     update: async (id: number, data: Partial<CategoryInsert>): Promise<Category | null> => {
       const existing = this.data.categories.get(id);
       if (!existing) return null;
-      
+
       const updated = { ...existing, ...this.updateTimestamps(data) } as Category;
       this.data.categories.set(id, updated);
       return updated;
@@ -551,7 +551,7 @@ export class MemStorage implements IStorage {
     update: async (id: number, data: Partial<TableInsert>): Promise<Table | null> => {
       const existing = this.data.tables.get(id);
       if (!existing) return null;
-      
+
       const updated = { ...existing, ...this.updateTimestamps(data) } as Table;
       this.data.tables.set(id, updated);
       return updated;
@@ -602,7 +602,7 @@ export class MemStorage implements IStorage {
     update: async (id: number, data: Partial<CustomerInsert>): Promise<Customer | null> => {
       const existing = this.data.customers.get(id);
       if (!existing) return null;
-      
+
       const updated = { ...existing, ...this.updateTimestamps(data) } as Customer;
       this.data.customers.set(id, updated);
       return updated;
@@ -612,9 +612,6 @@ export class MemStorage implements IStorage {
       return this.data.customers.delete(id);
     },
   };
-
-  // Je vais continuer avec les autres entités dans une approche similaire pour économiser l'espace
-  // Reservations, Orders, OrderItems, etc. suivront le même pattern
 
   // Reservations
   reservations = {
@@ -654,7 +651,7 @@ export class MemStorage implements IStorage {
     update: async (id: number, data: Partial<ReservationInsert>): Promise<Reservation | null> => {
       const existing = this.data.reservations.get(id);
       if (!existing) return null;
-      
+
       const updated = { ...existing, ...this.updateTimestamps(data) } as Reservation;
       this.data.reservations.set(id, updated);
       return updated;
@@ -712,7 +709,7 @@ export class MemStorage implements IStorage {
     update: async (id: number, data: Partial<OrderInsert>): Promise<Order | null> => {
       const existing = this.data.orders.get(id);
       if (!existing) return null;
-      
+
       const updated = { ...existing, ...this.updateTimestamps(data) } as Order;
       this.data.orders.set(id, updated);
       return updated;
@@ -747,7 +744,7 @@ export class MemStorage implements IStorage {
     update: async (id: number, data: Partial<OrderItemInsert>): Promise<OrderItem | null> => {
       const existing = this.data.orderItems.get(id);
       if (!existing) return null;
-      
+
       const updated = { ...existing, ...data } as OrderItem;
       this.data.orderItems.set(id, updated);
       return updated;
@@ -782,7 +779,7 @@ export class MemStorage implements IStorage {
     markAsRead: async (id: number): Promise<boolean> => {
       const existing = this.data.contactMessages.get(id);
       if (!existing) return false;
-      
+
       const updated = { ...existing, isRead: true } as ContactMessage;
       this.data.contactMessages.set(id, updated);
       return true;
@@ -793,9 +790,7 @@ export class MemStorage implements IStorage {
     },
   };
 
-  // Pour économiser l'espace, je vais implémenter les méthodes essentielles pour les autres entités
-  // Feedback, MenuItemImages, ActivityLogs, Employees, Shifts, Suppliers, Inventory, LoyaltyTransactions, Permissions
-
+  // Feedback
   feedback = {
     create: async (data: FeedbackInsert): Promise<Feedback> => {
       const id = this.generateId('feedback');
@@ -827,7 +822,7 @@ export class MemStorage implements IStorage {
     update: async (id: number, data: Partial<FeedbackInsert>): Promise<Feedback | null> => {
       const existing = this.data.feedback.get(id);
       if (!existing) return null;
-      
+
       const updated = { ...existing, ...this.updateTimestamps(data) } as Feedback;
       this.data.feedback.set(id, updated);
       return updated;
@@ -838,7 +833,7 @@ export class MemStorage implements IStorage {
     },
   };
 
-  // Implementations simplifiées pour les autres entités 
+  // MenuItemImages
   menuItemImages = {
     create: async (data: MenuItemImageInsert): Promise<MenuItemImage> => {
       const id = this.generateId('menuItemImages');

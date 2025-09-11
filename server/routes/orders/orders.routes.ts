@@ -141,25 +141,23 @@ router.get('/',
     const offset = (pageNum - 1) * limitNum;
     const ordersData = await query.limit(limitNum).offset(offset);
 
-    // Récupérer les articles pour chaque commande
-    const orderIds = ordersData.map(order => order.id);
-    const orderItemsData = orderIds.length > 0 ? await db
+    const orderIds = ordersData.map((order: any) => order.id);
+
+    // Récupérer les items pour toutes les commandes
+    const orderItemsData = await db
       .select({
         orderId: orderItems.orderId,
         menuItemId: orderItems.menuItemId,
         quantity: orderItems.quantity,
-        unitPrice: orderItems.unitPrice,
-        totalPrice: orderItems.totalPrice,
-        specialInstructions: orderItems.specialInstructions,
-        menuItemName: menuItems.name,
-        menuItemImage: menuItems.imageUrl
+        price: orderItems.price,
+        menuItemName: menuItems.name
       })
       .from(orderItems)
       .leftJoin(menuItems, eq(orderItems.menuItemId, menuItems.id))
-      .where(inArray(orderItems.orderId, orderIds)) : [];
+      .where(inArray(orderItems.orderId, orderIds));
 
-    // Grouper par commande
-    const groupedItems = orderItemsData.reduce((acc, item) => {
+    // Grouper les items par commande
+    const groupedItems = orderItemsData.reduce((acc: Record<string, any[]>, item: any) => {
       const orderId = item.orderId;
       if (orderId) {
         if (!acc[orderId]) {
@@ -168,7 +166,7 @@ router.get('/',
         acc[orderId].push(item);
       }
       return acc;
-    }, {} as Record<number, typeof orderItemsData>);
+    }, {} as Record<string, any[]>);
 
     // Combiner les données
     const result = ordersData.map(order => ({

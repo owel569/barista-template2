@@ -1,11 +1,10 @@
 import { getDbAsync, connection } from '../server/db';
 import { sql } from 'drizzle-orm';
-import { 
+import {
   users, menuCategories, menuItems, tables, customers, employees,
   orders, orderItems, permissions, reservations
 } from '../shared/schema';
-import { SecurityUtils } from '../server/utils/security';
-import type { 
+import type {
   User, MenuCategory, MenuItem, Table, Customer, Employee,
   Order, OrderItem, Permission
 } from '../shared/schema';
@@ -62,7 +61,7 @@ export async function seedDatabase(options: {
     const db = await waitForDatabase();
 
     // Transaction globale pour garantir l'atomicité
-    await db.transaction(async (tx: unknown) => {
+    await db.transaction(async (tx: any) => {
       // 1. Utilisateurs et employés
       const usersResult = await seedUsersWithTransaction(tx);
       stats.users = usersResult.count;
@@ -113,7 +112,7 @@ export async function seedDatabase(options: {
   }
 }
 
-async function seedUsersWithTransaction(tx: unknown): Promise<SeedResult<User>> {
+async function seedUsersWithTransaction(tx: any): Promise<SeedResult<User>> {
   try {
     console.log('👥 Création des utilisateurs...');
 
@@ -161,7 +160,7 @@ async function seedUsersWithTransaction(tx: unknown): Promise<SeedResult<User>> 
   }
 }
 
-async function seedEmployeesWithTransaction(tx: unknown): Promise<SeedResult<Employee>> {
+async function seedEmployeesWithTransaction(tx: any): Promise<SeedResult<Employee>> {
   try {
     console.log('👨‍💼 Création des employés...');
 
@@ -198,12 +197,12 @@ async function seedEmployeesWithTransaction(tx: unknown): Promise<SeedResult<Emp
       success: false,
       data: [],
       count: 0,
-      error: `Erreur création employés: ${error.message}`
+      error: `Erreur création employés: ${(error as Error).message}`
     };
   }
 }
 
-async function seedPermissionsWithTransaction(tx: unknown, createdUsers: User[]): Promise<SeedResult<Permission>> {
+async function seedPermissionsWithTransaction(tx: any, createdUsers: User[]): Promise<SeedResult<Permission>> {
   try {
     console.log('🔐 Création des permissions...');
 
@@ -245,7 +244,7 @@ async function seedPermissionsWithTransaction(tx: unknown, createdUsers: User[])
       }
     }
 
-    const createdPermissions = await tx.insert(permissions).values(permissionData).onConflictDoNothing().returning();
+    const createdPermissions = await (tx as any).insert(permissions).values(permissionData).onConflictDoNothing().returning();
 
     return {
       success: true,
@@ -257,12 +256,12 @@ async function seedPermissionsWithTransaction(tx: unknown, createdUsers: User[])
       success: false,
       data: [],
       count: 0,
-      error: `Erreur création permissions: ${error.message}`
+      error: `Erreur création permissions: ${(error as Error).message}`
     };
   }
 }
 
-async function seedMenuCategoriesWithTransaction(tx: unknown): Promise<SeedResult<MenuCategory>> {
+async function seedMenuCategoriesWithTransaction(tx: any): Promise<SeedResult<MenuCategory>> {
   try {
     console.log('📂 Création des catégories de menu...');
 
@@ -286,12 +285,12 @@ async function seedMenuCategoriesWithTransaction(tx: unknown): Promise<SeedResul
       success: false,
       data: [],
       count: 0,
-      error: `Erreur création catégories: ${error.message}`
+      error: `Erreur création catégories: ${(error as Error).message}`
     };
   }
 }
 
-async function seedMenuItemsWithTransaction(tx: unknown, categories: MenuCategory[]): Promise<SeedResult<MenuItem>> {
+async function seedMenuItemsWithTransaction(tx: any, categories: MenuCategory[]): Promise<SeedResult<MenuItem>> {
   try {
     console.log('🍽️ Création des éléments de menu...');
 
@@ -341,12 +340,12 @@ async function seedMenuItemsWithTransaction(tx: unknown, categories: MenuCategor
       success: false,
       data: [],
       count: 0,
-      error: `Erreur création éléments de menu: ${error.message}`
+      error: `Erreur création éléments de menu: ${(error as Error).message}`
     };
   }
 }
 
-async function seedTablesWithTransaction(tx: unknown): Promise<SeedResult<Table>> {
+async function seedTablesWithTransaction(tx: any): Promise<SeedResult<Table>> {
   try {
     console.log('🪑 Création des tables...');
 
@@ -371,12 +370,12 @@ async function seedTablesWithTransaction(tx: unknown): Promise<SeedResult<Table>
       success: false,
       data: [],
       count: 0,
-      error: `Erreur création tables: ${error.message}`
+      error: `Erreur création tables: ${(error as Error).message}`
     };
   }
 }
 
-async function seedCustomersWithTransaction(tx: unknown): Promise<SeedResult<Customer>> {
+async function seedCustomersWithTransaction(tx: any): Promise<SeedResult<Customer>> {
   try {
     console.log('👤 Création des clients...');
 
@@ -391,7 +390,7 @@ async function seedCustomersWithTransaction(tx: unknown): Promise<SeedResult<Cus
       {
         firstName: 'Julien',
         lastName: 'Petit',
-        email: 'julien.petit@email.com', 
+        email: 'julien.petit@email.com',
         phone: '0123456790',
         loyaltyPoints: 85
       },
@@ -423,12 +422,12 @@ async function seedCustomersWithTransaction(tx: unknown): Promise<SeedResult<Cus
       success: false,
       data: [],
       count: 0,
-      error: `Erreur création clients: ${error.message}`
+      error: `Erreur création clients: ${(error as Error).message}`
     };
   }
 }
 
-async function seedSampleOrdersWithTransaction(tx: unknown, customers: Customer[], menuItems: MenuItem[]): Promise<{orders: number, orderItems: number}> {
+async function seedSampleOrdersWithTransaction(tx: any, customers: Customer[], menuItems: MenuItem[]): Promise<{orders: number, orderItems: number}> {
   try {
     console.log('🛒 Création des commandes d\'exemple...');
 
@@ -464,7 +463,7 @@ async function seedSampleOrdersWithTransaction(tx: unknown, customers: Customer[
       { orderId: createdOrders[0].id, menuItemId: menuItems[0].id, quantity: 2, unitPrice: menuItems[0].price, totalPrice: String(Number(menuItems[0].price) * 2) },
       { orderId: createdOrders[0].id, menuItemId: menuItems[8].id, quantity: 1, unitPrice: menuItems[8].price, totalPrice: menuItems[8].price },
 
-      // Commande 2  
+      // Commande 2
       { orderId: createdOrders[1].id, menuItemId: menuItems[1].id, quantity: 1, unitPrice: menuItems[1].price, totalPrice: menuItems[1].price },
       { orderId: createdOrders[1].id, menuItemId: menuItems[12].id, quantity: 1, unitPrice: menuItems[12].price, totalPrice: menuItems[12].price },
 
@@ -486,7 +485,7 @@ async function seedSampleOrdersWithTransaction(tx: unknown, customers: Customer[
   }
 }
 
-async function seedSampleReservationsWithTransaction(tx: unknown, customers: Customer[], tables: Table[]): Promise<SeedResult<any>> {
+async function seedSampleReservationsWithTransaction(tx: any, customers: Customer[], tables: Table[]): Promise<SeedResult<any>> {
   try {
     console.log('📅 Création des réservations d\'exemple...');
 
@@ -531,7 +530,7 @@ async function seedSampleReservationsWithTransaction(tx: unknown, customers: Cus
       success: false,
       data: [],
       count: 0,
-      error: `Erreur création réservations: ${error.message}`
+      error: `Erreur création réservations: ${(error as Error).message}`
     };
   }
 }
@@ -557,37 +556,37 @@ function printSeedingStats(stats: SeedStats): void {
 }
 
 // Fonction d'attente robuste pour la base de données
-async function waitForDatabase(maxRetries = 10, baseDelay = 1000): Promise<ReturnType<typeof getDb>> {
+async function waitForDatabase(maxRetries = 10, baseDelay = 1000): Promise<any> {
   let lastError: Error | undefined;
-  
+
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       console.log(`🔄 Tentative de connexion à la base de données (${attempt}/${maxRetries})...`);
-      
+
       const db = await getDbAsync();
-      
+
       // Test de la connexion avec une requête simple
       await connection`SELECT 1 as test`;
-      
+
       console.log('✅ Base de données prête pour le seeding');
       return db;
-      
+
     } catch (error) {
       lastError = error instanceof Error ? error : new Error('Erreur inconnue');
       console.warn(`⚠️  Tentative ${attempt} échouée:`, lastError.message);
-      
+
       if (attempt < maxRetries) {
         // Backoff exponentiel avec jitter
         const delay = baseDelay * Math.pow(2, attempt - 1) + Math.random() * 1000;
         const maxDelay = 30000; // Maximum 30 secondes
         const actualDelay = Math.min(delay, maxDelay);
-        
+
         console.log(`⏳ Nouvelle tentative dans ${Math.round(actualDelay)}ms...`);
         await new Promise(resolve => setTimeout(resolve, actualDelay));
       }
     }
   }
-  
+
   throw new Error(`❌ Impossible de se connecter à la base de données après ${maxRetries} tentatives. Dernière erreur: ${lastError?.message}`);
 }
 
