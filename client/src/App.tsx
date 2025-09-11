@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Router, Route, Switch } from 'wouter';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
@@ -55,12 +55,32 @@ const SimplePage = ({ title, description }: { title: string; description: string
   </div>
 );
 
-function App() {
-  // Ensure CSS is loaded
-  if (typeof window !== 'undefined') {
-    // Force CSS application
-    document.documentElement.classList.add('css-loaded');
+// S'assurer que les styles sont appliqués au démarrage
+const ensureStylesLoaded = () => {
+  // Vérifier que Tailwind est chargé
+  const testElement = document.createElement('div');
+  testElement.className = 'bg-coffee-primary text-white p-4';
+  testElement.style.position = 'absolute';
+  testElement.style.left = '-9999px';
+  document.body.appendChild(testElement);
+
+  const styles = window.getComputedStyle(testElement);
+  const hasBackgroundColor = styles.backgroundColor !== 'rgba(0, 0, 0, 0)' && styles.backgroundColor !== 'transparent';
+
+  document.body.removeChild(testElement);
+
+  if (hasBackgroundColor) {
+    console.log('✅ Styles Tailwind chargés correctement');
+  } else {
+    console.warn('⚠️ Styles Tailwind non détectés');
   }
+};
+
+
+function App() {
+  useEffect(() => {
+    ensureStylesLoaded();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -78,7 +98,7 @@ function App() {
                   <Switch>
                     {/* Route de connexion admin sans layout */}
                     <Route path="/login" component={LoginSimple} />
-                    
+
                     {/* Routes admin protégées avec layout */}
                     <Route>
                       <AdminLayout>
@@ -123,7 +143,7 @@ function App() {
                   </main>
                   <Footer />
                 </Route>
-                
+
                 <Route path="/gallery">
                   <Navbar />
                   <main className="flex-1">
@@ -131,7 +151,7 @@ function App() {
                   </main>
                   <Footer />
                 </Route>
-                
+
                 <Route path="/galerie">
                   <Navbar />
                   <main className="flex-1">
@@ -139,7 +159,7 @@ function App() {
                   </main>
                   <Footer />
                 </Route>
-                
+
                 <Route path="/contact">
                   <Navbar />
                   <main className="flex-1">
@@ -147,7 +167,7 @@ function App() {
                   </main>
                   <Footer />
                 </Route>
-                
+
                 <Route path="/reservations">
                   <Navbar />
                   <main className="flex-1">
@@ -155,7 +175,7 @@ function App() {
                   </main>
                   <Footer />
                 </Route>
-                
+
                 <Route path="/reservation">
                   <Navbar />
                   <main className="flex-1">

@@ -2,6 +2,7 @@ import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import { createServer } from 'http';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -194,22 +195,53 @@ export default {
         return next();
       }
 
-      // Servir l'application React principale via Vite
-      const html = await vite.transformIndexHtml(url, `
+      // Lire le template HTML existant et le transformer
+      const templatePath = path.resolve(__dirname, '../client/index.html');
+      let template;
+      
+      try {
+        template = await fs.promises.readFile(templatePath, 'utf-8');
+      } catch (e) {
+        // Fallback si le fichier n'existe pas
+        template = `
 <!DOCTYPE html>
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Barista Café</title>
+    <meta name="description" content="Barista Café - Découvrez l'excellence dans chaque tasse. Café artisanal, pâtisseries fraîches et ambiance chaleureuse.">
+    <meta name="keywords" content="café, barista, pâtisserie, restaurant, réservation">
+    
+    <!-- Préchargement des polices Google -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Fallback fonts CSS -->
+    <style>
+      * { box-sizing: border-box; }
+      body { 
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
+        margin: 0;
+        padding: 0;
+      }
+      h1, h2, h3, h4, h5, h6 { 
+        font-family: 'Playfair Display', Georgia, 'Times New Roman', serif !important; 
+      }
+    </style>
+    
+    <title>Barista Café - Café Artisanal & Pâtisserie</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-      `);
+        `;
+      }
+
+      const html = await vite.transformIndexHtml(url, template);
       res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
     } catch (e) {
       vite.ssrFixStacktrace(e as Error);
