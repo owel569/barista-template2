@@ -1,0 +1,115 @@
+
+  client/src/components/admin/MaintenanceTaskForm.tsx:23:3
+    23   initialData?: MaintenanceTaskFormData;
+         ~~~~~~~~~~~
+    The expected type comes from property 'initialData' which is declared here on type 'IntrinsicAttributes & MaintenanceTaskFormProps'
+
+scripts/seed.ts:8:3 - error TS2724: '"../shared/schema"' has no exported member named 'User'. Did you mean 'users'?
+
+8   User, MenuCategory, MenuItem, Table, Customer, Employee,
+    ~~~~
+
+  shared/schema.ts:20:14
+    20 export const users = pgTable('users', {
+                    ~~~~~
+    'users' is declared here.
+
+scripts/seed.ts:8:9 - error TS2724: '"../shared/schema"' has no exported member named 'MenuCategory'. Did you mean 'menuCategories'?
+
+8   User, MenuCategory, MenuItem, Table, Customer, Employee,
+          ~~~~~~~~~~~~
+
+  shared/schema.ts:37:14
+    37 export const menuCategories = pgTable("menu_categories", {
+                    ~~~~~~~~~~~~~~
+    'menuCategories' is declared here.
+
+scripts/seed.ts:8:23 - error TS2724: '"../shared/schema"' has no exported member named 'MenuItem'. Did you mean 'menuItems'?
+
+8   User, MenuCategory, MenuItem, Table, Customer, Employee,
+                        ~~~~~~~~
+
+  shared/schema.ts:48:14
+    48 export const menuItems = pgTable('menu_items', {
+                    ~~~~~~~~~
+    'menuItems' is declared here.
+
+scripts/seed.ts:8:33 - error TS2724: '"../shared/schema"' has no exported member named 'Table'. Did you mean 'tables'?
+
+8   User, MenuCategory, MenuItem, Table, Customer, Employee,
+                                  ~~~~~
+
+  shared/schema.ts:80:14
+    80 export const tables = pgTable("tables", {
+                    ~~~~~~
+    'tables' is declared here.
+
+scripts/seed.ts:8:40 - error TS2724: '"../shared/schema"' has no exported member named 'Customer'. Did you mean 'customers'?
+
+8   User, MenuCategory, MenuItem, Table, Customer, Employee,
+                                         ~~~~~~~~
+
+  shared/schema.ts:95:14
+    95 export const customers = pgTable("customers", {
+                    ~~~~~~~~~
+    'customers' is declared here.
+
+scripts/seed.ts:8:50 - error TS2724: '"../shared/schema"' has no exported member named 'Employee'. Did you mean 'employees'?
+
+8   User, MenuCategory, MenuItem, Table, Customer, Employee,
+                                                   ~~~~~~~~
+
+  shared/schema.ts:210:14
+    210 export const employees = pgTable('employees', {
+                     ~~~~~~~~~
+    'employees' is declared here.
+
+scripts/seed.ts:9:3 - error TS2724: '"../shared/schema"' has no exported member named 'Order'. Did you mean 'orders'?
+
+9   Order, OrderItem, Permission
+    ~~~~~
+
+  shared/schema.ts:127:14
+    127 export const orders = pgTable('orders', {
+                     ~~~~~~
+    'orders' is declared here.
+
+scripts/seed.ts:9:10 - error TS2724: '"../shared/schema"' has no exported member named 'OrderItem'. Did you mean 'orderItems'?
+
+9   Order, OrderItem, Permission
+           ~~~~~~~~~
+
+  shared/schema.ts:147:14
+    147 export const orderItems = pgTable("order_items", {
+                     ~~~~~~~~~~
+    'orderItems' is declared here.
+
+scripts/seed.ts:9:21 - error TS2724: '"../shared/schema"' has no exported member named 'Permission'. Did you mean 'permissions'?
+
+9   Order, OrderItem, Permission
+                      ~~~~~~~~~~
+
+  shared/schema.ts:277:14
+    277 export const permissions = pgTable("permissions", {
+                     ~~~~~~~~~~~
+    'permissions' is declared here.
+
+scripts/seed.ts:122:25 - error TS2304: Cannot find name 'SecurityUtils'.
+
+122         password: await SecurityUtils.hashPassword('admin123'),
+                            ~~~~~~~~~~~~~
+
+scripts/seed.ts:130:25 - error TS2304: Cannot find name 'SecurityUtils'.
+
+130         password: await SecurityUtils.hashPassword('manager123'),
+                            ~~~~~~~~~~~~~
+
+scripts/seed.ts:138:25 - error TS2304: Cannot find name 'SecurityUtils'.
+
+138         password: await SecurityUtils.hashPassword('employee123'),
+                            ~~~~~~~~~~~~~
+
+server/modules/advanced-analytics.ts:23:31 - error TS7006: Parameter 'c' implicitly has an 'any' type.
+
+23       return customerData.map(c => ({
+                                 ~

@@ -1,0 +1,60 @@
+
+server/routes/tables/tables.routes.ts:311:38 - error TS7006: Parameter 't' implicitly has an 'any' type.
+
+311       reserved: tableStatuses.filter(t => t.status === 'reserved').length,
+                                         ~
+
+server/routes/tables/tables.routes.ts:312:41 - error TS7006: Parameter 't' implicitly has an 'any' type.
+
+312       maintenance: tableStatuses.filter(t => t.status === 'maintenance').length
+                                            ~
+
+server/routes/user-profile.ts:255:41 - error TS2304: Cannot find name 'currentMonth'.
+
+255         return orderDate.getMonth() === currentMonth &&
+                                            ~~~~~~~~~~~~
+
+server/routes/user-profile.ts:256:44 - error TS2304: Cannot find name 'currentYear'.
+
+256                orderDate.getFullYear() === currentYear;
+                                               ~~~~~~~~~~~
+
+server/storage.ts:18:41 - error TS2339: Property '$insert' does not exist on type 'PgTableWithColumns<{ name: "tables"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "tables"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 10 more ...; updatedAt: PgColumn<......'.
+
+18 export type TableInsert = typeof tables.$insert;
+                                           ~~~~~~~
+
+server/storage.ts:334:12 - error TS2532: Object is possibly 'undefined'.
+
+334     return this.counters[table]++;
+               ~~~~~~~~~~~~~~~~~~~~
+
+shared/types-server.ts:319:3 - error TS2687: All declarations of 'date' must have identical modifiers.
+
+319   date: Date;
+      ~~~~
+
+shared/types-server.ts:426:13 - error TS2300: Duplicate identifier 'TableStatus'.
+
+426 export type TableStatus = 'available' | 'occupied' | 'reserved' | 'maintenance';
+                ~~~~~~~~~~~
+
+shared/types-server.ts:429:18 - error TS2300: Duplicate identifier 'TableStatus'.
+
+429 export interface TableStatus {
+                     ~~~~~~~~~~~
+
+shared/types-server.ts:445:3 - error TS2687: All declarations of 'date' must have identical modifiers.
+
+445   date?: string;
+      ~~~~
+
+shared/types-server.ts:445:3 - error TS2717: Subsequent property declarations must have the same type.  Property 'date' must be of type 'Date', but here has type 'string | undefined'.
+
+445   date?: string;
+      ~~~~
+
+  shared/types-server.ts:319:3
+    319   date: Date;
+          ~~~~
+    'date' was also declared here.
