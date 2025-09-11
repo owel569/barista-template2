@@ -34,7 +34,7 @@ export interface JWTPayload {
 import { ROLE_HIERARCHY, ROLE_PERMISSIONS } from '../types/auth';
 
 // Configuration JWT sécurisée
-const JWT_SECRET = process.env.JWT_SECRET || 'barista-cafe-secret-key-2024';
+const JWT_SECRET = process.env.JWT_SECRET || 'barista-cafe-secret-key-2024-production-secure';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 const BCRYPT_ROUNDS = 12;
 

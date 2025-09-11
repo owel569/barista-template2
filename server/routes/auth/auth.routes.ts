@@ -4,7 +4,7 @@ import { hash, compare } from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { asyncHandler } from '../../middleware/error-handler-enhanced';
 import { createLogger } from '../../middleware/logging';
-import { authenticateUser, requireRoles } from '../../middleware/auth';
+import { authenticateUser, requireRoles, AuthService } from '../../middleware/auth';
 import { validateBody, validateParams, commonSchemas } from '../../middleware/validation';
 import { getDb } from '../../db';
 import { users, customers, activityLogs } from '../../../shared/schema';
@@ -14,9 +14,8 @@ import { RateLimitError } from '../../middleware/error-handler-enhanced';
 const router = Router();
 const logger = createLogger('AUTH_ROUTES');
 
-// Configuration JWT
-const JWT_SECRET = process.env.JWT_SECRET || 'barista-cafe-secret-key';
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
+// Configuration JWT - uses AuthService for token generation
+// JWT_SECRET is handled by AuthService
 
 // Rate limiting simple en mémoire
 const loginAttempts = new Map<string, { count: number; lastAttempt: Date }>();
@@ -77,26 +76,8 @@ function recordLoginAttempt(identifier: string): void {
   }
 }
 
-// Fonction utilitaire pour générer un token JWT
-function generateToken(user: { id: number; email: string; role: string }, remember?: boolean): string {
-  if (!process.env.JWT_SECRET) {
-    throw new Error('JWT_SECRET not configured');
-  }
-
-  return jwt.sign(
-    {
-      id: user.id,
-      email: user.email,
-      role: user.role
-    },
-    process.env.JWT_SECRET,
-    {
-      expiresIn: remember ? '30d' : '7d',
-      issuer: 'barista-cafe',
-      audience: 'barista-users'
-    }
-  );
-}
+// Use AuthService.generateToken for consistent JWT payload format
+// This ensures { userId, email, role } payload format
 
 // Fonction utilitaire pour enregistrer une activité
 async function logActivity(
@@ -188,7 +169,7 @@ router.post('/register',
     }
 
     // Générer le token
-    const token = generateToken({ id: newUser.id, email: newUser.email, role: newUser.role });
+    const token = AuthService.generateToken({ id: newUser.id, email: newUser.email, role: newUser.role });
 
     // Enregistrer l'activité
     await logActivity(newUser.id, 'REGISTER', 'Inscription utilisateur', req);
@@ -263,7 +244,7 @@ router.post('/login',
     loginAttempts.delete(email);
 
     // Générer le token
-    const token = generateToken(user);
+    const token = AuthService.generateToken({ id: user.id, email: user.email, role: user.role });
 
     // Enregistrer l'activité
     await logActivity(user.id, 'LOGIN', 'Connexion utilisateur', req);
