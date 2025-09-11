@@ -1,0 +1,121 @@
+                              ~~~~~
+
+scripts/seed.ts:277:37 - error TS18046: 'tx' is of type 'unknown'.
+
+277     const createdCategories = await tx.insert(menuCategories).values(categoryData).onConflictDoNothing().returning();
+                                        ~~
+
+scripts/seed.ts:289:45 - error TS18046: 'error' is of type 'unknown'.
+
+289       error: `Erreur création catégories: ${error.message}`
+                                                ~~~~~
+
+scripts/seed.ts:332:36 - error TS18046: 'tx' is of type 'unknown'.
+
+332     const createdMenuItems = await tx.insert(menuItems).values(menuItemData).onConflictDoNothing().returning();
+                                       ~~
+
+scripts/seed.ts:344:51 - error TS18046: 'error' is of type 'unknown'.
+
+344       error: `Erreur création éléments de menu: ${error.message}`
+                                                      ~~~~~
+
+scripts/seed.ts:362:33 - error TS18046: 'tx' is of type 'unknown'.
+
+362     const createdTables = await tx.insert(tables).values(tableData).onConflictDoNothing().returning();
+                                    ~~
+
+scripts/seed.ts:374:41 - error TS18046: 'error' is of type 'unknown'.
+
+374       error: `Erreur création tables: ${error.message}`
+                                            ~~~~~
+
+scripts/seed.ts:414:36 - error TS18046: 'tx' is of type 'unknown'.
+
+414     const createdCustomers = await tx.insert(customers).values(customerData).onConflictDoNothing().returning();
+                                       ~~
+
+scripts/seed.ts:426:42 - error TS18046: 'error' is of type 'unknown'.
+
+426       error: `Erreur création clients: ${error.message}`
+                                             ~~~~~
+
+scripts/seed.ts:459:33 - error TS18046: 'tx' is of type 'unknown'.
+
+459     const createdOrders = await tx.insert(orders).values(orderData).onConflictDoNothing().returning();
+                                    ~~
+
+scripts/seed.ts:477:37 - error TS18046: 'tx' is of type 'unknown'.
+
+477     const createdOrderItems = await tx.insert(orderItems).values(orderItemData).onConflictDoNothing().returning();
+                                        ~~
+
+scripts/seed.ts:522:39 - error TS18046: 'tx' is of type 'unknown'.
+
+522     const createdReservations = await tx.insert(reservations).values(reservationData).onConflictDoNothing().returning();
+                                          ~~
+
+scripts/seed.ts:534:47 - error TS18046: 'error' is of type 'unknown'.
+
+534       error: `Erreur création réservations: ${error.message}`
+                                                  ~~~~~
+
+scripts/seed.ts:560:94 - error TS2304: Cannot find name 'getDb'.
+
+560 async function waitForDatabase(maxRetries = 10, baseDelay = 1000): Promise<ReturnType<typeof getDb>> {
+                                                                                                 ~~~~~
+
+server/modules/advanced-analytics.ts:23:31 - error TS7006: Parameter 'c' implicitly has an 'any' type.
+
+23       return customerData.map(c => ({
+                                 ~
+
+server/routes/ai.routes.ts:188:54 - error TS7006: Parameter 'sum' implicitly has an 'any' type.
+
+188     const totalGuests = existingReservations.reduce((sum, r) => sum + r.partySize, 0);
+                                                         ~~~
+
+server/routes/ai.routes.ts:188:59 - error TS7006: Parameter 'r' implicitly has an 'any' type.
+
+188     const totalGuests = existingReservations.reduce((sum, r) => sum + r.partySize, 0);
+                                                              ~
+
+server/routes/analytics.routes.ts:311:58 - error TS7006: Parameter 'acc' implicitly has an 'any' type.
+
+311     const paymentMethodsSummary = paymentMethods.reduce((acc, item) => {
+                                                             ~~~
+
+server/routes/analytics.routes.ts:311:63 - error TS7006: Parameter 'item' implicitly has an 'any' type.
+
+311     const paymentMethodsSummary = paymentMethods.reduce((acc, item) => {
+                                                                  ~~~~
+
+server/routes/analytics.routes.ts:324:44 - error TS7006: Parameter 'item' implicitly has an 'any' type.
+
+324       revenueByPeriod: revenueByPeriod.map(item => ({
+                                               ~~~~
+
+server/routes/analytics.routes.ts:330:36 - error TS7006: Parameter 'item' implicitly has an 'any' type.
+
+330       topProducts: topProducts.map(item => ({
+                                       ~~~~
+
+server/routes/analytics.routes.ts:426:44 - error TS7006: Parameter 'acc' implicitly has an 'any' type.
+
+426     const ageGroups = demographics.reduce((acc, item) => {
+                                               ~~~
+
+server/routes/analytics.routes.ts:426:49 - error TS7006: Parameter 'item' implicitly has an 'any' type.
+
+426     const ageGroups = demographics.reduce((acc, item) => {
+                                                    ~~~~
+
+server/routes/analytics.routes.ts:431:53 - error TS7006: Parameter 'acc' implicitly has an 'any' type.
+
+431     const genderDistribution = demographics.reduce((acc, item) => {
+                                                        ~~~
+
+server/routes/analytics.routes.ts:431:58 - error TS7006: Parameter 'item' implicitly has an 'any' type.
+
+431     const genderDistribution = demographics.reduce((acc, item) => {
+                                                             ~~~~

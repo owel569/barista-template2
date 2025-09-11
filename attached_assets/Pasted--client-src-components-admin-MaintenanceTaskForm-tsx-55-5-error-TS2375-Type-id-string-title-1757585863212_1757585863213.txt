@@ -1,0 +1,25 @@
+
+client/src/components/admin/MaintenanceTaskForm.tsx:55:5 - error TS2375: Type '{ id: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "low" | "high" | "medium" | "critical"; status: "pending" | "cancelled" | "completed" | "in_progress"; ... 9 more ...; updatedAt: string; }' is not assignable to type 'MaintenanceTaskFormData' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'assignedToId' are incompatible.
+    Type 'number | null | undefined' is not assignable to type 'number | null'.
+      Type 'undefined' is not assignable to type 'number | null'.
+
+55     return {
+       ~~~~~~
+
+client/src/components/admin/inventory-management.tsx:157:19 - error TS2345: Argument of type '{ id: number; itemId: number; currentStock: number; minStock: number; itemName: string; severity: "low" | "high" | "medium" | "critical"; createdAt: string; message: string; type: "low_stock" | "out_of_stock" | "overstocked"; priority: "low" | ... 2 more ... | "urgent"; }[]' is not assignable to parameter of type 'SetStateAction<StockAlert[]>'.
+  Type '{ id: number; itemId: number; currentStock: number; minStock: number; itemName: string; severity: "low" | "high" | "medium" | "critical"; createdAt: string; message: string; type: "low_stock" | "out_of_stock" | "overstocked"; priority: "low" | ... 2 more ... | "urgent"; }[]' is not assignable to type 'StockAlert[]'.
+    Type '{ id: number; itemId: number; currentStock: number; minStock: number; itemName: string; severity: "low" | "high" | "medium" | "critical"; createdAt: string; message: string; type: "low_stock" | "out_of_stock" | "overstocked"; priority: "low" | ... 2 more ... | "urgent"; }' is not assignable to type 'StockAlert'.
+      Types of property 'severity' are incompatible.
+        Type '"low" | "high" | "medium" | "critical"' is not assignable to type 'AlertSeverity'.
+          Type '"high"' is not assignable to type 'AlertSeverity'.
+
+157         setAlerts(processedAlerts.map((alert, index) => ({
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+158           id: Number(alert.id) || Date.now() + index,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... 
+167           priority: (alert.priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium'
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+168         })));
+    ~~~~~~~~~~~

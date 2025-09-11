@@ -1,0 +1,195 @@
+
+server/routes/loyalty-advanced.ts:702:45 - error TS7006: Parameter 'sum' implicitly has an 'any' type.
+
+702           Math.round(recentActivity.reduce((sum, t) => sum + t.points, 0) / recentActivity.length) : 0,
+                                                ~~~
+
+server/routes/loyalty-advanced.ts:702:50 - error TS7006: Parameter 't' implicitly has an 'any' type.
+
+702           Math.round(recentActivity.reduce((sum, t) => sum + t.points, 0) / recentActivity.length) : 0,
+                                                     ~
+
+server/routes/loyalty-advanced.ts:704:45 - error TS7006: Parameter 't' implicitly has an 'any' type.
+
+704           Math.round((recentActivity.filter(t => t.type === 'redeemed').length / recentActivity.length) * 100) : 0
+                                                ~
+
+server/routes/loyalty-advanced.ts:777:75 - error TS7006: Parameter 't' implicitly has an 'any' type.
+
+777       const typedTransactions: LoyaltyTransaction[] = allTransactions.map(t => ({
+                                                                              ~
+
+server/routes/loyalty-advanced.ts:903:35 - error TS7006: Parameter 'tx' implicitly has an 'any' type.
+
+903       await db.transaction(async (tx) => {
+                                      ~~
+
+server/routes/loyalty-advanced.ts:1039:35 - error TS7006: Parameter 'tx' implicitly has an 'any' type.
+
+1039       await db.transaction(async (tx) => {
+                                       ~~
+
+server/routes/orders/orders.routes.ts:145:37 - error TS7006: Parameter 'order' implicitly has an 'any' type.
+
+145     const orderIds = ordersData.map(order => order.id);
+                                        ~~~~~
+
+server/routes/orders/orders.routes.ts:162:49 - error TS7006: Parameter 'acc' implicitly has an 'any' type.
+
+162     const groupedItems = orderItemsData.reduce((acc, item) => {
+                                                    ~~~
+
+server/routes/orders/orders.routes.ts:162:54 - error TS7006: Parameter 'item' implicitly has an 'any' type.
+
+162     const groupedItems = orderItemsData.reduce((acc, item) => {
+                                                         ~~~~
+
+server/routes/orders/orders.routes.ts:174:35 - error TS7006: Parameter 'order' implicitly has an 'any' type.
+
+174     const result = ordersData.map(order => ({
+                                      ~~~~~
+
+server/routes/orders/orders.routes.ts:284:45 - error TS7006: Parameter 'mi' implicitly has an 'any' type.
+
+284       const menuItem = menuItemsFromDb.find(mi => mi.id === item.menuItemId);
+                                                ~~
+
+server/routes/orders/orders.routes.ts:420:36 - error TS7006: Parameter 'sum' implicitly has an 'any' type.
+
+420         totalOrders: stats.reduce((sum, stat) => sum + stat.count, 0),
+                                       ~~~
+
+server/routes/orders/orders.routes.ts:420:41 - error TS7006: Parameter 'stat' implicitly has an 'any' type.
+
+420         totalOrders: stats.reduce((sum, stat) => sum + stat.count, 0),
+                                            ~~~~
+
+server/routes/orders/orders.routes.ts:421:37 - error TS7006: Parameter 'sum' implicitly has an 'any' type.
+
+421         totalRevenue: stats.reduce((sum, stat) => sum + (stat.totalRevenue || 0), 0),
+                                        ~~~
+
+server/routes/orders/orders.routes.ts:421:42 - error TS7006: Parameter 'stat' implicitly has an 'any' type.
+
+421         totalRevenue: stats.reduce((sum, stat) => sum + (stat.totalRevenue || 0), 0),
+                                             ~~~~
+
+server/routes/tables/tables.routes.ts:243:33 - error TS7006: Parameter 'res' implicitly has an 'any' type.
+
+243     currentReservations.forEach(res => {
+                                    ~~~
+
+server/routes/tables/tables.routes.ts:250:30 - error TS7006: Parameter 'res' implicitly has an 'any' type.
+
+250     nextReservations.forEach(res => {
+                                 ~~~
+
+server/routes/tables/tables.routes.ts:257:41 - error TS7006: Parameter 'table' implicitly has an 'any' type.
+
+257     const tableStatuses = allTables.map(table => {
+                                            ~~~~~
+
+server/routes/tables/tables.routes.ts:261:59 - error TS7006: Parameter 'r' implicitly has an 'any' type.
+
+261       const currentReservation = currentReservations.find(r =>
+                                                              ~
+
+server/routes/tables/tables.routes.ts:268:53 - error TS7006: Parameter 'r' implicitly has an 'any' type.
+
+268       const nextReservation = nextReservations.find(r =>
+                                                        ~
+
+server/routes/tables/tables.routes.ts:307:39 - error TS7006: Parameter 't' implicitly has an 'any' type.
+
+307       available: tableStatuses.filter(t => t.status === 'available').length,
+                                          ~
+
+server/routes/tables/tables.routes.ts:308:38 - error TS7006: Parameter 't' implicitly has an 'any' type.
+
+308       occupied: tableStatuses.filter(t => t.status === 'occupied').length,
+                                         ~
+
+server/routes/tables/tables.routes.ts:309:38 - error TS7006: Parameter 't' implicitly has an 'any' type.
+
+309       reserved: tableStatuses.filter(t => t.status === 'reserved').length,
+                                         ~
+
+server/routes/tables/tables.routes.ts:310:41 - error TS7006: Parameter 't' implicitly has an 'any' type.
+
+310       maintenance: tableStatuses.filter(t => t.status === 'maintenance').length
+                                            ~
+
+server/routes/user-profile.ts:250:49 - error TS7006: Parameter 'sum' implicitly has an 'any' type.
+
+250       const totalSpent = customerOrders.reduce((sum, order) => sum + Number(order.totalAmount), 0);
+                                                    ~~~
+
+server/routes/user-profile.ts:250:54 - error TS7006: Parameter 'order' implicitly has an 'any' type.
+
+250       const totalSpent = customerOrders.reduce((sum, order) => sum + Number(order.totalAmount), 0);
+                                                         ~~~~~
+
+server/routes/user-profile.ts:255:53 - error TS7006: Parameter 'order' implicitly has an 'any' type.
+
+255       const visitsThisMonth = customerOrders.filter(order => {
+                                                        ~~~~~
+
+server/routes/user-profile.ts:274:30 - error TS7006: Parameter 'order' implicitly has an 'any' type.
+
+274       customerOrders.forEach(order => {
+                                 ~~~~~
+
+server/routes/user-profile.ts:378:48 - error TS7006: Parameter 'res' implicitly has an 'any' type.
+
+378       const total = await query.execute().then(res => res.length);
+                                                   ~~~
+
+server/routes/user-profile.ts:385:30 - error TS7006: Parameter 'order' implicitly has an 'any' type.
+
+385         userOrders.map(async order => {
+                                 ~~~~~
+
+server/routes/user-profile.ts:447:32 - error TS7006: Parameter 'address' implicitly has an 'any' type.
+
+447       return userAddresses.map(address => ({
+                                   ~~~~~~~
+
+server/routes/users/users.routes.ts:633:28 - error TS7006: Parameter 'sum' implicitly has an 'any' type.
+
+633       total: stats.reduce((sum, stat) => sum + stat.count, 0),
+                               ~~~
+
+server/routes/users/users.routes.ts:633:33 - error TS7006: Parameter 'stat' implicitly has an 'any' type.
+
+633       total: stats.reduce((sum, stat) => sum + stat.count, 0),
+                                    ~~~~
+
+server/routes/users/users.routes.ts:634:29 - error TS7006: Parameter 'acc' implicitly has an 'any' type.
+
+634       byRole: stats.reduce((acc, stat) => {
+                                ~~~
+
+server/routes/users/users.routes.ts:634:34 - error TS7006: Parameter 'stat' implicitly has an 'any' type.
+
+634       byRole: stats.reduce((acc, stat) => {
+                                     ~~~~
+
+server/services/ai-automation.service.ts:533:36 - error TS7006: Parameter 'item' implicitly has an 'any' type.
+
+533       return inventoryAnalysis.map(item => ({
+                                       ~~~~
+
+server/services/ai-automation.service.ts:604:69 - error TS7006: Parameter 'trend' implicitly has an 'any' type.
+
+604       const opportunities: MarketingOpportunity[] = salesTrends.map(trend => ({
+                                                                        ~~~~~
+
+server/services/ai-automation.service.ts:833:28 - error TS7006: Parameter 'anomaly' implicitly has an 'any' type.
+
+833       return anomalies.map(anomaly => ({
+                               ~~~~~~~
+
+server/storage.ts:334:12 - error TS2532: Object is possibly 'undefined'.
+
+334     return this.counters[table]++;
+               ~~~~~~~~~~~~~~~~~~~~

@@ -1,0 +1,72 @@
+
+
+client/src/components/admin/maintenance-management.tsx:489:19 - error TS2412: Type '{ id: string; title: string; description: string; type: "preventive" | "corrective" | "emergency"; priority: "low" | "high" | "medium" | "critical"; status: "pending" | "cancelled" | "completed" | "in_progress"; ... 9 more ...; updatedAt: string; } | undefined' is not assignable to type 'MaintenanceTaskFormData | undefined' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+
+489                   initialData={editingTask ? {
+                      ~~~~~~~~~~~
+
+  client/src/components/admin/MaintenanceTaskForm.tsx:24:3
+    24   initialData?: MaintenanceTaskFormData;
+         ~~~~~~~~~~~
+    The expected type comes from property 'initialData' which is declared here on type 'IntrinsicAttributes & MaintenanceTaskFormProps'
+
+client/src/components/debug-css.tsx:17:18 - error TS2345: Argument of type 'boolean | ""' is not assignable to parameter of type 'SetStateAction<boolean>'.
+  Type '""' is not assignable to type 'SetStateAction<boolean>'.
+
+17     setCssLoaded(hasBackground);
+                    ~~~~~~~~~~~~~
+
+scripts/seed.ts:9:3 - error TS2724: '"../shared/schema"' has no exported member named 'User'. Did you mean 'users'?
+
+9   User, MenuCategory, MenuItem, Table, Customer, Employee,
+    ~~~~
+
+  shared/schema.ts:20:14
+    20 export const users = pgTable('users', {
+                    ~~~~~
+    'users' is declared here.
+
+scripts/seed.ts:9:9 - error TS2724: '"../shared/schema"' has no exported member named 'MenuCategory'. Did you mean 'menuCategories'?
+
+9   User, MenuCategory, MenuItem, Table, Customer, Employee,
+          ~~~~~~~~~~~~
+
+  shared/schema.ts:37:14
+    37 export const menuCategories = pgTable("menu_categories", {
+                    ~~~~~~~~~~~~~~
+    'menuCategories' is declared here.
+
+scripts/seed.ts:9:23 - error TS2724: '"../shared/schema"' has no exported member named 'MenuItem'. Did you mean 'menuItems'?
+
+9   User, MenuCategory, MenuItem, Table, Customer, Employee,
+                        ~~~~~~~~
+
+  shared/schema.ts:48:14
+    48 export const menuItems = pgTable('menu_items', {
+                    ~~~~~~~~~
+    'menuItems' is declared here.
+
+scripts/seed.ts:9:33 - error TS2724: '"../shared/schema"' has no exported member named 'Table'. Did you mean 'tables'?
+
+9   User, MenuCategory, MenuItem, Table, Customer, Employee,
+                                  ~~~~~
+
+  shared/schema.ts:80:14
+    80 export const tables = pgTable("tables", {
+                    ~~~~~~
+    'tables' is declared here.
+
+scripts/seed.ts:9:40 - error TS2724: '"../shared/schema"' has no exported member named 'Customer'. Did you mean 'customers'?
+
+9   User, MenuCategory, MenuItem, Table, Customer, Employee,
+                                         ~~~~~~~~
+
+  shared/schema.ts:95:14
+    95 export const customers = pgTable("customers", {
+                    ~~~~~~~~~
+    'customers' is declared here.
+
+scripts/seed.ts:9:50 - error TS2724: '"../shared/schema"' has no exported member named 'Employee'. Did you mean 'employees'?
+
+9   User, MenuCategory, MenuItem, Table, Customer, Employee,
+                                                   ~~~~~~~~
