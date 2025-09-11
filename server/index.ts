@@ -71,14 +71,6 @@ async function startApplication() {
     define: {
       __HMR__: !isReplit // Désactiver complètement HMR sur Replit
     },
-    css: {
-      postcss: {
-        plugins: [
-          tailwindcss,
-          autoprefixer
-        ]
-      }
-    },
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "../client/src"),
