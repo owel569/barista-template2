@@ -16,6 +16,8 @@ import {
   handleUncaughtErrors as setupUncaughtExceptionHandlers
 } from './middleware/error-handler-enhanced';
 import { createApiResponse } from './utils/response';
+import tailwindcss from 'tailwindcss';
+import autoprefixer from 'autoprefixer';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = parseInt(process.env.PORT || '5000', 10);
@@ -68,6 +70,21 @@ async function startApplication() {
     clearScreen: false,
     define: {
       __HMR__: !isReplit // Désactiver complètement HMR sur Replit
+    },
+    css: {
+      postcss: {
+        plugins: [
+          tailwindcss,
+          autoprefixer
+        ]
+      }
+    },
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "../client/src"),
+        "@shared": path.resolve(__dirname, "../shared"),
+        "@assets": path.resolve(__dirname, "../attached_assets"),
+      },
     },
     optimizeDeps: {
       include: ['react', 'react-dom']
