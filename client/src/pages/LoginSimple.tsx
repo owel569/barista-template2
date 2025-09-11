@@ -10,7 +10,7 @@ import { Eye, EyeOff, Coffee } from "lucide-react";
 export default function LoginSimple(): JSX.Element {
   const { isAuthenticated } = useContext(AuthContext);
   const [, navigate] = useLocation();
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -25,7 +25,7 @@ export default function LoginSimple(): JSX.Element {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!username || !password) {
+    if (!email || !password) {
       toast({
         title: "Erreur",
         description: "Veuillez remplir tous les champs",
@@ -41,7 +41,7 @@ export default function LoginSimple(): JSX.Element {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username,
+          email,
           password
         })
       });
@@ -56,7 +56,7 @@ export default function LoginSimple(): JSX.Element {
         
         toast({
           title: "Connexion réussie",
-          description: `Bienvenue ${data.user.firstName || username}!`,
+          description: `Bienvenue ${data.user.firstName || data.user.email}!`,
         });
         navigate("/admin");
       } else {
@@ -112,15 +112,15 @@ export default function LoginSimple(): JSX.Element {
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
-                  Nom d'utilisateur
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
                 </label>
                 <Input
-                  id="username"
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Entrez votre nom d'utilisateur"
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Entrez votre email"
                   required
                   disabled={isLoggingIn}
                   className="w-full"
