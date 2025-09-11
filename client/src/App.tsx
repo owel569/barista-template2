@@ -18,11 +18,11 @@ import AdminLayout from '@/layouts/AdminLayout';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 
-// Admin Components
+// Admin Components avec typage précis
 import Dashboard from '@/components/admin/dashboard';
 import MenuManagement from '@/components/admin/menu-management';
 import Orders from '@/components/admin/orders';
-import Reservations from '@/components/admin/reservations';
+import ReservationsFixed from '@/components/admin/reservations';
 import Customers from '@/components/admin/customers';
 import Statistics from '@/components/admin/statistics';
 import InventoryManagement from '@/components/admin/inventory-management';
@@ -189,11 +189,7 @@ function App() {
       <LanguageProvider>
         <AuthProvider>
           <Router>
-            <div className="min-h-screen w-full bg-coffee-light text-coffee-dark" style={{
-              backgroundColor: 'hsl(42, 33%, 96%)',
-              color: 'hsl(30, 67%, 16%)',
-              fontFamily: "'Inter', system-ui, sans-serif"
-            }}>
+            <div className="min-h-screen w-full bg-coffee-light text-coffee-dark">
               <Switch>
                 {/* ========== ROUTES ADMIN (sans navbar/footer) ========== */}
                 <Route path="/admin" nest>
@@ -211,7 +207,7 @@ function App() {
                             <MenuManagement userRole="directeur" />
                           </Route>
                           <Route path="/orders" component={Orders} />
-                          <Route path="/reservations" component={Reservations} />
+                          <Route path="/reservations" component={ReservationsFixed} />
                           <Route path="/customers">
                             <Customers userRole="directeur" user={null} />
                           </Route>

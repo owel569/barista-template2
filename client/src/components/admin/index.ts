@@ -1,9 +1,14 @@
 
-// Export centralisé des composants admin
+// Export centralisé des composants admin avec typage précis
+export { default as Dashboard } from './dashboard';
 export { default as DashboardConsolidated } from './dashboard-consolidated';
 export { default as UserManagement } from './employees';
 export { default as MenuManagement } from './menu-management';
+export { default as Orders } from './orders';
 export { default as OrderManagement } from './orders';
+export { default as ReservationsFixed } from './reservations';
+export { default as Customers } from './customers';
+export { default as Statistics } from './statistics';
 export { default as AnalyticsDashboard } from './analytics-dashboard';
 export { default as ReportsSystem } from './reports-system';
 export { default as SettingsPanel } from './settings';

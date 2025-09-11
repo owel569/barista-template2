@@ -73,8 +73,8 @@
     font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif !important;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: hsl(var(--coffee-light, 42 33% 96%)) !important;
-    color: hsl(var(--coffee-dark, 30 67% 16%)) !important;
+    background-color: hsl(42, 33%, 96%) !important;
+    color: hsl(30, 67%, 16%) !important;
     line-height: 1.6;
     min-height: 100vh;
     margin: 0;
