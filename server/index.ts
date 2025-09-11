@@ -21,6 +21,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = parseInt(process.env.PORT || '5000', 10);
 const HOST = process.env.HOST || '0.0.0.0';
 
+// Configuration des variables d'environnement critiques
+if (!process.env.JWT_SECRET) {
+  process.env.JWT_SECRET = 'barista-cafe-secret-key-2024-production-secure';
+  console.log('🔑 JWT_SECRET configuré par défaut pour le développement');
+}
+
 async function startApplication() {
   const app = express();
 

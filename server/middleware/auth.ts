@@ -101,7 +101,7 @@ export class AuthService {
     return jwt.sign(payload, JWT_SECRET, {
       expiresIn: '24h',
       issuer: 'barista-cafe',
-      audience: 'barista-cafe-users'
+      audience: 'barista-users'
     });
   }
 
@@ -112,7 +112,7 @@ export class AuthService {
     try {
       return jwt.verify(token, JWT_SECRET, {
         issuer: 'barista-cafe',
-        audience: 'barista-cafe-users'
+        audience: 'barista-users'
       }) as JWTPayload;
     } catch (error) {
       logger.warn('Token invalide', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
