@@ -103,22 +103,41 @@ export default function DashboardMain(): JSX.Element {
     queryKey: ['real-time-stats'],
     queryFn: async () => {
       try {
-        const response = await fetch('/api/dashboard/real-time-stats', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json'
-          }
-        });
+        const token = localStorage.getItem('token') || localStorage.getItem('auth_token') || localStorage.getItem('barista_auth_token');
         
-        if (!response.ok) {
-          throw new Error('Erreur lors de la récupération des statistiques');
+        // Essayer plusieurs endpoints pour récupérer les données
+        const endpoints = [
+          '/api/dashboard/real-time-stats',
+          '/api/statistics/dashboard',
+          '/api/admin/statistics'
+        ];
+
+        for (const endpoint of endpoints) {
+          try {
+            const response = await fetch(endpoint, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            if (response.ok) {
+              const data = await response.json();
+              console.log(`✅ Dashboard Main - Données récupérées depuis ${endpoint}:`, data);
+              return data.data || data;
+            }
+          } catch (endpointError) {
+            console.warn(`Dashboard Main - Endpoint ${endpoint} non disponible:`, endpointError);
+            continue;
+          }
         }
         
-        const data = await response.json();
-        return data.data || data;
+        throw new Error('Aucune donnée réelle disponible');
       } catch (error) {
-        console.error('Erreur stats temps réel:', error);
-        // Données de fallback réalistes
+        console.error('❌ Dashboard Main - Erreur stats temps réel:', error);
+        console.warn('🔄 Dashboard Main - Utilisation des données de fallback');
+        
+        // Données de fallback réalistes mais marquées comme telles
         return {
           todayReservations: 28,
           activeOrders: 12,
@@ -127,12 +146,15 @@ export default function DashboardMain(): JSX.Element {
           staffOnDuty: 8,
           averageOrderValue: 24.50,
           customerSatisfaction: 4.6,
-          tablesTurnover: 3.2
+          tablesTurnover: 3.2,
+          _isFallbackData: true // Marquer comme données de fallback
         };
       }
     },
     refetchInterval: 30000, // Actualisation toutes les 30 secondes
-    enabled: !!user,
+    retry: 3,
+    retryDelay: 2000,
+    enabled: !!userser,
   });
 
   // Activités récentes temps réel

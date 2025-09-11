@@ -50,11 +50,7 @@ import AnalyticsDashboardModule from '@/components/admin/modules/AnalyticsDashbo
 import InventoryManagementModule from '@/components/admin/modules/InventoryManagement';
 import LoyaltyProgramModule from '@/components/admin/modules/LoyaltyProgram';
 import DashboardModule from '@/components/admin/modules/Dashboard';
-// Assuming DashboardConsolidated is a new component that combines functionalities
-// If it's not yet created, this will be a placeholder or an error.
-// For the sake of this exercise, we assume it exists or will be created at:
-// client/src/components/admin/DashboardConsolidated.tsx
-import { DashboardConsolidated } from '@/components/admin'; // Import the new consolidated dashboard
+import DashboardConsolidated from '@/components/admin/dashboard-consolidated';
 
 // Mock logger for demonstration purposes if not globally available
 const logger = {

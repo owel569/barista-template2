@@ -2,6 +2,7 @@
 // Export centralisé des composants admin avec typage précis
 export { default as Dashboard } from './dashboard';
 export { default as DashboardConsolidated } from './dashboard-consolidated';
+export { default as DashboardHealthCheck } from './dashboard-health-check';
 export { default as UserManagement } from './employees';
 export { default as MenuManagement } from './menu-management';
 export { default as Orders } from './orders';

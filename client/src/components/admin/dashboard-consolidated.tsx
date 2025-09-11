@@ -106,22 +106,44 @@ export default function DashboardConsolidated(): JSX.Element {
     queryFn: async () => {
       try {
         const token = localStorage.getItem('token') || localStorage.getItem('auth_token') || localStorage.getItem('barista_auth_token');
-        const response = await fetch('/api/dashboard/real-time-stats', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
+        
+        // Essayer plusieurs endpoints pour les données réelles
+        const endpoints = [
+          '/api/dashboard/real-time-stats',
+          '/api/dashboard/statistics',
+          '/api/admin/dashboard-stats'
+        ];
 
-        if (!response.ok) throw new Error('Erreur stats');
-        const data = await response.json();
-        return data.success ? data.data : null;
+        for (const endpoint of endpoints) {
+          try {
+            const response = await fetch(endpoint, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              console.log(`✅ Données récupérées depuis ${endpoint}:`, data);
+              return data.success ? data.data : data;
+            }
+          } catch (endpointError) {
+            console.warn(`Endpoint ${endpoint} non disponible:`, endpointError);
+            continue;
+          }
+        }
+        
+        throw new Error('Aucun endpoint de données disponible');
       } catch (error) {
-        console.warn('API non disponible, utilisation des données de démonstration');
+        console.error('❌ Erreur lors de la récupération des données réelles:', error);
+        console.warn('🔄 Utilisation des données de démonstration');
         return null;
       }
     },
     refetchInterval: 15000, // Actualisation toutes les 15 secondes
+    retry: 3,
+    retryDelay: 1000,
   });
 
   // Données par défaut si l'API n'est pas disponible
