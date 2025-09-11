@@ -1,0 +1,60 @@
+
+scripts/seed.ts:477:92 - error TS2532: Object is possibly 'undefined'.
+
+477       { orderId: createdOrders[0].id, menuItemId: menuItems[0].id, quantity: 2, unitPrice: menuItems[0].price, totalPrice: String(Number(menuItems[0].price) * 2) },
+                                                                                               ~~~~~~~~~~~~
+
+scripts/seed.ts:477:138 - error TS2532: Object is possibly 'undefined'.
+
+477       { orderId: createdOrders[0].id, menuItemId: menuItems[0].id, quantity: 2, unitPrice: menuItems[0].price, totalPrice: String(Number(menuItems[0].price) * 2) },
+                                                                                                                                             ~~~~~~~~~~~~
+
+scripts/seed.ts:478:51 - error TS2532: Object is possibly 'undefined'.
+
+478       { orderId: createdOrders[0].id, menuItemId: menuItems[8].id, quantity: 1, unitPrice: menuItems[8].price, totalPrice: menuItems[8].price },
+                                                      ~~~~~~~~~~~~
+
+scripts/seed.ts:478:92 - error TS2532: Object is possibly 'undefined'.
+
+478       { orderId: createdOrders[0].id, menuItemId: menuItems[8].id, quantity: 1, unitPrice: menuItems[8].price, totalPrice: menuItems[8].price },
+                                                                                               ~~~~~~~~~~~~
+
+scripts/seed.ts:478:124 - error TS2532: Object is possibly 'undefined'.
+
+478       { orderId: createdOrders[0].id, menuItemId: menuItems[8].id, quantity: 1, unitPrice: menuItems[8].price, totalPrice: menuItems[8].price },
+                                                                                                                               ~~~~~~~~~~~~
+
+scripts/seed.ts:481:51 - error TS2532: Object is possibly 'undefined'.
+
+481       { orderId: createdOrders[1].id, menuItemId: menuItems[1].id, quantity: 1, unitPrice: menuItems[1].price, totalPrice: menuItems[1].price },
+                                                      ~~~~~~~~~~~~
+
+scripts/seed.ts:481:92 - error TS2532: Object is possibly 'undefined'.
+
+481       { orderId: createdOrders[1].id, menuItemId: menuItems[1].id, quantity: 1, unitPrice: menuItems[1].price, totalPrice: menuItems[1].price },
+                                                                                               ~~~~~~~~~~~~
+
+scripts/seed.ts:481:124 - error TS2532: Object is possibly 'undefined'.
+
+481       { orderId: createdOrders[1].id, menuItemId: menuItems[1].id, quantity: 1, unitPrice: menuItems[1].price, totalPrice: menuItems[1].price },
+                                                                                                                               ~~~~~~~~~~~~
+
+scripts/seed.ts:482:51 - error TS2532: Object is possibly 'undefined'.
+
+482       { orderId: createdOrders[1].id, menuItemId: menuItems[12].id, quantity: 1, unitPrice: menuItems[12].price, totalPrice: menuItems[12].price },
+                                                      ~~~~~~~~~~~~~
+
+scripts/seed.ts:482:93 - error TS2532: Object is possibly 'undefined'.
+
+482       { orderId: createdOrders[1].id, menuItemId: menuItems[12].id, quantity: 1, unitPrice: menuItems[12].price, totalPrice: menuItems[12].price },
+                                                                                                ~~~~~~~~~~~~~
+
+scripts/seed.ts:482:126 - error TS2532: Object is possibly 'undefined'.
+
+482       { orderId: createdOrders[1].id, menuItemId: menuItems[12].id, quantity: 1, unitPrice: menuItems[12].price, totalPrice: menuItems[12].price },
+                                                                                                                                 ~~~~~~~~~~~~~
+
+scripts/seed.ts:485:51 - error TS2532: Object is possibly 'undefined'.
+
+485       { orderId: createdOrders[2].id, menuItemId: menuItems[2].id, quantity: 2, unitPrice: menuItems[2].price, totalPrice: String(Number(menuItems[2].price) * 2) },
+                               
