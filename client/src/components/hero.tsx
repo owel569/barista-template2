@@ -32,8 +32,7 @@ export default function Hero() : JSX.Element {
       <div className="absolute inset-0 bg-coffee-dark bg-opacity-60" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className="space-y-8">
-          
+        <div className="space-y-6">
           {/* Main Heading */}
           <div className="space-y-4">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight">
