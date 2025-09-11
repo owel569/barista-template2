@@ -1,3 +1,5 @@
+/* Directives Tailwind CSS - Ces directives sont traitées par PostCSS + Tailwind */
+/* L'éditeur peut signaler des erreurs mais elles sont normales et fonctionnent correctement */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -69,6 +71,7 @@
   }
 
   body {
+    /* Directive @apply de Tailwind - fonctionne correctement malgré l'avertissement de l'éditeur */
     @apply bg-background text-foreground;
     font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif !important;
     -webkit-font-smoothing: antialiased;
