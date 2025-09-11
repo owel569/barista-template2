@@ -189,12 +189,12 @@ router.get('/',
 
     // Appliquer les conditions et le tri
     let filteredQuery = query as any;
-    
+
     // Appliquer les conditions d'abord
     if (conditions.length > 0) {
       filteredQuery = filteredQuery.where(and(...conditions));
     }
-    
+
     // Puis appliquer le tri
     if (sortOrder === 'desc') {
       filteredQuery = filteredQuery.orderBy(desc(orderColumn));
@@ -214,7 +214,7 @@ router.get('/',
       .from(feedback)
       .leftJoin(customers, eq(feedback.customerId, customers.id))
       .where(conditions.length > 0 ? and(...conditions) : undefined);
-    
+
     const count = countResult[0]?.count || 0;
 
     logger.info('Commentaires récupérés', {
@@ -596,12 +596,12 @@ router.get('/stats/overview',
     const stats: FeedbackStats = {
       total: generalStats.total,
       averageRating: Number(generalStats.averageRating?.toFixed(2)) || 0,
-      ratingDistribution: ratingDistribution.reduce((acc, item) => {
+      ratingDistribution: ratingDistribution.reduce((acc: Record<number, number>, item: any) => {
         acc[item.rating] = item.count;
         return acc;
       }, {} as Record<number, number>),
       categoryStats,
-      statusDistribution: statusDistribution.reduce((acc, item) => {
+      statusDistribution: statusDistribution.reduce((acc: Record<string, number>, item: any) => {
         acc[item.status] = item.count;
         return acc;
       }, {} as Record<string, number>),

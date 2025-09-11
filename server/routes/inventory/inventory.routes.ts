@@ -264,7 +264,7 @@ router.get('/alerts',
       )
       .orderBy(desc(inventory.currentStock));
 
-    const alerts: StockAlert[] = alertsData.map(item => {
+    const alerts: StockAlert[] = alertsData.map((item: any) => {
       if (item.currentStock === 0) {
         return {
           id: item.id,

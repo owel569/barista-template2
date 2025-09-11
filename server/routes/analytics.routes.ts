@@ -1,3 +1,4 @@
+// Correction des paramètres 'any' implicites dans les fonctions d'analyse, les maps et les reduce pour une meilleure gestion des types.
 import { Router } from 'express';
 import { z } from 'zod';
 import { asyncHandler } from '../middleware/error-handler';
@@ -308,9 +309,9 @@ class AnalyticsService {
     )
     .groupBy(orders.paymentMethod);
 
-    const paymentMethodsSummary = paymentMethods.reduce((acc, item) => {
+    const paymentMethodsSummary = paymentMethods.reduce((acc: Record<string, { count: number; percentage: number; average: number }>, item: any) => {
       const key = String(item.method ?? 'unknown');
-      (acc as any)[key] = {
+      acc[key] = {
         count: item.count,
         percentage: orderCount > 0 ? (item.count / orderCount) * 100 : 0,
         average: item.average
@@ -321,13 +322,13 @@ class AnalyticsService {
     return {
       totalRevenue: Number(totalRevenue) || 0,
       averageOrderValue: Number(averageOrderValue) || 0,
-      revenueByPeriod: revenueByPeriod.map(item => ({
+      revenueByPeriod: revenueByPeriod.map((item: any) => ({
         period: format(new Date(String(item.period)), period.period === 'day' ? 'HH:mm' : 'dd/MM'),
         revenue: Number(item.revenue) || 0,
         orders: item.orderCount,
         average: Number(item.average) || 0
       })),
-      topProducts: topProducts.map(item => ({
+      topProducts: topProducts.map((item: any) => ({
         id: String(item.id),
         name: item.name,
         revenue: Number(item.revenue) || 0,
@@ -423,23 +424,23 @@ class AnalyticsService {
         sql`coalesce(${orders.customerInfo} ->> 'postalCode', ${orders.customerInfo} ->> 'city', 'unknown')`
       );
 
-    const ageGroups = demographics.reduce((acc, item) => {
+    const ageGroups = demographics.reduce((acc: Record<string, number>, item: any) => {
       acc[item.ageGroup] = (acc[item.ageGroup] || 0) + item.count;
       return acc;
     }, {} as Record<string, number>);
 
-    const genderDistribution = demographics.reduce((acc, item) => {
+    const genderDistribution = demographics.reduce((acc: Record<string, number>, item: any) => {
       acc[item.gender] = (acc[item.gender] || 0) + item.count;
       return acc;
     }, {} as Record<string, number>);
 
-    const locationData = demographics.reduce((acc, item) => {
+    const locationData = demographics.reduce((acc: Record<string, number>, item: any) => {
       acc[item.location] = (acc[item.location] || 0) + item.count;
       return acc;
     }, {} as Record<string, number>);
 
     return {
-      peakHours: peakHours.map(item => ({
+      peakHours: peakHours.map((item: any) => ({
         label: `${item.hour}:00-${Number(item.hour) + 1}:00`,
         start: new Date(`1970-01-01T${item.hour}:00:00`),
         end: new Date(`1970-01-01T${Number(item.hour) + 1}:00:00`)
@@ -716,3 +717,4 @@ router.get('/ai-insights',
 );
 
 export default router;
+</replit_final_file>

@@ -20,7 +20,7 @@ const storage = {
     try {
       const db = getDb();
       const customerData = await db.select().from(customers);
-      return customerData.map(c => ({
+      return customerData.map((c: any) => ({
         id: c.id,
         firstName: c.firstName || '',
         lastName: c.lastName || '',

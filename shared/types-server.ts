@@ -423,14 +423,30 @@ export type UserRole = 'directeur' | 'employe' | 'admin';
 export type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'ready' | 'served' | 'cancelled';
 export type ReservationStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show';
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
-export type TableStatus = 'available' | 'occupied' | 'reserved' | 'maintenance';
+export type TableStatusType = 'available' | 'occupied' | 'reserved' | 'maintenance';
 // Types d'interface pour les routes serveur
 
 export interface TableStatus {
   id: number;
-  status: 'available' | 'occupied' | 'reserved' | 'maintenance';
+  number: number;
   capacity: number;
-  reservationTime?: Date;
+  location: string | null;
+  section: string | null;
+  status: TableStatusType;
+  currentReservation?: {
+    id: number;
+    customerName: string;
+    startTime: Date;
+    endTime: Date;
+    partySize: number;
+  };
+  nextReservation?: {
+    id: number;
+    customerName: string;
+    startTime: Date;
+    endTime: Date;
+    partySize: number;
+  };
 }
 
 export interface OrderStatistics {

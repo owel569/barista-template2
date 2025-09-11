@@ -185,7 +185,7 @@ router.get('/overview',
       },
       orders: {
         byStatus: orderStats,
-        total: orderStats.reduce((sum, stat) => sum + stat.count, 0)
+        total: orderStats.reduce((sum: number, stat: any) => sum + stat.count, 0)
       },
       reservations: reservationStats,
       topProducts,

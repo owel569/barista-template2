@@ -471,23 +471,33 @@ async function seedSampleOrdersWithTransaction(tx: any, customers: Customer[], m
 
     const createdOrders = await tx.insert(orders).values(orderData).onConflictDoNothing().returning();
 
-    // Création des order items
-    const orderItemData = [
-      // Commande 1
-      { orderId: createdOrders[0].id, menuItemId: menuItems[0].id, quantity: 2, unitPrice: menuItems[0].price, totalPrice: String(Number(menuItems[0].price) * 2) },
-      { orderId: createdOrders[0].id, menuItemId: menuItems[8].id, quantity: 1, unitPrice: menuItems[8].price, totalPrice: menuItems[8].price },
+    // Créer des éléments de commande avec vérifications
+    const orderItems = [];
 
-      // Commande 2
-      { orderId: createdOrders[1].id, menuItemId: menuItems[1].id, quantity: 1, unitPrice: menuItems[1].price, totalPrice: menuItems[1].price },
-      { orderId: createdOrders[1].id, menuItemId: menuItems[12].id, quantity: 1, unitPrice: menuItems[12].price, totalPrice: menuItems[12].price },
+    // Vérifications de sécurité pour éviter les erreurs undefined
+    if (createdOrders[0] && menuItems[0] && menuItems[8]) {
+      orderItems.push(
+        { orderId: createdOrders[0].id, menuItemId: menuItems[0].id, quantity: 2, unitPrice: menuItems[0].price, totalPrice: String(Number(menuItems[0].price) * 2) },
+        { orderId: createdOrders[0].id, menuItemId: menuItems[8].id, quantity: 1, unitPrice: menuItems[8].price, totalPrice: menuItems[8].price }
+      );
+    }
 
-      // Commande 3
-      { orderId: createdOrders[2].id, menuItemId: menuItems[2].id, quantity: 2, unitPrice: menuItems[2].price, totalPrice: String(Number(menuItems[2].price) * 2) },
-      { orderId: createdOrders[2].id, menuItemId: menuItems[10].id, quantity: 1, unitPrice: menuItems[10].price, totalPrice: menuItems[10].price },
-      { orderId: createdOrders[2].id, menuItemId: menuItems[15].id, quantity: 1, unitPrice: menuItems[15].price, totalPrice: menuItems[15].price }
-    ];
+    if (createdOrders[1] && menuItems[1] && menuItems[12]) {
+      orderItems.push(
+        { orderId: createdOrders[1].id, menuItemId: menuItems[1].id, quantity: 1, unitPrice: menuItems[1].price, totalPrice: menuItems[1].price },
+        { orderId: createdOrders[1].id, menuItemId: menuItems[12].id, quantity: 1, unitPrice: menuItems[12].price, totalPrice: menuItems[12].price }
+      );
+    }
 
-    const createdOrderItems = await tx.insert(orderItems).values(orderItemData).onConflictDoNothing().returning();
+    if (createdOrders[2] && menuItems[2] && menuItems[10] && menuItems[15]) {
+      orderItems.push(
+        { orderId: createdOrders[2].id, menuItemId: menuItems[2].id, quantity: 2, unitPrice: menuItems[2].price, totalPrice: String(Number(menuItems[2].price) * 2) },
+        { orderId: createdOrders[2].id, menuItemId: menuItems[10].id, quantity: 1, unitPrice: menuItems[10].price, totalPrice: menuItems[10].price },
+        { orderId: createdOrders[2].id, menuItemId: menuItems[15].id, quantity: 1, unitPrice: menuItems[15].price, totalPrice: menuItems[15].price }
+      );
+    }
+
+    const createdOrderItems = await tx.insert(orderItems).values(orderItems).onConflictDoNothing().returning();
 
     return {
       orders: createdOrders.length,
@@ -503,33 +513,25 @@ async function seedSampleReservationsWithTransaction(tx: any, customers: Custome
   try {
     console.log('📅 Création des réservations d\'exemple...');
 
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    const nextWeek = new Date();
-    nextWeek.setDate(nextWeek.getDate() + 7);
-
     const reservationData = [
-      {
+      ...(customers[0] && tables[0] ? [{
         customerId: customers[0].id,
         tableId: tables[0].id,
-        date: tomorrow,
-        reservationTime: tomorrow,
-        time: '12:30',
+        date: new Date(Date.now() + 24 * 60 * 60 * 1000), // Demain
+        time: '19:00',
         partySize: 2,
-        status: 'confirmed',
+        status: 'confirmed' as const,
         specialRequests: 'Table près de la fenêtre'
-      },
-      {
+      }] : []),
+      ...(customers[1] && tables[1] ? [{
         customerId: customers[1].id,
         tableId: tables[1].id,
-        date: nextWeek,
-        reservationTime: nextWeek,
-        time: '19:00',
+        date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // Après-demain
+        time: '20:30',
         partySize: 4,
-        status: 'pending',
-        specialRequests: ''
-      }
+        status: 'pending' as const,
+        specialRequests: 'Anniversaire - dessert spécial'
+      }] : [])
     ];
 
     const createdReservations = await tx.insert(reservations).values(reservationData).onConflictDoNothing().returning();
