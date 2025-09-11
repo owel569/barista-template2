@@ -717,4 +717,3 @@ router.get('/ai-insights',
 );
 
 export default router;
-</replit_final_file>
