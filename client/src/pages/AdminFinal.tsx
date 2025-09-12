@@ -11,9 +11,10 @@ import {
 } from 'lucide-react';
 import { usePermissions } from '@/hooks/usePermissions';
 import { cn } from '@/lib/utils';
+import { ErrorBoundary, LoadingFallback, NotFoundFallback } from '@/components/admin/error-boundary';
 
 // Import admin modules
-import Dashboard from '@/components/admin/dashboard'; // Keep this import for now as it might be a dependency of DashboardConsolidated, or for fallback if needed.
+import Dashboard from '@/components/admin/dashboard';
 import Reservations from '@/components/admin/reservations';
 import Orders from '@/components/admin/orders';
 import Customers from '@/components/admin/customers';
@@ -497,9 +498,17 @@ export default function AdminFinal() : JSX.Element {
 
       {/* Contenu principal */}
       <main className="p-4">
-        {/* Affichage du composant actuel */}
+        {/* Affichage du composant actuel avec ErrorBoundary */}
         <div className="h-[calc(100vh-80px)] overflow-y-auto">
-          <CurrentComponent userRole={user?.role} user={user} />
+          <ErrorBoundary 
+            fallback={({ error, resetError }) => (
+              <NotFoundFallback moduleName={currentModule?.name} />
+            )}
+          >
+            <React.Suspense fallback={<LoadingFallback />}>
+              <CurrentComponent userRole={user?.role} user={user} />
+            </React.Suspense>
+          </ErrorBoundary>
         </div>
       </main>
     </div>

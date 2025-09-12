@@ -154,7 +154,7 @@ export default function DashboardMain(): JSX.Element {
     refetchInterval: 30000, // Actualisation toutes les 30 secondes
     retry: 3,
     retryDelay: 2000,
-    enabled: !!userser,
+    enabled: !!user,
   });
 
   // Activités récentes temps réel

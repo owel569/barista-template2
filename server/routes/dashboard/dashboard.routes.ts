@@ -564,4 +564,96 @@ router.get('/alerts',
   })
 );
 
+// Route pour les statistiques en temps réel
+router.get('/real-time-stats', requireRoles(['directeur', 'gerant']), async (req, res) => {
+  try {
+    // Données de statistiques en temps réel
+    const stats = {
+      todayReservations: 28,
+      activeOrders: 12,
+      monthlyRevenue: 15420,
+      occupancyRate: 75,
+      staffOnDuty: 8,
+      averageOrderValue: 24.50,
+      customerSatisfaction: 4.6,
+      tablesTurnover: 3.2
+    };
+
+    res.json({
+      success: true,
+      data: stats
+    });
+  } catch (error) {
+    console.error('Erreur statistiques dashboard:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la récupération des statistiques'
+    });
+  }
+});
+
+// Route pour les activités récentes
+router.get('/recent-activities', requireRoles(['directeur', 'gerant']), async (req, res) => {
+  try {
+    const activities = [
+      {
+        id: 1,
+        type: 'reservation',
+        message: 'Nouvelle réservation confirmée - Table 4',
+        time: 'Il y a 2 minutes',
+        status: 'success'
+      },
+      {
+        id: 2,
+        type: 'order',
+        message: 'Commande #1248 terminée',
+        time: 'Il y a 5 minutes',
+        status: 'success',
+        amount: 45.50
+      },
+      {
+        id: 3,
+        type: 'alert',
+        message: 'Stock faible: Café Arabica',
+        time: 'Il y a 10 minutes',
+        status: 'warning'
+      }
+    ];
+
+    res.json({
+      success: true,
+      data: activities
+    });
+  } catch (error) {
+    console.error('Erreur activités dashboard:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la récupération des activités'
+    });
+  }
+});
+
+// Route pour les notifications count
+router.get('/notifications/count', requireRoles(['directeur', 'gerant']), async (req, res) => {
+  try {
+    const notifications = {
+      pendingReservations: 3,
+      newMessages: 2,
+      pendingOrders: 5,
+      lowStockItems: 2
+    };
+
+    res.json({
+      success: true,
+      data: notifications
+    });
+  } catch (error) {
+    console.error('Erreur notifications dashboard:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la récupération des notifications'
+    });
+  }
+});
+
 export default router;

@@ -118,7 +118,7 @@ router.get('/settings',
       taxRate: 20.0,
       currency: 'EUR'
     };
-    
+
     res.json({
       success: true,
       data: settings
@@ -142,9 +142,9 @@ router.put('/settings',
   validateBody(SettingsSchema), 
   asyncHandler(async (req: Request, res: Response) => {
     const settings = req.body;
-    
+
     // TODO: Valider et sauvegarder en base de données
-    
+
     res.json({
       success: true,
       message: 'Paramètres mis à jour avec succès'
@@ -159,9 +159,9 @@ router.post('/users',
   validateBody(UserCreateSchema), 
   asyncHandler(async (req: Request, res: Response) => {
     const { username, email, password, role } = req.body;
-    
+
     // TODO: Créer l'utilisateur en base de données
-    
+
     return res.status(201).json({
       success: true,
       message: 'Utilisateur créé avec succès'
@@ -175,16 +175,16 @@ router.patch('/users/:id/status',
   asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
     const { active } = req.body;
-    
+
     if (!id) {
       return res.status(400).json({
         success: false,
         message: 'ID utilisateur requis'
       });
     }
-    
+
     // TODO: Mettre à jour le statut en base de données
-    
+
     return res.json({
       success: true,
       message: `Utilisateur ${active ? 'activé' : 'désactivé'} avec succès`
@@ -193,43 +193,60 @@ router.patch('/users/:id/status',
 );
 
 // Logs d'activité
-router.get('/activity-logs', 
-  authenticateUser,
-  asyncHandler(async (req: Request, res: Response) => {
-    const { page = 1, limit = 50 } = req.query;
-    
-    // TODO: Récupérer depuis la base de données
+router.get('/activity-logs', authenticateUser, async (req, res) => {
+  try {
+    // Simulation des logs d'activité
     const logs = [
       {
-        id: '1',
-        userId: '1',
-        username: 'admin',
-        action: 'login',
-        description: 'Connexion à l\'administration',
+        id: 1,
+        action: 'Connexion utilisateur',
+        user: 'admin@barista-cafe.com',
         timestamp: new Date().toISOString(),
-        ipAddress: '192.168.1.1'
+        details: 'Connexion réussie'
       },
       {
-        id: '2',
-        userId: '1',
-        username: 'admin',
-        action: 'menu_update',
-        description: 'Modification du prix du Cappuccino',
+        id: 2,
+        action: 'Création réservation',
+        user: 'client@example.com',
         timestamp: new Date(Date.now() - 300000).toISOString(),
-        ipAddress: '192.168.1.1'
+        details: 'Réservation table 4 pour 4 personnes'
       }
     ];
-    
+
     res.json({
       success: true,
-      data: logs,
-      pagination: {
-        page: typeof page === 'string' ? parseInt(page) : 1,
-        limit: typeof limit === 'string' ? parseInt(limit) : 50,
-        total: logs.length
-      }
+      data: logs
     });
-  })
-);
+  } catch (error) {
+    logger.error('Erreur récupération logs:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur serveur'
+    });
+  }
+});
+
+// Route pour les notifications count
+router.get('/notifications/count', authenticateUser, async (req, res) => {
+  try {
+    const notifications = {
+      pendingReservations: 3,
+      newMessages: 2,
+      pendingOrders: 5,
+      lowStockItems: 2
+    };
+
+    res.json({
+      success: true,
+      data: notifications
+    });
+  } catch (error) {
+    logger.error('Erreur notifications count:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur serveur'
+    });
+  }
+});
 
 export default router;
