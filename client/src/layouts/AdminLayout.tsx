@@ -59,7 +59,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   };
 
   return (
-    <ProtectedRoute requireRole="directeur">
+    <ProtectedRoute requireRole={['directeur', 'gerant']}>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
       {/* Sidebar */}
       <div className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg transition-transform duration-300 ease-in-out`}>

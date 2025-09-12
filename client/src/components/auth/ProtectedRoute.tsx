@@ -5,7 +5,7 @@ import { useAuth } from '@/components/auth/AuthProvider';
 interface ProtectedRouteProps {
   children: ReactNode;
   redirectTo?: string;
-  requireRole?: 'directeur' | 'employe';
+  requireRole?: 'directeur' | 'gerant' | 'employe' | string[];
   fallback?: ReactNode;
 }
 
@@ -45,7 +45,17 @@ export default function ProtectedRoute({
   }
 
   // Check role requirement if specified
-  if (requireRole && user?.role !== requireRole) {
+  const hasRequiredRole = () => {
+    if (!requireRole) return true;
+    
+    if (Array.isArray(requireRole)) {
+      return requireRole.includes(user?.role || '');
+    }
+    
+    return user?.role === requireRole;
+  };
+
+  if (requireRole && !hasRequiredRole()) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center" data-testid="access-denied">
         <div className="text-center p-8">
