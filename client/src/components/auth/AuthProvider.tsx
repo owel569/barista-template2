@@ -91,7 +91,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, []);
 
-  const login = useCallback(async (username: string, password: string): Promise<LoginResponse> => {
+  const login = useCallback(async (email: string, password: string): Promise<LoginResponse> => {
     try {
       setAuthState(prev => ({ ...prev, isLoading: true }));
 
@@ -99,7 +99,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         message: string;
         token: string;
         user: AuthUser;
-      }>('/auth/login', { username, password });
+      }>('/auth/login', { email, password });
 
       // Stocker les données d'authentification
       AuthTokenManager.setToken(response.token);
