@@ -31,6 +31,19 @@ import WorkSchedule from '@/components/admin/work-schedule/WorkSchedule';
 import { PermissionsManagementImproved } from '@/components/admin/permissions-management-improved';
 import ComprehensiveReportsManager from '@/components/admin/ComprehensiveReportsManager';
 import UserProfileEnhanced from '@/components/admin/user-profile-enhanced-optimized';
+import { AdvancedAnalyticsDashboard } from '@/components/admin/analytics/AdvancedAnalyticsDashboard';
+import ActivityLogs from '@/components/admin/activity-logs';
+import NotificationsSystem from '@/components/admin/notifications-system';
+import BackupSystem from '@/components/admin/backup-system';
+import SuppliersManagement from '@/components/admin/suppliers-management';
+import TableManagement from '@/components/admin/table-management';
+import DeliveryTracking from '@/components/admin/delivery-tracking';
+import OnlineOrdering from '@/components/admin/online-ordering';
+import EventsPromotions from '@/components/admin/events-promotions';
+import CustomerFeedback from '@/components/admin/customer-feedback';
+import QualityControl from '@/components/admin/quality-control';
+import MaintenanceManagement from '@/components/admin/maintenance-management';
+import AdvancedMaintenance from '@/components/admin/advanced-maintenance';
 
 // Debug Component removed to fix import issues
 
@@ -222,6 +235,22 @@ function App() {
                           <Route path="/permissions" component={PermissionsManagementImproved} />
                           <Route path="/reports" component={ComprehensiveReportsManager} />
                           <Route path="/profile" component={UserProfileEnhanced} />
+                          <Route path="/analytics" component={AdvancedAnalyticsDashboard} />
+                          <Route path="/activity-logs" component={ActivityLogs} />
+                          <Route path="/notifications" component={NotificationsSystem} />
+                          <Route path="/backup" component={BackupSystem} />
+                          <Route path="/images">
+                            <SimplePage title="Gestion des Images" description="Module de gestion des images" />
+                          </Route>
+                          <Route path="/suppliers" component={SuppliersManagement} />
+                          <Route path="/tables" component={TableManagement} />
+                          <Route path="/delivery" component={DeliveryTracking} />
+                          <Route path="/online-orders" component={OnlineOrdering} />
+                          <Route path="/events" component={EventsPromotions} />
+                          <Route path="/feedback" component={CustomerFeedback} />
+                          <Route path="/quality" component={QualityControl} />
+                          <Route path="/maintenance" component={MaintenanceManagement} />
+                          <Route path="/advanced-maintenance" component={AdvancedMaintenance} />
                         </Switch>
                       </AdminLayout>
                     </Route>
