@@ -61,40 +61,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
   
   gerant: [
     // Accès de gestion - Gérant a la plupart des droits sauf administration système
-    'dashboard.view',
-    'menu.view', 'menu.create', 'menu.edit',
-    'orders.view', 'orders.create', 'orders.edit', 'orders.cancel',
-    'reservations.view', 'reservations.create', 'reservations.edit', 'reservations.cancel',
-    'customers.view', 'customers.create', 'customers.edit',
-    'inventory.view', 'inventory.create', 'inventory.edit',
-    'schedule.view', 'schedule.create', 'schedule.edit',
-    'users.view', 'users.edit',
-    'reports.view', 'reports.create',
-    'analytics.view',
-    'notifications.view',
-    'maintenance.view',
-    'suppliers.view', 'suppliers.edit',
-    'tables.view', 'tables.edit',
-    'delivery.view', 'delivery.manage',
-    'events.view', 'events.create', 'events.edit',
-    'feedback.view', 'feedback.respond',
-    'quality.view',
-    'settings.view'
-  ],
-
-  employe: [
-    // Accès employé - Opérations de base
-    'dashboard.view',
-    'menu.view',
-    'orders.view', 'orders.create', 'orders.edit',
-    'reservations.view', 'reservations.create', 'reservations.edit',
-    'customers.view',
-    'inventory.view',
-    'schedule.view',
-    'tables.view', 'tables.edit',
-    'delivery.view',
-    'feedback.view'
-  ]rd.advanced',
+    'dashboard.view', 'dashboard.advanced',
     'menu.view', 'menu.create', 'menu.edit', 'menu.delete',
     'orders.view', 'orders.create', 'orders.edit', 'orders.cancel',
     'reservations.view', 'reservations.create', 'reservations.edit', 'reservations.cancel',
@@ -241,6 +208,5 @@ export const ROLE_CONFIG = {
     color: 'green',
     badge: 'bg-green-100 text-green-800', 
     description: 'Opérations quotidiennes et service client'
-  } service client'
   }
 } as const;

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { fetchJson } from '@/lib/fetch';
 import { useAuth } from './useAuth';
 
-export type UserRole = 'directeur' | 'gerant' | 'employe';
+export type UserRole = 'directeur' | 'admin' | 'manager' | 'barista' | 'employee' | 'staff';
 export type PermissionAction = 'create' | 'read' | 'update' | 'delete' | 'manage' | 'view';
 export type ModuleName =
   | 'dashboard' | 'orders' | 'menu' | 'inventory' | 'customers' | 'employees'
@@ -52,7 +52,7 @@ interface UsePermissionsReturn {
 const PERMISSIONS_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 const CACHE_KEY = 'user_permissions_cache';
 
-// Permissions par défaut optimisées avec les vrais rôles de la DB
+// Permissions par défaut optimisées
 const DEFAULT_PERMISSIONS: Record<UserRole, Permission[]> = {
   directeur: [
     { module: 'dashboard', actions: ['create', 'read', 'update', 'delete', 'manage', 'view'] },
@@ -65,14 +65,9 @@ const DEFAULT_PERMISSIONS: Record<UserRole, Permission[]> = {
     { module: 'analytics', actions: ['create', 'read', 'update', 'delete', 'manage', 'view'] },
     { module: 'reports', actions: ['create', 'read', 'update', 'delete', 'manage', 'view'] },
     { module: 'settings', actions: ['create', 'read', 'update', 'delete', 'manage', 'view'] },
-    { module: 'permissions', actions: ['create', 'read', 'update', 'delete', 'manage', 'view'] },
-    { module: 'users', actions: ['create', 'read', 'update', 'delete', 'manage', 'view'] },
-    { module: 'tables', actions: ['create', 'read', 'update', 'delete', 'manage', 'view'] },
-    { module: 'suppliers', actions: ['create', 'read', 'update', 'delete', 'manage', 'view'] },
-    { module: 'maintenance', actions: ['create', 'read', 'update', 'delete', 'manage', 'view'] },
-    { module: 'backup', actions: ['create', 'read', 'update', 'delete', 'manage', 'view'] }
+    { module: 'permissions', actions: ['create', 'read', 'update', 'delete', 'manage', 'view'] }
   ],
-  gerant: [
+  admin: [
     { module: 'dashboard', actions: ['read', 'view', 'manage'] },
     { module: 'orders', actions: ['create', 'read', 'update', 'manage'] },
     { module: 'menu', actions: ['create', 'read', 'update'] },
@@ -82,18 +77,29 @@ const DEFAULT_PERMISSIONS: Record<UserRole, Permission[]> = {
     { module: 'reservations', actions: ['create', 'read', 'update', 'manage'] },
     { module: 'analytics', actions: ['read', 'view'] },
     { module: 'reports', actions: ['read', 'view'] },
-    { module: 'settings', actions: ['read', 'update'] },
-    { module: 'tables', actions: ['read', 'update', 'manage'] },
-    { module: 'suppliers', actions: ['read', 'update'] }
+    { module: 'settings', actions: ['read', 'update'] }
   ],
-  employe: [
+  manager: [
     { module: 'dashboard', actions: ['read', 'view'] },
     { module: 'orders', actions: ['create', 'read', 'update'] },
+    { module: 'menu', actions: ['read', 'update'] },
+    { module: 'inventory', actions: ['read', 'update'] },
+    { module: 'customers', actions: ['read', 'update'] },
+    { module: 'reservations', actions: ['create', 'read', 'update'] }
+  ],
+  barista: [
+    { module: 'dashboard', actions: ['read', 'view'] },
+    { module: 'orders', actions: ['read', 'update'] },
     { module: 'menu', actions: ['read'] },
-    { module: 'inventory', actions: ['read'] },
-    { module: 'customers', actions: ['read'] },
-    { module: 'reservations', actions: ['create', 'read', 'update'] },
-    { module: 'tables', actions: ['read', 'update'] }
+    { module: 'inventory', actions: ['read'] }
+  ],
+  employee: [
+    { module: 'dashboard', actions: ['read'] },
+    { module: 'orders', actions: ['read'] }
+  ],
+  staff: [
+    { module: 'dashboard', actions: ['read'] },
+    { module: 'orders', actions: ['read'] }
   ]
 };
 
@@ -262,17 +268,18 @@ export const usePermissions = (): UsePermissionsReturn => {
     return 'none';
   }, [isAuthenticated, userRole, getCurrentPermissions]);
 
-  // Helpers métier avec les vrais rôles
+  // Helpers métier
   const isAdmin = useCallback((): boolean => {
-    return userRole === 'directeur';
+    return userRole === 'directeur' || userRole === 'admin';
   }, [userRole]);
 
   const isManager = useCallback((): boolean => {
-    return userRole === 'directeur' || userRole === 'gerant';
+    return userRole === 'directeur' || userRole === 'admin' || userRole === 'manager';
   }, [userRole]);
 
+  // Added isStaff to the return object
   const isStaff = useCallback((): boolean => {
-    return userRole === 'employe';
+    return userRole === 'staff';
   }, [userRole]);
 
   const refreshPermissions = useCallback(async (): Promise<void> => {
@@ -283,9 +290,10 @@ export const usePermissions = (): UsePermissionsReturn => {
 
   // Added isStaff to the return object
   const getUserAccessLevel = useCallback((): 'admin' | 'manager' | 'staff' | 'basic' => {
-    if (userRole === 'directeur') return 'admin';
-    if (userRole === 'gerant') return 'manager';
-    if (userRole === 'employe') return 'staff';
+    if (userRole === 'directeur') return 'admin'; // Assuming 'directeur' maps to 'admin' for access level
+    if (userRole === 'admin') return 'admin';
+    if (userRole === 'manager') return 'manager';
+    if (userRole === 'staff') return 'staff';
     return 'basic';
   }, [userRole]);
 
