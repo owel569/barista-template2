@@ -1,6 +1,6 @@
 import React from 'react';
-import { useState, useContext } from "react";
-import { AuthContext } from "@/contexts/auth-context";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,7 @@ import { Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 
 export default function Register() : JSX.Element {
-  const { isAuthenticated } = useContext(AuthContext);
+  const { isAuthenticated, login } = useAuth();
   const [, navigate] = useLocation();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -21,10 +21,11 @@ export default function Register() : JSX.Element {
   const { toast } = useToast();
 
   // Redirect if already authenticated
-  if (isAuthenticated) {
-    navigate("/admin");
-    return <></> as unknown as JSX.Element;
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/admin");
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,23 +48,31 @@ export default function Register() : JSX.Element {
         body: JSON.stringify({
           username,
           password,
-          confirmPassword,
-          role: "admin"
+          confirmPassword
+          // Removed role - will be assigned server-side for security
         })
       });
 
       const data = await response.json();
       
-      if (response.ok) {
-        // Store token and user info
-        localStorage.setItem("auth_token", data.token);
-        localStorage.setItem("auth_user", JSON.stringify(data.user));
+      if (response.ok && data.success) {
+        // Use login function to properly authenticate the new user
+        const loginResult = await login(username, password);
         
-        toast({
-          title: "Compte créé avec succès",
-          description: `Bienvenue ${username}!`,
-        });
-        navigate("/admin");
+        if (loginResult.success) {
+          toast({
+            title: "Compte créé avec succès",
+            description: `Bienvenue ${username}!`,
+          });
+          navigate("/admin");
+        } else {
+          toast({
+            title: "Compte créé mais connexion échouée",
+            description: "Veuillez vous connecter manuellement",
+            variant: "destructive",
+          });
+          navigate("/admin/login");
+        }
       } else {
         toast({
           title: "Erreur d'enregistrement",
@@ -98,8 +107,8 @@ export default function Register() : JSX.Element {
                 </span>
               </div>
             </Link>
-            <Link href="/login">
-              <Button variant="outline" className="border-coffee-dark text-coffee-dark hover:bg-coffee-dark hover:text-white">
+            <Link href="/admin/login">
+              <Button variant="outline" className="border-coffee-dark text-coffee-dark hover:bg-coffee-dark hover:text-white" data-testid="button-back-login">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Retour à la connexion
               </Button>
@@ -145,6 +154,7 @@ export default function Register() : JSX.Element {
                     placeholder="Entrez votre nom d'utilisateur"
                     required
                     minLength={3}
+                    data-testid="input-username"
                   />
                 </div>
                 
@@ -161,6 +171,7 @@ export default function Register() : JSX.Element {
                     placeholder="Entrez votre mot de passe"
                     required
                     minLength={6}
+                    data-testid="input-password"
                   />
                 </div>
 
@@ -177,6 +188,7 @@ export default function Register() : JSX.Element {
                     placeholder="Confirmez votre mot de passe"
                     required
                     minLength={6}
+                    data-testid="input-confirm-password"
                   />
                 </div>
 
@@ -184,6 +196,7 @@ export default function Register() : JSX.Element {
                   type="submit"
                   disabled={isRegistering}
                   className="w-full bg-coffee-accent hover:bg-coffee-primary text-white font-semibold py-3 rounded-lg transition duration-300 transform hover:scale-105 shadow-lg"
+                  data-testid="button-register"
                 >
                   <UserPlus className="mr-2 h-5 w-5" />
                   {isRegistering ? "Création en cours..." : "Créer le compte"}
