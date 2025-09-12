@@ -4,7 +4,7 @@ import { AuthTokenManager, ApiClient, AuthState, AuthUser, LoginResponse } from 
 import { toast } from 'sonner';
 
 interface AuthContextType extends AuthState {
-  login: (username: string, password: string) => Promise<LoginResponse>;
+  login: (email: string, password: string) => Promise<LoginResponse>;
   logout: () => void;
   refreshToken: () => Promise<boolean>;
   validateSession: () => Promise<boolean>;
@@ -99,7 +99,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         message: string;
         token: string;
         user: AuthUser;
-      }>('/auth/login', { email, password });
+      }>('/api/auth/login', { email, password });
 
       // Stocker les données d'authentification
       AuthTokenManager.setToken(response.token);
