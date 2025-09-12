@@ -14,6 +14,11 @@ interface ErrorBoundaryProps {
   fallback?: React.ComponentType<{ error?: Error; resetError: () => void }>;
 }
 
+interface FallbackComponentProps {
+  error?: Error;
+  resetError: () => void;
+}
+
 export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
@@ -24,17 +29,23 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  override componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
   }
 
-  render() {
+  override render(): React.ReactNode {
     if (this.state.hasError) {
-      const resetError = () => this.setState({ hasError: false, error: undefined });
+      const resetError = (): void => {
+        this.setState({ hasError: false, error: undefined } as ErrorBoundaryState);
+      };
       
       if (this.props.fallback) {
         const FallbackComponent = this.props.fallback;
-        return <FallbackComponent error={this.state.error} resetError={resetError} />;
+        const fallbackProps: FallbackComponentProps = {
+          error: this.state.error,
+          resetError
+        };
+        return <FallbackComponent {...fallbackProps} />;
       }
 
       return (
@@ -76,7 +87,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 }
 
 // Composant de fallback pour les erreurs de chargement
-export function LoadingFallback() {
+export function LoadingFallback(): React.JSX.Element {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
       <div className="text-center space-y-4">
@@ -88,7 +99,11 @@ export function LoadingFallback() {
 }
 
 // Composant de fallback pour les composants non trouvés
-export function NotFoundFallback({ moduleName }: { moduleName?: string }) {
+interface NotFoundFallbackProps {
+  moduleName?: string;
+}
+
+export function NotFoundFallback({ moduleName }: NotFoundFallbackProps): React.JSX.Element {
   return (
     <div className="min-h-96 flex items-center justify-center p-8">
       <Card className="max-w-md w-full">

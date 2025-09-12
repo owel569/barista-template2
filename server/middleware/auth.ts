@@ -246,7 +246,7 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
 
 // Middleware pour vérifier les rôles requis
 export const requireRoles = (allowedRoles: string[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
       return res.status(401).json({
         success: false,

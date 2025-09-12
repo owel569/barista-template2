@@ -122,7 +122,11 @@ export const usePermissions = (): UsePermissionsReturn => {
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
+        const tokenPart = token.split('.')[1];
+        if (!tokenPart) {
+          throw new Error('Token JWT invalide');
+        }
+        const payload = JSON.parse(atob(tokenPart));
         setUser(payload as UserJWT);
       } catch (error) {
         console.error('Erreur décodage token:', error);

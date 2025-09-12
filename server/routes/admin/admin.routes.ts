@@ -218,7 +218,7 @@ router.get('/activity-logs', authenticateUser, async (req, res) => {
       data: logs
     });
   } catch (error) {
-    logger.error('Erreur récupération logs:', error);
+    logger.error('Erreur récupération logs:', error as Record<string, unknown>);
     res.status(500).json({
       success: false,
       message: 'Erreur serveur'
@@ -241,7 +241,7 @@ router.get('/notifications/count', authenticateUser, async (req, res) => {
       data: notifications
     });
   } catch (error) {
-    logger.error('Erreur notifications count:', error);
+    logger.error('Erreur notifications count:', error as Record<string, unknown>);
     res.status(500).json({
       success: false,
       message: 'Erreur serveur'

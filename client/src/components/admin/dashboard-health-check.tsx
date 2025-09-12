@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -30,7 +29,7 @@ export default function DashboardHealthCheck(): JSX.Element {
     const startTime = Date.now();
     try {
       const token = localStorage.getItem('token') || localStorage.getItem('auth_token') || localStorage.getItem('barista_auth_token');
-      
+
       const response = await fetch(endpoint.url, {
         method: 'GET',
         headers: {
@@ -40,36 +39,50 @@ export default function DashboardHealthCheck(): JSX.Element {
       });
 
       const responseTime = Date.now() - startTime;
-      
-      return {
-        ...endpoint,
+
+      // Correction du typage EndpointStatus avec exactOptionalPropertyTypes
+      const result: EndpointStatus = {
         status: response.ok ? 'online' : 'offline',
         responseTime,
         lastCheck: new Date(),
-        error: response.ok ? undefined : `HTTP ${response.status}`
+        url: endpoint.url,
+        name: endpoint.name
       };
+
+      if (!response.ok) {
+        result.error = `HTTP ${response.status}`;
+      }
+
+      return result;
     } catch (error) {
-      return {
-        ...endpoint,
+      // Correction du typage EndpointStatus avec exactOptionalPropertyTypes
+      const result: EndpointStatus = {
         status: 'offline',
         responseTime: Date.now() - startTime,
         lastCheck: new Date(),
-        error: error instanceof Error ? error.message : 'Erreur inconnue'
+        url: endpoint.url,
+        name: endpoint.name
       };
+      if (error instanceof Error) {
+        result.error = error.message;
+      } else {
+        result.error = 'Erreur inconnue';
+      }
+      return result;
     }
   };
 
   const checkAllEndpoints = async () => {
     setIsChecking(true);
     console.log('🔍 Vérification de la santé des endpoints dashboard...');
-    
+
     const updatedEndpoints = await Promise.all(
       endpoints.map(endpoint => checkEndpoint(endpoint))
     );
-    
+
     setEndpoints(updatedEndpoints);
     setIsChecking(false);
-    
+
     // Log des résultats
     updatedEndpoints.forEach(endpoint => {
       const status = endpoint.status === 'online' ? '✅' : '❌';
@@ -98,8 +111,8 @@ export default function DashboardHealthCheck(): JSX.Element {
             <CheckCircle className="h-5 w-5" />
             État des Données Dashboard
           </CardTitle>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="sm"
             onClick={checkAllEndpoints}
             disabled={isChecking}
@@ -131,29 +144,29 @@ export default function DashboardHealthCheck(): JSX.Element {
         {/* Liste des endpoints */}
         <div className="space-y-2">
           {endpoints.map((endpoint) => (
-            <div 
-              key={endpoint.url} 
+            <div
+              key={endpoint.url}
               className="flex items-center justify-between p-3 border rounded-lg"
             >
               <div className="flex items-center gap-3">
                 {endpoint.status === 'online' && <CheckCircle className="h-4 w-4 text-green-600" />}
                 {endpoint.status === 'offline' && <XCircle className="h-4 w-4 text-red-600" />}
                 {endpoint.status === 'checking' && <RefreshCw className="h-4 w-4 animate-spin text-blue-600" />}
-                
+
                 <div>
                   <span className="font-medium">{endpoint.name}</span>
                   <p className="text-xs text-gray-500">{endpoint.url}</p>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-2">
                 <Badge variant={
-                  endpoint.status === 'online' ? 'default' : 
+                  endpoint.status === 'online' ? 'default' :
                   endpoint.status === 'offline' ? 'destructive' : 'secondary'
                 }>
                   {endpoint.status}
                 </Badge>
-                {endpoint.responseTime && (
+                {endpoint.responseTime !== undefined && ( // Vérification explicite pour undefined
                   <span className="text-xs text-gray-500">
                     {endpoint.responseTime}ms
                   </span>
