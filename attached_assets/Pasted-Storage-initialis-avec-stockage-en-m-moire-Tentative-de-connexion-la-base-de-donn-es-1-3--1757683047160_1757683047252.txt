@@ -1,0 +1,32 @@
+Storage initialisé avec stockage en mémoire
+🔄 Tentative de connexion à la base de données (1/3)...
+🔑 JWT_SECRET configuré par défaut pour le développement
+✅ Base de données PostgreSQL connectée avec succès
+📊 3 tables principales trouvées dans la base de données
+🚀 Serveur WebSocket initialisé sur /ws
+✅ Serveur démarré avec succès
+🚀 Server running on http://0.0.0.0:5000
+⚡ API: http://0.0.0.0:5000/api
+✨ Vite: http://0.0.0.0:5000
+🔌 WebSocket: ws://0.0.0.0:5000/ws
+❤️ Health: http://0.0.0.0:5000/health
+2025-09-12T11:38:50.994Z [WARN] [VALIDATION] - Validation échouée | {"part":"body","errors":[{"field":"email","message":"Email invalide","code":"invalid_string"}],"method":"POST","path":"/login"}
+2025-09-12T11:38:50.998Z [ERROR] [ERROR_HANDLER] - Erreur interceptée | {"error":"Erreur de validation pour body","stack":"ValidationError: Erreur de validation pour body\n    at <anonymous> (/home/runner/workspace/server/middleware/validation.ts:215:15)\n    at Layer.handle [as handle_request] (/home/runner/workspace/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/runner/workspace/node_modules/express/lib/router/route.js:149:13)\n    at Route.dispatch (/home/runner/workspace/node_modules/express/lib/router/route.js:119:3)\n    at Layer.handle [as handle_request] (/home/runner/workspace/node_modules/express/lib/router/layer.js:95:5)\n    at /home/runner/workspace/node_modules/express/lib/router/index.js:284:15\n    at Function.process_params (/home/runner/workspace/node_modules/express/lib/router/index.js:346:12)\n    at next (/home/runner/workspace/node_modules/express/lib/router/index.js:280:10)\n    at Function.handle (/home/runner/workspace/node_modules/express/lib/router/index.js:175:3)\n    at router (/home/runner/workspace/node_modules/express/lib/router/index.js:47:12)","requestId":"vgazap","method":"POST","path":"/api/auth/login","userAgent":"curl/8.14.1","ip":"127.0.0.1"}
+2025-09-12T11:39:04.182Z [ERROR] [AUTH_ROUTES] - Erreur enregistrement activité | {"userId":1,"action":"LOGIN","error":"relation \"activity_logs\" does not exist"}
+2025-09-12T11:39:04.183Z [INFO] [AUTH_ROUTES] - Utilisateur connecté | {"userId":1,"email":"admin@barista-cafe.com","role":"directeur","ip":"127.0.0.1"}
+2025-09-12T12:08:01.610Z [ERROR] [AUTH_ROUTES] - Erreur enregistrement activité | {"userId":1,"action":"LOGIN","error":"relation \"activity_logs\" does not exist"}
+2025-09-12T12:08:01.611Z [INFO] [AUTH_ROUTES] - Utilisateur connecté | {"userId":1,"email":"admin@barista-cafe.com","role":"directeur","ip":"127.0.0.1"}
+2025-09-12T12:53:41.966Z [ERROR] [AUTH_ROUTES] - Erreur enregistrement activité | {"userId":1,"action":"LOGIN","error":"relation \"activity_logs\" does not exist"}
+2025-09-12T12:53:41.967Z [INFO] [AUTH_ROUTES] - Utilisateur connecté | {"userId":1,"email":"admin@barista-cafe.com","role":"directeur","ip":"172.31.70.194"}
+2025-09-12T12:55:48.977Z [ERROR] [AUTH_ROUTES] - Erreur enregistrement activité | {"userId":2,"action":"LOGIN_FAILED","error":"relation \"activity_logs\" does not exist"}
+2025-09-12T12:55:50.368Z [ERROR] [AUTH_ROUTES] - Erreur enregistrement activité | {"userId":3,"action":"LOGIN_FAILED","error":"relation \"activity_logs\" does not exist"}
+2025-09-12T12:56:03.405Z [ERROR] [AUTH_ROUTES] - Erreur enregistrement activité | {"userId":3,"action":"LOGIN_FAILED","error":"relation \"activity_logs\" does not exist"}
+2025-09-12T12:56:04.736Z [ERROR] [AUTH_ROUTES] - Erreur enregistrement activité | {"userId":2,"action":"LOGIN_FAILED","error":"relation \"activity_logs\" does not exist"}
+2025-09-12T13:14:19.314Z [ERROR] [AUTH_ROUTES] - Erreur enregistrement activité | {"userId":1,"action":"LOGIN","error":"relation \"activity_logs\" does not exist"}
+2025-09-12T13:14:19.315Z [INFO] [AUTH_ROUTES] - Utilisateur connecté | {"userId":1,"email":"admin@barista-cafe.com","role":"directeur","ip":"172.31.70.194"}
+2025-09-12T13:14:53.829Z [ERROR] [AUTH_ROUTES] - Erreur enregistrement activité | {"userId":2,"action":"LOGIN","error":"relation \"activity_logs\" does not exist"}
+2025-09-12T13:14:53.830Z [INFO] [AUTH_ROUTES] - Utilisateur connecté | {"userId":2,"email":"manager@barista-cafe.com","role":"gerant","ip":"172.31.70.194"}
+2025-09-12T13:15:16.788Z [ERROR] [AUTH_ROUTES] - Erreur enregistrement activité | {"userId":3,"action":"LOGIN_FAILED","error":"relation \"activity_logs\" does not exist"}
+2025-09-12T13:15:24.640Z [ERROR] [AUTH_ROUTES] - Erreur enregistrement activité | {"userId":3,"action":"LOGIN_FAILED","error":"relation \"activity_logs\" does not exist"}
+2025-09-12T13:15:35.120Z [ERROR] [AUTH_ROUTES] - Erreur enregistrement activité | {"userId":3,"action":"LOGIN_FAILED","error":"relation \"activity_logs\" does not exist"}
+^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B
