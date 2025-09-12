@@ -254,21 +254,41 @@ export const requireRoles = (allowedRoles: string[]) => {
       });
     }
 
-    // Mapping des anciens rôles vers les nouveaux pour compatibilité
+    // Mapping bidirectionnel des rôles pour compatibilité
     const roleMapping: { [key: string]: string } = {
       'admin': 'directeur',
       'manager': 'gerant',
       'employee': 'employe',
-      'staff': 'employe'
+      'staff': 'employe',
+      // Reverse mapping
+      'directeur': 'directeur',
+      'gerant': 'gerant', 
+      'employe': 'employe'
     };
 
     const userRole = roleMapping[req.user.role] || req.user.role;
     const normalizedAllowedRoles = allowedRoles.map(role => roleMapping[role] || role);
 
+    // Debug log pour diagnostiquer
+    logger.info('Vérification des rôles', {
+      userId: req.user.id,
+      userRole: req.user.role,
+      mappedUserRole: userRole,
+      allowedRoles,
+      normalizedAllowedRoles,
+      hasAccess: normalizedAllowedRoles.includes(userRole)
+    });
+
     if (!normalizedAllowedRoles.includes(userRole)) {
       return res.status(403).json({
         success: false,
-        message: `Accès refusé. Rôle requis: ${allowedRoles.join(' ou ')}. Votre rôle: ${userRole}`
+        message: `Accès refusé. Rôle requis: ${allowedRoles.join(' ou ')}. Votre rôle: ${userRole}`,
+        debug: {
+          originalRole: req.user.role,
+          mappedRole: userRole,
+          allowedRoles,
+          normalizedAllowedRoles
+        }
       });
     }
 
