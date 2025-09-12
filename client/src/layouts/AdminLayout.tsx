@@ -19,39 +19,16 @@ import {
   X
 } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 interface AdminLayoutProps {
   children: React.ReactNode | ((user: any) => React.ReactNode);
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
-  const [location, navigate] = useLocation();
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const [location] = useLocation();
+  const { user } = useAuth();
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
-
-  // Redirect to login if not authenticated
-  React.useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      navigate('/admin/login');
-    }
-  }, [isAuthenticated, isLoading, navigate]);
-
-  // Show loading while checking authentication
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Vérification de l'authentification...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Redirect if not authenticated
-  if (!isAuthenticated) {
-    return null;
-  }
 
   const menuItems = [
     { path: '/admin', icon: LayoutDashboard, label: 'Dashboard', exact: true },
@@ -82,7 +59,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
+    <ProtectedRoute>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
       {/* Sidebar */}
       <div className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg transition-transform duration-300 ease-in-out`}>
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-700">
@@ -97,6 +75,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             size="sm"
             className="lg:hidden"
             onClick={() => setSidebarOpen(false)}
+            data-testid="button-close-sidebar"
           >
             <X className="h-5 w-5" />
           </Button>
@@ -112,6 +91,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     variant={isActive(item.path, item.exact) ? 'default' : 'ghost'}
                     className="w-full justify-start"
                     onClick={() => setSidebarOpen(false)}
+                    data-testid={`nav-${item.path.replace(/\//g, '-')}`}
                   >
                     <Icon className="h-5 w-5 mr-3" />
                     {item.label}
@@ -160,6 +140,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             variant="ghost"
             size="sm"
             onClick={() => setSidebarOpen(true)}
+            data-testid="button-open-sidebar"
           >
             <Menu className="h-6 w-6" />
           </Button>
@@ -173,6 +154,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           {renderChildren()}
         </main>
       </div>
-    </div>
+      </div>
+    </ProtectedRoute>
   );
 }
