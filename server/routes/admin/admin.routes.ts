@@ -24,7 +24,7 @@ router.use('/reservations', reservationsRoutes);
 // Routes de maintenance
 router.get('/maintenance', 
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   asyncHandler(async (req: Request, res: Response) => {
     // TODO: Récupérer les tâches de maintenance depuis la base
     res.json({
@@ -37,7 +37,7 @@ router.get('/maintenance',
 
 router.post('/maintenance',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   asyncHandler(async (req: Request, res: Response) => {
     // TODO: Créer une nouvelle tâche de maintenance
     res.status(201).json({
@@ -50,7 +50,7 @@ router.post('/maintenance',
 // Routes des équipements  
 router.get('/equipment',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   asyncHandler(async (req: Request, res: Response) => {
     // TODO: Récupérer la liste des équipements
     res.json({
@@ -63,7 +63,7 @@ router.get('/equipment',
 
 router.post('/equipment',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   asyncHandler(async (req: Request, res: Response) => {
     // TODO: Ajouter un nouvel équipement
     res.status(201).json({
@@ -91,13 +91,13 @@ const UserCreateSchema = z.object({
   username: z.string().min(3).max(50),
   email: z.string().email(),
   password: z.string().min(8).max(100),
-  role: z.enum(['employee', 'manager', 'admin'])
+  role: z.enum(['employe', 'gerant', 'directeur'])
 });
 
 // Configuration du restaurant - Seuls les managers+ peuvent voir
 router.get('/settings', 
   authenticateUser, 
-  requireRoles(['manager', 'admin']),
+  requireRoles(['gerant', 'directeur']),
   asyncHandler(async (req: Request, res: Response) => {
   try {
     // TODO: Récupérer depuis la base de données
@@ -138,7 +138,7 @@ router.get('/settings',
 // Mettre à jour la configuration - Seuls les admins peuvent modifier
 router.put('/settings', 
   authenticateUser, 
-  requireRoles(['admin']),
+  requireRoles(['directeur']),
   validateBody(SettingsSchema), 
   asyncHandler(async (req: Request, res: Response) => {
     const settings = req.body;
@@ -155,6 +155,7 @@ router.put('/settings',
 // Gestion des utilisateurs - Seuls les admins peuvent créer des utilisateurs
 router.post('/users', 
   authenticateUser, 
+  requireRoles(['directeur']),
   validateBody(UserCreateSchema), 
   asyncHandler(async (req: Request, res: Response) => {
     const { username, email, password, role } = req.body;

@@ -153,7 +153,7 @@ export class AuthService {
 
       const user = result[0];
       if (!user) return null;
-      
+
       const authUser: AuthUser = {
         id: user.id,
         username: user.username || user.email?.split('@')[0] || '',
@@ -245,21 +245,34 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
 };
 
 // Middleware pour vérifier les rôles requis
-export const requireRoles = (roles: AppRole[]) => {
+export const requireRoles = (allowedRoles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    try {
-      if (!req.user) {
-        throw new AuthenticationError('Authentification requise');
-      }
-
-      if (!roles.includes(req.user.role)) {
-        throw new AuthorizationError(`Rôle requis: ${roles.join(' ou ')}`);
-      }
-
-      next();
-    } catch (error) {
-      next(error);
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentification requise'
+      });
     }
+
+    // Mapping des anciens rôles vers les nouveaux pour compatibilité
+    const roleMapping: { [key: string]: string } = {
+      'admin': 'directeur',
+      'manager': 'gerant',
+      'employee': 'employe',
+      'staff': 'employe'
+    };
+
+    const userRole = roleMapping[req.user.role] || req.user.role;
+    const normalizedAllowedRoles = allowedRoles.map(role => roleMapping[role] || role);
+
+    if (!normalizedAllowedRoles.includes(userRole)) {
+      return res.status(403).json({
+        success: false,
+        message: `Accès refusé. Rôle requis: ${allowedRoles.join(' ou ')}. Votre rôle: ${userRole}`
+      });
+    }
+
+    next();
   };
 };
 

@@ -29,7 +29,7 @@ const RegisterSchema = z.object({
     .min(8, 'Mot de passe requis (min 8 caractères)')
     .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Mot de passe doit contenir au moins une majuscule, une minuscule et un chiffre'),
   phone: z.string().optional(),
-  role: z.enum(['admin', 'manager', 'staff', 'customer']).default('customer')
+  role: z.enum(['directeur', 'gerant', 'employe', 'customer']).default('customer')
 });
 
 const LoginSchema = z.object({
