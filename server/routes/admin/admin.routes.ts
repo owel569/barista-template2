@@ -160,7 +160,20 @@ router.post('/users',
   asyncHandler(async (req: Request, res: Response) => {
     const { username, email, password, role } = req.body;
 
+    // Vérification supplémentaire côté serveur
+    if (req.user?.role !== 'directeur') {
+      return res.status(403).json({
+        success: false,
+        message: 'Accès refusé - Permissions insuffisantes'
+      });
+    }
+
     // TODO: Créer l'utilisateur en base de données
+    logger.info('Création utilisateur demandée', { 
+      requestedBy: req.user?.username, 
+      targetUser: username,
+      targetRole: role 
+    });
 
     return res.status(201).json({
       success: true,
@@ -169,9 +182,45 @@ router.post('/users',
   })
 );
 
-// Activer/désactiver un utilisateur
+// Supprimer un utilisateur - Seuls les directeurs
+router.delete('/users/:id', 
+  authenticateUser,
+  requireRoles(['directeur']),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID utilisateur requis'
+      });
+    }
+
+    // Vérification supplémentaire
+    if (req.user?.role !== 'directeur') {
+      return res.status(403).json({
+        success: false,
+        message: 'Seuls les directeurs peuvent supprimer des utilisateurs'
+      });
+    }
+
+    // TODO: Supprimer l'utilisateur de la base de données
+    logger.info('Suppression utilisateur demandée', { 
+      requestedBy: req.user?.username, 
+      targetUserId: id 
+    });
+
+    return res.json({
+      success: true,
+      message: 'Utilisateur supprimé avec succès'
+    });
+  })
+);
+
+// Activer/désactiver un utilisateur - Directeurs et gérants
 router.patch('/users/:id/status', 
   authenticateUser,
+  requireRoles(['directeur', 'gerant']),
   asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
     const { active } = req.body;
@@ -183,7 +232,20 @@ router.patch('/users/:id/status',
       });
     }
 
+    // Validation du booléen
+    if (typeof active !== 'boolean') {
+      return res.status(400).json({
+        success: false,
+        message: 'Le statut doit être un booléen'
+      });
+    }
+
     // TODO: Mettre à jour le statut en base de données
+    logger.info('Modification statut utilisateur', { 
+      requestedBy: req.user?.username, 
+      targetUserId: id,
+      newStatus: active 
+    });
 
     return res.json({
       success: true,

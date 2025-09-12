@@ -282,8 +282,17 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (id: number) => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) {
+  const handleDeleteItem = (id: number) => {
+    if (userRole === 'employe') {
+      toast.toast({
+        title: 'Accès refusé',
+        description: 'Vous n\'avez pas les permissions nécessaires',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (confirm('Êtes-vous sûr de vouloir supprimer cet article du menu ?')) {
       deleteMutation.mutate(id);
     }
   };
@@ -645,7 +654,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => handleDelete(item.id)}
+                            onClick={() => handleDeleteItem(item.id)}
                             className="text-red-600 hover:text-red-700"
                           >
                             <Trash2 className="h-4 w-4" />

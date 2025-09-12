@@ -291,11 +291,19 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
           </Button>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={() => {
-                setEditingEmployee(null);
-                form.reset();
-              }}>
-                <Plus className="h-4 w-4 mr-2" />
+              <Button 
+                onClick={() => {
+                  setEditingEmployee(null);
+                  form.reset();
+                }}
+                disabled={userRole === 'employe' || createMutation.isPending}
+                title={userRole === 'employe' ? 'Accès non autorisé' : 'Ajouter un nouvel employé'}
+              >
+                {createMutation.isPending ? (
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Plus className="h-4 w-4 mr-2" />
+                )}
                 Nouvel Employé
               </Button>
             </DialogTrigger>
@@ -602,17 +610,25 @@ export default function Employees({ userRole = 'directeur' }: EmployeesProps) {
                           size="sm"
                           variant="ghost"
                           onClick={() => handleEdit(employee)}
+                          disabled={userRole === 'employe'}
+                          title={userRole === 'employe' ? 'Accès non autorisé' : 'Modifier l\'employé'}
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
-                        {userRole === 'directeur' && (
+                        {(userRole === 'directeur' || userRole === 'gerant') && (
                           <Button
                             size="sm"
                             variant="ghost"
                             onClick={() => handleDelete(employee.id)}
-                            className="text-red-600 hover:text-red-700"
+                            className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                            disabled={deleteMutation.isPending}
+                            title="Supprimer cet employé"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            {deleteMutation.isPending ? (
+                              <RefreshCw className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-4 w-4" />
+                            )}
                           </Button>
                         )}
                       </div>

@@ -13,7 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   Users, UserPlus, Search, Filter, Mail, Phone, Calendar, 
   MapPin, Star, Gift, TrendingUp, Eye, Edit, Trash2, MessageSquare,
-  Heart, Award, Clock, DollarSign, Euro, Download
+  Heart, Award, Clock, DollarSign, Euro, Download, Pencil, RefreshCw
 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
@@ -750,6 +750,8 @@ function Customers({ userRole, user }: CustomersProps) {
         ) : (
           filteredCustomers.map((customer) => {
             const tier = getCustomerTier(customer.totalSpent);
+            // Placeholder for deleteMutation if it exists in the original context
+            const deleteMutation = undefined; 
             return (
               <Card key={customer.id} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-6">

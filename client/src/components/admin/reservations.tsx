@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { 
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -14,19 +14,19 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { 
-  Calendar, 
-  Clock, 
-  Users, 
-  CheckCircle, 
-  XCircle, 
+import {
+  Calendar,
+  Clock,
+  Users,
+  CheckCircle,
+  XCircle,
   AlertCircle,
   RefreshCw,
   Eye,
@@ -34,7 +34,9 @@ import {
   Trash2,
   Phone,
   Mail,
-  MapPin
+  MapPin,
+  Pencil,
+  X
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -63,9 +65,12 @@ export default function ReservationsFixed() : JSX.Element {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [editForm, setEditForm] = useState<Partial<Reservation>>({});
   const { toast } = useToast();
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
     fetchReservations();
+    const role = localStorage.getItem('user_role');
+    setUserRole(role);
   }, []);
 
   const fetchReservations = async () => {
@@ -75,7 +80,7 @@ export default function ReservationsFixed() : JSX.Element {
       const response = await fetch('/api/admin/reservations', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setReservations(data);
@@ -113,7 +118,7 @@ export default function ReservationsFixed() : JSX.Element {
         },
         body: JSON.stringify({ status })
       });
-      
+
       if (response.ok) {
         await fetchReservations();
         toast({
@@ -136,10 +141,38 @@ export default function ReservationsFixed() : JSX.Element {
     setIsViewModalOpen(true);
   };
 
-  const handleEditReservation = (reservation: Reservation) => {
+  const handleEdit = (reservation: Reservation) => {
     setSelectedReservation(reservation);
     setEditForm(reservation);
     setIsEditModalOpen(true);
+  };
+
+  const handleCancel = async (id: number) => {
+    if (!id) return;
+    try {
+      const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
+      const response = await fetch(`/api/admin/reservations/${id}/cancel`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+
+      if (response.ok) {
+        await fetchReservations();
+        toast({
+          title: 'Réservation annulée',
+          description: 'La réservation a été annulée avec succès',
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'annulation:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible d\'annuler la réservation',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleDeleteReservation = (reservation: Reservation) => {
@@ -149,7 +182,7 @@ export default function ReservationsFixed() : JSX.Element {
 
   const saveReservation = async () => {
     if (!selectedReservation) return;
-    
+
     try {
       const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
       const response = await fetch(`/api/admin/reservations/${selectedReservation.id}`, {
@@ -160,7 +193,7 @@ export default function ReservationsFixed() : JSX.Element {
         },
         body: JSON.stringify(editForm)
       });
-      
+
       if (response.ok) {
         await fetchReservations();
         setIsEditModalOpen(false);
@@ -181,7 +214,7 @@ export default function ReservationsFixed() : JSX.Element {
 
   const deleteReservation = async () => {
     if (!selectedReservation) return;
-    
+
     try {
       const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
       const response = await fetch(`/api/admin/reservations/${selectedReservation.id}`, {
@@ -190,7 +223,7 @@ export default function ReservationsFixed() : JSX.Element {
           'Authorization': `Bearer ${token}`,
         }
       });
-      
+
       if (response.ok) {
         await fetchReservations();
         setIsDeleteModalOpen(false);
@@ -339,7 +372,7 @@ export default function ReservationsFixed() : JSX.Element {
                         </span>
                       </div>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       <div className="flex items-center gap-2">
                         <Users className="h-4 w-4 text-gray-500" />
@@ -358,7 +391,7 @@ export default function ReservationsFixed() : JSX.Element {
                         <span>{reservation.guests} personnes</span>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-4 mt-3">
                       <div className="flex items-center gap-2">
                         <Mail className="h-4 w-4 text-gray-500" />
@@ -370,7 +403,7 @@ export default function ReservationsFixed() : JSX.Element {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-2 ml-4">
                     <Button
                       variant="outline"
@@ -380,12 +413,24 @@ export default function ReservationsFixed() : JSX.Element {
                       <Eye className="h-4 w-4" />
                     </Button>
                     <Button
-                      variant="outline"
                       size="sm"
-                      onClick={() => handleEditReservation(reservation)}
+                      variant="ghost"
+                      onClick={() => handleEdit(reservation)}
+                      title="Modifier la réservation"
                     >
-                      <Edit className="h-4 w-4" />
+                      <Pencil className="h-4 w-4" />
                     </Button>
+                    {(userRole === 'directeur' || userRole === 'gerant') && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleCancel(reservation.id)}
+                        className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                        title="Annuler la réservation"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
                     <Button
                       variant="outline"
                       size="sm"
@@ -393,7 +438,7 @@ export default function ReservationsFixed() : JSX.Element {
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
-                    
+
                     {reservation.status === 'pending' && (
                       <div className="flex gap-1 ml-2">
                         <Button

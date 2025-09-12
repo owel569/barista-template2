@@ -254,8 +254,6 @@ export const usePermissions = (): UsePermissionsReturn => {
     }
   }, [isAuthenticated, userRole, user?.id, getCachedPermissions, fetchPermissions]); // Dependencies updated
 
-  // Helpers optimisés - Replaced with simplified logic from edited code
-
   // hasPermission adapted to use the simplified logic from the edited code
   const hasPermission = useCallback((module: string, action: string): boolean => {
     if (!user) return false;
