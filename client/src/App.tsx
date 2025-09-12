@@ -12,6 +12,7 @@ import MenuPage from '@/pages/MenuPage';
 import GalleryPage from '@/pages/GalleryPage';
 import ContactPage from '@/pages/ContactPage';
 import ReservationPage from '@/pages/ReservationPage';
+import CartPage from '@/pages/CartPage';
 
 // Layout
 import AdminLayout from '@/layouts/AdminLayout';
@@ -278,6 +279,14 @@ function App() {
                   <Navbar />
                   <main className="flex-1">
                     <ReservationPage />
+                  </main>
+                  <Footer />
+                </Route>
+
+                <Route path="/cart">
+                  <Navbar />
+                  <main className="flex-1">
+                    <CartPage />
                   </main>
                   <Footer />
                 </Route>

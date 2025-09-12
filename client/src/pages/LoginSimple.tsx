@@ -1,6 +1,6 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { AuthContext } from "@/contexts/auth-context";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Coffee } from "lucide-react";
 
 export default function LoginSimple(): JSX.Element {
-  const { isAuthenticated } = useContext(AuthContext);
+  const { isAuthenticated, login } = useAuth();
   const [, navigate] = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,10 +17,11 @@ export default function LoginSimple(): JSX.Element {
   const { toast } = useToast();
 
   // Redirect if already authenticated
-  if (isAuthenticated) {
-    navigate("/admin");
-    return <div></div>;
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/admin");
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,32 +38,18 @@ export default function LoginSimple(): JSX.Element {
     setIsLoggingIn(true);
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          password
-        })
-      });
-
-      const data = await response.json();
+      const result = await login(email, password);
       
-      if (response.ok && data.success) {
-        // Store token and user info
-        localStorage.setItem("auth_token", data.token);
-        localStorage.setItem("token", data.token); // Compatibility
-        localStorage.setItem("user", JSON.stringify(data.user));
-        
+      if (result.success) {
         toast({
           title: "Connexion réussie",
-          description: `Bienvenue ${data.user.firstName || data.user.email}!`,
+          description: "Bienvenue ! Redirection vers l'administration...",
         });
         navigate("/admin");
       } else {
         toast({
           title: "Erreur de connexion",
-          description: data.message || "Identifiants incorrects",
+          description: result.message || "Identifiants incorrects",
           variant: "destructive",
         });
       }
@@ -90,7 +77,7 @@ export default function LoginSimple(): JSX.Element {
               </div>
             </Link>
             <Link href="/">
-              <Button variant="outline">
+              <Button variant="outline" data-testid="button-back-home">
                 Retour à l'accueil
               </Button>
             </Link>
@@ -124,6 +111,7 @@ export default function LoginSimple(): JSX.Element {
                   required
                   disabled={isLoggingIn}
                   className="w-full"
+                  data-testid="input-email"
                 />
               </div>
 
@@ -141,6 +129,7 @@ export default function LoginSimple(): JSX.Element {
                     required
                     disabled={isLoggingIn}
                     className="w-full pr-10"
+                    data-testid="input-password"
                   />
                   <button
                     type="button"
@@ -161,6 +150,7 @@ export default function LoginSimple(): JSX.Element {
                 type="submit"
                 disabled={isLoggingIn}
                 className="w-full bg-amber-600 hover:bg-amber-700 text-white"
+                data-testid="button-login"
               >
                 {isLoggingIn ? (
                   <div className="flex items-center">
