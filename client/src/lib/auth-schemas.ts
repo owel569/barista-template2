@@ -14,12 +14,10 @@ export const loginSchema = z.object({
 
 // Registration form validation schema
 export const registerSchema = z.object({
-  username: z
+  email: z
     .string()
-    .min(1, 'Le nom d\'utilisateur est requis')
-    .min(3, 'Le nom d\'utilisateur doit contenir au moins 3 caractères')
-    .max(50, 'Le nom d\'utilisateur ne peut pas dépasser 50 caractères')
-    .regex(/^[a-zA-Z0-9_-]+$/, 'Le nom d\'utilisateur ne peut contenir que des lettres, chiffres, tirets et underscores'),
+    .min(1, 'L\'email est requis')
+    .email('Veuillez entrer une adresse email valide'),
   password: z
     .string()
     .min(1, 'Le mot de passe est requis')

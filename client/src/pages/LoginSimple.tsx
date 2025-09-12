@@ -4,17 +4,28 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Coffee } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema, type LoginFormData } from "@/lib/auth-schemas";
 
 export default function LoginSimple(): JSX.Element {
   const { isAuthenticated, login } = useAuth();
   const [, navigate] = useLocation();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const { toast } = useToast();
+
+  const form = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: ""
+    }
+  });
+
+  const isLoggingIn = form.formState.isSubmitting;
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -23,22 +34,9 @@ export default function LoginSimple(): JSX.Element {
     }
   }, [isAuthenticated, navigate]);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!email || !password) {
-      toast({
-        title: "Erreur",
-        description: "Veuillez remplir tous les champs",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsLoggingIn(true);
-
+  const handleLogin = async (data: LoginFormData) => {
     try {
-      const result = await login(email, password);
+      const result = await login(data.email, data.password);
       
       if (result.success) {
         toast({
@@ -59,8 +57,6 @@ export default function LoginSimple(): JSX.Element {
         description: "Erreur de connexion au serveur",
         variant: "destructive",
       });
-    } finally {
-      setIsLoggingIn(false);
     }
   };
 
@@ -97,78 +93,88 @@ export default function LoginSimple(): JSX.Element {
             </p>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
-                </label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Entrez votre email"
-                  required
-                  disabled={isLoggingIn}
-                  className="w-full"
-                  data-testid="input-email"
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleLogin)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-700 font-medium">Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="Entrez votre email"
+                          disabled={isLoggingIn}
+                          data-testid="input-email"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                  Mot de passe
-                </label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Entrez votre mot de passe"
-                    required
-                    disabled={isLoggingIn}
-                    className="w-full pr-10"
-                    data-testid="input-password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 flex items-center pr-3"
-                    disabled={isLoggingIn}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-gray-400" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-gray-400" />
-                    )}
-                  </button>
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-700 font-medium">Mot de passe</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Entrez votre mot de passe"
+                            disabled={isLoggingIn}
+                            className="pr-10"
+                            data-testid="input-password"
+                            {...field}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute inset-y-0 right-0 flex items-center pr-3"
+                            disabled={isLoggingIn}
+                            data-testid="button-toggle-password-visibility"
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4 text-gray-400" />
+                            ) : (
+                              <Eye className="h-4 w-4 text-gray-400" />
+                            )}
+                          </button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <Button
+                  type="submit"
+                  disabled={isLoggingIn}
+                  className="w-full bg-amber-600 hover:bg-amber-700 text-white"
+                  data-testid="button-login"
+                >
+                  {isLoggingIn ? (
+                    <div className="flex items-center">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Connexion...
+                    </div>
+                  ) : (
+                    "Se connecter"
+                  )}
+                </Button>
+
+                <div className="text-center text-sm text-gray-600">
+                  Pas encore de compte ?{" "}
+                  <Link href="/register" className="text-amber-600 hover:text-amber-700 font-medium">
+                    Créer un compte
+                  </Link>
                 </div>
-              </div>
-
-              <Button
-                type="submit"
-                disabled={isLoggingIn}
-                className="w-full bg-amber-600 hover:bg-amber-700 text-white"
-                data-testid="button-login"
-              >
-                {isLoggingIn ? (
-                  <div className="flex items-center">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Connexion...
-                  </div>
-                ) : (
-                  "Se connecter"
-                )}
-              </Button>
-
-              <div className="text-center text-sm text-gray-600">
-                Pas encore de compte ?{" "}
-                <Link href="/register" className="text-amber-600 hover:text-amber-700 font-medium">
-                  Créer un compte
-                </Link>
-              </div>
-            </form>
+              </form>
+            </Form>
           </CardContent>
         </Card>
       </div>

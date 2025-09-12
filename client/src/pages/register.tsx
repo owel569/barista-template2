@@ -1,24 +1,35 @@
 import React from 'react';
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Coffee, ArrowLeft, UserPlus, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { registerSchema, type RegisterFormData } from "@/lib/auth-schemas";
 
 export default function Register() : JSX.Element {
   const { isAuthenticated, login } = useAuth();
   const [, navigate] = useLocation();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [isRegistering, setIsRegistering] = useState(false);
   const { toast } = useToast();
+
+  const form = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      confirmPassword: ""
+    }
+  });
+
+  const isRegistering = form.formState.isSubmitting;
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -27,42 +38,29 @@ export default function Register() : JSX.Element {
     }
   }, [isAuthenticated, navigate]);
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (password !== confirmPassword) {
-      toast({
-        title: "Erreur",
-        description: "Les mots de passe ne correspondent pas",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsRegistering(true);
-
+  const handleRegister = async (data: RegisterFormData) => {
     try {
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username,
-          password,
-          confirmPassword
+          email: data.email,
+          password: data.password,
+          confirmPassword: data.confirmPassword
           // Removed role - will be assigned server-side for security
         })
       });
 
-      const data = await response.json();
+      const result = await response.json();
       
-      if (response.ok && data.success) {
+      if (response.ok && result.success) {
         // Use login function to properly authenticate the new user
-        const loginResult = await login(username, password);
+        const loginResult = await login(data.email, data.password);
         
         if (loginResult.success) {
           toast({
             title: "Compte créé avec succès",
-            description: `Bienvenue ${username}!`,
+            description: `Bienvenue ${data.email}!`,
           });
           navigate("/admin");
         } else {
@@ -76,7 +74,7 @@ export default function Register() : JSX.Element {
       } else {
         toast({
           title: "Erreur d'enregistrement",
-          description: data.message || "Erreur lors de la création du compte",
+          description: result.message || "Erreur lors de la création du compte",
           variant: "destructive",
         });
       }
@@ -86,8 +84,6 @@ export default function Register() : JSX.Element {
         description: "Erreur de connexion au serveur",
         variant: "destructive",
       });
-    } finally {
-      setIsRegistering(false);
     }
   };
 
@@ -140,73 +136,87 @@ export default function Register() : JSX.Element {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-8">
-              <form onSubmit={handleRegister} className="space-y-6">
-                <div>
-                  <Label htmlFor="username" className="text-coffee-dark font-semibold">
-                    Nom d'utilisateur
-                  </Label>
-                  <Input
-                    id="username"
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="mt-2 border-coffee-secondary focus:border-coffee-accent"
-                    placeholder="Entrez votre nom d'utilisateur"
-                    required
-                    minLength={3}
-                    data-testid="input-username"
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(handleRegister)} className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-coffee-dark font-semibold">Email</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="email"
+                            placeholder="Entrez votre adresse email"
+                            disabled={isRegistering}
+                            className="mt-2 border-coffee-secondary focus:border-coffee-accent"
+                            data-testid="input-email"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
-                
-                <div>
-                  <Label htmlFor="password" className="text-coffee-dark font-semibold">
-                    Mot de passe
-                  </Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="mt-2 border-coffee-secondary focus:border-coffee-accent"
-                    placeholder="Entrez votre mot de passe"
-                    required
-                    minLength={6}
-                    data-testid="input-password"
+                  
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-coffee-dark font-semibold">Mot de passe</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="password"
+                            placeholder="Entrez votre mot de passe"
+                            disabled={isRegistering}
+                            className="mt-2 border-coffee-secondary focus:border-coffee-accent"
+                            data-testid="input-password"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
 
-                <div>
-                  <Label htmlFor="confirmPassword" className="text-coffee-dark font-semibold">
-                    Confirmer le mot de passe
-                  </Label>
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="mt-2 border-coffee-secondary focus:border-coffee-accent"
-                    placeholder="Confirmez votre mot de passe"
-                    required
-                    minLength={6}
-                    data-testid="input-confirm-password"
+                  <FormField
+                    control={form.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-coffee-dark font-semibold">Confirmer le mot de passe</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="password"
+                            placeholder="Confirmez votre mot de passe"
+                            disabled={isRegistering}
+                            className="mt-2 border-coffee-secondary focus:border-coffee-accent"
+                            data-testid="input-confirm-password"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
 
-                <Button
-                  type="submit"
-                  disabled={isRegistering}
-                  className="w-full bg-coffee-accent hover:bg-coffee-primary text-white font-semibold py-3 rounded-lg transition duration-300 transform hover:scale-105 shadow-lg"
-                  data-testid="button-register"
-                >
-                  <UserPlus className="mr-2 h-5 w-5" />
-                  {isRegistering ? "Création en cours..." : "Créer le compte"}
-                </Button>
-              </form>
+                  <Button
+                    type="submit"
+                    disabled={isRegistering}
+                    className="w-full bg-coffee-accent hover:bg-coffee-primary text-white font-semibold py-3 rounded-lg transition duration-300 transform hover:scale-105 shadow-lg"
+                    data-testid="button-register"
+                  >
+                    <UserPlus className="mr-2 h-5 w-5" />
+                    {isRegistering ? "Création en cours..." : "Créer le compte"}
+                  </Button>
+                </form>
+              </Form>
 
               <div className="mt-6 text-center">
                 <p className="text-sm text-gray-600">
                   Déjà un compte ?{" "}
-                  <Link href="/login" className="text-coffee-accent hover:text-coffee-primary font-semibold">
+                  <Link href="/admin/login" className="text-coffee-accent hover:text-coffee-primary font-semibold">
                     Se connecter
                   </Link>
                 </p>
