@@ -1,0 +1,73 @@
+
+
+> rest-express@1.0.0 type-check
+> tsc --noEmit --strict
+
+client/src/components/admin/dashboard-health-check.tsx:44:7 - error TS2375: Type '{ status: "offline" | "online"; responseTime: number; lastCheck: Date; error: string | undefined; url: string; name: string; }' is not assignable to type 'EndpointStatus' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'error' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+44       return {
+         ~~~~~~
+
+client/src/components/admin/error-boundary.tsx:27:3 - error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'Component<ErrorBoundaryProps, ErrorBoundaryState, any>'.
+
+27   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+     ~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/error-boundary.tsx:31:3 - error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'Component<ErrorBoundaryProps, ErrorBoundaryState, any>'.
+
+31   render() {
+     ~~~~~~
+
+client/src/components/admin/error-boundary.tsx:33:46 - error TS2345: Argument of type '{ hasError: false; error: undefined; }' is not assignable to parameter of type 'ErrorBoundaryState | ((prevState: Readonly<ErrorBoundaryState>, props: Readonly<ErrorBoundaryProps>) => ErrorBoundaryState | ... 1 more ... | null) | Pick<...> | null'.
+  Type '{ hasError: false; error: undefined; }' is not assignable to type 'Pick<ErrorBoundaryState, "error" | "hasError">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'error' are incompatible.
+      Type 'undefined' is not assignable to type 'Error'.
+
+33       const resetError = () => this.setState({ hasError: false, error: undefined });
+                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/error-boundary.tsx:37:17 - error TS2375: Type '{ error: Error | undefined; resetError: () => void; }' is not assignable to type '{ error?: Error; resetError: () => void; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'error' are incompatible.
+    Type 'Error | undefined' is not assignable to type 'Error'.
+      Type 'undefined' is not assignable to type 'Error'.
+
+37         return <FallbackComponent error={this.state.error} resetError={resetError} />;
+                   ~~~~~~~~~~~~~~~~~
+
+client/src/hooks/usePermissions.ts:125:41 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(data: string): string', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+  Overload 2 of 2, '(data: string): string', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+125         const payload = JSON.parse(atob(token.split('.')[1]));
+                                            ~~~~~~~~~~~~~~~~~~~
+
+
+client/src/pages/AdminFinal.tsx:505:16 - error TS2375: Type '{ moduleName: string | undefined; }' is not assignable to type '{ moduleName?: string; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'moduleName' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+505               <NotFoundFallback moduleName={currentModule?.name} />
+                   ~~~~~~~~~~~~~~~~
+
+server/middleware/auth.ts:249:10 - error TS7030: Not all code paths return a value.
+
+249   return (req: Request, res: Response, next: NextFunction) => {
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/admin/admin.routes.ts:221:47 - error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+
+221     logger.error('Erreur récupération logs:', error);
+                                                  ~~~~~
+
+server/routes/admin/admin.routes.ts:244:49 - error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+
+244     logger.error('Erreur notifications count:', error);
+                                              
