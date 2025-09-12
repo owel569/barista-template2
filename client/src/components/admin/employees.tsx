@@ -87,7 +87,7 @@ const employeeSchema = z.object({
 type EmployeeFormData = z.infer<typeof employeeSchema>;
 
 interface EmployeesProps {
-  userRole?: 'directeur' | 'employe';
+  userRole?: 'directeur' | 'employe' | 'gerant';
 }
 
 export default function Employees({ userRole = 'directeur' }: EmployeesProps) {

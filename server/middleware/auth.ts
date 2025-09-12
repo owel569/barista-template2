@@ -246,12 +246,13 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
 
 // Middleware pour vérifier les rôles requis
 export const requireRoles = (allowedRoles: string[]) => {
-  return (req: Request, res: Response, next: NextFunction): void => {
+  return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: 'Authentification requise'
       });
+      return;
     }
 
     // Mapping bidirectionnel des rôles pour compatibilité
@@ -280,7 +281,7 @@ export const requireRoles = (allowedRoles: string[]) => {
     });
 
     if (!normalizedAllowedRoles.includes(userRole)) {
-      return res.status(403).json({
+      res.status(403).json({
         success: false,
         message: `Accès refusé. Rôle requis: ${allowedRoles.join(' ou ')}. Votre rôle: ${userRole}`,
         debug: {
@@ -290,6 +291,7 @@ export const requireRoles = (allowedRoles: string[]) => {
           normalizedAllowedRoles
         }
       });
+      return;
     }
 
     next();

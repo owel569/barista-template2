@@ -502,7 +502,7 @@ export default function AdminFinal() : JSX.Element {
         <div className="h-[calc(100vh-80px)] overflow-y-auto">
           <ErrorBoundary 
             fallback={({ error, resetError }) => (
-              <NotFoundFallback moduleName={currentModule?.name ?? undefined} />
+              <NotFoundFallback moduleName={currentModule?.name || 'Module inconnu'} />
             )}
           >
             <React.Suspense fallback={<LoadingFallback />}>

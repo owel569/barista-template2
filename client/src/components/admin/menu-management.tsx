@@ -284,7 +284,7 @@ export default function MenuManagement({ userRole = 'directeur' }: MenuManagemen
 
   const handleDeleteItem = (id: number) => {
     if (userRole === 'employe') {
-      toast.toast({
+      toast({
         title: 'Accès refusé',
         description: 'Vous n\'avez pas les permissions nécessaires',
         variant: 'destructive',
