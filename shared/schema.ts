@@ -6,7 +6,8 @@ import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 // ENUMS
 // ==========================================
 
-export const userRoleEnum = pgEnum('user_role', ['admin', 'manager', 'staff', 'user']);
+// Rôles unifiés pour tout le système Barista Café
+export const userRoleEnum = pgEnum('user_role', ['directeur', 'gerant', 'employe', 'customer']);
 export const orderStatusEnum = pgEnum('order_status', ['pending', 'preparing', 'ready', 'delivered', 'cancelled']);
 export const reservationStatusEnum = pgEnum('reservation_status', ['pending', 'confirmed', 'cancelled', 'completed']);
 export const tableStatusEnum = pgEnum('table_status', ['available', 'occupied', 'reserved', 'maintenance']);
@@ -25,7 +26,7 @@ export const users = pgTable('users', {
   firstName: varchar('first_name', { length: 100 }),
   lastName: varchar('last_name', { length: 100 }),
   phone: varchar('phone', { length: 20 }),
-  role: varchar('role', { length: 50 }).default('customer').notNull(),
+  role: userRoleEnum('role').default('customer').notNull(),
   isActive: boolean('is_active').default(true).notNull(),
   permissions: text('permissions').array(),
   avatarUrl: varchar('avatar_url', { length: 255 }),

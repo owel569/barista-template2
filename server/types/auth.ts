@@ -1,4 +1,8 @@
-export type AppRole = 'customer' | 'waiter' | 'chef' | 'manager' | 'admin' | 'directeur' | 'employe' | 'employee' | 'serveur' | 'cuisinier' | 'staff';
+// Types de rôles unifiés pour Barista Café
+export type AppRole = 'directeur' | 'gerant' | 'employe' | 'customer';
+
+// Type alias pour compatibilité ascendante  
+export type LegacyRole = 'admin' | 'manager' | 'staff' | 'waiter' | 'chef' | 'employee' | 'serveur' | 'cuisinier';
 
 // Alias pour compatibilité
 export type UserRole = AppRole;
@@ -85,7 +89,7 @@ export interface AuthContext {
   validateSession: () => Promise<boolean>;
 }
 
-// Permissions par rôle
+// Permissions par rôle pour Barista Café (UNIFIÉ)
 export const ROLE_PERMISSIONS: Record<AppRole, string[]> = {
   customer: [
     'orders:create',
@@ -95,64 +99,49 @@ export const ROLE_PERMISSIONS: Record<AppRole, string[]> = {
     'profile:read:own',
     'profile:update:own'
   ],
-  waiter: [
-    'orders:read',
-    'orders:update',
-    'reservations:read',
-    'reservations:update',
-    'tables:read',
-    'tables:update',
-    'customers:read'
-  ],
-  serveur: [
-    'orders:read',
-    'orders:update',
-    'reservations:read',
-    'reservations:update',
-    'tables:read',
-    'tables:update',
-    'customers:read'
-  ],
-  chef: [
-    'orders:read',
-    'orders:update',
-    'menu:read',
-    'inventory:read',
-    'kitchen:manage'
-  ],
-  cuisinier: [
-    'orders:read',
-    'orders:update',
-    'menu:read',
-    'inventory:read',
-    'kitchen:manage'
-  ],
   employe: [
     'orders:read',
+    'orders:create',
     'customers:read',
+    'customers:create',
+    'menu:read',
+    'reservations:read',
+    'reservations:create',
+    'tables:read',
     'inventory:read',
-    'basic:operations'
+    'calendar:read',
+    'messages:read',
+    'messages:create',
+    'user_profile:read',
+    'user_profile:update'
   ],
-  employee: [
+  gerant: [
     'orders:read',
+    'orders:create',
+    'orders:update',
+    'orders:delete',
     'customers:read',
-    'inventory:read',
-    'basic:operations'
-  ],
-  staff: [
-    'orders:read',
-    'customers:read',
-    'inventory:read',
-    'basic:operations'
-  ],
-  manager: [
-    'users:read',
-    'users:update',
-    'analytics:read',
-    'reports:read',
+    'customers:create',
+    'customers:update',
+    'customers:delete',
+    'menu:read',
+    'menu:create',
+    'menu:update',
+    'reservations:manage',
+    'tables:manage',
     'inventory:manage',
-    'menu:manage',
-    'staff:manage'
+    'employees:read',
+    'employees:create',
+    'employees:update',
+    'analytics:read',
+    'analytics:create',
+    'reports:read',
+    'reports:create',
+    'calendar:manage',
+    'messages:manage',
+    'settings:read',
+    'settings:update',
+    'user_profile:manage'
   ],
   directeur: [
     'users:manage',
@@ -161,31 +150,22 @@ export const ROLE_PERMISSIONS: Record<AppRole, string[]> = {
     'inventory:manage',
     'menu:manage',
     'staff:manage',
-    'financial:manage'
-  ],
-  admin: [
-    'users:manage',
-    'system:manage',
-    'analytics:full',
-    'reports:full',
+    'financial:manage',
     'settings:manage',
+    'permissions:manage',
+    'backups:manage',
+    'accounting:manage',
+    'system:manage',
     'security:manage'
   ]
 };
 
-// Hiérarchie des rôles
+// Hiérarchie des rôles unifiée pour Barista Café
 export const ROLE_HIERARCHY: Record<AppRole, number> = {
-  customer: 1,
-  waiter: 2,
-  serveur: 2,
-  chef: 3,
-  cuisinier: 3,
-  employe: 3,
-  employee: 3,
-  staff: 3,
-  manager: 4,
-  directeur: 4,
-  admin: 5
+  customer: 1,    // Clients publics (niveau le plus bas)
+  employe: 2,     // Employés de base
+  gerant: 3,      // Gérants (niveau intermédiaire)
+  directeur: 4    // Directeur (niveau le plus élevé)
 };
 
 declare global {

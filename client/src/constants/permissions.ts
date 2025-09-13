@@ -1,6 +1,7 @@
 // Types pour une meilleure sécurité de type
 export type PermissionAction = 'view' | 'create' | 'edit' | 'delete' | 'respond' | 'use';
-export type Role = 'directeur' | 'employe';
+// Rôles unifiés pour Barista Café
+export type Role = 'directeur' | 'gerant' | 'employe';
 
 export type PermissionsMap = Record<string, PermissionAction[]>;
 
@@ -34,6 +35,32 @@ export const DEFAULT_PERMISSIONS: Record<Role, PermissionsMap> = {
     tables: ['view', 'create', 'edit', 'delete'],
     user_profile: ['view', 'edit'],
     image_management: ['view', 'create', 'edit', 'delete']
+  },
+  gerant: {
+    // Accès intermédiaire pour les gérants
+    reservations: ['view', 'create', 'edit', 'delete'],
+    orders: ['view', 'create', 'edit', 'delete'],
+    menu: ['view', 'create', 'edit'],
+    inventory: ['view', 'create', 'edit'],
+    employees: ['view', 'create', 'edit'],
+    customers: ['view', 'create', 'edit', 'delete'],
+    analytics: ['view', 'create'],
+    maintenance: ['view', 'create', 'edit'],
+    calendar: ['view', 'create', 'edit', 'delete'],
+    messages: ['view', 'create', 'edit', 'respond'],
+    settings: ['view', 'edit'],
+    permissions: ['view'],
+    reports: ['view', 'create'],
+    backups: ['view'],
+    accounting: ['view', 'create'],
+    loyalty: ['view', 'create', 'edit'],
+    events: ['view', 'create', 'edit'],
+    promotions: ['view', 'create', 'edit'],
+    delivery: ['view', 'create', 'edit', 'delete'],
+    online_orders: ['view', 'create', 'edit', 'delete'],
+    tables: ['view', 'create', 'edit'],
+    user_profile: ['view', 'edit'],
+    image_management: ['view', 'create', 'edit']
   },
   employe: {
     // Accès limité pour les employés
