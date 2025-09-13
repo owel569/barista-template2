@@ -1,0 +1,32 @@
+
+server/db.ts:425:7 - error TS2322: Type '"admin"' is not assignable to type '"directeur" | "gerant" | "employe" | "customer" | undefined'.
+
+425       role: 'admin',
+          ~~~~
+
+  node_modules/drizzle-orm/utils.d.ts:11:27
+    11 export type Simplify<T> = {
+                                 ~
+    12     [K in keyof T]: T[K];
+       ~~~~~~~~~~~~~~~~~~~~~~~~~
+    13 } & {};
+       ~
+    The expected type comes from property 'role' which is declared here on type '{ password: string; email: string; username: string; id?: number | undefined; role?: "directeur" | "gerant" | "employe" | "customer" | undefined; isActive?: boolean | undefined; firstName?: string | ... 1 more ... | undefined; ... 6 more ...; updatedAt?: Date | undefined; }'
+
+server/middleware/auth.ts:191:9 - error TS2367: This comparison appears to be unintentional because the types 'AppRole' and '"admin"' have no overlap.
+
+191     if (user.role === 'admin') return true;
+            ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/users/users.routes.ts:123:23 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "role"; tableName: "users"; dataType: "string"; columnType: "PgEnumColumn"; data: "directeur" | "gerant" | "employe" | "customer"; driverParam: string; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>, right: "directeur" | ... 3 more ... | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type '"directeur" | "gerant" | "employe" | "customer" | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string>, right: string | SQLWrapper): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "role"; tableName: "users"; dataType: "string"; columnType: "PgEnumColumn"; data: "directeur" | "gerant" | "employe" | "customer"; driverParam: string; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string>'.
+      Type 'PgColumn<{ name: "role"; tableName: "users"; dataType: "string"; columnType: "PgEnumColumn"; data: "directeur" | "gerant" | "employe" | "customer"; driverParam: string; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "role"; tableName: "users"; dataType: "string"; columnType: "PgEnumColumn"; data: "directeur" | "gerant" | "employe" | "customer"; driverParam: string; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+123       conditions.push(eq(users.role, role));
+                          ~~
+
