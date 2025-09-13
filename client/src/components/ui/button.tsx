@@ -52,7 +52,7 @@ export interface ButtonProps
   rounded?: boolean;
   pulse?: boolean;
   tooltip?: string;
-  badge?: string | number;
+  badge?: string | number | null;
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -109,7 +109,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             {rightIcon && <span className="ml-2">{rightIcon}</span>}
           </>
         )}
-        {badge && (
+        {(badge !== null && badge !== undefined && badge !== '') && (
           <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full min-w-[1.25rem] h-5 flex items-center justify-center px-1">
             {badge}
           </span>
