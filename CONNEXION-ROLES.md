@@ -29,49 +29,40 @@ Votre système Barista Café utilise 3 niveaux de rôles pour le personnel :
 
 ### 2. Saisir Vos Identifiants
 
-**Comptes de test disponibles dans votre base de données :**
+**🔑 COMPTES DE TEST FONCTIONNELS (Créés le 13/09/2025) :**
 
 ```
-🎯 DIRECTEUR (COMPTE TEST GARANTI)
-Email : test@barista-cafe.com
-Mot de passe : Test123!
-✅ Utilisable immédiatement
+🎯 DIRECTEUR - Accès Complet
+Email : directeur@test.com
+Mot de passe : Admin123!
+✅ TESTÉ ET FONCTIONNEL
 
-🎯 DIRECTEUR (ancien)
-Email : admin@barista-cafe.com
-Mot de passe : [essayez les suggestions ci-dessous]
+👨‍💼 GÉRANT - Gestion Intermédiaire  
+Email : gerant@test.com
+Mot de passe : Manager123!
+✅ TESTÉ ET FONCTIONNEL
 
-👨‍💼 GÉRANT  
-Email : manager@barista-cafe.com
-Mot de passe : [essayez les suggestions ci-dessous]
-
-👩‍💻 EMPLOYÉ
-Email : employee@barista-cafe.com
-Mot de passe : [essayez les suggestions ci-dessous]
+👩‍💻 EMPLOYÉ - Accès de Base
+Email : employe@test.com
+Mot de passe : Employee123!
+✅ TESTÉ ET FONCTIONNEL
 ```
 
 ---
 
 ## 🔑 **MOTS DE PASSE**
 
-### ⚠️ MOTS DE PASSE ACTUELS INCONNUS
-Les mots de passe actuels de votre base de données sont hachés (cryptés) pour la sécurité.
+### ✅ MOTS DE PASSE FONCTIONNELS CONFIRMÉS
 
-### 🔑 MOTS DE PASSE DE TEST À ESSAYER
+Tous les comptes ci-dessus ont été **testés et validés** :
+- **Directeur** : `Admin123!` ✅
+- **Gérant** : `Manager123!` ✅  
+- **Employé** : `Employee123!` ✅
 
-Essayez ces mots de passe courants avec les comptes existants :
-
-**Mots de passe possibles à tester :**
-- `password123!`
-- `admin123!`
-- `test123!` 
-- `barista2024!`
-- `Password123!`
-
-**OU créez vos nouveaux comptes de test avec :**
-- `Barista2024!` 
-- `CafeAdmin#123`
-- `Manager@2024`
+**Sécurité :**
+- Mots de passe hashés avec bcrypt (12 rounds)
+- Tous respectent les règles de complexité (8+ caractères, majuscule, minuscule, chiffre, caractère spécial)
+- Base de données nettoyée et recréée le 13/09/2025
 
 **Règles obligatoires :**
 - Au moins 8 caractères
