@@ -566,6 +566,24 @@ class AnalyticsService {
 // ROUTES
 // ==========================================
 
+// Route de base pour vérifier l'accès aux analytics
+router.get('/',
+  authenticateUser,
+  requireRoles(['directeur', 'gerant', 'employe']),
+  asyncHandler(async (req, res) => {
+    res.json({
+      success: true,
+      message: 'Accès aux analytics autorisé',
+      availableEndpoints: [
+        '/analytics/revenue',
+        '/analytics/customer-insights',
+        '/analytics/ai-insights',
+        '/analytics/advanced'
+      ]
+    });
+  })
+);
+
 router.get('/advanced',
   authenticateUser,
   requireRoles(['directeur', 'gerant']),

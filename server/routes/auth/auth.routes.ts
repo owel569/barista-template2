@@ -270,4 +270,49 @@ router.post('/login',
   })
 );
 
+// Route pour vérifier le token
+router.get('/verify',
+  authenticateUser,
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    res.json({
+      success: true,
+      user: {
+        id: req.user?.id,
+        email: req.user?.email,
+        role: req.user?.role,
+        firstName: req.user?.firstName,
+        lastName: req.user?.lastName,
+        isActive: req.user?.isActive
+      },
+      message: 'Token valide'
+    });
+  })
+);
+
+// Route pour rafraîchir le token
+router.post('/refresh',
+  authenticateUser,
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    if (!req.user) {
+      res.status(401).json({
+        success: false,
+        message: 'Utilisateur non authentifié'
+      });
+      return;
+    }
+
+    const newToken = AuthService.generateToken({
+      id: req.user.id,
+      email: req.user.email,
+      role: req.user.role
+    });
+
+    res.json({
+      success: true,
+      token: newToken,
+      message: 'Token rafraîchi avec succès'
+    });
+  })
+);
+
 export default router;

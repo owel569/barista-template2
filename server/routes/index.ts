@@ -16,6 +16,7 @@ import feedbackRoutes from './feedback/feedback.routes';
 import eventRoutes from './events.routes';
 import inventoryRoutes from './inventory/inventory.routes';
 import staffRoutes from './staff/staff.routes';
+import routeDiagnostics from './route-diagnostics';
 
 const router = Router();
 
@@ -24,20 +25,23 @@ router.use('/auth', authRoutes);
 router.use('/menu', menuRoutes); // Menu public pour consultation
 
 // Routes protégées (nécessitent une authentification)
-router.use('/users', authenticateUser, userRoutes);
-router.use('/orders', authenticateUser, orderRoutes);
-router.use('/analytics', authenticateUser, analyticsRoutes);
-router.use('/dashboard', authenticateUser, dashboardRoutes);
-router.use('/admin', authenticateUser, adminRoutes);
-router.use('/delivery', authenticateUser, deliveryRoutes);
-router.use('/tables', authenticateUser, tablesRouter);
-router.use('/events', authenticateUser, eventRoutes);
-router.use('/inventory', authenticateUser, inventoryRoutes);
-router.use('/staff', authenticateUser, staffRoutes);
+router.use('/users', userRoutes); // Authentification gérée dans les routes individuelles
+router.use('/orders', orderRoutes); // Authentification gérée dans les routes individuelles
+router.use('/analytics', analyticsRoutes); // Authentification gérée dans les routes individuelles
+router.use('/dashboard', dashboardRoutes); // Authentification gérée dans les routes individuelles
+router.use('/admin', adminRoutes); // Authentification gérée dans les routes individuelles
+router.use('/delivery', deliveryRoutes); // Authentification gérée dans les routes individuelles
+router.use('/tables', tablesRouter); // Authentification gérée dans les routes individuelles
+router.use('/events', eventRoutes); // Authentification gérée dans les routes individuelles
+router.use('/inventory', inventoryRoutes); // Authentification gérée dans les routes individuelles
+router.use('/staff', staffRoutes); // Authentification gérée dans les routes individuelles
 
 // Routes avec authentification mixte (certaines publiques, certaines protégées)
 router.use('/reservations', reservationRoutes); // POST public, GET/PUT/DELETE protégées
 router.use('/feedback', feedbackRoutes); // POST public, GET/DELETE protégées
+
+// Route de diagnostic
+router.use('/diagnostics', routeDiagnostics);
 
 // Health check
 router.get('/health', (req, res) => {
