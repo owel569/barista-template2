@@ -1,18 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
-import type { User } from '../shared/schema'; // Doit contenir le champ "role"
+import type { User } from '../shared/schema';
 // Import corrigé pour lru-cache
 
-// Typage strict des rôles
-export type AppRole = 'customer' | 'waiter' | 'staff' | 'chef' | 'manager' | 'admin';
+// Typage strict des rôles - SYSTÈME UNIFIÉ 4-RÔLES
+export type AppRole = 'customer' | 'employe' | 'gerant' | 'directeur';
 
-// Hiérarchie des rôles (plus le chiffre est élevé, plus le rôle est élevé)
+// Hiérarchie des rôles unifiée pour Barista Café (plus le chiffre est élevé, plus le rôle est élevé)
 const ROLE_HIERARCHY: Record<AppRole, number> = {
-  customer: 1,
-  waiter: 2,
-  staff: 2,
-  chef: 3,
-  manager: 4,
-  admin: 5
+  customer: 1,    // Clients publics (niveau le plus bas)
+  employe: 2,     // Employés de base
+  gerant: 3,      // Gérants (niveau intermédiaire)
+  directeur: 4    // Directeur (niveau le plus élevé)
 };
 
 // Cache pour limiter les tentatives d'accès non autorisées (simplifié)
@@ -86,22 +84,42 @@ function sendForbidden(res: Response, userRole: AppRole, allowedRoles: AppRole[]
 
 function logAuthAttempt(ip: string | undefined, reason: string) {
   if (!ip) return;
-  const attempts = (authAttemptCache.get(ip) || 0) + 1;
-  authAttemptCache.set(ip, attempts);
+  const currentData = authAttemptCache.get(ip) || { count: 0, lastAttempt: 0 };
+  const newData = {
+    count: currentData.count + 1,
+    lastAttempt: Date.now()
+  };
+  authAttemptCache.set(ip, newData);
 
   // Utilise un logger pro si dispo, sinon console.warn
   console.warn(`Tentative d'accès non autorisée depuis ${ip}`, {
     reason,
-    attempts,
+    attempts: newData.count,
     timestamp: new Date().toISOString()
   });
 }
 
 function checkAuthAbuse(ip: string | undefined): boolean {
-  return ip ? (authAttemptCache.get(ip) || 0) > 5 : false;
+  if (!ip) return false;
+  const data = authAttemptCache.get(ip);
+  if (!data) return false;
+  
+  // Reset si la dernière tentative date de plus de 15 minutes
+  const fifteenMinutes = 15 * 60 * 1000;
+  if (Date.now() - data.lastAttempt > fifteenMinutes) {
+    authAttemptCache.delete(ip);
+    return false;
+  }
+  
+  return data.count > 5;
 }
 
-// Middlewares complémentaires
+// Middlewares complémentaires - SYSTÈME UNIFIÉ
 export const requireCustomer = requireRole('customer');
-export const requireStaff = requireRole(['waiter', 'chef', 'manager', 'admin'], { hierarchy: true });
-export const requireAdmin = requireRole('admin');
+export const requireEmploye = requireRole('employe', { hierarchy: true });
+export const requireGerant = requireRole('gerant', { hierarchy: true });
+export const requireDirecteur = requireRole('directeur');
+
+// Alias pour compatibilité ascendante
+export const requireStaff = requireRole(['employe', 'gerant', 'directeur'], { hierarchy: true });
+export const requireAdmin = requireRole('directeur'); // Alias: admin -> directeur

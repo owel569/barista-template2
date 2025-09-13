@@ -568,7 +568,7 @@ class AnalyticsService {
 
 router.get('/advanced',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   validateQuery(AnalyticsQuerySchema),
   asyncHandler(async (req, res) => {
     const { startDate, endDate, period } = req.query;
@@ -616,7 +616,7 @@ router.get('/advanced',
 
 router.get('/revenue',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   validateQuery(AnalyticsQuerySchema),
   asyncHandler(async (req, res) => {
     const { startDate, endDate, period } = req.query;
@@ -650,7 +650,7 @@ router.get('/revenue',
 
 router.get('/customer-insights',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   validateQuery(AnalyticsQuerySchema),
   asyncHandler(async (req, res) => {
     const { startDate, endDate, period } = req.query;
@@ -684,7 +684,7 @@ router.get('/customer-insights',
 
 router.get('/ai-insights',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   validateQuery(AnalyticsQuerySchema),
   asyncHandler(async (req, res) => {
     const { startDate, endDate, period } = req.query;

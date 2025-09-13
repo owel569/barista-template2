@@ -147,7 +147,7 @@ const templateSchema = z.object({
 // ==========================================
 
 // Routes des permissions avec authentification et autorisation
-router.get('/overview', authenticateUser, requireRoles(['admin']), asyncHandler(async (req, res) => {
+router.get('/overview', authenticateUser, requireRoles(['directeur']), asyncHandler(async (req, res) => {
   try {
   const db = await getDb();
     
@@ -177,7 +177,7 @@ router.get('/overview', authenticateUser, requireRoles(['admin']), asyncHandler(
   }
 }));
 
-router.get('/user/:userId', authenticateUser, requireRoles(['admin']), requirePermission('users', 'canView'), validateParams(z.object({
+router.get('/user/:userId', authenticateUser, requireRoles(['directeur']), requirePermission('users', 'canView'), validateParams(z.object({
   userId: z.string().regex(/^\d+$/, 'ID utilisateur doit être un nombre')
 })), asyncHandler(async (req, res) => {
   const { userId } = req.params;
@@ -227,7 +227,7 @@ router.get('/user/:userId', authenticateUser, requireRoles(['admin']), requirePe
   }
 }));
 
-router.get('/templates', authenticateUser, requireRoles(['admin']), asyncHandler(async (req, res) => {
+router.get('/templates', authenticateUser, requireRoles(['directeur']), asyncHandler(async (req, res) => {
   try {
   return res.json({
     success: true,
@@ -244,7 +244,7 @@ router.get('/templates', authenticateUser, requireRoles(['admin']), asyncHandler
   }
 }));
 
-router.post('/permission', authenticateUser, requireRoles(['admin']), requirePermission('users', 'canUpdate'), validateBody(z.object({
+router.post('/permission', authenticateUser, requireRoles(['directeur']), requirePermission('users', 'canUpdate'), validateBody(z.object({
   userId: z.number().positive('ID utilisateur invalide'),
   module: z.string().min(1, 'Module requis'),
   canView: z.boolean(),
@@ -322,7 +322,7 @@ router.post('/permission', authenticateUser, requireRoles(['admin']), requirePer
   }
 }));
 
-router.post('/bulk-update', authenticateUser, requireRoles(['admin']), requirePermission('users', 'canUpdate'), validateBody(z.object({
+router.post('/bulk-update', authenticateUser, requireRoles(['directeur']), requirePermission('users', 'canUpdate'), validateBody(z.object({
   updates: z.array(z.object({
     userId: z.number().positive('ID utilisateur invalide'),
     permissions: z.array(z.object({
@@ -401,7 +401,7 @@ router.post('/bulk-update', authenticateUser, requireRoles(['admin']), requirePe
   }
 }));
 
-router.post('/apply-template', authenticateUser, requireRoles(['admin']), requirePermission('users', 'canUpdate'), validateBody(z.object({
+router.post('/apply-template', authenticateUser, requireRoles(['directeur']), requirePermission('users', 'canUpdate'), validateBody(z.object({
   userId: z.number().positive('ID utilisateur invalide'),
   templateName: z.string().min(1, 'Nom du template requis')
 }))), asyncHandler(async (req, res) => {
@@ -473,7 +473,7 @@ router.post('/apply-template', authenticateUser, requireRoles(['admin']), requir
   }
 });
 
-router.delete('/user/:userId', authenticateUser, requireRoles(['admin']), requirePermission('users', 'canDelete'), validateParams(z.object({
+router.delete('/user/:userId', authenticateUser, requireRoles(['directeur']), requirePermission('users', 'canDelete'), validateParams(z.object({
   userId: z.string().regex(/^\d+$/, 'ID utilisateur doit être un nombre')
 }))), asyncHandler(async (req, res) => {
   const { userId } = req.params;

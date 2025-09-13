@@ -34,7 +34,7 @@ const kpiQuerySchema = z.object({
  */
 router.get('/kpis',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   validateRequest(kpiQuerySchema, 'query'),
   asyncHandler(async (req, res) => {
     const validatedQuery = kpiQuerySchema.parse(req.query);
@@ -169,7 +169,7 @@ router.get('/kpis',
  */
 router.get('/revenue',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   validateRequest(analyticsQuerySchema, 'query'),
   asyncHandler(async (req, res) => {
     const validatedQuery = analyticsQuerySchema.parse(req.query);
@@ -229,7 +229,7 @@ router.get('/revenue',
  */
 router.get('/top-products',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   validateRequest(analyticsQuerySchema, 'query'),
   asyncHandler(async (req, res) => {
     const validatedQuery = analyticsQuerySchema.parse(req.query);

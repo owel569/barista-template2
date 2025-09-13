@@ -12,7 +12,7 @@ interface MockUser {
   role: string;
 }
 
-type UserRole = 'directeur' | 'employe' | 'admin';
+type UserRole = 'directeur' | 'gerant' | 'employe' | 'customer';
 
 // Hook simplifié pour éviter les problèmes de dépendances
 export const usePermissions = (userParam?: unknown) => {
@@ -25,18 +25,24 @@ export const usePermissions = (userParam?: unknown) => {
     const user = userParam as MockUser | undefined;
     if (!user || !user.role) return false;
     
-    // Admin a toutes les permissions
-    if (user.role === 'admin') return true;
+    // Directeur a toutes les permissions
+    if (user.role === 'directeur') return true;
     
-    // Directeur a la plupart des permissions
-    if (user.role === 'directeur') {
-      const restrictedPermissions = ['system:delete', 'security:critical'];
+    // Gérant a la plupart des permissions
+    if (user.role === 'gerant') {
+      const restrictedPermissions = ['system:delete', 'security:critical', 'permissions:manage'];
       return !restrictedPermissions.includes(permission);
     }
     
     // Employé a des permissions limitées
     if (user.role === 'employe') {
-      const allowedPermissions = ['orders:read', 'customers:read', 'inventory:read'];
+      const allowedPermissions = ['orders:read', 'customers:read', 'inventory:read', 'reservations:create'];
+      return allowedPermissions.some(allowed => permission.startsWith(allowed));
+    }
+    
+    // Customer a des permissions très limitées
+    if (user.role === 'customer') {
+      const allowedPermissions = ['orders:create', 'reservations:create', 'menu:read', 'profile:edit'];
       return allowedPermissions.some(allowed => permission.startsWith(allowed));
     }
     

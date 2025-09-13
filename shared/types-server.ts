@@ -41,7 +41,7 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
 export interface TokenPayload {
   userId: number;
   username: string;
-  role: 'directeur' | 'employe' | 'admin';
+  role: 'directeur' | 'gerant' | 'employe' | 'customer';
   permissions: string[];
   exp: number;
   iat: number;
@@ -53,7 +53,7 @@ export interface AuthUser {
   email: string;
   firstName: string;
   lastName: string;
-  role: 'directeur' | 'employe' | 'admin';
+  role: 'directeur' | 'gerant' | 'employe' | 'customer';
   isActive: boolean;
   permissions: string[];
   lastLogin?: Date;
@@ -419,7 +419,11 @@ export type DatabaseEntity = {
 export type CreateEntity<T extends DatabaseEntity> = Omit<T, 'id' | 'createdAt' | 'updatedAt'>;
 export type UpdateEntity<T extends DatabaseEntity> = Partial<Omit<T, 'id' | 'createdAt' | 'updatedAt'>>;
 
-export type UserRole = 'directeur' | 'employe' | 'admin';
+// Rôles unifiés pour Barista Café (4-role system)
+export type UserRole = 'directeur' | 'gerant' | 'employe' | 'customer';
+
+// Legacy role alias pour compatibilité ascendante
+export type LegacyRole = 'admin' | 'manager' | 'staff' | 'waiter' | 'chef' | 'employee' | 'serveur' | 'cuisinier';
 export type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'ready' | 'served' | 'cancelled';
 export type ReservationStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show';
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';

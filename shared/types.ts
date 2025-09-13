@@ -46,10 +46,12 @@ export interface Equipment {
   updatedAt: string;
 }
 
-export type UserRole = 'admin' | 'manager' | 'staff' | 'customer';
+// Rôles unifiés pour Barista Café (4-role system)
+export type UserRole = 'directeur' | 'gerant' | 'employe' | 'customer';
 
-// Alias pour la compatibilité
-export type UserRoleExtended = UserRole | 'employee' | 'directeur' | 'employe';
+// Legacy aliases pour compatibilité ascendante - À SUPPRIMER PROGRESSIVEMENT
+export type LegacyUserRole = 'admin' | 'manager' | 'staff' | 'employee';
+export type UserRoleExtended = UserRole | LegacyUserRole;
 
 
 // Types pour les produits du menu
@@ -178,13 +180,14 @@ export interface Employee {
   updatedAt: string;
 }
 
+// Rôles d'employés spécifiques (positions de travail)
 export type EmployeeRole = 
-  | 'manager' 
-  | 'chef' 
-  | 'barista' 
-  | 'server' 
-  | 'cashier' 
-  | 'cleaner';
+  | 'gerant'     // Gérant/Manager
+  | 'chef'       // Chef cuisinier
+  | 'barista'    // Barista
+  | 'serveur'    // Serveur/Server
+  | 'caissier'   // Caissier/Cashier
+  | 'nettoyage'; // Nettoyage/Cleaner
 
 export interface EmergencyContact {
   name: string;

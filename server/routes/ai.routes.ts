@@ -557,7 +557,7 @@ router.post('/reservation',
  */
 router.get('/predictions',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   validateQuery(PredictionQuerySchema),
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { timeframe, metrics } = req.query;
@@ -608,7 +608,7 @@ router.get('/predictions',
  */
 router.get('/automation/suggestions',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   validateQuery(AutomationSuggestionSchema),
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { category, priority } = req.query;
@@ -664,7 +664,7 @@ router.get('/automation/suggestions',
  */
 router.post('/sentiment-analysis',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   validateBody(SentimentAnalysisSchema),
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { text, source } = req.body;

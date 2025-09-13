@@ -118,7 +118,7 @@ router.get('/availability',
 // Routes protégées pour le staff
 router.get('/', 
   authenticateUser,
-  requireRoles(['admin', 'manager', 'waiter']),
+  requireRoles(['directeur', 'gerant', 'employe']),
   asyncHandler(async (req, res): Promise<void> => {
     try {
       res.json({
@@ -136,7 +136,7 @@ router.get('/',
 
 router.patch('/:id/status',
   authenticateUser,
-  requireRoles(['admin', 'manager', 'waiter']),
+  requireRoles(['directeur', 'gerant', 'employe']),
   validateParams(z.object({ id: z.string() })),
   validateBody(UpdateStatusSchema),
   asyncHandler(async (req, res): Promise<void> => {

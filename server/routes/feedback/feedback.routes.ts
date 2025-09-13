@@ -90,7 +90,7 @@ async function logFeedbackActivity(
 // Liste des commentaires avec filtres
 router.get('/',
   authenticateUser,
-  requireRoles(['admin', 'manager', 'staff']),
+  requireRoles(['directeur', 'gerant', 'employe']),
   validateQuery(z.object({
     category: z.enum(['food', 'service', 'ambiance', 'cleanliness', 'value', 'overall']).optional(),
     rating: z.coerce.number().int().min(1).max(5).optional(),
@@ -239,7 +239,7 @@ router.get('/',
 // Détails d'un commentaire
 router.get('/:id',
   authenticateUser,
-  requireRoles(['admin', 'manager', 'staff']),
+  requireRoles(['directeur', 'gerant', 'employe']),
   validateParams(z.object({ id: z.coerce.number().int().positive() })),
   cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['feedback'] }),
   asyncHandler(async (req, res) => {
@@ -386,7 +386,7 @@ router.post('/public',
 // Mettre à jour le statut d'un commentaire
 router.patch('/:id/status',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   validateParams(z.object({ id: z.coerce.number().int().positive() })),
   validateBody(UpdateFeedbackStatusSchema),
   invalidateCache(['feedback']),
@@ -452,7 +452,7 @@ router.patch('/:id/status',
 // Répondre à un commentaire
 router.post('/:id/response',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   validateParams(z.object({ id: z.coerce.number().int().positive() })),
   validateBody(FeedbackResponseSchema),
   invalidateCache(['feedback']),
@@ -513,7 +513,7 @@ router.post('/:id/response',
 // Statistiques des commentaires
 router.get('/stats/overview',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   validateQuery(z.object({
     startDate: z.string().datetime().optional(),
     endDate: z.string().datetime().optional()

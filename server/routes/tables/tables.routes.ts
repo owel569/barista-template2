@@ -89,7 +89,7 @@ async function logTableActivity(
 // Liste des tables avec filtres
 router.get('/',
   authenticateUser,
-  requireRoles(['admin', 'manager', 'waiter']),
+  requireRoles(['directeur', 'gerant', 'employe']),
   validateQuery(z.object({
     location: z.enum(['inside', 'outside', 'terrace', 'private_room']).optional(),
     section: z.string().optional(),
@@ -185,7 +185,7 @@ router.get('/',
 // Statut en temps réel des tables
 router.get('/status',
   authenticateUser,
-  requireRoles(['admin', 'manager', 'waiter']),
+  requireRoles(['directeur', 'gerant', 'employe']),
   cacheMiddleware({ ttl: 30 * 1000, tags: ['tables', 'reservations'] }),
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
@@ -327,7 +327,7 @@ router.get('/status',
 // Créer une table
 router.post('/',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   validateBody(CreateTableSchema),
   invalidateCache(['tables']),
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
@@ -390,7 +390,7 @@ router.post('/',
 // Mettre à jour une table
 router.put('/:id',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   validateParams(z.object({ id: z.coerce.number().int().positive() })),
   validateBody(UpdateTableSchema.omit({ id: true })),
   invalidateCache(['tables']),
@@ -472,7 +472,7 @@ router.put('/:id',
 // Changer le statut d'une table
 router.patch('/:id/status',
   authenticateUser,
-  requireRoles(['admin', 'manager', 'waiter']),
+  requireRoles(['directeur', 'gerant', 'employe']),
   validateParams(z.object({ id: z.coerce.number().int().positive() })),
   validateBody(TableStatusSchema),
   invalidateCache(['tables']),
@@ -541,7 +541,7 @@ router.patch('/:id/status',
 // Supprimer une table (désactivation)
 router.delete('/:id',
   authenticateUser,
-  requireRoles(['admin']),
+  requireRoles(['directeur']),
   validateParams(z.object({ id: z.coerce.number().int().positive() })),
   invalidateCache(['tables']),
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
@@ -618,7 +618,7 @@ router.delete('/:id',
 // Statistiques des tables
 router.get('/stats',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['tables', 'stats'] }),
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();

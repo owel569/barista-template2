@@ -40,7 +40,7 @@ router.get('/', authenticateUser, async (req, res) => {
   }
 });
 
-router.post('/restock', authenticateUser, requireRoles(['manager']), async (req, res) => {
+router.post('/restock', authenticateUser, requireRoles(['gerant']), async (req, res) => {
   try {
     const { itemId, quantity } = req.body;
     const restockOrder = {

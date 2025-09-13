@@ -483,3 +483,10 @@ export const selectLoyaltyTransactionSchema = createSelectSchema(loyaltyTransact
 export const selectPermissionSchema = createSelectSchema(permissions);
 
 export const insertShiftSchema = createInsertSchema(shifts);
+
+// ==========================================
+// TYPE EXPORTS
+// ==========================================
+
+export type User = typeof users.$inferSelect;
+export type InsertUser = typeof users.$inferInsert;

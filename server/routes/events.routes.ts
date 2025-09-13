@@ -39,7 +39,7 @@ router.get('/', authenticateUser, async (req, res) => {
   }
 });
 
-router.post('/', authenticateUser, requireRoles(['manager']), async (req, res) => {
+router.post('/', authenticateUser, requireRoles(['gerant']), async (req, res) => {
   try {
     const { title, description, startDate, endDate, type } = req.body;
     const newEvent = {

@@ -112,7 +112,7 @@ const logDatabaseActivity = async (userId: number, action: string, details: stri
  */
 router.get('/health',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   asyncHandler(async (req, res) => {
     try {
       const db = await getDb();
@@ -173,7 +173,7 @@ router.get('/health',
  */
 router.get('/info',
   authenticateUser,
-  requireRoles(['admin']),
+  requireRoles(['directeur']),
   asyncHandler(async (req, res) => {
     try {
       const db = await getDb();
@@ -249,7 +249,7 @@ router.get('/info',
  */
 router.get('/migrations',
   authenticateUser,
-  requireRoles(['admin']),
+  requireRoles(['directeur']),
   asyncHandler(async (req, res) => {
     try {
       const db = await getDb();
@@ -333,7 +333,7 @@ router.get('/migrations',
  */
 router.post('/backup',
   authenticateUser,
-  requireRoles(['admin']),
+  requireRoles(['directeur']),
   validateBody(BackupSchema),
   asyncHandler(async (req, res) => {
     const { includeData, includeSchema, compression } = req.body;
@@ -403,7 +403,7 @@ router.post('/backup',
  */
 router.post('/restore',
   authenticateUser,
-  requireRoles(['admin']),
+  requireRoles(['directeur']),
   validateBody(RestoreSchema),
   asyncHandler(async (req, res) => {
     const { filename, tables } = req.body;
@@ -475,7 +475,7 @@ router.post('/restore',
  */
 router.post('/optimize',
   authenticateUser,
-  requireRoles(['admin']),
+  requireRoles(['directeur']),
   validateBody(OptimizeSchema),
   asyncHandler(async (req, res) => {
     const { analyze, vacuum, reindex } = req.body;

@@ -73,7 +73,7 @@ const getQueryParam = (param: string | string[] | undefined): string => {
 // Vue d'ensemble du tableau de bord
 router.get('/overview',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   validateQuery(DashboardQuerySchema),
   cacheMiddleware({ ttl: 2 * 60 * 1000, tags: ['dashboard', 'stats'] }),
   asyncHandler(async (req, res) => {
@@ -258,7 +258,7 @@ router.get('/revenue', authenticateUser, asyncHandler(async (req, res) => {
 // Données en temps réel
 router.get('/realtime',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   cacheMiddleware({ ttl: 30 * 1000, tags: ['dashboard', 'realtime'] }),
   asyncHandler(async (req, res) => {
     const db = getDb();
@@ -383,7 +383,7 @@ router.get('/recent-orders', authenticateUser, asyncHandler(async (req, res) => 
 // Graphiques de revenus
 router.get('/revenue-chart',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   validateQuery(DashboardQuerySchema),
   cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['dashboard', 'revenue'] }),
   asyncHandler(async (req, res) => {
@@ -461,7 +461,7 @@ router.get('/revenue-chart',
 // Alertes et notifications
 router.get('/alerts',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   cacheMiddleware({ ttl: 1 * 60 * 1000, tags: ['dashboard', 'alerts'] }),
   asyncHandler(async (req, res) => {
     const db = getDb();

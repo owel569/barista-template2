@@ -2,7 +2,7 @@ import { LucideIconComponent } from './icons';
 
 export interface User {
   id: string;
-  role: 'directeur' | 'employe' | 'admin' | 'manager' | 'staff' | 'customer' | 'employee';
+  role: 'directeur' | 'gerant' | 'employe' | 'customer';
   permissions?: Permission[];
   profile?: {
     address?: string;

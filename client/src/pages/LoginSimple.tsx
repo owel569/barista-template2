@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Coffee } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { loginSchema, type LoginFormData } from "@/lib/auth-schemas";
+import { loginSchema, type LoginFormData, USER_ROLES } from "@/lib/auth-schemas";
 
 export default function LoginSimple(): JSX.Element {
   const { isAuthenticated, login } = useAuth();
@@ -39,24 +39,41 @@ export default function LoginSimple(): JSX.Element {
       const result = await login(data.email, data.password);
       
       if (result.success) {
+        // Personalised welcome message based on role
+        const user = result.user;
+        let welcomeMessage = "Bienvenue ! Redirection...";
+        
+        if (user?.role === USER_ROLES.DIRECTEUR) {
+          welcomeMessage = "Bienvenue Directeur ! Accès complet activé.";
+        } else if (user?.role === USER_ROLES.GERANT) {
+          welcomeMessage = "Bienvenue Gérant ! Accès de gestion activé.";
+        } else if (user?.role === USER_ROLES.EMPLOYE) {
+          welcomeMessage = "Bienvenue ! Accès employé activé.";
+        }
+
         toast({
           title: "Connexion réussie",
-          description: "Bienvenue ! Redirection vers l'administration...",
+          description: welcomeMessage,
         });
         navigate("/admin");
       } else {
         toast({
           title: "Erreur de connexion",
-          description: result.message || "Identifiants incorrects",
+          description: result.message || "Email ou mot de passe incorrect",
           variant: "destructive",
         });
+        
+        // Clear password field on failed login
+        form.setValue('password', '');
       }
     } catch (error) {
+      console.error('Login error:', error);
       toast({
-        title: "Erreur",
-        description: "Erreur de connexion au serveur",
+        title: "Erreur de connexion",
+        description: "Impossible de se connecter au serveur. Veuillez réessayer.",
         variant: "destructive",
       });
+      form.setValue('password', '');
     }
   };
 
@@ -91,6 +108,14 @@ export default function LoginSimple(): JSX.Element {
             <p className="text-gray-600">
               Accédez à votre espace administrateur
             </p>
+            <div className="mt-4 text-sm text-gray-500">
+              <p className="font-medium">Rôles disponibles :</p>
+              <ul className="mt-1 space-y-1">
+                <li>• <span className="font-medium text-amber-600">Directeur</span> - Accès complet</li>
+                <li>• <span className="font-medium text-blue-600">Gérant</span> - Gestion intermédiaire</li>
+                <li>• <span className="font-medium text-green-600">Employé</span> - Accès de base</li>
+              </ul>
+            </div>
           </CardHeader>
           <CardContent>
             <Form {...form}>

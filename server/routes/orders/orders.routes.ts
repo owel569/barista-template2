@@ -205,7 +205,7 @@ router.get('/',
 // Récupérer une commande par ID
 router.get('/:id',
   authenticateUser,
-  requireRoles(['admin', 'manager', 'staff']),
+  requireRoles(['directeur', 'gerant', 'employe']),
   validateParams(z.object({ id: z.coerce.number().int().positive() })),
   cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['orders'] }),
   asyncHandler(async (req, res) => {
@@ -234,7 +234,7 @@ router.get('/:id',
 // Récupérer les articles d'une commande
 router.get('/:id/items',
   authenticateUser,
-  requireRoles(['admin', 'manager', 'staff']),
+  requireRoles(['directeur', 'gerant', 'employe']),
   validateParams(z.object({ id: z.coerce.number().int().positive() })),
   cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['orders', 'order-items'] }),
   asyncHandler(async (req, res) => {
@@ -353,7 +353,7 @@ router.post('/',
 
 router.patch('/:id/status',
   authenticateUser,
-  requireRoles(['admin', 'manager', 'staff']),
+  requireRoles(['directeur', 'gerant', 'employe']),
   validateParams(z.object({ id: z.coerce.number().int().positive() })),
   validateBody(UpdateOrderStatusSchema),
   invalidateCache(['orders', 'realtime', 'stats']),
@@ -397,7 +397,7 @@ router.patch('/:id/status',
 // Statistiques des commandes en temps réel
 router.get('/stats/realtime',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   cacheMiddleware({ ttl: 30 * 1000, tags: ['orders', 'stats'] }),
   asyncHandler(async (req, res) => {
     const db = getDb();

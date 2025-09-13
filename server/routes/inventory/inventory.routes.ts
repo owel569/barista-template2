@@ -91,7 +91,7 @@ async function logInventoryActivity(
 // Liste des articles d'inventaire avec filtres
 router.get('/',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   validateQuery(z.object({
     category: z.string().optional(),
     lowStock: z.boolean().optional(),
@@ -240,7 +240,7 @@ router.get('/',
 // Alertes de stock
 router.get('/alerts',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   cacheMiddleware({ ttl: 1 * 60 * 1000, tags: ['inventory', 'alerts'] }),
   asyncHandler(async (req, res) => {
     const db = getDb();
@@ -336,7 +336,7 @@ router.get('/alerts',
 // Créer un article d'inventaire
 router.post('/',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   validateBody(CreateInventoryItemSchema),
   invalidateCache(['inventory']),
   asyncHandler(async (req, res) => {
@@ -413,7 +413,7 @@ router.post('/',
 // Mettre à jour un article d'inventaire
 router.put('/:id',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   validateParams(z.object({ id: z.coerce.number().int().positive() })),
   validateBody(UpdateInventoryItemSchema.omit({ id: true })),
   invalidateCache(['inventory']),
@@ -471,7 +471,7 @@ router.put('/:id',
 // Mouvement de stock
 router.post('/movement',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   validateBody(StockMovementSchema),
   invalidateCache(['inventory']),
   asyncHandler(async (req, res) => {
@@ -567,7 +567,7 @@ router.post('/movement',
 // Statistiques d'inventaire
 router.get('/stats',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['inventory', 'stats'] }),
   asyncHandler(async (req, res) => {
     const db = getDb();

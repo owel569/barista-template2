@@ -211,7 +211,7 @@ router.get('/alerts', authenticateUser, async (req, res) => {
 });
 
 // Prédictions basées sur l'IA
-router.get('/predictions', authenticateUser, requireRoles(['manager']), async (req, res) => {
+router.get('/predictions', authenticateUser, requireRoles(['gerant']), async (req, res) => {
   try {
     const predictions = {
       nextHour: {

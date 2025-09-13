@@ -144,7 +144,7 @@ const statusUpdateSchema = z.object({
 // Récupérer toutes les commandes en ligne
 onlineOrdersRouter.get('/', 
   authenticateUser,
-  requireRoles(['admin', 'manager', 'employee']),
+  requireRoles(['directeur', 'gerant', 'employe']),
   asyncHandler(async (req, res) => {
     const { status, platform } = req.query;
     
@@ -180,7 +180,7 @@ onlineOrdersRouter.get('/',
 // Récupérer les plateformes
 onlineOrdersRouter.get('/platforms', 
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   asyncHandler(async (req, res) => {
     try {
       return res.json({
@@ -202,7 +202,7 @@ onlineOrdersRouter.get('/platforms',
 // Statistiques des commandes
 onlineOrdersRouter.get('/stats', 
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   asyncHandler(async (req, res) => {
     try {
       const stats = {
@@ -241,7 +241,7 @@ onlineOrdersRouter.get('/stats',
 // Récupérer une commande par ID
 onlineOrdersRouter.get('/:id', 
   authenticateUser,
-  requireRoles(['admin', 'manager', 'employee']),
+  requireRoles(['directeur', 'gerant', 'employe']),
   validateParams(z.object({ id: z.string().regex(/^\d+$/) })),
   asyncHandler(async (req, res) => {
     const { id } = req.params;
@@ -276,7 +276,7 @@ onlineOrdersRouter.get('/:id',
 // Créer une nouvelle commande
 onlineOrdersRouter.post('/', 
   authenticateUser,
-  requireRoles(['admin', 'manager', 'employee']),
+  requireRoles(['directeur', 'gerant', 'employe']),
   validateBody(orderSchema),
   asyncHandler(async (req, res) => {
     try {
@@ -310,7 +310,7 @@ onlineOrdersRouter.post('/',
 // Mettre à jour le statut d'une commande
 onlineOrdersRouter.patch('/:id/status', 
   authenticateUser,
-  requireRoles(['admin', 'manager', 'employee']),
+  requireRoles(['directeur', 'gerant', 'employe']),
   validateParams(z.object({ id: z.string().regex(/^\d+$/) })),
   validateBody(statusUpdateSchema),
   asyncHandler(async (req, res) => {

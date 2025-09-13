@@ -10,7 +10,7 @@ export interface User {
   lastName?: string;
   email?: string;
   phone?: string;
-  role: 'directeur' | 'employe' | 'admin' | 'manager' | 'barista' | 'employee' | 'staff' | 'customer';
+  role: 'directeur' | 'gerant' | 'employe' | 'customer';
   isActive: boolean;
   lastLogin?: Date | null;
   createdAt: Date;
@@ -35,7 +35,7 @@ export interface CreateUserData {
   lastName?: string;
   email?: string;
   phone?: string;
-  role: 'directeur' | 'employe' | 'admin' | 'manager' | 'barista' | 'employee' | 'staff' | 'customer';
+  role: 'directeur' | 'gerant' | 'employe' | 'customer';
 }
 
 export interface UpdateUserData {
@@ -43,7 +43,7 @@ export interface UpdateUserData {
   lastName?: string;
   email?: string;
   phone?: string;
-  role?: 'directeur' | 'employe' | 'admin' | 'manager' | 'barista' | 'employee' | 'staff' | 'customer';
+  role?: 'directeur' | 'gerant' | 'employe' | 'customer';
   isActive?: boolean;
 }
 

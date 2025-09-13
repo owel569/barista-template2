@@ -18,7 +18,7 @@ const ShiftFilterSchema = z.object({
 
 router.get('/employees',
   authenticateUser,
-  requireRoles(['admin','manager','staff']),
+  requireRoles(['directeur','gerant','employe']),
   asyncHandler(async (_req, res) => {
     const db = getDb();
     const data = await db.select().from(employees).orderBy(desc(employees.createdAt));
@@ -28,7 +28,7 @@ router.get('/employees',
 
 router.get('/shifts',
   authenticateUser,
-  requireRoles(['admin','manager','staff']),
+  requireRoles(['directeur','gerant','employe']),
   validateQuery(ShiftFilterSchema),
   asyncHandler(async (req, res) => {
     const db = getDb();
@@ -59,7 +59,7 @@ const CreateShiftSchema = z.object({
 
 router.post('/shifts',
   authenticateUser,
-  requireRoles(['admin','manager']),
+  requireRoles(['directeur','gerant']),
   validateBody(CreateShiftSchema),
   asyncHandler(async (req, res) => {
     const db = getDb();
@@ -83,7 +83,7 @@ const UpdateShiftSchema = CreateShiftSchema.partial();
 
 router.patch('/shifts/:id',
   authenticateUser,
-  requireRoles(['admin','manager']),
+  requireRoles(['directeur','gerant']),
   validateParams(z.object({ id: z.coerce.number().int().positive() })),
   validateBody(UpdateShiftSchema),
   asyncHandler(async (req, res) => {
@@ -99,7 +99,7 @@ router.patch('/shifts/:id',
 
 router.delete('/shifts/:id',
   authenticateUser,
-  requireRoles(['admin','manager']),
+  requireRoles(['directeur','gerant']),
   validateParams(z.object({ id: z.coerce.number().int().positive() })),
   asyncHandler(async (req, res) => {
     const db = getDb();

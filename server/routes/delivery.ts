@@ -214,7 +214,7 @@ const generateOrderNumber = (): string => {
  */
 router.get('/', 
   authenticateUser,
-  requireRoles(['admin', 'manager', 'staff']),
+  requireRoles(['directeur', 'gerant', 'employe']),
   asyncHandler(async (req, res) => {
     try {
       // Dans une vraie implémentation, utiliser la base de données:
@@ -252,7 +252,7 @@ router.get('/',
  */
 router.get('/drivers', 
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   asyncHandler(async (req, res) => {
     try {
       res.json({
@@ -287,7 +287,7 @@ router.get('/drivers',
  */
 router.get('/stats', 
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   asyncHandler(async (req, res) => {
     try {
       const stats: DeliveryStats = {
@@ -344,7 +344,7 @@ router.get('/stats',
  */
 router.get('/:id', 
   authenticateUser,
-  requireRoles(['admin', 'manager', 'staff']),
+  requireRoles(['directeur', 'gerant', 'employe']),
   validateParams(IdParamsSchema),
   asyncHandler(async (req, res) => {
     const { id } = req.params;
@@ -399,7 +399,7 @@ router.get('/:id',
  */
 router.post('/', 
   authenticateUser,
-  requireRoles(['admin', 'manager', 'staff']),
+  requireRoles(['directeur', 'gerant', 'employe']),
   validateBody(DeliverySchema),
   asyncHandler(async (req, res) => {
     try {
@@ -466,7 +466,7 @@ router.post('/',
  */
 router.patch('/:id/status', 
   authenticateUser,
-  requireRoles(['admin', 'manager', 'staff']),
+  requireRoles(['directeur', 'gerant', 'employe']),
   validateParams(IdParamsSchema),
   validateBody(StatusUpdateSchema),
   asyncHandler(async (req, res) => {
@@ -557,7 +557,7 @@ router.patch('/:id/status',
  */
 router.patch('/drivers/:id/location', 
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   validateParams(IdParamsSchema),
   validateBody(DriverLocationSchema),
   asyncHandler(async (req, res) => {

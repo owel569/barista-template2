@@ -25,7 +25,7 @@ const CreateUserSchema = z.object({
     .min(8, 'Mot de passe requis (min 8 caractères)')
     .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Mot de passe doit contenir au moins une majuscule, une minuscule et un chiffre'),
   phone: z.string().optional(),
-  role: z.enum(['admin', 'manager', 'staff', 'customer']),
+  role: z.enum(['directeur', 'gerant', 'employe', 'customer']),
   isActive: z.boolean().default(true)
 });
 
@@ -34,7 +34,7 @@ const UpdateUserSchema = z.object({
   lastName: z.string().min(2).max(50).optional(),
   email: z.string().email().optional(),
   phone: z.string().optional(),
-  role: z.enum(['admin', 'manager', 'staff', 'customer']).optional(),
+  role: z.enum(['directeur', 'gerant', 'employe', 'customer']).optional(),
   isActive: z.boolean().optional()
 });
 
@@ -75,9 +75,9 @@ async function logActivity(
 // Liste des utilisateurs avec filtres et pagination
 router.get('/',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   validateQuery(z.object({
-    role: z.enum(['admin', 'manager', 'staff', 'customer']).optional(),
+    role: z.enum(['directeur', 'gerant', 'employe', 'customer']).optional(),
     isActive: z.boolean().optional(),
     search: z.string().optional(),
     page: z.coerce.number().int().min(1).default(1),
@@ -190,7 +190,7 @@ router.get('/',
 // Détails d'un utilisateur
 router.get('/:id',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   validateParams(commonSchemas.idSchema),
   cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['users'] }),
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
@@ -272,7 +272,7 @@ router.get('/:id',
 // Créer un utilisateur
 router.post('/',
   authenticateUser,
-  requireRoles(['admin']),
+  requireRoles(['directeur']),
   validateBody(CreateUserSchema),
   invalidateCache(['users', 'employees']),
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
@@ -362,7 +362,7 @@ router.post('/',
 // Mettre à jour un utilisateur
 router.put('/:id',
   authenticateUser,
-  requireRoles(['admin']),
+  requireRoles(['directeur']),
   validateParams(commonSchemas.idSchema),
   validateBody(UpdateUserSchema),
   invalidateCache(['users', 'employees']),
@@ -475,7 +475,7 @@ router.put('/:id',
 // Mettre à jour le mot de passe d'un utilisateur
 router.patch('/:id/password',
   authenticateUser,
-  requireRoles(['admin']),
+  requireRoles(['directeur']),
   validateParams(commonSchemas.idSchema),
   validateBody(UpdatePasswordSchema),
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
@@ -542,7 +542,7 @@ router.patch('/:id/password',
 // Supprimer un utilisateur (désactivation)
 router.delete('/:id',
   authenticateUser,
-  requireRoles(['admin']),
+  requireRoles(['directeur']),
   validateParams(commonSchemas.idSchema),
   invalidateCache(['users', 'employees']),
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
@@ -615,7 +615,7 @@ router.delete('/:id',
 // Statistiques des utilisateurs
 router.get('/stats/overview',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   cacheMiddleware({ ttl: 5 * 60 * 1000, tags: ['users', 'stats'] }),
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();

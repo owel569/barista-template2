@@ -1,14 +1,14 @@
 // Types pour une meilleure sécurité de type
 export type PermissionAction = 'view' | 'create' | 'edit' | 'delete' | 'respond' | 'use';
-// Rôles unifiés pour Barista Café
-export type Role = 'directeur' | 'gerant' | 'employe';
+// Rôles unifiés pour Barista Café (4-role system)
+export type Role = 'directeur' | 'gerant' | 'employe' | 'customer';
 
 export type PermissionsMap = Record<string, PermissionAction[]>;
 
 // Rôles avec accès complet
 export const ALL_ACCESS_ROLES: Role[] = ['directeur'];
 
-// Permissions par défaut pour chaque rôle
+// Permissions par défaut pour chaque rôle (4-role system)
 export const DEFAULT_PERMISSIONS: Record<Role, PermissionsMap> = {
   directeur: {
     // Accès complet à tout
@@ -87,6 +87,32 @@ export const DEFAULT_PERMISSIONS: Record<Role, PermissionsMap> = {
     tables: ['view',],
     user_profile: ['view', 'edit'],
     image_management: ['view']
+  },
+  customer: {
+    // Accès très limité pour les clients (interface publique)
+    reservations: ['view', 'create'],
+    orders: ['view', 'create'],
+    menu: ['view'],
+    inventory: [],
+    employees: [],
+    customers: [],
+    analytics: [],
+    maintenance: [],
+    calendar: ['view'],
+    messages: ['create'],
+    settings: [],
+    permissions: [],
+    reports: [],
+    backups: [],
+    accounting: [],
+    loyalty: ['view'],
+    events: ['view'],
+    promotions: ['view'],
+    delivery: ['view'],
+    online_orders: ['view', 'create'],
+    tables: [],
+    user_profile: ['view', 'edit'],
+    image_management: []
   }
 };
 

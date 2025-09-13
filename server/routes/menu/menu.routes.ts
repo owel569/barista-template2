@@ -218,7 +218,7 @@ router.get('/categories/list',
 // Créer une catégorie
 router.post('/categories',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   validateBody(CreateCategorySchema),
   invalidateCache(['categories']),
   asyncHandler(async (req, res) => {
@@ -351,7 +351,7 @@ router.get('/', (req, res) => {
 // Créer un article (admin seulement)
 router.post('/items',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   validateBody(CreateMenuItemSchema),
   invalidateCache(['menu']),
   asyncHandler(async (req, res) => {
@@ -415,7 +415,7 @@ router.post('/items',
 // Mettre à jour un article
 router.put('/items/:id',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   validateParams(z.object({ id: z.string().regex(/^\d+$/, 'ID doit être numérique').transform(Number) })),
   validateBody(UpdateMenuItemSchema.omit({ id: true })),
   invalidateCache(['menu']),
@@ -498,7 +498,7 @@ router.put('/items/:id',
 // Supprimer un article (désactivation)
 router.delete('/items/:id',
   authenticateUser,
-  requireRoles(['admin']),
+  requireRoles(['directeur']),
   validateParams(z.object({ id: z.string().regex(/^\d+$/, 'ID doit être numérique').transform(Number) })),
   invalidateCache(['menu']),
   asyncHandler(async (req, res) => {

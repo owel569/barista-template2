@@ -590,7 +590,7 @@ const customerIdParamSchema = z.object({
 // Vue d'ensemble enrichie du programme
 router.get('/overview',
   authenticateUser,
-  requireRoles(['admin', 'manager']),
+  requireRoles(['directeur', 'gerant']),
   asyncHandler(async (_req, res) => {
     try {
       const db = await getDb();
