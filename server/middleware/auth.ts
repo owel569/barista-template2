@@ -22,9 +22,6 @@ export interface AuthUser {
   isActive: boolean;
 }
 
-// Types
-import type { AppRole } from '../../shared/types';
-
 interface JwtPayload {
   userId: number;
   email: string;
@@ -193,8 +190,8 @@ export class AuthService {
   static hasPermission(user: AuthUser, permission: string): boolean {
     if (!user.isActive) return false;
 
-    // Admin a toutes les permissions
-    if (user.role === 'admin') return true;
+    // Directeur a toutes les permissions
+    if (user.role === 'directeur') return true;
 
     return user.permissions.includes(permission);
   }
@@ -272,8 +269,7 @@ export const requireRoles = (allowedRoles: AppRole[]) => {
       // Reverse mapping (si nécessaire, mais les types AppRole devraient suffire)
       'directeur': 'directeur',
       'gerant': 'gerant',
-      'employe': 'employe',
-      'customer': 'customer'
+      'employe': 'employe'
     };
 
     const userRole = roleMapping[req.user.role] || req.user.role;
@@ -377,8 +373,8 @@ export const requireOwnership = (resourceIdParam: string = 'id') => {
         throw new AuthenticationError('Authentification requise');
       }
 
-      // Admin et manager peuvent accéder à tout
-      if (['admin', 'manager'].includes(req.user.role)) {
+      // Directeur et gérant peuvent accéder à tout
+      if (['directeur', 'gerant'].includes(req.user.role)) {
         return next();
       }
 
