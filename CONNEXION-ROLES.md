@@ -32,30 +32,43 @@ Votre système Barista Café utilise 3 niveaux de rôles pour le personnel :
 **Comptes de test disponibles dans votre base de données :**
 
 ```
-🎯 DIRECTEUR
+🎯 DIRECTEUR (COMPTE TEST GARANTI)
+Email : test@barista-cafe.com
+Mot de passe : Test123!
+✅ Utilisable immédiatement
+
+🎯 DIRECTEUR (ancien)
 Email : admin@barista-cafe.com
-Mot de passe : [voir section "Mots de passe" ci-dessous]
+Mot de passe : [essayez les suggestions ci-dessous]
 
 👨‍💼 GÉRANT  
 Email : manager@barista-cafe.com
-Mot de passe : [voir section "Mots de passe" ci-dessous]
+Mot de passe : [essayez les suggestions ci-dessous]
 
 👩‍💻 EMPLOYÉ
 Email : employee@barista-cafe.com
-Mot de passe : [voir section "Mots de passe" ci-dessous]
+Mot de passe : [essayez les suggestions ci-dessous]
 ```
 
 ---
 
 ## 🔑 **MOTS DE PASSE**
 
-### Option 1 : Si vous connaissez les mots de passe existants
-Utilisez directement les comptes ci-dessus avec leurs mots de passe actuels.
+### ⚠️ MOTS DE PASSE ACTUELS INCONNUS
+Les mots de passe actuels de votre base de données sont hachés (cryptés) pour la sécurité.
 
-### Option 2 : Créer de nouveaux mots de passe sécurisés
-Si vous ne connaissez pas les mots de passe, créez vos propres comptes sécurisés :
+### 🔑 MOTS DE PASSE DE TEST À ESSAYER
 
-**Exemples de mots de passe forts :**
+Essayez ces mots de passe courants avec les comptes existants :
+
+**Mots de passe possibles à tester :**
+- `password123!`
+- `admin123!`
+- `test123!` 
+- `barista2024!`
+- `Password123!`
+
+**OU créez vos nouveaux comptes de test avec :**
 - `Barista2024!` 
 - `CafeAdmin#123`
 - `Manager@2024`
