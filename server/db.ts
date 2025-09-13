@@ -422,7 +422,7 @@ async function autoSeedMemStorage() {
       password: 'admin123', // En production, cela devrait être hashé
       firstName: 'Admin',
       lastName: 'Barista',
-      role: 'admin',
+      role: 'directeur',
       isActive: true
     });
 

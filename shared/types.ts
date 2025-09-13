@@ -1,125 +1,122 @@
-// Types de base pour l'authentification
+
+// Types fondamentaux pour l'application Barista Café
+export type AppRole = 'directeur' | 'gerant' | 'employe' | 'customer';
+
 export interface User {
-  id: string;
+  id: number;
   email: string;
-  firstName: string;
-  lastName: string;
-  role: UserRole;
-  permissions: string[];
+  username: string;
+  firstName?: string;
+  lastName?: string;
   phone?: string;
+  address?: string;
+  city?: string;
+  postalCode?: string;
+  dateOfBirth?: Date;
+  role: AppRole;
   isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export interface AuthenticatedUser extends User {
+export interface UserCredentials {
+  email: string;
+  password: string;
+}
+
+export interface UserRegistration extends UserCredentials {
+  username: string;
+  firstName?: string;
+  lastName?: string;
+  role?: AppRole;
+}
+
+export interface AuthUser {
+  id: number;
+  email: string;
+  username: string;
+  firstName?: string;
+  lastName?: string;
+  role: AppRole;
+  isActive: boolean;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  user?: AuthUser;
+  token?: string;
+  message?: string;
+}
+
+// Types pour les permissions
+export interface Permission {
   id: string;
-}
-
-// Maintenance types
-export interface MaintenanceTask {
-  id: number;
-  title: string;
-  description: string;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
-  assignedTo?: string;
-  equipmentId?: string | null;
-  dueDate?: string;
-  completedAt?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Equipment {
-  id: number;
   name: string;
-  type: string;
-  model?: string;
-  serialNumber?: string;
-  purchaseDate?: string;
-  warrantyExpiry?: string;
-  status: 'operational' | 'maintenance' | 'broken' | 'retired';
-  location: string;
-  maintenanceSchedule?: string;
-  createdAt: string;
-  updatedAt: string;
+  description: string;
+  module: string;
+  action: string;
+  roles: AppRole[];
 }
 
-// Rôles unifiés pour Barista Café (4-role system)
-export type UserRole = 'directeur' | 'gerant' | 'employe' | 'customer';
+export interface RolePermissions {
+  directeur: string[];
+  gerant: string[];
+  employe: string[];
+  customer: string[];
+}
 
-// Legacy aliases pour compatibilité ascendante - À SUPPRIMER PROGRESSIVEMENT
-export type LegacyUserRole = 'admin' | 'manager' | 'staff' | 'employee';
-export type UserRoleExtended = UserRole | LegacyUserRole;
-
-
-// Types pour les produits du menu
+// Types pour les menus
 export interface MenuItem {
   id: string;
   name: string;
   description: string;
   price: number;
-  categoryId: string;
-  category?: MenuCategory;
-  imageUrl?: string;
+  category: string;
+  image?: string;
   isAvailable: boolean;
-  preparationTime: number;
-  allergens: string[];
-  nutritionalInfo: NutritionalInfo;
-  createdAt: string;
-  updatedAt: string;
+  isVegan?: boolean;
+  isGlutenFree?: boolean;
+  allergens?: string[];
+  preparationTime?: number;
+  calories?: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface MenuCategory {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   displayOrder: number;
   isActive: boolean;
-  imageUrl?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface NutritionalInfo {
-  calories: number;
-  protein: number;
-  carbohydrates: number;
-  fat: number;
-  fiber: number;
-  sugar: number;
-  sodium: number;
 }
 
 // Types pour les commandes
 export interface Order {
   id: string;
-  customerId: string;
-  customer?: Customer;
+  customerId: number;
   tableId?: string;
-  table?: Table;
   items: OrderItem[];
   status: OrderStatus;
   totalAmount: number;
-  paymentStatus: PaymentStatus;
   paymentMethod?: PaymentMethod;
+  paymentStatus: PaymentStatus;
   notes?: string;
-  estimatedReadyTime?: string;
-  actualReadyTime?: string;
-  createdAt: string;
-  updatedAt: string;
+  customerInfo?: CustomerInfo;
+  deliveryAddress?: string;
+  estimatedDeliveryTime?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface OrderItem {
   id: string;
   orderId: string;
   menuItemId: string;
-  menuItem?: MenuItem;
   quantity: number;
   unitPrice: number;
-  subtotal: number;
-  modifications?: string[];
+  totalPrice: number;
+  customizations?: string;
   notes?: string;
 }
 
@@ -129,88 +126,38 @@ export type OrderStatus =
   | 'preparing' 
   | 'ready' 
   | 'served' 
+  | 'delivered' 
   | 'cancelled';
 
-export type PaymentStatus = 
-  | 'pending' 
-  | 'paid' 
-  | 'failed' 
-  | 'refunded';
+export type PaymentMethod = 'cash' | 'card' | 'mobile' | 'online';
+export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
 
-export type PaymentMethod = 
-  | 'cash' 
-  | 'card' 
-  | 'mobile' 
-  | 'online';
-
-// Types pour les clients
-export interface Customer {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
+export interface CustomerInfo {
+  name?: string;
   phone?: string;
-  dateOfBirth?: string;
-  loyaltyPoints: number;
-  totalOrders: number;
-  totalSpent: number;
-  preferredContactMethod: 'email' | 'phone' | 'sms';
-  allergies?: string[];
-  dietaryRestrictions?: string[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-// Types pour les employés
-export interface Employee {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  role: EmployeeRole;
-  department: string;
-  hireDate: string;
-  salary: number;
-  isActive: boolean;
-  skills: string[];
-  certifications: string[];
-  emergencyContact: EmergencyContact;
-  createdAt: string;
-  updatedAt: string;
-}
-
-// Rôles d'employés spécifiques (positions de travail)
-export type EmployeeRole = 
-  | 'gerant'     // Gérant/Manager
-  | 'chef'       // Chef cuisinier
-  | 'barista'    // Barista
-  | 'serveur'    // Serveur/Server
-  | 'caissier'   // Caissier/Cashier
-  | 'nettoyage'; // Nettoyage/Cleaner
-
-export interface EmergencyContact {
-  name: string;
-  relationship: string;
-  phone: string;
+  email?: string;
+  address?: string;
+  city?: string;
+  postalCode?: string;
+  age?: number;
+  gender?: string;
 }
 
 // Types pour les réservations
 export interface Reservation {
   id: string;
-  customerId: string;
-  customer?: Customer;
+  customerId: number;
   tableId: string;
-  table?: Table;
-  date: string;
+  date: Date;
   time: string;
   partySize: number;
   status: ReservationStatus;
-  notes?: string;
-  specialRequests?: string[];
-  confirmationCode: string;
-  createdAt: string;
-  updatedAt: string;
+  specialRequests?: string;
+  customerName: string;
+  customerPhone: string;
+  customerEmail?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export type ReservationStatus = 
@@ -219,48 +166,63 @@ export type ReservationStatus =
   | 'seated' 
   | 'completed' 
   | 'cancelled' 
-  | 'no_show';
+  | 'no-show';
 
 // Types pour les tables
 export interface Table {
   id: string;
   number: number;
   capacity: number;
-  location: string;
   status: TableStatus;
+  location?: string;
   isActive: boolean;
-  notes?: string;
-  createdAt: string;
-  updatedAt: string;
+  qrCode?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export type TableStatus = 
-  | 'available' 
-  | 'occupied' 
-  | 'reserved' 
-  | 'maintenance';
+export type TableStatus = 'available' | 'occupied' | 'reserved' | 'maintenance';
 
-export interface TableStatusInfo {
-  id: number;
-  number: number;
-  capacity: number;
-  location: string | null;
-  section: string | null;
-  status: TableStatus;
-  currentReservation?: {
-    id: number;
-    customerName: string;
-    startTime: Date;
-    endTime: Date;
-    partySize: number;
-  } | undefined;
-  nextReservation?: {
-    id: number;
-    customerName: string;
-    startTime: Date;
-    endTime: Date;
-    partySize: number;
-  } | undefined;
+// Types pour les statistiques
+export interface Statistics {
+  period: {
+    start: Date;
+    end: Date;
+    type: 'day' | 'week' | 'month' | 'year' | 'custom';
+  };
+  revenue: {
+    total: number;
+    average: number;
+    growth: number;
+    byCategory: Record<string, number>;
+    byDay: Array<{ date: string; amount: number }>;
+  };
+  orders: {
+    total: number;
+    completed: number;
+    cancelled: number;
+    averageValue: number;
+    byStatus: Record<OrderStatus, number>;
+  };
+  customers: {
+    total: number;
+    new: number;
+    returning: number;
+    retention: number;
+  };
+  products: {
+    topSelling: Array<{
+      id: string;
+      name: string;
+      quantity: number;
+      revenue: number;
+    }>;
+    lowStock: Array<{
+      id: string;
+      name: string;
+      stock: number;
+    }>;
+  };
 }
 
 // Types pour l'inventaire
@@ -268,19 +230,17 @@ export interface InventoryItem {
   id: string;
   name: string;
   category: string;
-  unit: string;
   currentStock: number;
-  minimumStock: number;
-  maximumStock: number;
-  unitCost: number;
+  minStock: number;
+  maxStock: number;
+  unit: string;
+  costPerUnit: number;
   supplierId?: string;
-  supplier?: Supplier;
-  expirationDate?: string;
-  batchNumber?: string;
-  location: string;
+  expirationDate?: Date;
+  location?: string;
   isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Supplier {
@@ -289,397 +249,154 @@ export interface Supplier {
   contactPerson: string;
   email: string;
   phone: string;
-  address: Address;
-  paymentTerms: string;
-  isActive: boolean;
-  rating: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Address {
-  street: string;
+  address: string;
   city: string;
   postalCode: string;
-  country: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-// Types pour les horaires de travail
-export interface WorkShift {
+// Types pour les employés et horaires
+export interface Employee {
+  id: string;
+  userId: number;
+  position: string;
+  department: string;
+  hireDate: Date;
+  salary?: number;
+  isActive: boolean;
+  emergencyContact?: {
+    name: string;
+    phone: string;
+    relationship: string;
+  };
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface WorkSchedule {
   id: string;
   employeeId: string;
-  employee?: Employee;
-  date: string;
+  date: Date;
   startTime: string;
   endTime: string;
-  breakStart?: string;
-  breakEnd?: string;
+  breakTime?: number;
   position: string;
-  status: ShiftStatus;
+  status: ScheduleStatus;
   notes?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export type ShiftStatus = 
-  | 'scheduled' 
-  | 'started' 
-  | 'on_break' 
-  | 'completed' 
-  | 'missed';
+export type ScheduleStatus = 'scheduled' | 'confirmed' | 'completed' | 'absent' | 'cancelled';
 
-// Types pour les analytics
-export interface AnalyticsData {
-  date: string;
-  revenue: number;
-  orders: number;
-  customers: number;
-  averageOrderValue: number;
-  topProducts: ProductSales[];
-  hourlyBreakdown: HourlyData[];
-}
-
-export interface ProductSales {
-  productId: string;
-  productName: string;
-  quantitySold: number;
-  revenue: number;
-  category: string;
-}
-
-export interface HourlyData {
-  hour: number;
-  orders: number;
-  revenue: number;
-  customers: number;
-}
-
-// Types pour les permissions
-export interface Permission {
-  id: string;
-  name: string;
-  description: string;
-  resource: string;
-  action: string;
-  isActive: boolean;
-}
-
-export interface RolePermission {
-  roleId: string;
-  permissionId: string;
-  grantedAt: string;
-  grantedBy: string;
-}
-
-// Types pour les événements et promotions
-export interface Event {
-  id: string;
-  title: string;
-  description: string;
-  startDate: string;
-  endDate: string;
-  eventType: EventType;
-  isActive: boolean;
-  maxParticipants?: number;
-  currentParticipants: number;
-  price?: number;
-  imageUrl?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export type EventType = 
-  | 'workshop' 
-  | 'tasting' 
-  | 'live_music' 
-  | 'special_menu' 
-  | 'private_party';
-
-export interface Promotion {
-  id: string;
-  name: string;
-  description: string;
-  discountType: 'percentage' | 'fixed_amount';
-  discountValue: number;
-  minimumOrderAmount?: number;
-  startDate: string;
-  endDate: string;
-  isActive: boolean;
-  usageLimit?: number;
-  currentUsage: number;
-  applicableItems?: string[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-// Types pour les retours et commentaires
-export interface Feedback {
-  id: string;
-  customerId: string;
-  customer?: Customer;
-  orderId?: string;
-  order?: Order;
-  rating: number;
-  comment?: string;
-  category: FeedbackCategory;
-  status: FeedbackStatus;
-  response?: string;
-  respondedBy?: string;
-  respondedAt?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export type FeedbackCategory = 
-  | 'food_quality' 
-  | 'service' 
-  | 'ambiance' 
-  | 'pricing' 
-  | 'cleanliness' 
-  | 'other';
-
-export type FeedbackStatus = 
-  | 'pending' 
-  | 'reviewed' 
-  | 'resolved' 
-  | 'escalated';
-
-// Types pour les logs d'activité
-export interface ActivityLog {
-  id: string;
-  userId: string;
-  user?: User;
-  action: string;
-  resource: string;
-  resourceId?: string;
-  details: Record<string, unknown>;
-  ipAddress: string;
-  userAgent: string;
-  timestamp: string;
-}
-
-// Types pour les notifications
-export interface Notification {
-  id: string;
-  userId: string;
-  user?: User;
-  title: string;
-  message: string;
-  type: NotificationType;
-  priority: NotificationPriority;
-  isRead: boolean;
-  actionUrl?: string;
-  expiresAt?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export type NotificationType = 
-  | 'order' 
-  | 'reservation' 
-  | 'inventory' 
-  | 'staff' 
-  | 'system' 
-  | 'promotion';
-
-export type NotificationPriority = 
-  | 'low' 
-  | 'medium' 
-  | 'high' 
-  | 'urgent';
-
-// Types utilitaires
-export interface APIResponse<T = unknown> {
+// Types pour les validations API
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
   message?: string;
+  timestamp: string;
 }
 
-export interface PaginationParams {
-  page: number;
-  limit: number;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}
-
-export interface PaginatedResponse<T> {
-  data: T[];
+export interface PaginatedResponse<T = unknown> extends ApiResponse<T[]> {
   pagination: {
     page: number;
-    limit: number;
+    pageSize: number;
     total: number;
     totalPages: number;
   };
 }
 
-// Types pour les statistiques
-export interface DashboardStats {
-  todayRevenue: number;
-  todayOrders: number;
-  todayCustomers: number;
-  activeReservations: number;
-  occupiedTables: number;
-  pendingOrders: number;
-  lowStockItems: number;
-  staffOnDuty: number;
-}
-
-export interface RevenueStats {
-  daily: number;
-  weekly: number;
-  monthly: number;
-  yearly: number;
-  growth: {
-    daily: number;
-    weekly: number;
-    monthly: number;
-    yearly: number;
-  };
-}
-
-// Types pour Chart.js
-export interface ChartConfiguration {
-  type: 'bar' | 'line' | 'pie' | 'doughnut' | 'area';
-  data: ChartData;
-  options?: ChartOptions;
-}
-
-export interface ChartData {
-  labels: string[];
-  datasets: ChartDataset[];
-}
-
-export interface ChartDataset {
-  label: string;
-  data: number[];
-  backgroundColor?: string | string[];
-  borderColor?: string | string[];
-  borderWidth?: number;
-  fill?: boolean;
-}
-
-export interface ChartOptions {
-  responsive?: boolean;
-  maintainAspectRatio?: boolean;
-  plugins?: {
-    legend?: {
-      display?: boolean;
-      position?: 'top' | 'bottom' | 'left' | 'right';
-    };
-    title?: {
-      display?: boolean;
-      text?: string;
-    };
-    tooltip?: {
-      enabled?: boolean;
-      mode?: string;
-    };
-  };
-  scales?: Record<string, unknown>;
-  elements?: Record<string, unknown>;
-}
-
-// Interfaces pour la gestion d'inventaire optimisée
-export interface InventoryData {
-  alerts: InventoryAlert[];
-  statistics: InventoryStatistics;
-  categories: InventoryCategory[];
-  items: InventoryItem[];
-  automaticOrders: AutomaticOrder[];
-  movements: InventoryMovement[];
-  suppliers: InventorySupplier[];
-  predictions?: InventoryPrediction[];
-}
-
-export interface InventoryAlert {
-  id: string;
-  itemId: string;
-  itemName: string;
+export interface ValidationError {
+  field: string;
   message: string;
-  priority: 'low' | 'medium' | 'high';
-  type: 'stock_low' | 'expiring' | 'out_of_stock';
-  createdAt: string;
+  code: string;
 }
 
-export interface InventoryStatistics {
-  totalValue: number;
-  lowStockItems: number;
-  pendingOrders: number;
-  monthlyConsumption: number;
-  totalItems: number;
+// Types utilitaires
+export type WithId<T> = T & { id: string };
+export type WithTimestamps<T> = T & {
+  createdAt: Date;
+  updatedAt: Date;
+};
+export type CreateInput<T> = Omit<T, 'id' | 'createdAt' | 'updatedAt'>;
+export type UpdateInput<T> = Partial<CreateInput<T>>;
+
+// Types pour les filtres et recherche
+export interface FilterOptions {
+  search?: string;
+  category?: string;
+  status?: string;
+  dateFrom?: Date;
+  dateTo?: Date;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+  page?: number;
+  pageSize?: number;
 }
 
-export interface InventoryCategory {
+// Types pour les événements WebSocket
+export interface WebSocketEvent {
+  type: string;
+  data: unknown;
+  timestamp: Date;
+  userId?: number;
+}
+
+// Types pour les notifications
+export interface Notification {
   id: string;
-  name: string;
-  items: InventoryItem[];
+  type: 'info' | 'success' | 'warning' | 'error';
+  title: string;
+  message: string;
+  userId?: number;
+  isRead: boolean;
+  metadata?: Record<string, unknown>;
+  createdAt: Date;
+  expiresAt?: Date;
 }
 
-export interface InventoryItem {
-  id: string;
-  name: string;
-  supplierName: string;
-  status: 'critical' | 'warning' | 'normal';
-  currentStock: number;
-  minStock: number;
-  maxStock: number;
-  unit: string;
-  daysRemaining?: number;
-  cost: number;
-  categoryId: string;
-}
+// Constantes pour les rôles et permissions
+export const ROLES: Record<AppRole, string> = {
+  directeur: 'Directeur',
+  gerant: 'Gérant',
+  employe: 'Employé',
+  customer: 'Client'
+} as const;
 
-export interface InventoryMovement {
-  id: string;
-  item: string;
-  type: 'in' | 'out' | 'adjustment';
-  quantity: number;
-  unit: string;
-  reason: string;
-  user: string;
-  date: string;
-}
+export const ROLE_HIERARCHY: Record<AppRole, number> = {
+  directeur: 4,
+  gerant: 3,
+  employe: 2,
+  customer: 1
+} as const;
 
-export interface InventorySupplier {
-  id: string;
-  name: string;
-  categories: string[];
-  deliveryTime: string;
-  minimumOrder: number;
-  reliability: number;
-  rating: number;
-  lastOrder: string;
-}
-
-export interface InventoryPrediction {
-  name: string;
-  currentStock: number;
-  predictions: {
-    '7d': { remaining: number };
-    '14d': { remaining: number };
-    '30d': { remaining: number };
-  };
-  recommendations: {
-    urgency: 'high' | 'medium' | 'low';
-    reorderDate: string;
-    reorderQuantity: number;
-    estimatedCost: number;
-  };
-}
-
-export interface AutomaticOrder {
-  id: string;
-  supplierId: string;
-  supplierName: string;
-  items: Array<{
-    itemId: string;
-    itemName: string;
-    quantity: number;
-    unitCost: number;
-  }>;
-  totalCost: number;
-  status: 'pending' | 'approved' | 'ordered' | 'delivered';
-  createdAt: string;
-  estimatedDelivery: string;
-}
+export const DEFAULT_PERMISSIONS: RolePermissions = {
+  directeur: ['*'], // Accès complet
+  gerant: [
+    'dashboard:read',
+    'orders:*',
+    'reservations:*',
+    'menu:*',
+    'inventory:read',
+    'employees:read',
+    'statistics:read'
+  ],
+  employe: [
+    'dashboard:read',
+    'orders:read',
+    'orders:update',
+    'reservations:read',
+    'reservations:update',
+    'menu:read'
+  ],
+  customer: [
+    'menu:read',
+    'orders:create',
+    'reservations:create',
+    'profile:read',
+    'profile:update'
+  ]
+} as const;

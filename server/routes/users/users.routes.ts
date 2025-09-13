@@ -120,7 +120,7 @@ router.get('/',
     const conditions = [];
 
     if (role) {
-      conditions.push(eq(users.role, role));
+      conditions.push(eq(users.role, role as 'directeur' | 'gerant' | 'employe' | 'customer'));
     }
 
     if (isActive !== undefined) {

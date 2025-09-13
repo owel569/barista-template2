@@ -22,7 +22,10 @@ export interface AuthUser {
   isActive: boolean;
 }
 
-export interface JWTPayload {
+// Types
+import type { AppRole } from '../../shared/types';
+
+interface JwtPayload {
   userId: number;
   email: string;
   role: AppRole;
@@ -92,7 +95,7 @@ export class AuthService {
    * Génère un token JWT sécurisé
    */
   static generateToken(user: Partial<AuthUser>): string {
-    const payload: JWTPayload = {
+    const payload: JwtPayload = {
       userId: user.id!,
       email: user.email!,
       role: user.role!
@@ -108,12 +111,12 @@ export class AuthService {
   /**
    * Vérifie et décode un token JWT
    */
-  static verifyToken(token: string): JWTPayload {
+  static verifyToken(token: string): JwtPayload {
     try {
       return jwt.verify(token, JWT_SECRET, {
         issuer: 'barista-cafe',
         audience: 'barista-users'
-      }) as JWTPayload;
+      }) as JwtPayload;
     } catch (error) {
       logger.warn('Token invalide', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       throw new AuthenticationError('Token invalide ou expiré');
@@ -154,14 +157,17 @@ export class AuthService {
       const user = result[0];
       if (!user) return null;
 
+      // Assurez-vous que le rôle est correctement mappé ou géré
+      const userRole = (user.role as AppRole) || 'customer'; // Assurez-vous que 'customer' est une AppRole valide
+
       const authUser: AuthUser = {
         id: user.id,
         username: user.username || user.email?.split('@')[0] || '',
-        email: user.email,
+        email: user.email!,
         firstName: user.firstName || '',
         lastName: user.lastName || '',
-        role: (user.role as AppRole) || 'customer',
-        permissions: this.getRolePermissions(user.role as AppRole),
+        role: userRole,
+        permissions: this.getRolePermissions(userRole),
         isActive: user.isActive ?? true
       };
 
@@ -245,7 +251,7 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
 };
 
 // Middleware pour vérifier les rôles requis
-export const requireRoles = (allowedRoles: string[]) => {
+export const requireRoles = (allowedRoles: AppRole[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
       res.status(401).json({
@@ -256,15 +262,18 @@ export const requireRoles = (allowedRoles: string[]) => {
     }
 
     // Mapping bidirectionnel des rôles pour compatibilité
-    const roleMapping: { [key: string]: string } = {
+    const roleMapping: { [key: string]: AppRole } = {
       'admin': 'directeur',
       'manager': 'gerant',
       'employee': 'employe',
-      'staff': 'employe',
-      // Reverse mapping
+      'waiter': 'employe', // Ajout pour couvrir 'waiter'
+      'chef': 'employe', // Ajout pour couvrir 'chef'
+      'customer': 'customer',
+      // Reverse mapping (si nécessaire, mais les types AppRole devraient suffire)
       'directeur': 'directeur',
-      'gerant': 'gerant', 
-      'employe': 'employe'
+      'gerant': 'gerant',
+      'employe': 'employe',
+      'customer': 'customer'
     };
 
     const userRole = roleMapping[req.user.role] || req.user.role;
