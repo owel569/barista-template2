@@ -28,16 +28,43 @@ Votre système Barista Café utilise 3 niveaux de rôles pour le personnel :
 - Vous verrez la page de connexion avec les rôles affichés
 
 ### 2. Saisir Vos Identifiants
+
+**Comptes de test disponibles dans votre base de données :**
+
 ```
-Email : votre-email@example.com
-Mot de passe : (minimum 8 caractères avec complexité)
+🎯 DIRECTEUR
+Email : admin@barista-cafe.com
+Mot de passe : [voir section "Mots de passe" ci-dessous]
+
+👨‍💼 GÉRANT  
+Email : manager@barista-cafe.com
+Mot de passe : [voir section "Mots de passe" ci-dessous]
+
+👩‍💻 EMPLOYÉ
+Email : employee@barista-cafe.com
+Mot de passe : [voir section "Mots de passe" ci-dessous]
 ```
 
-**Règles de mot de passe :**
+---
+
+## 🔑 **MOTS DE PASSE**
+
+### Option 1 : Si vous connaissez les mots de passe existants
+Utilisez directement les comptes ci-dessus avec leurs mots de passe actuels.
+
+### Option 2 : Créer de nouveaux mots de passe sécurisés
+Si vous ne connaissez pas les mots de passe, créez vos propres comptes sécurisés :
+
+**Exemples de mots de passe forts :**
+- `Barista2024!` 
+- `CafeAdmin#123`
+- `Manager@2024`
+
+**Règles obligatoires :**
 - Au moins 8 caractères
 - Une majuscule et une minuscule
 - Un chiffre
-- Un caractère spécial
+- Un caractère spécial (!@#$%^&*)
 
 ### 3. Messages de Bienvenue Personnalisés
 
@@ -48,9 +75,14 @@ Après connexion réussie, vous verrez :
 
 ---
 
-## 👤 Création de Comptes
+### Option 3 : Réinitialiser un mot de passe existant
+Si vous voulez changer le mot de passe d'un compte existant, contactez votre développeur ou utilisez l'interface admin.
 
-### Pour créer un nouveau compte utilisateur :
+---
+
+## 👤 Création de Nouveaux Comptes
+
+### Pour créer un compte utilisateur supplémentaire :
 
 1. **Via l'interface Admin** (si vous êtes directeur/gérant)
    - Connectez-vous avec un compte directeur ou gérant
