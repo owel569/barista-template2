@@ -10,13 +10,14 @@ import analyticsRoutes from './analytics/analytics.routes';
 import dashboardRoutes from './dashboard/dashboard.routes';
 import adminRoutes from './admin/admin.routes';
 import deliveryRoutes from './delivery';
-import reservationRoutes from './reservations';
+import reservationRoutes from './reservations/reservations.routes';
 import tablesRouter from './tables/tables.routes';
 import feedbackRoutes from './feedback/feedback.routes';
 import eventRoutes from './events.routes';
 import inventoryRoutes from './inventory/inventory.routes';
 import staffRoutes from './staff/staff.routes';
 import routeDiagnostics from './route-diagnostics';
+import notificationRoutes from './notifications/notifications.routes';
 
 const router = Router();
 
@@ -39,6 +40,7 @@ router.use('/staff', staffRoutes); // Authentification gérée dans les routes i
 // Routes avec authentification mixte (certaines publiques, certaines protégées)
 router.use('/reservations', reservationRoutes); // POST public, GET/PUT/DELETE protégées
 router.use('/feedback', feedbackRoutes); // POST public, GET/DELETE protégées
+router.use('/notifications', notificationRoutes); // Route pour les notifications
 
 // Route de diagnostic
 router.use('/diagnostics', routeDiagnostics);
