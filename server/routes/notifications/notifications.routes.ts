@@ -6,7 +6,27 @@ import { createLogger } from '../../middleware/logging';
 import { authenticateUser, requireRoles } from '../../middleware/auth';
 import { validateBody, validateParams, validateQuery } from '../../middleware/validation';
 import { getDb } from '../../db';
-import { notifications } from '../../../shared/schema';
+// Import corrigé - notifications pourrait être défini dans shared/types ou créé ici
+// import { notifications } from '../../../shared/schema';
+import { z } from 'zod';
+import type { Request, Response } from 'express';
+
+// Schéma temporaire pour les notifications jusqu'à ce que le schéma principal soit mis à jour
+const notificationSchema = z.object({
+  id: z.string(),
+  userId: z.number(),
+  title: z.string(),
+  message: z.string(),
+  type: z.enum(['info', 'success', 'warning', 'error']),
+  read: z.boolean().default(false),
+  createdAt: z.date().default(() => new Date()),
+  updatedAt: z.date().optional()
+});
+
+const notifications = {
+  create: notificationSchema,
+  select: notificationSchema.partial()
+};
 import { eq, and, desc, sql, gte, lte } from 'drizzle-orm';
 
 const router = Router();

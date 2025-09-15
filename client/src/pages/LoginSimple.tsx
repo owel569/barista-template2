@@ -90,7 +90,14 @@ export default function LoginSimple(): JSX.Element {
               </div>
             </Link>
             <Link href="/">
-              <Button variant="outline" data-testid="button-back-home">
+              <Button 
+                variant="outline" 
+                data-testid="button-back-home"
+                onClick={() => {
+                  // Log pour debug - optionnel
+                  console.log('Redirection vers l\'accueil...');
+                }}
+              >
                 Retour à l'accueil
               </Button>
             </Link>
