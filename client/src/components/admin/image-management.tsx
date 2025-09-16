@@ -8,6 +8,8 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Trash2, Plus, Edit, Eye, Save, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { usePermissions } from '@/hooks/usePermissions';
+import { useAuth } from '@/contexts/auth-context';
 import type { menuItems } from '@shared/schema';
 
 type MenuItem = typeof menuItems.$inferSelect;
@@ -36,6 +38,12 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
   const [newImagePrimary, setNewImagePrimary] = React.useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const { hasPermission } = usePermissions();
+
+  // Vérifier si l'utilisateur peut gérer les images
+  const canManageImages = user?.role === 'directeur' || hasPermission('image_management', 'edit');
+  const canDeleteImages = user?.role === 'directeur' || hasPermission('image_management', 'delete');
 
   // Data fetching with mock data
   const { data: images = [], isPending } = useQuery<MenuItemImage[]>({
@@ -195,10 +203,12 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">Images existantes ({images.length})</h3>
-            <Button onClick={() => setIsAddingImage(true)} disabled={isAddingImage}>
-              <Plus className="h-4 w-4 mr-2" />
-              Ajouter une image
-            </Button>
+            {canManageImages && (
+              <Button onClick={() => setIsAddingImage(true)} disabled={isAddingImage}>
+                <Plus className="h-4 w-4 mr-2" />
+                Ajouter une image
+              </Button>
+            )}
           </div>
 
           {images.length === 0 ? (
@@ -236,20 +246,24 @@ export function ImageManagement({ menuItem, onClose }: ImageManagementProps) {
                         {image.altText || 'Sans description'}
                       </span>
                       <div className="flex space-x-1">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setEditingImageId(image.id === editingImageId ? null : image.id)}
-                        >
-                          <Edit className="h-3 w-3" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDeleteImage(image.id)}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
+                        {canManageImages && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setEditingImageId(image.id === editingImageId ? null : image.id)}
+                          >
+                            <Edit className="h-3 w-3" />
+                          </Button>
+                        )}
+                        {canDeleteImages && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDeleteImage(image.id)}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        )}
                       </div>
                     </div>
 

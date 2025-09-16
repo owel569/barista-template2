@@ -207,10 +207,10 @@ export default function Settings({ userRole }: SettingsProps) {
   });
 
   const handleSave = useCallback(() => {
-    if (!hasPermission('settings', 'edit') || !hasChanges) return;
+    if (!canEditSettings || !hasChanges) return;
     saveMutation.mutate(draftSettings);
     setSettings(draftSettings);
-  }, [draftSettings, hasChanges, hasPermission, saveMutation]);
+  }, [draftSettings, hasChanges, canEditSettings, saveMutation]);
 
   // Debounced save for auto-save functionality
   const debouncedSave = useCallback(
@@ -377,7 +377,11 @@ export default function Settings({ userRole }: SettingsProps) {
   // State for new special date input
   const [newSpecialDate, setNewSpecialDate] = useState<Date | undefined>(undefined);
 
-  if (!hasPermission('settings', 'view')) {
+  // Vérification améliorée des permissions
+  const canViewSettings = user?.role === 'directeur' || hasPermission('settings', 'view');
+  const canEditSettings = user?.role === 'directeur' || hasPermission('settings', 'edit');
+  
+  if (!canViewSettings) {
     return (
       <div className="p-6">
         <Card>
@@ -426,7 +430,7 @@ export default function Settings({ userRole }: SettingsProps) {
           <h1 className="text-2xl font-bold">Paramètres du Restaurant</h1>
           <p className="text-muted-foreground">Configurez les paramètres généraux</p>
         </div>
-        {hasPermission('settings', 'edit') && (
+        {canEditSettings && (
           <Button
             onClick={handleSave}
             disabled={!hasChanges || saveMutation.isPending}

@@ -11,13 +11,14 @@ import dashboardRoutes from './dashboard/dashboard.routes';
 import adminRoutes from './admin/admin.routes';
 import deliveryRoutes from './delivery';
 import reservationRoutes from './reservations/reservations.routes';
-import tablesRouter from './tables/tables.routes';
+import tablesRoutes from './tables/tables.routes';
 import feedbackRoutes from './feedback/feedback.routes';
 import eventRoutes from './events.routes';
 import inventoryRoutes from './inventory/inventory.routes';
 import staffRoutes from './staff/staff.routes';
 import routeDiagnostics from './route-diagnostics';
 import notificationRoutes from './notifications/notifications.routes';
+import galleryRoutes from './gallery.routes';
 
 const router = Router();
 
@@ -32,7 +33,7 @@ router.use('/analytics', analyticsRoutes); // Authentification gérée dans les 
 router.use('/dashboard', dashboardRoutes); // Authentification gérée dans les routes individuelles
 router.use('/admin', adminRoutes); // Authentification gérée dans les routes individuelles
 router.use('/delivery', deliveryRoutes); // Authentification gérée dans les routes individuelles
-router.use('/tables', tablesRouter); // Authentification gérée dans les routes individuelles
+router.use('/tables', tablesRoutes); // Authentification gérée dans les routes individuelles
 router.use('/events', eventRoutes); // Authentification gérée dans les routes individuelles
 router.use('/inventory', inventoryRoutes); // Authentification gérée dans les routes individuelles
 router.use('/staff', staffRoutes); // Authentification gérée dans les routes individuelles
@@ -41,6 +42,20 @@ router.use('/staff', staffRoutes); // Authentification gérée dans les routes i
 router.use('/reservations', reservationRoutes); // POST public, GET/PUT/DELETE protégées
 router.use('/feedback', feedbackRoutes); // POST public, GET/DELETE protégées
 router.use('/notifications', notificationRoutes); // Route pour les notifications
+
+// Routes spécialisées
+  router.use('/analytics', analyticsRoutes);
+  router.use('/dashboard', dashboardRoutes);
+  router.use('/feedback', feedbackRoutes);
+  router.use('/gallery', galleryRoutes);
+  router.use('/inventory', inventoryRoutes);
+  router.use('/menu', menuRoutes);
+  router.use('/notifications', notificationRoutes);
+  router.use('/orders', orderRoutes);
+  router.use('/reservations', reservationRoutes);
+  router.use('/staff', staffRoutes);
+  router.use('/tables', tablesRoutes);
+  router.use('/users', userRoutes);
 
 // Route de diagnostic
 router.use('/diagnostics', routeDiagnostics);

@@ -34,7 +34,8 @@ export const DEFAULT_PERMISSIONS: Record<Role, PermissionsMap> = {
     online_orders: ['view', 'create', 'edit', 'delete'],
     tables: ['view', 'create', 'edit', 'delete'],
     user_profile: ['view', 'edit'],
-    image_management: ['view', 'create', 'edit', 'delete']
+    image_management: ['view', 'create', 'edit', 'delete'],
+    gallery: ['view', 'create', 'edit', 'delete']
   },
   gerant: {
     // Accès intermédiaire pour les gérants
