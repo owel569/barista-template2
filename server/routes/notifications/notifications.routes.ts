@@ -6,33 +6,14 @@ import { createLogger } from '../../middleware/logging';
 import { authenticateUser, requireRoles } from '../../middleware/auth';
 import { validateBody, validateParams, validateQuery } from '../../middleware/validation';
 import { getDb } from '../../db';
-// Import corrigé - notifications pourrait être défini dans shared/types ou créé ici
-// import { notifications } from '../../../shared/schema';
-import { z } from 'zod';
+import { notifications } from '../../../shared/schema';
+import { eq, and, desc, sql } from 'drizzle-orm';
 import type { Request, Response } from 'express';
-
-// Schéma temporaire pour les notifications jusqu'à ce que le schéma principal soit mis à jour
-const notificationSchema = z.object({
-  id: z.string(),
-  userId: z.number(),
-  title: z.string(),
-  message: z.string(),
-  type: z.enum(['info', 'success', 'warning', 'error']),
-  read: z.boolean().default(false),
-  createdAt: z.date().default(() => new Date()),
-  updatedAt: z.date().optional()
-});
-
-const notifications = {
-  create: notificationSchema,
-  select: notificationSchema.partial()
-};
-import { eq, and, desc, sql, gte, lte } from 'drizzle-orm';
 
 const router = Router();
 const logger = createLogger('NOTIFICATIONS_ROUTES');
 
-// Schémas de validation
+// Schémas de validation sécurisés
 const CreateNotificationSchema = z.object({
   title: z.string().min(1, 'Titre requis').max(200),
   message: z.string().min(1, 'Message requis').max(1000),
@@ -54,7 +35,11 @@ const NotificationQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(20)
 });
 
-// Types TypeScript
+const NotificationParamsSchema = z.object({
+  id: z.coerce.number().int().positive()
+});
+
+// Types TypeScript sécurisés
 interface NotificationWithDetails {
   id: number;
   title: string;
@@ -69,229 +54,307 @@ interface NotificationWithDetails {
   metadata: Record<string, unknown> | null;
 }
 
-// Routes avec authentification et typage strict
+// Route GET - Lister les notifications
 router.get('/',
   authenticateUser,
   validateQuery(NotificationQuerySchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
-    const { type, priority, isRead, userId, page, limit } = req.query;
+    const { type, priority, isRead, userId, page, limit } = req.query as any;
     const currentUserId = req.user!.id;
+    const targetUserId = userId ? Number(userId) : currentUserId;
 
-    let query = db
-      .select()
-      .from(notifications)
-      .where(eq(notifications.userId, userId ? Number(userId) : currentUserId));
+    try {
+      let query = db
+        .select()
+        .from(notifications)
+        .where(eq(notifications.userId, targetUserId));
 
-    const conditions = [eq(notifications.userId, userId ? Number(userId) : currentUserId)];
-    
-    if (type) conditions.push(eq(notifications.type, type));
-    if (priority) conditions.push(eq(notifications.priority, priority));
-    if (isRead !== undefined) conditions.push(eq(notifications.isRead, isRead));
+      const conditions = [eq(notifications.userId, targetUserId)];
+      
+      if (type) conditions.push(eq(notifications.type, type));
+      if (priority) conditions.push(eq(notifications.priority, priority));
+      if (isRead !== undefined) conditions.push(eq(notifications.isRead, isRead));
 
-    if (conditions.length > 1) {
-      query = query.where(and(...conditions)) as typeof query;
-    }
-
-    const pageNum = Number(page);
-    const limitNum = Number(limit);
-    const offset = (pageNum - 1) * limitNum;
-
-    const notificationsData = await query
-      .orderBy(desc(notifications.createdAt))
-      .limit(limitNum)
-      .offset(offset);
-
-    const countResult = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(notifications)
-      .where(and(...conditions));
-
-    const total = countResult[0]?.count || 0;
-
-    res.json({
-      success: true,
-      data: notificationsData,
-      pagination: {
-        page: pageNum,
-        limit: limitNum,
-        total,
-        totalPages: Math.ceil(total / limitNum)
+      if (conditions.length > 1) {
+        query = query.where(and(...conditions)) as typeof query;
       }
-    });
+
+      const pageNum = Number(page);
+      const limitNum = Number(limit);
+      const offset = (pageNum - 1) * limitNum;
+
+      const notificationsData = await query
+        .orderBy(desc(notifications.createdAt))
+        .limit(limitNum)
+        .offset(offset);
+
+      const countResult = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(notifications)
+        .where(and(...conditions));
+
+      const total = countResult[0]?.count || 0;
+
+      res.json({
+        success: true,
+        data: notificationsData,
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total,
+          totalPages: Math.ceil(total / limitNum)
+        }
+      });
+    } catch (error) {
+      logger.error('Erreur récupération notifications', { 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      });
+      res.status(500).json({
+        success: false,
+        message: 'Erreur lors de la récupération des notifications'
+      });
+    }
   })
 );
 
+// Route POST - Créer une notification
 router.post('/',
   authenticateUser,
   requireRoles(['directeur', 'gerant']),
   validateBody(CreateNotificationSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
     const notificationData = req.body;
 
-    // Si targetUsers est spécifié, créer une notification pour chaque utilisateur
-    if (notificationData.targetUsers) {
-      const notifications = await Promise.all(
-        notificationData.targetUsers.map(async (userId: number) => {
-          const [notification] = await db
-            .insert(notifications)
-            .values({
-              ...notificationData,
-              userId,
-              targetUsers: undefined,
-              targetRoles: undefined,
-              scheduledFor: notificationData.scheduledFor ? new Date(notificationData.scheduledFor) : undefined,
-              expiresAt: notificationData.expiresAt ? new Date(notificationData.expiresAt) : undefined,
-              createdAt: new Date()
-            })
-            .returning();
-          return notification;
+    try {
+      // Si targetUsers est spécifié, créer une notification pour chaque utilisateur
+      if (notificationData.targetUsers) {
+        const createdNotifications = await Promise.all(
+          notificationData.targetUsers.map(async (userId: number) => {
+            const [notification] = await db
+              .insert(notifications)
+              .values({
+                title: notificationData.title,
+                message: notificationData.message,
+                type: notificationData.type,
+                priority: notificationData.priority,
+                userId,
+                scheduledFor: notificationData.scheduledFor ? new Date(notificationData.scheduledFor) : null,
+                expiresAt: notificationData.expiresAt ? new Date(notificationData.expiresAt) : null,
+                metadata: notificationData.metadata || null,
+                createdAt: new Date()
+              })
+              .returning();
+            return notification;
+          })
+        );
+
+        res.status(201).json({
+          success: true,
+          data: createdNotifications,
+          message: `${createdNotifications.length} notifications créées`
+        });
+        return;
+      }
+
+      // Notification unique
+      const [newNotification] = await db
+        .insert(notifications)
+        .values({
+          title: notificationData.title,
+          message: notificationData.message,
+          type: notificationData.type,
+          priority: notificationData.priority,
+          userId: req.user!.id,
+          scheduledFor: notificationData.scheduledFor ? new Date(notificationData.scheduledFor) : null,
+          expiresAt: notificationData.expiresAt ? new Date(notificationData.expiresAt) : null,
+          metadata: notificationData.metadata || null,
+          createdAt: new Date()
         })
-      );
+        .returning();
 
       res.status(201).json({
         success: true,
-        data: notifications,
-        message: `${notifications.length} notifications créées`
+        data: newNotification,
+        message: 'Notification créée'
       });
-      return;
+    } catch (error) {
+      logger.error('Erreur création notification', { 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      });
+      res.status(500).json({
+        success: false,
+        message: 'Erreur lors de la création de la notification'
+      });
     }
-
-    // Notification unique
-    const [newNotification] = await db
-      .insert(notifications)
-      .values({
-        ...notificationData,
-        userId: req.user!.id,
-        scheduledFor: notificationData.scheduledFor ? new Date(notificationData.scheduledFor) : undefined,
-        expiresAt: notificationData.expiresAt ? new Date(notificationData.expiresAt) : undefined,
-        createdAt: new Date()
-      })
-      .returning();
-
-    res.status(201).json({
-      success: true,
-      data: newNotification,
-      message: 'Notification créée'
-    });
   })
 );
 
+// Route PATCH - Marquer comme lue
 router.patch('/:id/read',
   authenticateUser,
-  validateParams(z.object({ id: z.coerce.number().int().positive() })),
-  asyncHandler(async (req, res) => {
+  validateParams(NotificationParamsSchema),
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
     const { id } = req.params;
     const userId = req.user!.id;
 
-    const [updatedNotification] = await db
-      .update(notifications)
-      .set({
-        isRead: true,
-        readAt: new Date()
-      })
-      .where(and(
-        eq(notifications.id, Number(id)),
-        eq(notifications.userId, userId)
-      ))
-      .returning();
+    try {
+      const [updatedNotification] = await db
+        .update(notifications)
+        .set({
+          isRead: true,
+          readAt: new Date()
+        })
+        .where(and(
+          eq(notifications.id, Number(id)),
+          eq(notifications.userId, userId)
+        ))
+        .returning();
 
-    if (!updatedNotification) {
-      return res.status(404).json({
+      if (!updatedNotification) {
+        res.status(404).json({
+          success: false,
+          message: 'Notification non trouvée'
+        });
+        return;
+      }
+
+      res.json({
+        success: true,
+        data: updatedNotification,
+        message: 'Notification marquée comme lue'
+      });
+    } catch (error) {
+      logger.error('Erreur mise à jour notification', { 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      });
+      res.status(500).json({
         success: false,
-        message: 'Notification non trouvée'
+        message: 'Erreur lors de la mise à jour de la notification'
       });
     }
-
-    res.json({
-      success: true,
-      data: updatedNotification,
-      message: 'Notification marquée comme lue'
-    });
   })
 );
 
+// Route PATCH - Marquer toutes comme lues
 router.patch('/read-all',
   authenticateUser,
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
     const userId = req.user!.id;
 
-    const updatedNotifications = await db
-      .update(notifications)
-      .set({
-        isRead: true,
-        readAt: new Date()
-      })
-      .where(and(
-        eq(notifications.userId, userId),
-        eq(notifications.isRead, false)
-      ))
-      .returning();
+    try {
+      const updatedNotifications = await db
+        .update(notifications)
+        .set({
+          isRead: true,
+          readAt: new Date()
+        })
+        .where(and(
+          eq(notifications.userId, userId),
+          eq(notifications.isRead, false)
+        ))
+        .returning();
 
-    res.json({
-      success: true,
-      data: {
-        updatedCount: updatedNotifications.length
-      },
-      message: `${updatedNotifications.length} notifications marquées comme lues`
-    });
+      res.json({
+        success: true,
+        data: {
+          updatedCount: updatedNotifications.length
+        },
+        message: `${updatedNotifications.length} notifications marquées comme lues`
+      });
+    } catch (error) {
+      logger.error('Erreur mise à jour toutes notifications', { 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      });
+      res.status(500).json({
+        success: false,
+        message: 'Erreur lors de la mise à jour des notifications'
+      });
+    }
   })
 );
 
+// Route DELETE - Supprimer une notification
 router.delete('/:id',
   authenticateUser,
-  validateParams(z.object({ id: z.coerce.number().int().positive() })),
-  asyncHandler(async (req, res) => {
+  validateParams(NotificationParamsSchema),
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
     const { id } = req.params;
     const userId = req.user!.id;
 
-    const [deletedNotification] = await db
-      .delete(notifications)
-      .where(and(
-        eq(notifications.id, Number(id)),
-        eq(notifications.userId, userId)
-      ))
-      .returning();
+    try {
+      const [deletedNotification] = await db
+        .delete(notifications)
+        .where(and(
+          eq(notifications.id, Number(id)),
+          eq(notifications.userId, userId)
+        ))
+        .returning();
 
-    if (!deletedNotification) {
-      return res.status(404).json({
+      if (!deletedNotification) {
+        res.status(404).json({
+          success: false,
+          message: 'Notification non trouvée'
+        });
+        return;
+      }
+
+      res.json({
+        success: true,
+        message: 'Notification supprimée'
+      });
+    } catch (error) {
+      logger.error('Erreur suppression notification', { 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      });
+      res.status(500).json({
         success: false,
-        message: 'Notification non trouvée'
+        message: 'Erreur lors de la suppression de la notification'
       });
     }
-
-    res.json({
-      success: true,
-      message: 'Notification supprimée'
-    });
   })
 );
 
-// Statistiques des notifications
+// Route GET - Statistiques des notifications
 router.get('/stats',
   authenticateUser,
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
     const userId = req.user!.id;
 
-    const [stats] = await db
-      .select({
-        total: sql<number>`COUNT(*)`,
-        unread: sql<number>`COUNT(CASE WHEN ${notifications.isRead} = false THEN 1 END)`,
-        urgent: sql<number>`COUNT(CASE WHEN ${notifications.priority} = 'urgent' THEN 1 END)`,
-        high: sql<number>`COUNT(CASE WHEN ${notifications.priority} = 'high' THEN 1 END)`
-      })
-      .from(notifications)
-      .where(eq(notifications.userId, userId));
+    try {
+      const [stats] = await db
+        .select({
+          total: sql<number>`COUNT(*)`,
+          unread: sql<number>`COUNT(CASE WHEN ${notifications.isRead} = false THEN 1 END)`,
+          urgent: sql<number>`COUNT(CASE WHEN ${notifications.priority} = 'urgent' THEN 1 END)`,
+          high: sql<number>`COUNT(CASE WHEN ${notifications.priority} = 'high' THEN 1 END)`
+        })
+        .from(notifications)
+        .where(eq(notifications.userId, userId));
 
-    res.json({
-      success: true,
-      data: stats
-    });
+      res.json({
+        success: true,
+        data: stats || {
+          total: 0,
+          unread: 0,
+          urgent: 0,
+          high: 0
+        }
+      });
+    } catch (error) {
+      logger.error('Erreur statistiques notifications', { 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      });
+      res.status(500).json({
+        success: false,
+        message: 'Erreur lors de la récupération des statistiques'
+      });
+    }
   })
 );
 

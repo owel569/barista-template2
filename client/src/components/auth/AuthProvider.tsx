@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react'
 import { useLocation } from 'wouter';
 import { AuthTokenManager, ApiClient, AuthState, AuthUser, LoginResponse } from '@/lib/auth-utils';
@@ -19,59 +20,69 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<AuthUser | null>(null); // Changed from AuthState to AuthUser for clarity
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [token, setToken] = useState<string | null>(null); // Added token state
-
-  const [, setLocation] = useLocation();
+  const [token, setToken] = useState<string | null>(null);
   const [isTokenExpiring, setIsTokenExpiring] = useState(false);
 
-  // Initialiser l'état d'authentification
-  useEffect(() => {
-    initializeAuth();
-  }, []);
+  const [, setLocation] = useLocation();
 
-  // Surveiller l'expiration du token
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
+  // Define logout first to avoid circular dependency
+  const logout = useCallback(() => {
+    AuthTokenManager.removeToken();
+    localStorage.removeItem('user');
 
-    if (isAuthenticated && token) {
-      interval = setInterval(() => {
-        const isExpiring = AuthTokenManager.isTokenExpiringSoon(token); // Pass token to check
-        setIsTokenExpiring(isExpiring);
+    setUser(null);
+    setToken(null);
+    setIsAuthenticated(false);
+    setIsLoading(false);
+    setIsTokenExpiring(false);
 
-        if (isExpiring) {
-          toast.warning('Votre session expire bientôt. Veuillez vous reconnecter.');
-        }
+    setLocation('/login');
+    toast.info('Déconnexion réussie');
+  }, [setLocation]);
 
-        // Vérifier si le token a expiré
-        if (!AuthTokenManager.isTokenValid(token)) { // Pass token to check
-          logout();
-        }
-      }, 60000); // Vérifier toutes les minutes
-    }
+  // Define validateSession
+  const validateSession = useCallback(async (): Promise<boolean> => {
+    try {
+      const currentToken = AuthTokenManager.getToken();
+      if (!currentToken) return false;
 
-    return () => {
-      if (interval) {
-        clearInterval(interval);
+      const response = await ApiClient.get<{
+        valid: boolean;
+        user: AuthUser;
+      }>('/auth/validate');
+
+      if (response.valid) {
+        setUser(response.user);
+        setToken(currentToken);
+        setIsAuthenticated(true);
+        setIsLoading(false);
+        return true;
+      } else {
+        logout();
+        return false;
       }
-    };
-  }, [isAuthenticated, token, logout]); // Depend on token
+    } catch (error) {
+      console.error('Erreur validation session:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+      logout();
+      return false;
+    }
+  }, [logout]);
 
+  // Initialiser l'état d'authentification
   const initializeAuth = useCallback(async () => {
     try {
-      const storedToken = localStorage.getItem('authToken'); // Use consistent key
+      const storedToken = localStorage.getItem('authToken');
       const storedUser = localStorage.getItem('user');
 
-      if (storedToken && storedUser && AuthTokenManager.isTokenValid(storedToken)) { // Pass token to check
-        const user = JSON.parse(storedUser);
-        setAuthState({ // Use setAuthState to update all state at once
-          user,
-          token: storedToken,
-          isAuthenticated: true,
-          isLoading: false,
-        });
+      if (storedToken && storedUser && AuthTokenManager.isTokenValid()) {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+        setToken(storedToken);
+        setIsAuthenticated(true);
+        setIsLoading(false);
 
         // Valider le token côté serveur
         const isValid = await validateSession();
@@ -79,38 +90,49 @@ export function AuthProvider({ children }: AuthProviderProps) {
           logout();
         }
       } else {
-        setAuthState(prev => ({
-          ...prev,
-          isLoading: false,
-        }));
+        setIsLoading(false);
       }
     } catch (error) {
       console.error('Erreur initialisation auth:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       logout();
     }
-  }, [validateSession, logout]); // Add dependencies
+  }, [validateSession, logout]);
 
-  // Helper to set the auth state
-  const setAuthState = useCallback((newState: Partial<AuthState>) => {
-    setAuthState(prev => ({ ...prev, ...newState }));
-    if (newState.token) {
-      setToken(newState.token);
-    }
-    if (newState.user) {
-      setUser(newState.user);
-    }
-    if (newState.isAuthenticated !== undefined) {
-      setIsAuthenticated(newState.isAuthenticated);
-    }
-    if (newState.isLoading !== undefined) {
-      setIsLoading(newState.isLoading);
-    }
-  }, []);
+  // Surveiller l'expiration du token
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
 
+    if (isAuthenticated && token) {
+      interval = setInterval(() => {
+        const isExpiring = AuthTokenManager.isTokenExpiringSoon();
+        setIsTokenExpiring(isExpiring);
+
+        if (isExpiring) {
+          toast.warning('Votre session expire bientôt. Veuillez vous reconnecter.');
+        }
+
+        // Vérifier si le token a expiré
+        if (!AuthTokenManager.isTokenValid()) {
+          logout();
+        }
+      }, 60000);
+    }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [isAuthenticated, token, logout]);
+
+  // Initialize auth on mount
+  useEffect(() => {
+    initializeAuth();
+  }, [initializeAuth]);
 
   const login = useCallback(async (email: string, password: string): Promise<LoginResponse> => {
     try {
-      setAuthState({ isLoading: true });
+      setIsLoading(true);
 
       const response = await ApiClient.post<{
         message: string;
@@ -122,12 +144,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       AuthTokenManager.setToken(response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
 
-      setAuthState({
-        user: response.user,
-        token: response.token,
-        isAuthenticated: true,
-        isLoading: false,
-      });
+      setUser(response.user);
+      setToken(response.token);
+      setIsAuthenticated(true);
+      setIsLoading(false);
 
       toast.success('Connexion réussie');
 
@@ -140,9 +160,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } catch (error: unknown) {
       console.error('Erreur de connexion:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
 
-      setAuthState({
-        isLoading: false,
-      });
+      setIsLoading(false);
 
       toast.error(error instanceof Error ? error.message : 'Erreur de connexion');
 
@@ -160,26 +178,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         },
       };
     }
-  }, [setAuthState]); // Depend on setAuthState
-
-  const logout = useCallback(() => {
-    AuthTokenManager.removeToken();
-    localStorage.removeItem('user'); // Also remove user from local storage
-
-    setAuthState({
-      user: null,
-      token: null,
-      isAuthenticated: false,
-      isLoading: false,
-    });
-
-    setIsTokenExpiring(false);
-
-    // Rediriger vers la page de connexion
-    setLocation('/login');
-
-    toast.info('Déconnexion réussie');
-  }, [setLocation, setAuthState]); // Depend on setAuthState
+  }, []);
 
   const refreshToken = useCallback(async (): Promise<boolean> => {
     try {
@@ -194,11 +193,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       AuthTokenManager.setToken(response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
 
-      setAuthState({
-        token: response.token,
-        user: response.user,
-      });
-
+      setToken(response.token);
+      setUser(response.user);
       setIsTokenExpiring(false);
 
       return true;
@@ -207,43 +203,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
       logout();
       return false;
     }
-  }, [logout, setAuthState]); // Depend on setAuthState
-
-  const validateSession = useCallback(async (): Promise<boolean> => {
-    try {
-      const token = AuthTokenManager.getToken();
-      if (!token) return false;
-
-      const response = await ApiClient.get<{
-        valid: boolean;
-        user: AuthUser;
-      }>('/auth/validate');
-
-      if (response.valid) {
-        setAuthState(prev => ({
-          ...prev,
-          user: response.user,
-          token: token, // Ensure token is set
-          isAuthenticated: true,
-          isLoading: false,
-        }));
-        return true;
-      } else {
-        logout();
-        return false;
-      }
-    } catch (error) {
-      console.error('Erreur validation session:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
-      logout();
-      return false;
-    }
-  }, [logout, setAuthState]); // Depend on setAuthState
+  }, [logout]);
 
   const contextValue: AuthContextType = {
-    user, // Use destructured state
-    token, // Use destructured state
-    isAuthenticated, // Use destructured state
-    isLoading: isLoading, // Use destructured state
+    user,
+    token,
+    isAuthenticated,
+    isLoading,
     isTokenExpiring,
     login,
     logout,
@@ -298,15 +264,9 @@ export interface UserPermissions {
   canAccessAdvancedFeatures: boolean;
 }
 
-// Le hook useUserPermissionsCompat a été importé depuis '@/hooks/usePermissions'
-// et le hook useUserPermissions a été renommé en useUserPermissionsCompat.
-// L'utilisation du hook a également été mise à jour pour refléter ce changement.
-// Commenté temporairement pour éviter les erreurs d'import
-// import { useUserPermissionsCompat } from '@/hooks/usePermissions';
 export function usePermissions(): UserPermissions {
   const { user } = useAuth();
 
-  // Permissions par défaut temporaires pour éviter les erreurs
   return {
     role: user?.role || null,
     isDirector: user?.role === 'directeur',
@@ -357,8 +317,8 @@ export function ProtectedRoute({ children, requiredRole, fallback }: ProtectedRo
   // Logic for role checking
   if (requiredRole) {
     const userRole = user?.role;
-    // Check if the user's role matches the required role, or if the user has a "gerant" role and the required role is "directeurgerant"
-    const hasPermission = userRole === requiredRole || (requiredRole === 'directeurgerant' && userRole === 'gerant');
+    const hasPermission = userRole === requiredRole || 
+      (requiredRole === 'directeurgerant' && (userRole === 'gerant' || userRole === 'directeur'));
 
     if (!hasPermission) {
       return fallback || (

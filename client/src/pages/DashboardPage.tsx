@@ -83,7 +83,7 @@ const DashboardPage: React.FC = () => {
             Dashboard Barista Café
           </h1>
           <p className="text-muted-foreground">
-            Bienvenue {user?.firstName || user?.username}, voici votre aperçu en temps réel
+            Bienvenue {user?.firstName || user?.email?.split('@')[0] || 'Utilisateur'}, voici votre aperçu en temps réel
           </p>
         </div>
         <Button variant="outline" className="flex items-center gap-2">
