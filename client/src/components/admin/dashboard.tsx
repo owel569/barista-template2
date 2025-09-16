@@ -119,14 +119,14 @@ export default function Dashboard() : JSX.Element {
 
       if (data.success && data.data) {
         setStats({
-          todayReservations: data.data.reservations || 0,
-          monthlyRevenue: data.data.revenue || 0,
-          activeOrders: data.data.orders || 0,
-          occupancyRate: Math.min(Math.round((data.data.reservations / 50) * 100), 100) || 0,
+          todayReservations: typeof data.data.reservations === 'object' ? data.data.reservations.today || 0 : data.data.reservations || 0,
+          monthlyRevenue: typeof data.data.revenue === 'object' ? data.data.revenue.thisMonth || 0 : data.data.revenue || 0,
+          activeOrders: typeof data.data.orders === 'object' ? data.data.orders.today || 0 : data.data.orders || 0,
+          occupancyRate: Math.min(Math.round(((typeof data.data.reservations === 'object' ? data.data.reservations.today : data.data.reservations) / 50) * 100), 100) || 0,
           reservationStatus: [
-            { status: 'Confirmées', count: Math.floor(data.data.reservations * 0.7) },
-            { status: 'En attente', count: Math.floor(data.data.reservations * 0.2) },
-            { status: 'Annulées', count: Math.floor(data.data.reservations * 0.1) }
+            { status: 'Confirmées', count: typeof data.data.reservations === 'object' ? data.data.reservations.confirmed || 0 : Math.floor((data.data.reservations || 0) * 0.7) },
+            { status: 'En attente', count: typeof data.data.reservations === 'object' ? data.data.reservations.pending || 0 : Math.floor((data.data.reservations || 0) * 0.2) },
+            { status: 'Annulées', count: Math.floor(((typeof data.data.reservations === 'object' ? data.data.reservations.today : data.data.reservations) || 0) * 0.1) }
           ],
           recentActivities: [
             {
