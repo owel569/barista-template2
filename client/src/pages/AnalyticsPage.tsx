@@ -186,10 +186,10 @@ export default function AnalyticsPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <DatePickerWithRange 
-            date={dateRange}
+          <DatePickerWithRange
+            date={dateRange || { from: undefined, to: undefined }}
             onDateChange={setDateRange}
-            className="w-72"
+            className="w-[300px]"
           />
           <Button
             onClick={handleRefresh}

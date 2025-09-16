@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -70,7 +69,7 @@ export function DatePickerWithRange({
           <Calendar
             initialFocus
             mode="range"
-            defaultMonth={selectedDate?.from}
+            defaultMonth={date?.from || new Date()}
             selected={selectedDate}
             onSelect={handleSelect}
             numberOfMonths={2}

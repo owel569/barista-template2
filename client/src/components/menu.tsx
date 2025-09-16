@@ -210,15 +210,13 @@ export default function Menu() : JSX.Element {
     addItem({
       id: item.id.toString(),
       name: item.name,
-      price: item.price,
+      price: parseFloat(item.price),
       imageUrl: getItemImageUrl(item.name),
       quantity: 1
     });
 
     console.log("Ajout au panier:", item);
-    toast("Article ajouté au panier", {
-      description: `${item.name} a été ajouté à votre panier`,
-    });
+    toast(`${item.name} a été ajouté à votre panier`);
   };
 
   return (
