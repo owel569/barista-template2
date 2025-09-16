@@ -356,7 +356,14 @@ router.post('/items',
   invalidateCache(['menu']),
   asyncHandler(async (req, res) => {
     const db = getDb();
-    const currentUser = (req as any).user;
+    const currentUser = req.user;
+
+    if (!currentUser) {
+      return res.status(401).json({
+        success: false,
+        message: 'Utilisateur non authentifié'
+      });
+    }
 
     // Vérifier l'unicité du nom
     const [existingItem] = await db
@@ -371,11 +378,19 @@ router.post('/items',
       });
     }
 
-    // Créer l'article
+    // Créer l'article avec mapping correct des champs
     const [newItem] = await db
       .insert(menuItems)
       .values({
-        ...req.body,
+        name: req.body.name,
+        description: req.body.description,
+        price: req.body.price,
+        categoryId: req.body.categoryId,
+        imageUrl: req.body.imageUrl || null,
+        available: req.body.isAvailable ?? true,
+        isVegetarian: req.body.isVegetarian ?? false,
+        isGlutenFree: req.body.isGlutenFree ?? false,
+        stock: req.body.stock ?? 0,
         createdAt: new Date(),
         updatedAt: new Date()
       })
@@ -503,8 +518,39 @@ router.delete('/items/:id',
   invalidateCache(['menu']),
   asyncHandler(async (req, res) => {
     const db = getDb();
-    const currentUser = (req as any).user;
+    const currentUser = req.user;
     const { id } = req.params;
+
+    if (!currentUser) {
+      return res.status(401).json({
+        success: false,
+        message: 'Utilisateur non authentifié'
+      });
+    }
+
+    // Vérifier que l'article existe avant de le désactiver
+    const [existingItem] = await db
+      .select({ 
+        id: menuItems.id, 
+        name: menuItems.name,
+        available: menuItems.available 
+      })
+      .from(menuItems)
+      .where(eq(menuItems.id, Number(id)));
+
+    if (!existingItem) {
+      return res.status(404).json({
+        success: false,
+        message: 'Article non trouvé'
+      });
+    }
+
+    if (!existingItem.available) {
+      return res.status(400).json({
+        success: false,
+        message: 'Article déjà désactivé'
+      });
+    }
 
     // Désactiver l'article au lieu de le supprimer
     const [deactivatedItem] = await db
@@ -515,13 +561,15 @@ router.delete('/items/:id',
       })
       .where(eq(menuItems.id, Number(id)))
       .returning({
-        name: menuItems.name
+        id: menuItems.id,
+        name: menuItems.name,
+        available: menuItems.available
       });
 
     if (!deactivatedItem) {
-      return res.status(404).json({
+      return res.status(500).json({
         success: false,
-        message: 'Article non trouvé'
+        message: 'Erreur lors de la désactivation de l\'article'
       });
     }
 
@@ -542,6 +590,7 @@ router.delete('/items/:id',
 
     return res.json({
       success: true,
+      data: deactivatedItem,
       message: 'Article désactivé avec succès'
     });
   })

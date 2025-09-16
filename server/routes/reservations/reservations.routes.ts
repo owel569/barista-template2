@@ -137,45 +137,92 @@ router.post('/',
     const db = getDb();
     const reservationData = req.body;
 
-    // Vérifier disponibilité de la table
-    const existingReservation = await db
-      .select()
-      .from(reservations)
-      .where(and(
-        eq(reservations.tableId, reservationData.tableId),
-        eq(reservations.date, new Date(reservationData.date)),
-        eq(reservations.time, reservationData.time),
-        sql`${reservations.status} NOT IN ('cancelled', 'completed')`
-      ));
+    try {
+      // Vérifier disponibilité de la table
+      const existingReservation = await db
+        .select({ id: reservations.id })
+        .from(reservations)
+        .where(and(
+          eq(reservations.tableId, reservationData.tableId),
+          sql`DATE(${reservations.date}) = DATE(${reservationData.date})`,
+          eq(reservations.time, reservationData.time),
+          sql`${reservations.status} NOT IN ('cancelled', 'completed')`
+        ));
 
-    if (existingReservation.length > 0) {
-      return res.status(409).json({
+      if (existingReservation.length > 0) {
+        return res.status(409).json({
+          success: false,
+          message: 'Table déjà réservée à cette heure',
+          code: 'TABLE_UNAVAILABLE'
+        });
+      }
+
+      // Vérifier que la table existe
+      const [tableExists] = await db
+        .select({ id: tables.id })
+        .from(tables)
+        .where(eq(tables.id, reservationData.tableId));
+
+      if (!tableExists) {
+        return res.status(400).json({
+          success: false,
+          message: 'Table inexistante',
+          code: 'TABLE_NOT_FOUND'
+        });
+      }
+
+      // Créer la réservation
+      const [newReservation] = await db
+        .insert(reservations)
+        .values({
+          customerId: reservationData.customerId || null,
+          tableId: reservationData.tableId,
+          guestName: reservationData.guestName,
+          guestEmail: reservationData.guestEmail,
+          guestPhone: reservationData.guestPhone,
+          date: new Date(reservationData.date),
+          time: reservationData.time,
+          partySize: reservationData.partySize,
+          status: 'pending',
+          specialRequests: reservationData.specialRequests || null,
+          notes: reservationData.notes || null,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        })
+        .returning();
+
+      if (!newReservation) {
+        return res.status(500).json({
+          success: false,
+          message: 'Erreur lors de la création de la réservation'
+        });
+      }
+
+      logger.info('Nouvelle réservation créée', {
+        reservationId: newReservation.id,
+        guestName: reservationData.guestName,
+        tableId: reservationData.tableId,
+        date: reservationData.date,
+        time: reservationData.time
+      });
+
+      res.status(201).json({
+        success: true,
+        data: newReservation,
+        message: 'Réservation créée avec succès'
+      });
+
+    } catch (error) {
+      logger.error('Erreur création réservation', {
+        error: error instanceof Error ? error.message : 'Erreur inconnue',
+        data: reservationData
+      });
+
+      res.status(500).json({
         success: false,
-        message: 'Table déjà réservée à cette heure'
+        message: 'Erreur interne lors de la création de la réservation'
       });
     }
-
-    const [newReservation] = await db
-      .insert(reservations)
-      .values({
-        ...reservationData,
-        date: new Date(reservationData.date),
-        status: 'pending',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      })
-      .returning();
-
-    logger.info('Nouvelle réservation créée', {
-      reservationId: newReservation.id,
-      guestName: reservationData.guestName
-    });
-
-    res.status(201).json({
-      success: true,
-      data: newReservation,
-      message: 'Réservation créée avec succès'
-    });
   })
 );
 
