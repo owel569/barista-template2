@@ -283,7 +283,7 @@ export function usePermissions(): UserPermissions {
     canEdit: true,
     canDelete: user?.role === 'directeur',
     canManageEmployees: user?.role === 'directeur',
-    canManageSettings: user?.role === 'directeur',
+    canManageSettings: user?.role === 'directeur', // Corrected this line
     canViewStatistics: true,
     canManageInventory: user?.role === 'directeur',
     canManagePermissions: user?.role === 'directeur',
@@ -325,7 +325,7 @@ export function ProtectedRoute({ children, requiredRole, fallback }: ProtectedRo
   // Logic for role checking
   if (requiredRole) {
     const userRole = user?.role;
-    const hasPermission = userRole === requiredRole || 
+    const hasPermission = userRole === requiredRole ||
       (requiredRole === 'directeurgerant' && (userRole === 'gerant' || userRole === 'directeur'));
 
     if (!hasPermission) {

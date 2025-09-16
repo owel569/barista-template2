@@ -86,7 +86,24 @@ router.delete('/images/:id',
   authenticateUser,
   requireRoles(['directeur']),
   asyncHandler(async (req, res) => {
-    const imageId = parseInt(req.params.id);
+    const imageIdParam = req.params.id;
+    
+    if (!imageIdParam) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID d\'image requis'
+      });
+    }
+    
+    const imageId = parseInt(imageIdParam);
+    
+    if (isNaN(imageId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID d\'image invalide'
+      });
+    }
+    
     const imageIndex = galleryImages.findIndex(img => img.id === imageId);
     
     if (imageIndex === -1) {
@@ -104,7 +121,7 @@ router.delete('/images/:id',
       imageId
     });
     
-    res.json({
+    return res.json({
       success: true,
       message: 'Image supprimée avec succès'
     });

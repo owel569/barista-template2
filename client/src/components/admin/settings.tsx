@@ -206,6 +206,10 @@ export default function Settings({ userRole }: SettingsProps) {
     },
   });
 
+  // Vérification améliorée des permissions - déplacée avant utilisation
+  const canViewSettings = user?.role === 'directeur' || hasPermission('settings', 'view');
+  const canEditSettings = user?.role === 'directeur' || hasPermission('settings', 'edit');
+
   const handleSave = useCallback(() => {
     if (!canEditSettings || !hasChanges) return;
     saveMutation.mutate(draftSettings);
@@ -377,9 +381,7 @@ export default function Settings({ userRole }: SettingsProps) {
   // State for new special date input
   const [newSpecialDate, setNewSpecialDate] = useState<Date | undefined>(undefined);
 
-  // Vérification améliorée des permissions
-  const canViewSettings = user?.role === 'directeur' || hasPermission('settings', 'view');
-  const canEditSettings = user?.role === 'directeur' || hasPermission('settings', 'edit');
+  
   
   if (!canViewSettings) {
     return (

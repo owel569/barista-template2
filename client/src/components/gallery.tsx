@@ -206,7 +206,7 @@ export default function Gallery() : JSX.Element {
 
         {/* Images Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {filteredImages.map((image) => (
+          {filteredImages.map((image: GalleryImage) => (
             <Dialog key={image.id}>
               <DialogTrigger asChild>
                 <Card className="overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
