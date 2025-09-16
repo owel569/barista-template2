@@ -29,8 +29,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Define logout function
   const logout = useCallback(() => {
-    AuthTokenManager.removeToken();
+    console.log('🚪 Déconnexion en cours...');
+    
+    // Nettoyer toutes les clés de localStorage pour éviter les conflits
+    AuthTokenManager.clear();
+    localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('barista_token');
+    localStorage.removeItem('barista_user');
 
     setUser(null);
     setToken(null);
@@ -73,36 +80,108 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Initialiser l'état d'authentification
   const initializeAuth = useCallback(async () => {
     try {
-      const storedToken = AuthTokenManager.getToken() || localStorage.getItem('token');
+      setIsLoading(true);
       
-      if (storedToken && AuthTokenManager.isTokenValid()) {
-        // Essayer de valider le token avec le serveur
+      // Vérifier les tokens depuis toutes les sources possibles pour compatibilité
+      const storedToken = AuthTokenManager.getToken() || 
+                         localStorage.getItem('token') || 
+                         localStorage.getItem('auth_token');
+      
+      console.log('🔍 Initialisation auth - Token trouvé:', !!storedToken);
+      
+      if (storedToken) {
+        // Vérifier que le token n'est pas malformé avant de l'utiliser
         try {
+          // Validation basique du format JWT (3 parties séparées par des points)
+          const tokenParts = storedToken.split('.');
+          if (tokenParts.length !== 3) {
+            console.warn('⚠️ Token malformé détecté (nombre de parties incorrect), nettoyage...');
+            throw new Error('Token malformé');
+          }
+          
+          // Vérifier que chaque partie est en base64 valide
+          for (const part of tokenParts) {
+            if (!part || part.length === 0) {
+              console.warn('⚠️ Token malformé détecté (partie vide), nettoyage...');
+              throw new Error('Token malformé');
+            }
+          }
+        } catch (error) {
+          console.error('❌ Token malformé détecté, nettoyage automatique...');
+          logout();
+          return;
+        }
+        // Stocker le token dans toutes les clés pour compatibilité
+        AuthTokenManager.setToken(storedToken);
+        localStorage.setItem('token', storedToken);
+        
+        try {
+          console.log('📡 Validation token avec serveur...');
           const response = await ApiClient.get<{
             success: boolean;
             user: AuthUser;
           }>('/api/auth/me');
 
+          console.log('📋 Réponse /api/auth/me:', response);
+
           if (response.success && response.user) {
+            console.log('✅ Utilisateur validé:', { id: response.user.id, role: response.user.role, email: response.user.email });
+            
             setUser(response.user);
             setToken(storedToken);
             setIsAuthenticated(true);
-            setIsLoading(false);
             
-            // Stocker les données utilisateur
+            // Stocker dans toutes les clés pour compatibilité
+            AuthTokenManager.setUser(response.user);
             localStorage.setItem('user', JSON.stringify(response.user));
-            console.log('Utilisateur initialisé:', response.user);
+            
+            setIsLoading(false);
             return;
+          } else {
+            console.warn('❌ Réponse invalide du serveur');
+            throw new Error('Réponse invalide du serveur');
           }
         } catch (error) {
-          console.error('Erreur validation token:', error);
+          console.error('❌ Erreur validation token:', error);
+          
+          // Essayer aussi avec l'ancien endpoint pour compatibilité
+          try {
+            console.log('🔄 Tentative avec /auth/verify...');
+            const verifyResponse = await fetch('/api/auth/verify', {
+              headers: {
+                'Authorization': `Bearer ${storedToken}`
+              }
+            });
+            
+            if (verifyResponse.ok) {
+              const verifyData = await verifyResponse.json();
+              console.log('📋 Réponse /auth/verify:', verifyData);
+              
+              if (verifyData.success && verifyData.user) {
+                console.log('✅ Utilisateur validé via verify:', { id: verifyData.user.id, role: verifyData.user.role });
+                
+                setUser(verifyData.user);
+                setToken(storedToken);
+                setIsAuthenticated(true);
+                
+                AuthTokenManager.setUser(verifyData.user);
+                localStorage.setItem('user', JSON.stringify(verifyData.user));
+                
+                setIsLoading(false);
+                return;
+              }
+            }
+          } catch (verifyError) {
+            console.error('❌ Erreur avec /auth/verify:', verifyError);
+          }
         }
       }
       
       // Si aucun token valide, nettoyer et déconnecter
+      console.log('🧹 Nettoyage - aucun token valide');
       logout();
     } catch (error) {
-      console.error('Erreur initialisation auth:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
+      console.error('💥 Erreur critique initialisation auth:', error);
       logout();
     }
   }, [logout]);
@@ -142,40 +221,67 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const login = useCallback(async (email: string, password: string): Promise<LoginResponse> => {
     try {
       setIsLoading(true);
+      console.log('🔑 Tentative de connexion:', email);
 
-      const response = await ApiClient.post<{
-        message: string;
-        token: string;
-        user: AuthUser;
-      }>('/api/auth/login', { email, password });
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      });
 
-      // Stocker les données d'authentification
-      AuthTokenManager.setToken(response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
+      console.log('📡 Statut réponse login:', response.status);
 
-      setUser(response.user);
-      setToken(response.token);
-      setIsAuthenticated(true);
-      setIsLoading(false);
+      if (response.ok) {
+        const data = await response.json();
+        console.log('📋 Données login reçues:', { hasUser: !!data.data?.user, hasToken: !!data.data?.token, userRole: data.data?.user?.role, structure: Object.keys(data) });
 
-      toast.success('Connexion réussie');
+        // Gestion flexible du format de réponse
+        const user = data.data?.user || data.user;
+        const token = data.data?.token || data.token;
 
-      return {
-        success: true,
-        user: response.user,
-        token: response.token,
-        message: response.message,
-      };
+        if (user && token) {
+          console.log('✅ Login réussi pour:', { id: user.id, role: user.role, email: user.email });
+          
+          // Stocker dans toutes les clés pour compatibilité
+          AuthTokenManager.setToken(token);
+          AuthTokenManager.setUser(user);
+          localStorage.setItem('token', token);
+          localStorage.setItem('user', JSON.stringify(user));
+          localStorage.setItem('auth_token', token);
+
+          setUser(user);
+          setToken(token);
+          setIsAuthenticated(true);
+          setIsLoading(false);
+
+          toast.success('Connexion réussie');
+
+          return {
+            success: true,
+            user: user,
+            token: token,
+            message: data.message || 'Connexion réussie',
+          };
+        } else {
+          throw new Error('Données utilisateur ou token manquantes dans la réponse');
+        }
+      } else {
+        const errorData = await response.json();
+        console.error('❌ Erreur serveur:', errorData);
+        throw new Error(errorData.message || 'Erreur de connexion');
+      }
     } catch (error: unknown) {
-      console.error('Erreur de connexion:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
-
+      console.error('💥 Erreur de connexion:', error);
       setIsLoading(false);
-
-      toast.error(error instanceof Error ? error.message : 'Erreur de connexion');
+      
+      const errorMessage = error instanceof Error ? error.message : 'Erreur de connexion au serveur';
+      toast.error(errorMessage);
 
       return {
         success: false,
-        message: error instanceof Error ? error.message : 'Erreur de connexion au serveur',
+        message: errorMessage,
         token: '',
         user: {
           id: 0,
