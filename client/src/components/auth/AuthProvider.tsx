@@ -30,7 +30,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Define logout function
   const logout = useCallback(() => {
     console.log('🚪 Déconnexion en cours...');
-    
+
     // Nettoyer toutes les clés de localStorage pour éviter les conflits
     AuthTokenManager.clear();
     localStorage.removeItem('token');
@@ -81,14 +81,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const initializeAuth = useCallback(async () => {
     try {
       setIsLoading(true);
-      
+
       // Vérifier les tokens depuis toutes les sources possibles pour compatibilité
       const storedToken = AuthTokenManager.getToken() || 
                          localStorage.getItem('token') || 
                          localStorage.getItem('auth_token');
-      
+
       console.log('🔍 Initialisation auth - Token trouvé:', !!storedToken);
-      
+
       if (storedToken) {
         // Vérifier que le token n'est pas malformé avant de l'utiliser
         try {
@@ -98,7 +98,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             console.warn('⚠️ Token malformé détecté (nombre de parties incorrect), nettoyage...');
             throw new Error('Token malformé');
           }
-          
+
           // Vérifier que chaque partie est en base64 valide
           for (const part of tokenParts) {
             if (!part || part.length === 0) {
@@ -114,7 +114,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         // Stocker le token dans toutes les clés pour compatibilité
         AuthTokenManager.setToken(storedToken);
         localStorage.setItem('token', storedToken);
-        
+
         try {
           console.log('📡 Validation token avec serveur...');
           const response = await ApiClient.get<{
@@ -126,15 +126,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
           if (response.success && response.user) {
             console.log('✅ Utilisateur validé:', { id: response.user.id, role: response.user.role, email: response.user.email });
-            
+
             setUser(response.user);
             setToken(storedToken);
             setIsAuthenticated(true);
-            
+
             // Stocker dans toutes les clés pour compatibilité
             AuthTokenManager.setUser(response.user);
             localStorage.setItem('user', JSON.stringify(response.user));
-            
+
             setIsLoading(false);
             return;
           } else {
@@ -143,7 +143,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           }
         } catch (error) {
           console.error('❌ Erreur validation token:', error);
-          
+
           // Essayer aussi avec l'ancien endpoint pour compatibilité
           try {
             console.log('🔄 Tentative avec /auth/verify...');
@@ -152,21 +152,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 'Authorization': `Bearer ${storedToken}`
               }
             });
-            
+
             if (verifyResponse.ok) {
               const verifyData = await verifyResponse.json();
               console.log('📋 Réponse /auth/verify:', verifyData);
-              
+
               if (verifyData.success && verifyData.user) {
                 console.log('✅ Utilisateur validé via verify:', { id: verifyData.user.id, role: verifyData.user.role });
-                
+
                 setUser(verifyData.user);
                 setToken(storedToken);
                 setIsAuthenticated(true);
-                
+
                 AuthTokenManager.setUser(verifyData.user);
                 localStorage.setItem('user', JSON.stringify(verifyData.user));
-                
+
                 setIsLoading(false);
                 return;
               }
@@ -176,7 +176,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           }
         }
       }
-      
+
       // Si aucun token valide, nettoyer et déconnecter
       console.log('🧹 Nettoyage - aucun token valide');
       logout();
@@ -243,7 +243,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         if (user && token) {
           console.log('✅ Login réussi pour:', { id: user.id, role: user.role, email: user.email });
-          
+
           // Stocker dans toutes les clés pour compatibilité
           AuthTokenManager.setToken(token);
           AuthTokenManager.setUser(user);
@@ -275,7 +275,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } catch (error: unknown) {
       console.error('💥 Erreur de connexion:', error);
       setIsLoading(false);
-      
+
       const errorMessage = error instanceof Error ? error.message : 'Erreur de connexion au serveur';
       toast.error(errorMessage);
 
@@ -448,7 +448,7 @@ export function ProtectedRoute({ children, requiredRole, fallback }: ProtectedRo
   // Logic for role checking avec validation stricte
   if (requiredRole) {
     const userRole = user?.role;
-    
+
     // Validation du rôle utilisateur
     if (!validateUserRole(userRole)) {
       console.error('Rôle utilisateur invalide:', { userRole, user });
@@ -462,12 +462,11 @@ export function ProtectedRoute({ children, requiredRole, fallback }: ProtectedRo
         </div>
       );
     }
-    
+
     const hasPermission = Array.isArray(requiredRole) 
       ? requiredRole.includes(userRole)
       : userRole === requiredRole || 
-        (requiredRole === 'directeurgerant' && ['gerant', 'directeur'].includes(userRole)); === requiredRole ||
-      (requiredRole === 'directeurgerant' && (userRole === 'gerant' || userRole === 'directeur'));
+        (requiredRole === 'directeurgerant' && (userRole === 'gerant' || userRole === 'directeur'));
 
     if (!hasPermission) {
       return fallback || (
