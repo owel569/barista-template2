@@ -1,0 +1,48 @@
+
+client/src/pages/AnalyticsPage.tsx:6:10 - error TS2305: Module '"@/components/ui/date-picker"' has no exported member 'DatePickerWithRange'.
+
+6 import { DatePickerWithRange } from '@/components/ui/date-picker';
+           ~~~~~~~~~~~~~~~~~~~
+
+client/src/pages/AnalyticsPage.tsx:105:11 - error TS2375: Type '{ period: "month"; startDate: string | undefined; endDate: string | undefined; }' is not assignable to type 'AnalyticsFilters' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'startDate' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+105     const initialFilters: AnalyticsFilters = {
+              ~~~~~~~~~~~~~~
+
+client/src/pages/AnalyticsPage.tsx:116:11 - error TS2375: Type '{ startDate: string | undefined; endDate: string | undefined; period: "today" | "week" | "month" | "quarter" | "year" | "custom"; }' is not assignable to type 'AnalyticsFilters' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'startDate' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+116     const currentFilters: AnalyticsFilters = {
+              ~~~~~~~~~~~~~~
+
+client/src/pages/AnalyticsPage.tsx:342:20 - error TS18047: 'kpis' is possibly 'null'.
+
+342                   {kpis.orders.cancelled} annulées
+                       ~~~~
+
+server/routes/notifications/notifications.routes.ts:9:10 - error TS2305: Module '"../../../shared/schema"' has no exported member 'notifications'.
+
+9 import { notifications } from '../../../shared/schema';
+           ~~~~~~~~~~~~~
+
+server/routes/reservations/reservations.routes.ts:93:19 - error TS2352: Conversion of type 'ParsedQs' to type '{ page: number; limit: number; status?: "pending" | "confirmed" | "completed" | "cancelled" | undefined; date?: string | undefined; tableId?: number | undefined; customerId?: number | undefined; }' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'ParsedQs' is missing the following properties from type '{ page: number; limit: number; status?: "pending" | "confirmed" | "completed" | "cancelled" | undefined; date?: string | undefined; tableId?: number | undefined; customerId?: number | undefined; }': page, limit
+
+93     const query = req.query as z.infer<typeof ReservationQuerySchema>;
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/reservations/reservations.routes.ts:108:36 - error TS2339: Property 'guestPhone' does not exist on type 'PgTableWithColumns<{ name: "reservations"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>; ... 11 more ...; updatedAt: PgColumn<...>; }; ...'.
+
+108           guestPhone: reservations.guestPhone,
+                                       ~~~~~~~~~~
+
+server/routes/reservations/reservations.routes.ts:375:19 - error TS2352: Conversion of type 'ParsedQs' to type '{ time: string; date: string; partySize: number; tableId?: number | undefined; }' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'ParsedQs' is missing the following properties from type '{ time: string; date: string; partySize: number; tableId?: number | undefined; }': time, date, partySize
+
+375     const query = req.query as z.infer<typeof AvailabilityQuerySchema>;
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
