@@ -3,7 +3,7 @@ import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { 
+import {
   Menu, X, Home, Calendar, ShoppingCart, Users, Coffee, MessageSquare,
   Settings, BarChart3, FileText, Shield, Package, Gift, DollarSign,
   Database, Calendar as CalendarIcon, Truck, Wrench, Bell, LogOut,
@@ -40,7 +40,7 @@ import DeliveryTracking from '@/components/admin/delivery-tracking';
 import OnlineOrdering from '@/components/admin/online-ordering';
 import TableManagement from '@/components/admin/table-management';
 import EventsPromotions from '@/components/admin/events-promotions';
-import { UserProfileEnhanced } from '@/components/admin';
+import UserProfileEnhanced from '@/components/admin/user-profile-enhanced-optimized';
 import AnalyticsDashboard from '@/components/admin/analytics-dashboard';
 import AdvancedPOS from '@/components/admin/advanced-pos';
 import StaffScheduling from '@/components/admin/staff-scheduling';
@@ -397,22 +397,387 @@ export default function AdminFinal() : JSX.Element {
   });
 
   const currentModule = availableModules.find(m => m.id === activeModule);
-  
+
   // Safe component resolution with proper fallback
   const getCurrentComponent = () => {
     if (activeModule === 'dashboard') {
       return DashboardConsolidated;
     }
-    
+
     if (currentModule?.component) {
       return currentModule.component;
     }
-    
+
     // Fallback to default Dashboard
     return Dashboard;
   };
-  
+
   const CurrentComponent = getCurrentComponent();
+
+  // Placeholder for RoleValidator if not defined elsewhere
+  const RoleValidator = ({ userRole, allowedRoles, children }: { userRole?: string; allowedRoles: string[]; children: React.ReactNode }) => {
+    if (userRole && allowedRoles.includes(userRole)) {
+      return <>{children}</>;
+    }
+    return <div className="p-4 text-center text-red-500">Accès non autorisé pour ce rôle.</div>;
+  };
+
+  // Placeholder for validUserRole if not defined elsewhere
+  const validUserRole = user?.role;
+  const [loading, setLoading] = useState(true); // Assuming loading state is needed for renderComponent
+
+  // Safe component rendering with role validation and error handling
+  const renderComponent = () => {
+    if (loading) {
+      return <LoadingFallback />;
+    }
+
+    const componentProps = {
+      userRole: validUserRole,
+      user: user
+    };
+
+    try {
+      switch (activeModule) {
+        case 'dashboard':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur', 'gerant', 'employe']}>
+                <DashboardConsolidated {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'reservations':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur', 'gerant', 'employe']}>
+                <Reservations {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'orders':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur', 'gerant', 'employe']}>
+                <Orders {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'customers':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur', 'gerant', 'employe']}>
+                <Customers {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'menu':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur', 'gerant', 'employe']}>
+                <MenuManagement {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'messages':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur', 'gerant', 'employe']}>
+                <Messages {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'employees':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur']}>
+                <Employees {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'settings':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur']}>
+                <AdminSettings {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'statistics':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur', 'gerant', 'employe']}>
+                <Statistics {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'logs':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur']}>
+                <ActivityLogs {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'inventory':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur', 'gerant', 'employe']}>
+                <InventoryManagement {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'inventory-smart':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur']}>
+                <InventoryManagementModule {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'loyalty':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur', 'gerant', 'employe']}>
+                <LoyaltySystem {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'loyalty-advanced':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur']}>
+                <LoyaltyProgramModule {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'permissions':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur']}>
+                <PermissionsManagement {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'schedule':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur', 'gerant', 'employe']}>
+                <WorkSchedule {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'accounting':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur']}>
+                <AccountingSystem {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'backup':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur']}>
+                <BackupSystem {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'reports':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur', 'gerant', 'employe']}>
+                <ReportsSystem {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'calendar':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur', 'gerant', 'employe']}>
+                <CalendarManagement {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'suppliers':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur']}>
+                <SuppliersManagement {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'maintenance':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur']}>
+                <MaintenanceManagement {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'advanced-maintenance':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur']}>
+                <AdvancedMaintenance {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'delivery':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur', 'gerant', 'employe']}>
+                <DeliveryTracking {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'online-ordering':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur', 'gerant', 'employe']}>
+                <OnlineOrdering {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'tables':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur', 'gerant', 'employe']}>
+                <TableManagement {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'user-profiles':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur', 'gerant', 'employe']}>
+                <UserProfileEnhanced {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'analytics':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur', 'gerant', 'employe']}>
+                <AnalyticsDashboard {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'analytics-dashboard':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur']}>
+                <AnalyticsDashboardModule {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'pos':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur', 'gerant', 'employe']}>
+                <AdvancedPOS {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'staff-scheduling':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur']}>
+                <StaffScheduling {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'quality':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur', 'gerant']}>
+                <QualityControl {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'feedback':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur', 'gerant']}>
+                <CustomerFeedback {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'events':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur', 'gerant']}>
+                <EventsPromotions {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        case 'dashboard-ai':
+          return (
+            <ErrorBoundary level="component" showDetails={false}>
+              <RoleValidator userRole={validUserRole} allowedRoles={['directeur']}>
+                <DashboardModule {...componentProps} />
+              </RoleValidator>
+            </ErrorBoundary>
+          );
+
+        default:
+          return <NotFoundFallback />;
+      }
+    } catch (error) {
+      console.error('Erreur lors du rendu du composant:', error);
+      return (
+        <div className="p-6">
+          <div className="text-center py-12">
+            <div className="text-red-500 text-4xl mb-4">⚠️</div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Erreur de rendu</h3>
+            <p className="text-gray-600 mb-4">
+              Une erreur s'est produite lors du chargement de ce composant.
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Recharger la page
+            </button>
+          </div>
+        </div>
+      );
+    }
+  };
 
 
   if (!user) {
@@ -515,21 +880,13 @@ export default function AdminFinal() : JSX.Element {
       <main className="p-4">
         {/* Affichage du composant actuel avec ErrorBoundary */}
         <div className="h-[calc(100vh-80px)] overflow-y-auto">
-          <ErrorBoundary 
+          <ErrorBoundary
             fallback={({ error, resetError }) => (
               <NotFoundFallback moduleName={currentModule?.name || 'Module inconnu'} />
             )}
           >
             <React.Suspense fallback={<LoadingFallback />}>
-              {CurrentComponent && (
-                <AdminComponentWrapper
-                  userRole={user?.role}
-                  user={user}
-                  requiredRoles={['directeur', 'gerant', 'employe']}
-                  component={CurrentComponent}
-                  key={`${activeModule}-${user?.id || 'anonymous'}`}
-                />
-              )}
+              {CurrentComponent && renderComponent()}
             </React.Suspense>
           </ErrorBoundary>
         </div>

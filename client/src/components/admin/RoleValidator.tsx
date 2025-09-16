@@ -1,81 +1,68 @@
-
 import React, { ReactNode } from 'react';
+import { useAuth } from '@/components/auth/AuthProvider';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Shield, AlertTriangle } from 'lucide-react';
+import { Shield, Lock } from 'lucide-react';
 
 type UserRole = 'directeur' | 'gerant' | 'employe';
 
 interface RoleValidatorProps {
-  userRole?: string | null;
-  allowedRoles: UserRole[];
   children: ReactNode;
+  userRole?: string;
+  allowedRoles: UserRole[];
   fallback?: ReactNode;
-}
-
-interface User {
-  id: number;
-  role: UserRole;
-  email: string;
-  username?: string;
-  firstName?: string;
-  lastName?: string;
+  showAccessDenied?: boolean;
 }
 
 export const RoleValidator: React.FC<RoleValidatorProps> = ({
+  children,
   userRole,
   allowedRoles,
-  children,
-  fallback
+  fallback,
+  showAccessDenied = true
 }) => {
-  // Validation stricte du rôle
-  const isValidRole = (role: any): role is UserRole => {
-    return role && ['directeur', 'gerant', 'employe'].includes(role);
-  };
+  const { user } = useAuth();
 
-  const validatedRole = isValidRole(userRole) ? userRole : null;
-  const hasAccess = validatedRole && allowedRoles.includes(validatedRole);
+  // Déterminer le rôle de l'utilisateur
+  const currentUserRole = userRole || user?.role;
 
-  if (!hasAccess) {
+  // Vérifier si l'utilisateur a un rôle autorisé
+  const hasValidRole = currentUserRole && allowedRoles.includes(currentUserRole as UserRole);
+
+  // Si pas de rôle valide, afficher le composant de fallback ou le message d'accès refusé
+  if (!hasValidRole) {
     if (fallback) {
       return <>{fallback}</>;
     }
 
-    return (
-      <div className="p-6">
-        <Alert className="border-amber-200 bg-amber-50" data-testid="role-access-denied">
-          <AlertTriangle className="h-4 w-4 text-amber-600" />
-          <AlertDescription className="text-amber-800">
-            <div className="font-medium mb-2">Accès restreint</div>
-            <div className="text-sm">
-              Rôles autorisés : {allowedRoles.join(', ')}
-              <br />
-              Votre rôle : {validatedRole || 'Non défini'}
-            </div>
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
+    if (showAccessDenied) {
+      return (
+        <div className="p-6 max-w-2xl mx-auto">
+          <Alert className="border-amber-200 bg-amber-50 dark:bg-amber-900/20">
+            <Shield className="h-4 w-4 text-amber-600" />
+            <AlertDescription className="text-amber-800 dark:text-amber-200">
+              <div className="space-y-2">
+                <p className="font-medium">Accès restreint</p>
+                <p className="text-sm">
+                  Cette page est réservée aux utilisateurs avec les rôles suivants : {' '}
+                  <span className="font-semibold">
+                    {allowedRoles.join(', ')}
+                  </span>
+                </p>
+                <p className="text-xs text-amber-600 dark:text-amber-400">
+                  Votre rôle actuel : {currentUserRole || 'Non défini'}
+                </p>
+              </div>
+            </AlertDescription>
+          </Alert>
+        </div>
+      );
+    }
+
+    return null;
   }
 
+  // Si le rôle est valide, afficher les enfants
   return <>{children}</>;
 };
 
-export const validateUserRole = (role: any): UserRole | null => {
-  if (role && ['directeur', 'gerant', 'employe'].includes(role)) {
-    return role as UserRole;
-  }
-  return null;
-};
-
-export const getRoleHierarchy = (): Record<UserRole, number> => {
-  return {
-    'directeur': 3,
-    'gerant': 2,
-    'employe': 1
-  };
-};
-
-export const hasMinimumRole = (userRole: UserRole, minimumRole: UserRole): boolean => {
-  const hierarchy = getRoleHierarchy();
-  return hierarchy[userRole] >= hierarchy[minimumRole];
-};
+export default RoleValidator;

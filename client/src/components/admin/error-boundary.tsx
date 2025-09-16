@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -38,7 +37,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
       const resetError = (): void => {
         this.setState({ hasError: false });
       };
-      
+
       if (this.props.fallback) {
         const FallbackComponent = this.props.fallback;
         return <FallbackComponent {...(this.state.error ? { error: this.state.error } : {})} resetError={resetError} />;
@@ -83,37 +82,49 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 }
 
 // Composant de fallback pour les erreurs de chargement
-export function LoadingFallback(): React.JSX.Element {
+export const LoadingFallback: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-      <div className="text-center space-y-4">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
-        <p className="text-gray-600 dark:text-gray-400">Chargement du module admin...</p>
+    <div className="flex items-center justify-center min-h-[400px] w-full">
+      <div className="text-center space-y-4 p-6">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+        <div className="space-y-2">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+            Chargement en cours
+          </h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Veuillez patienter pendant le chargement du composant...
+          </p>
+        </div>
       </div>
     </div>
   );
-}
+};
 
 // Composant de fallback pour les composants non trouvés
 interface NotFoundFallbackProps {
   moduleName?: string;
 }
 
-export function NotFoundFallback({ moduleName }: NotFoundFallbackProps): React.JSX.Element {
+export const NotFoundFallback: React.FC = () => {
   return (
-    <div className="min-h-96 flex items-center justify-center p-8">
-      <Card className="max-w-md w-full">
-        <CardContent className="text-center py-8">
-          <AlertTriangle className="h-8 w-8 text-yellow-500 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Module non disponible</h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Le module {moduleName || 'demandé'} n'est pas encore implémenté ou est en cours de développement.
+    <div className="flex items-center justify-center min-h-[400px] w-full">
+      <div className="text-center space-y-4 p-6">
+        <div className="text-gray-400 text-6xl">🔍</div>
+        <div className="space-y-2">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+            Composant non trouvé
+          </h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Le composant demandé n'existe pas ou n'est pas accessible.
           </p>
-          <Button onClick={() => window.history.back()} variant="outline">
-            Retour
-          </Button>
-        </CardContent>
-      </Card>
+          <button
+            onClick={() => window.location.href = '/admin'}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+          >
+            Retour au dashboard
+          </button>
+        </div>
+      </div>
     </div>
   );
-}
+};
