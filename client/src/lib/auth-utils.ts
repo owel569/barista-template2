@@ -9,11 +9,15 @@ export interface TokenPayload {
 
 export interface AuthUser {
   id: number;
-  username: string;
+  username?: string;
   role: string;
   firstName?: string;
   lastName?: string;
-  email?: string;
+  email: string;
+  permissions?: string[];
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface AuthState {
