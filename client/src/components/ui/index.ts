@@ -1,3 +1,9 @@
+
+// Date Picker Components
+export { DatePickerWithRange } from './date-picker-with-range';
+export { DatePicker, DateRangePicker } from './date-picker';
+
+
 // ===== COMPOSANTS DE BASE =====
 export * from "./button"
 export * from "./input"

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { DatePickerWithRange } from '@/components/ui/date-picker';
+import { DatePickerWithRange } from '@/components/ui/date-picker-with-range';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { DateRange } from 'react-day-picker';
 import { 
@@ -187,8 +187,8 @@ export default function AnalyticsPage() {
 
         <div className="flex items-center gap-3">
           <DatePickerWithRange 
-            value={dateRange}
-            onChange={setDateRange}
+            date={dateRange}
+            onDateChange={setDateRange}
             className="w-72"
           />
           <Button
@@ -338,7 +338,7 @@ export default function AnalyticsPage() {
               <Badge variant="secondary" className="text-green-600">
                 {kpis?.orders.completed || 0} complétées
               </Badge>
-              {(kpis?.orders.cancelled || 0) > 0 && (
+              {(kpis?.orders?.cancelled || 0) > 0 && (
                 <Badge variant="destructive">
                   {kpis.orders.cancelled} annulées
                 </Badge>

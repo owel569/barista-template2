@@ -3,7 +3,7 @@
 
 import * as React from "react"
 import { CalendarIcon } from "lucide-react"
-import { DateRange } from "react-day-picker"
+import { DateRange, SelectRangeEventHandler } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -18,13 +18,27 @@ interface DatePickerWithRangeProps {
   className?: string
   date?: DateRange
   onDateChange?: (date: DateRange | undefined) => void
+  value?: DateRange
+  onChange?: (date: DateRange | undefined) => void
 }
 
 export function DatePickerWithRange({
   className,
   date,
   onDateChange,
+  value,
+  onChange,
 }: DatePickerWithRangeProps) {
+  // Use value/onChange props if provided, otherwise fallback to date/onDateChange
+  const selectedDate = value || date
+  const handleDateChange = onChange || onDateChange
+
+  const handleSelect: SelectRangeEventHandler = React.useCallback((range) => {
+    if (handleDateChange) {
+      handleDateChange(range)
+    }
+  }, [handleDateChange])
+
   return (
     <div className={cn("grid gap-2", className)}>
       <Popover>
@@ -34,18 +48,18 @@ export function DatePickerWithRange({
             variant={"outline"}
             className={cn(
               "w-[300px] justify-start text-left font-normal",
-              !date && "text-muted-foreground"
+              !selectedDate && "text-muted-foreground"
             )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
-            {date?.from ? (
-              date.to ? (
+            {selectedDate?.from ? (
+              selectedDate.to ? (
                 <>
-                  {date.from.toLocaleDateString()} -{" "}
-                  {date.to.toLocaleDateString()}
+                  {selectedDate.from.toLocaleDateString()} -{" "}
+                  {selectedDate.to.toLocaleDateString()}
                 </>
               ) : (
-                date.from.toLocaleDateString()
+                selectedDate.from.toLocaleDateString()
               )
             ) : (
               <span>Sélectionner une période</span>
@@ -56,9 +70,9 @@ export function DatePickerWithRange({
           <Calendar
             initialFocus
             mode="range"
-            defaultMonth={date?.from}
-            selected={date}
-            onSelect={onDateChange}
+            defaultMonth={selectedDate?.from}
+            selected={selectedDate}
+            onSelect={handleSelect}
             numberOfMonths={2}
           />
         </PopoverContent>
