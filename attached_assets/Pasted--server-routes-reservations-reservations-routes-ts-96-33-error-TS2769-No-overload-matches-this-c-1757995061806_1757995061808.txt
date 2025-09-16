@@ -1,0 +1,77 @@
+
+server/routes/reservations/reservations.routes.ts:96:33 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "status"; tableName: "reservations"; dataType: "string"; columnType: "PgEnumColumn"; data: "confirmed" | "completed" | "cancelled" | "pending"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>, right: "confirmed" | ... 3 more ... | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string | string[] | ParsedQs | ParsedQs[]' is not assignable to parameter of type '"confirmed" | "completed" | "cancelled" | "pending" | SQLWrapper'.
+      Type 'string' is not assignable to type '"confirmed" | "completed" | "cancelled" | "pending" | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string | string[] | ParsedQs | ParsedQs[]>, right: string | string[] | SQLWrapper | ParsedQs | ParsedQs[]): SQL<...>', gave the following error.
+    Argument of type 'PgColumn<{ name: "status"; tableName: "reservations"; dataType: "string"; columnType: "PgEnumColumn"; data: "confirmed" | "completed" | "cancelled" | "pending"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string | string[] | ParsedQs | ParsedQs[]>'.
+      Type 'PgColumn<{ name: "status"; tableName: "reservations"; dataType: "string"; columnType: "PgEnumColumn"; data: "confirmed" | "completed" | "cancelled" | "pending"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string | string[] | ParsedQs | ParsedQs[]>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "status"; tableName: "reservations"; dataType: "string"; columnType: "PgEnumColumn"; data: "confirmed" | "completed" | "cancelled" | "pending"; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+96     if (status) conditions.push(eq(reservations.status, status));
+                                   ~~
+
+
+server/routes/reservations/reservations.routes.ts:98:34 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "table_id"; tableName: "reservations"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>, right: number | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string | string[] | ParsedQs | ParsedQs[]' is not assignable to parameter of type 'number | SQLWrapper'.
+      Type 'string' is not assignable to type 'number | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string | string[] | ParsedQs | ParsedQs[]>, right: string | string[] | SQLWrapper | ParsedQs | ParsedQs[]): SQL<...>', gave the following error.
+    Argument of type 'PgColumn<{ name: "table_id"; tableName: "reservations"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string | string[] | ParsedQs | ParsedQs[]>'.
+      Type 'PgColumn<{ name: "table_id"; tableName: "reservations"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string | string[] | ParsedQs | ParsedQs[]>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "table_id"; tableName: "reservations"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+98     if (tableId) conditions.push(eq(reservations.tableId, tableId));
+                                    ~~
+
+
+server/routes/reservations/reservations.routes.ts:99:37 - error TS2769: No overload matches this call.
+  Overload 1 of 3, '(left: PgColumn<{ name: "customer_id"; tableName: "reservations"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>, right: number | SQLWrapper): SQL<...>', gave the following error.
+    Argument of type 'string | string[] | ParsedQs | ParsedQs[]' is not assignable to parameter of type 'number | SQLWrapper'.
+      Type 'string' is not assignable to type 'number | SQLWrapper'.
+  Overload 2 of 3, '(left: Aliased<string | string[] | ParsedQs | ParsedQs[]>, right: string | string[] | SQLWrapper | ParsedQs | ParsedQs[]): SQL<...>', gave the following error.
+    Argument of type 'PgColumn<{ name: "customer_id"; tableName: "reservations"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'Aliased<string | string[] | ParsedQs | ParsedQs[]>'.
+      Type 'PgColumn<{ name: "customer_id"; tableName: "reservations"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is missing the following properties from type 'Aliased<string | string[] | ParsedQs | ParsedQs[]>': sql, fieldAlias
+  Overload 3 of 3, '(left: never, right: unknown): SQL<unknown>', gave the following error.
+    Argument of type 'PgColumn<{ name: "customer_id"; tableName: "reservations"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: false; hasDefault: false; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'never'.
+
+99     if (customerId) conditions.push(eq(reservations.customerId, customerId));
+                                       ~~
+
+
+server/routes/reservations/reservations.routes.ts:136:16 - error TS7030: Not all code paths return a value.
+
+136   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/reservations/reservations.routes.ts:233:16 - error TS7030: Not all code paths return a value.
+
+233   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/reservations/reservations.routes.ts:261:16 - error TS7030: Not all code paths return a value.
+
+261   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/reservations/reservations.routes.ts:295:16 - error TS7030: Not all code paths return a value.
+
+295   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/reservations/reservations.routes.ts:339:48 - error TS7006: Parameter 'table' implicitly has an 'any' type.
+
+339       availableTables = availableTables.filter(table => table.id === Number(tableId));
+                                                   ~~~~~
+
+server/routes/reservations/reservations.routes.ts:352:55 - error TS7006: Parameter 'r' implicitly has an 'any' type.
+
+352     const reservedTableIds = existingReservations.map(r => r.tableId);
+                                                          ~
+
+server/routes/reservations/reservations.routes.ts:353:46 - error TS7006: Parameter 'table' implicitly has an 'any' type.
+
+353     const available = availableTables.filter(table => !reservedTableIds.includes(table.id));
+                                                 ~~

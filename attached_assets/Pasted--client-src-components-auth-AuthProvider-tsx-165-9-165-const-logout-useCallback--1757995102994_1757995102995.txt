@@ -1,0 +1,78 @@
+
+  client/src/components/auth/AuthProvider.tsx:165:9
+    165   const logout = useCallback(() => {
+                ~~~~~~
+    'logout' is declared here.
+
+client/src/components/auth/AuthProvider.tsx:91:24 - error TS2454: Variable 'logout' is used before being assigned.
+
+91   }, [validateSession, logout]); // Add dependencies
+                          ~~~~~~
+
+client/src/components/auth/AuthProvider.tsx:95:18 - error TS7006: Parameter 'prev' implicitly has an 'any' type.
+
+95     setAuthState(prev => ({ ...prev, ...newState }));
+                    ~~~~
+
+client/src/components/auth/AuthProvider.tsx:95:18 - error TS2560: Value of type '(prev: any) => any' has no properties in common with type 'Partial<AuthState>'. Did you mean to call it?
+
+95     setAuthState(prev => ({ ...prev, ...newState }));
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/auth/AuthProvider.tsx:223:22 - error TS7006: Parameter 'prev' implicitly has an 'any' type.
+
+223         setAuthState(prev => ({
+                         ~~~~
+
+client/src/components/auth/AuthProvider.tsx:223:22 - error TS2560: Value of type '(prev: any) => any' has no properties in common with type 'Partial<AuthState>'. Did you mean to call it?
+
+223         setAuthState(prev => ({
+                         ~~~~~~~~~~
+224           ...prev,
+    ~~~~~~~~~~~~~~~~~~
+... 
+228           isLoading: false,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+229         }));
+    ~~~~~~~~~~
+
+client/src/pages/AnalyticsPage.tsx:70:9 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+70         startDate: startDate?.toISOString(),
+           ~~~~~~~~~
+
+client/src/pages/AnalyticsPage.tsx:71:9 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+71         endDate: endDate?.toISOString()
+           ~~~~~~~
+
+client/src/pages/AnalyticsPage.tsx:162:16 - error TS18048: 'kpis.revenue.growth' is possibly 'undefined'.
+
+162               {kpis?.revenue.growth > 0 ? '+' : ''}{kpis?.revenue.growth.toFixed(1)}% vs période précédente
+                   ~~~~~~~~~~~~~~~~~~~~
+
+client/src/pages/AnalyticsPage.tsx:188:16 - error TS18048: 'kpis.customers.growth' is possibly 'undefined'.
+
+188               {kpis?.customers.growth > 0 ? '+' : ''}{kpis?.customers.growth.toFixed(1)}% vs période précédente
+                   ~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/pages/AnalyticsPage.tsx:206:16 - error TS18048: 'kpis.averageOrder.growth' is possibly 'undefined'.
+
+206               {kpis?.averageOrder.growth > 0 ? '+' : ''}{kpis?.averageOrder.growth.toFixed(1)}% vs période précédente
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/pages/DashboardPage.tsx:86:49 - error TS2339: Property 'username' does not exist on type 'User'.
+
+86             Bienvenue {user?.firstName || user?.username}, voici votre aperçu en temps réel
+                                                   ~~~~~~~~
+
+server/routes/notifications/notifications.routes.ts:3:10 - error TS2300: Duplicate identifier 'z'.
+
+3 import { z } from 'zod';
+           ~
+
+server/routes/notifications/notifications.routes.ts:11:10 - error TS2300: Duplicate identifier 'z'.
+
+11 import { z } from 'zod';

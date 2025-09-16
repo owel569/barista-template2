@@ -1,0 +1,66 @@
+
+
+client/src/components/auth/AuthProvider.tsx:41:65 - error TS2554: Expected 0 arguments, but got 1.
+
+41         const isExpiring = AuthTokenManager.isTokenExpiringSoon(token); // Pass token to check
+                                                                   ~~~~~
+
+client/src/components/auth/AuthProvider.tsx:49:44 - error TS2554: Expected 0 arguments, but got 1.
+
+49         if (!AuthTokenManager.isTokenValid(token)) { // Pass token to check
+                                              ~~~~~
+
+client/src/components/auth/AuthProvider.tsx:60:31 - error TS2448: Block-scoped variable 'logout' used before its declaration.
+
+60   }, [isAuthenticated, token, logout]); // Depend on token
+                                 ~~~~~~
+
+  client/src/components/auth/AuthProvider.tsx:165:9
+    165   const logout = useCallback(() => {
+                ~~~~~~
+    'logout' is declared here.
+
+client/src/components/auth/AuthProvider.tsx:60:31 - error TS2454: Variable 'logout' is used before being assigned.
+
+60   }, [isAuthenticated, token, logout]); // Depend on token
+                                 ~~~~~~
+
+client/src/components/auth/AuthProvider.tsx:67:70 - error TS2554: Expected 0 arguments, but got 1.
+
+67       if (storedToken && storedUser && AuthTokenManager.isTokenValid(storedToken)) { // Pass token to check
+                                                                        ~~~~~~~~~~~
+
+client/src/components/auth/AuthProvider.tsx:82:22 - error TS7006: Parameter 'prev' implicitly has an 'any' type.
+
+82         setAuthState(prev => ({
+                        ~~~~
+
+client/src/components/auth/AuthProvider.tsx:82:22 - error TS2560: Value of type '(prev: any) => any' has no properties in common with type 'Partial<AuthState>'. Did you mean to call it?
+
+82         setAuthState(prev => ({
+                        ~~~~~~~~~~
+83           ...prev,
+   ~~~~~~~~~~~~~~~~~~
+84           isLoading: false,
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+85         }));
+   ~~~~~~~~~~
+
+client/src/components/auth/AuthProvider.tsx:91:7 - error TS2448: Block-scoped variable 'validateSession' used before its declaration.
+
+91   }, [validateSession, logout]); // Add dependencies
+         ~~~~~~~~~~~~~~~
+
+  client/src/components/auth/AuthProvider.tsx:212:9
+    212   const validateSession = useCallback(async (): Promise<boolean> => {
+                ~~~~~~~~~~~~~~~
+    'validateSession' is declared here.
+
+client/src/components/auth/AuthProvider.tsx:91:7 - error TS2454: Variable 'validateSession' is used before being assigned.
+
+91   }, [validateSession, logout]); // Add dependencies
+         ~~~~~~~~~~~~~~~
+
+client/src/components/auth/AuthProvider.tsx:91:24 - error TS2448: Block-scoped variable 'logout' used before its declaration.
+
+91   }, [validateSession, logout]); // Add dependencies

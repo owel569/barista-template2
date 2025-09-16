@@ -1,0 +1,106 @@
+
+
+server/routes/notifications/notifications.routes.ts:84:31 - error TS2339: Property 'userId' does not exist on type '{ create: ZodObject<{ id: ZodString; userId: ZodNumber; title: ZodString; message: ZodString; type: ZodEnum<["info", "success", "warning", "error"]>; read: ZodDefault<...>; createdAt: ZodDefault<...>; updatedAt: ZodOptional<...>; }, "strip", ZodTypeAny, { ...; }, { ...; }>; select: ZodObject<...>; }'.
+
+84       .where(eq(notifications.userId, userId ? Number(userId) : currentUserId));
+                                 ~~~~~~
+
+server/routes/notifications/notifications.routes.ts:86:42 - error TS2339: Property 'userId' does not exist on type '{ create: ZodObject<{ id: ZodString; userId: ZodNumber; title: ZodString; message: ZodString; type: ZodEnum<["info", "success", "warning", "error"]>; read: ZodDefault<...>; createdAt: ZodDefault<...>; updatedAt: ZodOptional<...>; }, "strip", ZodTypeAny, { ...; }, { ...; }>; select: ZodObject<...>; }'.
+
+86     const conditions = [eq(notifications.userId, userId ? Number(userId) : currentUserId)];
+                                            ~~~~~~
+
+server/routes/notifications/notifications.routes.ts:88:48 - error TS2339: Property 'type' does not exist on type '{ create: ZodObject<{ id: ZodString; userId: ZodNumber; title: ZodString; message: ZodString; type: ZodEnum<["info", "success", "warning", "error"]>; read: ZodDefault<...>; createdAt: ZodDefault<...>; updatedAt: ZodOptional<...>; }, "strip", ZodTypeAny, { ...; }, { ...; }>; select: ZodObject<...>; }'.
+
+88     if (type) conditions.push(eq(notifications.type, type));
+                                                  ~~~~
+
+server/routes/notifications/notifications.routes.ts:89:52 - error TS2339: Property 'priority' does not exist on type '{ create: ZodObject<{ id: ZodString; userId: ZodNumber; title: ZodString; message: ZodString; type: ZodEnum<["info", "success", "warning", "error"]>; read: ZodDefault<...>; createdAt: ZodDefault<...>; updatedAt: ZodOptional<...>; }, "strip", ZodTypeAny, { ...; }, { ...; }>; select: ZodObject<...>; }'.
+
+89     if (priority) conditions.push(eq(notifications.priority, priority));
+                                                      ~~~~~~~~
+
+server/routes/notifications/notifications.routes.ts:90:64 - error TS2339: Property 'isRead' does not exist on type '{ create: ZodObject<{ id: ZodString; userId: ZodNumber; title: ZodString; message: ZodString; type: ZodEnum<["info", "success", "warning", "error"]>; read: ZodDefault<...>; createdAt: ZodDefault<...>; updatedAt: ZodOptional<...>; }, "strip", ZodTypeAny, { ...; }, { ...; }>; select: ZodObject<...>; }'.
+
+90     if (isRead !== undefined) conditions.push(eq(notifications.isRead, isRead));
+                                                                  ~~~~~~
+
+server/routes/notifications/notifications.routes.ts:101:35 - error TS2551: Property 'createdAt' does not exist on type '{ create: ZodObject<{ id: ZodString; userId: ZodNumber; title: ZodString; message: ZodString; type: ZodEnum<["info", "success", "warning", "error"]>; read: ZodDefault<...>; createdAt: ZodDefault<...>; updatedAt: ZodOptional<...>; }, "strip", ZodTypeAny, { ...; }, { ...; }>; select: ZodObject<...>; }'. Did you mean 'create'?
+
+101       .orderBy(desc(notifications.createdAt))
+                                      ~~~~~~~~~
+
+  server/routes/notifications/notifications.routes.ts:27:3
+    27   create: notificationSchema,
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    'create' is declared here.
+
+server/routes/notifications/notifications.routes.ts:184:16 - error TS7030: Not all code paths return a value.
+
+184   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/notifications/notifications.routes.ts:196:26 - error TS2339: Property 'id' does not exist on type '{ create: ZodObject<{ id: ZodString; userId: ZodNumber; title: ZodString; message: ZodString; type: ZodEnum<["info", "success", "warning", "error"]>; read: ZodDefault<...>; createdAt: ZodDefault<...>; updatedAt: ZodOptional<...>; }, "strip", ZodTypeAny, { ...; }, { ...; }>; select: ZodObject<...>; }'.
+
+196         eq(notifications.id, Number(id)),
+                             ~~
+
+server/routes/notifications/notifications.routes.ts:197:26 - error TS2339: Property 'userId' does not exist on type '{ create: ZodObject<{ id: ZodString; userId: ZodNumber; title: ZodString; message: ZodString; type: ZodEnum<["info", "success", "warning", "error"]>; read: ZodDefault<...>; createdAt: ZodDefault<...>; updatedAt: ZodOptional<...>; }, "strip", ZodTypeAny, { ...; }, { ...; }>; select: ZodObject<...>; }'.
+
+197         eq(notifications.userId, userId)
+                             ~~~~~~
+
+server/routes/notifications/notifications.routes.ts:229:26 - error TS2339: Property 'userId' does not exist on type '{ create: ZodObject<{ id: ZodString; userId: ZodNumber; title: ZodString; message: ZodString; type: ZodEnum<["info", "success", "warning", "error"]>; read: ZodDefault<...>; createdAt: ZodDefault<...>; updatedAt: ZodOptional<...>; }, "strip", ZodTypeAny, { ...; }, { ...; }>; select: ZodObject<...>; }'.
+
+229         eq(notifications.userId, userId),
+                             ~~~~~~
+
+server/routes/notifications/notifications.routes.ts:230:26 - error TS2339: Property 'isRead' does not exist on type '{ create: ZodObject<{ id: ZodString; userId: ZodNumber; title: ZodString; message: ZodString; type: ZodEnum<["info", "success", "warning", "error"]>; read: ZodDefault<...>; createdAt: ZodDefault<...>; updatedAt: ZodOptional<...>; }, "strip", ZodTypeAny, { ...; }, { ...; }>; select: ZodObject<...>; }'.
+
+230         eq(notifications.isRead, false)
+                             ~~~~~~
+
+server/routes/notifications/notifications.routes.ts:247:16 - error TS7030: Not all code paths return a value.
+
+247   asyncHandler(async (req, res) => {
+                   ~~~~~~~~~~~~~~~~~~~~~
+
+server/routes/notifications/notifications.routes.ts:255:26 - error TS2339: Property 'id' does not exist on type '{ create: ZodObject<{ id: ZodString; userId: ZodNumber; title: ZodString; message: ZodString; type: ZodEnum<["info", "success", "warning", "error"]>; read: ZodDefault<...>; createdAt: ZodDefault<...>; updatedAt: ZodOptional<...>; }, "strip", ZodTypeAny, { ...; }, { ...; }>; select: ZodObject<...>; }'.
+
+255         eq(notifications.id, Number(id)),
+                             ~~
+
+server/routes/notifications/notifications.routes.ts:256:26 - error TS2339: Property 'userId' does not exist on type '{ create: ZodObject<{ id: ZodString; userId: ZodNumber; title: ZodString; message: ZodString; type: ZodEnum<["info", "success", "warning", "error"]>; read: ZodDefault<...>; createdAt: ZodDefault<...>; updatedAt: ZodOptional<...>; }, "strip", ZodTypeAny, { ...; }, { ...; }>; select: ZodObject<...>; }'.
+
+256         eq(notifications.userId, userId)
+                             ~~~~~~
+
+server/routes/notifications/notifications.routes.ts:284:61 - error TS2339: Property 'isRead' does not exist on type '{ create: ZodObject<{ id: ZodString; userId: ZodNumber; title: ZodString; message: ZodString; type: ZodEnum<["info", "success", "warning", "error"]>; read: ZodDefault<...>; createdAt: ZodDefault<...>; updatedAt: ZodOptional<...>; }, "strip", ZodTypeAny, { ...; }, { ...; }>; select: ZodObject<...>; }'.
+
+284         unread: sql<number>`COUNT(CASE WHEN ${notifications.isRead} = false THEN 1 END)`,
+                                                                ~~~~~~
+
+server/routes/notifications/notifications.routes.ts:285:61 - error TS2339: Property 'priority' does not exist on type '{ create: ZodObject<{ id: ZodString; userId: ZodNumber; title: ZodString; message: ZodString; type: ZodEnum<["info", "success", "warning", "error"]>; read: ZodDefault<...>; createdAt: ZodDefault<...>; updatedAt: ZodOptional<...>; }, "strip", ZodTypeAny, { ...; }, { ...; }>; select: ZodObject<...>; }'.
+
+285         urgent: sql<number>`COUNT(CASE WHEN ${notifications.priority} = 'urgent' THEN 1 END)`,
+                                                                ~~~~~~~~
+
+server/routes/notifications/notifications.routes.ts:286:59 - error TS2339: Property 'priority' does not exist on type '{ create: ZodObject<{ id: ZodString; userId: ZodNumber; title: ZodString; message: ZodString; type: ZodEnum<["info", "success", "warning", "error"]>; read: ZodDefault<...>; createdAt: ZodDefault<...>; updatedAt: ZodOptional<...>; }, "strip", ZodTypeAny, { ...; }, { ...; }>; select: ZodObject<...>; }'.
+
+286         high: sql<number>`COUNT(CASE WHEN ${notifications.priority} = 'high' THEN 1 END)`
+                                                              ~~~~~~~~
+
+server/routes/notifications/notifications.routes.ts:289:31 - error TS2339: Property 'userId' does not exist on type '{ create: ZodObject<{ id: ZodString; userId: ZodNumber; title: ZodString; message: ZodString; type: ZodEnum<["info", "success", "warning", "error"]>; read: ZodDefault<...>; createdAt: ZodDefault<...>; updatedAt: ZodOptional<...>; }, "strip", ZodTypeAny, { ...; }, { ...; }>; select: ZodObject<...>; }'.
+
+289       .where(eq(notifications.userId, userId));
+                                  ~~~~~~
+
+server/routes/reservations/reservations.routes.ts:77:34 - error TS2339: Property 'guestEmail' does not exist on type 'PgTableWithColumns<{ name: "reservations"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>; ... 11 more ...; updatedAt: PgColumn<...>; }; ...'.
+
+77         guestEmail: reservations.guestEmail,
+                                    ~~~~~~~~~~
+
+server/routes/reservations/reservations.routes.ts:78:34 - error TS2339: Property 'guestPhone' does not exist on type 'PgTableWithColumns<{ name: "reservations"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "reservations"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>; ... 11 more ...; updatedAt: PgColumn<...>; }; ...'.
+
+78         guestPhone: reservations.guestPhone,
+                                    ~~~~~~~~~~
