@@ -326,7 +326,7 @@ router.get('/me', authenticateUser, asyncHandler(async (req, res) => {
 
   // Récupérer les informations complètes de l'utilisateur
   try {
-    const db = await getDb();
+    const db = getDb();
     const userRecord = await db.select({
       id: users.id,
       username: users.username,
@@ -334,6 +334,7 @@ router.get('/me', authenticateUser, asyncHandler(async (req, res) => {
       firstName: users.firstName,
       lastName: users.lastName,
       role: users.role,
+      isActive: users.isActive,
       createdAt: users.createdAt,
       updatedAt: users.updatedAt
     }).from(users).where(eq(users.id, user.id)).limit(1);
@@ -346,12 +347,16 @@ router.get('/me', authenticateUser, asyncHandler(async (req, res) => {
     }
 
     const userData = userRecord[0];
-    console.log('Retour données utilisateur /me:', userData);
+    console.log('Retour données utilisateur /me:', { 
+      id: userData.id, 
+      email: userData.email, 
+      role: userData.role 
+    });
 
     return res.json({
       success: true,
-      data: userData,
-      user: userData // Pour compatibilité
+      user: userData,
+      data: userData // Pour compatibilité
     });
   } catch (error) {
     logger.error('Erreur récupération profil utilisateur', { 

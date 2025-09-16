@@ -223,18 +223,29 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
     }
 
     // Récupérer l'utilisateur depuis la base de données
-    const db = await getDb();
-    const user = await db.select().from(users).where(eq(users.id, decoded.userId)).limit(1);
+    const db = getDb();
+    const userResult = await db.select().from(users).where(eq(users.id, decoded.userId)).limit(1);
 
-    if (user.length === 0) {
+    if (userResult.length === 0) {
       res.status(401).json({ success: false, message: 'Utilisateur non trouvé' });
       return;
     }
 
-    const userData = user[0];
+    const userData = userResult[0];
     console.log('Utilisateur authentifié:', { id: userData.id, email: userData.email, role: userData.role });
 
-    req.user = userData;
+    // S'assurer que req.user a toutes les propriétés nécessaires
+    req.user = {
+      id: userData.id,
+      username: userData.username || userData.email?.split('@')[0] || '',
+      email: userData.email || '',
+      firstName: userData.firstName || '',
+      lastName: userData.lastName || '',
+      role: userData.role as any,
+      isActive: userData.isActive ?? true,
+      permissions: AuthService.getRolePermissions(userData.role as any)
+    };
+    
     next();
   } catch (error) {
     console.error('Erreur authentification:', error);

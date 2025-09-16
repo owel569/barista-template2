@@ -27,7 +27,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const [, setLocation] = useLocation();
 
-  // Define logout first to avoid circular dependency
+  // Define logout function
   const logout = useCallback(() => {
     AuthTokenManager.removeToken();
     localStorage.removeItem('user');
@@ -73,29 +73,39 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Initialiser l'état d'authentification
   const initializeAuth = useCallback(async () => {
     try {
-      const storedToken = localStorage.getItem('authToken');
-      const storedUser = localStorage.getItem('user');
+      const storedToken = AuthTokenManager.getToken() || localStorage.getItem('token');
+      
+      if (storedToken && AuthTokenManager.isTokenValid()) {
+        // Essayer de valider le token avec le serveur
+        try {
+          const response = await ApiClient.get<{
+            success: boolean;
+            user: AuthUser;
+          }>('/api/auth/me');
 
-      if (storedToken && storedUser && AuthTokenManager.isTokenValid()) {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-        setToken(storedToken);
-        setIsAuthenticated(true);
-        setIsLoading(false);
-
-        // Valider le token côté serveur
-        const isValid = await validateSession();
-        if (!isValid) {
-          logout();
+          if (response.success && response.user) {
+            setUser(response.user);
+            setToken(storedToken);
+            setIsAuthenticated(true);
+            setIsLoading(false);
+            
+            // Stocker les données utilisateur
+            localStorage.setItem('user', JSON.stringify(response.user));
+            console.log('Utilisateur initialisé:', response.user);
+            return;
+          }
+        } catch (error) {
+          console.error('Erreur validation token:', error);
         }
-      } else {
-        setIsLoading(false);
       }
+      
+      // Si aucun token valide, nettoyer et déconnecter
+      logout();
     } catch (error) {
       console.error('Erreur initialisation auth:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       logout();
     }
-  }, [validateSession, logout]);
+  }, [logout]);
 
   // Surveiller l'expiration du token
   useEffect(() => {
