@@ -1,5 +1,4 @@
-
-import React, { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react'
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react'
 import { useLocation } from 'wouter';
 import { AuthTokenManager, ApiClient, AuthState, AuthUser, LoginResponse } from '@/lib/auth-utils';
 import { toast } from 'sonner';
@@ -205,7 +204,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, [logout]);
 
-  const contextValue: AuthContextType = {
+  // Define checkAuth as a placeholder or implement actual logic
+  const checkAuth = useCallback(async (): Promise<boolean> => {
+    // This function might be intended for a more thorough auth check or session validation
+    // For now, we'll use validateSession as a proxy
+    return validateSession();
+  }, [validateSession]);
+
+
+  const contextValue = useMemo(() => ({
     user,
     token,
     isAuthenticated,
@@ -215,7 +222,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     logout,
     refreshToken,
     validateSession,
-  };
+    checkAuth
+  }), [user, token, isAuthenticated, isLoading, isTokenExpiring, login, logout, refreshToken, validateSession, checkAuth]);
 
   return (
     <AuthContext.Provider value={contextValue}>

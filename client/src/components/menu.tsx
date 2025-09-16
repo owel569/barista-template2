@@ -6,6 +6,8 @@ import { Coffee, GlassWater, Cookie, Utensils, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getItemImageUrl } from "@/lib/image-mapping";
 import { apiRequest } from '@/lib/queryClient';
+import { useCart } from "@/hooks/use-cart";
+import { toast } from "sonner";
 
 interface MenuItem {
   id: string;
@@ -165,6 +167,7 @@ const defaultMenuItems = {
 export default function Menu() : JSX.Element {
   const [activeTab, setActiveTab] = useState("cafes");
   const { toast } = useToast();
+  const { addItem } = useCart();
 
   const { data: categories = [] } = useQuery<MenuCategory[]>({
     queryKey: ['/api/menu/categories'],
@@ -203,9 +206,18 @@ export default function Menu() : JSX.Element {
   const displayItems = getItemsByCategory(activeTab);
 
   const handleAddToCart = (item: MenuItem) => {
-    toast({
-      title: "Ajouté au panier",
-      description: `${item.name} a été ajouté à votre commande`,
+    // Utiliser le hook useCart pour ajouter l'article
+    addItem({
+      id: item.id.toString(),
+      name: item.name,
+      price: item.price,
+      imageUrl: getItemImageUrl(item.name),
+      quantity: 1
+    });
+
+    console.log("Ajout au panier:", item);
+    toast("Article ajouté au panier", {
+      description: `${item.name} a été ajouté à votre panier`,
     });
   };
 
