@@ -234,23 +234,17 @@ export default function TableManagement(): JSX.Element {
 
   // Handlers
   const handleSubmit = (data: z.infer<typeof tableSchema>) => {
-    const newTable = {
-          id: Math.random().toString(36).substr(2, 9),
-          position: { x: 100, y: 100 },
-          status: 'available' as const,
-          number: tables.length + 1,
-          capacity: 4,
-          location: 'main_floor' as const,
-          shape: 'round' as const,
-          notes: '',
-          isVip: false,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        };
-    createTableMutation.mutate({
-      ...newTable,
-      notes: newTable.notes || ''
-    });
+    const newTable: Omit<RestaurantTable, 'id' | 'createdAt' | 'updatedAt'> = {
+      position: { x: 100, y: 100 },
+      status: 'available' as const,
+      number: data.number,
+      capacity: data.capacity,
+      location: data.location,
+      shape: data.shape,
+      notes: data.notes || '',
+      isVip: data.isVip || false
+    };
+    createTableMutation.mutate(newTable);
   };
 
   const handleStatusChange = (id: number, status: RestaurantTable['status']) => {

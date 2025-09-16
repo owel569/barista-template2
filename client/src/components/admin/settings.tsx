@@ -381,8 +381,8 @@ export default function Settings({ userRole }: SettingsProps) {
   // State for new special date input
   const [newSpecialDate, setNewSpecialDate] = useState<Date | undefined>(undefined);
 
-  
-  
+
+
   if (!canViewSettings) {
     return (
       <div className="p-6">
