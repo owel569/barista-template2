@@ -108,7 +108,17 @@ interface DashboardStats {
 
 const COLORS = ['#f59e0b', '#3b82f6', '#10b981', '#ef4444', '#8b5cf6'];
 
-export default function Dashboard() : JSX.Element {
+interface DashboardProps {
+  userRole?: string;
+  user?: any;
+}
+
+export default function Dashboard({ userRole, user }: DashboardProps = {}): JSX.Element {
+  // Validation du rôle avec fallback sécurisé
+  const validatedRole = userRole && ['directeur', 'gerant', 'employe'].includes(userRole) 
+    ? userRole as 'directeur' | 'gerant' | 'employe'
+    : 'employe';
+
   const [stats, setStats] = useState<DashboardStats>({
     todayReservations: 0,
     monthlyRevenue: 0,
@@ -127,6 +137,15 @@ export default function Dashboard() : JSX.Element {
   const fetchStats = async (silent = false) => {
     try {
       if (!silent) setRefreshing(true);
+      
+      // Vérification des permissions avant la requête
+      if (!validatedRole || !['directeur', 'gerant', 'employe'].includes(validatedRole)) {
+        console.error('Rôle utilisateur invalide:', validatedRole);
+        setLoading(false);
+        setRefreshing(false);
+        return;
+      }
+      
       const token = localStorage.getItem('token') || localStorage.getItem('auth_token') || localStorage.getItem('barista_auth_token');
 
       const response = await fetch('/api/admin/statistics/dashboard', {

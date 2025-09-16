@@ -130,6 +130,14 @@ export default function DashboardConsolidated(): JSX.Element {
   const toast = useTypedToast();
   const [refreshing, setRefreshing] = useState(false);
 
+  // Validation du rôle utilisateur
+  const validatedUserRole = user?.role && ['directeur', 'gerant', 'employe'].includes(user.role) 
+    ? user.role 
+    : 'employe';
+
+  // Validation des permissions avant de charger les données
+  const canViewDashboard = canView && (canView('dashboard') || validatedUserRole === 'directeur');
+  
   // Requête pour les statistiques temps réel
   const { data: realTimeStats, isLoading: statsLoading, refetch: refetchStats } = useQuery({
     queryKey: ['dashboard-consolidated-stats'],
@@ -564,7 +572,21 @@ export default function DashboardConsolidated(): JSX.Element {
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
             {quickActions
-              .filter(action => !action.permission || canView(action.permission as any))
+              .filter(action => {
+                if (!action.permission) return true;
+                
+                // Vérification des permissions par rôle
+                switch (validatedUserRole) {
+                  case 'directeur':
+                    return true;
+                  case 'gerant':
+                    return !['settings', 'permissions', 'backup'].includes(action.permission);
+                  case 'employe':
+                    return ['orders', 'customers', 'menu', 'reservations'].includes(action.permission);
+                  default:
+                    return false;
+                }
+              })
               .map((action) => (
               <Button
                 key={action.id}

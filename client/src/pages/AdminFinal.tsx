@@ -12,6 +12,7 @@ import {
 import { usePermissions } from '@/hooks/usePermissions';
 import { cn } from '@/lib/utils';
 import { ErrorBoundary, LoadingFallback, NotFoundFallback } from '@/components/admin/error-boundary';
+import { AdminComponentWrapper } from '@/components/admin/AdminComponentWrapper';
 
 // Import admin modules
 import Dashboard from '@/components/admin/dashboard';
@@ -396,8 +397,22 @@ export default function AdminFinal() : JSX.Element {
   });
 
   const currentModule = availableModules.find(m => m.id === activeModule);
-  // Use DashboardConsolidated if the active module is 'dashboard', otherwise use the component from the found module or fallback to Dashboard
-  const CurrentComponent = activeModule === 'dashboard' ? DashboardConsolidated : (currentModule?.component || Dashboard);
+  
+  // Safe component resolution with proper fallback
+  const getCurrentComponent = () => {
+    if (activeModule === 'dashboard') {
+      return DashboardConsolidated;
+    }
+    
+    if (currentModule?.component) {
+      return currentModule.component;
+    }
+    
+    // Fallback to default Dashboard
+    return Dashboard;
+  };
+  
+  const CurrentComponent = getCurrentComponent();
 
 
   if (!user) {
@@ -506,7 +521,15 @@ export default function AdminFinal() : JSX.Element {
             )}
           >
             <React.Suspense fallback={<LoadingFallback />}>
-              <CurrentComponent userRole={user?.role} user={user} />
+              {CurrentComponent && (
+                <AdminComponentWrapper
+                  userRole={user?.role}
+                  user={user}
+                  requiredRoles={['directeur', 'gerant', 'employe']}
+                  component={CurrentComponent}
+                  key={`${activeModule}-${user?.id || 'anonymous'}`}
+                />
+              )}
             </React.Suspense>
           </ErrorBoundary>
         </div>

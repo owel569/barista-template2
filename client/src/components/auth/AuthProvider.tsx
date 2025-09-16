@@ -409,10 +409,17 @@ export function usePermissions(): UserPermissions {
   };
 }
 
+// Types de validation
+type ValidUserRole = 'directeur' | 'gerant' | 'employe';
+
+const validateUserRole = (role: any): role is ValidUserRole => {
+  return role && ['directeur', 'gerant', 'employe'].includes(role);
+};
+
 // Composant pour protéger les routes
 interface ProtectedRouteProps {
   children: ReactNode;
-  requiredRole?: string;
+  requiredRole?: string | string[];
   fallback?: ReactNode;
 }
 
@@ -438,10 +445,28 @@ export function ProtectedRoute({ children, requiredRole, fallback }: ProtectedRo
     );
   }
 
-  // Logic for role checking
+  // Logic for role checking avec validation stricte
   if (requiredRole) {
     const userRole = user?.role;
-    const hasPermission = userRole === requiredRole ||
+    
+    // Validation du rôle utilisateur
+    if (!validateUserRole(userRole)) {
+      console.error('Rôle utilisateur invalide:', { userRole, user });
+      return fallback || (
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Erreur de rôle</h2>
+            <p className="text-gray-600">Rôle utilisateur invalide ou non défini.</p>
+            <p className="text-gray-600">Veuillez contacter un administrateur.</p>
+          </div>
+        </div>
+      );
+    }
+    
+    const hasPermission = Array.isArray(requiredRole) 
+      ? requiredRole.includes(userRole)
+      : userRole === requiredRole || 
+        (requiredRole === 'directeurgerant' && ['gerant', 'directeur'].includes(userRole)); === requiredRole ||
       (requiredRole === 'directeurgerant' && (userRole === 'gerant' || userRole === 'directeur'));
 
     if (!hasPermission) {

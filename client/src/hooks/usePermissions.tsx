@@ -30,7 +30,18 @@ export const usePermissions = (userParam?: AuthUser | null) => {
   const hasPermission = useCallback((permission: string): boolean => {
     // Logique de permissions basée sur les rôles et permissions utilisateur
     const user = userParam;
-    if (!user || !user.role || !user.isActive) return false;
+    
+    // Validation stricte de l'utilisateur et du rôle
+    if (!user || !user.role || !user.isActive) {
+      console.warn('Utilisateur invalide ou inactif:', { user });
+      return false;
+    }
+    
+    // Validation du rôle
+    if (!['directeur', 'gerant', 'employe'].includes(user.role)) {
+      console.warn('Rôle utilisateur invalide:', user.role);
+      return false;
+    }
     
     // Vérifier d'abord les permissions explicites de l'utilisateur
     if (user.permissions && user.permissions.includes(permission)) {
