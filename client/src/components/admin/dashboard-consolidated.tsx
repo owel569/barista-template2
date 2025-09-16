@@ -52,6 +52,36 @@ import { usePermissions } from '@/hooks/usePermissions';
 import { useToast } from '@/hooks/use-toast';
 import { useTypedToast } from '@/hooks/useTypedToast';
 
+// Utilitaires pour extraire des primitives des objets API
+function ensureNumber(value: any): number {
+  if (typeof value === 'number' && !isNaN(value)) return value;
+  if (typeof value === 'string') {
+    const parsed = parseFloat(value);
+    return !isNaN(parsed) ? parsed : 0;
+  }
+  if (value && typeof value === 'object') {
+    // Si c'est un objet, essayer d'extraire une valeur numérique
+    if (typeof value.today === 'number') return value.today;
+    if (typeof value.thisMonth === 'number') return value.thisMonth;
+    if (typeof value.thisWeek === 'number') return value.thisWeek;
+    if (typeof value.current === 'number') return value.current;
+    if (typeof value.total === 'number') return value.total;
+    if (typeof value.count === 'number') return value.count;
+    if (typeof value.value === 'number') return value.value;
+    if (typeof value.confirmed === 'number') return value.confirmed;
+    if (typeof value.pending === 'number') return value.pending;
+    if (typeof value.completed === 'number') return value.completed;
+    if (typeof value.averageValue === 'number') return value.averageValue;
+  }
+  return 0;
+}
+
+function ensureString(value: any): string {
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number') return value.toString();
+  return '';
+}
+
 // Types consolidés
 interface DashboardStats {
   totalRevenue: number;
@@ -138,7 +168,19 @@ export default function DashboardConsolidated(): JSX.Element {
       } catch (error) {
         console.error('❌ Erreur lors de la récupération des données réelles:', error);
         console.warn('🔄 Utilisation des données de démonstration');
-        return null;
+        // Retourner des données par défaut sécurisées
+        return {
+          totalRevenue: 25680,
+          totalOrders: 1247,
+          totalCustomers: 892,
+          averageOrderValue: 20.6,
+          revenueGrowth: 12.5,
+          ordersGrowth: 8.3,
+          todayReservations: 24,
+          activeOrders: 8,
+          occupancyRate: 75,
+          monthlyRevenue: 25680
+        };
       }
     },
     refetchInterval: 15000, // Actualisation toutes les 15 secondes
@@ -146,8 +188,8 @@ export default function DashboardConsolidated(): JSX.Element {
     retryDelay: 1000,
   });
 
-  // Données par défaut si l'API n'est pas disponible
-  const stats: DashboardStats = realTimeStats || {
+  // Données par défaut si l'API n'est pas disponible avec normalisation des valeurs
+  const rawStats = realTimeStats || {
     totalRevenue: 25680,
     totalOrders: 1247,
     totalCustomers: 892,
@@ -158,6 +200,20 @@ export default function DashboardConsolidated(): JSX.Element {
     activeOrders: 8,
     occupancyRate: 75,
     monthlyRevenue: 25680
+  };
+  
+  // Normalisation des stats pour s'assurer qu'elles sont toutes des primitives
+  const stats: DashboardStats = {
+    totalRevenue: ensureNumber(rawStats?.totalRevenue),
+    totalOrders: ensureNumber(rawStats?.totalOrders),
+    totalCustomers: ensureNumber(rawStats?.totalCustomers),
+    averageOrderValue: ensureNumber(rawStats?.averageOrderValue),
+    revenueGrowth: ensureNumber(rawStats?.revenueGrowth),
+    ordersGrowth: ensureNumber(rawStats?.ordersGrowth),
+    todayReservations: ensureNumber(rawStats?.todayReservations),
+    activeOrders: ensureNumber(rawStats?.activeOrders),
+    occupancyRate: ensureNumber(rawStats?.occupancyRate),
+    monthlyRevenue: ensureNumber(rawStats?.monthlyRevenue)
   };
 
   const quickActions: QuickAction[] = [
@@ -422,11 +478,11 @@ export default function DashboardConsolidated(): JSX.Element {
                   Chiffre d'affaires
                 </p>
                 <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                  {stats.totalRevenue.toLocaleString('fr-FR')}€
+                  {ensureNumber(stats.totalRevenue).toLocaleString('fr-FR')}€
                 </p>
                 <p className="text-xs text-green-600 flex items-center mt-1">
                   <TrendingUp className="h-3 w-3 mr-1" />
-                  +{stats.revenueGrowth}% ce mois
+                  +{ensureNumber(stats.revenueGrowth)}% ce mois
                 </p>
               </div>
               <div className="p-3 bg-green-100 dark:bg-green-900/20 rounded-full">
@@ -444,11 +500,11 @@ export default function DashboardConsolidated(): JSX.Element {
                   Commandes
                 </p>
                 <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                  {stats.totalOrders}
+                  {ensureNumber(stats.totalOrders)}
                 </p>
                 <p className="text-xs text-blue-600 flex items-center mt-1">
                   <TrendingUp className="h-3 w-3 mr-1" />
-                  +{stats.ordersGrowth}% ce mois
+                  +{ensureNumber(stats.ordersGrowth)}% ce mois
                 </p>
               </div>
               <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-full">
@@ -466,7 +522,7 @@ export default function DashboardConsolidated(): JSX.Element {
                   Clients
                 </p>
                 <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                  {stats.totalCustomers}
+                  {ensureNumber(stats.totalCustomers)}
                 </p>
                 <p className="text-xs text-purple-600 mt-1">Total enregistrés</p>
               </div>
@@ -485,7 +541,7 @@ export default function DashboardConsolidated(): JSX.Element {
                   Panier Moyen
                 </p>
                 <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                  {stats.averageOrderValue}€
+                  {ensureNumber(stats.averageOrderValue)}€
                 </p>
                 <p className="text-xs text-orange-600 mt-1">Par commande</p>
               </div>
@@ -647,13 +703,13 @@ export default function DashboardConsolidated(): JSX.Element {
                 <div className="space-y-6">
                   <div className="text-center">
                     <div className="text-4xl font-bold text-blue-600">
-                      {stats.occupancyRate}%
+                      {ensureNumber(stats.occupancyRate)}%
                     </div>
                     <p className="text-gray-600 dark:text-gray-400 mt-2">
                       Occupation actuelle
                     </p>
                   </div>
-                  <Progress value={stats.occupancyRate} className="h-3" />
+                  <Progress value={ensureNumber(stats.occupancyRate)} className="h-3" />
                   <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
                     <span>0%</span>
                     <span>Objectif: 80%</span>

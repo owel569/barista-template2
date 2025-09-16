@@ -45,6 +45,31 @@ import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 
+// Utilitaires pour extraire des primitives des objets API
+function ensureNumber(value: any): number {
+  if (typeof value === 'number' && !isNaN(value)) return value;
+  if (typeof value === 'string') {
+    const parsed = parseFloat(value);
+    return !isNaN(parsed) ? parsed : 0;
+  }
+  if (value && typeof value === 'object') {
+    // Si c'est un objet, essayer d'extraire une valeur numérique
+    if (typeof value.today === 'number') return value.today;
+    if (typeof value.thisMonth === 'number') return value.thisMonth;
+    if (typeof value.current === 'number') return value.current;
+    if (typeof value.total === 'number') return value.total;
+    if (typeof value.count === 'number') return value.count;
+    if (typeof value.value === 'number') return value.value;
+  }
+  return 0;
+}
+
+function ensureString(value: any): string {
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number') return value.toString();
+  return '';
+}
+
 interface ReservationStatus {
   status: string;
   count: number;
@@ -118,15 +143,24 @@ export default function Dashboard() : JSX.Element {
       const data = await response.json();
 
       if (data.success && data.data) {
+        // Extraction sécurisée des valeurs primitives depuis les objets API
+        const reservationsValue = ensureNumber(data.data.reservations);
+        const revenueValue = ensureNumber(data.data.revenue);
+        const ordersValue = ensureNumber(data.data.orders);
+        
+        // Extraction des valeurs pour les statuts de réservation
+        const confirmedReservations = ensureNumber(data.data.reservations?.confirmed) || Math.floor(reservationsValue * 0.7);
+        const pendingReservations = ensureNumber(data.data.reservations?.pending) || Math.floor(reservationsValue * 0.2);
+        
         setStats({
-          todayReservations: typeof data.data.reservations === 'object' ? data.data.reservations.today || 0 : data.data.reservations || 0,
-          monthlyRevenue: typeof data.data.revenue === 'object' ? data.data.revenue.thisMonth || 0 : data.data.revenue || 0,
-          activeOrders: typeof data.data.orders === 'object' ? data.data.orders.today || 0 : data.data.orders || 0,
-          occupancyRate: Math.min(Math.round(((typeof data.data.reservations === 'object' ? data.data.reservations.today : data.data.reservations) / 50) * 100), 100) || 0,
+          todayReservations: reservationsValue,
+          monthlyRevenue: revenueValue,
+          activeOrders: ordersValue,
+          occupancyRate: Math.min(Math.round((reservationsValue / 50) * 100), 100) || 0,
           reservationStatus: [
-            { status: 'Confirmées', count: typeof data.data.reservations === 'object' ? data.data.reservations.confirmed || 0 : Math.floor((data.data.reservations || 0) * 0.7) },
-            { status: 'En attente', count: typeof data.data.reservations === 'object' ? data.data.reservations.pending || 0 : Math.floor((data.data.reservations || 0) * 0.2) },
-            { status: 'Annulées', count: Math.floor(((typeof data.data.reservations === 'object' ? data.data.reservations.today : data.data.reservations) || 0) * 0.1) }
+            { status: 'Confirmées', count: confirmedReservations },
+            { status: 'En attente', count: pendingReservations },
+            { status: 'Annulées', count: Math.floor(reservationsValue * 0.1) }
           ],
           recentActivities: [
             {
@@ -308,7 +342,7 @@ export default function Dashboard() : JSX.Element {
                   Réservations aujourd'hui
                 </p>
                 <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                  {stats.todayReservations}
+                  {ensureNumber(stats.todayReservations)}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Capacité: 50 places
@@ -329,7 +363,7 @@ export default function Dashboard() : JSX.Element {
                   Chiffre d'affaires mensuel
                 </p>
                 <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                  {stats.monthlyRevenue.toLocaleString('fr-FR')}€
+                  {ensureNumber(stats.monthlyRevenue).toLocaleString('fr-FR')}€
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Objectif: 15 000€
@@ -350,7 +384,7 @@ export default function Dashboard() : JSX.Element {
                   Commandes actives
                 </p>
                 <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                  {stats.activeOrders}
+                  {ensureNumber(stats.activeOrders)}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   En préparation
@@ -371,7 +405,7 @@ export default function Dashboard() : JSX.Element {
                   Taux d'occupation
                 </p>
                 <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                  {stats.occupancyRate}%
+                  {ensureNumber(stats.occupancyRate)}%
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Moyenne: 75%
@@ -382,7 +416,7 @@ export default function Dashboard() : JSX.Element {
               </div>
             </div>
             <div className="mt-3">
-              <Progress value={stats.occupancyRate} className="h-2" />
+              <Progress value={ensureNumber(stats.occupancyRate)} className="h-2" />
             </div>
           </CardContent>
         </Card>
@@ -447,10 +481,10 @@ export default function Dashboard() : JSX.Element {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      {activity.title}
+                      {ensureString(activity.title)}
                     </p>
                     <p className="text-xs text-gray-600 dark:text-gray-400">
-                      {activity.description}
+                      {ensureString(activity.description)}
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
                       {new Date(activity.timestamp).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
@@ -478,9 +512,9 @@ export default function Dashboard() : JSX.Element {
                     <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full">
                       <Utensils className="h-4 w-4" />
                     </div>
-                    <span className="text-sm font-medium">{item.name}</span>
+                    <span className="text-sm font-medium">{ensureString(item.name)}</span>
                   </div>
-                  <Badge variant="outline">{item.count} ventes</Badge>
+                  <Badge variant="outline">{ensureNumber(item.count)} ventes</Badge>
                 </div>
               ))}
             </div>
@@ -546,10 +580,10 @@ export default function Dashboard() : JSX.Element {
                 </div>
                 <div>
                   <p className={`text-sm font-medium text-${alert.color}-900 dark:text-${alert.color}-100`}>
-                    {alert.title}
+                    {ensureString(alert.title)}
                   </p>
                   <p className={`text-xs text-${alert.color}-600 dark:text-${alert.color}-400`}>
-                    {alert.description}
+                    {ensureString(alert.description)}
                   </p>
                 </div>
               </div>
