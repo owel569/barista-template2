@@ -336,11 +336,11 @@ export default function AnalyticsPage() {
             </div>
             <div className="flex items-center gap-2 text-xs">
               <Badge variant="secondary" className="text-green-600">
-                {kpis?.orders.completed || 0} complétées
+                {kpis?.orders?.completed || 0} complétées
               </Badge>
               {(kpis?.orders?.cancelled || 0) > 0 && (
                 <Badge variant="destructive">
-                  {kpis.orders.cancelled} annulées
+                  {kpis?.orders?.cancelled || 0} annulées
                 </Badge>
               )}
             </div>

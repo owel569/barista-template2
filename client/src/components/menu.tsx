@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Coffee, GlassWater, Cookie, Utensils, Plus } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import { getItemImageUrl } from "@/lib/image-mapping";
 import { apiRequest } from '@/lib/queryClient';
 import { useCart } from "@/hooks/use-cart";
@@ -166,7 +165,6 @@ const defaultMenuItems = {
 
 export default function Menu() : JSX.Element {
   const [activeTab, setActiveTab] = useState("cafes");
-  const { toast } = useToast();
   const { addItem } = useCart();
 
   const { data: categories = [] } = useQuery<MenuCategory[]>({
