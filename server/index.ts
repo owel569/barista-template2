@@ -23,8 +23,9 @@ const HOST = process.env.HOST || '0.0.0.0';
 
 // Configuration des variables d'environnement critiques
 if (!process.env.JWT_SECRET) {
-  process.env.JWT_SECRET = 'barista-cafe-secret-key-2024-production-secure';
-  console.log('🔑 JWT_SECRET configuré par défaut pour le développement');
+  console.error('❌ ERREUR CRITIQUE: JWT_SECRET doit être défini dans les variables d\'environnement');
+  console.error('💡 Ajoutez JWT_SECRET=votre-clé-secrète-très-sécurisée dans votre fichier .env');
+  process.exit(1);
 }
 
 async function startApplication() {
@@ -35,14 +36,47 @@ async function startApplication() {
 
   // 1. Middlewares de sécurité et utilitaires
   
-  app.use(helmet({
-    contentSecurityPolicy: false, // Désactivé pour le développement
-    crossOriginEmbedderPolicy: false,
-  }));
+  // Configuration Helmet sécurisée selon l'environnement
+  if (process.env.NODE_ENV === 'production') {
+    app.use(helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+          fontSrc: ["'self'", "https://fonts.gstatic.com"],
+          imgSrc: ["'self'", "data:", "https:"],
+          scriptSrc: ["'self'"],
+          connectSrc: ["'self'", "ws:", "wss:"],
+        },
+      },
+      crossOriginEmbedderPolicy: false,
+      hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true
+      }
+    }));
+  } else {
+    app.use(helmet({
+      contentSecurityPolicy: false, // Désactivé pour le développement
+      crossOriginEmbedderPolicy: false,
+    }));
+  }
   
   app.use(compression());
   
-  if (process.env.NODE_ENV !== 'production') {
+  // Configuration CORS sécurisée
+  if (process.env.NODE_ENV === 'production') {
+    // En production: CORS restrictif avec domaines autorisés
+    const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
+    app.use(cors({
+      origin: allowedOrigins.length > 0 ? allowedOrigins : false,
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    }));
+  } else {
+    // En développement: CORS permissif
     app.use(cors({
       origin: true,
       credentials: true,
@@ -52,50 +86,59 @@ async function startApplication() {
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-  // 1. Créer le serveur Vite en mode middleware avec configuration optimisée pour Replit
+  // Configuration du serveur selon l'environnement
+  const isProduction = process.env.NODE_ENV === 'production';
   const isReplit = process.env.REPL_ID !== undefined;
-  const viteConfig = {
-    server: {
-      middlewareMode: true,
-      allowedHosts: true,
-      ...(isReplit ? {
-        hmr: false,
-        ws: false
-      } : {
-        hmr: { 
-          port: 24678,
-          clientPort: 24678 
-        }
-      })
-    },
-    root: path.resolve(__dirname, '../client'),
-    appType: 'spa',
-    logLevel: isReplit ? 'error' : 'warn', // Moins de logs sur Replit
-    clearScreen: false,
-    define: {
-      __HMR__: !isReplit // Désactiver complètement HMR sur Replit
-    },
-    resolve: {
-      alias: {
-        "@": path.resolve(__dirname, "../client/src"),
-        "@shared": path.resolve(__dirname, "../shared"),
-        "@assets": path.resolve(__dirname, "../attached_assets"),
+  
+  let vite: any = null;
+  
+  if (!isProduction) {
+    // Développement: utiliser Vite en mode middleware
+    const viteConfig = {
+      server: {
+        middlewareMode: true,
+        allowedHosts: true,
+        ...(isReplit ? {
+          hmr: false,
+          ws: false
+        } : {
+          hmr: { 
+            port: 24678,
+            clientPort: 24678 
+          }
+        })
       },
-    },
-    optimizeDeps: {
-      include: ['react', 'react-dom']
-    }
-  } as any; // Type assertion pour éviter les problèmes de type complexes
+      root: path.resolve(__dirname, '../client'),
+      appType: 'spa',
+      logLevel: isReplit ? 'error' : 'warn',
+      clearScreen: false,
+      define: {
+        __HMR__: !isReplit
+      },
+      resolve: {
+        alias: {
+          "@": path.resolve(__dirname, "../client/src"),
+          "@shared": path.resolve(__dirname, "../shared"),
+          "@assets": path.resolve(__dirname, "../attached_assets"),
+        },
+      },
+      optimizeDeps: {
+        include: ['react', 'react-dom']
+      }
+    } as any;
 
-  const vite = await createViteServer(viteConfig);
+    vite = await createViteServer(viteConfig);
+  }
 
-  // 2. Middleware spécial pour éliminer les erreurs WebSocket Vite sur Replit
-  if (isReplit) {
-    // Servir un script no-op pour /@vite/client qui remplace complètement le client Vite HMR
-    app.get('/@vite/client', (req, res) => {
-      res.setHeader('Content-Type', 'application/javascript');
-      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate'); // Pas de cache pour debug
-      res.send(`
+  // Configuration spécifique selon l'environnement
+  if (!isProduction) {
+    // Développement: Middleware spécial pour Replit
+    if (isReplit && vite) {
+      // Servir un script no-op pour /@vite/client qui remplace complètement le client Vite HMR
+      app.get('/@vite/client', (req, res) => {
+        res.setHeader('Content-Type', 'application/javascript');
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.send(`
 // Vite client mock pour Replit - Élimine complètement les erreurs WebSocket
 console.log('[vite-replit] HMR client désactivé pour Replit');
 
@@ -175,13 +218,36 @@ export default {
   notifyListeners,
   queueUpdate
 };
-      `);
-    });
+        `);
+      });
 
-    // Intercepter et neutraliser toutes les routes liées au WebSocket Vite
-    app.get('/@vite/ws', (req, res) => {
-      res.status(404).send('WebSocket Vite désactivé sur Replit');
-    });
+      // Intercepter et neutraliser toutes les routes liées au WebSocket Vite
+      app.get('/@vite/ws', (req, res) => {
+        res.status(404).send('WebSocket Vite désactivé sur Replit');
+      });
+    }
+  } else {
+    // Production: Servir les fichiers statiques depuis dist/client
+    const clientDistPath = path.resolve(__dirname, '../dist/client');
+    
+    // Vérifier que le dossier de build existe
+    if (fs.existsSync(clientDistPath)) {
+      console.log('✅ Serving static files from:', clientDistPath);
+      app.use(express.static(clientDistPath, {
+        maxAge: '1y', // Cache des assets pour 1 an
+        etag: true,
+        lastModified: true,
+        setHeaders: (res, path) => {
+          // Pas de cache pour index.html pour forcer la vérification des mises à jour
+          if (path.endsWith('index.html')) {
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+          }
+        }
+      }));
+    } else {
+      console.error('❌ Dossier de build introuvable:', clientDistPath);
+      console.error('💡 Exécutez "npm run build" pour créer le build de production');
+    }
   }
 
   // 3. Routes API (avant Vite pour éviter l'interception)
@@ -204,13 +270,15 @@ export default {
     ));
   });
 
-  // 3. Vite middleware (après les routes API)
-  app.use(vite.middlewares);
+  // Middleware Vite (uniquement en développement)
+  if (!isProduction && vite) {
+    app.use(vite.middlewares);
+  }
 
   // 4. Middleware pour les erreurs 404 des routes API
   app.use('/api/*', notFoundHandler);
 
-  // 5. Gestion des routes SPA
+  // Gestion des routes SPA
   app.use('*', async (req, res, next) => {
     try {
       const url = req.originalUrl;
@@ -220,15 +288,39 @@ export default {
         return next();
       }
 
-      // Lire le template HTML existant et le transformer
-      const templatePath = path.resolve(__dirname, '../client/index.html');
-      let template;
-      
-      try {
-        template = await fs.promises.readFile(templatePath, 'utf-8');
-      } catch (e) {
-        // Fallback si le fichier n'existe pas
-        template = `
+      if (isProduction) {
+        // Production: servir index.html depuis le dossier de build
+        const indexPath = path.resolve(__dirname, '../dist/client/index.html');
+        
+        if (fs.existsSync(indexPath)) {
+          const html = await fs.promises.readFile(indexPath, 'utf-8');
+          res.status(200).set({ 
+            'Content-Type': 'text/html',
+            'Cache-Control': 'no-cache, no-store, must-revalidate' // Pas de cache pour index.html
+          }).end(html);
+        } else {
+          console.error('❌ Fichier index.html introuvable:', indexPath);
+          res.status(500).send(`
+            <h1>Erreur de déploiement</h1>
+            <p>Le build de production est introuvable.</p>
+            <p>Exécutez <code>npm run build</code> avant de déployer.</p>
+          `);
+        }
+      } else {
+        // Développement: utiliser Vite pour transformer le template
+        if (!vite) {
+          return res.status(500).send('Erreur: Vite non initialisé en mode développement');
+        }
+        
+        // Lire le template HTML existant et le transformer
+        const templatePath = path.resolve(__dirname, '../client/index.html');
+        let template;
+        
+        try {
+          template = await fs.promises.readFile(templatePath, 'utf-8');
+        } catch (e) {
+          // Fallback si le fichier n'existe pas
+          template = `
 <!DOCTYPE html>
 <html lang="fr">
   <head>
@@ -263,13 +355,16 @@ export default {
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-        `;
-      }
+          `;
+        }
 
-      const html = await vite.transformIndexHtml(url, template);
-      res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
+        const html = await vite.transformIndexHtml(url, template);
+        res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
+      }
     } catch (e) {
-      vite.ssrFixStacktrace(e as Error);
+      if (vite && !isProduction) {
+        vite.ssrFixStacktrace(e as Error);
+      }
       console.error('Error serving SPA:', e);
       res.status(500).end((e as Error).message);
     }
