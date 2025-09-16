@@ -208,42 +208,41 @@ export class AuthService {
 export const authenticateUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new AuthenticationError('Token d\'authentification requis');
+    if (!token) {
+      res.status(401).json({ success: false, message: 'Token manquant' });
+      return;
     }
 
-    const token = authHeader.substring(7);
-    const decoded = AuthService.verifyToken(token);
+    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
 
-    const user = await AuthService.getUserById(decoded.userId);
-    if (!user) {
-      throw new AuthenticationError('Utilisateur non trouvé');
+    if (typeof decoded === 'string' || !decoded.userId) {
+      res.status(401).json({ success: false, message: 'Token invalide' });
+      return;
     }
 
-    if (!user.isActive) {
-      throw new AuthenticationError('Compte désactivé');
+    // Récupérer l'utilisateur depuis la base de données
+    const db = await getDb();
+    const user = await db.select().from(users).where(eq(users.id, decoded.userId)).limit(1);
+
+    if (user.length === 0) {
+      res.status(401).json({ success: false, message: 'Utilisateur non trouvé' });
+      return;
     }
 
-    // Attacher l'utilisateur à la requête
-    req.user = user;
+    const userData = user[0];
+    console.log('Utilisateur authentifié:', { id: userData.id, email: userData.email, role: userData.role });
 
-    logger.info('Utilisateur authentifié', {
-      userId: user.id,
-      email: user.email,
-      role: user.role
-    });
-
+    req.user = userData;
     next();
   } catch (error) {
-    if (error instanceof AppError) {
-      throw error;
+    console.error('Erreur authentification:', error);
+    if (error instanceof jwt.JsonWebTokenError) {
+      res.status(401).json({ success: false, message: 'Token expiré ou invalide' });
+    } else {
+      res.status(500).json({ success: false, message: 'Erreur serveur lors de l\'authentification' });
     }
-
-    logger.error('Erreur authentification', {
-      error: error instanceof Error ? error.message : 'Erreur inconnue'
-    });
-    throw new AuthenticationError('Échec de l\'authentification');
   }
 };
 

@@ -19,12 +19,11 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [authState, setAuthState] = useState<AuthState>({
-    user: null,
-    token: null,
-    isAuthenticated: false,
-    isLoading: true,
-  });
+  const [user, setUser] = useState<AuthUser | null>(null); // Changed from AuthState to AuthUser for clarity
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [token, setToken] = useState<string | null>(null); // Added token state
+
   const [, setLocation] = useLocation();
   const [isTokenExpiring, setIsTokenExpiring] = useState(false);
 
@@ -37,9 +36,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
 
-    if (authState.isAuthenticated && authState.token) {
+    if (isAuthenticated && token) {
       interval = setInterval(() => {
-        const isExpiring = AuthTokenManager.isTokenExpiringSoon();
+        const isExpiring = AuthTokenManager.isTokenExpiringSoon(token); // Pass token to check
         setIsTokenExpiring(isExpiring);
 
         if (isExpiring) {
@@ -47,7 +46,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
 
         // Vérifier si le token a expiré
-        if (!AuthTokenManager.isTokenValid()) {
+        if (!AuthTokenManager.isTokenValid(token)) { // Pass token to check
           logout();
         }
       }, 60000); // Vérifier toutes les minutes
@@ -58,18 +57,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
         clearInterval(interval);
       }
     };
-  }, [authState.isAuthenticated, authState.token]);
+  }, [isAuthenticated, token, logout]); // Depend on token
 
   const initializeAuth = useCallback(async () => {
     try {
-      const token = AuthTokenManager.getToken();
+      const storedToken = localStorage.getItem('authToken'); // Use consistent key
       const storedUser = localStorage.getItem('user');
 
-      if (token && storedUser && AuthTokenManager.isTokenValid()) {
+      if (storedToken && storedUser && AuthTokenManager.isTokenValid(storedToken)) { // Pass token to check
         const user = JSON.parse(storedUser);
-        setAuthState({
+        setAuthState({ // Use setAuthState to update all state at once
           user,
-          token,
+          token: storedToken,
           isAuthenticated: true,
           isLoading: false,
         });
@@ -89,11 +88,29 @@ export function AuthProvider({ children }: AuthProviderProps) {
       console.error('Erreur initialisation auth:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
       logout();
     }
+  }, [validateSession, logout]); // Add dependencies
+
+  // Helper to set the auth state
+  const setAuthState = useCallback((newState: Partial<AuthState>) => {
+    setAuthState(prev => ({ ...prev, ...newState }));
+    if (newState.token) {
+      setToken(newState.token);
+    }
+    if (newState.user) {
+      setUser(newState.user);
+    }
+    if (newState.isAuthenticated !== undefined) {
+      setIsAuthenticated(newState.isAuthenticated);
+    }
+    if (newState.isLoading !== undefined) {
+      setIsLoading(newState.isLoading);
+    }
   }, []);
+
 
   const login = useCallback(async (email: string, password: string): Promise<LoginResponse> => {
     try {
-      setAuthState(prev => ({ ...prev, isLoading: true }));
+      setAuthState({ isLoading: true });
 
       const response = await ApiClient.post<{
         message: string;
@@ -123,10 +140,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } catch (error: unknown) {
       console.error('Erreur de connexion:', { error: error instanceof Error ? error.message : 'Erreur inconnue' });
 
-      setAuthState(prev => ({
-        ...prev,
+      setAuthState({
         isLoading: false,
-      }));
+      });
 
       toast.error(error instanceof Error ? error.message : 'Erreur de connexion');
 
@@ -144,10 +160,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         },
       };
     }
-  }, []);
+  }, [setAuthState]); // Depend on setAuthState
 
   const logout = useCallback(() => {
     AuthTokenManager.removeToken();
+    localStorage.removeItem('user'); // Also remove user from local storage
 
     setAuthState({
       user: null,
@@ -162,7 +179,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setLocation('/login');
 
     toast.info('Déconnexion réussie');
-  }, [setLocation]);
+  }, [setLocation, setAuthState]); // Depend on setAuthState
 
   const refreshToken = useCallback(async (): Promise<boolean> => {
     try {
@@ -177,11 +194,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       AuthTokenManager.setToken(response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
 
-      setAuthState(prev => ({
-        ...prev,
+      setAuthState({
         token: response.token,
         user: response.user,
-      }));
+      });
 
       setIsTokenExpiring(false);
 
@@ -191,7 +207,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       logout();
       return false;
     }
-  }, [logout]);
+  }, [logout, setAuthState]); // Depend on setAuthState
 
   const validateSession = useCallback(async (): Promise<boolean> => {
     try {
@@ -207,6 +223,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setAuthState(prev => ({
           ...prev,
           user: response.user,
+          token: token, // Ensure token is set
+          isAuthenticated: true,
+          isLoading: false,
         }));
         return true;
       } else {
@@ -218,16 +237,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
       logout();
       return false;
     }
-  }, [logout]);
+  }, [logout, setAuthState]); // Depend on setAuthState
 
   const contextValue: AuthContextType = {
-    ...authState,
+    user, // Use destructured state
+    token, // Use destructured state
+    isAuthenticated, // Use destructured state
+    isLoading: isLoading, // Use destructured state
+    isTokenExpiring,
     login,
     logout,
     refreshToken,
     validateSession,
-    isLoading: authState.isLoading,
-    isTokenExpiring,
   };
 
   return (
@@ -333,15 +354,23 @@ export function ProtectedRoute({ children, requiredRole, fallback }: ProtectedRo
     );
   }
 
-  if (requiredRole && user?.role !== requiredRole) {
-    return fallback || (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Permissions insuffisantes</h2>
-          <p className="text-gray-600">Vous n'avez pas les permissions nécessaires pour accéder à cette page.</p>
+  // Logic for role checking
+  if (requiredRole) {
+    const userRole = user?.role;
+    // Check if the user's role matches the required role, or if the user has a "gerant" role and the required role is "directeurgerant"
+    const hasPermission = userRole === requiredRole || (requiredRole === 'directeurgerant' && userRole === 'gerant');
+
+    if (!hasPermission) {
+      return fallback || (
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Accès refusé</h2>
+            <p className="text-gray-600">Vous n'avez pas les permissions nécessaires pour accéder à cette page.</p>
+            <p className="text-gray-600">Rôle requis: {requiredRole} | Votre rôle: {userRole || 'Non défini'}</p>
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
   }
 
   return <>{children}</>;

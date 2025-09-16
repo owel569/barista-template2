@@ -315,4 +315,54 @@ router.post('/refresh',
   })
 );
 
+router.get('/me', authenticateUser, asyncHandler(async (req, res) => {
+  const user = req.user;
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Utilisateur non authentifié'
+    });
+  }
+
+  // Récupérer les informations complètes de l'utilisateur
+  try {
+    const db = await getDb();
+    const userRecord = await db.select({
+      id: users.id,
+      username: users.username,
+      email: users.email,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      role: users.role,
+      createdAt: users.createdAt,
+      updatedAt: users.updatedAt
+    }).from(users).where(eq(users.id, user.id)).limit(1);
+
+    if (userRecord.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Utilisateur non trouvé'
+      });
+    }
+
+    const userData = userRecord[0];
+    console.log('Retour données utilisateur /me:', userData);
+
+    return res.json({
+      success: true,
+      data: userData,
+      user: userData // Pour compatibilité
+    });
+  } catch (error) {
+    logger.error('Erreur récupération profil utilisateur', { 
+      userId: user.id, 
+      error: error instanceof Error ? error.message : 'Erreur inconnue' 
+    });
+    return res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la récupération du profil'
+    });
+  }
+}));
+
 export default router;

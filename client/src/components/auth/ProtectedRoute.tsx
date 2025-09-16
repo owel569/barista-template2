@@ -48,6 +48,8 @@ export default function ProtectedRoute({
   const hasRequiredRole = () => {
     if (!requireRole) return true;
     
+    console.log('Vérification rôle:', { requireRole, userRole: user?.role, user });
+    
     if (Array.isArray(requireRole)) {
       return requireRole.includes(user?.role || '');
     }
@@ -56,6 +58,7 @@ export default function ProtectedRoute({
   };
 
   if (requireRole && !hasRequiredRole()) {
+    console.error('Accès refusé:', { requireRole, userRole: user?.role, user });
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center" data-testid="access-denied">
         <div className="text-center p-8">
@@ -65,8 +68,11 @@ export default function ProtectedRoute({
             Vous n'avez pas les permissions nécessaires pour accéder à cette page.
           </p>
           <p className="text-sm text-gray-500">
-            Rôle requis: {requireRole} | Votre rôle: {user?.role || 'Non défini'}
+            Rôle requis: {Array.isArray(requireRole) ? requireRole.join(', ') : requireRole} | Votre rôle: {user?.role || 'Non défini'}
           </p>
+          <div className="mt-4 text-xs text-gray-400">
+            Debug: isAuthenticated={isAuthenticated ? 'true' : 'false'}, userId={user?.id || 'undefined'}
+          </div>
         </div>
       </div>
     );
