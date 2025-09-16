@@ -117,6 +117,7 @@ export const reservations = pgTable("reservations", {
   time: varchar('time', { length: 10 }).notNull(),
   reservationTime: timestamp('reservation_time').notNull(),
   guestName: varchar('guest_name', { length: 100 }),
+  guestPhone: varchar('guest_phone', { length: 20 }),
   partySize: integer('party_size').notNull(),
   status: reservationStatusEnum('status').notNull().default('pending'),
   specialRequests: text('special_requests'),
@@ -275,6 +276,22 @@ export const loyaltyTransactions = pgTable('loyalty_transactions', {
   createdAt: timestamp('created_at').notNull().defaultNow()
 });
 
+export const notifications = pgTable('notifications', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => users.id).notNull(),
+  title: varchar('title', { length: 200 }).notNull(),
+  message: text('message').notNull(),
+  type: varchar('type', { length: 50 }).notNull().default('info'),
+  priority: varchar('priority', { length: 20 }).notNull().default('medium'),
+  isRead: boolean('is_read').notNull().default(false),
+  readAt: timestamp('read_at'),
+  scheduledFor: timestamp('scheduled_for'),
+  expiresAt: timestamp('expires_at'),
+  metadata: json('metadata'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
+});
+
 export const permissions = pgTable("permissions", {
   id: serial('id').primaryKey(),
   userId: integer('user_id').references(() => users.id),
@@ -377,6 +394,13 @@ export const activityLogsRelations = relations(activityLogs, ({ one }) => ({
   })
 }));
 
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  user: one(users, {
+    fields: [notifications.userId],
+    references: [users.id]
+  })
+}));
+
 export const permissionsRelations = relations(permissions, ({ one }) => ({
   user: one(users, {
     fields: [permissions.userId],
@@ -460,6 +484,7 @@ export const insertEmployeeSchema = createInsertSchema(employees);
 export const insertSupplierSchema = createInsertSchema(suppliers);
 export const insertInventorySchema = createInsertSchema(inventory);
 export const insertLoyaltyTransactionSchema = createInsertSchema(loyaltyTransactions);
+export const insertNotificationSchema = createInsertSchema(notifications);
 export const insertPermissionSchema = createInsertSchema(permissions);
 
 export const selectUserSchema = createSelectSchema(users);
@@ -480,6 +505,7 @@ export const selectShiftSchema = createSelectSchema(shifts);
 export const selectSupplierSchema = createSelectSchema(suppliers);
 export const selectInventorySchema = createSelectSchema(inventory);
 export const selectLoyaltyTransactionSchema = createSelectSchema(loyaltyTransactions);
+export const selectNotificationSchema = createSelectSchema(notifications);
 export const selectPermissionSchema = createSelectSchema(permissions);
 
 export const insertShiftSchema = createInsertSchema(shifts);
@@ -490,3 +516,5 @@ export const insertShiftSchema = createInsertSchema(shifts);
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = typeof notifications.$inferInsert;

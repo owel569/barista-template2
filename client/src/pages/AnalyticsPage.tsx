@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -43,8 +42,8 @@ interface KPIData {
 }
 
 interface AnalyticsFilters {
-  startDate?: string;
-  endDate?: string;
+  startDate: string;
+  endDate: string;
   period: 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
 }
 
@@ -55,7 +54,9 @@ export default function AnalyticsPage() {
   const [error, setError] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [filters, setFilters] = useState<AnalyticsFilters>({
-    period: 'month'
+    period: 'month',
+    startDate: '',
+    endDate: ''
   });
 
   // Fonction sécurisée pour récupérer les données
@@ -66,7 +67,7 @@ export default function AnalyticsPage() {
 
       const params = new URLSearchParams();
       params.append('period', filterParams.period);
-      
+
       if (filterParams.startDate) {
         params.append('startDate', filterParams.startDate);
       }
@@ -86,7 +87,7 @@ export default function AnalyticsPage() {
       }
 
       const data = await response.json();
-      
+
       if (data.success) {
         setKpis(data.data);
       } else {
@@ -104,10 +105,10 @@ export default function AnalyticsPage() {
   useEffect(() => {
     const initialFilters: AnalyticsFilters = {
       period: 'month',
-      startDate: dateRange?.from?.toISOString(),
-      endDate: dateRange?.to?.toISOString()
+      startDate: dateRange?.from?.toISOString() || '',
+      endDate: dateRange?.to?.toISOString() || ''
     };
-    
+
     fetchKPIs(initialFilters);
   }, [dateRange]);
 
@@ -115,8 +116,8 @@ export default function AnalyticsPage() {
   const handleRefresh = () => {
     const currentFilters: AnalyticsFilters = {
       ...filters,
-      startDate: dateRange?.from?.toISOString(),
-      endDate: dateRange?.to?.toISOString()
+      startDate: dateRange?.from?.toISOString() || '',
+      endDate: dateRange?.to?.toISOString() || ''
     };
     fetchKPIs(currentFilters);
   };
@@ -140,7 +141,7 @@ export default function AnalyticsPage() {
       const params = new URLSearchParams();
       params.append('format', 'excel');
       params.append('period', filters.period);
-      
+
       if (dateRange?.from) {
         params.append('startDate', dateRange.from.toISOString());
       }
@@ -183,7 +184,7 @@ export default function AnalyticsPage() {
             Tableau de bord analytique en temps réel
           </p>
         </div>
-        
+
         <div className="flex items-center gap-3">
           <DatePickerWithRange 
             value={dateRange}

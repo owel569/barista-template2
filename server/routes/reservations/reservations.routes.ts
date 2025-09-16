@@ -90,7 +90,8 @@ router.get('/',
   validateQuery(ReservationQuerySchema),
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
-    const query = req.query as z.infer<typeof ReservationQuerySchema>;
+    const validatedQuery = ReservationQuerySchema.parse(req.query);
+    const query = validatedQuery;
     const { status, tableId, customerId, date, page, limit } = query;
 
     try {
@@ -372,7 +373,8 @@ router.get('/availability',
   validateQuery(AvailabilityQuerySchema),
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
-    const query = req.query as z.infer<typeof AvailabilityQuerySchema>;
+    const validatedQuery = AvailabilityQuerySchema.parse(req.query);
+    const query = validatedQuery;
     const { date, time, partySize, tableId } = query;
 
     try {
