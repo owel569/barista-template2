@@ -267,9 +267,9 @@ export default function Settings({ userRole }: SettingsProps) {
       openingHours: {
         ...prev.openingHours,
         [day]: {
-          open: field === 'open' ? value as string : (prev.openingHours[day]?.open || '09:00'),
-          close: field === 'close' ? value as string : (prev.openingHours[day]?.close || '18:00'),
-          closed: field === 'closed' ? value as boolean : (prev.openingHours[day]?.closed || false)
+          // Applying the logic from the change snippet to handle potentially missing day objects
+          ...(prev.openingHours?.[day] || { open: '09:00', close: '18:00', closed: false }),
+          [field]: value
         }
       }
     }));
@@ -333,6 +333,7 @@ export default function Settings({ userRole }: SettingsProps) {
               note: item.note ?? ''
             };
           } else {
+            // This case seems redundant with the above but kept for completeness if needed
             return {
               date: currentDate,
               openingHours: field === 'openingHours' ? value : (item.openingHours ?? { open: '09:00', close: '17:00', closed: false }),
@@ -750,7 +751,7 @@ export default function Settings({ userRole }: SettingsProps) {
               </div>
 
               <div className="space-y-2">
-                <Label>Modèle de notification d'annulation</Label>
+                <Label>Modèle de notification d\'annulation</Label>
                 <Textarea
                   value={draftSettings.notificationSettings.cancellationTemplate}
                   onChange={(e) => handleChange('notificationSettings.cancellationTemplate', e.target.value)}

@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { MaintenanceTaskForm } from './MaintenanceTaskForm';
+import MaintenanceTaskForm from './MaintenanceTaskForm';
 import { EquipmentForm } from './EquipmentForm';
 import { toast } from 'sonner';
 
