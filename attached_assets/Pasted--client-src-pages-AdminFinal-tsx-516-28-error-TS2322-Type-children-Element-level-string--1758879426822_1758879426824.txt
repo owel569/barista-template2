@@ -1,0 +1,178 @@
+
+
+client/src/pages/AdminFinal.tsx:516:28 - error TS2322: Type '{ children: Element; level: string; showDetails: boolean; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+  Property 'level' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+
+516             <ErrorBoundary level="component" showDetails={false}>
+                               ~~~~~
+
+client/src/pages/AdminFinal.tsx:525:28 - error TS2322: Type '{ children: Element; level: string; showDetails: boolean; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+  Property 'level' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+
+525             <ErrorBoundary level="component" showDetails={false}>
+                               ~~~~~
+
+client/src/pages/AdminFinal.tsx:527:18 - error TS2559: Type '{ userRole: any; user: any; }' has no properties in common with type 'IntrinsicAttributes'.
+
+527                 <ActivityLogs {...componentProps} />
+                     ~~~~~~~~~~~~
+
+client/src/pages/AdminFinal.tsx:534:28 - error TS2322: Type '{ children: Element; level: string; showDetails: boolean; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+  Property 'level' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+
+534             <ErrorBoundary level="component" showDetails={false}>
+                               ~~~~~
+
+client/src/pages/AdminFinal.tsx:536:18 - error TS2559: Type '{ userRole: any; user: any; }' has no properties in common with type 'IntrinsicAttributes'.
+
+536                 <InventoryManagement {...componentProps} />
+                     ~~~~~~~~~~~~~~~~~~~
+
+client/src/pages/AdminFinal.tsx:543:28 - error TS2322: Type '{ children: Element; level: string; showDetails: boolean; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+  Property 'level' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+
+543             <ErrorBoundary level="component" showDetails={false}>
+                               ~~~~~
+
+client/src/pages/AdminFinal.tsx:545:18 - error TS2559: Type '{ userRole: any; user: any; }' has no properties in common with type 'IntrinsicAttributes'.
+
+545                 <InventoryManagementModule {...componentProps} />
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/pages/AdminFinal.tsx:552:28 - error TS2322: Type '{ children: Element; level: string; showDetails: boolean; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+  Property 'level' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+
+552             <ErrorBoundary level="component" showDetails={false}>
+                               ~~~~~
+
+client/src/pages/AdminFinal.tsx:554:18 - error TS2559: Type '{ userRole: any; user: any; }' has no properties in common with type 'IntrinsicAttributes'.
+
+554                 <LoyaltySystem {...componentProps} />
+                     ~~~~~~~~~~~~~
+
+client/src/pages/AdminFinal.tsx:561:28 - error TS2322: Type '{ children: Element; level: string; showDetails: boolean; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+  Property 'level' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+
+561             <ErrorBoundary level="component" showDetails={false}>
+                               ~~~~~
+
+client/src/pages/AdminFinal.tsx:563:18 - error TS2559: Type '{ userRole: any; user: any; }' has no properties in common with type 'IntrinsicAttributes'.
+
+563                 <LoyaltyProgramModule {...componentProps} />
+                     ~~~~~~~~~~~~~~~~~~~~
+
+client/src/pages/AdminFinal.tsx:570:28 - error TS2322: Type '{ children: Element; level: string; showDetails: boolean; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+  Property 'level' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+
+570             <ErrorBoundary level="component" showDetails={false}>
+                               ~~~~~
+
+client/src/pages/AdminFinal.tsx:572:18 - error TS2559: Type '{ userRole: any; user: any; }' has no properties in common with type 'IntrinsicAttributes'.
+
+572                 <PermissionsManagement {...componentProps} />
+                     ~~~~~~~~~~~~~~~~~~~~~
+
+client/src/pages/AdminFinal.tsx:579:28 - error TS2322: Type '{ children: Element; level: string; showDetails: boolean; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+  Property 'level' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+
+579             <ErrorBoundary level="component" showDetails={false}>
+                               ~~~~~
+
+client/src/pages/AdminFinal.tsx:581:18 - error TS2559: Type '{ userRole: any; user: any; }' has no properties in common with type 'IntrinsicAttributes'.
+
+581                 <WorkSchedule {...componentProps} />
+                     ~~~~~~~~~~~~
+
+client/src/pages/AdminFinal.tsx:588:28 - error TS2322: Type '{ children: Element; level: string; showDetails: boolean; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+  Property 'level' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+
+588             <ErrorBoundary level="component" showDetails={false}>
+                               ~~~~~
+
+client/src/pages/AdminFinal.tsx:590:18 - error TS2559: Type '{ userRole: any; user: any; }' has no properties in common with type 'IntrinsicAttributes'.
+
+590                 <AccountingSystem {...componentProps} />
+                     ~~~~~~~~~~~~~~~~
+
+client/src/pages/AdminFinal.tsx:597:28 - error TS2322: Type '{ children: Element; level: string; showDetails: boolean; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+  Property 'level' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+
+597             <ErrorBoundary level="component" showDetails={false}>
+                               ~~~~~
+
+client/src/pages/AdminFinal.tsx:599:18 - error TS2559: Type '{ userRole: any; user: any; }' has no properties in common with type 'IntrinsicAttributes'.
+
+599                 <BackupSystem {...componentProps} />
+                     ~~~~~~~~~~~~
+
+client/src/pages/AdminFinal.tsx:606:28 - error TS2322: Type '{ children: Element; level: string; showDetails: boolean; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+  Property 'level' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+
+606             <ErrorBoundary level="component" showDetails={false}>
+                               ~~~~~
+
+client/src/pages/AdminFinal.tsx:608:18 - error TS2559: Type '{ userRole: any; user: any; }' has no properties in common with type 'IntrinsicAttributes'.
+
+608                 <ReportsSystem {...componentProps} />
+                     ~~~~~~~~~~~~~
+
+client/src/pages/AdminFinal.tsx:615:28 - error TS2322: Type '{ children: Element; level: string; showDetails: boolean; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+  Property 'level' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+
+615             <ErrorBoundary level="component" showDetails={false}>
+                               ~~~~~
+
+client/src/pages/AdminFinal.tsx:617:18 - error TS2559: Type '{ userRole: any; user: any; }' has no properties in common with type 'IntrinsicAttributes'.
+
+617                 <CalendarManagement {...componentProps} />
+                     ~~~~~~~~~~~~~~~~~~
+
+client/src/pages/AdminFinal.tsx:624:28 - error TS2322: Type '{ children: Element; level: string; showDetails: boolean; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+  Property 'level' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+
+624             <ErrorBoundary level="component" showDetails={false}>
+                               ~~~~~
+
+client/src/pages/AdminFinal.tsx:626:18 - error TS2559: Type '{ userRole: any; user: any; }' has no properties in common with type 'IntrinsicAttributes'.
+
+626                 <SuppliersManagement {...componentProps} />
+                     ~~~~~~~~~~~~~~~~~~~
+
+client/src/pages/AdminFinal.tsx:633:28 - error TS2322: Type '{ children: Element; level: string; showDetails: boolean; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+  Property 'level' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+
+633             <ErrorBoundary level="component" showDetails={false}>
+                               ~~~~~
+
+client/src/pages/AdminFinal.tsx:635:18 - error TS2559: Type '{ userRole: any; user: any; }' has no properties in common with type 'IntrinsicAttributes'.
+
+635                 <MaintenanceManagement {...componentProps} />
+                     ~~~~~~~~~~~~~~~~~~~~~
+
+client/src/pages/AdminFinal.tsx:642:28 - error TS2322: Type '{ children: Element; level: string; showDetails: boolean; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+  Property 'level' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+
+642             <ErrorBoundary level="component" showDetails={false}>
+                               ~~~~~
+
+client/src/pages/AdminFinal.tsx:644:18 - error TS2559: Type '{ userRole: any; user: any; }' has no properties in common with type 'IntrinsicAttributes'.
+
+644                 <AdvancedMaintenance {...componentProps} />
+                     ~~~~~~~~~~~~~~~~~~~
+
+client/src/pages/AdminFinal.tsx:651:28 - error TS2322: Type '{ children: Element; level: string; showDetails: boolean; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+  Property 'level' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+
+651             <ErrorBoundary level="component" showDetails={false}>
+                               ~~~~~
+
+client/src/pages/AdminFinal.tsx:653:18 - error TS2559: Type '{ userRole: any; user: any; }' has no properties in common with type 'IntrinsicAttributes'.
+
+653                 <DeliveryTracking {...componentProps} />
+                     ~~~~~~~~~~~~~~~~
+
+client/src/pages/AdminFinal.tsx:660:28 - error TS2322: Type '{ children: Element; level: string; showDetails: boolean; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+  Property 'level' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+
+660             <ErrorBoundary level="component" showDetails={false}>
+                               ~~~~~

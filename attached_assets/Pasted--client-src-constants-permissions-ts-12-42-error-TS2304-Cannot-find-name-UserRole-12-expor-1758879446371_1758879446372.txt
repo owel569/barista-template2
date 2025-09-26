@@ -1,0 +1,85 @@
+
+client/src/constants/permissions.ts:12:42 - error TS2304: Cannot find name 'UserRole'.
+
+12 export const DEFAULT_PERMISSIONS: Record<UserRole, Record<ModuleName, PermissionAction[]>> = {
+                                            ~~~~~~~~
+
+client/src/constants/permissions.ts:12:59 - error TS2304: Cannot find name 'ModuleName'.
+
+12 export const DEFAULT_PERMISSIONS: Record<UserRole, Record<ModuleName, PermissionAction[]>> = {
+                                                             ~~~~~~~~~~
+
+client/src/constants/permissions.ts:137:46 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(o: {}): string[]', gave the following error.
+    Argument of type 'Record<ModuleName, PermissionAction[]> | undefined' is not assignable to parameter of type '{}'.
+      Type 'undefined' is not assignable to type '{}'.
+  Overload 2 of 2, '(o: object): string[]', gave the following error.
+    Argument of type 'Record<ModuleName, PermissionAction[]> | undefined' is not assignable to parameter of type 'object'.
+      Type 'undefined' is not assignable to type 'object'.
+
+137 export const AVAILABLE_MODULES = Object.keys(DEFAULT_PERMISSIONS.directeur);
+                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+client/src/pages/AdminFinal.tsx:444:28 - error TS2322: Type '{ children: Element; level: string; showDetails: boolean; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+  Property 'level' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+
+444             <ErrorBoundary level="component" showDetails={false}>
+                               ~~~~~
+
+client/src/pages/AdminFinal.tsx:446:18 - error TS2559: Type '{ userRole: any; user: any; }' has no properties in common with type 'IntrinsicAttributes'.
+
+446                 <DashboardConsolidated {...componentProps} />
+                     ~~~~~~~~~~~~~~~~~~~~~
+
+client/src/pages/AdminFinal.tsx:453:28 - error TS2322: Type '{ children: Element; level: string; showDetails: boolean; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+  Property 'level' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+
+453             <ErrorBoundary level="component" showDetails={false}>
+                               ~~~~~
+
+client/src/pages/AdminFinal.tsx:455:18 - error TS2559: Type '{ userRole: any; user: any; }' has no properties in common with type 'IntrinsicAttributes'.
+
+455                 <Reservations {...componentProps} />
+                     ~~~~~~~~~~~~
+
+client/src/pages/AdminFinal.tsx:462:28 - error TS2322: Type '{ children: Element; level: string; showDetails: boolean; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+  Property 'level' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+
+462             <ErrorBoundary level="component" showDetails={false}>
+                               ~~~~~
+
+client/src/pages/AdminFinal.tsx:464:18 - error TS2559: Type '{ userRole: any; user: any; }' has no properties in common with type 'IntrinsicAttributes'.
+
+464                 <Orders {...componentProps} />
+                     ~~~~~~
+
+client/src/pages/AdminFinal.tsx:471:28 - error TS2322: Type '{ children: Element; level: string; showDetails: boolean; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+  Property 'level' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+
+471             <ErrorBoundary level="component" showDetails={false}>
+                               ~~~~~
+
+client/src/pages/AdminFinal.tsx:480:28 - error TS2322: Type '{ children: Element; level: string; showDetails: boolean; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+  Property 'level' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+
+480             <ErrorBoundary level="component" showDetails={false}>
+                               ~~~~~
+
+client/src/pages/AdminFinal.tsx:489:28 - error TS2322: Type '{ children: Element; level: string; showDetails: boolean; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+  Property 'level' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+
+489             <ErrorBoundary level="component" showDetails={false}>
+                               ~~~~~
+
+client/src/pages/AdminFinal.tsx:498:28 - error TS2322: Type '{ children: Element; level: string; showDetails: boolean; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+  Property 'level' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+
+498             <ErrorBoundary level="component" showDetails={false}>
+                               ~~~~~
+
+client/src/pages/AdminFinal.tsx:507:28 - error TS2322: Type '{ children: Element; level: string; showDetails: boolean; }' is not assignable to type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+  Property 'level' does not exist on type 'IntrinsicAttributes & IntrinsicClassAttributes<ErrorBoundary> & Readonly<ErrorBoundaryProps>'.
+
+507             <ErrorBoundary level="component" showDetails={false}>
+                               ~~~~~

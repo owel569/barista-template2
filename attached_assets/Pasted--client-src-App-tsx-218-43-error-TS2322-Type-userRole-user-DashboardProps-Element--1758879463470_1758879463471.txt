@@ -1,0 +1,93 @@
+
+client/src/App.tsx:218:43 - error TS2322: Type '({ userRole, user }?: DashboardProps) => Element' is not assignable to type 'ComponentType<RouteComponentProps<{ [param: number]: string | undefined; }>>'.
+  Type '({ userRole, user }?: DashboardProps) => Element' is not assignable to type 'FunctionComponent<RouteComponentProps<{ [param: number]: string | undefined; }>>'.
+    Types of parameters '__0' and 'props' are incompatible.
+      Type 'RouteComponentProps<{ [param: number]: string | undefined; }>' has no properties in common with type 'DashboardProps'.
+
+218                           <Route path="/" component={Dashboard} />
+                                              ~~~~~~~~~
+
+  node_modules/wouter/types/index.d.ts:82:3
+    82   component?: ComponentType<
+         ~~~~~~~~~
+    The expected type comes from property 'component' which is declared here on type 'IntrinsicAttributes & RouteProps<undefined, "/">'
+
+client/src/App.tsx:219:52 - error TS2322: Type '({ userRole, user }?: DashboardProps) => Element' is not assignable to type 'ComponentType<RouteComponentProps<{ [param: number]: string | undefined; }>>'.
+  Type '({ userRole, user }?: DashboardProps) => Element' is not assignable to type 'FunctionComponent<RouteComponentProps<{ [param: number]: string | undefined; }>>'.
+    Types of parameters '__0' and 'props' are incompatible.
+      Type 'RouteComponentProps<{ [param: number]: string | undefined; }>' has no properties in common with type 'DashboardProps'.
+
+219                           <Route path="/dashboard" component={Dashboard} />
+                                                       ~~~~~~~~~
+
+  node_modules/wouter/types/index.d.ts:82:3
+    82   component?: ComponentType<
+         ~~~~~~~~~
+    The expected type comes from property 'component' which is declared here on type 'IntrinsicAttributes & RouteProps<undefined, "/dashboard">'
+
+client/src/components/admin/AdminComponentWrapper.tsx:40:8 - error TS2375: Type '{ children: string | number | true | Element | Iterable<ReactNode>; userRole: string | undefined; allowedRoles: UserRole[]; }' is not assignable to type 'RoleValidatorProps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'userRole' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+40       <RoleValidator userRole={userRole} allowedRoles={requiredRoles}>
+          ~~~~~~~~~~~~~
+
+client/src/components/admin/MaintenanceTaskForm.tsx:120:22 - error TS2379: Argument of type '{ title: string; description: string; priority: "high" | "low" | "medium" | "urgent"; status: "pending" | "cancelled" | "completed" | "in_progress"; assignedTo: string | undefined; estimatedDuration: number | undefined; dueDate: string | undefined; equipment: string | undefined; notes: string | undefined; }' is not assignable to parameter of type 'Omit<MaintenanceTask, "id" | "createdAt" | "updatedAt">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'notes' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+
+120       await onSubmit(submitData);
+                         ~~~~~~~~~~
+
+client/src/components/admin/dashboard-consolidated.tsx:582:24 - error TS2678: Type '"gerant"' is not comparable to type '"directeur" | "employe" | "customer" | "admin" | "employee" | "manager" | "barista" | "staff"'.
+
+582                   case 'gerant':
+                           ~~~~~~~~
+
+client/src/components/admin/maintenance-management.tsx:510:19 - error TS2322: Type '(data: Omit<MaintenanceTask, "id" | "createdAt" | "updatedAt"> & { equipmentId?: number | null; }) => Promise<void>' is not assignable to type '(data: Omit<MaintenanceTask, "id" | "createdAt" | "updatedAt">) => Promise<void>'.
+  Types of parameters 'data' and 'data' are incompatible.
+    Type 'Omit<MaintenanceTask, "id" | "createdAt" | "updatedAt">' is not assignable to type 'Omit<MaintenanceTask, "id" | "createdAt" | "updatedAt"> & { equipmentId?: number | null; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+      Type 'Omit<MaintenanceTask, "id" | "createdAt" | "updatedAt">' is missing the following properties from type 'Omit<MaintenanceTask, "id" | "createdAt" | "updatedAt">': type, scheduledDate
+
+510                   onSubmit={editingTask ?
+                      ~~~~~~~~
+
+  client/src/components/admin/MaintenanceTaskForm.tsx:30:3
+    30   onSubmit: (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+         ~~~~~~~~
+    The expected type comes from property 'onSubmit' which is declared here on type 'IntrinsicAttributes & MaintenanceTaskFormProps'
+
+client/src/components/admin/notifications-system.tsx:63:11 - error TS2430: Interface 'Notification' incorrectly extends interface 'Omit<NotificationBase, "id">'.
+  Types of property 'userId' are incompatible.
+    Type 'string' is not assignable to type 'number'.
+
+63 interface Notification extends Omit<NotificationBase, 'id'> {
+             ~~~~~~~~~~~~
+
+client/src/components/admin/notifications-system.tsx:876:66 - error TS2345: Argument of type '(prev: Partial<Notification>) => { category: "order" | "user" | "inventory" | "maintenance" | "reservation" | "payment" | "system" | undefined; id?: string; ... 13 more ...; channel?: "email" | ... 2 more ... | "sms"; }' is not assignable to parameter of type 'SetStateAction<Partial<Notification>>'.
+  Type '(prev: Partial<Notification>) => { category: "order" | "user" | "inventory" | "maintenance" | "reservation" | "payment" | "system" | undefined; id?: string; ... 13 more ...; channel?: "email" | ... 2 more ... | "sms"; }' is not assignable to type '(prevState: Partial<Notification>) => Partial<Notification>'.
+    Call signature return types '{ category: "order" | "user" | "inventory" | "maintenance" | "reservation" | "payment" | "system" | undefined; id?: string; userId?: string; metadata?: Record<string, any>; actions?: NotificationAction[]; ... 10 more ...; channel?: "email" | ... 2 more ... | "sms"; }' and 'Partial<Notification>' are incompatible.
+      The types of 'category' are incompatible between these types.
+        Type '"order" | "user" | "inventory" | "maintenance" | "reservation" | "payment" | "system" | undefined' is not assignable to type '"order" | "user" | "inventory" | "maintenance" | "reservation" | "payment" | "system"'.
+          Type 'undefined' is not assignable to type '"order" | "user" | "inventory" | "maintenance" | "reservation" | "payment" | "system"'.
+
+876                     onValueChange={(value) => setNewNotification(prev => ({ ...prev, category: value as Notification['category'] }))}
+                                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+client/src/components/admin/notifications-system.tsx:947:48 - error TS2345: Argument of type '{ title: string; message: string; type: "success" | "warning" | "info" | "order" | "error" | "reservation" | "system"; category: "order" | "user" | "inventory" | "maintenance" | "reservation" | "payment" | "system" | undefined; priority: "medium"; channel: "web"; }' is not assignable to parameter of type 'SetStateAction<Partial<Notification>>'.
+  Type '{ title: string; message: string; type: "success" | "warning" | "info" | "order" | "error" | "reservation" | "system"; category: "order" | "user" | "inventory" | "maintenance" | "reservation" | "payment" | "system" | undefined; priority: "medium"; channel: "web"; }' is not assignable to type 'Partial<Notification>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'category' are incompatible.
+      Type '"order" | "user" | "inventory" | "maintenance" | "reservation" | "payment" | "system" | undefined' is not assignable to type '"order" | "user" | "inventory" | "maintenance" | "reservation" | "payment" | "system"'.
+        Type 'undefined' is not assignable to type '"order" | "user" | "inventory" | "maintenance" | "reservation" | "payment" | "system"'.
+
+947                             setNewNotification({
+                                                   ~
+948                               title: template.title,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... 
+953                               channel: 'web'
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+954                             });
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
