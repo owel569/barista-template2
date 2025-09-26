@@ -121,7 +121,7 @@ router.get('/',
 // Route POST - Créer une notification
 router.post('/',
   authenticateUser,
-  requireRoles(['directeur', 'gerant']),
+  requireRoles(['directeur', 'gerant', 'employe']), // Ajouter employé
   validateBody(CreateNotificationSchema),
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const db = getDb();
@@ -353,6 +353,88 @@ router.get('/stats',
       res.status(500).json({
         success: false,
         message: 'Erreur lors de la récupération des statistiques'
+      });
+    }
+  })
+);
+
+// Route GET - Notifications pour clients
+router.get('/customer',
+  authenticateUser,
+  requireRoles(['customer']),
+  validateQuery(NotificationQuerySchema),
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const db = getDb();
+    const userId = req.user!.id;
+
+    try {
+      // Récupérer les notifications publiques ou destinées au client
+      const customerNotifications = await db
+        .select()
+        .from(notifications)
+        .where(eq(notifications.userId, userId))
+        .orderBy(desc(notifications.createdAt))
+        .limit(20);
+
+      res.json({
+        success: true,
+        data: customerNotifications,
+        message: 'Notifications client récupérées'
+      });
+    } catch (error) {
+      logger.error('Erreur récupération notifications client', { 
+        error: error instanceof Error ? error.message : 'Erreur inconnue',
+        userId 
+      });
+      res.status(500).json({
+        success: false,
+        message: 'Erreur lors de la récupération des notifications'
+      });
+    }
+  })
+);
+
+// Route POST - Créer notification client (pour réservations, commandes)
+router.post('/customer',
+  authenticateUser,
+  requireRoles(['customer']),
+  validateBody(z.object({
+    title: z.string().min(1).max(100),
+    message: z.string().min(1).max(500),
+    type: z.enum(['info', 'reservation', 'order']).default('info')
+  })),
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const db = getDb();
+    const { title, message, type } = req.body;
+    const userId = req.user!.id;
+
+    try {
+      const [newNotification] = await db
+        .insert(notifications)
+        .values({
+          title,
+          message,
+          type,
+          priority: 'medium',
+          userId,
+          createdAt: new Date()
+        })
+        .returning();
+
+      res.status(201).json({
+        success: true,
+        data: newNotification,
+        message: 'Notification créée'
+      });
+    } catch (error) {
+      logger.error('Erreur création notification client', { 
+        error: error instanceof Error ? error.message : 'Erreur inconnue',
+        userId,
+        title 
+      });
+      res.status(500).json({
+        success: false,
+        message: 'Erreur lors de la création de la notification'
       });
     }
   })

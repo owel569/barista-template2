@@ -190,7 +190,7 @@ export default function NotificationsSystem(): JSX.Element {
 
   // Mutations optimisées
   const markAsReadMutation = useMutation({
-    mutationFn: async (notificationIds: string[]) => {
+    mutationFn: async (notificationIds: number[]) => {
       const response = await fetch('/api/notifications/mark-read', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -212,7 +212,7 @@ export default function NotificationsSystem(): JSX.Element {
   });
 
   const archiveNotificationsMutation = useMutation({
-    mutationFn: async (notificationIds: string[]) => {
+    mutationFn: async (notificationIds: number[]) => {
       const response = await fetch('/api/notifications/archive', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -229,6 +229,29 @@ export default function NotificationsSystem(): JSX.Element {
       toast({
         title: 'Erreur',
         description: 'Échec de l\'archivage des notifications',
+        variant: 'destructive'
+      });
+    }
+  });
+
+  const deleteNotificationMutation = useMutation({
+    mutationFn: async (notificationIds: number[]) => {
+      const response = await fetch('/api/notifications/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: notificationIds })
+      });
+      if (!response.ok) throw new Error('Erreur lors de la suppression');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      setSelectedNotifications([]);
+      toast({ title: 'Notifications supprimées' });
+    },
+    onError: () => {
+      toast({
+        title: 'Erreur',
+        description: 'Échec de la suppression des notifications',
         variant: 'destructive'
       });
     }
@@ -379,13 +402,13 @@ export default function NotificationsSystem(): JSX.Element {
   }, []);
 
   // Actions
-  const handleMarkAsRead = useCallback((ids: string[]) => {
+  const handleMarkAsRead = useCallback((ids: number[]) => {
     markAsReadMutation.mutate(ids);
   }, [markAsReadMutation]);
 
-  const handleArchive = useCallback((ids: string[]) => {
-    archiveNotificationsMutation.mutate(ids);
-  }, [archiveNotificationsMutation]);
+  const handleDelete = useCallback((ids: number[]) => {
+    deleteNotificationMutation.mutate(ids);
+  }, [deleteNotificationMutation]);
 
   const handleCreateNotification = useCallback(() => {
     if (newNotification.title && newNotification.message) {
@@ -398,19 +421,24 @@ export default function NotificationsSystem(): JSX.Element {
     }
   }, [newNotification, createNotificationMutation]);
 
-  const handleBulkAction = useCallback((action: 'read' | 'archive') => {
+  const handleBulkAction = useCallback((action: 'read' | 'archive' | 'delete') => {
     if (selectedNotifications.length === 0) return;
+
+    const idsToProcess = selectedNotifications.map(id => Number(id));
 
     switch (action) {
       case 'read':
-        handleMarkAsRead(selectedNotifications);
+        handleMarkAsRead(idsToProcess);
         break;
       case 'archive':
-        handleArchive(selectedNotifications);
+        archiveNotificationsMutation.mutate(idsToProcess);
+        break;
+      case 'delete':
+        handleDelete(idsToProcess);
         break;
     }
     setSelectedNotifications([]);
-  }, [selectedNotifications, handleMarkAsRead, handleArchive]);
+  }, [selectedNotifications, handleMarkAsRead, archiveNotificationsMutation, handleDelete]);
 
   // Icônes par type
   const getTypeIcon = (type: Notification['type']) => {
@@ -670,6 +698,14 @@ export default function NotificationsSystem(): JSX.Element {
                 Archiver
               </Button>
               <Button
+                onClick={() => handleBulkAction('delete')}
+                variant="outline"
+                size="sm"
+              >
+                <Trash2 className="w-4 h-4 mr-1" />
+                Supprimer
+              </Button>
+              <Button
                 onClick={() => setSelectedNotifications([])}
                 variant="ghost"
                 size="sm"
@@ -685,9 +721,7 @@ export default function NotificationsSystem(): JSX.Element {
               {filteredNotifications.map((notification) => (
                 <Card
                   key={notification.id}
-                  className={`transition-all hover:shadow-md cursor-pointer ${
-                    notification.status === 'unread' ? 'border-l-4 border-l-blue-500 bg-blue-50/50' : ''
-                  } ${selectedNotifications.includes(notification.id) ? 'ring-2 ring-blue-300' : ''}`}
+                  className={`transition-all hover:shadow-md cursor-pointer ${notification.status === 'unread' ? 'border-l-4 border-l-blue-500 bg-blue-50/50' : ''} ${selectedNotifications.includes(notification.id) ? 'ring-2 ring-blue-300' : ''}`}
                   onClick={() => {
                     if (selectedNotifications.includes(notification.id)) {
                       setSelectedNotifications(prev => prev.filter(id => id !== notification.id));
@@ -736,7 +770,7 @@ export default function NotificationsSystem(): JSX.Element {
                           <Button
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleMarkAsRead([notification.id]);
+                              handleMarkAsRead([Number(notification.id)]);
                             }}
                             variant="ghost"
                             size="sm"
@@ -747,12 +781,12 @@ export default function NotificationsSystem(): JSX.Element {
                         <Button
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleArchive([notification.id]);
+                            handleDelete([Number(notification.id)]);
                           }}
                           variant="ghost"
                           size="sm"
                         >
-                          <Archive className="w-4 h-4" />
+                          <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </div>

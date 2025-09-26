@@ -465,6 +465,54 @@ export interface BackupItem {
   status: 'completed' | 'in_progress' | 'failed';
 }
 
+// Types pour les notifications avec typage précis
+export interface NotificationBase {
+  id: number;
+  title: string;
+  message: string;
+  type: 'info' | 'success' | 'warning' | 'error' | 'system' | 'reservation' | 'order';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  isRead: boolean;
+  userId: number;
+  createdAt: string;
+  readAt?: string | null;
+  scheduledFor?: string | null;
+  expiresAt?: string | null;
+  metadata?: Record<string, unknown> | null;
+}
+
+export interface NotificationInsert {
+  title: string;
+  message: string;
+  type: NotificationBase['type'];
+  priority: NotificationBase['priority'];
+  userId: number;
+  scheduledFor?: Date | null;
+  expiresAt?: Date | null;
+  metadata?: Record<string, unknown> | null;
+}
+
+export interface NotificationUpdate extends Partial<NotificationInsert> {
+  id: number;
+  isRead?: boolean;
+  readAt?: Date | null;
+}
+
+// Types pour les réponses API des notifications
+export interface NotificationResponse {
+  success: boolean;
+  data?: NotificationBase | NotificationBase[];
+  message?: string;
+  error?: string;
+}
+
+export interface NotificationStats {
+  total: number;
+  unread: number;
+  urgent: number;
+  high: number;
+}
+
 // Types pour les permissions d'actions admin
 export interface AdminActionPermission {
   view?: boolean;
