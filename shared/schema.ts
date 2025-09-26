@@ -283,18 +283,20 @@ export const loyaltyTransactions = pgTable('loyalty_transactions', {
 
 export const notifications = pgTable('notifications', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id').references(() => users.id).notNull(),
-  title: varchar('title', { length: 200 }).notNull(),
+  title: varchar('title', { length: 255 }).notNull(),
   message: text('message').notNull(),
   type: varchar('type', { length: 50 }).notNull().default('info'),
   priority: varchar('priority', { length: 20 }).notNull().default('medium'),
   isRead: boolean('is_read').notNull().default(false),
+  userId: integer('user_id').references(() => users.id).notNull(),
   readAt: timestamp('read_at'),
   scheduledFor: timestamp('scheduled_for'),
   expiresAt: timestamp('expires_at'),
-  metadata: json('metadata'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow()
+  metadata: text('metadata'),
+  status: varchar('status', { length: 20 }).default('unread'),
+  category: varchar('category', { length: 50 }).default('system'),
+  channel: varchar('channel', { length: 20 }).default('web'),
+  createdAt: timestamp('created_at').notNull().defaultNow()
 });
 
 export const permissions = pgTable("permissions", {

@@ -57,24 +57,14 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
+import { NotificationBase } from '@/../../shared/types-enhanced';
 
-// Types optimisés
-interface Notification {
+// Types optimisés - UTILISATION DES TYPES UNIFIÉS
+interface Notification extends Omit<NotificationBase, 'id'> {
   id: string;
-  title: string;
-  message: string;
-  type: 'info' | 'success' | 'warning' | 'error' | 'system';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  category: 'order' | 'reservation' | 'system' | 'user' | 'payment' | 'inventory' | 'maintenance';
-  status: 'unread' | 'read' | 'archived';
-  createdAt: string;
-  readAt?: string;
   userId?: string;
   metadata?: Record<string, any>;
   actions?: NotificationAction[];
-  scheduledFor?: string;
-  expiresAt?: string;
-  channel: 'web' | 'email' | 'sms' | 'push';
 }
 
 interface NotificationAction {

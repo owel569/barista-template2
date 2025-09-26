@@ -21,7 +21,7 @@ export interface ToastContextValue {
   dismissAll: () => void;
 }
 
-// 2. ActivityLog avec toutes les propriétés requises et typage précis
+// 2. ActivityLog avec toutes les propriétés requises et typage précis - VERSION UNIFIÉE
 export interface ActivityLog {
   id: number;
   userId: number;
@@ -184,19 +184,17 @@ export type DatabaseResult<T = unknown> = {
   duration?: number;
 };
 
-// Schémas de validation Zod
+// Schémas de validation Zod - VERSION CORRIGÉE
 export const ActivityLogSchema = z.object({
-  id: z.string(),
-  userId: z.string(),
+  id: z.number(),
+  userId: z.number(),
   action: z.string(),
-  details: z.string(),
-  createdAt: z.date(),
-  ipAddress: z.string(),
+  entity: z.string(),
+  entityId: z.number().optional(),
+  details: z.string().optional(),
+  ipAddress: z.string().optional(),
   userAgent: z.string().optional(),
-  resource: z.string().optional(),
-  resourceId: z.string().optional(),
-  severity: z.enum(['info', 'warning', 'error', 'critical']),
-  metadata: z.record(z.unknown()).optional(),
+  createdAt: z.date(),
 });
 
 export const CustomerSchema = z.object({
@@ -465,7 +463,7 @@ export interface BackupItem {
   status: 'completed' | 'in_progress' | 'failed';
 }
 
-// Types pour les notifications avec typage précis
+// Types pour les notifications avec typage précis - VERSION UNIFIÉE
 export interface NotificationBase {
   id: number;
   title: string;
@@ -479,6 +477,9 @@ export interface NotificationBase {
   scheduledFor?: string | null;
   expiresAt?: string | null;
   metadata?: Record<string, unknown> | null;
+  status?: 'unread' | 'read' | 'archived';
+  category?: 'order' | 'reservation' | 'system' | 'user' | 'payment' | 'inventory' | 'maintenance';
+  channel?: 'web' | 'email' | 'sms' | 'push';
 }
 
 export interface NotificationInsert {

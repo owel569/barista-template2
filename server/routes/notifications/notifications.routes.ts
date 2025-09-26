@@ -39,19 +39,13 @@ const NotificationParamsSchema = z.object({
   id: z.coerce.number().int().positive()
 });
 
-// Types TypeScript sécurisés
-interface NotificationWithDetails {
-  id: number;
-  title: string;
-  message: string;
-  type: 'info' | 'warning' | 'error' | 'success' | 'reservation' | 'order' | 'system';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  isRead: boolean;
-  userId: number;
+// Types TypeScript sécurisés - UTILISATION DES TYPES UNIFIÉS
+import { NotificationBase } from '../../../shared/types-enhanced';
+
+interface NotificationWithDetails extends NotificationBase {
   createdAt: Date;
   readAt: Date | null;
   expiresAt: Date | null;
-  metadata: Record<string, unknown> | null;
 }
 
 // Route GET - Lister les notifications
