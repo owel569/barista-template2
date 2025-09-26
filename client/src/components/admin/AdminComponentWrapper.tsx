@@ -37,7 +37,7 @@ export const AdminComponentWrapper: React.FC<AdminComponentWrapperProps> = ({
 
   return (
     <ErrorBoundary level="component" showDetails={false}>
-      <RoleValidator userRole={userRole} allowedRoles={requiredRoles}>
+      <RoleValidator userRole={userRole || ''} allowedRoles={requiredRoles}>
         {children || (
           <Component 
             userRole={userRole} 

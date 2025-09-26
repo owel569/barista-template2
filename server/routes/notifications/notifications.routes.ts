@@ -42,7 +42,7 @@ const NotificationParamsSchema = z.object({
 // Types TypeScript sécurisés - UTILISATION DES TYPES UNIFIÉS
 import { NotificationBase } from '../../../shared/types-enhanced';
 
-interface NotificationWithDetails extends NotificationBase {
+interface NotificationWithDetails extends Omit<NotificationBase, 'createdAt'> {
   createdAt: Date;
   readAt: Date | null;
   expiresAt: Date | null;

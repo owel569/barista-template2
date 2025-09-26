@@ -60,9 +60,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { NotificationBase } from '@/../../shared/types-enhanced';
 
 // Types optimisés - UTILISATION DES TYPES UNIFIÉS
-interface Notification extends Omit<NotificationBase, 'id'> {
+interface Notification extends Omit<NotificationBase, 'id' | 'userId' | 'createdAt'> {
   id: string;
-  userId?: string;
+  userId?: number;
+  createdAt: string;
   metadata?: Record<string, any>;
   actions?: NotificationAction[];
 }
@@ -873,7 +874,7 @@ export default function NotificationsSystem(): JSX.Element {
                   <Label htmlFor="category">Catégorie</Label>
                   <Select
                     value={newNotification.category || ''}
-                    onValueChange={(value) => setNewNotification(prev => ({ ...prev, category: value as Notification['category'] }))}
+                    onValueChange={(value) => setNewNotification(prev => ({ ...prev, category: value as NonNullable<Notification['category']> }))}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -948,7 +949,7 @@ export default function NotificationsSystem(): JSX.Element {
                               title: template.title,
                               message: template.message,
                               type: template.type,
-                              category: template.category,
+                              category: template.category || 'system',
                               priority: 'medium',
                               channel: 'web'
                             });

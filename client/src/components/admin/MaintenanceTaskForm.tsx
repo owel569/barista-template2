@@ -26,9 +26,13 @@ interface MaintenanceTask {
 }
 
 interface MaintenanceTaskFormProps {
-  initialData?: Partial<MaintenanceTask>;
-  onSubmit: (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
-  onCancel: () => void;
+  initialData?: MaintenanceTask;
+  onSubmit: (data: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'> & { 
+    equipmentId?: number | null;
+    type?: string;
+    scheduledDate?: string;
+  }) => Promise<void>;
+  onCancel?: () => void;
   isSubmitting?: boolean;
 }
 

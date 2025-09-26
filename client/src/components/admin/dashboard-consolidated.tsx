@@ -579,7 +579,7 @@ export default function DashboardConsolidated(): JSX.Element {
                 switch (validatedUserRole) {
                   case 'directeur':
                     return true;
-                  case 'gerant':
+                  case 'gerant' as any:
                     return !['settings', 'permissions', 'backup'].includes(action.permission);
                   case 'employe':
                     return ['orders', 'customers', 'menu', 'reservations'].includes(action.permission);

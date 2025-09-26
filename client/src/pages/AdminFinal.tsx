@@ -422,7 +422,7 @@ export default function AdminFinal() : JSX.Element {
     return <div className="p-4 text-center text-red-500">Accès non autorisé pour ce rôle.</div>;
   };
 
-  // Placeholder for validUserRole if not defined elsewhere
+  // Placeholder for RoleValidator if not defined elsewhere
   const validUserRole = user?.role;
   const [loading, setLoading] = useState(true); // Assuming loading state is needed for renderComponent
 
@@ -432,8 +432,14 @@ export default function AdminFinal() : JSX.Element {
       return <LoadingFallback />;
     }
 
-    const componentProps = {
-      userRole: validUserRole,
+    // Props unifiées pour tous les composants admin
+    interface AdminComponentProps {
+      userRole?: string;
+      user?: typeof user;
+    }
+
+    const componentProps: AdminComponentProps = {
+      userRole: user?.role,
       user: user
     };
 

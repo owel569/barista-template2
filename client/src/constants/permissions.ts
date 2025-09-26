@@ -8,6 +8,27 @@ export type PermissionsMap = Record<string, PermissionAction[]>;
 // Rôles avec accès complet
 export const ALL_ACCESS_ROLES: Role[] = ['directeur'];
 
+// Types pour les rôles utilisateur
+export type UserRole = 'directeur' | 'gerant' | 'employe' | 'customer';
+
+// Types pour les modules
+export type ModuleName =
+  | 'dashboard'
+  | 'reservations'
+  | 'orders'
+  | 'menu'
+  | 'customers'
+  | 'employees'
+  | 'statistics'
+  | 'inventory'
+  | 'reports'
+  | 'settings'
+  | 'permissions'
+  | 'maintenance'
+  | 'analytics'
+  | 'pos'
+  | 'planning';
+
 // Permissions par défaut pour chaque rôle avec granularité fine
 export const DEFAULT_PERMISSIONS: Record<UserRole, Record<ModuleName, PermissionAction[]>> = {
   directeur: {

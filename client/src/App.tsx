@@ -97,7 +97,7 @@ const ensureStylesLoaded = (): void => {
     document.body.appendChild(testElement);
 
     const computedStyles: CSSStyleDeclaration = window.getComputedStyle(testElement);
-    
+
     // Tests typés avec validation stricte
     const styleTest: StyleTestResult = {
       hasValidBackground: Boolean(
