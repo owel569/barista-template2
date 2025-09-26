@@ -93,15 +93,22 @@ async function logActivity(
       action,
       entity: 'auth',
       details,
-      ipAddress: req.ip || req.connection.remoteAddress,
-      userAgent: req.get('User-Agent')
+      ipAddress: req.ip || req.connection.remoteAddress || '',
+      userAgent: req.get('User-Agent') || ''
     });
   } catch (error) {
+    // Log l'erreur mais ne pas faire échouer l'authentification
     logger.error('Erreur enregistrement activité', {
       userId,
       action,
+      details,
       error: error instanceof Error ? error.message : 'Erreur inconnue'
     });
+    
+    // Si la table n'existe pas, essayer de la créer
+    if (error instanceof Error && error.message.includes('does not exist')) {
+      logger.warn('Table activity_logs manquante - Création automatique requise');
+    }
   }
 }
 

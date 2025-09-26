@@ -199,7 +199,7 @@ export const menuItemImages = pgTable('menu_item_images', {
 
 export const activityLogs = pgTable('activity_logs', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id').references(() => users.id),
+  userId: integer('user_id').references(() => users.id).notNull(),
   action: varchar('action', { length: 100 }).notNull(),
   entity: varchar('entity', { length: 50 }).notNull(),
   entityId: integer('entity_id'),
@@ -208,6 +208,11 @@ export const activityLogs = pgTable('activity_logs', {
   userAgent: text('user_agent'),
   createdAt: timestamp('created_at').notNull().defaultNow()
 });
+
+// Types pour ActivityLog avec typage précis
+export type ActivityLog = typeof activityLogs.$inferSelect;
+export type ActivityLogInsert = typeof activityLogs.$inferInsert;
+export type ActivityLogUpdate = Partial<ActivityLogInsert>;
 
 export const employees = pgTable('employees', {
   id: serial('id').primaryKey(),

@@ -21,19 +21,31 @@ export interface ToastContextValue {
   dismissAll: () => void;
 }
 
-// 2. ActivityLog avec toutes les propriétés requises
+// 2. ActivityLog avec toutes les propriétés requises et typage précis
 export interface ActivityLog {
-  id: string;
-  userId: string;
+  id: number;
+  userId: number;
   action: string;
-  details: string;
-  createdAt: Date;
-  ipAddress: string;
+  entity: string;
+  entityId?: number;
+  details?: string;
+  ipAddress?: string;
   userAgent?: string;
-  resource?: string;
-  resourceId?: string;
-  severity: 'info' | 'warning' | 'error' | 'critical';
-  metadata?: Record<string, unknown>;
+  createdAt: Date;
+}
+
+export interface ActivityLogInsert {
+  userId: number;
+  action: string;
+  entity: string;
+  entityId?: number;
+  details?: string;
+  ipAddress?: string;
+  userAgent?: string;
+}
+
+export interface ActivityLogUpdate extends Partial<ActivityLogInsert> {
+  id: number;
 }
 
 // 3. Customer avec toutes les propriétés requises  

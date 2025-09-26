@@ -316,6 +316,20 @@ async function createTablesFromSchema() {
     `);
     
     await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS activity_logs (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id),
+        action VARCHAR(100) NOT NULL,
+        entity VARCHAR(50) NOT NULL,
+        entity_id INTEGER,
+        details TEXT,
+        ip_address VARCHAR(45),
+        user_agent TEXT,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+    `);
+    
+    await db.execute(sql`
       CREATE TABLE IF NOT EXISTS permissions (
         id SERIAL PRIMARY KEY,
         user_id INTEGER REFERENCES users(id),
